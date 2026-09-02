@@ -406,9 +406,11 @@ Private Sub EstilizarCampoFlotante (v As B4XView, categoria As String)
 
 	Select categoria
 		Case "email"
-			'TYPE_CLASS_TEXT + TYPE_TEXT_VARIATION_EMAIL_ADDRESS (32).
-			'El 32 es constante de Android, no de B4A: confirmar en el foro
-			'antes de citarlo en el informe.
+			' B4A no expone TYPE_TEXT_VARIATION_EMAIL_ADDRESS en EditText, por lo que
+           ' se combina INPUT_TYPE_TEXT (TYPE_CLASS_TEXT, 0x1) con el literal 0x20 de
+            ' android.text.InputType. Valor resultante: 33.
+             ' Fuente del valor: developer.android.com/reference/android/text/InputType
+             ' Uso confirmado en B4X Forum, "EditText input types" (hilo 40647).
 			et.InputType = Bit.Or(et.INPUT_TYPE_TEXT, 32)
 		Case "telefono"
 			et.InputType = et.INPUT_TYPE_PHONE
