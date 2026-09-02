@@ -1,0 +1,57 @@
+# ============ SECRETOS Y DATOS ============
+.env
+*.env
+!.env.example
+*.fdb
+*.fbk
+*.gbk
+*.pfx
+*.key
+*.pem
+/datos_reales/
+/adjuntos/
+
+# ============ DELPHI ============
+__history/
+__recovery/
+*.dcu
+*.o
+*.obj
+*.ppu
+*.rsm
+*.map
+*.drc
+*.otares
+*.identcache
+*.projdata
+*.tvsconfig
+*.dsk
+*.stat
+*.local
+*.dproj.local
+*.groupproj.local
+*.~*
+/Win32/
+/Win64/
+/Android/
+/Debug/
+/Release/
+*.exe
+*.dll
+*.bpl
+*.dcp
+
+# ============ B4A ============
+Objects/
+AutoBackups/
+*.bak
+*.b4a.meta
+
+# ============ SISTEMA ============
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# ============ NOTA ============
+# SI se versionan: .dpr .dproj .pas .dfm .b4a, la carpeta Files/ de B4A
+# (contiene los layouts .bal) y toda la carpeta db/ con los scripts SQL.
