@@ -57,6 +57,7 @@ Sub Class_Globals
 	Private TextNumeros As B4XFloatTextField
 	Private UuidCliente As String
 	Private LBlEliminar As Label
+	Private Pn As B4XView
 End Sub
 
 Public Sub Initialize As Object
@@ -107,7 +108,6 @@ Private Sub NuevoBorrador
 	UuidCliente = Db.NuevoUuid
 	LimpiarFormularioCliente
 	LimpiarFormularioContacto
-	CkAcepto.Checked = False
 	AHView.GotoPage(0, True)
 End Sub
 
@@ -165,10 +165,7 @@ Private Sub LeerFormularioCliente As Map
 End Sub
 
 Private Sub LimpiarFormularioCliente
-	TextEmpresa.Text = ""
-	TextIdentificacion.Text = ""
-	TextTelefono.Text = ""
-	TextDireccion.Text = ""
+	 UI.LimpiarFormulario(Pn)
 End Sub
 
 #End Region
@@ -176,9 +173,6 @@ End Sub
 #Region Formulario contacto  <->  Map
 
 Private Sub LeerFormularioContacto As Map
-	'Dim esPrincipal As Int = 0
-	'If Ckprincipal.Checked Then esPrincipal = 1
-
 	Return CreateMap( _
 		"uuid_local":            Db.NuevoUuid, _
 		"cliente_uuid":          UuidCliente, _
@@ -193,15 +187,7 @@ Private Sub LeerFormularioContacto As Map
 End Sub
 
 Private Sub LimpiarFormularioContacto 
-	TextContactos.Text  =  ""
-	TextPuesto.Text     = ""
-	TextNumeros.Text     = ""
-	TextCorreos.Text     = ""
-	TextCelular.Text     = ""
-	Ckprincipal.Checked = False
-	UI.CampoNormal(TextContactos)
-	UI.CampoNormal(TextNumeros)
-	UI.CampoNormal(TextCorreos)
+	UI.LimpiarFormulario(Pn)
 End Sub
 
 
@@ -252,13 +238,27 @@ End Sub
 
 Private Sub BtnAgregar_Click
 	If ValidarContacto = False Then Return
-	Dim c As Map = LeerFormularioContacto
+	AgregarTarjetaContacto
+	
+End Sub
+Private Sub AgregarTarjetaContacto
+    Dim c As Map = LeerFormularioContacto
 	Contactos.Add(c)
 	CvContactos.Add(CrearItem(c), c)
 	LimpiarFormularioContacto
 	PersistirBorrador
 End Sub
-
+Private Sub CrearItem (c As Map) As B4XView
+	Dim p As B4XView = xui.CreatePanel("")
+	p.SetLayoutAnimated(0, 0, 0, CvContactos.AsView.Width, UI.GetCardHeight)
+	p.LoadLayout("itemcontacto")            ' contiene btnBorrarContacto
+	UI.AplicarTema(p)
+	LblNombre.Text  = c.Get("nombre")
+	LblDatos.Text   = c.Get("numero") & "  ·  " & c.Get("correo")
+	LblChip.Visible = c.Get("principal")
+	LBlEliminar.Tag=c.Get("uuid_local")
+	Return p
+End Sub
 Private Sub LBlEliminar_Click
 	Dim v As B4XView = Sender
 	Dim uuid As String = v.Tag
@@ -276,17 +276,7 @@ Private Sub IndiceDe (Uuid As String) As Int
 	Return -1
 End Sub
 
-Private Sub CrearItem (c As Map) As B4XView
-	Dim p As B4XView = xui.CreatePanel("")
-	p.SetLayoutAnimated(0, 0, 0, CvContactos.AsView.Width, UI.GetCardHeight)
-	p.LoadLayout("itemcontacto")            ' contiene btnBorrarContacto
-	UI.AplicarTema(p)
-	LblNombre.Text  = c.Get("nombre")
-	LblDatos.Text   = c.Get("numero") & "  ·  " & c.Get("correo")
-	LblChip.Visible = c.Get("principal")
-	LBlEliminar.Tag=c.Get("uuid_local")
-	Return p
-End Sub
+
 
 Private Sub ValidarContacto As Boolean
 	UI.CampoNormal(TextContactos)
@@ -316,17 +306,7 @@ End Sub
 #Region Pasos / navegación
 
 Private Sub InicializarPasos
-	Pasos.BackgroundColor  = Colores.COLOR_FONDO_PANTALLA
-	Pasos.ActiveColor      = Colores.COLOR_PRIMARIO
-	Pasos.InactiveColor    = Colores.COLOR_DESHABILITADO
-	Pasos.LineColor        = Colores.COLOR_BORDE
-	Pasos.CircleTextColor  = Colores.COLOR_TEXTO_SOBRE_PRIMARIO
-	Pasos.PendingTextColor = Colores.COLOR_TEXTO_SECUNDARIO
-	Pasos.LabelColor       = Colores.COLOR_TEXTO_SECUNDARIO
-	Pasos.SetSteps( _
-		Array As String("datos", "contactos", "consentimiento"), _
-		Array As String("Cliente", "Contactos", "Permiso"))
-	Pasos.CurrentIndex = 0
+	UI.CargarIndicadorPasos(Pasos, Layouts.ClienteClaves, Layouts.ClienteTitulos)
 End Sub
 
 Private Sub Pasos_StepClick (Index As Int, Id As String)
@@ -359,42 +339,8 @@ End Sub
 
 #Region Page container
 
-Private Sub InitializePageContainer
-	pagecont.Initialize
-	For i = 0 To 2
-		pagecont.AddPage(CreatePage(i), "page" & i)
-	Next
-	InicializarCamposEntrada
-	AHView.PageContainer = pagecont
-	AHView.PagingEnabled = False
-	AHView.CurrentPage = 0
-End Sub
-
-Private Sub CreatePage (index As Int) As B4XView
-	Dim page As B4XView = xui.CreatePanel("")
-	page.Height = AHView.Height
-	page.Width = AHView.Width
-	page.LoadLayout(Flujo.ClienteLayouts(index))
-	UI.AplicarTema(page)
-	Return page
-End Sub
-private Sub InicializarCamposEntrada
-	
-	' TextContacto 
-	'TextCelular.InputType = TextCelular.INPUT_TYPE_PHONE
-	' TextCorreos 
-	' TextNumeros 
-	' TextContactos 
-	' TextPuesto 
-
-	Dim edt As EditText = TextTelefono.TextField
-	edt.InputType = edt.INPUT_TYPE_PHONE
-	' TextCorreo 
-	' TextEmpresa 
-	' TextIdentificacion 
-	' TextTelefono 
-	' TextDireccion 
-	
+Private Sub InitializePageContainer	
+	UI.CargarPaginasContainer(Layouts.ClienteLayouts, AHView, pagecont)	
 	
 End Sub
 #End Region

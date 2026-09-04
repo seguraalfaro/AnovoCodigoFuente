@@ -16,6 +16,9 @@ Sub Process_Globals
 	Public CotizacionLayouts() As String
 	Public CotizacionClaves()  As String
 	Public CotizacionTitulos() As String
+	Public Const ItemContacto As String = "ItemContacto"
+	Public Const ItemFoto     As String = "ItemFoto"
+	Public Const ItemVacio    As String = "ItemVacio"
 End Sub
 
 Public Sub Inicializar

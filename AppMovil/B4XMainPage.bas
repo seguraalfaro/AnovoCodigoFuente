@@ -34,7 +34,7 @@ End Sub
 'This event will be called once, before the page becomes visible.
 Private Sub B4XPage_Created (Root1 As B4XView)
 	Root = Root1
-	Flujo.Inicializar
+	Layouts.Inicializar
 	indicator.Initialize(Root,150dip,150dip)
 	
 	ime.Initialize("ime")

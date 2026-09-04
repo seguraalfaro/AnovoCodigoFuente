@@ -53,36 +53,13 @@ Pasos.BackgroundColor  = Colores.COLOR_FONDO_PANTALLA
 		Array As String("Cliente", "Detalles", "Revisión"))
 	Pasos.CurrentIndex = 0
 End Sub
+
+
 #Region Page Container
-Private Sub InitializePageContainer
-	pagecont.Initialize
-	
-	LoadPages
-	ConfigureViewPager
-End Sub
 
-Private Sub ConfigureViewPager
-	AHView.PageContainer = pagecont
-	AHView.PagingEnabled = False
-	AHView.CurrentPage = 0
+Private Sub InitializePageContainer	
+	UI.CargarPaginasContainer(Layouts.CotizacionLayouts, AHView, pagecont)
 End Sub
-
-Private Sub LoadPages
-	For i = 0 To 2
-		Dim page As B4XView = CreatePage(i)
-		pagecont.AddPage(page, "page" & i)
-	Next
-End Sub
-
-Private Sub CreatePage(index As Int) As B4XView
-	Dim page As B4XView = xui.CreatePanel("")
-	page.Height = AHView.Height
-	page.Width = AHView.Width
-	page.LoadLayout(Flujo.CotizacionLayouts(index))
-	UI.AplicarTema(page)
-	Return page
-End Sub
-
 
 #End Region
 'You can see the list of page related events in the B4XPagesManager object. The event name is B4XPage.

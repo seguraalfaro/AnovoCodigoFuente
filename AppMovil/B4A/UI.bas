@@ -70,6 +70,7 @@ Version=13.7
 '   UI.MarcarGrupo(navegacion, Position)
 
 Sub Process_Globals
+	Private xui As XUI
 	Public RADIO_BOTON     As Int = 10dip
 	Public RADIO_CAMPO     As Int = 8dip
 	Public RADIO_TARJETA   As Int = 12dip
@@ -540,3 +541,76 @@ Public Sub GetCardHeight As Int
 	End If
 End Sub
 #End Region
+
+#Region Cargar Paginas PageContainer
+
+Public Sub  CargarPaginasContainer(Layout() As String, AHView As AHViewPager, pagecont As AHPageContainer)
+	pagecont.Initialize
+	
+	For i = 0 To Layout.Length - 1
+		pagecont.AddPage(CrearPagina(Layout(i), AHView), "page" & i)
+	Next
+	
+	AHView.PageContainer = pagecont
+	AHView.PagingEnabled = False
+	AHView.CurrentPage = 0
+End Sub
+
+Private Sub CrearPagina(NombreLayout As String, AHView As AHViewPager) As B4XView
+	Dim page As B4XView = xui.CreatePanel("")
+	page.Height = AHView.Height
+	page.Width = AHView.Width
+	page.LoadLayout(NombreLayout)
+	AplicarTema(page)
+	Return page
+End Sub
+
+
+#End Region
+
+#Region Indicador de pasos
+
+Public Sub CargarIndicadorPasos(Indicador As ASDrawSteps, Claves() As String, Titulos() As String)
+	AplicarTemaIndicador(Indicador)
+	Indicador.SetSteps(Claves, Titulos)
+	Indicador.CurrentIndex = 0
+End Sub
+
+Private Sub AplicarTemaIndicador(Indicador As ASDrawSteps)
+	Indicador.BackgroundColor   = Colores.COLOR_FONDO_PANTALLA
+	Indicador.ActiveColor       = Colores.COLOR_PRIMARIO
+	Indicador.InactiveColor     = Colores.COLOR_DESHABILITADO
+	Indicador.LineColor         = Colores.COLOR_BORDE
+	Indicador.CircleTextColor   = Colores.COLOR_TEXTO_SOBRE_PRIMARIO
+	Indicador.PendingTextColor  = Colores.COLOR_TEXTO_SECUNDARIO
+	Indicador.LabelColor        = Colores.COLOR_TEXTO_SECUNDARIO
+End Sub
+
+#End Region
+
+
+#Region Formularios
+Public Sub LimpiarFormulario (Padre As B4XView)
+	For Each v As B4XView In Padre.GetAllViewsRecursive
+		Dim o As Object = v
+
+		If o Is EditText Then
+			v.Text = ""
+
+		Else If o Is CheckBox Then
+			Dim cb As CheckBox = v
+			cb.Checked = False
+
+		Else If o Is RadioButton Then
+			Dim rb As RadioButton = v
+			rb.Checked = False
+
+		Else If o Is Spinner Then
+			Dim sp As Spinner = v
+			If sp.Size > 0 Then sp.SelectedIndex = 0
+		End If
+	Next
+End Sub
+
+#End Region
+

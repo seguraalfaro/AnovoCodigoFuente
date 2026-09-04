@@ -26,7 +26,8 @@ Public Sub ValorPorDefecto (Valor As String, ValorDefecto As String) As String
 	Return Valor
 End Sub
 
-'Corta el texto y le pone puntos suspensivos si no cabe.
+'Corta el texto y le pone puntos suspensivos si no cabe.Esto fue hecho
+'primera vez aplicacion de mantenimiento recortar texto en las card
 Public Sub Truncar (Valor As String, LongitudMaxima As Int) As String
 	If EstaVacio(Valor) Then Return ""
 	If Valor.Length <= LongitudMaxima Then Return Valor
