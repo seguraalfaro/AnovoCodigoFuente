@@ -57,7 +57,9 @@ Sub Class_Globals
 	Private TextNumeros As B4XFloatTextField
 	Private UuidCliente As String
 	Private LBlEliminar As Label
-	Private Pn As B4XView
+	Private PnDatos As B4XView
+	Private pnConsetimiento As B4XView
+	Private PnContactos As B4XView
 End Sub
 
 Public Sub Initialize As Object
@@ -108,6 +110,7 @@ Private Sub NuevoBorrador
 	UuidCliente = Db.NuevoUuid
 	LimpiarFormularioCliente
 	LimpiarFormularioContacto
+	LimpiarFormularioConsentimiento
 	AHView.GotoPage(0, True)
 End Sub
 
@@ -165,7 +168,7 @@ Private Sub LeerFormularioCliente As Map
 End Sub
 
 Private Sub LimpiarFormularioCliente
-	 UI.LimpiarFormulario(Pn)
+	 UI.LimpiarFormulario(PnDatos)
 End Sub
 
 #End Region
@@ -187,9 +190,11 @@ Private Sub LeerFormularioContacto As Map
 End Sub
 
 Private Sub LimpiarFormularioContacto 
-	UI.LimpiarFormulario(Pn)
+	UI.LimpiarFormulario(PnContactos)
 End Sub
-
+Private Sub LimpiarFormularioConsentimiento
+	UI.LimpiarFormulario(pnConsetimiento)
+End Sub
 
 #End Region
 
@@ -237,6 +242,7 @@ End Sub
 #Region PageContactos 
 
 Private Sub BtnAgregar_Click
+	NuevoBorrador
 	If ValidarContacto = False Then Return
 	AgregarTarjetaContacto
 	
