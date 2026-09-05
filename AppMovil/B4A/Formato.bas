@@ -12,7 +12,7 @@ Sub Process_Globals
 	Private MascaraEnCurso As Boolean
 	'0 fisica, 1 juridica, 2 dimex. Lo escribe el combo de la pagina por su propieda itemindex.
 	Public MascaraTipoIdent As Int = 0
-	
+
 
 End Sub
 
@@ -23,17 +23,19 @@ End Sub
 public Sub EventoCambioText(Remitente As Object ,Old As String, New As String)
 	If MascaraEnCurso Then Return
 	
-	Dim et As EditText = Remitente
+	Dim campo As B4XFloatTextField = Remitente
+	Dim et As EditText = campo.TextField
+	
 	Dim t As String=obtenerTag(et)
 	If t = "" Then Return
 	
 	Dim mascara As Int = Enmascarar(t)
 	Dim nuevo As String = RevisarMarcara(mascara,New)
-	If Old  <> nuevo Then
+	If New  <> nuevo Then
 		'Asignar .Text vuelve a disparar el evento: de ahi la bandera.
 		MascaraEnCurso = True
-		et.Text = New
-		et.SelectionStart = New.Length
+		et.Text = nuevo
+		et.SelectionStart = nuevo.Length
 		MascaraEnCurso = False
 	End If
 End Sub
@@ -122,7 +124,8 @@ End Sub
 #Region ValidacioLinea
 
 Public Sub EventoCambioFocusText(Remitente As Object)
-	Dim et As EditText = Remitente
+	Dim campo As B4XFloatTextField = Remitente
+	Dim et As EditText = campo.TextField
 	Dim t As String=obtenerTag(et)
 	Dim mascara As Int = Enmascarar(t)
 	Dim texto As String = Utils.Normalizar(et.text)

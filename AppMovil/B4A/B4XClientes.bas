@@ -60,6 +60,7 @@ Sub Class_Globals
 	Private PnDatos As B4XView
 	Private pnConsetimiento As B4XView
 	Private PnContactos As B4XView
+	Private CbTipoIdentificacion As B4XComboBox
 End Sub
 
 Public Sub Initialize As Object
@@ -74,10 +75,21 @@ Private Sub B4XPage_Created (Root1 As B4XView)
 	InicializarPasos
 	InitializePageContainer
 	UI.ConfigurarMemo(TextDireccion,"Dirección: Provincia, Cantón y Distrito")
-	
+	Utils.AsignarItemsCombo(CbTipoIdentificacion,Utils.TiposIdent)
 	UI.AplicarTema(Root)
 End Sub
+#Region EventosClickGlobales
 
+Private Sub EditText_TextChanged (Old As String, New As String)
+	Formato.EventoCambioText( Sender, Old, New)
+End Sub
+
+Private Sub  EditText_FocusChanged (HasFocus As Boolean)
+	Formato.EventoCambioFocusText(Sender)
+End Sub
+
+
+#End Region
 #Region B4XPage Ciclo de vida
 
 Private Sub B4XPage_Appear
@@ -125,7 +137,7 @@ Private Sub RestaurarBorrador
 	TextContacto.Text        = b.GetDefault("contacto", "")
 	TextCorreo.text                = b.GetDefault("correo", "")
 	CkAcepto.Checked         = b.GetDefault("consiente", False)
-	
+
 	CvContactos.Clear
 	Dim guardados As List = b.GetDefault("contactos", Contactos)
 	For Each c As Map In guardados
@@ -235,56 +247,10 @@ Private Sub lblBorrar_Click
 	SignPad.clear
 	HayFirma=False
 End Sub
-Private Sub TextTelefono_TextChanged (Old As String, New As String)
 
-End Sub
-
-Private Sub TextTelefono_FocusChanged (HasFocus As Boolean)
-	
-End Sub
-
-Private Sub TextIdentificacion_TextChanged (Old As String, New As String)
-	
-End Sub
-
-Private Sub TextIdentificacion_FocusChanged (HasFocus As Boolean)
-	
-End Sub
-
-Private Sub TextEmpresa_TextChanged (Old As String, New As String)
-	
-End Sub
-
-Private Sub TextEmpresa_FocusChanged (HasFocus As Boolean)
-	
-End Sub
-
-Private Sub TextDireccion_TextChanged (Old As String, New As String)
-	
-End Sub
-
-Private Sub TextDireccion_FocusChanged (HasFocus As Boolean)
-	
-End Sub
-
-Private Sub TextCorreo_TextChanged (Old As String, New As String)
-	
-End Sub
-
-Private Sub TextCorreo_FocusChanged (HasFocus As Boolean)
-	
-End Sub
-
-Private Sub TextContacto_TextChanged (Old As String, New As String)
-	
-End Sub
-
-Private Sub TextContacto_FocusChanged (HasFocus As Boolean)
-	
-End Sub
 
 Private Sub CbTipoIdentificacion_SelectedIndexChanged (Index As Int)
-	Formato.
+	Formato.SetTipoIdentificacion(Index)
 End Sub
 
 #End Region
@@ -407,6 +373,7 @@ End Sub
 Private Sub SignPad_onSigned (sign As Object)
 	HayFirma = True
 End Sub
+
 
 
 

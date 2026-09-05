@@ -20,13 +20,16 @@ Sub Process_Globals
 	Public Const LARGO_IDENT_DIMEX_MIN As Int = 11
 	Public Const LARGO_TELEFONO       As Int = 8
 	Public Const LARGO_TELEFONO_EXT   As Int = 14
-	Public Const HINT_Email As String ="correo@Empresa.com"
+	Public Const HINT_CORREO As String ="correo@Empresa.com"
 	Public Const HINT_CEDULA As String ="104530756"
 	Public Const HINT_CEDULA_DIMEX As String ="121800123456"
 	Public Const  HINT_TELEFONO As String ="8888-8888"
 	Public Const  HINT_TELEFONO_EXT As String ="8888-8888 EXT 423"
+	Public Const  HINT_MONTO As String ="8888-8888 EXT 423"
 	Public Const HINT_CEDULA_JURIDICA As String ="3101A00001"
+	
 	Public Const HINT_ERROR As String ="Los datos intoducidos con coincede con el formato"
+	Public Const TiposIdent() As String= Array As String("Cédula física", "Cédula jurídica", "DIMEX")
 End Sub
 
 #Region Cadenas
@@ -182,4 +185,14 @@ End Sub
 Public Sub Normalizar (Texto As String) As String
 	Return SoloAlfanum(Texto)
 End Sub
+#End Region
+
+
+#Region AsignarDatosCombox
+
+Public Sub AsignarItemsCombo (cd As B4XComboBox, items() As String)
+	cd.SetItems(items)
+	cd.SelectedIndex = 0
+End Sub
+
 #End Region

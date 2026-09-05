@@ -79,7 +79,7 @@ Sub Process_Globals
 	Private Const SMALL_SCREEN_CARD_HEIGHT As Int = 310dip
 	Private Const SMALL_SCREEN_SIZE As Float = 4.5
 	Private Const CARD_HEIGHT As Int = 220dip
-
+	Public Const EVENTO_CAMPO As String = "EditText"
 	Public DEPURAR As Boolean = False
 
 	'Guarda el color de texto original de cada boton para restaurarlo
@@ -114,11 +114,17 @@ Public Sub AplicarVista (v As B4XView)
 	Else If o Is EditText Then
 		'EditText suelto o interno de un B4XFloatTextField: lo dice el tag del padre.
 		Dim tp As String = TagDelPadre(v)
+		Dim ftf As B4XFloatTextField = IdentificarFloatText(v)
 		categoria = ClasificarFloatTextField(tp)
-		If categoria <> "" Then
-			EstilizarCampoFlotante(v, categoria)
+		
+		If ftf <> Null Then
+			UnificarEvento(ftf)
+			EstilizarCampoFlotante(ftf, v, categoria)
+		Else
+			'EditText suelto: se le pinta borde propio, el flotante ya trae el suyo
+			EstilizarCampo(v)
 		End If
-		EstilizarCampo(v)
+	
 	Else If o Is Label Then
 		If t.Contains("_btn") Then
 			categoria = ClasificarBoton(t)
@@ -136,6 +142,27 @@ Public Sub AplicarVista (v As B4XView)
 	If DEPURAR Then Log("UI: [" & t & "] " & GetType(o) & " -> " & categoria _
 		& "  alto=" & v.Height)
 End Sub
+public Sub IdentificarFloatText(v As B4XView) As B4XFloatTextField
+	Try
+		Dim p As B4XView = v.Parent
+		If p.IsInitialized = False Then Return Null
+
+		Dim o As Object = p.Tag
+		If o Is B4XFloatTextField Then Return o
+		Return Null
+	Catch
+		Return Null
+	End Try
+	
+End Sub
+
+Private Sub UnificarEvento (Campo As B4XFloatTextField)
+	Dim r As Reflector
+	r.Target = Campo
+	r.SetField2("_meventname", EVENTO_CAMPO)
+End Sub
+
+
 #End Region
 
 #Region Identificacion
@@ -222,7 +249,7 @@ End Sub
 'no arrastre por error al EditText que tenga adentro.
 Private Sub ClasificarFloatTextField (t As String) As String
 	If t.Contains("_ftf_email")            Then Return "email"
-	If t.Contains("_ftf_telefono_ext")     Then Return "telefono"
+	If t.Contains("_ftf_telefono_ext")     Then Return "telefonoExt"
 	If t.Contains("_ftf_telefono")         Then Return "telefono"
 	If t.Contains("_ftf_monto")            Then Return "monto"
 	If t.Contains("_ftf_cedula_juridica")  Then Return "cedulajuridica"
@@ -408,17 +435,21 @@ Private Sub EstilizarCampo (v As B4XView)
 
 	Dim et As EditText = v
 	et.HintColor = Colores.COLOR_DESHABILITADO
+	
 End Sub
 
-'EditText interno de un B4XFloatTextField. NO se le pone borde ni radio:
-'el componente ya dibuja el suyo y se pisarian. Solo color y teclado.
+'EditText interno de un B4XFloatTextField. El hint va en el componente
+'(Campo.HintText), no en el EditText: si se ponen los dos se ven los dos,
+'el flotante arriba y el nativo dentro de la caja.
 'El InputType es ayuda visual para el usuario, no validacion: el teclado
 'de telefono deja escribir + y #, y el de correo deja escribir cualquier
-'cosa. La validacion la sigue haciendo el modulo Validacion.
+'cosa. La validacion la sigue haciendo el modulo Formato.
 'En campos de contrasena no usar estos tags: el InputType pisa el PasswordMode.
 'Marcarlos _raw o vacios.
-Private Sub EstilizarCampoFlotante (v As B4XView, categoria As String)
+Private Sub EstilizarCampoFlotante (Campo As B4XFloatTextField, v As B4XView, categoria As String)
 	v.TextColor = Colores.COLOR_TEXTO_PRIMARIO
+	v.SetColorAndBorder(Colores.COLOR_SUPERFICIE, BORDE_ANCHO, _
+	                    Colores.COLOR_BORDE, RADIO_CAMPO)
 
 	Dim et As EditText = v
 	et.HintColor = Colores.COLOR_DESHABILITADO
@@ -431,19 +462,31 @@ Private Sub EstilizarCampoFlotante (v As B4XView, categoria As String)
 			' Fuente del valor: developer.android.com/reference/android/text/InputType
 			' Uso confirmado en B4X Forum, "EditText input types" (hilo 40647).
 			et.InputType = Bit.Or(et.INPUT_TYPE_TEXT, 32)
+			PonerHint(Campo, Utils.HINT_CORREO)
 		Case "telefono"
 			et.InputType = et.INPUT_TYPE_PHONE
+			PonerHint(Campo, Utils.HINT_TELEFONO)
+		Case "telefonoExt"
+			et.InputType = et.INPUT_TYPE_PHONE
+			PonerHint(Campo, Utils.HINT_TELEFONO_EXT)
 		Case "monto"
 			et.InputType = et.INPUT_TYPE_DECIMAL_NUMBERS
+			PonerHint(Campo, Utils.HINT_MONTO)
 		Case "cedula"
 			et.InputType = et.INPUT_TYPE_NUMBERS
+			PonerHint(Campo, Utils.HINT_CEDULA)
 		Case "cedulajuridica"
 			'El consecutivo juridico pasa a alfanumerico (3-101-A00001),
 			'asi que el teclado no puede ser numerico.
 			et.InputType = et.INPUT_TYPE_TEXT
+			PonerHint(Campo, Utils.HINT_CEDULA_JURIDICA)
 	End Select
 End Sub
-
+'Sin Update el label flotante se queda con el texto anterior.
+Private Sub PonerHint (Campo As B4XFloatTextField, hint As String)
+	Campo.HintText = hint
+	Campo.Update
+End Sub
 'Ya no hace falta llamarlo: AplicarTema alcanza los campos flotantes por
 'el Tag del contenedor. Se conserva por compatibilidad con las paginas viejas.
 Public Sub EstilizarCampos (Campos() As B4XFloatTextField)
@@ -457,13 +500,13 @@ End Sub
 Public Sub CampoError (Campo As B4XFloatTextField,hint As String=Null)
 	Campo.TextField.As(B4XView).SetColorAndBorder(Colores.COLOR_SUPERFICIE, _
 		BORDE_ANCHO_SEC, Colores.COLOR_ERROR, RADIO_CAMPO)
-	If hint <> "" Then Campo.HintText = hint
+	If hint <> "" Then PonerHint(Campo, hint)
 End Sub
 
 Public Sub CampoNormal (Campo As B4XFloatTextField,hint As String=Null)
 	Campo.TextField.As(B4XView).SetColorAndBorder(Colores.COLOR_SUPERFICIE, _
 		BORDE_ANCHO, Colores.COLOR_BORDE, RADIO_CAMPO)
-	If hint <> "" Then Campo.HintText = hint
+	If hint <> "" Then PonerHint(Campo, hint)
 End Sub
 
 Public Sub ConfigurarMemo (Campo As EditText, Ayuda As String)
@@ -621,8 +664,7 @@ Public Sub LimpiarFormulario (Padre As B4XView)
 		Dim o As Object = v
 
 		If o Is EditText Then
-			v.Text = ""
-
+			If Not (Utils.EstaVacio( v.Text)) Then v.Text = ""
 		Else If o Is CheckBox Then
 			Dim cb As CheckBox = v
 			cb.Checked = False
