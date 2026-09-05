@@ -930,11 +930,11 @@ End Sub
 
 'PNG o JPEG comprimido (RF-004 / RNF-010). Se genera en el dispositivo que
 'dibujo, garantizando que la imagen sea identica al croquis original.
-Public Sub ExportarBytes (formato As String, conRejilla As Boolean, calidad As Int) As Byte()
+Public Sub ExportarBytes (formatoImagen As String, conRejilla As Boolean, calidad As Int) As Byte()
 	Dim bmp As B4XBitmap = Exportar(conRejilla)
 	Dim out As OutputStream
 	out.InitializeToBytesArray(0)
-	bmp.WriteToStream(out, calidad, formato.ToUpperCase)
+	bmp.WriteToStream(out, calidad, formatoImagen.ToUpperCase)
 	out.Close
 	Return out.ToBytesArray
 End Sub

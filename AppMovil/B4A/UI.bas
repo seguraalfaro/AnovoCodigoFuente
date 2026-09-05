@@ -4,7 +4,6 @@ ModulesStructureVersion=1
 Type=StaticCode
 Version=13.7
 @EndOfDesignText@
-
 'Modulo de tematizacion automatica de vistas.
 'Librerias necesarias: Core, XUI, JavaObject
 '
@@ -42,7 +41,7 @@ Version=13.7
 '      _sep           linea de separacion
 '   EditText:
 '      no necesita tag
-'   B4XFloatTextField (el tag va en el custom view, no en su EditText):
+'   B4XFloatTextField (el tag va en el custom view, en el Designer):
 '      _ftf_email     teclado de correo
 '      _ftf_telefono  teclado de telefono
 '      _ftf_monto     teclado decimal
@@ -56,12 +55,13 @@ Version=13.7
 'Al subir un tamano hay que subir el alto de la vista en el script.
 '
 'B4XFLOATTEXTFIELD
-'Es una clase custom view, no una vista: "o Is B4XFloatTextField" siempre
-'da falso y GetAllViewsRecursive nunca devuelve el objeto. Lo que si
-'devuelve es su EditText interno, y por ahi se entra: al llegar a un
-'EditText se mira el Tag del padre. Si trae un tag _ftf_*, se trata como
-'campo flotante (solo teclado y color: el componente ya dibuja su borde);
-'si no, se estiliza como EditText normal.
+'GetAllViewsRecursive no devuelve el custom view, devuelve su EditText
+'interno. Por ahi se entra: al llegar a un EditText se mira el Tag del padre.
+'
+'El Tag del panel base no sirve, ahi la clase se guarda a si misma
+'(mBase.Tag = Me). El tag del Designer queda en la propiedad Tag de la
+'instancia. Ojo con reasignar mBase.Tag: se rompe el componente recuerda dia perdide
+'por haber cambiado tag en los card que agregaste CustomListView.
 '
 'GRUPOS CON UN ELEMENTO ACTIVO
 'MarcarGrupo recibe el array de botones y el indice del activo. La categoria
@@ -112,16 +112,13 @@ Public Sub AplicarVista (v As B4XView)
 		EstilizarBoton(v, categoria, t)
 
 	Else If o Is EditText Then
-		'Puede ser un EditText suelto o el interno de un B4XFloatTextField.
-		'Lo distingue el Tag del padre.
-		categoria = ClasificarFloatTextField(TagDelPadre(v))
+		'EditText suelto o interno de un B4XFloatTextField: lo dice el tag del padre.
+		Dim tp As String = TagDelPadre(v)
+		categoria = ClasificarFloatTextField(tp)
 		If categoria <> "" Then
 			EstilizarCampoFlotante(v, categoria)
-		Else
-			categoria = "campo"
-			EstilizarCampo(v)
 		End If
-
+		EstilizarCampo(v)
 	Else If o Is Label Then
 		If t.Contains("_btn") Then
 			categoria = ClasificarBoton(t)
@@ -142,24 +139,40 @@ End Sub
 #End Region
 
 #Region Identificacion
-'Devuelve el Tag de la vista en minusculas.
-'Si el Tag no es texto o esta vacio, devuelve cadena vacia.
-Public Sub ObtenerTag (v As B4XView) As String
+'Un Tag que no sea texto (por ejemplo la instancia de un custom view) da "".
+Private Sub TagDeObjeto (o As Object) As String
 	Try
-		If v.Tag = Null Then Return ""
-		Return v.Tag.As(String).Trim.ToLowerCase
+		If o = Null Then Return ""
+		If (o Is String) = False Then Return ""
+		Return o.As(String).Trim.ToLowerCase
 	Catch
 		Return ""
 	End Try
 End Sub
 
-'Tag del contenedor inmediato. Devuelve cadena vacia si no hay padre.
-'Se usa para reconocer el EditText interno de un B4XFloatTextField.
+'Devuelve el Tag de la vista en minusculas.
+'Si el Tag no es texto o esta vacio, devuelve cadena vacia.
+Public Sub ObtenerTag (v As B4XView) As String
+	Try
+		Return TagDeObjeto(v.Tag)
+	Catch
+		Return ""
+	End Try
+End Sub
+
+'Tag del contenedor inmediato. Vacio si no hay padre.
+'Si el padre es el base de un B4XFloatTextField, el tag se lo pide a la clase.
 Public Sub TagDelPadre (v As B4XView) As String
 	Try
 		Dim p As B4XView = v.Parent
 		If p.IsInitialized = False Then Return ""
-		Return ObtenerTag(p)
+
+		Dim o As Object = p.Tag
+		If o Is B4XFloatTextField Then
+			Dim ftf As B4XFloatTextField = o
+			Return TagDeObjeto(ftf.Tag)
+		End If
+		Return TagDeObjeto(o)
 	Catch
 		Return ""
 	End Try
@@ -208,9 +221,12 @@ End Sub
 'Prefijo _ftf_ propio para que un panel tagueado _card_telefono
 'no arrastre por error al EditText que tenga adentro.
 Private Sub ClasificarFloatTextField (t As String) As String
-	If t.Contains("_ftf_email")    Then Return "email"
-	If t.Contains("_ftf_telefono") Then Return "telefono"
-	If t.Contains("_ftf_monto")    Then Return "monto"
+	If t.Contains("_ftf_email")            Then Return "email"
+	If t.Contains("_ftf_telefono_ext")     Then Return "telefono"
+	If t.Contains("_ftf_telefono")         Then Return "telefono"
+	If t.Contains("_ftf_monto")            Then Return "monto"
+	If t.Contains("_ftf_cedula_juridica")  Then Return "cedulajuridica"
+	If t.Contains("_ftf_cedula")           Then Return "cedula"
 	Return ""
 End Sub
 
@@ -399,6 +415,8 @@ End Sub
 'El InputType es ayuda visual para el usuario, no validacion: el teclado
 'de telefono deja escribir + y #, y el de correo deja escribir cualquier
 'cosa. La validacion la sigue haciendo el modulo Validacion.
+'En campos de contrasena no usar estos tags: el InputType pisa el PasswordMode.
+'Marcarlos _raw o vacios.
 Private Sub EstilizarCampoFlotante (v As B4XView, categoria As String)
 	v.TextColor = Colores.COLOR_TEXTO_PRIMARIO
 
@@ -408,20 +426,26 @@ Private Sub EstilizarCampoFlotante (v As B4XView, categoria As String)
 	Select categoria
 		Case "email"
 			' B4A no expone TYPE_TEXT_VARIATION_EMAIL_ADDRESS en EditText, por lo que
-           ' se combina INPUT_TYPE_TEXT (TYPE_CLASS_TEXT, 0x1) con el literal 0x20 de
-            ' android.text.InputType. Valor resultante: 33.
-             ' Fuente del valor: developer.android.com/reference/android/text/InputType
-             ' Uso confirmado en B4X Forum, "EditText input types" (hilo 40647).
+			' se combina INPUT_TYPE_TEXT (TYPE_CLASS_TEXT, 0x1) con el literal 0x20 de
+			' android.text.InputType. Valor resultante: 33.
+			' Fuente del valor: developer.android.com/reference/android/text/InputType
+			' Uso confirmado en B4X Forum, "EditText input types" (hilo 40647).
 			et.InputType = Bit.Or(et.INPUT_TYPE_TEXT, 32)
 		Case "telefono"
 			et.InputType = et.INPUT_TYPE_PHONE
 		Case "monto"
 			et.InputType = et.INPUT_TYPE_DECIMAL_NUMBERS
+		Case "cedula"
+			et.InputType = et.INPUT_TYPE_NUMBERS
+		Case "cedulajuridica"
+			'El consecutivo juridico pasa a alfanumerico (3-101-A00001),
+			'asi que el teclado no puede ser numerico.
+			et.InputType = et.INPUT_TYPE_TEXT
 	End Select
 End Sub
 
 'Ya no hace falta llamarlo: AplicarTema alcanza los campos flotantes por
-'el Tag del padre. Se conserva por compatibilidad con las paginas viejas.
+'el Tag del contenedor. Se conserva por compatibilidad con las paginas viejas.
 Public Sub EstilizarCampos (Campos() As B4XFloatTextField)
 	For Each c As B4XFloatTextField In Campos
 		CampoNormal(c)
@@ -430,14 +454,16 @@ End Sub
 
 'Estos dos si se siguen usando: se llaman durante la validacion, cuando
 'ya se tiene el objeto B4XFloatTextField a mano.
-Public Sub CampoError (Campo As B4XFloatTextField)
+Public Sub CampoError (Campo As B4XFloatTextField,hint As String=Null)
 	Campo.TextField.As(B4XView).SetColorAndBorder(Colores.COLOR_SUPERFICIE, _
 		BORDE_ANCHO_SEC, Colores.COLOR_ERROR, RADIO_CAMPO)
+	If hint <> "" Then Campo.HintText = hint
 End Sub
 
-Public Sub CampoNormal (Campo As B4XFloatTextField)
+Public Sub CampoNormal (Campo As B4XFloatTextField,hint As String=Null)
 	Campo.TextField.As(B4XView).SetColorAndBorder(Colores.COLOR_SUPERFICIE, _
 		BORDE_ANCHO, Colores.COLOR_BORDE, RADIO_CAMPO)
+	If hint <> "" Then Campo.HintText = hint
 End Sub
 
 Public Sub ConfigurarMemo (Campo As EditText, Ayuda As String)
@@ -546,11 +572,11 @@ End Sub
 
 Public Sub  CargarPaginasContainer(Layout() As String, AHView As AHViewPager, pagecont As AHPageContainer)
 	pagecont.Initialize
-	
+
 	For i = 0 To Layout.Length - 1
 		pagecont.AddPage(CrearPagina(Layout(i), AHView), "page" & i)
 	Next
-	
+
 	AHView.PageContainer = pagecont
 	AHView.PagingEnabled = False
 	AHView.CurrentPage = 0
@@ -613,4 +639,3 @@ Public Sub LimpiarFormulario (Padre As B4XView)
 End Sub
 
 #End Region
-

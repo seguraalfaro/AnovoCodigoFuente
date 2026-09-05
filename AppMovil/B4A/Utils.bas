@@ -14,6 +14,19 @@ Sub Process_Globals
 	Public Const FORMATO_API     As String = "yyyy-MM-dd HH:mm:ss.SSS" ' ajustar al confirmar el del backend
 	Public Const FORMATO_DISPLAY As String = "dd/MM/yyyy HH:mm"
 	Public Const FORMATO_CORTA   As String = "dd/MM/yyyy"
+	Public Const LARGO_IDENT_FISICA   As Int = 9
+	Public Const LARGO_IDENT_JURIDICA As Int = 10
+	Public Const LARGO_IDENT_DIMEX    As Int = 12
+	Public Const LARGO_IDENT_DIMEX_MIN As Int = 11
+	Public Const LARGO_TELEFONO       As Int = 8
+	Public Const LARGO_TELEFONO_EXT   As Int = 14
+	Public Const HINT_Email As String ="correo@Empresa.com"
+	Public Const HINT_CEDULA As String ="104530756"
+	Public Const HINT_CEDULA_DIMEX As String ="121800123456"
+	Public Const  HINT_TELEFONO As String ="8888-8888"
+	Public Const  HINT_TELEFONO_EXT As String ="8888-8888 EXT 423"
+	Public Const HINT_CEDULA_JURIDICA As String ="3101A00001"
+	Public Const HINT_ERROR As String ="Los datos intoducidos con coincede con el formato"
 End Sub
 
 #Region Cadenas
@@ -50,11 +63,11 @@ End Sub
 #Region Fechas
 
 'Formatea la fecha (DateTime.Now o lo que devuelva Parsear). "" si falla.
-Public Sub Formatear (Fecha As Long, Formato As String) As String
+Public Sub Formatear (Fecha As Long, FormatoDate As String) As String
 	Dim previo As String = DateTime.DateFormat
 	Dim r As String = ""
 	Try
-		DateTime.DateFormat = Formato
+		DateTime.DateFormat = FormatoDate
 		r = DateTime.Date(Fecha)
 	Catch
 		Log("Texto.Formatear: " & LastException)
@@ -64,12 +77,12 @@ Public Sub Formatear (Fecha As Long, Formato As String) As String
 End Sub
 
 'Interpreta una fecha con el formato indicado. Devuelve 0 si no se pudo.
-Public Sub Parsear (Fecha As String, Formato As String) As Long
+Public Sub Parsear (Fecha As String, FormatoDate As String) As Long
 	If EstaVacio(Fecha) Then Return 0
 	Dim previo As String = DateTime.DateFormat
 	Dim r As Long = 0
 	Try
-		DateTime.DateFormat = Formato
+		DateTime.DateFormat = FormatoDate
 		r = DateTime.DateParse(Fecha.Trim)
 	Catch
 		Log("Texto.Parsear: " & LastException)
@@ -134,4 +147,39 @@ Public Sub BdAApi (FechaBd As String) As String
 	Return Formatear(f, FORMATO_API).Replace(" ", "T") & "Z"
 End Sub
 
+
+
+
+#End Region
+
+#Region Texto
+'Deja solo digitos. La usan las mascaras para reconstruir el texto desde
+'cero en vez de insertar separadores sobre lo que hay.
+Public Sub SoloDigitos (s As String) As String
+	Dim sb As StringBuilder
+	sb.Initialize
+	For i = 0 To s.Length - 1
+		Dim c As String = s.SubString2(i, i + 1)
+		If "0123456789".IndexOf(c) > -1 Then sb.Append(c)
+	Next
+	Return sb.ToString
+End Sub
+
+'Digitos y letras, en mayuscula. La cedula juridica lleva letras en el
+'consecutivo (3-101-A00001).
+Public Sub SoloAlfanum (s As String) As String
+	Dim sb As StringBuilder
+	sb.Initialize
+	For i = 0 To s.Length - 1
+		Dim c As String = s.SubString2(i, i + 1).ToUpperCase
+		If "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".IndexOf(c) > -1 Then sb.Append(c)
+	Next
+	Return sb.ToString
+End Sub
+
+'Lo que se guarda y se envia a la API. Si el movil manda con guiones y el
+'escritorio sin ellos, el cotejo al sincronizar duplica clientes.
+Public Sub Normalizar (Texto As String) As String
+	Return SoloAlfanum(Texto)
+End Sub
 #End Region

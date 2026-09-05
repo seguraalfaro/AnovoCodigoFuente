@@ -289,21 +289,21 @@ Private Sub ValidarContacto As Boolean
 	UI.CampoNormal(TextNumeros)
 	UI.CampoNormal(TextCorreos)
 
-	If Validar.TextoMinimo(TextContactos.Text, 3) = False Then
-		UI.CampoError(TextContactos)
-		TextContactos.RequestFocusAndShowKeyboard
-		Return False
-	End If
-	If Validar.Telefono(TextNumeros.Text) = False Then
-		UI.CampoError(TextNumeros)
-		TextNumeros.RequestFocusAndShowKeyboard
-		Return False
-	End If
-	If Validar.Vacio(TextCorreos.Text) = False Or Validar.Correo(TextCorreos.Text) = False Then
-		UI.CampoError(TextCorreo)
-		TextCorreos.RequestFocusAndShowKeyboard
-		Return False
-	End If
+	'If Validar.TextoMinimo(TextContactos.Text, 3) = False Then
+		'UI.CampoError(TextContactos)
+	'	TextContactos.RequestFocusAndShowKeyboard
+	'	Return False
+	'End If
+	'If Validar.Telefono(TextNumeros.Text) = False Then
+	'	UI.CampoError(TextNumeros)
+	'	TextNumeros.RequestFocusAndShowKeyboard
+	'	Return False
+	''End If
+	'If Validar.Vacio(TextCorreos.Text) = False Or Validar.Correo(TextCorreos.Text) = False Then
+	'	UI.CampoError(TextCorreo)
+'	TextCorreos.RequestFocusAndShowKeyboard
+'		Return False
+'	End If
 	Return True
 End Sub
 
@@ -360,3 +360,12 @@ End Sub
 
 
 
+
+
+Private Sub TextTelefono_TextChanged (Old As String, New As String)
+	
+End Sub
+
+Private Sub TextTelefono_FocusChanged (HasFocus As Boolean)
+	
+End Sub
