@@ -17,7 +17,9 @@ Sub Process_Globals
 End Sub
 
 #Region Evento de Entrada
-
+Public Sub SetTipoIdentificacion(ident As Int)
+	MascaraTipoIdent=ident
+End Sub
 public Sub EventoCambioText(Remitente As Object ,Old As String, New As String)
 	If MascaraEnCurso Then Return
 	

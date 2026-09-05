@@ -235,6 +235,58 @@ Private Sub lblBorrar_Click
 	SignPad.clear
 	HayFirma=False
 End Sub
+Private Sub TextTelefono_TextChanged (Old As String, New As String)
+
+End Sub
+
+Private Sub TextTelefono_FocusChanged (HasFocus As Boolean)
+	
+End Sub
+
+Private Sub TextIdentificacion_TextChanged (Old As String, New As String)
+	
+End Sub
+
+Private Sub TextIdentificacion_FocusChanged (HasFocus As Boolean)
+	
+End Sub
+
+Private Sub TextEmpresa_TextChanged (Old As String, New As String)
+	
+End Sub
+
+Private Sub TextEmpresa_FocusChanged (HasFocus As Boolean)
+	
+End Sub
+
+Private Sub TextDireccion_TextChanged (Old As String, New As String)
+	
+End Sub
+
+Private Sub TextDireccion_FocusChanged (HasFocus As Boolean)
+	
+End Sub
+
+Private Sub TextCorreo_TextChanged (Old As String, New As String)
+	
+End Sub
+
+Private Sub TextCorreo_FocusChanged (HasFocus As Boolean)
+	
+End Sub
+
+Private Sub TextContacto_TextChanged (Old As String, New As String)
+	
+End Sub
+
+Private Sub TextContacto_FocusChanged (HasFocus As Boolean)
+	
+End Sub
+
+Private Sub CbTipoIdentificacion_SelectedIndexChanged (Index As Int)
+	Formato.
+End Sub
+
 #End Region
 
 #End Region
@@ -362,10 +414,4 @@ End Sub
 
 
 
-Private Sub TextTelefono_TextChanged (Old As String, New As String)
-	
-End Sub
 
-Private Sub TextTelefono_FocusChanged (HasFocus As Boolean)
-	
-End Sub
