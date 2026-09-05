@@ -123,63 +123,27 @@ End Sub
 
 #Region ValidacioLinea
 
-Public Sub EventoCambioFocusText(Remitente As Object)
+Public Sub EventoCambioFocusText(Remitente As Object)As Boolean
 	Dim campo As B4XFloatTextField = Remitente
 	Dim et As EditText = campo.TextField
+	If Utils.EstaVacio(et.text) Then Return False
 	Dim t As String=obtenerTag(et)
 	Dim mascara As Int = Enmascarar(t)
+	
 	Dim texto As String = Utils.Normalizar(et.text)
 	Select mascara
 		Case 1
-			RevisarTelefono(texto,Remitente)
+			Return Validacion.RevisarTelefono(texto,Remitente)
 		Case 2
-			RevisarTelefonoExt(texto,Remitente)
+			Return Validacion.RevisarTelefonoExt(texto,Remitente)
 		Case 3
-			RevisarIdentificacion(texto,Remitente)
+			Return Validacion.RevisarIdentificacion(MascaraTipoIdent,texto,Remitente)
 	End Select
+	
+	Return False
 End Sub
 
-private Sub RevisarTelefono(texto As String,Campo As B4XFloatTextField)
-	If texto.Length< Utils.LARGO_TELEFONO Then
-		UI.CampoError(Campo,Utils.HINT_ERROR)
-	Else	
-		UI.CampoNormal(Campo,Utils.HINT_TELEFONO)
-	End If
-	
-End Sub
-private Sub RevisarTelefonoExt(texto As String, Campo As B4XFloatTextField)
-	If texto.Length< Utils.LARGO_TELEFONO Then
-		UI.CampoError(Campo,Utils.HINT_ERROR)
-	Else
-		UI.CampoNormal(Campo,Utils.HINT_TELEFONO_EXT)
-	End If
-	'pendiente implementar para largo de extension 
-End Sub
-Private Sub RevisarIdentificacion(texto As String, Campo As B4XFloatTextField)
-	Select MascaraTipoIdent
-		Case 0
-			If texto.Length< Utils.LARGO_IDENT_FISICA Then
-				UI.CampoError(Campo,Utils.HINT_ERROR)
-			Else
-				UI.CampoNormal(Campo,Utils.HINT_CEDULA)
-			End If
-		Case 1
-			If texto.Length< Utils.LARGO_IDENT_JURIDICA Then
-				UI.CampoError(Campo,Utils.HINT_ERROR)
-			Else
-				UI.CampoNormal(Campo,Utils.HINT_CEDULA_JURIDICA)
-			End If
-			
-		Case 2
-			If texto.Length< Utils.LARGO_IDENT_DIMEX_MIN Then
-				UI.CampoError(Campo,Utils.HINT_ERROR)
-			Else
-				UI.CampoNormal(Campo,Utils.HINT_CEDULA_DIMEX)
-			End If	
-		
-		
-	End Select
-End Sub
+
 
 #End Region
 

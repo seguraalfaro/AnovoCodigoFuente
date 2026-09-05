@@ -16,7 +16,7 @@ Sub Class_Globals
 	Private xui As XUI                               'ignore
 
 	Private const TIPO As String = "cliente"
-	Private AltaEnCurso As Boolean                   ' hay un alta a medias (marca para persistir)
+	Private RestaurandoBorrador As Boolean                  
 
 	' Asistente
 	Private Pasos As ASDrawSteps
@@ -81,11 +81,13 @@ End Sub
 #Region EventosClickGlobales
 
 Private Sub EditText_TextChanged (Old As String, New As String)
+	If RestaurandoBorrador Then Return
 	Formato.EventoCambioText( Sender, Old, New)
 End Sub
 
 Private Sub  EditText_FocusChanged (HasFocus As Boolean)
-	Formato.EventoCambioFocusText(Sender)
+	If HasFocus Or RestaurandoBorrador Then Return
+	If Formato.EventoCambioFocusText(Sender) Then  PersistirBorrador
 End Sub
 
 
@@ -109,10 +111,10 @@ Private Sub B4XPage_Appear
 End Sub
 
 Private Sub B4XPage_Disappear	
-	If AltaEnCurso Then PersistirBorrador
+ PersistirBorrador
 End Sub
 Private Sub B4XPage_Background
-	If AltaEnCurso Then PersistirBorrador
+  PersistirBorrador
 End Sub
 #End Region
 
@@ -127,7 +129,7 @@ Private Sub NuevoBorrador
 End Sub
 
 Private Sub RestaurarBorrador
-	AltaEnCurso = True
+	RestaurandoBorrador = True
 	Dim b As Map = Db.LeerBorrador(TIPO)
 	UuidCliente = b.GetDefault("uuid_cliente", "")
 	TextEmpresa.Text         = b.GetDefault("nombre", "")
@@ -144,7 +146,7 @@ Private Sub RestaurarBorrador
 		Contactos.Add(c)
 		CvContactos.Add(CrearItem(c), c)
 	Next
-  
+	RestaurandoBorrador=False
 	AHView.GotoPage(b.GetDefault("page", 0), True)
 End Sub
 
@@ -303,9 +305,7 @@ End Sub
 
 
 Private Sub ValidarContacto As Boolean
-	UI.CampoNormal(TextContactos)
-	UI.CampoNormal(TextNumeros)
-	UI.CampoNormal(TextCorreos)
+	
 
 	'If Validar.TextoMinimo(TextContactos.Text, 3) = False Then
 		'UI.CampoError(TextContactos)
@@ -350,7 +350,7 @@ Private Sub Confirmar
 		firma = extDBUtils.Image2Blob(SignPad.TransparentSignatureBitmap, True)
 		DbClientes.GuardarCliente(datos,  firma)
 		Db.BorrarBorrador(TIPO)
-		AltaEnCurso = False
+	
 		NuevoBorrador
 		xui.MsgboxAsync("Cliente guardado.", "Anovo")
 	Else	

@@ -29,30 +29,59 @@ Public Sub Correo (EmailAddress As String) As Boolean
   If MatchEmail.Find = True Then
 		Return True
 	Else
-			Return False
+		Return False
 	End If
 End Sub
 
-'Cedula fisica 9 digitos, juridica 10. Solo cuenta digitos, asi que
-'acepta con o sin guiones, que es como la escribe la gente.
-Public Sub Identificacion (Valor As String) As Boolean
-	Dim n As Int = 0
-	For i = 0 To Valor.Length - 1
-		Dim c As String = Valor.CharAt(i)
-		If c >= "0" And c <= "9" Then n = n + 1
-	Next
-	Return n = 9 Or n = 10
+Public Sub RevisarTelefono(texto As String,Campo As B4XFloatTextField)As Boolean
+	If texto.Length< Utils.LARGO_TELEFONO Then
+		UI.CampoError(Campo,Utils.HINT_ERROR)
+		Return False
+	Else
+		UI.CampoNormal(Campo,Utils.HINT_TELEFONO)
+		Return True
+	End If
+	
 End Sub
-
-'Solo comprueba que haya digitos suficientes. En campo aparecen
-'extensiones y celulares escritos de cualquier forma, y rechazar un
-'telefono valido molesta mas que aceptar uno mal escrito.
-Public Sub Telefono (Valor As String) As Boolean
-	If Valor.Trim = "" Then Return False
-	Dim n As Int = 0
-	For i = 0 To Valor.Length - 1
-		Dim c As String = Valor.CharAt(i)
-		If c >= "0" And c <= "9" Then n = n + 1
-	Next
-	Return n >= 8
+Public Sub RevisarTelefonoExt(texto As String, Campo As B4XFloatTextField)As Boolean
+	If texto.Length< Utils.LARGO_TELEFONO Then
+		UI.CampoError(Campo,Utils.HINT_ERROR)
+		Return False
+	Else
+		UI.CampoNormal(Campo,Utils.HINT_TELEFONO_EXT)
+		Return True
+	End If
+	'pendiente implementar para largo de extension
+End Sub
+Public Sub RevisarIdentificacion(Tipo As Int,texto As String, Campo As B4XFloatTextField)As Boolean
+	Select Tipo
+		Case 0
+			If texto.Length< Utils.LARGO_IDENT_FISICA Then
+				UI.CampoError(Campo,Utils.HINT_FORMATO)
+				Return False
+			Else
+				UI.CampoNormal(Campo,Utils.HINT_CEDULA)
+				Return True
+			End If
+		Case 1
+			If texto.Length< Utils.LARGO_IDENT_JURIDICA Then
+				UI.CampoError(Campo,Utils.HINT_FORMATO)
+				Return False
+			Else
+				UI.CampoNormal(Campo,Utils.HINT_CEDULA_JURIDICA)
+				Return True
+			End If
+			
+		Case 2
+			If texto.Length< Utils.LARGO_IDENT_DIMEX_MIN Then
+				UI.CampoError(Campo,Utils.HINT_FORMATO)
+				Return False
+			Else
+				UI.CampoNormal(Campo,Utils.HINT_CEDULA_DIMEX)
+				Return True
+			End If
+		
+		
+	End Select
+	Return False
 End Sub

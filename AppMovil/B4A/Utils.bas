@@ -27,14 +27,16 @@ Sub Process_Globals
 	Public Const  HINT_TELEFONO_EXT As String ="8888-8888 EXT 423"
 	Public Const  HINT_MONTO As String ="8888-8888 EXT 423"
 	Public Const HINT_CEDULA_JURIDICA As String ="3101A00001"
-	
-	Public Const HINT_ERROR As String ="Los datos intoducidos con coincede con el formato"
+	Public Const HINT_REQUERIDO As String = "Campo obligatorio"
+	Public Const HINT_FORMATO   As String = "Formato incorrecto"
+	Public Const HINT_ERROR As String ="Revise este campo"
 	Public Const TiposIdent() As String= Array As String("Cédula física", "Cédula jurídica", "DIMEX")
 End Sub
 
 #Region Cadenas
-Public Sub EstaVacio (Valor As String) As Boolean
-	Return Valor = Null Or Valor.Trim = ""
+Public Sub EstaVacio (Valor As Object) As Boolean
+	If Valor = Null Then Return True
+	Return Valor.As(String).Trim = ""
 End Sub
 
 Public Sub ValorPorDefecto (Valor As String, ValorDefecto As String) As String
