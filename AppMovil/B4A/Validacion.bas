@@ -8,27 +8,29 @@ Version=13.7
 'Validaciones reutilizables. Sin dependencias de UI ni de base de datos.
 'Devuelven True cuando el valor es valido.
 Sub Process_Globals
-	
+	'RFC 5322 simplificada. No valida que el dominio exista, solo la forma.
+	Public Const PATRON_CORREO As String = "(?i)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])"
+	Public Const TAG_OBLIGATORIO As String = "_oblig"
+
 End Sub
 
 Public Sub TextoMinimo (Valor As String, Minimo As Int) As Boolean
 	Return Valor.Trim.Length >= Minimo
 End Sub
 
-Public Sub Vacio (Valor As String) As Boolean
-	Return Valor.Trim.Length > 0
-End Sub
 
 'Al menos uno de los dos con contenido.
 Public Sub AlgunoConValor (A As String, B As String) As Boolean
 	Return A.Trim <> "" Or B.Trim <> ""
 End Sub
-'https://www.b4x.com/android/forum/threads/%E2%9C%85-validate-a-correctly-formatted-email-address.39803/
-Public Sub Correo (EmailAddress As String) As Boolean
-	Dim MatchEmail As Matcher = Regex.Matcher("^(?i)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])$", EmailAddress)
-  If MatchEmail.Find = True Then
-		Return True
+
+Public Sub RevisarCorreo (texto As String, Campo As B4XFloatTextField) As Boolean
+	Dim m As Matcher = Regex.Matcher(PATRON_CORREO, texto)
+	If m.Find Then
+		UI.CampoNormal(Campo, Utils.HINT_CORREO)
+		Return True		
 	Else
+		UI.CampoError(Campo, Utils.HINT_ERROR)
 		Return False
 	End If
 End Sub
@@ -84,4 +86,40 @@ Public Sub RevisarIdentificacion(Tipo As Int,texto As String, Campo As B4XFloatT
 		
 	End Select
 	Return False
+End Sub
+
+Public Sub ValidarFormulario (Padre As B4XView) As Boolean
+	Dim ok As Boolean = True
+	For Each v As B4XView In Padre.GetAllViewsRecursive
+		If Obligatorio(v) = False Then Continue
+		
+		Dim o As Object = v
+		Dim vacio As Boolean
+
+		If o Is EditText Then
+			vacio  = Utils.EstaVacio(v.Text)
+		Else If o Is Spinner Then
+			'El item guia ocupa la posicion 0: ahi el combo cuenta como vacio
+			Dim sp As Spinner = v
+			vacio = (sp.SelectedIndex <= 0)
+		Else If o Is CheckBox Then
+			Dim cb As CheckBox = v
+			vacio = (cb.Checked = False)
+		Else
+			Continue
+		End If
+		If vacio Then
+			ok = False
+			UI.MarcarError(v)
+		Else
+			UI.MarcarNormal(v)
+		End If
+	Next
+	Return ok
+End Sub
+
+Private Sub Obligatorio (v As B4XView) As Boolean
+	Dim t As String = UI.TagDelPadre(v)
+	If t = "" Then t = UI.ObtenerTag(v)
+	Return t.Contains(TAG_OBLIGATORIO)
 End Sub

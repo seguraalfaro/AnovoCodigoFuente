@@ -12,7 +12,11 @@ Sub Process_Globals
 	Private MascaraEnCurso As Boolean
 	'0 fisica, 1 juridica, 2 dimex. Lo escribe el combo de la pagina por su propieda itemindex.
 	Public MascaraTipoIdent As Int = 0
-
+	Public Const MASCARA_NINGUNA     As Int = 0
+	Public Const MASCARA_TELEFONO    As Int = 1
+	Public Const MASCARA_TELEFONO_EXT As Int = 2
+	Public Const MASCARA_IDENT       As Int = 3
+	Public Const MASCARA_EMAIL       As Int = 4
 
 End Sub
 
@@ -60,12 +64,12 @@ End Sub
 
 '_ftf_telefono_ext va antes que _ftf_telefono porque tambien lo contiene.
 Private Sub Enmascarar (t As String) As Int
-	If t.Contains("_ftf_telefono_ext") Then Return 1
-	If t.Contains("_ftf_telefono")     Then Return 2
-	If t.Contains("_ftf_cedulajuridica")       Then Return 3
-	If t.Contains("_ftf_cedulajuridica_cedula")       Then Return 3
-	If t.Contains("_ftf_cedula")       Then Return 3
-	Return 0
+	If t.Contains("_ftf_telefono_ext")    Then Return MASCARA_TELEFONO_EXT
+	If t.Contains("_ftf_telefono")        Then Return MASCARA_TELEFONO
+	If t.Contains("_ftf_cedula_juridica") Then Return MASCARA_IDENT
+	If t.Contains("_ftf_cedula")          Then Return MASCARA_IDENT
+	If t.Contains("_ftf_email")           Then Return MASCARA_EMAIL
+	Return MASCARA_NINGUNA
 End Sub
 
 
@@ -138,6 +142,8 @@ Public Sub EventoCambioFocusText(Remitente As Object)As Boolean
 			Return Validacion.RevisarTelefonoExt(texto,Remitente)
 		Case 3
 			Return Validacion.RevisarIdentificacion(MascaraTipoIdent,texto,Remitente)
+		Case 4
+			Return Validacion.RevisarCorreo(texto,Remitente)
 	End Select
 	
 	Return False

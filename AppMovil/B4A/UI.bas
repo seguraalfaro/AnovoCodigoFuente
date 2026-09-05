@@ -508,7 +508,25 @@ Public Sub CampoNormal (Campo As B4XFloatTextField,hint As String=Null)
 		BORDE_ANCHO, Colores.COLOR_BORDE, RADIO_CAMPO)
 	If hint <> "" Then PonerHint(Campo, hint)
 End Sub
+Public Sub MarcarError (v As B4XView)
+	Dim ftf As B4XFloatTextField = IdentificarFloatText(v)
+	If ftf <> Null Then
+		CampoError(ftf, Utils.HINT_REQUERIDO)
+		Return
+	End If
+	v.SetColorAndBorder(Colores.COLOR_SUPERFICIE, BORDE_ANCHO_SEC, _
+		Colores.COLOR_ERROR, RADIO_CAMPO)
+End Sub
 
+Public Sub MarcarNormal (v As B4XView)
+	Dim ftf As B4XFloatTextField = IdentificarFloatText(v)
+	If ftf <> Null Then
+		CampoNormal(ftf, "")
+		Return
+	End If
+	v.SetColorAndBorder(Colores.COLOR_SUPERFICIE, BORDE_ANCHO, _
+		Colores.COLOR_BORDE, RADIO_CAMPO)
+End Sub
 Public Sub ConfigurarMemo (Campo As EditText, Ayuda As String)
 	Campo.As(B4XView).SetColorAndBorder(Colores.COLOR_SUPERFICIE, BORDE_ANCHO, _
 		Colores.COLOR_BORDE, RADIO_CAMPO)
