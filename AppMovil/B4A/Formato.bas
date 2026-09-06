@@ -104,7 +104,7 @@ Private Sub Enmascarar (t As String) As Int
 	If t.Contains(Utils.TAG_FTF_IDENT_TODAS)     Then Return MASCARA_IDENT
 	If t.Contains(Utils.TAG_FTF_CEDULA_JURIDICA) Then Return MASCARA_IDENT_JURIDICA
 	If t.Contains(Utils.TAG_FTF_CEDULA_DIMEX)    Then Return MASCARA_IDENT_DIMEX
-	If t.Contains(Utils.TAG_FTF_CEDULA)   Then Return MASCARA_IDENT_FISICA
+	If t.Contains(Utils.TAG_FTF_CEDULA)          Then Return MASCARA_IDENT_FISICA
 	If t.Contains(Utils.TAG_FTF_EMAIL)           Then Return MASCARA_EMAIL
 	Return MASCARA_NINGUNA
 End Sub

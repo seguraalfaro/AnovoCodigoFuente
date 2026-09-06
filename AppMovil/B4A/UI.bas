@@ -240,6 +240,10 @@ Public Sub TagDelPadre (v As B4XView) As String
 			Dim ftf As B4XFloatTextField = o
 			Return TagDeObjeto(ftf.Tag)
 		End If
+		If o Is B4XComboBox Then
+			Dim cbo As B4XComboBox = o
+			Return TagDeObjeto(cbo.Tag)
+		End If
 		Return TagDeObjeto(o)
 	Catch
 		Return ""
