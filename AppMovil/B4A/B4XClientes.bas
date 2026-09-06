@@ -63,6 +63,7 @@ Sub Class_Globals
 	Private pnConsetimiento As B4XView
 	Private PnContactos As B4XView
 	Private CbTipoIdentificacion As B4XComboBox
+	Private IME1 As IME
 End Sub
 
 Public Sub Initialize As Object
@@ -82,6 +83,9 @@ Private Sub B4XPage_Created (Root1 As B4XView)
 	InitializePageContainer
 	UI.ConfigurarMemo(TextDireccion,"Dirección: Provincia, Cantón y Distrito")
 	Utils.AsignarItemsCombo(CbTipoIdentificacion,Utils.TiposIdent)
+	IME1.Initialize("IME1")
+	IME1.AddHeightChangedEvent
+	IME1.AddHandleActionEvent(TextDireccion)
 	UI.AplicarTema(Root)
 End Sub
 
@@ -160,19 +164,19 @@ Private Sub RestaurarBorrador
 End Sub
 
 Private Sub PersistirBorrador
-	Dim b As Map = LeerFormularioCliente
-	b.Put("_tipo", TIPO)
-	b.Put("page", AHView.CurrentPage)
-	b.Put("uuid_cliente",UuidCliente)
-	b.Put("nombre", TextEmpresa.Text )
-	b.Put("identificacion",TextIdentificacion.Text)
-	b.Put("tipo_identificacion", CbTipoIdentificacion.SelectedIndex)
-	b.Put("telefono", TextTelefono.Text )
-	b.Put("correo", TextCorreo.Text )
-	b.Put("contacto", TextContacto.Text)
-	b.Put("direccion", TextDireccion.Text)
-	b.Put("consiente", CkAcepto.Checked)
-	b.Put("contactos", Contactos)
+	Dim b As Map = CreateMap( _
+		"_tipo":                TIPO, _
+		"page":                 AHView.CurrentPage, _
+		"uuid_cliente":         UuidCliente, _
+		"nombre":               TextEmpresa.Text.Trim, _
+		"identificacion":       TextIdentificacion.Text.Trim, _
+		"tipo_identificacion":  CbTipoIdentificacion.SelectedIndex, _
+		"telefono":             TextTelefono.Text.Trim, _
+		"correo":               TextCorreo.Text.Trim, _
+		"contacto":             TextContacto.Text.Trim, _
+		"direccion":            TextDireccion.Text.Trim, _
+		"consiente":            CkAcepto.Checked, _
+		"contactos":            Contactos)
 	Db.GuardarBorrador(TIPO, b)
 End Sub
 
@@ -220,7 +224,6 @@ End Sub
 
 Private Sub ValidarPaso (Indice As Int) As Boolean
 	Dim panel As B4XView = Null
-
 	Select Indice
 		Case 0
 			panel = PnDatos
@@ -229,12 +232,17 @@ Private Sub ValidarPaso (Indice As Int) As Boolean
 	End Select
 
 	'Los pasos sin validacion propia pasan directo
-	If panel = Null Then Return True
-
-	If Validacion.ValidarFormulario(panel) Then Return True
-
-	xui.MsgboxAsync("Complete los campos marcados en rojo.", "Faltan datos")
-	Return False
+	If panel = Null Then
+		Return True
+	Else
+		If Validacion.ValidarFormulario(panel) Then
+			Return True
+		Else
+			Return False
+			xui.MsgboxAsync("Complete los campos marcados en rojo.", "Faltan datos")
+		End If
+	End If
+	
 End Sub
 
 #End Region
@@ -245,16 +253,6 @@ Private Sub CbTipoIdentificacion_SelectedIndexChanged (Index As Int)
 	Formato.SetTipoIdentificacion(Index,TextIdentificacion)
 End Sub
 
-Private Sub LeerFormularioCliente As Map
-	Return CreateMap( _
-		"nombre":        TextEmpresa.Text.Trim, _
-		"identificacion": TextIdentificacion.Text.Trim, _
-		"telefono":       TextTelefono.Text.Trim, _
-		"correo":         TextCorreo.Text.Trim, _
-		"contacto":      TextContacto.Text.Trim, _
-		"direccion":      TextDireccion.Text.Trim)		
-		
-End Sub
 
 Private Sub LimpiarFormularioCliente
 	UI.LimpiarFormulario(PnDatos)
@@ -265,9 +263,12 @@ End Sub
 #Region Hoja 1 - Contactos
 
 Private Sub BtnAgregar_Click
-	NuevoBorrador
 	
-	AgregarTarjetaContacto
+	If Validacion.ValidarFormulario(PnContactos) Then	
+		AgregarTarjetaContacto
+		LimpiarFormularioContacto
+	End If
+	
 	
 End Sub
 
@@ -370,5 +371,14 @@ End Sub
 Private Sub BtnCancelar_Click
 	
 End Sub
+
+#End Region
+#Region Teclado
+Private Sub IME1_HeightChanged (NewHeight As Int, OldHeight As Int)
+	If NewHeight > OldHeight Then
+	'Root.RequestFocus
+	End If
+End Sub
+
 
 #End Region

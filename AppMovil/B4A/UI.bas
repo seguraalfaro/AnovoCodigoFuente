@@ -4,6 +4,7 @@ ModulesStructureVersion=1
 Type=StaticCode
 Version=13.7
 @EndOfDesignText@
+
 'Modulo de tematizacion automatica de vistas.
 'Librerias necesarias: Core, XUI, JavaObject
 '
@@ -183,8 +184,11 @@ Public Sub AplicarVista (v As B4XView)
 		& "  alto=" & v.Height)
 End Sub
 
-public Sub IdentificarFloatText(v As B4XView) As B4XFloatTextField
+public Sub IdentificarFloatText(Remitente As Object) As B4XFloatTextField
 	Try
+		If Remitente Is B4XFloatTextField Then Return Remitente
+
+		Dim v As B4XView = Remitente
 		Dim p As B4XView = v.Parent
 		If p.IsInitialized = False Then Return Null
 
@@ -530,7 +534,7 @@ Private Sub EstilizarCampoFlotante (Campo As B4XFloatTextField, v As B4XView, ca
 			PonerHint(Campo, Utils.HINT_CEDULA_JURIDICA)
 		Case CAT_CEDULA_DIMEX
 			et.InputType = et.INPUT_TYPE_NUMBERS
-			PonerHint(Campo, Utils.HINT_CEDULA_DIMEX)	
+			PonerHint(Campo, Utils.HINT_CEDULA_DIMEX)
 		Case CAT_NOMBRE
 			et.InputType = Utils.INPUT_ALFANUMERICO_MAY
 			PonerHint(Campo, Utils.HINT_NOMBRE)
@@ -554,8 +558,6 @@ Public Sub HintPorTag (Campo As B4XFloatTextField) As String
 			Return Utils.HINT_CEDULA_JURIDICA
 		Case CAT_CEDULA_DIMEX
 			Return Utils.HINT_CEDULA_DIMEX
-		Case CAT_IDENT_TODAS
-			Return Utils.HINT_IDENT_TODAS
 		Case CAT_NOMBRE
 			Return Utils.HINT_NOMBRE
 	End Select
@@ -575,10 +577,17 @@ Public Sub ConfigurarIdentificacion (Campo As B4XFloatTextField, Tipo As Int)
 		Case Formato.MASCARA_IDENT_DIMEX
 			et.InputType = Utils.INPUT_SOLO_DIGITOS
 			PonerHint(Campo, Utils.HINT_CEDULA_DIMEX)
-		Case Else
-			et.InputType = Utils.INPUT_ALFANUMERICO_MAY
-			PonerHint(Campo, Utils.HINT_IDENT_TODAS)
+	
 	End Select
+End Sub
+
+Public Sub RetornarTextField (Remitente As Object) As EditText
+	If Remitente Is B4XFloatTextField Then
+		Dim ftf As B4XFloatTextField = Remitente
+		Return ftf.TextField
+	End If
+	If Remitente Is EditText Then Return Remitente
+	Return Null
 End Sub
 'Sin Update el label flotante se queda con el texto anterior.
 Private Sub PonerHint (Campo As B4XFloatTextField, hint As String)
@@ -608,24 +617,41 @@ Public Sub CampoNormal (Campo As B4XFloatTextField,hint As String=Null)
 	If hint <> "" Then PonerHint(Campo, hint)
 End Sub
 
-Public Sub MarcarError (v As B4XView)
-	Dim ftf As B4XFloatTextField = IdentificarFloatText(v)
+Public Sub MarcarError (Remitente As Object, hint As String = "")
+	Dim ftf As B4XFloatTextField = IdentificarFloatText(Remitente)
 	If ftf <> Null Then
-		CampoError(ftf, Utils.HINT_REQUERIDO)
+		If hint = "" Then hint = Utils.HINT_REQUERIDO
+		CampoError(ftf, hint)
 		Return
 	End If
+
+	Dim v As B4XView = Remitente
 	v.SetColorAndBorder(Colores.COLOR_SUPERFICIE, BORDE_ANCHO_SEC, _
 		Colores.COLOR_ERROR, RADIO_CAMPO)
+	If hint <> "" Then
+		Dim et As EditText = v
+		et.Hint = hint
+	End If
 End Sub
 
-Public Sub MarcarNormal (v As B4XView)
-	Dim ftf As B4XFloatTextField = IdentificarFloatText(v)
+Public Sub MarcarNormal (Remitente As Object, hint As String = "")
+	Dim ftf As B4XFloatTextField = IdentificarFloatText(Remitente)
 	If ftf <> Null Then
-		CampoNormal(ftf, "")
+		'Sin hint explicito se restaura el que le toca por el tag.
+		If hint = "" Then hint = HintPorTag(ftf)
+		CampoNormal(ftf, hint)
 		Return
 	End If
+
+	'EditText suelto: borde normal. Estaba copiado de MarcarError y dejaba el
+	'campo en rojo justo cuando se acababa de validar bien.
+	Dim v As B4XView = Remitente
 	v.SetColorAndBorder(Colores.COLOR_SUPERFICIE, BORDE_ANCHO, _
 		Colores.COLOR_BORDE, RADIO_CAMPO)
+	If hint <> "" Then
+		Dim et As EditText = v
+		et.Hint = hint
+	End If
 End Sub
 
 Public Sub ConfigurarMemo (Campo As EditText, Ayuda As String)

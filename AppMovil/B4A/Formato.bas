@@ -17,7 +17,7 @@ Sub Process_Globals
 	Private MascaraEnCurso As Boolean
 
 	
-	Public Const MASCARA_NINGUNA        As Int = 0
+	Public Const MASCARA_NOMBRE       As Int = 0
 	Public Const MASCARA_TELEFONO       As Int = 1
 	Public Const MASCARA_TELEFONO_EXT   As Int = 2
 	Public Const MASCARA_EMAIL          As Int = 4
@@ -25,7 +25,7 @@ Sub Process_Globals
 	Public Const MASCARA_IDENT_JURIDICA As Int = 6
 	Public Const MASCARA_IDENT_FISICA   As Int = 7
 	Public Const MASCARA_IDENT_DIMEX    As Int = 8
-	Public MascaraTipoIdent As Int = MASCARA_IDENT_FISICA
+	
 End Sub
 
 #Region Evento de Entrada
@@ -59,11 +59,11 @@ Private Sub TagIdentPorIndice (indice As Int) As String
 		Case 3
 			Return Utils.TAG_FTF_CEDULA_DIMEX
 		Case Else
-			Return Utils.TAG_FTF_IDENT_TODAS
+			Return Utils.TAG_FTF_NOMBRE
 	End Select
 End Sub
 Private Sub TagIdentActual (t As String) As String
-	If t.Contains(Utils.TAG_FTF_IDENT_TODAS)     Then Return Utils.TAG_FTF_IDENT_TODAS
+
 	If t.Contains(Utils.TAG_FTF_CEDULA_JURIDICA) Then Return Utils.TAG_FTF_CEDULA_JURIDICA
 	If t.Contains(Utils.TAG_FTF_CEDULA_DIMEX)    Then Return Utils.TAG_FTF_CEDULA_DIMEX
 	If t.Contains(Utils.TAG_FTF_CEDULA)          Then Return Utils.TAG_FTF_CEDULA
@@ -72,9 +72,10 @@ End Sub
 public Sub EventoCambioText(Remitente As Object ,Old As String, New As String)
 	If MascaraEnCurso Then Return
 
-	Dim campo As B4XFloatTextField = Remitente
-	Dim et As EditText = campo.TextField
-
+	'Dim campo As B4XFloatTextField = Remitente
+	'Dim et As EditText = campo.TextField
+	Dim et As EditText = UI.RetornarTextField(Remitente)
+	If et = Null Then Return
 	Dim t As String=obtenerTag(et)
 	If t = "" Then Return
 
@@ -90,8 +91,8 @@ public Sub EventoCambioText(Remitente As Object ,Old As String, New As String)
 End Sub
 
 Private Sub obtenerTag(et As EditText)As String
-	Dim tag As String = UI.TagDelPadre(et)
-	If tag = "" Then tag = UI.ObtenerTag(et)     'EditText suelto, sin custom view
+	Dim tag As String = UI.ObtenerTag(et)        
+	If tag = "" Then tag = UI.TagDelPadre(et)    
 	Return tag
 End Sub
 
@@ -117,7 +118,8 @@ Private Sub Enmascarar (t As String) As Int
 	If t.Contains(Utils.TAG_FTF_CEDULA_DIMEX)    Then Return MASCARA_IDENT_DIMEX
 	If t.Contains(Utils.TAG_FTF_CEDULA)          Then Return MASCARA_IDENT_FISICA
 	If t.Contains(Utils.TAG_FTF_EMAIL)           Then Return MASCARA_EMAIL
-	Return MASCARA_NINGUNA
+	If t.Contains(Utils.TAG_FTF_NOMBRE)           Then Return MASCARA_NOMBRE
+	Return MASCARA_NOMBRE
 End Sub
 #End Region
 
@@ -172,8 +174,13 @@ End Sub
 'Normaliza segun el campo: SoloAlfanum se come la arroba y el punto,
 'asi que el correo va por NormalizarCorreo o ninguna validacion pasa.
 Public Sub EventoCambioFocusText(Remitente As Object)As Boolean
-	Dim campo As B4XFloatTextField = Remitente
-	Dim et As EditText = campo.TextField
+	'Dim campo As B4XFloatTextField = Remitente
+	'Dim et As EditText = campo.TextField
+	Dim et As EditText = UI.RetornarTextField(Remitente)
+	
+	'Retirar cuando salga produccion solo es ayuda para debug 
+	Log("Foco: tag=[" & obtenerTag(et) & "] tipo=" & GetType(Remitente))
+	If et = Null Then Return True
 	If Utils.EstaVacio(et.text) Then Return False
 
 	Dim t As String=obtenerTag(et)
@@ -189,7 +196,7 @@ Public Sub EventoCambioFocusText(Remitente As Object)As Boolean
 			Return Validacion.RevisarIdentificacion(mascara, Utils.Normalizar(texto), Remitente)
 		Case MASCARA_EMAIL
 			Return Validacion.RevisarCorreo(Utils.NormalizarCorreo(texto), Remitente)
-		Case MASCARA_NINGUNA
+		Case MASCARA_NOMBRE
 			Return  Validacion.RevisarTexto(texto, Remitente)
 	End Select
 

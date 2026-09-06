@@ -53,7 +53,7 @@ Private Sub FindCamera (frontCamera As Boolean) As CameraInfoAndId
 			Array As String("java.lang.int", "android.hardware.Camera$CameraInfo"))
 		r.target = cameraInfo
 		Log("facing: " & r.GetField("facing") & ", " & cameraValue)
-		If r.GetField("facing") = cameraValue Then 
+		If cameraValue = r.GetField("facing") Then
 			ci.cameraInfo = r.target
 			ci.Id = i
 			Return ci

@@ -4,9 +4,16 @@ ModulesStructureVersion=1
 Type=StaticCode
 Version=13.7
 @EndOfDesignText@
+
 'Code module: Validar
 'Validaciones reutilizables. Sin dependencias de UI ni de base de datos.
 'Devuelven True cuando el valor es valido.
+'
+'El campo llega como Object y no como B4XFloatTextField: desde que los EditText
+'sueltos del Designer comparten el evento unificado, el remitente puede ser el
+'custom view o el EditText pelado. Por eso se pinta con UI.MarcarError y
+'UI.MarcarNormal, que resuelven el tipo solos, y no con CampoError/CampoNormal,
+'que dan por hecho el flotante y revientan con el suelto.
 Sub Process_Globals
 	'RFC 5322 simplificada. No valida que el dominio exista, solo la forma.
 	Public Const PATRON_CORREO As String = "(?i)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])"
@@ -24,62 +31,62 @@ Public Sub AlgunoConValor (A As String, B As String) As Boolean
 	Return A.Trim <> "" Or B.Trim <> ""
 End Sub
 
-Public Sub RevisarCorreo (texto As String, Campo As B4XFloatTextField) As Boolean
+Public Sub RevisarCorreo (texto As String, Campo As Object) As Boolean
 	Dim m As Matcher = Regex.Matcher(PATRON_CORREO, texto)
 	If m.Find Then
-		UI.CampoNormal(Campo, Utils.HINT_CORREO)
-		Return True		
+		UI.MarcarNormal(Campo, Utils.HINT_CORREO)
+		Return True
 	Else
-		UI.CampoError(Campo, Utils.HINT_ERROR)
+		UI.MarcarError(Campo, Utils.HINT_ERROR)
 		Return False
 	End If
 End Sub
 
-Public Sub RevisarTelefono(texto As String,Campo As B4XFloatTextField)As Boolean
+Public Sub RevisarTelefono(texto As String,Campo As Object)As Boolean
 	If texto.Length< Utils.LARGO_TELEFONO Then
-		UI.CampoError(Campo,Utils.HINT_ERROR)
+		UI.MarcarError(Campo,Utils.HINT_ERROR)
 		Return False
 	Else
-		UI.CampoNormal(Campo,Utils.HINT_TELEFONO)
+		UI.MarcarNormal(Campo,Utils.HINT_TELEFONO)
 		Return True
 	End If
 	
 End Sub
-Public Sub RevisarTelefonoExt(texto As String, Campo As B4XFloatTextField)As Boolean
+Public Sub RevisarTelefonoExt(texto As String, Campo As Object)As Boolean
 	If texto.Length< Utils.LARGO_TELEFONO Then
-		UI.CampoError(Campo,Utils.HINT_ERROR)
+		UI.MarcarError(Campo,Utils.HINT_ERROR)
 		Return False
 	Else
-		UI.CampoNormal(Campo,Utils.HINT_TELEFONO_EXT)
+		UI.MarcarNormal(Campo,Utils.HINT_TELEFONO_EXT)
 		Return True
 	End If
 	'pendiente implementar para largo de extension
 End Sub
-Public Sub RevisarIdentificacion(Tipo As Int,texto As String, Campo As B4XFloatTextField)As Boolean
+Public Sub RevisarIdentificacion(Tipo As Int,texto As String, Campo As Object)As Boolean
 	Select Tipo
 		Case Formato.MASCARA_IDENT_FISICA
 			If texto.Length< Utils.LARGO_IDENT_FISICA Then
-				UI.CampoError(Campo,Utils.HINT_FORMATO)
+				UI.MarcarError(Campo,Utils.HINT_FORMATO)
 				Return False
 			Else
-				UI.CampoNormal(Campo,Utils.HINT_CEDULA)
+				UI.MarcarNormal(Campo,Utils.HINT_CEDULA)
 				Return True
 			End If
 		Case Formato.MASCARA_IDENT_JURIDICA
 			If texto.Length< Utils.LARGO_IDENT_JURIDICA Then
-				UI.CampoError(Campo,Utils.HINT_FORMATO)
+				UI.MarcarError(Campo,Utils.HINT_FORMATO)
 				Return False
 			Else
-				UI.CampoNormal(Campo,Utils.HINT_CEDULA_JURIDICA)
+				UI.MarcarNormal(Campo,Utils.HINT_CEDULA_JURIDICA)
 				Return True
 			End If
 			
 		Case Formato.MASCARA_IDENT_DIMEX
 			If texto.Length< Utils.LARGO_IDENT_DIMEX_MIN Then
-				UI.CampoError(Campo,Utils.HINT_FORMATO)
+				UI.MarcarError(Campo,Utils.HINT_FORMATO)
 				Return False
 			Else
-				UI.CampoNormal(Campo,Utils.HINT_CEDULA_DIMEX)
+				UI.MarcarNormal(Campo,Utils.HINT_CEDULA_DIMEX)
 				Return True
 			End If
 		
@@ -88,15 +95,17 @@ Public Sub RevisarIdentificacion(Tipo As Int,texto As String, Campo As B4XFloatT
 	Return False
 End Sub
 
-Public Sub RevisarTexto (Texto As String, Campo As B4XFloatTextField) As Boolean
+'Sin hint explicito: al flotante se le repone el que le toca por el tag y al
+'EditText suelto se le respeta el que trae del Designer o de ConfigurarMemo.
+Public Sub RevisarTexto (Texto As String, Campo As Object) As Boolean
 	Dim s As String = Texto.Trim
 	Dim ok As Boolean = (s.Length >= Utils.LARGO_MINIMO_TEXTO) And _
 		(Utils.ProporcionVocales(s) >= Utils.VOCALES_MINIMO)
 
 	If ok Then
-		UI.CampoNormal(Campo, UI.HintPorTag(Campo))
+		UI.MarcarNormal(Campo)
 	Else
-		UI.CampoError(Campo, Utils.HINT_TEXTO_INVALIDO)
+		UI.MarcarError(Campo, Utils.HINT_TEXTO_INVALIDO)
 	End If
 	Return ok
 End Sub
