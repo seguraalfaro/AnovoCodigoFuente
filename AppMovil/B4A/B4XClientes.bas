@@ -11,12 +11,14 @@ Version=13.7
 '  La lógica de BD/red vive en Db y ApiClient, no aquí.
 ' ============================================================
 
+#Region Declaraciones
+
 Sub Class_Globals
-	Private Root As B4XView                          'ignore
-	Private xui As XUI                               'ignore
+	Private Root As B4XView                       
+	Private xui As XUI                             
 
 	Private const TIPO As String = "cliente"
-	Private RestaurandoBorrador As Boolean                  
+	Private RestaurandoBorrador As Boolean
 
 	' Asistente
 	Private Pasos As ASDrawSteps
@@ -32,7 +34,7 @@ Sub Class_Globals
 	Private TextDireccion As EditText
 
 	' Hoja 1 - contactos
-	Private Contactos As List                        ' List de Map: fuente de verdad
+	Private Contactos As List                        
 	Private CvContactos As CustomListView
 	Private BtnAgregar As Button
 	Private TextContactos As B4XFloatTextField
@@ -67,6 +69,10 @@ Public Sub Initialize As Object
 	Return Me
 End Sub
 
+#End Region
+
+#Region B4XPage Ciclo de vida
+
 Private Sub B4XPage_Created (Root1 As B4XView)
 	Root = Root1
 	Root.LoadLayout("PageIngresoDatos")
@@ -78,8 +84,36 @@ Private Sub B4XPage_Created (Root1 As B4XView)
 	Utils.AsignarItemsCombo(CbTipoIdentificacion,Utils.TiposIdent)
 	UI.AplicarTema(Root)
 End Sub
-#Region EventosClickGlobales
 
+Private Sub B4XPage_Appear
+	If Db.HayBorrador(TIPO) Then
+		Dim sf As Object = xui.Msgbox2Async( _
+			"Tiene un cliente sin terminar. ¿Desea retomarlo?", "Anovo", _
+			"Sí", "", "No", Null)
+		Wait For (sf) MsgBox_Result (Result As Int)
+		If Result = xui.DialogResponse_Positive Then
+			RestaurarBorrador
+			Return
+		Else
+			Db.BorrarBorrador(TIPO)
+		End If
+	End If
+	NuevoBorrador
+End Sub
+
+Private Sub B4XPage_Disappear
+	PersistirBorrador
+End Sub
+
+Private Sub B4XPage_Background
+	PersistirBorrador
+End Sub
+
+#End Region
+
+#Region Eventos globales de campos
+
+' Enganchados por nombre desde el UI, sirven a las tres hojas.
 Private Sub EditText_TextChanged (Old As String, New As String)
 	If RestaurandoBorrador Then Return
 	Formato.EventoCambioText( Sender, Old, New)
@@ -90,32 +124,6 @@ Private Sub  EditText_FocusChanged (HasFocus As Boolean)
 	If Formato.EventoCambioFocusText(Sender) Then  PersistirBorrador
 End Sub
 
-
-#End Region
-#Region B4XPage Ciclo de vida
-
-Private Sub B4XPage_Appear
-		If Db.HayBorrador(TIPO) Then
-		Dim sf As Object = xui.Msgbox2Async( _
-			"Tiene un cliente sin terminar. ¿Desea retomarlo?", "Anovo", _
-			"Sí", "", "No", Null)
-		Wait For (sf) MsgBox_Result (Result As Int)
-			If Result = xui.DialogResponse_Positive Then
-			RestaurarBorrador
-			Return
-		Else
-			Db.BorrarBorrador(TIPO)
-		End If
-	End If
-	NuevoBorrador
-End Sub
-
-Private Sub B4XPage_Disappear	
- PersistirBorrador
-End Sub
-Private Sub B4XPage_Background
-  PersistirBorrador
-End Sub
 #End Region
 
 #Region Persistencia (borrador KVS)
@@ -134,6 +142,7 @@ Private Sub RestaurarBorrador
 	UuidCliente = b.GetDefault("uuid_cliente", "")
 	TextEmpresa.Text         = b.GetDefault("nombre", "")
 	TextIdentificacion.Text  = b.GetDefault("identificacion", "")
+	CbTipoIdentificacion.SelectedIndex = b.GetDefault("tipo_identificacion", 0)
 	TextTelefono.Text        = b.GetDefault("telefono", "")
 	TextDireccion.Text       = b.GetDefault("direccion", "")
 	TextContacto.Text        = b.GetDefault("contacto", "")
@@ -157,6 +166,7 @@ Private Sub PersistirBorrador
 	b.Put("uuid_cliente",UuidCliente)
 	b.Put("nombre", TextEmpresa.Text )
 	b.Put("identificacion",TextIdentificacion.Text)
+	b.Put("tipo_identificacion", CbTipoIdentificacion.SelectedIndex)
 	b.Put("telefono", TextTelefono.Text )
 	b.Put("correo", TextCorreo.Text )
 	b.Put("contacto", TextContacto.Text)
@@ -168,54 +178,17 @@ End Sub
 
 #End Region
 
-#Region Formulario cliente  <->  Map
+#Region Navegación del asistente
 
-Private Sub LeerFormularioCliente As Map
-	Return CreateMap( _
-		"nombre":        TextEmpresa.Text.Trim, _
-		"identificacion": TextIdentificacion.Text.Trim, _
-		"telefono":       TextTelefono.Text.Trim, _
-		"correo":         TextCorreo.Text.Trim, _
-		"contacto":      TextContacto.Text.Trim, _
-		"direccion":      TextDireccion.Text.Trim)		
-		
+Private Sub InicializarPasos
+	UI.CargarIndicadorPasos(Pasos, Layouts.ClienteClaves, Layouts.ClienteTitulos)
 End Sub
 
-Private Sub LimpiarFormularioCliente
-	 UI.LimpiarFormulario(PnDatos)
+Private Sub InitializePageContainer
+	UI.CargarPaginasContainer(Layouts.ClienteLayouts, AHView, pagecont)
+	
 End Sub
 
-#End Region
-
-#Region Formulario contacto  <->  Map
-
-Private Sub LeerFormularioContacto As Map
-	Return CreateMap( _
-		"uuid_local":            Db.NuevoUuid, _
-		"cliente_uuid":          UuidCliente, _
-		"nombre":                TextContactos.Text.Trim, _
-		"area":                  TextPuesto.Text.Trim, _
-		"telefono":              TextNumeros.Text.Trim, _
-		"celular":              TextCelular.Text.Trim, _
-		"correo":                TextCorreos.Text.Trim, _
-		"principal":             Ckprincipal.Checked, _
-		"consentimiento_estado": "pendiente", _
-		"estado_sync":           "pendiente")
-End Sub
-
-Private Sub LimpiarFormularioContacto 
-	UI.LimpiarFormulario(PnContactos)
-End Sub
-Private Sub LimpiarFormularioConsentimiento
-	UI.LimpiarFormulario(pnConsetimiento)
-End Sub
-
-#End Region
-
-#Region pageIngresoDatos
-
-
-#Region EventsClicks
 Private Sub BtnSiguiente_Click
 	Dim actual As Int = AHView.CurrentPage
 	If ValidarPaso(actual) = False Then Return
@@ -225,6 +198,26 @@ Private Sub BtnSiguiente_Click
 		Confirmar
 	End If
 End Sub
+
+Private Sub BtnAtras_sec_Click
+	If AHView.CurrentPage > 0 Then AHView.GotoPage(AHView.CurrentPage - 1, True)
+End Sub
+
+Private Sub AHView_PageChanged (Position As Int)
+	Pasos.CurrentIndex = Position
+	If Position = ULTIMO Then
+		BtnSiguiente.Text = "Guardar"
+		BtnCancelar.Visible=True
+	Else
+		BtnSiguiente.Text = "Siguiente"
+		BtnCancelar.Visible=False
+	End If
+End Sub
+
+Private Sub Pasos_StepClick (Index As Int, Id As String)
+	If Index < AHView.CurrentPage Then AHView.GotoPage(Index, True)
+End Sub
+
 Private Sub ValidarPaso (Indice As Int) As Boolean
 	Dim panel As B4XView = Null
 
@@ -243,53 +236,49 @@ Private Sub ValidarPaso (Indice As Int) As Boolean
 	xui.MsgboxAsync("Complete los campos marcados en rojo.", "Faltan datos")
 	Return False
 End Sub
-Private Sub BtnAtras_sec_Click
-	If AHView.CurrentPage > 0 Then AHView.GotoPage(AHView.CurrentPage - 1, True)
-End Sub
 
-Private Sub AHView_PageChanged (Position As Int)
-	Pasos.CurrentIndex = Position
-	If Position = ULTIMO Then
-		BtnSiguiente.Text = "Guardar"
-		BtnCancelar.Visible=True
-	Else
-		BtnSiguiente.Text = "Siguiente"
-		BtnCancelar.Visible=False
-	End If
-End Sub
+#End Region
 
-Private Sub BtnCancelar_Click
-	
-End Sub
-Private Sub lblBorrar_Click
-	SignPad.clear
-	HayFirma=False
-End Sub
-
+#Region Hoja 0 - Datos del cliente
 
 Private Sub CbTipoIdentificacion_SelectedIndexChanged (Index As Int)
 	Formato.SetTipoIdentificacion(Index,TextIdentificacion)
 End Sub
 
-#End Region
+Private Sub LeerFormularioCliente As Map
+	Return CreateMap( _
+		"nombre":        TextEmpresa.Text.Trim, _
+		"identificacion": TextIdentificacion.Text.Trim, _
+		"telefono":       TextTelefono.Text.Trim, _
+		"correo":         TextCorreo.Text.Trim, _
+		"contacto":      TextContacto.Text.Trim, _
+		"direccion":      TextDireccion.Text.Trim)		
+		
+End Sub
+
+Private Sub LimpiarFormularioCliente
+	UI.LimpiarFormulario(PnDatos)
+End Sub
 
 #End Region
 
-#Region PageContactos 
+#Region Hoja 1 - Contactos
 
 Private Sub BtnAgregar_Click
 	NuevoBorrador
-	If ValidarContacto = False Then Return
+	
 	AgregarTarjetaContacto
 	
 End Sub
+
 Private Sub AgregarTarjetaContacto
-    Dim c As Map = LeerFormularioContacto
+	Dim c As Map = LeerFormularioContacto
 	Contactos.Add(c)
 	CvContactos.Add(CrearItem(c), c)
 	LimpiarFormularioContacto
 	PersistirBorrador
 End Sub
+
 Private Sub CrearItem (c As Map) As B4XView
 	Dim p As B4XView = xui.CreatePanel("")
 	p.SetLayoutAnimated(0, 0, 0, CvContactos.AsView.Width, UI.GetCardHeight)
@@ -301,6 +290,7 @@ Private Sub CrearItem (c As Map) As B4XView
 	LBlEliminar.Tag=c.Get("uuid_local")
 	Return p
 End Sub
+
 Private Sub LBlEliminar_Click
 	Dim v As B4XView = Sender
 	Dim uuid As String = v.Tag
@@ -308,8 +298,9 @@ Private Sub LBlEliminar_Click
 	If i < 0 Then Return
 	CvContactos.RemoveAt(i)
 	Contactos.RemoveAt(i)
-	PersistirBorrador	
+	PersistirBorrador
 End Sub
+
 Private Sub IndiceDe (Uuid As String) As Int
 	For i = 0 To Contactos.Size - 1
 		Dim c As Map = Contactos.Get(i)
@@ -320,39 +311,40 @@ End Sub
 
 
 
-Private Sub ValidarContacto As Boolean
-	
+Private Sub LeerFormularioContacto As Map
+	Return CreateMap( _
+		"uuid_local":            Db.NuevoUuid, _
+		"cliente_uuid":          UuidCliente, _
+		"nombre":                TextContactos.Text.Trim, _
+		"area":                  TextPuesto.Text.Trim, _
+		"telefono":              TextNumeros.Text.Trim, _
+		"celular":              TextCelular.Text.Trim, _
+		"correo":                TextCorreos.Text.Trim, _
+		"principal":             Ckprincipal.Checked, _
+		"consentimiento_estado": "pendiente", _
+		"estado_sync":           "pendiente")
+End Sub
 
-	'If Validar.TextoMinimo(TextContactos.Text, 3) = False Then
-		'UI.CampoError(TextContactos)
-	'	TextContactos.RequestFocusAndShowKeyboard
-	'	Return False
-	'End If
-	'If Validar.Telefono(TextNumeros.Text) = False Then
-	'	UI.CampoError(TextNumeros)
-	'	TextNumeros.RequestFocusAndShowKeyboard
-	'	Return False
-	''End If
-	'If Validar.Vacio(TextCorreos.Text) = False Or Validar.Correo(TextCorreos.Text) = False Then
-	'	UI.CampoError(TextCorreo)
-'	TextCorreos.RequestFocusAndShowKeyboard
-'		Return False
-'	End If
-	Return True
+Private Sub LimpiarFormularioContacto
+	UI.LimpiarFormulario(PnContactos)
 End Sub
 
 #End Region
 
-#Region Pasos / navegación
+#Region Hoja 2 - Consentimiento
 
-Private Sub InicializarPasos
-	UI.CargarIndicadorPasos(Pasos, Layouts.ClienteClaves, Layouts.ClienteTitulos)
+Private Sub SignPad_onSigned (sign As Object)
+	HayFirma = True
 End Sub
 
-Private Sub Pasos_StepClick (Index As Int, Id As String)
-	If Index < AHView.CurrentPage Then AHView.GotoPage(Index, True)
+Private Sub lblBorrar_Click
+	SignPad.clear
+	HayFirma=False
 End Sub
 
+Private Sub LimpiarFormularioConsentimiento
+	UI.LimpiarFormulario(pnConsetimiento)
+End Sub
 
 #End Region
 
@@ -369,32 +361,14 @@ Private Sub Confirmar
 	
 		NuevoBorrador
 		xui.MsgboxAsync("Cliente guardado.", "Anovo")
-	Else	
-		xui.MsgboxAsync("Deve primero firmar.", "Anovo")	
+	Else
+		xui.MsgboxAsync("Deve primero firmar.", "Anovo")
 		
 	End If
 End Sub
 
-#End Region
-
-#Region Page container
-
-Private Sub InitializePageContainer	
-	UI.CargarPaginasContainer(Layouts.ClienteLayouts, AHView, pagecont)	
+Private Sub BtnCancelar_Click
 	
 End Sub
+
 #End Region
-
-
-Private Sub SignPad_onSigned (sign As Object)
-	HayFirma = True
-End Sub
-
-
-
-
-
-
-
-
-

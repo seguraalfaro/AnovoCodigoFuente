@@ -57,7 +57,7 @@ Public Sub RevisarTelefonoExt(texto As String, Campo As B4XFloatTextField)As Boo
 End Sub
 Public Sub RevisarIdentificacion(Tipo As Int,texto As String, Campo As B4XFloatTextField)As Boolean
 	Select Tipo
-		Case 0
+		Case Formato.MASCARA_IDENT_FISICA
 			If texto.Length< Utils.LARGO_IDENT_FISICA Then
 				UI.CampoError(Campo,Utils.HINT_FORMATO)
 				Return False
@@ -65,7 +65,7 @@ Public Sub RevisarIdentificacion(Tipo As Int,texto As String, Campo As B4XFloatT
 				UI.CampoNormal(Campo,Utils.HINT_CEDULA)
 				Return True
 			End If
-		Case 1
+		Case Formato.MASCARA_IDENT_JURIDICA
 			If texto.Length< Utils.LARGO_IDENT_JURIDICA Then
 				UI.CampoError(Campo,Utils.HINT_FORMATO)
 				Return False
@@ -74,7 +74,7 @@ Public Sub RevisarIdentificacion(Tipo As Int,texto As String, Campo As B4XFloatT
 				Return True
 			End If
 			
-		Case 2
+		Case Formato.MASCARA_IDENT_DIMEX
 			If texto.Length< Utils.LARGO_IDENT_DIMEX_MIN Then
 				UI.CampoError(Campo,Utils.HINT_FORMATO)
 				Return False

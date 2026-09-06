@@ -27,6 +27,7 @@ Public Sub GuardarCliente(Datos As Map,  firma() As Byte) As String
 			"uuid_local":     uCliente, _
 			"nombre":         Datos.GetDefault("empresa", ""), _
 			"identificacion": Datos.GetDefault("identificacion", ""), _
+			"identificacion": Datos.GetDefault("identificacion", ""), _
 			"telefono":       Datos.GetDefault("telefono", ""), _
 			"direccion":      Datos.GetDefault("direccion", ""), _
 			"estado_sync":    "pendiente"))

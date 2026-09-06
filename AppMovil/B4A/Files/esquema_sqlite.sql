@@ -8,6 +8,9 @@ CREATE TABLE IF NOT EXISTS clientes (
   id_servidor             INTEGER,
   nombre                  TEXT NOT NULL,
   identificacion          TEXT,
+  -- 1 cedula fisica, 2 cedula juridica, 3 DIMEX. Coincide con el indice del combo
+  -- Utils.TiposIdent, donde el 0 es la opcion vacia y aqui se guarda como NULL.
+  tipo_identificacion     INTEGER CHECK (tipo_identificacion IN (1,2,3)),
   telefono                TEXT,
   correo                  TEXT,
   contacto                TEXT,
@@ -16,7 +19,7 @@ CREATE TABLE IF NOT EXISTS clientes (
   longitud                REAL,
   consentimiento_estado   TEXT NOT NULL DEFAULT 'pendiente'
                             CHECK (consentimiento_estado IN ('pendiente','firmado','revocado')),
-   estado_sync             TEXT NOT NULL DEFAULT 'pendiente'
+  estado_sync             TEXT NOT NULL DEFAULT 'pendiente'
                             CHECK (estado_sync IN ('pendiente','enviando','confirmado','error'))
 );
 

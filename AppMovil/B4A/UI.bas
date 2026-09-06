@@ -120,7 +120,6 @@ Sub Process_Globals
 	Private Const CAT_CEDULA          As String = "cedula"
 	Private Const CAT_CEDULA_JURIDICA As String = "cedula_juridica"
 	Private Const CAT_CEDULA_DIMEX    As String = "cedula_dimex"
-	Private Const CAT_IDENT_TODAS     As String = "ident_todas"
 	Private Const CAT_NINGUNA         As String = ""
 
 	'Guarda el color de texto original de cada boton para restaurarlo
@@ -299,7 +298,6 @@ Private Sub ClasificarFloatTextField (t As String) As String
 	If t.Contains(Utils.TAG_FTF_TELEFONO_EXT)    Then Return CAT_TELEFONO_EXT
 	If t.Contains(Utils.TAG_FTF_TELEFONO)        Then Return CAT_TELEFONO
 	If t.Contains(Utils.TAG_FTF_MONTO)           Then Return CAT_MONTO
-	If t.Contains(Utils.TAG_FTF_IDENT_TODAS)     Then Return CAT_IDENT_TODAS
 	If t.Contains(Utils.TAG_FTF_CEDULA_JURIDICA) Then Return CAT_CEDULA_JURIDICA
 	If t.Contains(Utils.TAG_FTF_CEDULA_DIMEX)    Then Return CAT_CEDULA_DIMEX
 	If t.Contains(Utils.TAG_FTF_CEDULA)          Then Return CAT_CEDULA
@@ -532,11 +530,7 @@ Private Sub EstilizarCampoFlotante (Campo As B4XFloatTextField, v As B4XView, ca
 			PonerHint(Campo, Utils.HINT_CEDULA_JURIDICA)
 		Case CAT_CEDULA_DIMEX
 			et.InputType = et.INPUT_TYPE_NUMBERS
-			PonerHint(Campo, Utils.HINT_CEDULA_DIMEX)
-		Case CAT_IDENT_TODAS
-			'Acepta los tres formatos, el combo decide cual: teclado alfanumerico.
-			et.InputType = Utils.INPUT_ALFANUMERICO_MAY
-			PonerHint(Campo, Utils.HINT_IDENT_TODAS)
+			PonerHint(Campo, Utils.HINT_CEDULA_DIMEX)	
 		Case CAT_NOMBRE
 			et.InputType = Utils.INPUT_ALFANUMERICO_MAY
 			PonerHint(Campo, Utils.HINT_NOMBRE)

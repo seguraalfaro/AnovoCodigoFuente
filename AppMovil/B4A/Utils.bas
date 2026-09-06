@@ -32,11 +32,11 @@ Sub Process_Globals
 
 	#Region Hints
 	Public Const HINT_NOMBRE         As String ="Juan Perez / Anovo MS S.A."
-	Public Const HINT_CEDULA          As String = "104530756"
-	Public Const HINT_CEDULA_JURIDICA As String = "3-101-A00001"
-	Public Const HINT_CEDULA_DIMEX    As String = "1-2345-6789012"
-	Public Const HINT_TELEFONO        As String = "8888-8888"
-	Public Const HINT_TELEFONO_EXT    As String = "8888-8888 ext 423"
+	Public Const HINT_CEDULA          As String = "Cedula: 104530756"
+	Public Const HINT_CEDULA_JURIDICA As String = "cedula juridica: 3-101-A00001"
+	Public Const HINT_CEDULA_DIMEX    As String = "Cedula dimex: 1-2345-6789012"
+	Public Const HINT_TELEFONO        As String = "Tel: 8888-8888"
+	Public Const HINT_TELEFONO_EXT    As String = "Tel: 8888-8888 ext 423"
 	Public Const HINT_CORREO          As String = "nombre@dominio.cr"
 	Public Const HINT_MONTO           As String = "125000,00"
 	Public Const HINT_ERROR           As String = "Formato invalido"
@@ -44,8 +44,7 @@ Sub Process_Globals
 	Public Const HINT_FORMATO         As String = "Formato incorrecto"
 	Public Const HINT_TEXTO_INVALIDO As String = "Escriba un texto valido"
 
-	'Solo para el campo que se llena antes de elegir el tipo en el combo.
-	Public Const HINT_IDENT_TODAS As String = "juridica: 3-101-A00001   fisica: 104530756   dimex: 1-2345-6789012"
+
 	#End Region
 
 	#Region InputType
@@ -100,7 +99,6 @@ Sub Process_Globals
 	Public Const TAG_FTF_CEDULA          As String = "_ftf_cedula"
 	Public Const TAG_FTF_CEDULA_JURIDICA As String = "_ftf_cedula_juridica"
 	Public Const TAG_FTF_CEDULA_DIMEX    As String = "_ftf_cedula_dimex"
-	Public Const TAG_FTF_IDENT_TODAS     As String = "_ftf_cedulajuridica_cedula"
 	Public Const TAG_FTF_NOMBRE     As String = "_ftf_nombre"
 	#End Region
 End Sub

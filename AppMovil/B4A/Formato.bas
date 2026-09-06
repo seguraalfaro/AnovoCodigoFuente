@@ -16,14 +16,10 @@ Version=13.7
 Sub Process_Globals
 	Private MascaraEnCurso As Boolean
 
-	'Tipo de identificacion activo cuando el campo es generico (un solo
-	'campo con el combo al lado). Lo escribe SetTipoIdentificacion.
 	
-
 	Public Const MASCARA_NINGUNA        As Int = 0
 	Public Const MASCARA_TELEFONO       As Int = 1
 	Public Const MASCARA_TELEFONO_EXT   As Int = 2
-	Public Const MASCARA_IDENT          As Int = 3   'para implementar
 	Public Const MASCARA_EMAIL          As Int = 4
 	Public Const MASCARA_MONTO          As Int = 5
 	Public Const MASCARA_IDENT_JURIDICA As Int = 6
@@ -35,26 +31,44 @@ End Sub
 #Region Evento de Entrada
 'Traduce el ItemIndex de Utils.TiposIdent al vocabulario de mascaras.
 'El orden del combo es cosa de la pantalla y no debe ser el contrato.
+'se corrige error de implementecion se deside cambiar el tag al componete en ejecucion
 Public Sub SetTipoIdentificacion (indice As Int, Campo As B4XFloatTextField)
-	Select indice
-		Case 1
-			MascaraTipoIdent = MASCARA_IDENT_FISICA
-		Case 2
-			MascaraTipoIdent = MASCARA_IDENT_JURIDICA
-		Case 3
-			MascaraTipoIdent = MASCARA_IDENT_DIMEX
-		Case Else
-			MascaraTipoIdent = MASCARA_NINGUNA
-	End Select
+	Dim actual As String = UI.TagDelPadre(Campo.TextField)
+	Dim viejo  As String = TagIdentActual(actual)
+	Dim nuevo  As String = TagIdentPorIndice(indice)
+	Dim tag    As String
+	
+	tag = actual.Replace(viejo, nuevo)
 
-	If Campo.IsInitialized = False Then Return
+	Campo.Tag = tag
+
+	
+	
 	MascaraEnCurso = True
 	Campo.Text = ""
 	MascaraEnCurso = False
-	UI.ConfigurarIdentificacion(Campo, MascaraTipoIdent)
+	UI.ConfigurarIdentificacion(Campo, Enmascarar(tag))
 
 End Sub
-
+Private Sub TagIdentPorIndice (indice As Int) As String
+	Select indice
+		Case 1
+			Return Utils.TAG_FTF_CEDULA
+		Case 2
+			Return Utils.TAG_FTF_CEDULA_JURIDICA
+		Case 3
+			Return Utils.TAG_FTF_CEDULA_DIMEX
+		Case Else
+			Return Utils.TAG_FTF_IDENT_TODAS
+	End Select
+End Sub
+Private Sub TagIdentActual (t As String) As String
+	If t.Contains(Utils.TAG_FTF_IDENT_TODAS)     Then Return Utils.TAG_FTF_IDENT_TODAS
+	If t.Contains(Utils.TAG_FTF_CEDULA_JURIDICA) Then Return Utils.TAG_FTF_CEDULA_JURIDICA
+	If t.Contains(Utils.TAG_FTF_CEDULA_DIMEX)    Then Return Utils.TAG_FTF_CEDULA_DIMEX
+	If t.Contains(Utils.TAG_FTF_CEDULA)          Then Return Utils.TAG_FTF_CEDULA
+	Return ""
+End Sub
 public Sub EventoCambioText(Remitente As Object ,Old As String, New As String)
 	If MascaraEnCurso Then Return
 
@@ -89,9 +103,7 @@ Private Sub RevisarMarcara(Tipo As Int, New As String)As String
 			Return MascaraTelefonoExt(New)
 		Case MASCARA_IDENT_JURIDICA, MASCARA_IDENT_FISICA, MASCARA_IDENT_DIMEX
 			Return MascaraIdentificacion(New, Tipo)
-		Case MASCARA_IDENT
-			Return MascaraIdentificacion(New, MascaraTipoIdent)
-	End Select
+		End Select
 	'Email y sin mascara no transforman: devolver New o el campo se vacia al escribir.
 	Return New
 End Sub
@@ -101,7 +113,6 @@ Private Sub Enmascarar (t As String) As Int
 	If t.Contains(Utils.TAG_FTF_TELEFONO_EXT)    Then Return MASCARA_TELEFONO_EXT
 	If t.Contains(Utils.TAG_FTF_TELEFONO)        Then Return MASCARA_TELEFONO
 	If t.Contains(Utils.TAG_FTF_MONTO)           Then Return MASCARA_MONTO
-	If t.Contains(Utils.TAG_FTF_IDENT_TODAS)     Then Return MASCARA_IDENT
 	If t.Contains(Utils.TAG_FTF_CEDULA_JURIDICA) Then Return MASCARA_IDENT_JURIDICA
 	If t.Contains(Utils.TAG_FTF_CEDULA_DIMEX)    Then Return MASCARA_IDENT_DIMEX
 	If t.Contains(Utils.TAG_FTF_CEDULA)          Then Return MASCARA_IDENT_FISICA
@@ -176,8 +187,6 @@ Public Sub EventoCambioFocusText(Remitente As Object)As Boolean
 			Return Validacion.RevisarTelefonoExt(Utils.Normalizar(texto), Remitente)
 		Case MASCARA_IDENT_JURIDICA, MASCARA_IDENT_FISICA, MASCARA_IDENT_DIMEX
 			Return Validacion.RevisarIdentificacion(mascara, Utils.Normalizar(texto), Remitente)
-		Case MASCARA_IDENT
-			Return Validacion.RevisarIdentificacion(MascaraTipoIdent, Utils.Normalizar(texto), Remitente)
 		Case MASCARA_EMAIL
 			Return Validacion.RevisarCorreo(Utils.NormalizarCorreo(texto), Remitente)
 		Case MASCARA_NINGUNA
