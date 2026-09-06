@@ -268,7 +268,7 @@ End Sub
 
 
 Private Sub CbTipoIdentificacion_SelectedIndexChanged (Index As Int)
-	Formato.SetTipoIdentificacion(Index)
+	Formato.SetTipoIdentificacion(Index,TextIdentificacion)
 End Sub
 
 #End Region

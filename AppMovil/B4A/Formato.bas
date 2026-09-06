@@ -18,7 +18,7 @@ Sub Process_Globals
 
 	'Tipo de identificacion activo cuando el campo es generico (un solo
 	'campo con el combo al lado). Lo escribe SetTipoIdentificacion.
-	Public MascaraTipoIdent As Int = MASCARA_IDENT_FISICA
+	
 
 	Public Const MASCARA_NINGUNA        As Int = 0
 	Public Const MASCARA_TELEFONO       As Int = 1
@@ -29,6 +29,7 @@ Sub Process_Globals
 	Public Const MASCARA_IDENT_JURIDICA As Int = 6
 	Public Const MASCARA_IDENT_FISICA   As Int = 7
 	Public Const MASCARA_IDENT_DIMEX    As Int = 8
+	Public MascaraTipoIdent As Int = MASCARA_IDENT_FISICA
 End Sub
 
 #Region Evento de Entrada
@@ -103,8 +104,7 @@ Private Sub Enmascarar (t As String) As Int
 	If t.Contains(Utils.TAG_FTF_IDENT_TODAS)     Then Return MASCARA_IDENT
 	If t.Contains(Utils.TAG_FTF_CEDULA_JURIDICA) Then Return MASCARA_IDENT_JURIDICA
 	If t.Contains(Utils.TAG_FTF_CEDULA_DIMEX)    Then Return MASCARA_IDENT_DIMEX
-	If t.Contains(Utils.TAG_FTF_CEDULA_FISICA)   Then Return MASCARA_IDENT_FISICA
-	If t.Contains(Utils.TAG_FTF_CEDULA)          Then Return MASCARA_IDENT
+	If t.Contains(Utils.TAG_FTF_CEDULA)   Then Return MASCARA_IDENT_FISICA
 	If t.Contains(Utils.TAG_FTF_EMAIL)           Then Return MASCARA_EMAIL
 	Return MASCARA_NINGUNA
 End Sub
