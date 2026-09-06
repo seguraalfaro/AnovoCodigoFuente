@@ -218,15 +218,31 @@ End Sub
 #Region EventsClicks
 Private Sub BtnSiguiente_Click
 	Dim actual As Int = AHView.CurrentPage
-	'If ValidarPaso(actual) = False Then Return
-	If actual=0 Then PersistirBorrador
+	If ValidarPaso(actual) = False Then Return
 	If actual < ULTIMO Then
 		AHView.GotoPage(actual + 1, True)
 	Else
 		Confirmar
 	End If
 End Sub
+Private Sub ValidarPaso (Indice As Int) As Boolean
+	Dim panel As B4XView = Null
 
+	Select Indice
+		Case 0
+			panel = PnDatos
+		Case 2
+			panel = pnConsetimiento
+	End Select
+
+	'Los pasos sin validacion propia pasan directo
+	If panel = Null Then Return True
+
+	If Validacion.ValidarFormulario(panel) Then Return True
+
+	xui.MsgboxAsync("Complete los campos marcados en rojo.", "Faltan datos")
+	Return False
+End Sub
 Private Sub BtnAtras_sec_Click
 	If AHView.CurrentPage > 0 Then AHView.GotoPage(AHView.CurrentPage - 1, True)
 End Sub

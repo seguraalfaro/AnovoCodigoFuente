@@ -10,6 +10,9 @@ Version=13.7
 'La identificacion es por el campo Tag del Designer, no por el nombre.
 'Solo se marcan las vistas que se salen del comportamiento por defecto.
 '
+'Los literales de los tags viven en Utils (TAG_*), porque Mascara usa la
+'misma lista. Las categorias (CAT_*) son internas de este modulo.
+'
 'Tags reconocidos:
 '   Botones reales (Button):
 '      (vacio)        primario
@@ -42,9 +45,14 @@ Version=13.7
 '   EditText:
 '      no necesita tag
 '   B4XFloatTextField (el tag va en el custom view, en el Designer):
-'      _ftf_email     teclado de correo
-'      _ftf_telefono  teclado de telefono
-'      _ftf_monto     teclado decimal
+'      _ftf_email             teclado de correo
+'      _ftf_telefono          teclado de telefono
+'      _ftf_telefono_ext      teclado de telefono, con extension
+'      _ftf_monto             teclado decimal
+'      _ftf_cedula            cedula fisica, solo digitos
+'      _ftf_cedula_juridica   alfanumerico en mayusculas
+'      _ftf_cedula_dimex      solo digitos
+'      _ftf_cedulajuridica_cedula   acepta los tres, decide el combo
 '   Excluir cualquier vista:
 '      _raw
 '
@@ -82,6 +90,38 @@ Sub Process_Globals
 	Public Const EVENTO_CAMPO As String = "EditText"
 	Public DEPURAR As Boolean = False
 
+	'Categorias: las devuelve un clasificador y las consume un Select.
+	'Escritas a mano en los dos lados, un typo cae en el Case Else sin avisar.
+	Private Const CAT_PRIMARIO     As String = "primario"
+	Private Const CAT_SECUNDARIO   As String = "secundario"
+	Private Const CAT_PELIGRO      As String = "peligro"
+	Private Const CAT_ICONO        As String = "icono"
+	Private Const CAT_ICONO_ACTIVO As String = "icono_activo"
+
+	Private Const CAT_NORMAL      As String = "normal"
+	Private Const CAT_TITULO      As String = "titulo"
+	Private Const CAT_SUBTITULO   As String = "subtitulo"
+	Private Const CAT_ERROR       As String = "error"
+	Private Const CAT_LINK        As String = "link"
+	Private Const CAT_CHIP        As String = "chip"
+	Private Const CAT_CHIP_ALERTA As String = "chip_alerta"
+
+	Private Const CAT_FONDO    As String = "fondo"
+	Private Const CAT_CARD     As String = "card"
+	Private Const CAT_CARD_BTN As String = "card_btn"
+	Private Const CAT_BARRA    As String = "barra"
+	Private Const CAT_SEP      As String = "sep"
+
+	Private Const CAT_EMAIL           As String = "email"
+	Private Const CAT_TELEFONO        As String = "telefono"
+	Private Const CAT_TELEFONO_EXT    As String = "telefono_ext"
+	Private Const CAT_MONTO           As String = "monto"
+	Private Const CAT_CEDULA          As String = "cedula"
+	Private Const CAT_CEDULA_JURIDICA As String = "cedula_juridica"
+	Private Const CAT_CEDULA_DIMEX    As String = "cedula_dimex"
+	Private Const CAT_IDENT_TODAS     As String = "ident_todas"
+	Private Const CAT_NINGUNA         As String = ""
+
 	'Guarda el color de texto original de cada boton para restaurarlo
 	'en Habilitar. La clave es la instancia de la vista.
 	Private ColoresTexto As Map
@@ -102,7 +142,7 @@ Public Sub AplicarVista (v As B4XView)
 	If ColoresTexto.IsInitialized = False Then ColoresTexto.Initialize
 
 	Dim t As String = ObtenerTag(v)
-	If t.Contains("_raw") Then Return
+	If t.Contains(Utils.TAG_RAW) Then Return
 
 	Dim o As Object = v
 	Dim categoria As String = ""
@@ -116,7 +156,7 @@ Public Sub AplicarVista (v As B4XView)
 		Dim tp As String = TagDelPadre(v)
 		Dim ftf As B4XFloatTextField = IdentificarFloatText(v)
 		categoria = ClasificarFloatTextField(tp)
-		
+
 		If ftf <> Null Then
 			UnificarEvento(ftf)
 			EstilizarCampoFlotante(ftf, v, categoria)
@@ -124,9 +164,9 @@ Public Sub AplicarVista (v As B4XView)
 			'EditText suelto: se le pinta borde propio, el flotante ya trae el suyo
 			EstilizarCampo(v)
 		End If
-	
+
 	Else If o Is Label Then
-		If t.Contains("_btn") Then
+		If t.Contains(Utils.TAG_BTN) Then
 			categoria = ClasificarBoton(t)
 			EstilizarBotonLabel(v, categoria, t)
 		Else
@@ -142,6 +182,7 @@ Public Sub AplicarVista (v As B4XView)
 	If DEPURAR Then Log("UI: [" & t & "] " & GetType(o) & " -> " & categoria _
 		& "  alto=" & v.Height)
 End Sub
+
 public Sub IdentificarFloatText(v As B4XView) As B4XFloatTextField
 	Try
 		Dim p As B4XView = v.Parent
@@ -153,7 +194,7 @@ public Sub IdentificarFloatText(v As B4XView) As B4XFloatTextField
 	Catch
 		Return Null
 	End Try
-	
+
 End Sub
 
 Private Sub UnificarEvento (Campo As B4XFloatTextField)
@@ -219,51 +260,54 @@ End Sub
 
 #Region Clasificadores
 Private Sub ClasificarBoton (t As String) As String
-	If t.Contains("_icon")    Then Return "icono"
-	If t.Contains("_sec")     Then Return "secundario"
-	If t.Contains("_peligro") Then Return "peligro"
-	Return "primario"
+	If t.Contains(Utils.TAG_ICON)    Then Return CAT_ICONO
+	If t.Contains(Utils.TAG_SEC)     Then Return CAT_SECUNDARIO
+	If t.Contains(Utils.TAG_PELIGRO) Then Return CAT_PELIGRO
+	Return CAT_PRIMARIO
 End Sub
 
 '_chip_alerta va antes que _chip porque tambien lo contiene.
 Private Sub ClasificarEtiqueta (t As String) As String
-	If t.Contains("_chip_alerta") Then Return "chip_alerta"
-	If t.Contains("_chip")        Then Return "chip"
-	If t.Contains("_tit")         Then Return "titulo"
-	If t.Contains("_sub")         Then Return "subtitulo"
-	If t.Contains("_error")       Then Return "error"
-	If t.Contains("_link")        Then Return "link"
-	Return "normal"
+	If t.Contains(Utils.TAG_CHIP_ALERTA) Then Return CAT_CHIP_ALERTA
+	If t.Contains(Utils.TAG_CHIP)        Then Return CAT_CHIP
+	If t.Contains(Utils.TAG_TIT)         Then Return CAT_TITULO
+	If t.Contains(Utils.TAG_SUB)         Then Return CAT_SUBTITULO
+	If t.Contains(Utils.TAG_ERROR)       Then Return CAT_ERROR
+	If t.Contains(Utils.TAG_LINK)        Then Return CAT_LINK
+	Return CAT_NORMAL
 End Sub
 
 Private Sub ClasificarPanel (t As String) As String
-	If t.Contains("_card_btn") Then Return "card_btn"
-	If t.Contains("_fondo")    Then Return "fondo"
-	If t.Contains("_card")     Then Return "card"
-	If t.Contains("_barra")    Then Return "barra"
-	If t.Contains("_sep")      Then Return "sep"
-	Return ""
+	If t.Contains(Utils.TAG_CARD_BTN) Then Return CAT_CARD_BTN
+	If t.Contains(Utils.TAG_FONDO)    Then Return CAT_FONDO
+	If t.Contains(Utils.TAG_CARD)     Then Return CAT_CARD
+	If t.Contains(Utils.TAG_BARRA)    Then Return CAT_BARRA
+	If t.Contains(Utils.TAG_SEP)      Then Return CAT_SEP
+	Return CAT_NINGUNA
 End Sub
 
 'Prefijo _ftf_ propio para que un panel tagueado _card_telefono
 'no arrastre por error al EditText que tenga adentro.
+'Los tags largos van primero: _ftf_cedula es prefijo de los otros tres.
 Private Sub ClasificarFloatTextField (t As String) As String
-	If t.Contains("_ftf_email")            Then Return "email"
-	If t.Contains("_ftf_telefono_ext")     Then Return "telefonoExt"
-	If t.Contains("_ftf_telefono")         Then Return "telefono"
-	If t.Contains("_ftf_monto")            Then Return "monto"
-	If t.Contains("_ftf_cedula_juridica")  Then Return "cedulajuridica"
-	If t.Contains("_ftf_cedula")           Then Return "cedula"
-	Return ""
+	If t.Contains(Utils.TAG_FTF_EMAIL)           Then Return CAT_EMAIL
+	If t.Contains(Utils.TAG_FTF_TELEFONO_EXT)    Then Return CAT_TELEFONO_EXT
+	If t.Contains(Utils.TAG_FTF_TELEFONO)        Then Return CAT_TELEFONO
+	If t.Contains(Utils.TAG_FTF_MONTO)           Then Return CAT_MONTO
+	If t.Contains(Utils.TAG_FTF_IDENT_TODAS)     Then Return CAT_IDENT_TODAS
+	If t.Contains(Utils.TAG_FTF_CEDULA_JURIDICA) Then Return CAT_CEDULA_JURIDICA
+	If t.Contains(Utils.TAG_FTF_CEDULA_DIMEX)    Then Return CAT_CEDULA_DIMEX
+	If t.Contains(Utils.TAG_FTF_CEDULA)          Then Return CAT_CEDULA
+	Return CAT_NINGUNA
 End Sub
 
 'Version destacada de cada categoria, para el elemento activo de un grupo.
 Private Sub CategoriaActiva (t As String) As String
 	Select ClasificarBoton(t)
-		Case "icono"
-			Return "icono_activo"
+		Case CAT_ICONO
+			Return CAT_ICONO_ACTIVO
 		Case Else
-			Return "primario"
+			Return CAT_PRIMARIO
 	End Select
 End Sub
 
@@ -271,28 +315,28 @@ End Sub
 'Salida: Array(fondo, fondoPresionado, texto, borde, anchoBorde)
 Private Sub PaletaBoton (categoria As String) As Int()
 	Select categoria
-		Case "secundario"
+		Case CAT_SECUNDARIO
 			Return Array As Int( _
 				Colores.COLOR_SUPERFICIE, _
 				Colores.COLOR_FONDO_PANTALLA, _
 				Colores.COLOR_PRIMARIO, _
 				Colores.COLOR_PRIMARIO, _
 				BORDE_ANCHO_SEC)
-		Case "peligro"
+		Case CAT_PELIGRO
 			Return Array As Int( _
 				Colores.COLOR_ERROR, _
 				Colores.COLOR_ERROR_CLARO, _
 				Colores.COLOR_TEXTO_SOBRE_PRIMARIO, _
 				Colores.COLOR_ERROR, _
 				0)
-		Case "icono"
+		Case CAT_ICONO
 			Return Array As Int( _
 				Colores.COLOR_PRIMARIO_TENUE, _
 				Colores.COLOR_PRIMARIO_SUAVE, _
 				Colores.COLOR_PRIMARIO, _
 				Colores.COLOR_PRIMARIO_TENUE, _
 				0)
-		Case "icono_activo"
+		Case CAT_ICONO_ACTIVO
 			Return Array As Int( _
 				Colores.COLOR_SUPERFICIE, _
 				Colores.COLOR_PRIMARIO_TENUE, _
@@ -312,9 +356,9 @@ End Sub
 'Devuelve el radio de esquina segun el tag.
 'Los tags de forma circular usan la mitad del alto de la vista.
 Private Sub RadioDe (v As B4XView, t As String) As Int
-	If t.Contains("_icon")    Then Return v.Height / 2
-	If t.Contains("_redondo") Then Return v.Height / 2
-	If t.Contains("_pill")    Then Return v.Height / 2
+	If t.Contains(Utils.TAG_ICON)    Then Return v.Height / 2
+	If t.Contains(Utils.TAG_REDONDO) Then Return v.Height / 2
+	If t.Contains(Utils.TAG_PILL)    Then Return v.Height / 2
 	Return RADIO_BOTON
 End Sub
 #End Region
@@ -435,7 +479,7 @@ Private Sub EstilizarCampo (v As B4XView)
 
 	Dim et As EditText = v
 	et.HintColor = Colores.COLOR_DESHABILITADO
-	
+
 End Sub
 
 'EditText interno de un B4XFloatTextField. El hint va en el componente
@@ -455,31 +499,57 @@ Private Sub EstilizarCampoFlotante (Campo As B4XFloatTextField, v As B4XView, ca
 	et.HintColor = Colores.COLOR_DESHABILITADO
 
 	Select categoria
-		Case "email"
+		Case CAT_EMAIL
 			' B4A no expone TYPE_TEXT_VARIATION_EMAIL_ADDRESS en EditText, por lo que
 			' se combina INPUT_TYPE_TEXT (TYPE_CLASS_TEXT, 0x1) con el literal 0x20 de
 			' android.text.InputType. Valor resultante: 33.
 			' Fuente del valor: developer.android.com/reference/android/text/InputType
 			' Uso confirmado en B4X Forum, "EditText input types" (hilo 40647).
-			et.InputType = Bit.Or(et.INPUT_TYPE_TEXT, 32)
+			et.InputType = Utils.INPUT_CORREO
 			PonerHint(Campo, Utils.HINT_CORREO)
-		Case "telefono"
+		Case CAT_TELEFONO
 			et.InputType = et.INPUT_TYPE_PHONE
 			PonerHint(Campo, Utils.HINT_TELEFONO)
-		Case "telefonoExt"
+		Case CAT_TELEFONO_EXT
 			et.InputType = et.INPUT_TYPE_PHONE
 			PonerHint(Campo, Utils.HINT_TELEFONO_EXT)
-		Case "monto"
+		Case CAT_MONTO
 			et.InputType = et.INPUT_TYPE_DECIMAL_NUMBERS
 			PonerHint(Campo, Utils.HINT_MONTO)
-		Case "cedula"
+		Case CAT_CEDULA
 			et.InputType = et.INPUT_TYPE_NUMBERS
 			PonerHint(Campo, Utils.HINT_CEDULA)
-		Case "cedulajuridica"
+		Case CAT_CEDULA_JURIDICA
 			'El consecutivo juridico pasa a alfanumerico (3-101-A00001),
 			'asi que el teclado no puede ser numerico.
-			et.InputType = et.INPUT_TYPE_TEXT
+			et.InputType = Utils.INPUT_ALFANUMERICO_MAY
 			PonerHint(Campo, Utils.HINT_CEDULA_JURIDICA)
+		Case CAT_CEDULA_DIMEX
+			et.InputType = et.INPUT_TYPE_NUMBERS
+			PonerHint(Campo, Utils.HINT_CEDULA_DIMEX)
+		Case CAT_IDENT_TODAS
+			'Acepta los tres formatos, el combo decide cual: teclado alfanumerico.
+			et.InputType = Utils.INPUT_ALFANUMERICO_MAY
+			PonerHint(Campo, Utils.HINT_IDENT_TODAS)
+	End Select
+End Sub
+'Reconfigura el campo generico de identificacion cuando cambia el combo.
+'Recibe la constante de Mascara, no el indice del combo.
+Public Sub ConfigurarIdentificacion (Campo As B4XFloatTextField, Tipo As Int)
+	Dim et As EditText = Campo.TextField
+	Select Tipo
+		Case Formato.MASCARA_IDENT_JURIDICA
+			et.InputType = Utils.INPUT_ALFANUMERICO_MAY
+			PonerHint(Campo, Utils.HINT_CEDULA_JURIDICA)
+		Case Formato.MASCARA_IDENT_FISICA
+			et.InputType = Utils.INPUT_SOLO_DIGITOS
+			PonerHint(Campo, Utils.HINT_CEDULA)
+		Case Formato.MASCARA_IDENT_DIMEX
+			et.InputType = Utils.INPUT_SOLO_DIGITOS
+			PonerHint(Campo, Utils.HINT_CEDULA_DIMEX)
+		Case Else
+			et.InputType = Utils.INPUT_ALFANUMERICO_MAY
+			PonerHint(Campo, Utils.HINT_IDENT_TODAS)
 	End Select
 End Sub
 'Sin Update el label flotante se queda con el texto anterior.
@@ -487,6 +557,7 @@ Private Sub PonerHint (Campo As B4XFloatTextField, hint As String)
 	Campo.HintText = hint
 	Campo.Update
 End Sub
+
 'Ya no hace falta llamarlo: AplicarTema alcanza los campos flotantes por
 'el Tag del contenedor. Se conserva por compatibilidad con las paginas viejas.
 Public Sub EstilizarCampos (Campos() As B4XFloatTextField)
@@ -508,6 +579,7 @@ Public Sub CampoNormal (Campo As B4XFloatTextField,hint As String=Null)
 		BORDE_ANCHO, Colores.COLOR_BORDE, RADIO_CAMPO)
 	If hint <> "" Then PonerHint(Campo, hint)
 End Sub
+
 Public Sub MarcarError (v As B4XView)
 	Dim ftf As B4XFloatTextField = IdentificarFloatText(v)
 	If ftf <> Null Then
@@ -527,6 +599,7 @@ Public Sub MarcarNormal (v As B4XView)
 	v.SetColorAndBorder(Colores.COLOR_SUPERFICIE, BORDE_ANCHO, _
 		Colores.COLOR_BORDE, RADIO_CAMPO)
 End Sub
+
 Public Sub ConfigurarMemo (Campo As EditText, Ayuda As String)
 	Campo.As(B4XView).SetColorAndBorder(Colores.COLOR_SUPERFICIE, BORDE_ANCHO, _
 		Colores.COLOR_BORDE, RADIO_CAMPO)
@@ -543,24 +616,24 @@ End Sub
 #Region Etiquetas
 Private Sub EstilizarEtiqueta (v As B4XView, categoria As String)
 	Select categoria
-		Case "titulo"
+		Case CAT_TITULO
 			v.TextColor = Colores.COLOR_TEXTO_PRIMARIO
 			Dim lbl As Label = v
 			lbl.Typeface = Typeface.DEFAULT_BOLD
 
-		Case "subtitulo"
+		Case CAT_SUBTITULO
 			v.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
 
-		Case "error"
+		Case CAT_ERROR
 			v.TextColor = Colores.COLOR_ERROR
 
-		Case "link"
+		Case CAT_LINK
 			v.TextColor = Colores.COLOR_PRIMARIO
 
-		Case "chip"
+		Case CAT_CHIP
 			EstilizarChip(v, Colores.COLOR_PRIMARIO_TENUE, Colores.COLOR_PRIMARIO)
 
-		Case "chip_alerta"
+		Case CAT_CHIP_ALERTA
 			EstilizarChip(v, Colores.COLOR_ADVERTENCIA_TENUE, Colores.COLOR_ADVERTENCIA)
 
 		Case Else
@@ -580,14 +653,14 @@ End Sub
 #Region Paneles
 Private Sub EstilizarPanel (v As B4XView, categoria As String)
 	Select categoria
-		Case "fondo"
+		Case CAT_FONDO
 			v.Color = Colores.COLOR_FONDO_PANTALLA
 
-		Case "card"
+		Case CAT_CARD
 			v.SetColorAndBorder(Colores.COLOR_SUPERFICIE, BORDE_ANCHO, _
 			                    Colores.COLOR_BORDE, RADIO_TARJETA)
 
-		Case "card_btn"
+		Case CAT_CARD_BTN
 			Dim normal As ColorDrawable
 			normal.Initialize2(Colores.COLOR_SUPERFICIE, RADIO_TARJETA, _
 			                   BORDE_ANCHO, Colores.COLOR_BORDE)
@@ -607,10 +680,10 @@ Private Sub EstilizarPanel (v As B4XView, categoria As String)
 			Dim jo As JavaObject = pnl
 			jo.RunMethod("setClickable", Array As Object(True))
 
-		Case "barra"
+		Case CAT_BARRA
 			v.Color = Colores.COLOR_PRIMARIO
 
-		Case "sep"
+		Case CAT_SEP
 			v.Color = Colores.COLOR_BORDE
 
 		Case Else

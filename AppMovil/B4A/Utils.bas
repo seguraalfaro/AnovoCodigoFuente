@@ -8,29 +8,96 @@ Version=13.7
 '  Texto — cadenas y formato de fechas. Sin estado, sin UI, sin BD.
 '  Toda funcion que toque DateTime.DateFormat lo deja como estaba:
 '  ese formato es global al proceso.
+'
+'  Tambien concentra el vocabulario compartido: los tags del Designer
+'  (TAG_*), los InputType y los hints. UI y Mascara leen de aqui para
+'  no mantener dos listas del mismo tag.
 ' ============================================================
 Sub Process_Globals
 	Public Const FORMATO_BD      As String = "yyyy-MM-dd HH:mm:ss"   ' columnas TEXT de fecha en SQLite
 	Public Const FORMATO_API     As String = "yyyy-MM-dd HH:mm:ss.SSS" ' ajustar al confirmar el del backend
 	Public Const FORMATO_DISPLAY As String = "dd/MM/yyyy HH:mm"
 	Public Const FORMATO_CORTA   As String = "dd/MM/yyyy"
+
 	Public Const LARGO_IDENT_FISICA   As Int = 9
 	Public Const LARGO_IDENT_JURIDICA As Int = 10
 	Public Const LARGO_IDENT_DIMEX    As Int = 12
 	Public Const LARGO_IDENT_DIMEX_MIN As Int = 11
 	Public Const LARGO_TELEFONO       As Int = 8
 	Public Const LARGO_TELEFONO_EXT   As Int = 14
-	Public Const HINT_CORREO As String ="correo@Empresa.com"
-	Public Const HINT_CEDULA As String ="104530756"
-	Public Const HINT_CEDULA_DIMEX As String ="121800123456"
-	Public Const  HINT_TELEFONO As String ="8888-8888"
-	Public Const  HINT_TELEFONO_EXT As String ="8888-8888 EXT 423"
-	Public Const  HINT_MONTO As String ="8888-8888 EXT 423"
-	Public Const HINT_CEDULA_JURIDICA As String ="3101A00001"
-	Public Const HINT_REQUERIDO As String = "Campo obligatorio"
-	Public Const HINT_FORMATO   As String = "Formato incorrecto"
-	Public Const HINT_ERROR As String ="Revise este campo"
-	Public Const TiposIdent() As String= Array As String("Cédula física", "Cédula jurídica", "DIMEX")
+
+	Public Const TiposIdent() As String= Array As String("","Cédula física", "Cédula jurídica", "DIMEX")
+
+	#Region Hints
+	Public Const HINT_CEDULA          As String = "104530756"
+	Public Const HINT_CEDULA_JURIDICA As String = "3-101-A00001"
+	Public Const HINT_CEDULA_DIMEX    As String = "1-2345-6789012"
+	Public Const HINT_TELEFONO        As String = "8888-8888"
+	Public Const HINT_TELEFONO_EXT    As String = "8888-8888 ext 423"
+	Public Const HINT_CORREO          As String = "nombre@dominio.cr"
+	Public Const HINT_MONTO           As String = "125000,00"
+	Public Const HINT_ERROR           As String = "Formato invalido"
+	Public Const HINT_REQUERIDO       As String = "Campo obligatorio"
+	Public Const HINT_FORMATO         As String = "Formato incorrecto"
+
+	'Solo para el campo que se llena antes de elegir el tipo en el combo.
+	Public Const HINT_IDENT_TODAS As String = "juridica: 3-101-A00001   fisica: 104530756   dimex: 1-2345-6789012"
+	#End Region
+
+	#Region InputType
+	' Valores de android.text.InputType. TYPE_CLASS_TEXT (0x1) mas la variacion.
+	' Const no admite Bit.Or ni miembros de EditText, por eso van literales.
+	' Fuente: developer.android.com/reference/android/text/InputType
+	' | TYPE_TEXT_VARIATION_EMAIL_ADDRESS (0x20)
+	Public Const INPUT_CORREO As Int = 33
+	' | TYPE_TEXT_VARIATION_VISIBLE_PASSWORD (0x80), saca la fila de numeros sin shift
+	Public Const INPUT_ALFANUMERICO As Int = 145
+	' | VISIBLE_PASSWORD | TYPE_TEXT_FLAG_CAP_CHARACTERS (0x1000)
+	Public Const INPUT_ALFANUMERICO_MAY As Int = 4241
+	' TYPE_CLASS_PHONE. INPUT_SOLO_DIGITOS es el mismo valor, separado por legibilidad
+	' en los campos de identificacion.
+	Public Const INPUT_TELEFONO     As Int = 3
+	Public Const INPUT_SOLO_DIGITOS As Int = 3
+	#End Region
+
+	#Region Tags del Designer
+	'Vocabulario de tags. Lo comparten UI y Mascara: si alguien escribe el
+	'literal a mano en un Contains, vuelven a ser dos listas que se separan.
+	Public Const TAG_RAW As String = "_raw"
+
+	'Botones y labels-boton
+	Public Const TAG_BTN     As String = "_btn"
+	Public Const TAG_SEC     As String = "_sec"
+	Public Const TAG_PELIGRO As String = "_peligro"
+	Public Const TAG_ICON    As String = "_icon"
+	Public Const TAG_REDONDO As String = "_redondo"
+	Public Const TAG_PILL    As String = "_pill"
+
+	'Labels de texto
+	Public Const TAG_TIT         As String = "_tit"
+	Public Const TAG_SUB         As String = "_sub"
+	Public Const TAG_ERROR       As String = "_error"
+	Public Const TAG_LINK        As String = "_link"
+	Public Const TAG_CHIP        As String = "_chip"
+	Public Const TAG_CHIP_ALERTA As String = "_chip_alerta"
+
+	'Paneles
+	Public Const TAG_FONDO    As String = "_fondo"
+	Public Const TAG_CARD     As String = "_card"
+	Public Const TAG_CARD_BTN As String = "_card_btn"
+	Public Const TAG_BARRA    As String = "_barra"
+	Public Const TAG_SEP      As String = "_sep"
+
+	'B4XFloatTextField
+	Public Const TAG_FTF_EMAIL           As String = "_ftf_email"
+	Public Const TAG_FTF_TELEFONO        As String = "_ftf_telefono"
+	Public Const TAG_FTF_TELEFONO_EXT    As String = "_ftf_telefono_ext"
+	Public Const TAG_FTF_MONTO           As String = "_ftf_monto"
+	Public Const TAG_FTF_CEDULA          As String = "_ftf_cedula"
+	Public Const TAG_FTF_CEDULA_JURIDICA As String = "_ftf_cedula_juridica"
+	Public Const TAG_FTF_CEDULA_DIMEX    As String = "_ftf_cedula_dimex"
+	Public Const TAG_FTF_IDENT_TODAS     As String = "_ftf_cedulajuridica_cedula"
+	#End Region
 End Sub
 
 #Region Cadenas
@@ -51,6 +118,7 @@ Public Sub Truncar (Valor As String, LongitudMaxima As Int) As String
 	If Valor.Length <= LongitudMaxima Then Return Valor
 	Return Valor.SubString2(0, LongitudMaxima - 3) & "..."
 End Sub
+
 'Une los trozos no vacios con el separador. Evita quedarse con " ·  · " sueltos.
 Public Sub Unir (Separador As String, Partes() As String) As String
 	Dim sb As StringBuilder
@@ -152,9 +220,6 @@ Public Sub BdAApi (FechaBd As String) As String
 	Return Formatear(f, FORMATO_API).Replace(" ", "T") & "Z"
 End Sub
 
-
-
-
 #End Region
 
 #Region Texto
@@ -184,8 +249,15 @@ End Sub
 
 'Lo que se guarda y se envia a la API. Si el movil manda con guiones y el
 'escritorio sin ellos, el cotejo al sincronizar duplica clientes.
+'Solo para identificaciones y telefonos: se come la arroba y el punto.
 Public Sub Normalizar (Texto As String) As String
 	Return SoloAlfanum(Texto)
+End Sub
+
+'Los correos se guardan tal cual, en minusculas. SoloAlfanum los destruye.
+Public Sub NormalizarCorreo (Texto As String) As String
+	If EstaVacio(Texto) Then Return ""
+	Return Texto.Trim.ToLowerCase
 End Sub
 #End Region
 

@@ -77,10 +77,10 @@ End Sub
 Private Sub ValidarPaso (Indice As Int) As Boolean
 	Select Indice
 		Case 0
-		'	If cbCliente.SelectedIndex < 0 Then
+			If Validacion.ValidarFormulario(pn_fondo) Then
 			'	xui.MsgboxAsync("Seleccione un cliente antes de continuar.", "Datos incompletos")
 			'	Return False
-		'	End If
+			End If
 		Case 1
 			'If lstPiezas.Size = 0 Then
 			'	xui.MsgboxAsync("Agregue al menos una pieza.", "Datos incompletos")
