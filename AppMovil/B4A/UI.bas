@@ -112,6 +112,7 @@ Sub Process_Globals
 	Private Const CAT_BARRA    As String = "barra"
 	Private Const CAT_SEP      As String = "sep"
 
+	Private Const CAT_NOMBRE           As String = "nombre"
 	Private Const CAT_EMAIL           As String = "email"
 	Private Const CAT_TELEFONO        As String = "telefono"
 	Private Const CAT_TELEFONO_EXT    As String = "telefono_ext"
@@ -302,6 +303,7 @@ Private Sub ClasificarFloatTextField (t As String) As String
 	If t.Contains(Utils.TAG_FTF_CEDULA_JURIDICA) Then Return CAT_CEDULA_JURIDICA
 	If t.Contains(Utils.TAG_FTF_CEDULA_DIMEX)    Then Return CAT_CEDULA_DIMEX
 	If t.Contains(Utils.TAG_FTF_CEDULA)          Then Return CAT_CEDULA
+	If t.Contains(Utils.TAG_FTF_NOMBRE)          Then Return CAT_NOMBRE
 	Return CAT_NINGUNA
 End Sub
 
@@ -535,7 +537,35 @@ Private Sub EstilizarCampoFlotante (Campo As B4XFloatTextField, v As B4XView, ca
 			'Acepta los tres formatos, el combo decide cual: teclado alfanumerico.
 			et.InputType = Utils.INPUT_ALFANUMERICO_MAY
 			PonerHint(Campo, Utils.HINT_IDENT_TODAS)
+		Case CAT_NOMBRE
+			et.InputType = Utils.INPUT_ALFANUMERICO_MAY
+			PonerHint(Campo, Utils.HINT_NOMBRE)
 	End Select
+End Sub
+'Se usa al limpiar un error: restaurar sin repintar el teclado.
+Public Sub HintPorTag (Campo As B4XFloatTextField) As String
+	Dim categoria As String = ClasificarFloatTextField(TagDelPadre(Campo.TextField))
+	Select categoria
+		Case CAT_EMAIL
+			Return Utils.HINT_CORREO
+		Case CAT_TELEFONO
+			Return Utils.HINT_TELEFONO
+		Case CAT_TELEFONO_EXT
+			Return Utils.HINT_TELEFONO_EXT
+		Case CAT_MONTO
+			Return Utils.HINT_MONTO
+		Case CAT_CEDULA
+			Return Utils.HINT_CEDULA
+		Case CAT_CEDULA_JURIDICA
+			Return Utils.HINT_CEDULA_JURIDICA
+		Case CAT_CEDULA_DIMEX
+			Return Utils.HINT_CEDULA_DIMEX
+		Case CAT_IDENT_TODAS
+			Return Utils.HINT_IDENT_TODAS
+		Case CAT_NOMBRE
+			Return Utils.HINT_NOMBRE
+	End Select
+	Return ""
 End Sub
 'Reconfigura el campo generico de identificacion cuando cambia el combo.
 'Recibe la constante de Mascara, no el indice del combo.

@@ -180,6 +180,8 @@ Public Sub EventoCambioFocusText(Remitente As Object)As Boolean
 			Return Validacion.RevisarIdentificacion(MascaraTipoIdent, Utils.Normalizar(texto), Remitente)
 		Case MASCARA_EMAIL
 			Return Validacion.RevisarCorreo(Utils.NormalizarCorreo(texto), Remitente)
+		Case MASCARA_NINGUNA
+			Return  Validacion.RevisarTexto(texto, Remitente)
 	End Select
 
 	Return False

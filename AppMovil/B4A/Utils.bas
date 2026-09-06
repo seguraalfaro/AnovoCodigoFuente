@@ -25,10 +25,13 @@ Sub Process_Globals
 	Public Const LARGO_IDENT_DIMEX_MIN As Int = 11
 	Public Const LARGO_TELEFONO       As Int = 8
 	Public Const LARGO_TELEFONO_EXT   As Int = 14
-
+	Public Const LARGO_MINIMO_TEXTO As Int = 3
+	Public Const VOCALES_MINIMO As Float = 0.2
+	
 	Public Const TiposIdent() As String= Array As String("","Cédula física", "Cédula jurídica", "DIMEX")
 
 	#Region Hints
+	Public Const HINT_NOMBRE         As String ="Juan Perez / Anovo MS S.A."
 	Public Const HINT_CEDULA          As String = "104530756"
 	Public Const HINT_CEDULA_JURIDICA As String = "3-101-A00001"
 	Public Const HINT_CEDULA_DIMEX    As String = "1-2345-6789012"
@@ -39,6 +42,7 @@ Sub Process_Globals
 	Public Const HINT_ERROR           As String = "Formato invalido"
 	Public Const HINT_REQUERIDO       As String = "Campo obligatorio"
 	Public Const HINT_FORMATO         As String = "Formato incorrecto"
+	Public Const HINT_TEXTO_INVALIDO As String = "Escriba un texto valido"
 
 	'Solo para el campo que se llena antes de elegir el tipo en el combo.
 	Public Const HINT_IDENT_TODAS As String = "juridica: 3-101-A00001   fisica: 104530756   dimex: 1-2345-6789012"
@@ -97,6 +101,7 @@ Sub Process_Globals
 	Public Const TAG_FTF_CEDULA_JURIDICA As String = "_ftf_cedula_juridica"
 	Public Const TAG_FTF_CEDULA_DIMEX    As String = "_ftf_cedula_dimex"
 	Public Const TAG_FTF_IDENT_TODAS     As String = "_ftf_cedulajuridica_cedula"
+	Public Const TAG_FTF_NOMBRE     As String = "_ftf_nombre"
 	#End Region
 End Sub
 
@@ -246,7 +251,19 @@ Public Sub SoloAlfanum (s As String) As String
 	Next
 	Return sb.ToString
 End Sub
-
+Public Sub ProporcionVocales (s As String) As Float
+	Dim letras As Int = 0
+	Dim vocales As Int = 0
+	For i = 0 To s.Length - 1
+		Dim c As String = s.SubString2(i, i + 1).ToUpperCase
+		If "ABCDEFGHIJKLMNOPQRSTUVWXYZÁÉÍÓÚÜÑ".IndexOf(c) > -1 Then
+			letras = letras + 1
+			If "AEIOUÁÉÍÓÚÜ".IndexOf(c) > -1 Then vocales = vocales + 1
+		End If
+	Next
+	If letras = 0 Then Return 0
+	Return vocales / letras
+End Sub
 'Lo que se guarda y se envia a la API. Si el movil manda con guiones y el
 'escritorio sin ellos, el cotejo al sincronizar duplica clientes.
 'Solo para identificaciones y telefonos: se come la arroba y el punto.

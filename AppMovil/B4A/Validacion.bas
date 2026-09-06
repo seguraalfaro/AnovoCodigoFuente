@@ -88,6 +88,19 @@ Public Sub RevisarIdentificacion(Tipo As Int,texto As String, Campo As B4XFloatT
 	Return False
 End Sub
 
+Public Sub RevisarTexto (Texto As String, Campo As B4XFloatTextField) As Boolean
+	Dim s As String = Texto.Trim
+	Dim ok As Boolean = (s.Length >= Utils.LARGO_MINIMO_TEXTO) And _
+		(Utils.ProporcionVocales(s) >= Utils.VOCALES_MINIMO)
+
+	If ok Then
+		UI.CampoNormal(Campo, UI.HintPorTag(Campo))
+	Else
+		UI.CampoError(Campo, Utils.HINT_TEXTO_INVALIDO)
+	End If
+	Return ok
+End Sub
+
 Public Sub ValidarFormulario (Padre As B4XView) As Boolean
 	Dim ok As Boolean = True
 	For Each v As B4XView In Padre.GetAllViewsRecursive
