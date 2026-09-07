@@ -137,6 +137,8 @@ End Sub
 
 Private Sub NuevoBorrador
 	UuidCliente = Db.NuevoUuid
+	If  Contactos.Size > 0 Then Contactos.Clear
+	If   CvContactos.Size > 0 Then CvContactos.Clear
 	LimpiarFormularioCliente
 	LimpiarFormularioContacto
 	LimpiarFormularioConsentimiento
@@ -400,7 +402,7 @@ End Sub
 #Region Teclado
 Private Sub IME1_HeightChanged (NewHeight As Int, OldHeight As Int)
 	If Root.Parent.IsInitialized = False Then Return
-	'If NewHeight > OldHeight Then UI.SoltarFoco
+	If NewHeight > OldHeight Then UI.SoltarFoco(TextDireccion)
 End Sub
 
 

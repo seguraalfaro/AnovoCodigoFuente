@@ -828,13 +828,19 @@ End Sub
 #End Region
 #Region Teclado
 
-public Sub SoltarFoco
+Public Sub SoltarFoco (Campo As B4XView)
+	If Campo.IsInitialized = False Then Return
+
 	Dim act As JavaObject
 	act.InitializeContext
 	Dim enfocada As Object = act.RunMethod("getCurrentFocus", Null)
 	If enfocada = Null Then Return
-	Dim jo As JavaObject = enfocada
-	jo.RunMethod("clearFocus", Null)
+
+	Dim jc As JavaObject = Campo
+	Dim esElMismo As Boolean = jc.RunMethod("equals", Array As Object(enfocada))
+	If esElMismo = False Then Return
+
+	jc.RunMethod("clearFocus", Null)
 End Sub
 
 #End Region
