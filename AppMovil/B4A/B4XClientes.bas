@@ -64,6 +64,8 @@ Sub Class_Globals
 	Private PnContactos As B4XView
 	Private CbTipoIdentificacion As B4XComboBox
 	Private IME1 As IME
+	Private Cbfirmante As B4XComboBox
+	Private TextCedulaConsentimiento As B4XFloatTextField
 End Sub
 
 Public Sub Initialize As Object
@@ -90,6 +92,7 @@ Private Sub B4XPage_Created (Root1 As B4XView)
 End Sub
 
 Private Sub B4XPage_Appear
+		
 	If Db.HayBorrador(TIPO) Then
 		Dim sf As Object = xui.Msgbox2Async( _
 			"Tiene un cliente sin terminar. ¿Desea retomarlo?", "Anovo", _
@@ -176,7 +179,9 @@ Private Sub PersistirBorrador
 		"contacto":             TextContacto.Text.Trim, _
 		"direccion":            TextDireccion.Text.Trim, _
 		"consiente":            CkAcepto.Checked, _
-		"contactos":            Contactos)
+		"direccion":            TextDireccion.Text.Trim, _
+		"firmante":            Cbfirmante.SelectedItem.Trim, _
+		"Cedulafirmante":      TextCedulaConsentimiento.Text.Trim)
 	Db.GuardarBorrador(TIPO, b)
 End Sub
 
@@ -210,6 +215,7 @@ End Sub
 Private Sub AHView_PageChanged (Position As Int)
 	Pasos.CurrentIndex = Position
 	If Position = ULTIMO Then
+		LlenarFirmantes
 		BtnSiguiente.Text = "Guardar"
 		BtnCancelar.Visible=True
 	Else
@@ -237,9 +243,9 @@ Private Sub ValidarPaso (Indice As Int) As Boolean
 	Else
 		If Validacion.ValidarFormulario(panel) Then
 			Return True
-		Else
-			Return False
+		Else			
 			xui.MsgboxAsync("Complete los campos marcados en rojo.", "Faltan datos")
+			Return False
 		End If
 	End If
 	
@@ -250,6 +256,7 @@ End Sub
 #Region Hoja 0 - Datos del cliente
 
 Private Sub CbTipoIdentificacion_SelectedIndexChanged (Index As Int)
+	If RestaurandoBorrador Then Return
 	Formato.SetTipoIdentificacion(Index,TextIdentificacion)
 End Sub
 
@@ -333,6 +340,24 @@ End Sub
 #End Region
 
 #Region Hoja 2 - Consentimiento
+'La hoja 2 se arma con lo que hay en las dos anteriores, asi que la lista se
+'rehace al entrar en ella y no al crear la pagina: para entonces no hay nada.
+Private Sub LlenarFirmantes
+	Dim nombres As List
+	nombres.Initialize
+	nombres.Add("")                       'item guia: el indice 0 cuenta como vacio
+	For Each c As Map In Contactos
+		AgregarNombre(nombres, c.Get("nombre"))
+	Next
+	Cbfirmante.SetItems(nombres)
+	Cbfirmante.SelectedIndex = 0
+End Sub
+
+'Sin repetidos: el contacto de la hoja 0 suele volver a escribir.
+Private Sub AgregarNombre (Lista As List, Nombre As String)
+	Dim n As String = Nombre.Trim
+	If n <> "" And Lista.IndexOf(n) < 0 Then Lista.Add(n)
+End Sub
 
 Private Sub SignPad_onSigned (sign As Object)
 	HayFirma = True
@@ -355,6 +380,8 @@ Private Sub Confirmar
 	If HayFirma Then
 		Dim datos As Map = Db.LeerBorrador(TIPO)
 		datos.Put("consiente", CkAcepto.Checked)
+		datos.Put("firmante",  Cbfirmante.SelectedItem.Trim)
+		datos.Put("Cedulafirmante",TextCedulaConsentimiento.Text.Trim)
 		Dim firma() As Byte
 		firma = extDBUtils.Image2Blob(SignPad.TransparentSignatureBitmap, True)
 		DbClientes.GuardarCliente(datos,  firma)
@@ -375,9 +402,8 @@ End Sub
 #End Region
 #Region Teclado
 Private Sub IME1_HeightChanged (NewHeight As Int, OldHeight As Int)
-	If NewHeight > OldHeight Then
-	'Root.RequestFocus
-	End If
+	If Root.Parent.IsInitialized = False Then Return
+	If NewHeight > OldHeight Then UI.SoltarFoco
 End Sub
 
 

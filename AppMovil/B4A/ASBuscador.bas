@@ -326,6 +326,9 @@ End Sub
 'despertar del Sleep, si el contador cambio es que llego otra tecla y
 'esta invocacion se descarta.
 Private Sub txt_TextChanged (Old As String, New As String)
+	'SingleLine hace setText por dentro y dispara este evento mientras
+	'DesignerCreateView todavia no ha inicializado btnX.
+	If Not(listo) Then Return
 	If conLimpiar Then btnX.Visible = (New.Length > 0)
 
 	indiceCambio = indiceCambio + 1

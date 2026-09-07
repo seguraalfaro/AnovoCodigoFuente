@@ -52,11 +52,11 @@ Public Sub SetTipoIdentificacion (indice As Int, Campo As B4XFloatTextField)
 End Sub
 Private Sub TagIdentPorIndice (indice As Int) As String
 	Select indice
-		Case 1
+		Case 0
 			Return Utils.TAG_FTF_CEDULA
-		Case 2
+		Case 1
 			Return Utils.TAG_FTF_CEDULA_JURIDICA
-		Case 3
+		Case 2
 			Return Utils.TAG_FTF_CEDULA_DIMEX
 		Case Else
 			Return Utils.TAG_FTF_NOMBRE

@@ -826,3 +826,15 @@ Public Sub LimpiarFormulario (Padre As B4XView)
 End Sub
 
 #End Region
+#Region Teclado
+
+public Sub SoltarFoco
+	Dim act As JavaObject
+	act.InitializeContext
+	Dim enfocada As Object = act.RunMethod("getCurrentFocus", Null)
+	If enfocada = Null Then Return
+	Dim jo As JavaObject = enfocada
+	jo.RunMethod("clearFocus", Null)
+End Sub
+
+#End Region

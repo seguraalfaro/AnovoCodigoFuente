@@ -28,7 +28,7 @@ Sub Process_Globals
 	Public Const LARGO_MINIMO_TEXTO As Int = 3
 	Public Const VOCALES_MINIMO As Float = 0.2
 	
-	Public Const TiposIdent() As String= Array As String("","Cédula física", "Cédula jurídica", "DIMEX")
+	Public Const TiposIdent() As String= Array As String("Cédula física", "Cédula jurídica", "DIMEX")
 
 	#Region Hints
 	Public Const HINT_NOMBRE         As String ="Juan Perez / Anovo MS S.A."
