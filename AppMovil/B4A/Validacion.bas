@@ -123,7 +123,7 @@ Public Sub ValidarFormulario (Padre As B4XView) As Boolean
 		Else If o Is Spinner Then
 			'El item guia ocupa la posicion 0: ahi el combo cuenta como vacio
 			Dim sp As Spinner = v
-			vacio = (sp.SelectedIndex <= 0)
+			vacio =Utils.EstaVacio (sp.SelectedItem)
 		Else If o Is CheckBox Then
 			Dim cb As CheckBox = v
 			vacio = (cb.Checked = False)

@@ -180,6 +180,7 @@ Private Sub PersistirBorrador
 		"direccion":            TextDireccion.Text.Trim, _
 		"consiente":            CkAcepto.Checked, _
 		"direccion":            TextDireccion.Text.Trim, _
+		"contactos":            Contactos, _
 		"firmante":            Cbfirmante.SelectedItem.Trim, _
 		"Cedulafirmante":      TextCedulaConsentimiento.Text.Trim)
 	Db.GuardarBorrador(TIPO, b)
@@ -229,25 +230,20 @@ Private Sub Pasos_StepClick (Index As Int, Id As String)
 End Sub
 
 Private Sub ValidarPaso (Indice As Int) As Boolean
-	Dim panel As B4XView = Null
 	Select Indice
 		Case 0
-			panel = PnDatos
-		Case 2
-			panel = pnConsetimiento
+			If Not ( Validacion.ValidarFormulario(PnDatos)) Then
+			 xui.MsgboxAsync("Complete los campos marcados en rojo.", "Faltan datos")
+				Return False
+			End If
+		Case 1
+			If Contactos.Size = 0 Then
+				xui.MsgboxAsync("Debe agregar al menos un contacto.", "Sin contactos")
+				Return False
+			End If
 	End Select
-
-	'Los pasos sin validacion propia pasan directo
-	If panel = Null Then
-		Return True
-	Else
-		If Validacion.ValidarFormulario(panel) Then
-			Return True
-		Else			
-			xui.MsgboxAsync("Complete los campos marcados en rojo.", "Faltan datos")
-			Return False
-		End If
-	End If
+		
+ Return True
 	
 End Sub
 
@@ -283,8 +279,9 @@ Private Sub AgregarTarjetaContacto
 	Dim c As Map = LeerFormularioContacto
 	Contactos.Add(c)
 	CvContactos.Add(CrearItem(c), c)
-	LimpiarFormularioContacto
 	PersistirBorrador
+	LimpiarFormularioContacto
+	
 End Sub
 
 Private Sub CrearItem (c As Map) As B4XView
@@ -403,7 +400,7 @@ End Sub
 #Region Teclado
 Private Sub IME1_HeightChanged (NewHeight As Int, OldHeight As Int)
 	If Root.Parent.IsInitialized = False Then Return
-	If NewHeight > OldHeight Then UI.SoltarFoco
+	'If NewHeight > OldHeight Then UI.SoltarFoco
 End Sub
 
 

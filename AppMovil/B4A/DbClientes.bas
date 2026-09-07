@@ -4,7 +4,6 @@ ModulesStructureVersion=1
 Type=StaticCode
 Version=13.7
 @EndOfDesignText@
-﻿﻿
 'Code module
 'Subs in this code module will be accessible from all modules.
 Sub Process_Globals
@@ -77,6 +76,7 @@ Public Sub GuardarCliente(Datos As Map,  firma() As Byte) As String
 	If ok = False Then Return ""
 	Log("DbClientes: guardado " & uCliente & " con " & Cuantos(Contactos) & _
 		" contactos, titular [" & uTitular & "]")
+		
 	Return uCliente
 	
 End Sub
