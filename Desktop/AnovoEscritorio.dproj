@@ -58,6 +58,7 @@
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
         <SanitizedProjectName>AnovoEscritorio</SanitizedProjectName>
+        <Custom_Styles>Windows10|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows10.vsf</Custom_Styles>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_UsePackage>DBXSqliteDriver;RESTComponents;DBXDb2Driver;DBXInterBaseDriver;vclactnband;RosiDBSorters_DX104;vclFireDAC;bindcompvclsmp;emsclientfiredac;tethering;svnui;DataSnapFireDAC;JvGlobus;FireDACADSDriver;JvPluginSystem;NodeDrawing;DBXMSSQLDriver;JvMM;SkiaCustom;DatasnapConnectorsFreePascal;FireDACMSSQLDriver;vcltouch;JvBands;vcldb;bindcompfmx;svn;JvJans;DBXOracleDriver;JvNet;inetdb;JvAppFrm;CEF4Delphi;FmxTeeUI;emsedge;JvDotNetCtrls;fmx;FireDACIBDriver;fmxdae;esendemail;vcledge;JvWizards;FireDACDBXDriver;dbexpress;IndyCore;vclx;JvPageComps;dsnap;emsclient;DataSnapCommon;TaurusTLS_RT;FireDACCommon;JvDB;bdertl;RESTBackendComponents;DataSnapConnectors;VCLRESTComponents;Skia.Package.VCL;soapserver;Skia.Package.FMX;JclDeveloperTools;vclie;CPortLibDXE;bindengine;DBXMySQLDriver;CloudService;FireDACOracleDriver;FireDACMySQLDriver;DBXFirebirdDriver;JvCmp;JvHMI;MotorScheir;PrinterPreview;FireDACCommonODBC;FireDACCommonDriver;Motor;DataSnapClient;inet;IndyIPCommon;bindcompdbx;JvCustom;vcl;IndyIPServer;DBXSybaseASEDriver;JvXPCtrls;indy10sbridge270;IndySystem;debenu;FireDACDb2Driver;SimpleGraph;sbridge270;dsnapcon;FireDACMSAccDriver;fmxFireDAC;FireDACInfxDriver;vclimg;TeeDB;FireDAC;Jcl;JvCore;emshosting;lt20r3;JvCrypt;FireDACSqliteDriver;FireDACPgDriver;RosiDBComp_DX104;FireDACASADriver;DBXOdbcDriver;FireDACTDataDriver;FMXTee;pdflibreria;soaprtl;DbxCommonDriver;JvDlgs;JvRuntimeDesign;JvManagedThreads;Tee;DataSnapServer;xmlrtl;soapmidas;DataSnapNativeClient;fmxobj;vclwinx;FireDACDSDriver;rtl;emsserverresource;DbxClientDriver;JvTimeFramework;DBXSybaseASADriver;CustomIPTransport;vcldsnap;JvSystem;JvStdCtrls;bindcomp;appanalytics;DBXInformixDriver;LockBox3DR;IndyIPClient;DelphiModbus104Sydney;frce;bindcompvcl;vcldbx;Skia.Package.RTL;FrameStandPackage_10_4;TeeUI;dmvcframeworkRT;JvDocking;dbxcds;VclSmp;JvPascalInterpreter;adortl;FireDACODBCDriver;JclVcl;DataSnapIndy10ServerTransport;dmvcframeworkDT;dsnapxml;DataSnapProviderClient;dbrtl;IndyProtocols;inetdbxpress;FireDACMongoDBDriver;JvControls;JvPrintPreview;JclContainers;fmxase;$(DCC_UsePackage)</DCC_UsePackage>
@@ -83,6 +84,8 @@
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -98,10 +101,18 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="Sources\Main.pas">
+        <DCCReference Include="Src\Sources\Main.pas">
             <Form>Form16</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="Src\Forms\Anovo.Forms.Login.pas">
+            <Form>frmLogin</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Recursos\Anovo.UI.Iconos.pas">
+            <Form>dmIconos</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Src\Recursos\Anovo.UI.Tema.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -122,6 +133,10 @@
                 <Source>
                     <Source Name="MainSource">AnovoEscritorio.dpr</Source>
                 </Source>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclDataSnapNativeServer270.bpl">Embarcadero DBExpress DataSnap Native Server Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k270.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
                 <DeployFile LocalName="Win32\Debug\AnovoEscritorio.exe" Configuration="Debug" Class="ProjectOutput">
