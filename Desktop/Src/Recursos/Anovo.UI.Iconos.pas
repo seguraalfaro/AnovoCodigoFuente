@@ -4,16 +4,17 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.ImageList, Vcl.ImgList,
-  Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection;
+  Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection,
+  System.Actions, Vcl.ActnList;
 
 type
   TdmIconos = class(TDataModule)
-    ImageCollection1: TImageCollection;
-    VirtualImageList1: TVirtualImageList;
-    ImageCollection2: TImageCollection;
-    VirtualImageList2: TVirtualImageList;
+    IcAnovo: TImageCollection;
     ImageCollection3: TImageCollection;
     VIEmpresa: TVirtualImageList;
+    ActionList1: TActionList;
+    Action1: TAction;
+    ViAnovo: TVirtualImageList;
   private
     { Private declarations }
   public

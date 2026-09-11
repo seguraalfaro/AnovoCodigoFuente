@@ -45,123 +45,261 @@ object frmLogin: TfrmLogin
         Width = 32
         Visible = True
       end>
-    ExplicitWidth = 701
     DesignSize = (
       900
       25)
   end
-  object pnlForm: TPanel
+  object pnlMarca: TPanel
+    Left = 0
+    Top = 25
+    Width = 420
+    Height = 535
+    Align = alLeft
+    BevelOuter = bvNone
+    TabOrder = 1
+    object ImgFondo: TImage
+      Left = 0
+      Top = 0
+      Width = 420
+      Height = 535
+      Align = alClient
+      Stretch = True
+      ExplicitTop = 6
+    end
+    object ImgLogo: TImage
+      Left = 63
+      Top = 88
+      Width = 218
+      Height = 153
+      Center = True
+      Proportional = True
+      Stretch = True
+      Transparent = True
+    end
+    object pnlFormd: TPanel
+      Left = 0
+      Top = 0
+      Width = 420
+      Height = 535
+      Align = alClient
+      BevelOuter = bvNone
+      TabOrder = 0
+      ExplicitTop = 6
+      object lblTitulo: TLabel
+        Left = 56
+        Top = 56
+        Width = 300
+        Height = 40
+        AutoSize = False
+        Caption = 'Ingreso'
+        Transparent = True
+      end
+      object lblAyuda: TLabel
+        Left = 56
+        Top = 100
+        Width = 380
+        Height = 16
+        AutoSize = False
+        Transparent = True
+      end
+      object lblOlvido: TLabel
+        Left = 244
+        Top = 274
+        Width = 180
+        Height = 15
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = #191'Olvid'#243' su contrase'#241'a?'
+        Transparent = True
+      end
+      object lblMensaje: TLabel
+        Left = 56
+        Top = 358
+        Width = 368
+        Height = 32
+        AutoSize = False
+        Transparent = True
+        WordWrap = True
+      end
+      object lblConfigurar: TLabel
+        Left = 82
+        Top = 502
+        Width = 66
+        Height = 13
+        Caption = 'Configuraci'#243'n'
+        Transparent = True
+      end
+      object lblVersion: TLabel
+        Left = 324
+        Top = 502
+        Width = 100
+        Height = 15
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = 'v0.1.0'
+        Transparent = True
+      end
+      object pbIconoConfig: TPaintBox
+        Left = 56
+        Top = 501
+        Width = 18
+        Height = 18
+      end
+      object SpeedButton1: TSpeedButton
+        Left = 184
+        Top = 432
+        Width = 169
+        Height = 49
+        Action = dmIconos.Action1
+        Flat = True
+      end
+      object sp: TPanel
+        Left = 56
+        Top = 295
+        Width = 368
+        Height = 42
+        Cursor = crHandPoint
+        BevelOuter = bvNone
+        TabOrder = 0
+        object pbIconoEntrar: TPaintBox
+          Left = 138
+          Top = 11
+          Width = 20
+          Height = 20
+        end
+        object lblIngresar: TLabel
+          Left = 164
+          Top = 0
+          Width = 120
+          Height = 42
+          AutoSize = False
+          Caption = 'Ingresar'
+          Transparent = True
+          Layout = tlCenter
+        end
+      end
+    end
+  end
+  object pnlForm: TRelativePanel
     Left = 420
     Top = 25
     Width = 480
     Height = 535
+    ControlCollection = <
+      item
+        Control = aiCargando
+        AlignBottomWithPanel = False
+        AlignHorizontalCenterWithPanel = True
+        AlignLeftWithPanel = False
+        AlignRightWithPanel = False
+        AlignTopWithPanel = False
+        AlignVerticalCenterWithPanel = False
+      end
+      item
+        Control = imgFiligrana
+        AlignBottomWithPanel = False
+        AlignHorizontalCenterWithPanel = False
+        AlignLeftWithPanel = False
+        AlignRightWithPanel = False
+        AlignTopWithPanel = False
+        AlignVerticalCenterWithPanel = False
+      end
+      item
+        Control = lblUsuario
+        AlignBottomWithPanel = False
+        AlignHorizontalCenterWithPanel = False
+        AlignLeftWithPanel = False
+        AlignRightWithPanel = False
+        AlignTopWithPanel = False
+        AlignVerticalCenterWithPanel = False
+      end
+      item
+        Control = pnlCampoUsuario
+        AlignBottomWithPanel = False
+        AlignHorizontalCenterWithPanel = False
+        AlignLeftWithPanel = False
+        AlignRightWithPanel = False
+        AlignTopWithPanel = False
+        AlignVerticalCenterWithPanel = False
+      end
+      item
+        Control = lblClave
+        AlignBottomWithPanel = False
+        AlignHorizontalCenterWithPanel = False
+        AlignLeftWithPanel = False
+        AlignRightWithPanel = False
+        AlignTopWithPanel = False
+        AlignVerticalCenterWithPanel = False
+      end
+      item
+        Control = pnlCampoClave
+        AlignBottomWithPanel = False
+        AlignHorizontalCenterWithPanel = False
+        AlignLeftWithPanel = False
+        AlignRightWithPanel = False
+        AlignTopWithPanel = False
+        AlignVerticalCenterWithPanel = False
+      end
+      item
+        Control = Panel1
+        AlignBottomWithPanel = False
+        AlignHorizontalCenterWithPanel = False
+        AlignLeftWithPanel = False
+        AlignRightWithPanel = False
+        AlignTopWithPanel = False
+        AlignVerticalCenterWithPanel = False
+      end>
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 1
+    Color = clWhite
+    ParentBackground = False
+    TabOrder = 2
     ExplicitLeft = 426
+    DesignSize = (
+      480
+      535)
+    object aiCargando: TActivityIndicator
+      Left = 224
+      Top = 366
+      Anchors = []
+    end
     object imgFiligrana: TImage
       Left = 288
       Top = -2
       Width = 190
       Height = 190
+      Anchors = []
       Center = True
-    end
-    object lblTitulo: TLabel
-      Left = 56
-      Top = 56
-      Width = 300
-      Height = 40
-      AutoSize = False
-      Caption = 'Ingreso'
-      Transparent = True
-    end
-    object lblAyuda: TLabel
-      Left = 56
-      Top = 100
-      Width = 380
-      Height = 16
-      AutoSize = False
-      Transparent = True
     end
     object lblUsuario: TLabel
       Left = 56
       Top = 140
       Width = 36
       Height = 13
+      Anchors = []
       Caption = 'Usuario'
       Transparent = True
-    end
-    object lblClave: TLabel
-      Left = 56
-      Top = 208
-      Width = 56
-      Height = 13
-      Caption = 'Contrase'#241'a'
-      Transparent = True
-    end
-    object lblOlvido: TLabel
-      Left = 244
-      Top = 274
-      Width = 180
-      Height = 15
-      Alignment = taRightJustify
-      AutoSize = False
-      Caption = #191'Olvid'#243' su contrase'#241'a?'
-      Transparent = True
-    end
-    object lblMensaje: TLabel
-      Left = 56
-      Top = 358
-      Width = 368
-      Height = 32
-      AutoSize = False
-      Transparent = True
-      WordWrap = True
-    end
-    object lblConfigurar: TLabel
-      Left = 82
-      Top = 502
-      Width = 66
-      Height = 13
-      Caption = 'Configuraci'#243'n'
-      Transparent = True
-    end
-    object lblVersion: TLabel
-      Left = 324
-      Top = 502
-      Width = 100
-      Height = 15
-      Alignment = taRightJustify
-      AutoSize = False
-      Caption = 'v0.1.0'
-      Transparent = True
-    end
-    object pbIconoConfig: TPaintBox
-      Left = 56
-      Top = 501
-      Width = 18
-      Height = 18
-    end
-    object SpeedButton1: TSpeedButton
-      Left = 184
-      Top = 432
-      Width = 23
-      Height = 22
-      Flat = True
     end
     object pnlCampoUsuario: TPanel
       Left = 56
       Top = 160
       Width = 368
       Height = 34
+      Anchors = []
       BevelOuter = bvNone
-      BorderStyle = bsSingle
-      TabOrder = 0
-      object pbIconoUsuario: TPaintBox
-        Left = 10
-        Top = 7
-        Width = 20
-        Height = 20
+      TabOrder = 1
+      object VirtualImage1: TVirtualImage
+        Left = 0
+        Top = 0
+        Width = 32
+        Height = 34
+        Align = alLeft
+        ImageWidth = 0
+        ImageHeight = 0
+        ImageIndex = 7
+        ImageName = '08-usuarios'
+        ExplicitTop = -3
+        ExplicitHeight = 30
       end
       object edtUsuario: TEdit
         Left = 38
@@ -174,14 +312,24 @@ object frmLogin: TfrmLogin
         TextHint = 'usuario'
       end
     end
+    object lblClave: TLabel
+      Left = 56
+      Top = 208
+      Width = 56
+      Height = 13
+      Anchors = []
+      Caption = 'Contrase'#241'a'
+      Transparent = True
+    end
     object pnlCampoClave: TPanel
       Left = 56
       Top = 228
       Width = 368
       Height = 34
+      Anchors = []
       BevelOuter = bvNone
       BorderStyle = bsSingle
-      TabOrder = 1
+      TabOrder = 2
       object pbIconoClave: TPaintBox
         Left = 10
         Top = 7
@@ -206,69 +354,29 @@ object frmLogin: TfrmLogin
         TabOrder = 0
       end
     end
-    object pnlIngresar: TPanel
-      Left = 56
-      Top = 295
+    object Panel1: TPanel
+      Left = 58
+      Top = 306
       Width = 368
       Height = 42
       Cursor = crHandPoint
+      Anchors = []
       BevelOuter = bvNone
-      TabOrder = 2
-      object pbIconoEntrar: TPaintBox
-        Left = 138
-        Top = 11
-        Width = 20
-        Height = 20
-      end
-      object lblIngresar: TLabel
-        Left = 166
+      Color = 6044186
+      ParentBackground = False
+      TabOrder = 3
+      object SpeedButton2: TSpeedButton
+        Left = 0
         Top = 0
-        Width = 120
+        Width = 368
         Height = 42
-        AutoSize = False
-        Caption = 'Ingresar'
-        Transparent = True
-        Layout = tlCenter
+        Align = alClient
+        Flat = True
+        ExplicitLeft = 136
+        ExplicitTop = 16
+        ExplicitWidth = 23
+        ExplicitHeight = 22
       end
-    end
-    object aiCargando: TActivityIndicator
-      Left = 224
-      Top = 358
-    end
-  end
-  object pnlMarca: TPanel
-    Left = 0
-    Top = 25
-    Width = 420
-    Height = 535
-    Align = alLeft
-    BevelOuter = bvNone
-    TabOrder = 2
-    ExplicitLeft = 8
-    ExplicitTop = 0
-    ExplicitHeight = 560
-    object ImgFondo: TImage
-      Left = 0
-      Top = 0
-      Width = 420
-      Height = 535
-      Align = alClient
-      Proportional = True
-      Stretch = True
-      ExplicitLeft = 120
-      ExplicitTop = 384
-      ExplicitWidth = 105
-      ExplicitHeight = 105
-    end
-    object ImgLogo: TImage
-      Left = 63
-      Top = 88
-      Width = 218
-      Height = 153
-      Center = True
-      Proportional = True
-      Stretch = True
-      Transparent = True
     end
   end
 end

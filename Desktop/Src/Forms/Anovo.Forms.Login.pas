@@ -7,37 +7,41 @@ uses
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.WinXCtrls, Vcl.Imaging.pngimage, Vcl.ComCtrls, Vcl.ToolWin, Vcl.ActnMan,
-  Vcl.ActnCtrls, Vcl.ActnMenus, Vcl.TitleBarCtrls, Vcl.Buttons;
+  Vcl.ActnCtrls, Vcl.ActnMenus, Vcl.TitleBarCtrls, Vcl.Buttons, System.Skia,
+  Vcl.Skia, USkiaIndustrialButton, Vcl.VirtualImage;
 
 type
   TfrmLogin = class(TForm)
     TitleBarPanel1: TTitleBarPanel;
-    pnlForm: TPanel;
-    imgFiligrana: TImage;
+    pnlMarca: TPanel;
+    ImgLogo: TImage;
+    ImgFondo: TImage;
+    pnlFormd: TPanel;
     lblTitulo: TLabel;
     lblAyuda: TLabel;
-    lblUsuario: TLabel;
-    lblClave: TLabel;
     lblOlvido: TLabel;
     lblMensaje: TLabel;
     lblConfigurar: TLabel;
     lblVersion: TLabel;
     pbIconoConfig: TPaintBox;
+    SpeedButton1: TSpeedButton;
+    sp: TPanel;
+    pbIconoEntrar: TPaintBox;
+    lblIngresar: TLabel;
+    pnlForm: TRelativePanel;
+    aiCargando: TActivityIndicator;
+    imgFiligrana: TImage;
+    lblUsuario: TLabel;
     pnlCampoUsuario: TPanel;
-    pbIconoUsuario: TPaintBox;
     edtUsuario: TEdit;
+    lblClave: TLabel;
     pnlCampoClave: TPanel;
     pbIconoClave: TPaintBox;
     pbOjo: TPaintBox;
     edtClave: TEdit;
-    pnlIngresar: TPanel;
-    pbIconoEntrar: TPaintBox;
-    lblIngresar: TLabel;
-    aiCargando: TActivityIndicator;
-    pnlMarca: TPanel;
-    ImgLogo: TImage;
-    ImgFondo: TImage;
-    SpeedButton1: TSpeedButton;
+    VirtualImage1: TVirtualImage;
+    Panel1: TPanel;
+    SpeedButton2: TSpeedButton;
     procedure FormCreate(Sender: TObject);
   private
 
@@ -117,9 +121,8 @@ end;
 procedure TfrmLogin.FormCreate(Sender: TObject);
 begin
   CargarMarca;
-  Color := clAnovoTarjeta;
-  AplicarSuperficie(pnlMarca, clAnovoMarca);
-  AplicarSuperficie(pnlForm, clAnovoTarjeta);
+
+
 end;
 
 end.
