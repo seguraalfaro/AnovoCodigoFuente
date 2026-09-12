@@ -26,10 +26,11 @@ object frmPrincipal: TfrmPrincipal
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  GlassFrame.Enabled = True
   GlassFrame.Top = 31
   OldCreateOrder = False
   Position = poOwnerFormCenter
-  StyleElements = [seFont, seClient]
+  StyleElements = [seFont]
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 15
@@ -37,11 +38,11 @@ object frmPrincipal: TfrmPrincipal
     Left = 0
     Top = 0
     Width = 1180
-    Height = 55
+    Height = 30
     CustomButtons = <>
     object VirtualImage1: TVirtualImage
-      Left = 3
-      Top = 29
+      Left = 10
+      Top = 28
       Width = 24
       Height = 24
       Align = alCustom
@@ -55,34 +56,489 @@ object frmPrincipal: TfrmPrincipal
   end
   object pnlContenido: TPanel
     Tag = 2
-    Left = 50
-    Top = 55
-    Width = 1130
-    Height = 645
+    Left = 200
+    Top = 30
+    Width = 980
+    Height = 670
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitLeft = 172
-    ExplicitTop = 64
-    ExplicitWidth = 1008
-    ExplicitHeight = 612
+    object PageControl1: TPageControl
+      Left = 304
+      Top = 248
+      Width = 289
+      Height = 193
+      TabOrder = 0
+      StyleElements = []
+    end
   end
   object SV: TSplitView
     Left = 0
-    Top = 55
-    Width = 50
-    Height = 645
+    Top = 30
+    Width = 200
+    Height = 670
     AnimationDelay = 1
     AnimationStep = 400
     CloseStyle = svcCompact
     Color = 6044186
-    Opened = False
+    CompactWidth = 40
     OpenedWidth = 200
     Placement = svpLeft
     TabOrder = 2
     StyleElements = [seFont, seBorder]
-    ExplicitLeft = 3
-    ExplicitTop = 58
-    ExplicitHeight = 639
+    object pnlUsuario: TRelativePanel
+      Tag = 1
+      Left = 0
+      Top = 0
+      Width = 200
+      Height = 41
+      ControlCollection = <
+        item
+          Control = lblRol
+          AlignBottomWithPanel = False
+          AlignHorizontalCenterWithPanel = False
+          AlignLeftWithPanel = False
+          AlignRightWithPanel = False
+          AlignTopWithPanel = False
+          AlignVerticalCenterWithPanel = False
+        end
+        item
+          Control = lblUsuario
+          AlignBottomWithPanel = False
+          AlignHorizontalCenterWithPanel = False
+          AlignLeftWithPanel = False
+          AlignRightWithPanel = False
+          AlignTopWithPanel = False
+          AlignVerticalCenterWithPanel = False
+        end
+        item
+          Control = pnlAvatar
+          AlignBottomWithPanel = False
+          AlignHorizontalCenterWithPanel = False
+          AlignLeftWithPanel = False
+          AlignRightWithPanel = False
+          AlignTopWithPanel = False
+          AlignVerticalCenterWithPanel = False
+        end>
+      Align = alTop
+      BevelOuter = bvNone
+      Color = 6044186
+      ParentBackground = False
+      TabOrder = 0
+      StyleElements = []
+      DesignSize = (
+        200
+        41)
+      object lblRol: TLabel
+        Left = 50
+        Top = 26
+        Width = 150
+        Height = 15
+        Anchors = []
+        AutoSize = False
+        Caption = 'rol'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = 15260880
+        Font.Height = -11
+        Font.Name = 'Segoe UI'
+        Font.Style = []
+        ParentFont = False
+        Transparent = True
+      end
+      object lblUsuario: TLabel
+        Left = 50
+        Top = 12
+        Width = 150
+        Height = 16
+        Anchors = []
+        AutoSize = False
+        Caption = 'Usuario'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -13
+        Font.Name = 'Segoe UI Semibold'
+        Font.Style = []
+        ParentFont = False
+        Transparent = True
+      end
+      object pnlAvatar: TPanel
+        Tag = 14
+        Left = 5
+        Top = 5
+        Width = 36
+        Height = 36
+        Anchors = []
+        BevelOuter = bvNone
+        Color = 9067566
+        ParentBackground = False
+        TabOrder = 0
+        StyleElements = []
+        object lblIniciales: TLabel
+          Left = 0
+          Top = 0
+          Width = 36
+          Height = 36
+          Align = alClient
+          Alignment = taCenter
+          Caption = 'MS'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWhite
+          Font.Height = -13
+          Font.Name = 'Segoe UI Semibold'
+          Font.Style = []
+          ParentFont = False
+          Transparent = True
+          Layout = tlCenter
+          StyleElements = [seFont, seBorder]
+          ExplicitWidth = 19
+          ExplicitHeight = 17
+        end
+      end
+    end
+    object pnsep: TRelativePanel
+      Tag = 6
+      AlignWithMargins = True
+      Left = 3
+      Top = 51
+      Width = 194
+      Height = 1
+      Margins.Top = 10
+      Margins.Bottom = 10
+      ControlCollection = <>
+      Align = alTop
+      Color = 14999257
+      ParentBackground = False
+      TabOrder = 1
+      StyleElements = []
+    end
+    object RelativePanel1: TRelativePanel
+      Tag = 1
+      Left = 0
+      Top = 62
+      Width = 200
+      Height = 546
+      ControlCollection = <
+        item
+          Control = FnDashboard
+          AlignBottomWithPanel = False
+          AlignHorizontalCenterWithPanel = False
+          AlignLeftWithPanel = False
+          AlignRightWithPanel = False
+          AlignTopWithPanel = True
+          AlignVerticalCenterWithPanel = False
+        end
+        item
+          Control = FnCotizaciones
+          AlignBottomWithPanel = False
+          AlignHorizontalCenterWithPanel = False
+          AlignLeftWithPanel = False
+          AlignRightWithPanel = False
+          AlignTopWithPanel = False
+          AlignVerticalCenterWithPanel = False
+          Below = FnDashboard
+        end
+        item
+          Control = Fnueva
+          AlignBottomWithPanel = False
+          AlignHorizontalCenterWithPanel = False
+          AlignLeftWithPanel = False
+          AlignRightWithPanel = False
+          AlignTopWithPanel = False
+          AlignVerticalCenterWithPanel = False
+          Below = FnCotizaciones
+        end
+        item
+          Control = FnClientes
+          AlignBottomWithPanel = False
+          AlignHorizontalCenterWithPanel = False
+          AlignLeftWithPanel = False
+          AlignRightWithPanel = False
+          AlignTopWithPanel = False
+          AlignVerticalCenterWithPanel = False
+          Below = Fnueva
+        end
+        item
+          Control = FnBandeja
+          AlignBottomWithPanel = False
+          AlignHorizontalCenterWithPanel = False
+          AlignLeftWithPanel = False
+          AlignRightWithPanel = False
+          AlignTopWithPanel = False
+          AlignVerticalCenterWithPanel = False
+          Below = FnClientes
+        end
+        item
+          Control = FnReportes
+          AlignBottomWithPanel = False
+          AlignHorizontalCenterWithPanel = False
+          AlignLeftWithPanel = False
+          AlignRightWithPanel = False
+          AlignTopWithPanel = False
+          AlignVerticalCenterWithPanel = False
+          Below = FnBandeja
+        end
+        item
+          Control = FnUsuarios
+          AlignBottomWithPanel = False
+          AlignHorizontalCenterWithPanel = False
+          AlignLeftWithPanel = False
+          AlignRightWithPanel = False
+          AlignTopWithPanel = False
+          AlignVerticalCenterWithPanel = False
+        end
+        item
+          Control = FnRoles
+          AlignBottomWithPanel = False
+          AlignHorizontalCenterWithPanel = False
+          AlignLeftWithPanel = False
+          AlignRightWithPanel = False
+          AlignTopWithPanel = False
+          AlignVerticalCenterWithPanel = False
+        end
+        item
+          Control = FnConfiguracion
+          AlignBottomWithPanel = False
+          AlignHorizontalCenterWithPanel = False
+          AlignLeftWithPanel = False
+          AlignRightWithPanel = False
+          AlignTopWithPanel = False
+          AlignVerticalCenterWithPanel = False
+          Below = FnRoles
+        end>
+      Align = alClient
+      BevelOuter = bvNone
+      Color = 6044186
+      ParentBackground = False
+      TabOrder = 2
+      StyleElements = []
+      object FnDashboard: TFlatNavItem
+        Left = 5
+        Top = 0
+        Width = 189
+        Height = 40
+        SelectedColor = clGrayText
+        Images = dmIconos.ViAnovo
+        ImageIndex = 62
+        Action = AcDashboard
+        Align = alTop
+        ParentShowHint = False
+        ShowHint = False
+      end
+      object FnCotizaciones: TFlatNavItem
+        Left = 5
+        Top = 40
+        Width = 189
+        Height = 40
+        SelectedColor = clGrayText
+        Images = dmIconos.ViAnovo
+        ImageIndex = 50
+        Action = AcCotizaciones
+        Align = alTop
+        ParentShowHint = False
+        ShowHint = False
+      end
+      object Fnueva: TFlatNavItem
+        Left = 5
+        Top = 80
+        Width = 189
+        Height = 40
+        SelectedColor = clGrayText
+        Images = dmIconos.ViAnovo
+        ImageIndex = 76
+        Action = acNueva
+        Align = alTop
+        ParentShowHint = False
+        ShowHint = False
+      end
+      object FnClientes: TFlatNavItem
+        Left = 5
+        Top = 120
+        Width = 189
+        Height = 40
+        SelectedColor = clGrayText
+        Images = dmIconos.ViAnovo
+        ImageIndex = 66
+        Action = AcClientes
+        Align = alTop
+        ParentShowHint = False
+        ShowHint = False
+      end
+      object FnBandeja: TFlatNavItem
+        Left = 5
+        Top = 160
+        Width = 189
+        Height = 40
+        SelectedColor = clGrayText
+        Images = dmIconos.ViAnovo
+        ImageIndex = 58
+        Action = AcBandeja
+        Align = alTop
+        ParentShowHint = False
+        ShowHint = False
+      end
+      object FnReportes: TFlatNavItem
+        Left = 5
+        Top = 200
+        Width = 189
+        Height = 40
+        SelectedColor = clGrayText
+        Images = dmIconos.ViAnovo
+        ImageIndex = 60
+        Action = AcReportes
+        Align = alTop
+        ParentShowHint = False
+        ShowHint = False
+      end
+      object FnUsuarios: TFlatNavItem
+        Left = 5
+        Top = 240
+        Width = 189
+        Height = 40
+        SelectedColor = clGrayText
+        Images = dmIconos.ViAnovo
+        ImageIndex = 66
+        Action = AcUsuarios
+        Align = alTop
+        ParentShowHint = False
+        ShowHint = False
+      end
+      object FnRoles: TFlatNavItem
+        Left = 5
+        Top = 286
+        Width = 189
+        Height = 40
+        SelectedColor = clGrayText
+        Images = dmIconos.ViAnovo
+        ImageIndex = 68
+        Action = AcRoles
+        Align = alTop
+        ParentShowHint = False
+        ShowHint = False
+      end
+      object FnConfiguracion: TFlatNavItem
+        Left = 5
+        Top = 326
+        Width = 189
+        Height = 40
+        SelectedColor = clGrayText
+        Images = dmIconos.ViAnovo
+        ImageIndex = 70
+        Action = AcConfiguracion
+        Align = alTop
+        ParentShowHint = False
+        ShowHint = False
+      end
+    end
+    object pnlBottom: TRelativePanel
+      Tag = 1
+      Left = 0
+      Top = 629
+      Width = 200
+      Height = 41
+      ControlCollection = <
+        item
+          Control = FlatNavItem1
+          AlignBottomWithPanel = False
+          AlignHorizontalCenterWithPanel = False
+          AlignLeftWithPanel = False
+          AlignRightWithPanel = False
+          AlignTopWithPanel = True
+          AlignVerticalCenterWithPanel = False
+        end>
+      Align = alBottom
+      BevelOuter = bvNone
+      Color = 6044186
+      ParentBackground = False
+      TabOrder = 3
+      StyleElements = []
+      object FlatNavItem1: TFlatNavItem
+        Left = 5
+        Top = 0
+        Width = 189
+        Height = 40
+        SelectedColor = clGrayText
+        Images = dmIconos.ViAnovo
+        ImageIndex = 72
+        Action = AcSalir
+        Align = alTop
+        ParentShowHint = False
+        ShowHint = False
+      end
+    end
+    object pnlsepBottom: TRelativePanel
+      Tag = 6
+      AlignWithMargins = True
+      Left = 3
+      Top = 618
+      Width = 194
+      Height = 1
+      Margins.Top = 10
+      Margins.Bottom = 10
+      ControlCollection = <>
+      Align = alBottom
+      Color = 14999257
+      ParentBackground = False
+      TabOrder = 4
+      StyleElements = []
+    end
+  end
+  object ActionList1: TActionList
+    Images = dmIconos.ViAnovo
+    Left = 824
+    Top = 366
+    object AcDashboard: TAction
+      Caption = 'Dashboard'
+      ImageIndex = 62
+      ImageName = 'Blanco\06-dashboard-blanco'
+      OnExecute = AcDashboardExecute
+    end
+    object AcCotizaciones: TAction
+      Caption = 'Cotizaciones'
+      ImageIndex = 50
+      ImageName = 'Blanco\00-cotizaciones-blanco'
+    end
+    object acNueva: TAction
+      Caption = 'Nueva'
+      ImageIndex = 76
+      ImageName = 'Blanco\13-agregar-blanco'
+    end
+    object AcClientes: TAction
+      Caption = 'Clientes'
+      ImageIndex = 66
+      ImageName = 'Blanco\08-usuarios-blanco'
+    end
+    object AcMateriales: TAction
+      Caption = 'AcMateriales'
+    end
+    object AcReportes: TAction
+      Caption = 'Reportes'
+      ImageIndex = 60
+      ImageName = 'Blanco\05-reportes-blanco'
+    end
+    object AcBandeja: TAction
+      Caption = 'Bandeja'
+      ImageIndex = 58
+      ImageName = 'Blanco\04-bandeja-blanco'
+    end
+    object AcSalir: TAction
+      Caption = 'Cerrar Sesi'#243'n'
+      ImageIndex = 72
+      ImageName = 'Blanco\11-salir-blanco'
+    end
+    object AcConfiguracion: TAction
+      Caption = 'Configuraci'#243'n'
+      ImageIndex = 70
+      ImageName = 'Blanco\10-configuracion-blanco'
+    end
+    object AcRoles: TAction
+      Caption = 'Roles'
+      ImageIndex = 68
+      ImageName = 'Blanco\09-roles-blanco'
+    end
+    object AcUsuarios: TAction
+      Caption = ' Usuarios'
+      ImageIndex = 66
+      ImageName = 'Blanco\08-usuarios-blanco'
+    end
   end
 end
