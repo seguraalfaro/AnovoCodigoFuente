@@ -13,7 +13,8 @@ uses
   Anovo.Frames.Roles in 'Src\Frames\Anovo.Frames.Roles.pas' {fraRoles: TFrame},
   Anovo.Frames.Catalogos in 'Src\Frames\Anovo.Frames.Catalogos.pas' {fraCatalogos: TFrame},
   Anovo.UI.TemaGrid in 'Src\Sources\Anovo.UI.TemaGrid.pas',
-  Anovo.Cliente.Sesion in 'Src\Sources\Anovo.Cliente.Sesion.pas';
+  Anovo.Cliente.Sesion in 'Src\Sources\Anovo.Cliente.Sesion.pas',
+  Anovo.Forms.AgregarItem in 'Src\Forms\Anovo.Forms.AgregarItem.pas' {frmAgregarItem};
 
 {$R *.res}
 
@@ -23,6 +24,7 @@ begin
 
   Application.Initialize;
   Application.MainFormOnTaskbar := true;
+  Application.CreateForm(TfrmAgregarItem, frmAgregarItem);
   Application.CreateForm(TdmIconos, dmIconos);
   Application.CreateForm(TfrmPrincipal, frmPrincipal);
   Application.CreateForm(TfrmLogin, frmLogin);

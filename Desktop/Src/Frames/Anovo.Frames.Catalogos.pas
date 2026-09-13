@@ -15,24 +15,17 @@ uses
 
 type
   TfraCatalogos = class(TFrame)
-    Panel1: TPanel;
-    Label1: TLabel;
-    Label2: TLabel;
-    PlanoPestanas1: TPlanoPestanas;
-    CpMain: TCardPanel;
-    CardMateriales: TCard;
-    CardManoObra: TCard;
-    CardMaquinas: TCard;
-    CardTipos: TCard;
-    pnclient: TRelativePanel;
     pnbottom: TRelativePanel;
-    pnTop: TRelativePanel;
-    SearchBox1: TSearchBox;
-    FlatWinButton1: TFlatWinButton;
-    PlanoPestanas2: TPlanoPestanas;
-    rDBMateriales: TrDBGrid;
-    PlanoBotonWin3: TPlanoBotonWin;
-    PlanoBotonWin1: TPlanoBotonWin;
+    pnlBarra: TPanel;
+    sbBuscar: TSearchBox;
+    btnExportar: TPlanoBotonWin;
+    btnNuevo: TPlanoBotonWin;
+    pnlTitulo: TPanel;
+    lblTitulo: TLabel;
+    lblSubtitulo: TLabel;
+    pstCatalogo: TPlanoPestanas;
+    pnclient: TRelativePanel;
+    grDatos: TrDBGrid;
 
   private
     { Private declarations }
@@ -49,7 +42,7 @@ implementation
 constructor TfraCatalogos.Create(AOwner: TComponent);
 begin
   inherited;
-  AplicarTemaGrid(rDBMateriales);
+  AplicarTemaGrid(grDatos);
 
 end;
 
