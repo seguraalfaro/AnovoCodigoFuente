@@ -63,14 +63,6 @@ object frmPrincipal: TfrmPrincipal
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    object PageControl1: TPageControl
-      Left = 304
-      Top = 248
-      Width = 289
-      Height = 193
-      TabOrder = 0
-      StyleElements = []
-    end
   end
   object SV: TSplitView
     Left = 0

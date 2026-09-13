@@ -1,4 +1,6 @@
-unit Anovo.Frames.Catalogos;
+﻿unit Anovo.Frames.Catalogos;
+
+
 
 interface
 
@@ -6,29 +8,32 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.ExtCtrls,
-  PestanasPlanas, Vcl.ComCtrls, Vcl.WinXCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids,
-  rDBGrid, FlatVcl.BotonWin,
-  Anovo.UI.Tema,
-  Anovo.UI.TemaGrid;
+  Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.WinXCtrls, Vcl.WinXPanels,
+  Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
+  FlatVcl.BotonWin, VclPlano.Pestanas,
+  Anovo.UI.Tema, Anovo.UI.TemaGrid, VclPlano.BotonWin;
 
 type
   TfraCatalogos = class(TFrame)
     Panel1: TPanel;
     Label1: TLabel;
     Label2: TLabel;
-    PestanasPlanas1: TPestanasPlanas;
-    PageControl1: TPageControl;
-    TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
-    TabSheet3: TTabSheet;
-    TabSheet4: TTabSheet;
-    RelativePanel1: TRelativePanel;
-    RelativePanel2: TRelativePanel;
+    PlanoPestanas1: TPlanoPestanas;
+    CpMain: TCardPanel;
+    CardMateriales: TCard;
+    CardManoObra: TCard;
+    CardMaquinas: TCard;
+    CardTipos: TCard;
+    pnclient: TRelativePanel;
+    pnbottom: TRelativePanel;
+    pnTop: TRelativePanel;
     SearchBox1: TSearchBox;
     FlatWinButton1: TFlatWinButton;
-    pnData: TPanel;
+    PlanoPestanas2: TPlanoPestanas;
     rDBMateriales: TrDBGrid;
+    PlanoBotonWin3: TPlanoBotonWin;
+    PlanoBotonWin1: TPlanoBotonWin;
+
   private
     { Private declarations }
   public
@@ -44,9 +49,10 @@ implementation
 constructor TfraCatalogos.Create(AOwner: TComponent);
 begin
   inherited;
-
   AplicarTemaGrid(rDBMateriales);
 
 end;
+
+
 
 end.

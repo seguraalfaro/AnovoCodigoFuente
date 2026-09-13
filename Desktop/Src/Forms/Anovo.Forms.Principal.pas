@@ -4,12 +4,13 @@ interface
 
 uses
   Anovo.Frames.Catalogos,
+  Anovo.Frames.Clientes,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.TitleBarCtrls, Vcl.StdCtrls,
   Vcl.ExtCtrls, Anovo.UI.Tema,
   Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.ToolWin, Vcl.VirtualImage,
   Vcl.WinXCtrls, Vcl.CategoryButtons, Vcl.Buttons, FlatVcl.NavItem,
-  System.Actions, Vcl.ActnList, PestanasPlanas;
+  System.Actions, Vcl.ActnList, PestanasPlanas, Vcl.WinXPanels;
 
 type
   TfrmPrincipal = class(TForm)
@@ -48,7 +49,6 @@ type
     FnUsuarios: TFlatNavItem;
     FnRoles: TFlatNavItem;
     FnConfiguracion: TFlatNavItem;
-    PageControl1: TPageControl;
     procedure FormCreate(Sender: TObject);
     procedure VirtualImage1Click(Sender: TObject);
     procedure AcDashboardExecute(Sender: TObject);
@@ -84,7 +84,7 @@ begin
     AplicarTemaBarraTitulo(Self, TitleBarPanel1, 55);
     AplicarTema(Self);
 
-    FFrameTemp := TfraCatalogos.Create(Self);
+    FFrameTemp := TfraClientes.Create(Self);
     FFrameTemp.Parent := pnlContenido;
     FFrameTemp.Align := alClient;
   end;

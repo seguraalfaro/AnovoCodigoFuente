@@ -36,7 +36,7 @@ begin
   AGrid.TitleFont.Name := FUENTE_SEMI;
   AGrid.TitleFont.Height := -11;
   AGrid.TitleFont.Color := clWhite;
-  AGrid.TitleLines := 1;
+  AGrid.TitleLines := 2;
 
   { Los botoncitos que Rosi dibuja dentro del encabezado vienen encendidos de
     fabrica y rompen la franja lisa. }
@@ -45,11 +45,13 @@ begin
   AGrid.OptionsEx2.FixedCell.FixedColBtn := False;
   AGrid.OptionsEx2.FixedCell.TitlePopup := False;
 
+
+
   { Datos }
   AGrid.Color := clAnovoTarjeta;
   AGrid.Font.Name := FUENTE;
   AGrid.Font.Height := -12;
-  AGrid.Font.Color := clAnovoTexto;
+  AGrid.Font.Color :=clAnovoTexto;
   AGrid.RowFixHeight := ALTO_FILA;
 
   { Ojo: el rayado solo funciona con dataset bidireccional; con un query
@@ -71,7 +73,7 @@ begin
 
   { Barra horizontal fuera. La vertical no se puede quitar por propiedad:
     UpdateScrollBar la fuerza con ShowScrollBar en cada refresco. }
-  AGrid.OptionsEx2.Appearance.HideHScrollBar := True;
+ // AGrid.OptionsEx2.Appearance.HideHScrollBar := True;
 
   AGrid.Options := AGrid.Options - [dgColLines, dgIndicator] +
     [dgRowLines, dgTitles, dgRowSelect, dgAlwaysShowSelection];
@@ -85,7 +87,7 @@ begin
     metiendola dentro de un TPanel con TAG_CARD. }
   AGrid.BorderStyle := bsNone;
   AGrid.Ctl3D := False;
-  OcultarScrollVertical(AGrid) ;
+  //OcultarScrollVertical(AGrid) ;
 end;
 
 procedure OcultarScrollVertical(AGrid: TrDBGrid);
