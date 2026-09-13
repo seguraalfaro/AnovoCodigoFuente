@@ -4,6 +4,12 @@ object fraCatalogos: TfraCatalogos
   Top = 0
   Width = 960
   Height = 620
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = 1973276
+  Font.Height = -11
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  ParentFont = False
   TabOrder = 0
   object pnbottom: TRelativePanel
     AlignWithMargins = True
@@ -106,7 +112,7 @@ object fraCatalogos: TfraCatalogos
       Tag = 13
       Left = 20
       Top = 40
-      Width = 455
+      Width = 485
       Height = 13
       Caption = 
         'Precios y tarifas con que se calculan las cotizaciones '#183' la coti' +
@@ -126,17 +132,11 @@ object fraCatalogos: TfraCatalogos
     Style = pesPastilla
     Indent = 20
     BackColor = 16447477
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Segoe UI'
-    Font.Style = []
     ActiveFont.Charset = DEFAULT_CHARSET
     ActiveFont.Color = clWindowText
     ActiveFont.Height = -12
     ActiveFont.Name = 'Segoe UI Semibold'
     ActiveFont.Style = []
-    ParentFont = False
   end
   object pnclient: TRelativePanel
     AlignWithMargins = True
@@ -168,9 +168,9 @@ object fraCatalogos: TfraCatalogos
       Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
       TabOrder = 0
       TitleFont.Charset = DEFAULT_CHARSET
-      TitleFont.Color = clWindowText
+      TitleFont.Color = 1973276
       TitleFont.Height = -11
-      TitleFont.Name = 'Tahoma'
+      TitleFont.Name = 'Segoe UI'
       TitleFont.Style = []
       StyleElements = [seFont]
     end

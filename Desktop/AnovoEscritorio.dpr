@@ -14,7 +14,10 @@ uses
   Anovo.Frames.Catalogos in 'Src\Frames\Anovo.Frames.Catalogos.pas' {fraCatalogos: TFrame},
   Anovo.UI.TemaGrid in 'Src\Sources\Anovo.UI.TemaGrid.pas',
   Anovo.Cliente.Sesion in 'Src\Sources\Anovo.Cliente.Sesion.pas',
-  Anovo.Forms.AgregarItem in 'Src\Forms\Anovo.Forms.AgregarItem.pas' {frmAgregarItem};
+  Anovo.Forms.AgregarItem in 'Src\Forms\Anovo.Forms.AgregarItem.pas' {frmAgregarItem},
+  Anovo.Frames.Usuarios in 'Src\Frames\Anovo.Frames.Usuarios.pas' {fraUsuarios: TFrame},
+  Anovo.Frames.Auditoria in 'Src\Frames\Anovo.Frames.Auditoria.pas' {fraAuditoria: TFrame},
+  Anovo.Frames.Bandeja in 'Src\Frames\Anovo.Frames.Bandeja.pas' {fraBandeja: TFrame};
 
 {$R *.res}
 
@@ -24,9 +27,9 @@ begin
 
   Application.Initialize;
   Application.MainFormOnTaskbar := true;
-  Application.CreateForm(TfrmAgregarItem, frmAgregarItem);
   Application.CreateForm(TdmIconos, dmIconos);
   Application.CreateForm(TfrmPrincipal, frmPrincipal);
+  Application.CreateForm(TfrmAgregarItem, frmAgregarItem);
   Application.CreateForm(TfrmLogin, frmLogin);
   Application.Run;
 

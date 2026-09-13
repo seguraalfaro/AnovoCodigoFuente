@@ -26,10 +26,6 @@ object frmAgregarItem: TfrmAgregarItem
     BevelOuter = bvNone
     Caption = 'CardPanel1'
     TabOrder = 0
-    ExplicitLeft = 232
-    ExplicitTop = 144
-    ExplicitWidth = 300
-    ExplicitHeight = 200
     object Card1: TCard
       Left = 0
       Top = 0
@@ -57,15 +53,6 @@ object frmAgregarItem: TfrmAgregarItem
             AlignVerticalCenterWithPanel = False
           end
           item
-            Control.Width = 39
-            Control.Height = 15
-            Control.Caption = 'C'#243'digo'
-            Control.Font.Charset = ANSI_CHARSET
-            Control.Font.Color = 1973276
-            Control.Font.Height = -12
-            Control.Font.Name = 'Segoe UI'
-            Control.Font.Style = []
-            Control.ParentFont = False
             AlignBottomWithPanel = False
             AlignHorizontalCenterWithPanel = False
             AlignLeftWithPanel = False
@@ -84,15 +71,6 @@ object frmAgregarItem: TfrmAgregarItem
             AlignVerticalCenterWithPanel = False
           end
           item
-            Control.Width = 103
-            Control.Height = 15
-            Control.Caption = 'Nombre del trabajo'
-            Control.Font.Charset = ANSI_CHARSET
-            Control.Font.Color = 1973276
-            Control.Font.Height = -12
-            Control.Font.Name = 'Segoe UI'
-            Control.Font.Style = []
-            Control.ParentFont = False
             AlignBottomWithPanel = False
             AlignHorizontalCenterWithPanel = False
             AlignLeftWithPanel = False
@@ -250,8 +228,6 @@ object frmAgregarItem: TfrmAgregarItem
       Caption = 'Card2'
       CardIndex = 1
       TabOrder = 1
-      ExplicitWidth = 185
-      ExplicitHeight = 41
       object rpPrecio: TRelativePanel
         Left = 0
         Top = 0
@@ -286,15 +262,6 @@ object frmAgregarItem: TfrmAgregarItem
             AlignVerticalCenterWithPanel = False
           end
           item
-            Control.Width = 123
-            Control.Height = 15
-            Control.Caption = 'Precio unitario (cliente)'
-            Control.Font.Charset = ANSI_CHARSET
-            Control.Font.Color = 1973276
-            Control.Font.Height = -12
-            Control.Font.Name = 'Segoe UI'
-            Control.Font.Style = []
-            Control.ParentFont = False
             AlignBottomWithPanel = False
             AlignHorizontalCenterWithPanel = False
             AlignLeftWithPanel = False
@@ -312,15 +279,6 @@ object frmAgregarItem: TfrmAgregarItem
             AlignVerticalCenterWithPanel = False
           end
           item
-            Control.Width = 124
-            Control.Height = 15
-            Control.Caption = 'Costo unitario (interno)'
-            Control.Font.Charset = ANSI_CHARSET
-            Control.Font.Color = 1973276
-            Control.Font.Height = -12
-            Control.Font.Name = 'Segoe UI'
-            Control.Font.Style = []
-            Control.ParentFont = False
             AlignBottomWithPanel = False
             AlignHorizontalCenterWithPanel = False
             AlignLeftWithPanel = False
@@ -358,7 +316,6 @@ object frmAgregarItem: TfrmAgregarItem
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitTop = 4
         DesignSize = (
           617
           329)
@@ -530,8 +487,6 @@ object frmAgregarItem: TfrmAgregarItem
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 280
-    ExplicitWidth = 651
     DesignSize = (
       617
       58)

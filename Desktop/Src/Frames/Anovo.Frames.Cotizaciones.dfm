@@ -3,6 +3,12 @@ object fraCotizaciones: TfraCotizaciones
   Top = 0
   Width = 960
   Height = 620
+  Font.Charset = ANSI_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  ParentFont = False
   TabOrder = 0
   object pnlBarra: TPanel
     AlignWithMargins = True
@@ -13,9 +19,6 @@ object fraCotizaciones: TfraCotizaciones
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitLeft = 0
-    ExplicitTop = 62
-    ExplicitWidth = 960
     DesignSize = (
       954
       52)
@@ -23,7 +26,7 @@ object fraCotizaciones: TfraCotizaciones
       Left = 20
       Top = 14
       Width = 300
-      Height = 21
+      Height = 23
       BevelInner = bvNone
       BevelOuter = bvNone
       TabOrder = 0
@@ -63,8 +66,6 @@ object fraCotizaciones: TfraCotizaciones
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitLeft = 23
-    ExplicitTop = -19
     object lblTitulo: TLabel
       Tag = 11
       Left = 20
@@ -83,8 +84,8 @@ object fraCotizaciones: TfraCotizaciones
       Tag = 13
       Left = 20
       Top = 40
-      Width = 415
-      Height = 13
+      Width = 452
+      Height = 15
       Caption = 
         'Todas las cotizaciones del taller '#183' el estado manda lo que se pu' +
         'ede hacer con cada una'
@@ -116,7 +117,6 @@ object fraCotizaciones: TfraCotizaciones
     ActiveFont.Name = 'Segoe UI Semibold'
     ActiveFont.Style = []
     ParentFont = False
-    ExplicitTop = 114
   end
   object pnbottom: TRelativePanel
     AlignWithMargins = True
@@ -164,8 +164,6 @@ object fraCotizaciones: TfraCotizaciones
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 4
-    ExplicitTop = 175
-    ExplicitHeight = 371
     object grDatos: TrDBGrid
       Left = 0
       Top = 0
@@ -176,10 +174,10 @@ object fraCotizaciones: TfraCotizaciones
       DefaultDrawing = False
       Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
       TabOrder = 0
-      TitleFont.Charset = DEFAULT_CHARSET
+      TitleFont.Charset = ANSI_CHARSET
       TitleFont.Color = clWindowText
-      TitleFont.Height = -11
-      TitleFont.Name = 'Tahoma'
+      TitleFont.Height = -12
+      TitleFont.Name = 'Segoe UI'
       TitleFont.Style = []
       StyleElements = [seFont]
       Columns = <

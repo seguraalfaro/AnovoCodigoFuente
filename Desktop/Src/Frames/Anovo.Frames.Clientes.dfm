@@ -118,8 +118,6 @@ object fraClientes: TfraClientes
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitTop = 129
-    ExplicitHeight = 391
     object grClientes: TrDBGrid
       Left = 0
       Top = 0
@@ -141,71 +139,41 @@ object fraClientes: TfraClientes
           Expanded = False
           FieldName = 'IDENTIFICACION'
           Title.Caption = 'Identificaci'#243'n'
-          Title.Font.Charset = ANSI_CHARSET
-          Title.Font.Color = clWhite
-          Title.Font.Height = -12
-          Title.Font.Name = 'Segoe UI'
-          Title.Font.Style = []
-          Width = 120
+          Width = 102
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'NOMBRE'
           Title.Caption = 'Nombre o raz'#243'n social'
-          Title.Font.Charset = ANSI_CHARSET
-          Title.Font.Color = clWhite
-          Title.Font.Height = -12
-          Title.Font.Name = 'Segoe UI'
-          Title.Font.Style = []
-          Width = 240
+          Width = 205
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'TELEFONO'
           Title.Caption = 'Tel'#233'fono'
-          Title.Font.Charset = ANSI_CHARSET
-          Title.Font.Color = clWhite
-          Title.Font.Height = -12
-          Title.Font.Name = 'Segoe UI'
-          Title.Font.Style = []
-          Width = 110
+          Width = 94
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'CORREO'
           Title.Caption = 'Correo'
-          Title.Font.Charset = ANSI_CHARSET
-          Title.Font.Color = clWhite
-          Title.Font.Height = -12
-          Title.Font.Name = 'Segoe UI'
-          Title.Font.Style = []
-          Width = 180
+          Width = 154
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'CONSENTIMIENTO'
           Title.Caption = 'Consentimiento'
-          Title.Font.Charset = ANSI_CHARSET
-          Title.Font.Color = clWhite
-          Title.Font.Height = -12
-          Title.Font.Name = 'Segoe UI'
-          Title.Font.Style = []
-          Width = 120
+          Width = 102
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'ACCIONES'
           Title.Caption = 'Acciones'
-          Title.Font.Charset = ANSI_CHARSET
-          Title.Font.Color = clWhite
-          Title.Font.Height = -12
-          Title.Font.Name = 'Segoe UI'
-          Title.Font.Style = []
           Width = 240
           Visible = True
         end>
@@ -262,8 +230,5 @@ object fraClientes: TfraClientes
     ActiveFont.Name = 'Segoe UI Semibold'
     ActiveFont.Style = []
     ParentFont = False
-    ExplicitLeft = 0
-    ExplicitTop = 114
-    ExplicitWidth = 960
   end
 end
