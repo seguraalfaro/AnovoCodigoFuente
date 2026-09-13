@@ -3,8 +3,10 @@ unit Anovo.Forms.Principal;
 interface
 
 uses
+  Anovo.Frames.Dashboard.Gerencia,
   Anovo.Frames.Catalogos,
   Anovo.Frames.Clientes,
+  Anovo.Frames.Dashboard,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.TitleBarCtrls, Vcl.StdCtrls,
   Vcl.ExtCtrls, Anovo.UI.Tema,
@@ -87,7 +89,7 @@ begin
   begin
     AplicarTemaBarraTitulo(Self, TitleBarPanel1, 55);
     AplicarTema(Self);
-
+    IrAFormulario(secDashboard)
   end;
 
   procedure TfrmPrincipal.IrAFormulario(ASeccion: TSeccion);
@@ -101,76 +103,15 @@ begin
 
   function TfrmPrincipal.ObtenerFrame(ASeccion: TSeccion): TFrame;
   begin
-    { case ASeccion of
+    case ASeccion of
       secDashboard:
-      begin
-      if not Assigned(FfraDashboard) then
-      FfraDashboard := TfraDashboard.Create(Self);
-      Result := FfraDashboard;
-      end;
-      secCotizaciones:
-      begin
-      if not Assigned(FfraCotizaciones) then
-      FfraCotizaciones := TfraCotizaciones.Create(Self);
-      Result := FfraCotizaciones;
-      end;
-      secGeneracion:
-      begin
-      if not Assigned(FfraGeneracion) then
-      FfraGeneracion := TfraGeneracion.Create(Self);
-      Result := FfraGeneracion;
-      end;
-      secDetalle:
-      begin
-      if not Assigned(FfraDetalle) then
-      FfraDetalle := TfraDetalle.Create(Self);
-      Result := FfraDetalle;
-      end;
-      secMateriales:
-      begin
-      if not Assigned(FfraMateriales) then
-      FfraMateriales := TfraMateriales.Create(Self);
-      Result := FfraMateriales;
-      end;
-      secClientes:
-      begin
-      if not Assigned(FfraClientes) then
-      FfraClientes := TfraClientes.Create(Self);
-      Result := FfraClientes;
-      end;
-      secReportes:
-      begin
-      if not Assigned(FfraReportes) then
-      FfraReportes := TfraReportes.Create(Self);
-      Result := FfraReportes;
-      end;
-      secBandeja:
-      begin
-      if not Assigned(FfraBandeja) then
-      FfraBandeja := TfraBandeja.Create(Self);
-      Result := FfraBandeja;
-      end;
-      secGerencia:
-      begin
-      if not Assigned(FfraGerencia) then
-      FfraGerencia := TfraGerencia.Create(Self);
-      Result := FfraGerencia;
-      end;
-      secUsuarios:
-      begin
-      if not Assigned(FfraUsuarios) then
-      FfraUsuarios := TfraUsuarios.Create(Self);
-      Result := FfraUsuarios;
-      end;
-      secRoles:
-      begin
-      if not Assigned(FfraRoles) then
-      FfraRoles := TfraRoles.Create(Self);
-      Result := FfraRoles;
-      end;
-      else
-      Result := nil;
-      end; }
+        begin
+          Result := TfraDashboard.Create(Self);
+
+        end;
+
+    end;
+
   end;
 
   procedure TfrmPrincipal.VirtualImage1Click(Sender: TObject);

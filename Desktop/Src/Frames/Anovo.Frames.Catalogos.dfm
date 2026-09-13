@@ -46,6 +46,7 @@ object fraCatalogos: TfraCatalogos
     Height = 52
     Align = alTop
     BevelOuter = bvNone
+    Caption = 'Panel1'
     TabOrder = 1
     DesignSize = (
       954
@@ -132,11 +133,17 @@ object fraCatalogos: TfraCatalogos
     Style = pesPastilla
     Indent = 20
     BackColor = 16447477
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Segoe UI'
+    Font.Style = []
     ActiveFont.Charset = DEFAULT_CHARSET
     ActiveFont.Color = clWindowText
     ActiveFont.Height = -12
     ActiveFont.Name = 'Segoe UI Semibold'
     ActiveFont.Style = []
+    ParentFont = False
   end
   object pnclient: TRelativePanel
     AlignWithMargins = True

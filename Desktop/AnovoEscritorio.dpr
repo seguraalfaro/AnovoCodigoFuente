@@ -17,7 +17,10 @@ uses
   Anovo.Forms.AgregarItem in 'Src\Forms\Anovo.Forms.AgregarItem.pas' {frmAgregarItem},
   Anovo.Frames.Usuarios in 'Src\Frames\Anovo.Frames.Usuarios.pas' {fraUsuarios: TFrame},
   Anovo.Frames.Auditoria in 'Src\Frames\Anovo.Frames.Auditoria.pas' {fraAuditoria: TFrame},
-  Anovo.Frames.Bandeja in 'Src\Frames\Anovo.Frames.Bandeja.pas' {fraBandeja: TFrame};
+  Anovo.Frames.Bandeja in 'Src\Frames\Anovo.Frames.Bandeja.pas' {fraBandeja: TFrame},
+  Anovo.Frames.ClienteDatos in 'Src\Frames\Anovo.Frames.ClienteDatos.pas' {Frame1: TFrame},
+  Anovo.Frames.Dashboard.Gerencia in 'Src\Frames\Anovo.Frames.Dashboard.Gerencia.pas' {fraDashboardGerencia: TFrame},
+  Anovo.Frames.Dashboard in 'Src\Frames\Anovo.Frames.Dashboard.pas' {fraDashboard: TFrame};
 
 {$R *.res}
 
