@@ -8,7 +8,7 @@
 //
 // ***************************************************************************
 
-program DMVCFrameworkProject1;
+program AnovoAPI;
 
 {$APPTYPE CONSOLE}
 

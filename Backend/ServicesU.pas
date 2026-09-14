@@ -18,7 +18,7 @@ uses
 
 type
   IPeopleService = interface
-    ['{E0DBC448-1CBA-4186-A118-EBA923B11DD5}']
+    ['{3E981D8F-3F56-4C70-949B-AEB77A0816CB}']
     function GetAll: TObjectList<TPerson>;
   end;
 

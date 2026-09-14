@@ -31,6 +31,7 @@ uses
   MVCFramework.Middleware.ActiveRecord,
   MVCFramework.Middleware.StaticFiles,
   MVCFramework.Middleware.CORS,
+  MVCFramework.Middleware.ETag,
   MVCFramework.Middleware.RateLimit,
   MVCFramework.Middleware.Compression,
   System.SysUtils;
@@ -88,9 +89,10 @@ begin
   );
   AEngine.AddMiddleware(TMVCStaticFilesMiddleware.Create('/static', LWwwPath));
   AEngine.AddMiddleware(TMVCCompressionMiddleware.Create);
+  AEngine.AddMiddleware(TMVCETagMiddleware.Create);
   AEngine.AddMiddleware(TMVCCORSMiddleware.Create);
   AEngine.AddMiddleware(TMVCActiveRecordMiddleware.Create(
-    dotEnv.Env('firedac.connection_definition_name', 'AvonoDef'),
+    dotEnv.Env('firedac.connection_definition_name', 'AnovoDef'),
     dotEnv.Env('firedac.connection_definitions_filename', TPath.Combine(AppPath, 'FDConnectionDefs.ini'))
   ));
   // Middleware - END
