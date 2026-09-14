@@ -169,9 +169,6 @@ object fraDashboard: TfraDashboard
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 2
-    ExplicitTop = 210
-    ExplicitWidth = 320
-    ExplicitHeight = 200
     object grCotizaciones: TrDBGrid
       AlignWithMargins = True
       Left = 10

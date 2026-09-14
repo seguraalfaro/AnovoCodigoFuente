@@ -35,9 +35,10 @@ type
     rDBGrid1: TrDBGrid;
   private
     { Private declarations }
-    constructor Create(AOwner: TComponent); override;
+
   public
     { Public declarations }
+      constructor Create(AOwner: TComponent); override;
   end;
 
 implementation
@@ -48,7 +49,7 @@ implementation
 constructor TfraDashboardGerencia.Create(AOwner: TComponent);
 begin
   inherited;
-  AplicarTemaGrid(grDatos);
+  //AplicarTemaGrid(grDatos);
 end;
 
 end.

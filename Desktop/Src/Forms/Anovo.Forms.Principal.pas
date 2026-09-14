@@ -7,12 +7,14 @@ uses
   Anovo.Frames.Catalogos,
   Anovo.Frames.Clientes,
   Anovo.Frames.Dashboard,
+  Anovo.Frames.GeneracionCotizacion,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.TitleBarCtrls, Vcl.StdCtrls,
   Vcl.ExtCtrls, Anovo.UI.Tema,
   Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.ToolWin, Vcl.VirtualImage,
   Vcl.WinXCtrls, Vcl.CategoryButtons, Vcl.Buttons, FlatVcl.NavItem,
-  System.Actions, Vcl.ActnList, PestanasPlanas, Vcl.WinXPanels;
+  System.Actions, Vcl.ActnList, PestanasPlanas, Vcl.WinXPanels,
+  VclPlano.NavItem;
 
 type
   TSeccion = (secDashboard, secCotizaciones, secGeneracion, secDetalle,
@@ -35,7 +37,6 @@ type
     ActionList1: TActionList;
     AcDashboard: TAction;
     FnCotizaciones: TFlatNavItem;
-    Fnueva: TFlatNavItem;
     AcCotizaciones: TAction;
     acNueva: TAction;
     AcClientes: TAction;
@@ -43,7 +44,6 @@ type
     AcReportes: TAction;
     FnClientes: TFlatNavItem;
     AcBandeja: TAction;
-    FnBandeja: TFlatNavItem;
     FnReportes: TFlatNavItem;
     pnlBottom: TRelativePanel;
     pnlsepBottom: TRelativePanel;
@@ -55,9 +55,11 @@ type
     FnUsuarios: TFlatNavItem;
     FnRoles: TFlatNavItem;
     FnConfiguracion: TFlatNavItem;
+    PlanoNavItem1: TPlanoNavItem;
     procedure FormCreate(Sender: TObject);
     procedure VirtualImage1Click(Sender: TObject);
     procedure AcDashboardExecute(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   private
     { Private declarations }
     FFrameTemp: TFrame;
@@ -76,6 +78,7 @@ implementation
 {$R *.dfm}
 
 uses
+
   Anovo.UI.Iconos;
 
 procedure TfrmPrincipal.AcDashboardExecute(Sender: TObject);
@@ -84,6 +87,13 @@ begin
     s: string
 
     end;
+
+  procedure TfrmPrincipal.FormCloseQuery(Sender: TObject;
+    var CanClose: Boolean);
+  begin
+    if  Assigned(FFrameTemp) then
+      FreeAndNil(FFrameTemp);
+  end;
 
   procedure TfrmPrincipal.FormCreate(Sender: TObject);
   begin
@@ -94,7 +104,7 @@ begin
 
   procedure TfrmPrincipal.IrAFormulario(ASeccion: TSeccion);
   begin
-    if not Assigned(FFrameTemp) then
+    if  Assigned(FFrameTemp) then
       FreeAndNil(FFrameTemp);
     FFrameTemp := ObtenerFrame(ASeccion);
     FFrameTemp.Parent := pnlContenido;
@@ -106,10 +116,11 @@ begin
     case ASeccion of
       secDashboard:
         begin
-          Result := TfraDashboard.Create(Self);
+          Result := TfraGeneracionCotizacion.Create(Self);
 
-        end;
-
+        end
+    else
+      Result := nil;
     end;
 
   end;

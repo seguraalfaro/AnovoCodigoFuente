@@ -3,11 +3,14 @@ object fraCotizaciones: TfraCotizaciones
   Top = 0
   Width = 960
   Height = 620
+  Color = 16447477
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  ParentBackground = False
+  ParentColor = False
   ParentFont = False
   TabOrder = 0
   object pnlBarra: TPanel

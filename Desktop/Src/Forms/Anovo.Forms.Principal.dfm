@@ -31,6 +31,7 @@ object frmPrincipal: TfrmPrincipal
   OldCreateOrder = False
   Position = poOwnerFormCenter
   StyleElements = [seFont]
+  OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 15
@@ -230,16 +231,6 @@ object frmPrincipal: TfrmPrincipal
           Below = FnDashboard
         end
         item
-          Control = Fnueva
-          AlignBottomWithPanel = False
-          AlignHorizontalCenterWithPanel = False
-          AlignLeftWithPanel = False
-          AlignRightWithPanel = False
-          AlignTopWithPanel = False
-          AlignVerticalCenterWithPanel = False
-          Below = FnCotizaciones
-        end
-        item
           Control = FnClientes
           AlignBottomWithPanel = False
           AlignHorizontalCenterWithPanel = False
@@ -247,17 +238,6 @@ object frmPrincipal: TfrmPrincipal
           AlignRightWithPanel = False
           AlignTopWithPanel = False
           AlignVerticalCenterWithPanel = False
-          Below = Fnueva
-        end
-        item
-          Control = FnBandeja
-          AlignBottomWithPanel = False
-          AlignHorizontalCenterWithPanel = False
-          AlignLeftWithPanel = False
-          AlignRightWithPanel = False
-          AlignTopWithPanel = False
-          AlignVerticalCenterWithPanel = False
-          Below = FnClientes
         end
         item
           Control = FnReportes
@@ -267,7 +247,6 @@ object frmPrincipal: TfrmPrincipal
           AlignRightWithPanel = False
           AlignTopWithPanel = False
           AlignVerticalCenterWithPanel = False
-          Below = FnBandeja
         end
         item
           Control = FnUsuarios
@@ -296,6 +275,15 @@ object frmPrincipal: TfrmPrincipal
           AlignTopWithPanel = False
           AlignVerticalCenterWithPanel = False
           Below = FnRoles
+        end
+        item
+          Control = PlanoNavItem1
+          AlignBottomWithPanel = False
+          AlignHorizontalCenterWithPanel = False
+          AlignLeftWithPanel = True
+          AlignRightWithPanel = True
+          AlignTopWithPanel = False
+          AlignVerticalCenterWithPanel = False
         end>
       Align = alClient
       BevelOuter = bvNone
@@ -303,6 +291,9 @@ object frmPrincipal: TfrmPrincipal
       ParentBackground = False
       TabOrder = 2
       StyleElements = []
+      DesignSize = (
+        200
+        546)
       object FnDashboard: TFlatNavItem
         Left = 5
         Top = 0
@@ -329,22 +320,9 @@ object frmPrincipal: TfrmPrincipal
         ParentShowHint = False
         ShowHint = False
       end
-      object Fnueva: TFlatNavItem
-        Left = 5
-        Top = 80
-        Width = 189
-        Height = 40
-        SelectedColor = clGrayText
-        Images = dmIconos.ViAnovo
-        ImageIndex = 76
-        Action = acNueva
-        Align = alTop
-        ParentShowHint = False
-        ShowHint = False
-      end
       object FnClientes: TFlatNavItem
         Left = 5
-        Top = 120
+        Top = 72
         Width = 189
         Height = 40
         SelectedColor = clGrayText
@@ -355,22 +333,9 @@ object frmPrincipal: TfrmPrincipal
         ParentShowHint = False
         ShowHint = False
       end
-      object FnBandeja: TFlatNavItem
-        Left = 5
-        Top = 160
-        Width = 189
-        Height = 40
-        SelectedColor = clGrayText
-        Images = dmIconos.ViAnovo
-        ImageIndex = 58
-        Action = AcBandeja
-        Align = alTop
-        ParentShowHint = False
-        ShowHint = False
-      end
       object FnReportes: TFlatNavItem
         Left = 5
-        Top = 200
+        Top = 146
         Width = 189
         Height = 40
         SelectedColor = clGrayText
@@ -383,7 +348,7 @@ object frmPrincipal: TfrmPrincipal
       end
       object FnUsuarios: TFlatNavItem
         Left = 5
-        Top = 240
+        Top = 192
         Width = 189
         Height = 40
         SelectedColor = clGrayText
@@ -396,7 +361,7 @@ object frmPrincipal: TfrmPrincipal
       end
       object FnRoles: TFlatNavItem
         Left = 5
-        Top = 286
+        Top = 222
         Width = 189
         Height = 40
         SelectedColor = clGrayText
@@ -409,7 +374,7 @@ object frmPrincipal: TfrmPrincipal
       end
       object FnConfiguracion: TFlatNavItem
         Left = 5
-        Top = 326
+        Top = 262
         Width = 189
         Height = 40
         SelectedColor = clGrayText
@@ -419,6 +384,17 @@ object frmPrincipal: TfrmPrincipal
         Align = alTop
         ParentShowHint = False
         ShowHint = False
+      end
+      object PlanoNavItem1: TPlanoNavItem
+        AlignWithMargins = True
+        Left = 3
+        Top = 106
+        Width = 194
+        Height = 40
+        Images = dmIconos.ViAnovo
+        ImageIndex = 58
+        Action = AcBandeja
+        Anchors = []
       end
     end
     object pnlBottom: TRelativePanel

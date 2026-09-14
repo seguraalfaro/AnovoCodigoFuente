@@ -100,7 +100,6 @@ object fraDashboardGerencia: TfraDashboardGerencia
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitTop = 66
     DesignSize = (
       960
       125)
@@ -284,10 +283,6 @@ object fraDashboardGerencia: TfraDashboardGerencia
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitLeft = 336
-    ExplicitTop = 352
-    ExplicitWidth = 185
-    ExplicitHeight = 41
     object PlanoTarjeta1: TPlanoTarjeta
       AlignWithMargins = True
       Left = 20
