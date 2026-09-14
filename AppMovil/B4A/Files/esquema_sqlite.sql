@@ -2,6 +2,10 @@
 -- Todo con CREATE ... IF NOT EXISTS: se ejecuta en cada arranque sin efecto si ya existe.
 -- Cambió el esquema? Se reemplaza este archivo y se activa BORRAR_BASE una vez.
 -- Requisito del parser: sin triggers y sin ";" ni "--" dentro de literales de texto.
+--
+-- objversion: version del registro tal como la mando el servidor. NO se toca en el movil.
+-- Se guarda al descargar y se devuelve igual al sincronizar. Si el servidor ya tiene una
+-- mas nueva responde 409 y la fila queda en estado_sync='conflicto' para que decida el asesor.
 
 CREATE TABLE IF NOT EXISTS clientes (
   uuid_local              TEXT PRIMARY KEY,
@@ -19,8 +23,9 @@ CREATE TABLE IF NOT EXISTS clientes (
   longitud                REAL,
   consentimiento_estado   TEXT NOT NULL DEFAULT 'pendiente'
                             CHECK (consentimiento_estado IN ('pendiente','firmado','revocado')),
+  objversion              INTEGER NOT NULL DEFAULT 0,
   estado_sync             TEXT NOT NULL DEFAULT 'pendiente'
-                            CHECK (estado_sync IN ('pendiente','enviando','confirmado','error'))
+                            CHECK (estado_sync IN ('pendiente','enviando','confirmado','error','conflicto'))
 );
 
 CREATE TABLE IF NOT EXISTS cliente_contactos (
@@ -37,6 +42,7 @@ CREATE TABLE IF NOT EXISTS cliente_contactos (
                             CHECK (consentimiento_estado IN ('pendiente','firmado','revocado')),
   consentimiento_version  TEXT,
   consentimiento_fecha    TEXT,
+  objversion              INTEGER NOT NULL DEFAULT 0,
   estado_sync             TEXT NOT NULL DEFAULT 'pendiente'
 );
 
@@ -67,6 +73,7 @@ CREATE TABLE IF NOT EXISTS solicitudes (
   descripcion       TEXT NOT NULL,
   observaciones     TEXT,
   fecha_captura     TEXT NOT NULL,
+  objversion        INTEGER NOT NULL DEFAULT 0,
   estado_sync       TEXT NOT NULL DEFAULT 'pendiente',
   completa          INTEGER NOT NULL DEFAULT 0
 );
@@ -84,6 +91,7 @@ CREATE TABLE IF NOT EXISTS adjuntos (
   ruta_archivo      TEXT,
   contenido_json    TEXT,
   mime              TEXT,
+  objversion        INTEGER NOT NULL DEFAULT 0,
   estado_sync       TEXT NOT NULL DEFAULT 'pendiente',
   CHECK ( (tipo = 'foto'    AND ruta_archivo IS NOT NULL) OR
           (tipo = 'croquis' AND contenido_json IS NOT NULL) )
@@ -104,6 +112,7 @@ CREATE TABLE IF NOT EXISTS medidas (
   unidad_medida     TEXT NOT NULL DEFAULT 'cm',  -- cm|mm|m|pulg|grados...
   observacion       TEXT,
   orden             INTEGER NOT NULL DEFAULT 0,
+  objversion        INTEGER NOT NULL DEFAULT 0,
   estado_sync       TEXT NOT NULL DEFAULT 'pendiente'
 );
 
@@ -122,6 +131,7 @@ CREATE TABLE IF NOT EXISTS cola_sync (
   entidad           TEXT NOT NULL
                       CHECK (entidad IN ('cliente','contacto','firma','solicitud','adjunto','medida')),
   uuid_local        TEXT NOT NULL,
+  objversion        INTEGER NOT NULL DEFAULT 0,
   intentos          INTEGER NOT NULL DEFAULT 0,
   ultimo_error      TEXT,
   fecha_encolado    TEXT NOT NULL
