@@ -33,6 +33,9 @@ uses
   MVCFramework.Middleware.ETag,
   MVCFramework.Middleware.RateLimit,
   MVCFramework.Middleware.Compression,
+  MVCFramework.Middleware.StaticFiles,
+  MVCFramework.Swagger.Commons,
+  MVCFramework.Middleware.Swagger,
   MVCFramework.OpenAPI3,
   MVCFramework.Middleware.OpenAPI3,
   System.SysUtils;
@@ -41,10 +44,10 @@ procedure ConfigureEngine(AEngine: TMVCEngine);
 var
   LRateLimitMiddleware: TMVCRateLimitMiddleware;
   LJWTClaimsSetup: TJWTClaimsSetup;
+  LSwaggerInfo: TMVCSwaggerInfo;
   LOpenAPIInfo: TMVCOpenAPIInfo;
 begin
-
-  // Controllers
+// Controllers
   AEngine.AddController(TAnovoController);
   // Controllers - END
 
@@ -52,20 +55,18 @@ begin
   // cupo es entre todos, no por persona: abrir una pantalla del escritorio
   // dispara varias consultas y con cinco personas a la vez un minuto ajetreado
   // ronda las cien. 300 deja margen y sigue frenando a un cliente en bucle.
-  LRateLimitMiddleware := TMVCRateLimitMiddleware.Create(
-    300,          // max requests
-    60,           // window seconds
-    rlkIPAddress
-  );
+  LRateLimitMiddleware := TMVCRateLimitMiddleware.Create(300, // max requests
+    60, // window seconds
+    rlkIPAddress);
   LRateLimitMiddleware.AddExcludedPath('/health');
   LRateLimitMiddleware.SetOnRateLimitExceeded(
-  procedure(const AContext: TWebContext; const AKey: string;
-    const ALimit: Integer; const AWindowSeconds: Integer)
-  begin
-    LogW(Format('Rate limit exceeded for key: %s (Limit: %d requests per %d seconds)',
-      [AKey, ALimit, AWindowSeconds]));
-  end
-  );
+    procedure(const AContext: TWebContext; const AKey: string;
+      const ALimit: Integer; const AWindowSeconds: Integer)
+    begin
+      LogW(Format
+        ('Rate limit exceeded for key: %s (Limit: %d requests per %d seconds)',
+        [AKey, ALimit, AWindowSeconds]));
+    end);
 
   LJWTClaimsSetup := procedure(const JWT: TJWT)
     begin
@@ -76,57 +77,80 @@ begin
       JWT.CustomClaims['app'] := 'AnovoAPI';
     end;
 
-  // Alimenta el documento de /openapi.json. Es el insumo del anexo de
-  // documentacion de la API: se arma solo desde los atributos de los
-  // controllers, asi que no se desactualiza al cambiar un endpoint.
-  LOpenAPIInfo.Title := 'Anovo - API de Cotizaciones';
-  LOpenAPIInfo.Version := 'v1';
-  LOpenAPIInfo.Description := 'Backend del sistema de cotizaciones de Anovo. ' +
+  // Los dos emisores leen los mismos controllers por RTTI, asi que no hay que
+  // escribir la documentacion a mano ni mantenerla al dia: se arma de los
+  // atributos de cada accion.
+  LSwaggerInfo.Title := 'Anovo - API de Cotizaciones';
+  LSwaggerInfo.Version := 'v1';
+  LSwaggerInfo.Description := 'Backend del sistema de cotizaciones de Anovo. ' +
     'Lo consumen la aplicacion de escritorio (VCL) y la aplicacion movil (B4A).';
-  LOpenAPIInfo.ContactName := 'Marcos Segura';
+  LSwaggerInfo.ContactName := 'Marcos Segura';
+  LSwaggerInfo.ContactEmail := 'segura.alfaro@gmail.com';
+
+  LOpenAPIInfo.Title := LSwaggerInfo.Title;
+  LOpenAPIInfo.Version := LSwaggerInfo.Version;
+  LOpenAPIInfo.Description := LSwaggerInfo.Description;
+  LOpenAPIInfo.ContactName := LSwaggerInfo.ContactName;
+  LOpenAPIInfo.ContactEmail := LSwaggerInfo.ContactEmail;
 
   // Middleware
   // El orden de estas lineas es el orden en que corren, y cada uno puede cortar
   // la cadena. Mover uno de sitio no cambia solo cuando corre: cambia que
-  // informacion tiene disponible.
+  // informacion y que recursos tiene disponibles.
 
   // Primero: un navegador manda un OPTIONS sin token antes de la peticion real.
   // Detras del JWT ese OPTIONS se rechazaria antes de que CORS lo conteste.
-  AEngine.AddMiddleware(TMVCCORSMiddleware.Create);
+  AEngine.AddMiddleware(TMVCCORSMiddleware.Create
+    (TMVCCORSDefaults.ALLOWS_ORIGIN_URL, TMVCCORSDefaults.ALLOWS_CREDENTIALS,
+    TMVCCORSDefaults.EXPOSE_HEADERS, TMVCCORSDefaults.ALLOWS_HEADERS));
 
   // Antes del JWT a proposito: rechazar barato sale mas barato que validar un
   // token. Tambien deja el login bajo tope, que es donde hace falta.
   AEngine.AddMiddleware(LRateLimitMiddleware);
 
-  // JWT Bearer auth (Authorization header, for API clients)
-  AEngine.AddMiddleware(
-    UseJWTMiddleware(
-      TAuthentication.Create,
-      LJWTClaimsSetup,
-      dotEnv.Env('JWT_SECRET'),  // no fallback: a missing key must fail, not sign with a public string
-      '/login',   // Login URL (POST username & password here)
-      [TJWTCheckableClaim.ExpirationTime, TJWTCheckableClaim.NotBefore, TJWTCheckableClaim.IssuedAt],
-      300  // Leeway seconds (5 minutes)
-    )
-  );
+  // Swagger UI son archivos estaticos, no un middleware: la pagina que
+  // renderiza el documento y deja probar cada endpoint. Vive en bin\swaggerui,
+  // que git ignora por estar bajo bin\.
+  AEngine.AddMiddleware(TMVCStaticFilesMiddleware.Create('/swagger',
+    TPath.Combine(AppPath, 'swaggerui'), 'index.html'));
 
-  // Detras del JWT: el documento queda protegido. La descripcion de la API no
-  // tiene por que ser publica. El origen de los controllers clasicos lo agrega
-  // el propio middleware, no hay que registrarlo.
-  AEngine.AddMiddleware(TMVCOpenAPI3Middleware.Create(AEngine, LOpenAPIInfo));
+ 
+  // Swagger 2.0, el que la pagina apunta por defecto y sabe renderizar. El
+  // cuarto parametro es lo que hace aparecer el boton Authorize, sin el cual
+  // no se pueden probar los endpoints protegidos.
+  AEngine.AddMiddleware(TMVCSwaggerMiddleware.Create(AEngine, LSwaggerInfo,
+    '/api/swagger.json',
+    'Autenticacion por JSON Web Token (JWT). Pegar aqui el token del login.',
+    False, // AEnableBasicAuthentication
+    '', // AHost: vacio = el del navegador
+    '', // ABasePath
+    '', // APathFilter
+    [psHTTPS])); // solo HTTPS: el servidor no escucha en claro
+
+  // OpenAPI 3.1 sobre los mismos controllers. Es el estandar vigente y el que
+  // se cita en el informe; el 2.0 de arriba esta solo para la pagina.
+  AEngine.AddMiddleware(TMVCOpenAPI3Middleware.Create(AEngine, LOpenAPIInfo,
+    '/api/openapi.json'));
+
+  // Antes del JWT: el login consulta USUARIOS, y sin conexion abierta.
+  AEngine.AddMiddleware(TMVCActiveRecordMiddleware.Create
+    (dotEnv.Env('firedac.connection_definition_name', 'AnovoDef'),
+    dotEnv.Env('firedac.connection_definitions_filename', TPath.Combine(AppPath,
+    'FDConnectionDefs.ini'))));
+
+  // JWT Bearer auth (Authorization header, for API clients)
+  AEngine.AddMiddleware(UseJWTMiddleware(TAuthentication.Create,
+    LJWTClaimsSetup, dotEnv.Env('JWT_SECRET'),
+    // no fallback: a missing key must fail, not sign with a public string
+    '/api/auth/login', // Login URL (POST username & password here)
+    [TJWTCheckableClaim.ExpirationTime, TJWTCheckableClaim.NotBefore,
+    TJWTCheckableClaim.IssuedAt], 300 // Leeway seconds (5 minutes)
+    ));
+
 
   AEngine.AddMiddleware(TMVCCompressionMiddleware.Create);
   AEngine.AddMiddleware(TMVCETagMiddleware.Create);
-
-  // Ultimo: abre la conexion por peticion, cuanto mas tarde mejor.
-  // Aqui detras va a ir el middleware que fija RDB$SET_CONTEXT con el usuario
-  // del token: necesita al usuario (del JWT) y la conexion ya abierta.
-  AEngine.AddMiddleware(TMVCActiveRecordMiddleware.Create(
-    dotEnv.Env('firedac.connection_definition_name', 'AnovoDef'),
-    dotEnv.Env('firedac.connection_definitions_filename', TPath.Combine(AppPath, 'FDConnectionDefs.ini'))
-  ));
   // Middleware - END
-
 end;
 
 end.
