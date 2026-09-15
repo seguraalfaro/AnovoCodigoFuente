@@ -175,10 +175,17 @@
         <DCCReference Include="src\Auth\Anovo.Auth.RoleHandler.pas"/>
         <DCCReference Include="src\Bootstrap\Anovo.Bootstrap.pas"/>
         <DCCReference Include="src\Bootstrap\Anovo.Config.Engine.pas"/>
-        <DCCReference Include="src\Entities\Anovo.Entities.Usuarios.pas"/>
         <DCCReference Include="src\Services\Anovo.Services.Clave.pas"/>
         <DCCReference Include="src\Middleware\Anovo.Middleware.ContextoAuditoria.pas"/>
         <DCCReference Include="src\Common\Anovo.Auditoria.Contexto.pas"/>
+        <DCCReference Include="src\DTOs\Anovo.DTOs.Clientes.pas"/>
+        <DCCReference Include="src\Entities\Anovo.Entities.Auditoria.pas"/>
+        <DCCReference Include="src\Entities\Anovo.Entities.Catalogos.pas"/>
+        <DCCReference Include="src\Entities\Anovo.Entities.Clientes.pas"/>
+        <DCCReference Include="src\Entities\Anovo.Entities.Cotizaciones.pas"/>
+        <DCCReference Include="src\Entities\Anovo.Entities.Empresa.pas"/>
+        <DCCReference Include="src\Entities\Anovo.Entities.Solicitudes.pas"/>
+        <DCCReference Include="src\Entities\Anovo.Entities.Usuarios.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

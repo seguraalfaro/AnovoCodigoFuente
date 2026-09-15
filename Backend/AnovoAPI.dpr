@@ -33,10 +33,17 @@ uses
   Anovo.Auth.RoleHandler in 'src\Auth\Anovo.Auth.RoleHandler.pas',
   Anovo.Bootstrap in 'src\Bootstrap\Anovo.Bootstrap.pas',
   Anovo.Config.Engine in 'src\Bootstrap\Anovo.Config.Engine.pas',
-  Anovo.Entities.Usuarios in 'src\Entities\Anovo.Entities.Usuarios.pas',
   Anovo.Services.Clave in 'src\Services\Anovo.Services.Clave.pas',
   Anovo.Middleware.ContextoAuditoria in 'src\Middleware\Anovo.Middleware.ContextoAuditoria.pas',
-  Anovo.Auditoria.Contexto in 'src\Common\Anovo.Auditoria.Contexto.pas';
+  Anovo.Auditoria.Contexto in 'src\Common\Anovo.Auditoria.Contexto.pas',
+  Anovo.DTOs.Clientes in 'src\DTOs\Anovo.DTOs.Clientes.pas',
+  Anovo.Entities.Auditoria in 'src\Entities\Anovo.Entities.Auditoria.pas',
+  Anovo.Entities.Catalogos in 'src\Entities\Anovo.Entities.Catalogos.pas',
+  Anovo.Entities.Clientes in 'src\Entities\Anovo.Entities.Clientes.pas',
+  Anovo.Entities.Cotizaciones in 'src\Entities\Anovo.Entities.Cotizaciones.pas',
+  Anovo.Entities.Empresa in 'src\Entities\Anovo.Entities.Empresa.pas',
+  Anovo.Entities.Solicitudes in 'src\Entities\Anovo.Entities.Solicitudes.pas',
+  Anovo.Entities.Usuarios in 'src\Entities\Anovo.Entities.Usuarios.pas';
 
 {$R *.res}
 

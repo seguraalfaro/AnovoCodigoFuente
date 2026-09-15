@@ -62,14 +62,14 @@ procedure TAuthentication.OnAuthentication(const AContext: TWebContext;
   const UserName: string; const Password: string; UserRoles: TList<string>;
   var IsValid: Boolean; const SessionData: TDictionary<string, string>);
 var
-  lUsuario: TUsuario;
-  lFila: TUsuarioClave;
-  lRol: TRol;
+  lUsuario: TUsuarios;
+  lFila: TUsuariosClaves;
+  lRol: TRoles;
 begin
   IsValid := False;
   UserRoles.Clear;
 
-  lUsuario := TMVCActiveRecord.GetOneByWhere<TUsuario>('CORREO = ?',
+  lUsuario := TMVCActiveRecord.GetOneByWhere<TUsuarios>('CORREO = ?',
     [UserName.Trim.ToLower], False);
 
   if lUsuario = nil then
@@ -90,7 +90,7 @@ begin
       Exit;
     end;
 
-    lFila := TMVCActiveRecord.GetOneByWhere<TUsuarioClave>
+    lFila := TMVCActiveRecord.GetOneByWhere<TUsuariosClaves>
       ('USUARIO_ID = ? AND ACTIVO = ?', [lUsuario.ID.Value, True], False);
 
     if lFila = nil then
@@ -133,7 +133,7 @@ begin
       lFila.Free;
     end;
 
-    lRol := TMVCActiveRecord.GetByPK<TRol>(lUsuario.RolID, False);
+    lRol := TMVCActiveRecord.GetByPK<TRoles>(lUsuario.RolID, False);
     if lRol = nil then
     begin
       // La base lo impide con NOT NULL + clave foranea, pero si llegara a pasar
