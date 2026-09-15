@@ -94,12 +94,7 @@ begin
   LOpenAPIInfo.ContactName := LSwaggerInfo.ContactName;
   LOpenAPIInfo.ContactEmail := LSwaggerInfo.ContactEmail;
 
-  // Middleware
-  // El orden de estas lineas es el orden en que corren, y cada uno puede cortar
-  // la cadena. Mover uno de sitio no cambia solo cuando corre: cambia que
-  // informacion y que recursos tiene disponibles.
-
-  // Primero: un navegador manda un OPTIONS sin token antes de la peticion real.
+    // Primero: un navegador manda un OPTIONS sin token antes de la peticion real.
   // Detras del JWT ese OPTIONS se rechazaria antes de que CORS lo conteste.
   AEngine.AddMiddleware(TMVCCORSMiddleware.Create
     (TMVCCORSDefaults.ALLOWS_ORIGIN_URL, TMVCCORSDefaults.ALLOWS_CREDENTIALS,
@@ -115,17 +110,7 @@ begin
   AEngine.AddMiddleware(TMVCStaticFilesMiddleware.Create('/swagger',
     TPath.Combine(AppPath, 'swaggerui'), 'index.html'));
 
-  // Los dos documentos van ANTES del JWT: la pagina los pide desde el navegador
-  // sin token, y detras del JWT recibiria un 401 y saldria en blanco.
-  //
-  // Eso los hace publicos: describen que endpoints existen y que reciben. No
-  // exponen datos ni permiten ejecutar nada -cada endpoint sigue pidiendo
-  // token- y el servidor vive en la red de la empresa. Es decision tomada, no
-  // descuido.
-
-  // Swagger 2.0, el que la pagina apunta por defecto y sabe renderizar. El
-  // cuarto parametro es lo que hace aparecer el boton Authorize, sin el cual
-  // no se pueden probar los endpoints protegidos.
+  // Swagger 2.0, el que la pagina apunta por defecto .
   AEngine.AddMiddleware(TMVCSwaggerMiddleware.Create(AEngine, LSwaggerInfo,
     '/api/swagger.json',
     'Autenticacion por JSON Web Token (JWT). Pegar aqui el token del login.',
@@ -140,9 +125,7 @@ begin
   AEngine.AddMiddleware(TMVCOpenAPI3Middleware.Create(AEngine, LOpenAPIInfo,
     '/api/openapi.json'));
 
-  // Antes del JWT: el login consulta USUARIOS, y sin conexion abierta falla con
-  // 'No current connection for thread'. Los dos abren en OnBeforeRouting, asi
-  // que el orden de esta lista decide cual llega primero.
+  // Antes del JWT: el login consulta USUARIOS, y sin conexion abierta falla.
   AEngine.AddMiddleware(TMVCActiveRecordMiddleware.Create
     (dotEnv.Env('firedac.connection_definition_name', 'AnovoDef'),
     dotEnv.Env('firedac.connection_definitions_filename', TPath.Combine(AppPath,
@@ -157,11 +140,7 @@ begin
     TJWTCheckableClaim.IssuedAt], 300 // Leeway seconds (5 minutes)
     ));
 
-  // Despues del JWT y del de ActiveRecord porque necesita las dos cosas: el
-  // usuario, que lo pone el JWT al validar el token, y la conexion, que ya
-  // esta abierta desde arriba. Pasa ese usuario a RDB$SET_CONTEXT, que es de
-  // donde los disparadores de auditoria sacan quien escribio. Sin el, toda
-  // escritura muere con E_AUDITORIA_SIN_USUARIO.
+  // Despues del JWT y del de ActiveRecord porque necesita las dos cosas
   AEngine.AddMiddleware(TContextoAuditoriaMiddleware.Create);
   AEngine.AddMiddleware(TMVCCompressionMiddleware.Create);
   AEngine.AddMiddleware(TMVCETagMiddleware.Create);
