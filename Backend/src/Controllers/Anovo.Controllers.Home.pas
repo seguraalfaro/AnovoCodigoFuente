@@ -13,24 +13,28 @@ unit Anovo.Controllers.Home;
 interface
 
 uses
-  MVCFramework, MVCFramework.Commons;
+  MVCFramework,
+  MVCFramework.Commons,
+  //tambien omiti la unidad roles por eso no se me llamaba correctamente
+  MVCFramework.Middleware.Authentication.RoleBasedAuthHandler;
 
 type
+
   [MVCPath('/api')]
   TAnovoController = class(TMVCController)
   public
-    [MVCPath]
+
+    [MVCPath('/privado')]
     [MVCHTTPMethod([httpGET])]
-    [MVCProduces(TMVCMediaType.TEXT_HTML)]
-    function Index: String;
+    [MVCRequiresRole('supervisor')]
+    function SoloSupervisor: String;
   end;
 
 implementation
 
-function TAnovoController.Index: String;
+function TAnovoController.SoloSupervisor: String;
 begin
-  Result := '<p>Hello <strong>DelphiMVCFramework</strong> World</p>' +
-            '<p><small>dmvcframework-' + DMVCFRAMEWORK_VERSION + '</small></p>';
+  Result := 'Si ves esto, el rol supervisor esta activo';
 end;
 
 end.

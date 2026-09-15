@@ -13,9 +13,9 @@ program AnovoAPI;
 {$APPTYPE CONSOLE}
 
 uses
-  FireDAC.Phys.FB, // el driver de Firebird
-  FireDAC.Phys.FBDef, // su definicion de parametros
-  MVCFramework.SQLGenerators.Firebird, // el traductor de RQL a SQL de Firebird
+  FireDAC.Phys.FB,
+  FireDAC.Phys.FBDef,
+  MVCFramework.SQLGenerators.Firebird,
   System.SysUtils,
   System.IOUtils,
   MVCFramework,
@@ -32,7 +32,9 @@ uses
   Anovo.Config.Servicios in 'src\Bootstrap\Anovo.Config.Servicios.pas',
   Anovo.Auth.RoleHandler in 'src\Auth\Anovo.Auth.RoleHandler.pas',
   Anovo.Bootstrap in 'src\Bootstrap\Anovo.Bootstrap.pas',
-  Anovo.Config.Engine in 'src\Bootstrap\Anovo.Config.Engine.pas';
+  Anovo.Config.Engine in 'src\Bootstrap\Anovo.Config.Engine.pas',
+  Anovo.Entities.Usuarios in 'src\Entities\Anovo.Entities.Usuarios.pas',
+  Anovo.Services.Clave in 'src\Services\Anovo.Services.Clave.pas';
 
 {$R *.res}
 

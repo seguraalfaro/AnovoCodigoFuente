@@ -17,12 +17,20 @@ uses
 
 // Registro de servicios en el contenedor. Los que tocan la base van como
 // SingletonPerRequest: la conexion la maneja el middleware por peticion.
+// Transient           una instancia por cada resolucion.
+
 procedure RegisterServices(Container: IMVCServiceContainer);
 
 implementation
 
+uses
+  Anovo.Services.Clave;
+
 procedure RegisterServices(Container: IMVCServiceContainer);
 begin
+  // Singleton: solo hashea y compara, no guarda nada ni abre conexiones.
+  Container.RegisterType(TClaveService, IClaveService,
+    TRegistrationType.Singleton);
 
 end;
 

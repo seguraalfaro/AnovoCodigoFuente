@@ -10,57 +10,53 @@
 
 unit Anovo.Auth.RoleHandler;
 
+
+// Handler de autenticacion contra USUARIOS / USUARIOS_CLAVES.
+//
+// Desciende de TRoleBasedAuthHandler y no de IMVCAuthenticationHandler a secas:
+// ahi viven OnRequest y OnAuthorization, que leen [MVCRequiresAuthentication] y
+// [MVCRequiresRole] por RTTI. Implementando la interfaz directamente esos
+// atributos compilan y no protegen nada.
+//
+// Por eso aqui solo se sobrescribe OnAuthentication: lo demas ya esta resuelto.
+
 interface
 
 uses
-  System.SysUtils,
   System.Generics.Collections,
   MVCFramework,
-  MVCFramework.Commons;
+  MVCFramework.Middleware.Authentication.RoleBasedAuthHandler,
+  Anovo.Services.Clave;
 
 type
-  // JWT authentication handler. Customize OnRequest, OnAuthentication and OnAuthorization
-  // to validate credentials against your user store and enforce access rules.
-  TAuthentication = class(TInterfacedObject, IMVCAuthenticationHandler)
-  protected
-    procedure OnRequest(
-      const AContext: TWebContext;
-      const ControllerQualifiedClassName: string;
-      const ActionName: string;
-      var AuthenticationRequired: Boolean);
+  TAuthentication = class(TRoleBasedAuthHandler)
+  private
+    fClave: IClaveService;
+  public
+    // Se instancea el servicio al crear y no cada login
+    constructor Create;
     procedure OnAuthentication(
       const AContext: TWebContext;
       const UserName: string;
       const Password: string;
       UserRoles: TList<string>;
       var IsValid: Boolean;
-      const SessionData: TSessionData);
-    procedure OnAuthorization(
-      const AContext: TWebContext;
-      UserRoles: TList<string>;
-      const ControllerQualifiedClassName: string;
-      const ActionName: string;
-      var IsAuthorized: Boolean);
+      const SessionData: TDictionary<string, string>); override;
   end;
 
 implementation
 
 uses
-  MVCFramework.DotEnv,
-  MVCFramework.Logger;
+  System.SysUtils,
+  MVCFramework.ActiveRecord,
+  MVCFramework.Container,
+  MVCFramework.Logger,
+  Anovo.Entities.Usuarios;
 
-{ TAuthentication }
-
-procedure TAuthentication.OnRequest(
-  const AContext: TWebContext;
-  const ControllerQualifiedClassName: string;
-  const ActionName: string;
-  var AuthenticationRequired: Boolean);
+constructor TAuthentication.Create;
 begin
-  // TODO: set AuthenticationRequired := True for protected resources.
-  AuthenticationRequired := False;
-  LogI(Format('OnRequest: %s.%s - Auth Required: %s',
-    [ControllerQualifiedClassName, ActionName, BoolToStr(AuthenticationRequired, True)]));
+  inherited Create;
+  fClave := NewServiceContainerResolver.Resolve(TypeInfo(IClaveService)) as IClaveService;
 end;
 
 procedure TAuthentication.OnAuthentication(
@@ -69,52 +65,97 @@ procedure TAuthentication.OnAuthentication(
   const Password: string;
   UserRoles: TList<string>;
   var IsValid: Boolean;
-  const SessionData: TSessionData);
+  const SessionData: TDictionary<string, string>);
 var
-  lExpectedUser, lExpectedPassword: string;
+  lUsuario: TUsuario;
+  lFila: TUsuarioClave;
+  lRol: TRol;
 begin
-  // Fail-closed until you replace this with a real user store (DB, LDAP, ...).
-  lExpectedUser := dotEnv.Env('ADMIN_USER');
-  lExpectedPassword := dotEnv.Env('ADMIN_PASSWORD');
-  if lExpectedUser.IsEmpty or lExpectedPassword.IsEmpty then
+  IsValid := False;
+  UserRoles.Clear;
+
+  lUsuario := TMVCActiveRecord.GetOneByWhere<TUsuario>(
+    'CORREO = ?', [UserName.Trim.ToLower], False);
+
+  if lUsuario = nil then
   begin
-    LogW('Login refused: set ADMIN_USER and ADMIN_PASSWORD in .env, or replace TAuthentication.OnAuthentication with a real user store');
-    IsValid := False;
-    UserRoles.Clear;
+    // Hashear algo y tirarlo. Sin esto el login contesta al instante para un
+    // correo inexistente y tarda 250 ms para uno real, y esa diferencia de
+    // tiempo delata que correos estan registrados aunque el mensaje sea igual.
+    fClave.Hashear(Password);
+    LogW('Login fallido: correo no registrado');
     Exit;
   end;
-  IsValid := (UserName = lExpectedUser) and (Password = lExpectedPassword);
-  if IsValid then
-  begin
-    LogI(Format('Authentication successful for user: %s', [UserName]));
-    // TODO: load actual roles from your user store
-    UserRoles.Add('admin');
-    UserRoles.Add('user');
 
-    SessionData.AddOrSetValue('username', UserName);
-    SessionData.AddOrSetValue('login_time', DateTimeToStr(Now));
-  end
-  else
-  begin
-    LogW(Format('Authentication failed for user: %s', [UserName]));
-    UserRoles.Clear;
+  try
+    if lUsuario.Activo.ValueOrDefault = False then
+    begin
+      fClave.Hashear(Password);
+      LogW(Format('Login fallido: usuario %d inactivo', [lUsuario.ID.Value]));
+      Exit;
+    end;
+
+    lFila := TMVCActiveRecord.GetOneByWhere<TUsuarioClave>(
+      'USUARIO_ID = ? AND ACTIVO = ?', [lUsuario.ID.Value, True], False);
+
+    if lFila = nil then
+    begin
+      fClave.Hashear(Password);
+      LogW(Format('Login fallido: usuario %d sin clave activa', [lUsuario.ID.Value]));
+      Exit;
+    end;
+
+    try
+      if not fClave.Verificar(Password, lFila.ClaveHash) then
+      begin
+        LogW(Format('Login fallido: clave incorrecta, usuario %d', [lUsuario.ID.Value]));
+        Exit;
+      end;
+
+      // Unico momento en que se tiene la clave en claro. Si el costo subio
+      // desde que se guardo, se rehashea aqui y el usuario no se entera.
+      if fClave.RequiereRehash(lFila.ClaveHash) then
+      begin
+        lFila.ClaveHash := fClave.Hashear(Password);
+        lFila.Update;
+        LogI(Format('Clave rehasheada al costo vigente, usuario %d', [lUsuario.ID.Value]));
+      end;
+    finally
+      lFila.Free;
+    end;
+
+    lRol := TMVCActiveRecord.GetByPK<TRol>(lUsuario.RolID, False);
+    if lRol = nil then
+    begin
+      // La base lo impide con NOT NULL + clave foranea, pero si llegara a pasar
+      // el usuario entraria sin rol y sin que nada falle. Mejor no dejarlo.
+      LogE(Format('Usuario %d con ROL_ID %d inexistente', [lUsuario.ID.Value, lUsuario.RolID]));
+      Exit;
+    end;
+
+    try
+      if lUsuario.DebeCambiarClave then
+        // Clave provisional: el token sale con un unico rol que solo abre el
+        // cambio de clave. Asi el limite lo pone el servidor y no la buena
+        // voluntad del cliente.
+        UserRoles.Add('clave_vencida')
+      else
+        UserRoles.Add(lRol.Codigo);
+    finally
+      lRol.Free;
+    end;
+
+    // Va al token. Nada de datos personales aqui: un JWT va firmado, no
+    // cifrado, y cualquiera que lo tenga lee su contenido.
+    SessionData.AddOrSetValue('USUARIO_ID', lUsuario.ID.Value.ToString);
+    SessionData.AddOrSetValue('DEBE_CAMBIAR_CLAVE', BoolToStr(lUsuario.DebeCambiarClave, True));
+
+    IsValid := True;
+    LogI(Format('Login correcto, usuario %d', [lUsuario.ID.Value]));
+  finally
+    lUsuario.Free;
   end;
-end;
-
-procedure TAuthentication.OnAuthorization(
-  const AContext: TWebContext;
-  UserRoles: TList<string>;
-  const ControllerQualifiedClassName: string;
-  const ActionName: string;
-  var IsAuthorized: Boolean);
-begin
-  // TODO: implement role-based checks. Default: allow all authenticated users.
-  IsAuthorized := True;
-
-  LogI(Format('OnAuthorization: %s.%s for roles [%s] - Authorized: %s',
-    [ControllerQualifiedClassName, ActionName,
-     String.Join(',', UserRoles.ToArray),
-     BoolToStr(IsAuthorized, True)]));
 end;
 
 end.
+

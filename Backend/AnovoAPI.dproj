@@ -158,6 +158,7 @@
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <Icon_MainIcon>AnovoAPI_Icon.ico</Icon_MainIcon>
         <Manifest_File>(None)</Manifest_File>
+        <DCC_UNKNOWN_CUSTOM_ATTRIBUTE>error</DCC_UNKNOWN_CUSTOM_ATTRIBUTE>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_iOSDevice64)'!=''">
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
@@ -174,6 +175,8 @@
         <DCCReference Include="src\Auth\Anovo.Auth.RoleHandler.pas"/>
         <DCCReference Include="src\Bootstrap\Anovo.Bootstrap.pas"/>
         <DCCReference Include="src\Bootstrap\Anovo.Config.Engine.pas"/>
+        <DCCReference Include="src\Entities\Anovo.Entities.Usuarios.pas"/>
+        <DCCReference Include="src\Services\Anovo.Services.Clave.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
