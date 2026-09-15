@@ -177,6 +177,8 @@
         <DCCReference Include="src\Bootstrap\Anovo.Config.Engine.pas"/>
         <DCCReference Include="src\Entities\Anovo.Entities.Usuarios.pas"/>
         <DCCReference Include="src\Services\Anovo.Services.Clave.pas"/>
+        <DCCReference Include="src\Middleware\Anovo.Middleware.ContextoAuditoria.pas"/>
+        <DCCReference Include="src\Common\Anovo.Auditoria.Contexto.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

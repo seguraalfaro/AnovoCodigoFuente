@@ -34,7 +34,9 @@ uses
   Anovo.Bootstrap in 'src\Bootstrap\Anovo.Bootstrap.pas',
   Anovo.Config.Engine in 'src\Bootstrap\Anovo.Config.Engine.pas',
   Anovo.Entities.Usuarios in 'src\Entities\Anovo.Entities.Usuarios.pas',
-  Anovo.Services.Clave in 'src\Services\Anovo.Services.Clave.pas';
+  Anovo.Services.Clave in 'src\Services\Anovo.Services.Clave.pas',
+  Anovo.Middleware.ContextoAuditoria in 'src\Middleware\Anovo.Middleware.ContextoAuditoria.pas',
+  Anovo.Auditoria.Contexto in 'src\Common\Anovo.Auditoria.Contexto.pas';
 
 {$R *.res}
 

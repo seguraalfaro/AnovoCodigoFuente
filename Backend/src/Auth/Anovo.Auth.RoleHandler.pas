@@ -35,11 +35,8 @@ type
   public
     // Se instancea el servicio al crear y no cada login
     constructor Create;
-    procedure OnAuthentication(
-      const AContext: TWebContext;
-      const UserName: string;
-      const Password: string;
-      UserRoles: TList<string>;
+    procedure OnAuthentication(const AContext: TWebContext;
+      const UserName: string; const Password: string; UserRoles: TList<string>;
       var IsValid: Boolean;
       const SessionData: TDictionary<string, string>); override;
   end;
@@ -51,21 +48,19 @@ uses
   MVCFramework.ActiveRecord,
   MVCFramework.Container,
   MVCFramework.Logger,
+  Anovo.Auditoria.Contexto,
   Anovo.Entities.Usuarios;
 
 constructor TAuthentication.Create;
 begin
   inherited Create;
-  fClave := NewServiceContainerResolver.Resolve(TypeInfo(IClaveService)) as IClaveService;
+  fClave := NewServiceContainerResolver.Resolve(TypeInfo(IClaveService))
+    as IClaveService;
 end;
 
-procedure TAuthentication.OnAuthentication(
-  const AContext: TWebContext;
-  const UserName: string;
-  const Password: string;
-  UserRoles: TList<string>;
-  var IsValid: Boolean;
-  const SessionData: TDictionary<string, string>);
+procedure TAuthentication.OnAuthentication(const AContext: TWebContext;
+  const UserName: string; const Password: string; UserRoles: TList<string>;
+  var IsValid: Boolean; const SessionData: TDictionary<string, string>);
 var
   lUsuario: TUsuario;
   lFila: TUsuarioClave;
@@ -74,8 +69,8 @@ begin
   IsValid := False;
   UserRoles.Clear;
 
-  lUsuario := TMVCActiveRecord.GetOneByWhere<TUsuario>(
-    'CORREO = ?', [UserName.Trim.ToLower], False);
+  lUsuario := TMVCActiveRecord.GetOneByWhere<TUsuario>('CORREO = ?',
+    [UserName.Trim.ToLower], False);
 
   if lUsuario = nil then
   begin
@@ -95,20 +90,22 @@ begin
       Exit;
     end;
 
-    lFila := TMVCActiveRecord.GetOneByWhere<TUsuarioClave>(
-      'USUARIO_ID = ? AND ACTIVO = ?', [lUsuario.ID.Value, True], False);
+    lFila := TMVCActiveRecord.GetOneByWhere<TUsuarioClave>
+      ('USUARIO_ID = ? AND ACTIVO = ?', [lUsuario.ID.Value, True], False);
 
     if lFila = nil then
     begin
       fClave.Hashear(Password);
-      LogW(Format('Login fallido: usuario %d sin clave activa', [lUsuario.ID.Value]));
+      LogW(Format('Login fallido: usuario %d sin clave activa',
+        [lUsuario.ID.Value]));
       Exit;
     end;
 
     try
       if not fClave.Verificar(Password, lFila.ClaveHash) then
       begin
-        LogW(Format('Login fallido: clave incorrecta, usuario %d', [lUsuario.ID.Value]));
+        LogW(Format('Login fallido: clave incorrecta, usuario %d',
+          [lUsuario.ID.Value]));
         Exit;
       end;
 
@@ -116,9 +113,21 @@ begin
       // desde que se guardo, se rehashea aqui y el usuario no se entera.
       if fClave.RequiereRehash(lFila.ClaveHash) then
       begin
-        lFila.ClaveHash := fClave.Hashear(Password);
-        lFila.Update;
-        LogI(Format('Clave rehasheada al costo vigente, usuario %d', [lUsuario.ID.Value]));
+        // USUARIOS_CLAVES esta auditada y este Update corre durante el login,
+        // cuando todavia no hay token: el middleware de contexto no ha podido
+        // fijar nada y el disparador tumbaria la escritura con
+        // E_AUDITORIA_SIN_USUARIO. Aqui ya se sabe quien es, asi que lo fija el
+        // propio login. Queda registrado a nombre del dueno de la clave, que es
+        // quien la esta presentando.
+        FijarUsuario(lUsuario.ID.Value);
+        try
+          lFila.ClaveHash := fClave.Hashear(Password);
+          lFila.Update;
+        finally
+          LimpiarUsuario;
+        end;
+        LogI(Format('Clave rehasheada al costo vigente, usuario %d',
+          [lUsuario.ID.Value]));
       end;
     finally
       lFila.Free;
@@ -129,7 +138,8 @@ begin
     begin
       // La base lo impide con NOT NULL + clave foranea, pero si llegara a pasar
       // el usuario entraria sin rol y sin que nada falle. Mejor no dejarlo.
-      LogE(Format('Usuario %d con ROL_ID %d inexistente', [lUsuario.ID.Value, lUsuario.RolID]));
+      LogE(Format('Usuario %d con ROL_ID %d inexistente', [lUsuario.ID.Value,
+        lUsuario.RolID]));
       Exit;
     end;
 
@@ -148,7 +158,8 @@ begin
     // Va al token. Nada de datos personales aqui: un JWT va firmado, no
     // cifrado, y cualquiera que lo tenga lee su contenido.
     SessionData.AddOrSetValue('USUARIO_ID', lUsuario.ID.Value.ToString);
-    SessionData.AddOrSetValue('DEBE_CAMBIAR_CLAVE', BoolToStr(lUsuario.DebeCambiarClave, True));
+    SessionData.AddOrSetValue('DEBE_CAMBIAR_CLAVE',
+      BoolToStr(lUsuario.DebeCambiarClave, True));
 
     IsValid := True;
     LogI(Format('Login correcto, usuario %d', [lUsuario.ID.Value]));
@@ -158,4 +169,3 @@ begin
 end;
 
 end.
-
