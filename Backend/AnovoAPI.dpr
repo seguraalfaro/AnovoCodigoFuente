@@ -13,6 +13,9 @@ program AnovoAPI;
 {$APPTYPE CONSOLE}
 
 uses
+  FireDAC.Phys.FB, // el driver de Firebird
+  FireDAC.Phys.FBDef, // su definicion de parametros
+  MVCFramework.SQLGenerators.Firebird, // el traductor de RQL a SQL de Firebird
   System.SysUtils,
   System.IOUtils,
   MVCFramework,
@@ -41,26 +44,40 @@ begin
   LEngine := TMVCEngine.Create(
     procedure(Config: TMVCConfig)
     begin
-      //default content-type
-      Config[TMVCConfigKey.DefaultContentType] := dotEnv.Env('dmvc.default.content_type', TMVCConstants.DEFAULT_CONTENT_TYPE);
-      //default content charset
-      Config[TMVCConfigKey.DefaultContentCharset] := dotEnv.Env('dmvc.default.content_charset', TMVCConstants.DEFAULT_CONTENT_CHARSET);
-      //unhandled actions are permitted?
-      Config[TMVCConfigKey.AllowUnhandledAction] := dotEnv.Env('dmvc.allow_unhandled_actions', 'false');
-      //enables or not system controllers loading (available only from localhost requests)
-      Config[TMVCConfigKey.LoadSystemControllers] := dotEnv.Env('dmvc.load_system_controllers', 'true');
-      //default view file extension
-      Config[TMVCConfigKey.DefaultViewFileExtension] := dotEnv.Env('dmvc.default.view_file_extension', 'html');
-      //view path
-      Config[TMVCConfigKey.ViewPath] := dotEnv.Env('dmvc.view_path', TPath.Combine(AppPath, 'templates'));
-      //Max Record Count for automatic Entities CRUD
-      Config[TMVCConfigKey.MaxEntitiesRecordCount] := dotEnv.Env('dmvc.max_entities_record_count', IntToStr(TMVCConstants.MAX_RECORD_COUNT));
-      //Enable Server Signature in response
-      Config[TMVCConfigKey.ExposeServerSignature] := dotEnv.Env('dmvc.expose_server_signature', 'false');
-      //Enable X-Powered-By Header in response
-      Config[TMVCConfigKey.ExposeXPoweredBy] := dotEnv.Env('dmvc.expose_x_powered_by', 'false');
+      // default content-type
+      Config[TMVCConfigKey.DefaultContentType] :=
+        DotEnv.Env('dmvc.default.content_type',
+        TMVCConstants.DEFAULT_CONTENT_TYPE);
+      // default content charset
+      Config[TMVCConfigKey.DefaultContentCharset] :=
+        DotEnv.Env('dmvc.default.content_charset',
+        TMVCConstants.DEFAULT_CONTENT_CHARSET);
+      // unhandled actions are permitted?
+      Config[TMVCConfigKey.AllowUnhandledAction] :=
+        DotEnv.Env('dmvc.allow_unhandled_actions', 'false');
+      // enables or not system controllers loading (available only from localhost requests)
+      Config[TMVCConfigKey.LoadSystemControllers] :=
+        DotEnv.Env('dmvc.load_system_controllers', 'true');
+      // default view file extension
+      Config[TMVCConfigKey.DefaultViewFileExtension] :=
+        DotEnv.Env('dmvc.default.view_file_extension', 'html');
+      // view path
+      Config[TMVCConfigKey.ViewPath] := DotEnv.Env('dmvc.view_path',
+        TPath.Combine(AppPath, 'templates'));
+      // Max Record Count for automatic Entities CRUD
+      Config[TMVCConfigKey.MaxEntitiesRecordCount] :=
+        DotEnv.Env('dmvc.max_entities_record_count',
+        IntToStr(TMVCConstants.MAX_RECORD_COUNT));
+      // Enable Server Signature in response
+      Config[TMVCConfigKey.ExposeServerSignature] :=
+        DotEnv.Env('dmvc.expose_server_signature', 'false');
+      // Enable X-Powered-By Header in response
+      Config[TMVCConfigKey.ExposeXPoweredBy] :=
+        DotEnv.Env('dmvc.expose_x_powered_by', 'false');
       // Max request size in bytes
-      Config[TMVCConfigKey.MaxRequestSize] := dotEnv.Env('dmvc.max_request_size', IntToStr(TMVCConstants.DEFAULT_MAX_REQUEST_SIZE));
+      Config[TMVCConfigKey.MaxRequestSize] :=
+        DotEnv.Env('dmvc.max_request_size',
+        IntToStr(TMVCConstants.DEFAULT_MAX_REQUEST_SIZE));
     end);
   try
     ConfigureEngine(LEngine);
@@ -68,13 +85,15 @@ begin
     // TaurusTLS (OpenSSL 1.1.1+). Replace MVCFramework.Server.HTTPS.TaurusTLS to switch TLS stack.
     LServer.HTTPSConfigurator := TaurusTLSIndyConfigurator();
     LServer.UseHTTPS := True;
-    LServer.CertFile := dotEnv.Env('https.cert.cacert', 'certificates\localhost.crt');
-    LServer.KeyFile := dotEnv.Env('https.cert.privkey', 'certificates\localhost.key');
-    LServer.CertPassword := dotEnv.Env('https.cert.password', '');
-    LogI('Starting on https://localhost:' + APort.ToString +
+    LServer.CertFile := DotEnv.Env('https.cert.cacert',
+      'certificates\localhost.crt');
+    LServer.KeyFile := DotEnv.Env('https.cert.privkey',
+      'certificates\localhost.key');
+    LServer.CertPassword := DotEnv.Env('https.cert.password', '');
+    LogI('Starting on https://localhost:' + aPort.ToString +
       ' (Indy Direct + TaurusTLS). Press Ctrl+C to shut down.');
     // RunAndWait: Listen + signal wait + shutdown. For non-console hosts use Listen() + Stop().
-    LServer.RunAndWait(APort);
+    LServer.RunAndWait(aPort);
     LServer := nil;
   finally
     LEngine.Free;
@@ -96,9 +115,10 @@ begin
     RegisterServices(DefaultMVCServiceContainer);
     DefaultMVCServiceContainer.Build;
 
-    RunServer(dotEnv.Env('dmvc.server.port', 443));
+    RunServer(DotEnv.Env('dmvc.server.port', 443));
   except
     on E: Exception do
       LogF(E.ClassName + ': ' + E.Message);
   end;
+
 end.
