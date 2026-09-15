@@ -8,12 +8,12 @@
 //
 // ***************************************************************************
 
-unit Controllers.HomeU;
+unit Anovo.Controllers.Home;
 
 interface
 
 uses
-  MVCFramework, MVCFramework.Commons, MVCFramework.Serializer.Commons, System.Generics.Collections;
+  MVCFramework, MVCFramework.Commons;
 
 type
   [MVCPath('/api')]
@@ -23,28 +23,14 @@ type
     [MVCHTTPMethod([httpGET])]
     [MVCProduces(TMVCMediaType.TEXT_HTML)]
     function Index: String;
-    [MVCPath('/reversedstrings/($Value)')]
-    [MVCHTTPMethod([httpGET])]
-    [MVCProduces(TMVCMediaType.TEXT_PLAIN)]
-    function GetReversedString(const Value: String): String;
-
   end;
 
 implementation
-
-uses
-  System.StrUtils, System.SysUtils, MVCFramework.Logger;
-
 
 function TAnovoController.Index: String;
 begin
   Result := '<p>Hello <strong>DelphiMVCFramework</strong> World</p>' +
             '<p><small>dmvcframework-' + DMVCFRAMEWORK_VERSION + '</small></p>';
-end;
-
-function TAnovoController.GetReversedString(const Value: String): String;
-begin
-  Result := System.StrUtils.ReverseString(Value.Trim);
 end;
 
 end.

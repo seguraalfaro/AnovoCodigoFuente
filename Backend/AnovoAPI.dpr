@@ -25,12 +25,11 @@ uses
   MVCFramework.Server.Factory,
   MVCFramework.Server.HTTPS.TaurusTLS,
   MVCFramework.Container,
-  Controllers.HomeU in 'Controllers.HomeU.pas',
-  EntitiesU in 'EntitiesU.pas',
-  ServicesU in 'ServicesU.pas',
-  AuthenticationU in 'AuthenticationU.pas',
-  BootConfigU in 'BootConfigU.pas',
-  EngineConfigU in 'EngineConfigU.pas';
+  Anovo.Controllers.Home in 'src\Controllers\Anovo.Controllers.Home.pas',
+  Anovo.Config.Servicios in 'src\Bootstrap\Anovo.Config.Servicios.pas',
+  Anovo.Auth.RoleHandler in 'src\Auth\Anovo.Auth.RoleHandler.pas',
+  Anovo.Bootstrap in 'src\Bootstrap\Anovo.Bootstrap.pas',
+  Anovo.Config.Engine in 'src\Bootstrap\Anovo.Config.Engine.pas';
 
 {$R *.res}
 

@@ -8,7 +8,7 @@
 //
 // ***************************************************************************
 
-unit BootConfigU;
+unit Anovo.Bootstrap;
 
 // Startup configuration: dotEnv, LoggerPro, DMVC profiler, TemplatePro context.
 // Call Boot once, before any LogI/LogW/LogE call.

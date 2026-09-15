@@ -8,7 +8,7 @@
 //
 // ***************************************************************************
 
-unit EngineConfigU;
+unit Anovo.Config.Engine;
 
 interface
 
@@ -20,8 +20,8 @@ procedure ConfigureEngine(AEngine: TMVCEngine);
 implementation
 
 uses
-  Controllers.HomeU,
-  AuthenticationU,
+  Anovo.Controllers.Home,
+  Anovo.Auth.RoleHandler,
   MVCFramework.JWT,
   MVCFramework.Middleware.JWT,
   System.IOUtils,
