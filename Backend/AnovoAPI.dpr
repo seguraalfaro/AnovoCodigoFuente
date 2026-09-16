@@ -28,7 +28,6 @@ uses
   MVCFramework.Server.Factory,
   MVCFramework.Server.HTTPS.TaurusTLS,
   MVCFramework.Container,
-  Anovo.Controllers.Home in 'src\Controllers\Anovo.Controllers.Home.pas',
   Anovo.Config.Servicios in 'src\Bootstrap\Anovo.Config.Servicios.pas',
   Anovo.Auth.RoleHandler in 'src\Auth\Anovo.Auth.RoleHandler.pas',
   Anovo.Bootstrap in 'src\Bootstrap\Anovo.Bootstrap.pas',
@@ -43,7 +42,14 @@ uses
   Anovo.Entities.Cotizaciones in 'src\Entities\Anovo.Entities.Cotizaciones.pas',
   Anovo.Entities.Empresa in 'src\Entities\Anovo.Entities.Empresa.pas',
   Anovo.Entities.Solicitudes in 'src\Entities\Anovo.Entities.Solicitudes.pas',
-  Anovo.Entities.Usuarios in 'src\Entities\Anovo.Entities.Usuarios.pas';
+  Anovo.Entities.Usuarios in 'src\Entities\Anovo.Entities.Usuarios.pas',
+  Anovo.Errors in 'src\Common\Anovo.Errors.pas',
+  Anovo.Repositories.Intf.Clientes in 'src\Interfaces\Anovo.Repositories.Intf.Clientes.pas',
+  Anovo.Repositories.Clientes in 'src\Repositories\Anovo.Repositories.Clientes.pas',
+  Anovo.SQL.Clientes in 'src\SQL\Anovo.SQL.Clientes.pas',
+  Anovo.Services.Clientes in 'src\Services\Anovo.Services.Clientes.pas',
+  Anovo.Services.Intf.Clientes in 'src\Interfaces\Anovo.Services.Intf.Clientes.pas',
+  Anovo.Controllers.Clientes in 'src\Controllers\Anovo.Controllers.Clientes.pas';
 
 {$R *.res}
 

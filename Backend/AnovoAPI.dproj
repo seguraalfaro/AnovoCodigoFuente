@@ -170,7 +170,6 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="src\Controllers\Anovo.Controllers.Home.pas"/>
         <DCCReference Include="src\Bootstrap\Anovo.Config.Servicios.pas"/>
         <DCCReference Include="src\Auth\Anovo.Auth.RoleHandler.pas"/>
         <DCCReference Include="src\Bootstrap\Anovo.Bootstrap.pas"/>
@@ -186,6 +185,13 @@
         <DCCReference Include="src\Entities\Anovo.Entities.Empresa.pas"/>
         <DCCReference Include="src\Entities\Anovo.Entities.Solicitudes.pas"/>
         <DCCReference Include="src\Entities\Anovo.Entities.Usuarios.pas"/>
+        <DCCReference Include="src\Common\Anovo.Errors.pas"/>
+        <DCCReference Include="src\Interfaces\Anovo.Repositories.Intf.Clientes.pas"/>
+        <DCCReference Include="src\Repositories\Anovo.Repositories.Clientes.pas"/>
+        <DCCReference Include="src\SQL\Anovo.SQL.Clientes.pas"/>
+        <DCCReference Include="src\Services\Anovo.Services.Clientes.pas"/>
+        <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Clientes.pas"/>
+        <DCCReference Include="src\Controllers\Anovo.Controllers.Clientes.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

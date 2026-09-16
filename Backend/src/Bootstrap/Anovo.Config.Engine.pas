@@ -1,4 +1,4 @@
-// ***************************************************************************
+﻿// ***************************************************************************
 //
 // Delphi MVC Framework
 //
@@ -20,8 +20,9 @@ procedure ConfigureEngine(AEngine: TMVCEngine);
 implementation
 
 uses
-  Anovo.Controllers.Home,
+  Anovo.Controllers.Clientes,
   Anovo.Auth.RoleHandler,
+  Anovo.Errors,
   Anovo.Middleware.ContextoAuditoria,
   MVCFramework.JWT,
   MVCFramework.Middleware.JWT,
@@ -49,8 +50,12 @@ var
   LOpenAPIInfo: TMVCOpenAPIInfo;
 begin
   // Controllers
-  AEngine.AddController(TAnovoController);
+
+  AEngine.AddController(TClientesController);
+
   // Controllers - END
+
+  AEngine.SetExceptionHandler(ManejadorDeErrores());
 
   // 300 por minuto y por IP. En Anovo todos salen por la misma IP, asi que el
   // cupo es entre todos, no por persona: abrir una pantalla del escritorio
@@ -94,7 +99,7 @@ begin
   LOpenAPIInfo.ContactName := LSwaggerInfo.ContactName;
   LOpenAPIInfo.ContactEmail := LSwaggerInfo.ContactEmail;
 
-    // Primero: un navegador manda un OPTIONS sin token antes de la peticion real.
+  // Primero: un navegador manda un OPTIONS sin token antes de la peticion real.
   // Detras del JWT ese OPTIONS se rechazaria antes de que CORS lo conteste.
   AEngine.AddMiddleware(TMVCCORSMiddleware.Create
     (TMVCCORSDefaults.ALLOWS_ORIGIN_URL, TMVCCORSDefaults.ALLOWS_CREDENTIALS,
@@ -113,7 +118,9 @@ begin
   // Swagger 2.0, el que la pagina apunta por defecto .
   AEngine.AddMiddleware(TMVCSwaggerMiddleware.Create(AEngine, LSwaggerInfo,
     '/api/swagger.json',
-    'Autenticacion por JSON Web Token (JWT). Pegar aqui el token del login.',
+    'Autenticacion por JSON Web Token (JWT). Escribir la palabra Bearer, un '
+    + 'espacio, y el token que devolvio /api/auth/login. Sin el prefijo Bearer '
+    + 'el servidor no lee la cabecera y responde 401.',
     False, // AEnableBasicAuthentication
     '', // AHost: vacio = el del navegador
     '', // ABasePath

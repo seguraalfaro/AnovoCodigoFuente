@@ -3,9 +3,11 @@ unit Anovo.DTOs.Clientes;
 interface
 
 uses
+  System.Generics.Collections,
   MVCFramework.Serializer.Commons,
   MVCFramework.Nullables,
-  MVCFramework.Validation;
+  MVCFramework.Validation,
+  MVCFramework.Validators;
 
 type
 
@@ -92,14 +94,19 @@ type
     [MVCMaxLength(500, 'la direccion no puede pasar de 500 caracteres')]
     property Direccion: NullableString read fDireccion write fDireccion;
 
-    [MVCRange(-90, 90, 'la latitud esta fuera de rango')]
+    [MVCLatitude('la latitud esta fuera de rango')]
     property Latitud: NullableDouble read fLatitud write fLatitud;
 
-    [MVCRange(-180, 180, 'la longitud esta fuera de rango')]
+    [MVCLongitude('la longitud esta fuera de rango')]
     property Longitud: NullableDouble read fLongitud write fLongitud;
 
     property Exonerado: Boolean read fExonerado write fExonerado;
 
+    // Espeja CK_CLIENTES_EXONERACION. Aqui rechaza antes de tocar la base y con
+    // el nombre del campo; la entidad lo vuelve a comprobar al guardar, que es
+    // lo que protege si manana se escribe por otra via que no sea la API.
+    [MVCRequiredIf('Exonerado', roEquals, 'True',
+      'un cliente exonerado necesita el codigo de exoneracion')]
     [MVCMaxLength(30, 'el codigo de exoneracion no puede pasar de 30 caracteres')]
     property CodigoExoneracion: NullableString read fCodigoExoneracion write fCodigoExoneracion;
   end;
@@ -114,6 +121,47 @@ type
     property ObjVersion: NullableInteger read fObjVersion write fObjVersion;
   end;
 
+  // El sobre de la coleccion: { "data": [...], "total", "pagina", "por_pagina" }.
+  //
+  // Es una clase y no un ObjectDict porque ObjectDict solo admite objetos y
+  // datasets, y aqui hacen falta tres escalares. Siempre sobre, nunca un arreglo
+  // desnudo en la raiz: el arreglo no deja sitio para el total sin romper el
+  // contrato, y sin total el cliente no sabe si hay mas paginas.
+  [MVCNameCase(ncSnakeCase)]
+  TClientesPaginaDTO = class
+  private
+    fData: TObjectList<TClienteDTO>;
+    fTotal: Int64;
+    fPagina: Integer;
+    fPorPagina: Integer;
+  public
+    constructor Create(const AData: TObjectList<TClienteDTO>;
+      const ATotal: Int64; const APagina, APorPagina: Integer); reintroduce;
+    destructor Destroy; override;
+    property Data: TObjectList<TClienteDTO> read fData write fData;
+    property Total: Int64 read fTotal write fTotal;
+    property Pagina: Integer read fPagina write fPagina;
+    property PorPagina: Integer read fPorPagina write fPorPagina;
+  end;
+
 implementation
+
+constructor TClientesPaginaDTO.Create(const AData: TObjectList<TClienteDTO>;
+  const ATotal: Int64; const APagina, APorPagina: Integer);
+begin
+  inherited Create;
+  fData := AData;
+  fTotal := ATotal;
+  fPagina := APagina;
+  fPorPagina := APorPagina;
+end;
+
+destructor TClientesPaginaDTO.Destroy;
+begin
+  // El sobre se queda con la lista. El framework libera lo que devuelve la
+  // accion, y al liberar el sobre cae con el la lista y sus elementos.
+  fData.Free;
+  inherited;
+end;
 
 end.

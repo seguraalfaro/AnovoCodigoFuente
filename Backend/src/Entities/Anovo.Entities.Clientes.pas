@@ -1,4 +1,4 @@
-// ***************************************************************************
+﻿// ***************************************************************************
 //
 // Delphi MVC Framework
 //
@@ -36,6 +36,7 @@ uses
   MVCFramework.Serializer.Commons,
   MVCFramework.Nullables,
   MVCFramework.ActiveRecord,
+  MVCFramework.Validation,
   MVCFramework.Validators,
   System.Classes;
 
@@ -67,9 +68,9 @@ type
     [MVCMaxLength(500)]
     fDireccion: NullableString;
     [MVCTableField('LATITUD')]
-    fLatitud: NullableCurrency;
+    fLatitud: NullableDouble;
     [MVCTableField('LONGITUD')]
-    fLongitud: NullableCurrency;
+    fLongitud: NullableDouble;
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
     [MVCTableField('EXONERADO')]
@@ -83,40 +84,57 @@ type
     [MVCMaxLength(20)]
     fConsentimientoEstado: String;
     [MVCTableField('CONSENTIMIENTO_FECHA')]
-    fConsentimientoFecha: NullableTDateTime {dtDateTimeStamp};
+    fConsentimientoFecha: NullableTDateTime { dtDateTimeStamp };
     [MVCTableField('CONSENTIMIENTO_VERSION')]
     [MVCMaxLength(10)]
     fConsentimientoVersion: NullableString;
     [MVCTableField('ANONIMIZADO')]
     [MVCRequired]
     fAnonimizado: Boolean;
-    [MVCTableField('FECHA_CREACION')]
-    fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
-    [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
-    fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
-    [MVCTableField('OBJVERSION')]
-    fObjversion: NullableInt32;
+    // RETOQUE A MANO, reponer al regenerar. foDoNotInsert es lo que deja que
+    // actue el DEFAULT CURRENT_TIMESTAMP de la tabla: sin el, la ORM manda la
+    // columna con NULL en vez de omitirla, el DEFAULT no llega a aplicarse y el
+    // INSERT muere contra el NOT NULL. foRefresh trae de vuelta el valor que
+    // puso la base, para que el DTO salga con la fecha de verdad y no vacia.
+    [MVCTableField('FECHA_CREACION', [foDoNotInsert, foDoNotUpdate, foRefresh])]
+    fFechaCreacion: NullableTDateTime { dtDateTimeStamp };
+    // Igual que la de creacion, y ademas foDoNotUpdate porque la pone
+    // TR_CLIENTES_BU en cada UPDATE, no la aplicacion.
+    [MVCTableField('FECHA_MODIFICACION', [foDoNotInsert, foDoNotUpdate, foRefresh])]
+    fFechaModificacion: NullableTDateTime { dtDateTimeStamp };
+    [MVCTableField('OBJVERSION', [foVersion])]
+    fObjversion: Integer;
+  protected
+    procedure OnStorageValidate(const AErrors: PMVCValidationErrors;
+      const EntityAction: TMVCEntityAction); override;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
     property UuidLocal: NullableString read fUuidLocal write fUuidLocal;
     property Nombre: String read fNombre write fNombre;
-    property Identificacion: NullableString read fIdentificacion write fIdentificacion;
+    property Identificacion: NullableString read fIdentificacion
+      write fIdentificacion;
     property Telefono: NullableString read fTelefono write fTelefono;
     property Correo: NullableString read fCorreo write fCorreo;
     property Direccion: NullableString read fDireccion write fDireccion;
-    property Latitud: NullableCurrency read fLatitud write fLatitud;
-    property Longitud: NullableCurrency read fLongitud write fLongitud;
+    property Latitud: NullableDouble read fLatitud write fLatitud;
+    property Longitud: NullableDouble read fLongitud write fLongitud;
     property Activo: NullableBoolean read fActivo write fActivo;
     property Exonerado: Boolean read fExonerado write fExonerado;
-    property CodigoExoneracion: NullableString read fCodigoExoneracion write fCodigoExoneracion;
-    property ConsentimientoEstado: String read fConsentimientoEstado write fConsentimientoEstado;
-    property ConsentimientoFecha: NullableTDateTime {dtDateTimeStamp} read fConsentimientoFecha write fConsentimientoFecha;
-    property ConsentimientoVersion: NullableString read fConsentimientoVersion write fConsentimientoVersion;
+    property CodigoExoneracion: NullableString read fCodigoExoneracion
+      write fCodigoExoneracion;
+    property ConsentimientoEstado: String read fConsentimientoEstado
+      write fConsentimientoEstado;
+    property ConsentimientoFecha: NullableTDateTime { dtDateTimeStamp }
+      read fConsentimientoFecha write fConsentimientoFecha;
+    property ConsentimientoVersion: NullableString read fConsentimientoVersion
+      write fConsentimientoVersion;
     property Anonimizado: Boolean read fAnonimizado write fAnonimizado;
-    property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
-    property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
-    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property FechaCreacion: NullableTDateTime { dtDateTimeStamp }
+      read fFechaCreacion write fFechaCreacion;
+    property FechaModificacion: NullableTDateTime { dtDateTimeStamp }
+      read fFechaModificacion write fFechaModificacion;
+    property ObjVersion: Integer read fObjversion write fObjversion;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -152,7 +170,7 @@ type
     [MVCMaxLength(20)]
     fConsentimientoEstado: String;
     [MVCTableField('CONSENTIMIENTO_FECHA')]
-    fConsentimientoFecha: NullableTDateTime {dtDateTimeStamp};
+    fConsentimientoFecha: NullableTDateTime { dtDateTimeStamp };
     [MVCTableField('CONSENTIMIENTO_VERSION')]
     [MVCMaxLength(10)]
     fConsentimientoVersion: NullableString;
@@ -161,8 +179,13 @@ type
     fAnonimizado: Boolean;
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
-    [MVCTableField('FECHA_CREACION')]
-    fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
+    // RETOQUE A MANO, reponer al regenerar. foDoNotInsert es lo que deja que
+    // actue el DEFAULT CURRENT_TIMESTAMP de la tabla: sin el, la ORM manda la
+    // columna con NULL en vez de omitirla, el DEFAULT no llega a aplicarse y el
+    // INSERT muere contra el NOT NULL. foRefresh trae de vuelta el valor que
+    // puso la base, para que el DTO salga con la fecha de verdad y no vacia.
+    [MVCTableField('FECHA_CREACION', [foDoNotInsert, foDoNotUpdate, foRefresh])]
+    fFechaCreacion: NullableTDateTime { dtDateTimeStamp };
     [MVCTableField('OBJVERSION')]
     fObjversion: NullableInt32;
   public
@@ -175,13 +198,17 @@ type
     property Telefono: NullableString read fTelefono write fTelefono;
     property Correo: NullableString read fCorreo write fCorreo;
     property Principal: Boolean read fPrincipal write fPrincipal;
-    property ConsentimientoEstado: String read fConsentimientoEstado write fConsentimientoEstado;
-    property ConsentimientoFecha: NullableTDateTime {dtDateTimeStamp} read fConsentimientoFecha write fConsentimientoFecha;
-    property ConsentimientoVersion: NullableString read fConsentimientoVersion write fConsentimientoVersion;
+    property ConsentimientoEstado: String read fConsentimientoEstado
+      write fConsentimientoEstado;
+    property ConsentimientoFecha: NullableTDateTime { dtDateTimeStamp }
+      read fConsentimientoFecha write fConsentimientoFecha;
+    property ConsentimientoVersion: NullableString read fConsentimientoVersion
+      write fConsentimientoVersion;
     property Anonimizado: Boolean read fAnonimizado write fAnonimizado;
     property Activo: NullableBoolean read fActivo write fActivo;
-    property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
-    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property FechaCreacion: NullableTDateTime { dtDateTimeStamp }
+      read fFechaCreacion write fFechaCreacion;
+    property ObjVersion: NullableInt32 read fObjversion write fObjversion;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -204,7 +231,7 @@ type
     [MVCMaxLength(10)]
     fVersionTexto: String;
     [MVCTableField('FECHA')]
-    fFecha: NullableTDateTime {dtDateTimeStamp};
+    fFecha: NullableTDateTime { dtDateTimeStamp };
     [MVCTableField('FIRMANTE_NOMBRE')]
     [MVCMaxLength(120)]
     fFirmanteNombre: NullableString;
@@ -225,12 +252,16 @@ type
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
     property ClienteId: Int32 read fClienteId write fClienteId;
-    property ClienteContactoId: NullableInt32 read fClienteContactoId write fClienteContactoId;
+    property ClienteContactoId: NullableInt32 read fClienteContactoId
+      write fClienteContactoId;
     property Accion: String read fAccion write fAccion;
     property VersionTexto: String read fVersionTexto write fVersionTexto;
-    property Fecha: NullableTDateTime {dtDateTimeStamp} read fFecha write fFecha;
-    property FirmanteNombre: NullableString read fFirmanteNombre write fFirmanteNombre;
-    property FirmanteIdentificacion: NullableString read fFirmanteIdentificacion write fFirmanteIdentificacion;
+    property Fecha: NullableTDateTime { dtDateTimeStamp } read fFecha
+      write fFecha;
+    property FirmanteNombre: NullableString read fFirmanteNombre
+      write fFirmanteNombre;
+    property FirmanteIdentificacion: NullableString read fFirmanteIdentificacion
+      write fFirmanteIdentificacion;
     property FirmaImagen: TStream read fFirmaImagen write fFirmaImagen;
     property FirmaMime: NullableString read fFirmaMime write fFirmaMime;
     property Origen: NullableString read fOrigen write fOrigen;
@@ -250,10 +281,22 @@ begin
   inherited;
 end;
 
+{ TClientes }
+
+procedure TClientes.OnStorageValidate(const AErrors: PMVCValidationErrors;
+  const EntityAction: TMVCEntityAction);
+begin
+  inherited;
+  if fExonerado and fCodigoExoneracion.IsNull then
+    AErrors.Add('codigo_exoneracion',
+      'un cliente exonerado necesita el codigo de exoneracion');
+end;
+
 initialization
 
 ActiveRecordMappingRegistry.AddEntity('clientes', TClientes);
 ActiveRecordMappingRegistry.AddEntity('cliente_contactos', TClienteContactos);
-ActiveRecordMappingRegistry.AddEntity('cliente_consentimiento_historial', TClienteConsentimientoHistorial);
+ActiveRecordMappingRegistry.AddEntity('cliente_consentimiento_historial',
+  TClienteConsentimientoHistorial);
 
 end.
