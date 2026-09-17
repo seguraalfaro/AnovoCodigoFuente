@@ -1,4 +1,4 @@
-unit Anovo.Services.Clientes;
+﻿unit Anovo.Services.Clientes;
 
 // Servicio de clientes: donde vive el negocio.
 //
@@ -73,6 +73,8 @@ begin
   ADestino.UuidLocal := AOrigen.UuidLocal;
   ADestino.Nombre := AOrigen.Nombre;
   ADestino.Identificacion := AOrigen.Identificacion;
+  ADestino.TipoIdentificacion := AOrigen.TipoIdentificacion;
+  ADestino.Contacto := AOrigen.Contacto;
   ADestino.Telefono := AOrigen.Telefono;
   ADestino.Correo := AOrigen.Correo;
   ADestino.Direccion := AOrigen.Direccion;
@@ -92,6 +94,8 @@ begin
   Result.UuidLocal := AOrigen.UuidLocal;
   Result.Nombre := AOrigen.Nombre;
   Result.Identificacion := AOrigen.Identificacion;
+  Result.TipoIdentificacion := AOrigen.TipoIdentificacion;
+  Result.Contacto := AOrigen.Contacto;
   Result.Telefono := AOrigen.Telefono;
   Result.Correo := AOrigen.Correo;
   Result.Direccion := AOrigen.Direccion;
