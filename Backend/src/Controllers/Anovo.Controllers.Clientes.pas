@@ -42,45 +42,54 @@ const
   POR_PAGINA_MAXIMO = 200;
 
 type
+
   [MVCPath('/api/clientes')]
   TClientesController = class(TMVCController)
   public
     [MVCPath]
     [MVCHTTPMethods([httpGET])]
     [MVCRequiresRole(ROLES_CLIENTES, reOR)]
-    [MVCSwagSummary('Clientes', 'Lista y busca clientes, paginado', 'listarClientes')]
-    [MVCSwagParam(plQuery, 'q', 'Texto a buscar en nombre, identificacion, telefono o correo', ptString, False)]
-    [MVCSwagParam(plQuery, 'pagina', 'Numero de pagina, desde 1', ptInteger, False)]
-    [MVCSwagParam(plQuery, 'por_pagina', 'Cuantos por pagina. Maximo 200', ptInteger, False)]
-    [MVCSwagParam(plQuery, 'incluir_inactivos', 'Incluir los clientes dados de baja', ptBoolean, False)]
+    [MVCSwagSummary('Clientes', 'Lista y busca clientes, paginado',
+      'listarClientes')]
+    [MVCSwagParam(plQuery, 'q',
+      'Texto a buscar en nombre, identificacion, telefono o correo',
+      ptString, False)]
+    [MVCSwagParam(plQuery, 'pagina', 'Numero de pagina, desde 1',
+      ptInteger, False)]
+    [MVCSwagParam(plQuery, 'por_pagina', 'Cuantos por pagina. Maximo 200',
+      ptInteger, False)]
+    [MVCSwagParam(plQuery, 'incluir_inactivos',
+      'Incluir los clientes dados de baja', ptBoolean, False)]
     [MVCSwagResponses(200, 'Pagina de clientes', TClientesPaginaDTO)]
     [MVCSwagResponses(401, 'Sin token o token vencido')]
     [MVCSwagResponses(403, 'El rol del token no alcanza para esta operacion')]
     function Listar([MVCInject] AServicio: IClienteService;
       const [MVCFromQueryString('q', '')] ABusqueda: string;
       const [MVCFromQueryString('pagina', 1)] APagina: Integer;
-      const [MVCFromQueryString('por_pagina', POR_PAGINA_POR_DEFECTO)]
-        APorPagina: Integer;
-      const [MVCFromQueryString('incluir_inactivos', False)]
-        AIncluirInactivos: Boolean): IMVCResponse;
+      const [MVCFromQueryString('por_pagina', POR_PAGINA_POR_DEFECTO)
+      ] APorPagina: Integer;
+      const [MVCFromQueryString('incluir_inactivos', False)] AIncluirInactivos
+      : Boolean): IMVCResponse;
 
     [MVCPath('/($AId)')]
     [MVCHTTPMethods([httpGET])]
     [MVCRequiresRole(ROLES_CLIENTES, reOR)]
-    [MVCSwagSummary('Clientes', 'Obtiene un cliente por su numero', 'obtenerCliente')]
+    [MVCSwagSummary('Clientes', 'Obtiene un cliente por su numero',
+      'obtenerCliente')]
     [MVCSwagParam(plPath, 'AId', 'Numero del cliente', ptInteger, True)]
     [MVCSwagResponses(200, 'El cliente', TClienteDTO)]
     [MVCSwagResponses(401, 'Sin token o token vencido')]
     [MVCSwagResponses(403, 'El rol del token no alcanza para esta operacion')]
     [MVCSwagResponses(404, 'No existe un cliente con ese numero')]
-    function Obtener([MVCInject] AServicio: IClienteService;
-      const AId: Integer): IMVCResponse;
+    function Obtener([MVCInject] AServicio: IClienteService; const AId: Integer)
+      : IMVCResponse;
 
     [MVCPath]
     [MVCHTTPMethods([httpPOST])]
     [MVCRequiresRole(ROLES_CLIENTES, reOR)]
     [MVCSwagSummary('Clientes', 'Registra un cliente nuevo', 'crearCliente')]
-    [MVCSwagParam(plBody, 'Cliente', 'Datos del cliente nuevo', TClienteNuevoDTO)]
+    [MVCSwagParam(plBody, 'Cliente', 'Datos del cliente nuevo',
+      TClienteNuevoDTO)]
     [MVCSwagResponses(201, 'Creado. La cabecera Location apunta al cliente')]
     [MVCSwagResponses(401, 'Sin token o token vencido')]
     [MVCSwagResponses(403, 'El rol del token no alcanza para esta operacion')]
@@ -91,9 +100,11 @@ type
     [MVCPath('/($AId)')]
     [MVCHTTPMethods([httpPUT])]
     [MVCRequiresRole(ROLES_CLIENTES, reOR)]
-    [MVCSwagSummary('Clientes', 'Modifica un cliente existente', 'actualizarCliente')]
+    [MVCSwagSummary('Clientes', 'Modifica un cliente existente',
+      'actualizarCliente')]
     [MVCSwagParam(plPath, 'AId', 'Numero del cliente', ptInteger, True)]
-    [MVCSwagParam(plBody, 'Cliente', 'Datos del cliente, con su objversion', TClienteEdicionDTO)]
+    [MVCSwagParam(plBody, 'Cliente', 'Datos del cliente, con su objversion',
+      TClienteEdicionDTO)]
     [MVCSwagResponses(204, 'Actualizado')]
     [MVCSwagResponses(401, 'Sin token o token vencido')]
     [MVCSwagResponses(403, 'El rol del token no alcanza para esta operacion')]
@@ -101,8 +112,8 @@ type
     [MVCSwagResponses(409, 'Otra persona lo modifico: objversion vencida')]
     [MVCSwagResponses(422, 'Algun campo no paso la validacion')]
     function Actualizar([MVCInject] AServicio: IClienteService;
-      const AId: Integer;
-      [MVCFromBody] const ADto: TClienteEdicionDTO): IMVCResponse;
+      const AId: Integer; [MVCFromBody] const ADto: TClienteEdicionDTO)
+      : IMVCResponse;
 
     // Sub-recurso y POST, no DELETE: la baja es logica. Un cliente inactivo
     // sigue referenciado desde sus solicitudes y cotizaciones, asi que borrarlo
@@ -111,7 +122,8 @@ type
     [MVCPath('/($AId)/inactivacion')]
     [MVCHTTPMethods([httpPOST])]
     [MVCRequiresRole(ROLES_INACTIVAR, reOR)]
-    [MVCSwagSummary('Clientes', 'Inactiva un cliente. Baja logica', 'inactivarCliente')]
+    [MVCSwagSummary('Clientes', 'Inactiva un cliente. Baja logica',
+      'inactivarCliente')]
     [MVCSwagParam(plPath, 'AId', 'Numero del cliente', ptInteger, True)]
     [MVCSwagResponses(204, 'Inactivado, o ya estaba inactivo')]
     [MVCSwagResponses(401, 'Sin token o token vencido')]
@@ -119,6 +131,22 @@ type
     [MVCSwagResponses(404, 'No existe un cliente con ese numero')]
     function Inactivar([MVCInject] AServicio: IClienteService;
       const AId: Integer): IMVCResponse;
+
+    [MVCPath('/registro-completo')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresRole(ROLES_CLIENTES, reOR)]
+    [MVCSwagSummary('Clientes',
+      'Registra un cliente con sus contactos y la firma, todo o nada',
+      'registrarClienteCompleto')]
+    [MVCSwagParam(plBody, 'Registro',
+      'Cliente, contactos y firma de consentimiento', TClienteRegistroCompletoDTO)]
+    [MVCSwagResponses(201, 'Creado. La cabecera Location apunta al cliente')]
+    [MVCSwagResponses(401, 'Sin token o token vencido')]
+    [MVCSwagResponses(403, 'El rol del token no alcanza para esta operacion')]
+    [MVCSwagResponses(422, 'Faltan datos o no son coherentes entre si')]
+    function RegistrarCompleto([MVCInject] AServicio: IClienteService;
+      [MVCFromBody] const ADto: TClienteRegistroCompletoDTO): IMVCResponse;
+
   end;
 
 implementation
@@ -129,8 +157,7 @@ uses
   System.Generics.Collections;
 
 function TClientesController.Listar(AServicio: IClienteService;
-  const ABusqueda: string;
-  const APagina, APorPagina: Integer;
+  const ABusqueda: string; const APagina, APorPagina: Integer;
   const AIncluirInactivos: Boolean): IMVCResponse;
 var
   lTotal: Int64;
@@ -182,6 +209,13 @@ function TClientesController.Inactivar(AServicio: IClienteService;
 begin
   AServicio.Inactivar(AId);
   Result := NoContentResponse;
+end;
+
+function TClientesController.RegistrarCompleto(AServicio: IClienteService;
+  const ADto: TClienteRegistroCompletoDTO): IMVCResponse;
+begin
+  Result := CreatedResponse('/api/clientes/' +
+    AServicio.RegistrarCompleto(ADto).ToString);
 end;
 
 end.

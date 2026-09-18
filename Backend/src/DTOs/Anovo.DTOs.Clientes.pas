@@ -1,4 +1,4 @@
-unit Anovo.DTOs.Clientes;
+﻿unit Anovo.DTOs.Clientes;
 
 interface
 
@@ -18,6 +18,8 @@ type
     fUuidLocal: NullableString;
     fNombre: string;
     fIdentificacion: NullableString;
+    fTipoIdentificacion: NullableInt16;
+    fContacto: NullableString;
     fTelefono: NullableString;
     fCorreo: NullableString;
     fDireccion: NullableString;
@@ -38,7 +40,11 @@ type
 
     property UuidLocal: NullableString read fUuidLocal write fUuidLocal;
     property Nombre: string read fNombre write fNombre;
-    property Identificacion: NullableString read fIdentificacion write fIdentificacion;
+    property Identificacion: NullableString read fIdentificacion
+      write fIdentificacion;
+    property TipoIdentificacion: NullableInt16 read fTipoIdentificacion
+      write fTipoIdentificacion;
+    property Contacto: NullableString read fContacto write fContacto;
     property Telefono: NullableString read fTelefono write fTelefono;
     property Correo: NullableString read fCorreo write fCorreo;
     property Direccion: NullableString read fDireccion write fDireccion;
@@ -46,19 +52,23 @@ type
     property Longitud: NullableDouble read fLongitud write fLongitud;
     property Activo: Boolean read fActivo write fActivo;
     property Exonerado: Boolean read fExonerado write fExonerado;
-    property CodigoExoneracion: NullableString read fCodigoExoneracion write fCodigoExoneracion;
+    property CodigoExoneracion: NullableString read fCodigoExoneracion
+      write fCodigoExoneracion;
 
-    property ConsentimientoEstado: string read fConsentimientoEstado write fConsentimientoEstado;
-    property ConsentimientoFecha: NullableTDateTime read fConsentimientoFecha write fConsentimientoFecha;
-    property ConsentimientoVersion: NullableString read fConsentimientoVersion write fConsentimientoVersion;
+    property ConsentimientoEstado: string read fConsentimientoEstado
+      write fConsentimientoEstado;
+    property ConsentimientoFecha: NullableTDateTime read fConsentimientoFecha
+      write fConsentimientoFecha;
+    property ConsentimientoVersion: NullableString read fConsentimientoVersion
+      write fConsentimientoVersion;
 
     property Anonimizado: Boolean read fAnonimizado write fAnonimizado;
     property FechaCreacion: TDateTime read fFechaCreacion write fFechaCreacion;
-    property FechaModificacion: TDateTime read fFechaModificacion write fFechaModificacion;
+    property FechaModificacion: TDateTime read fFechaModificacion
+      write fFechaModificacion;
     [MVCNameAs('objversion')]
     property ObjVersion: Integer read fObjVersion write fObjVersion;
   end;
-
 
   [MVCNameCase(ncSnakeCase)]
   TClienteNuevoDTO = class(TMVCValidatable)
@@ -66,6 +76,8 @@ type
     fUuidLocal: NullableString;
     fNombre: string;
     fIdentificacion: NullableString;
+    fTipoIdentificacion: NullableInt16;
+    fContacto: NullableString;
     fTelefono: NullableString;
     fCorreo: NullableString;
     fDireccion: NullableString;
@@ -74,43 +86,32 @@ type
     fExonerado: Boolean;
     fCodigoExoneracion: NullableString;
   public
-    [MVCMaxLength(36, 'el identificador local no puede pasar de 36 caracteres')]
     property UuidLocal: NullableString read fUuidLocal write fUuidLocal;
 
     [MVCRequired('el nombre del cliente es obligatorio')]
     [MVCMaxLength(120, 'el nombre no puede pasar de 120 caracteres')]
     property Nombre: string read fNombre write fNombre;
 
-    [MVCMaxLength(30, 'la identificacion no puede pasar de 30 caracteres')]
-    property Identificacion: NullableString read fIdentificacion write fIdentificacion;
+    property Identificacion: NullableString read fIdentificacion
+      write fIdentificacion;
+    property TipoIdentificacion: NullableInt16 read fTipoIdentificacion
+      write fTipoIdentificacion;
+    property Contacto: NullableString read fContacto write fContacto;
 
-    [MVCMaxLength(30, 'el telefono no puede pasar de 30 caracteres')]
     property Telefono: NullableString read fTelefono write fTelefono;
 
-    [MVCEmail('el correo no tiene formato valido')]
-    [MVCMaxLength(150, 'el correo no puede pasar de 150 caracteres')]
     property Correo: NullableString read fCorreo write fCorreo;
 
-    [MVCMaxLength(500, 'la direccion no puede pasar de 500 caracteres')]
     property Direccion: NullableString read fDireccion write fDireccion;
 
-    [MVCLatitude('la latitud esta fuera de rango')]
     property Latitud: NullableDouble read fLatitud write fLatitud;
 
-    [MVCLongitude('la longitud esta fuera de rango')]
     property Longitud: NullableDouble read fLongitud write fLongitud;
 
     property Exonerado: Boolean read fExonerado write fExonerado;
-
-    // Espeja CK_CLIENTES_EXONERACION. Aqui rechaza antes de tocar la base y con
-    // el nombre del campo; la entidad lo vuelve a comprobar al guardar, que es
-    // lo que protege si manana se escribe por otra via que no sea la API.
-    [MVCRequiredIf('Exonerado', roEquals, 'True',
-      'un cliente exonerado necesita el codigo de exoneracion')]
-    [MVCMaxLength(30, 'el codigo de exoneracion no puede pasar de 30 caracteres')]
-    property CodigoExoneracion: NullableString read fCodigoExoneracion write fCodigoExoneracion;
+    property CodigoExoneracion: NullableString read fCodigoExoneracion
+      write fCodigoExoneracion;
   end;
-
 
   [MVCNameCase(ncSnakeCase)]
   TClienteEdicionDTO = class(TClienteNuevoDTO)
@@ -119,6 +120,74 @@ type
   public
     [MVCNameAs('objversion')]
     property ObjVersion: NullableInteger read fObjVersion write fObjVersion;
+  end;
+
+  // Un contacto del alta. uuid_local es obligatorio en la practica: es como la
+  // firma dice quien firmo, porque el telefono no conoce ids del servidor.
+  [MVCNameCase(ncSnakeCase)]
+  TContactoNuevoDTO = class(TMVCValidatable)
+  private
+    fUuidLocal: NullableString;
+    fNombre: string;
+    fArea: NullableString;
+    fTelefono: NullableString;
+    fCelular: NullableString;
+    fCorreo: NullableString;
+    fPrincipal: Boolean;
+  public
+    property UuidLocal: NullableString read fUuidLocal write fUuidLocal;
+    [MVCRequired('el nombre del contacto es obligatorio')]
+    property Nombre: string read fNombre write fNombre;
+    property Area: NullableString read fArea write fArea;
+    property Telefono: NullableString read fTelefono write fTelefono;
+    property Celular: NullableString read fCelular write fCelular;
+    property Correo: NullableString read fCorreo write fCorreo;
+    property Principal: Boolean read fPrincipal write fPrincipal;
+  end;
+
+  // La firma. La cedula queda para que la empresa sepa que empleado firmo.
+  [MVCNameCase(ncSnakeCase)]
+  TFirmaNuevaDTO = class(TMVCValidatable)
+  private
+    fClienteContactoUuid: NullableString;
+    fFirmanteNombre: string;
+    fFirmanteIdentificacion: string;
+    fVersionTexto: string;
+    fFecha: NullableTDateTime;
+    fFirmaBase64: string;
+    fMime: string;
+  public
+    property ClienteContactoUuid: NullableString read fClienteContactoUuid
+      write fClienteContactoUuid;
+    [MVCRequired('el nombre de quien firma es obligatorio')]
+    property FirmanteNombre: string read fFirmanteNombre write fFirmanteNombre;
+    [MVCRequired('la cedula de quien firma es obligatoria')]
+    property FirmanteIdentificacion: string read fFirmanteIdentificacion
+      write fFirmanteIdentificacion;
+    [MVCRequired('la version del texto de consentimiento es obligatoria')]
+    property VersionTexto: string read fVersionTexto write fVersionTexto;
+    // Hora en que se firmo en el telefono, que puede ser dias antes de subir.
+    property Fecha: NullableTDateTime read fFecha write fFecha;
+    [MVCRequired('la imagen de la firma es obligatoria')]
+    property FirmaBase64: string read fFirmaBase64 write fFirmaBase64;
+    property Mime: string read fMime write fMime;
+  end;
+
+  // Los datos del cliente completo entra toda o no entra nada.
+  [MVCNameCase(ncSnakeCase)]
+  TClienteRegistroCompletoDTO = class(TMVCValidatable)
+  private
+    fCliente: TClienteNuevoDTO;
+    fContactos: TObjectList<TContactoNuevoDTO>;
+    fFirma: TFirmaNuevaDTO;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property Cliente: TClienteNuevoDTO read fCliente write fCliente;
+    [MVCListOf(TContactoNuevoDTO)]
+    property Contactos: TObjectList<TContactoNuevoDTO> read fContactos
+      write fContactos;
+    property Firma: TFirmaNuevaDTO read fFirma write fFirma;
   end;
 
   // El sobre de la coleccion: { "data": [...], "total", "pagina", "por_pagina" }.
@@ -158,9 +227,26 @@ end;
 
 destructor TClientesPaginaDTO.Destroy;
 begin
-  // El sobre se queda con la lista. El framework libera lo que devuelve la
-  // accion, y al liberar el sobre cae con el la lista y sus elementos.
+
   fData.Free;
+  inherited;
+end;
+
+{ TClienteRegistroCompletoDTO }
+
+constructor TClienteRegistroCompletoDTO.Create;
+begin
+  inherited Create;
+  fCliente := TClienteNuevoDTO.Create;
+  fContactos := TObjectList<TContactoNuevoDTO>.Create(True);
+  fFirma := TFirmaNuevaDTO.Create;
+end;
+
+destructor TClienteRegistroCompletoDTO.Destroy;
+begin
+  fFirma.Free;
+  fContactos.Free;
+  fCliente.Free;
   inherited;
 end;
 

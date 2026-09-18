@@ -37,7 +37,11 @@ type
     // reenvia altas que no sabe si llegaron, y sin esto crearia duplicados.
     function ObtenerPorUuidLocal(const AUuid: string): TClientes;
 
-    function ContactosDe(const AClienteId: Integer): TObjectList<TClienteContactos>;
+    function ContactosDe(const AClienteId: Integer)
+      : TObjectList<TClienteContactos>;
+
+    procedure InsertarContacto(const AContacto: TClienteContactos);
+    procedure InsertarFirma(const AFirma: TClienteConsentimientoHistorial);
   end;
 
 implementation

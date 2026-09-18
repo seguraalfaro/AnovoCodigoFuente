@@ -1,4 +1,4 @@
-unit Anovo.Services.Intf.Clientes;
+﻿unit Anovo.Services.Intf.Clientes;
 
 // Contrato del servicio de clientes.
 //
@@ -22,8 +22,8 @@ type
     // ATotal sale aparte porque el cliente necesita saber cuantas paginas hay,
     // y contar los que caben en una pagina no lo dice.
     function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
-      const AIncluirInactivos: Boolean;
-      out ATotal: Int64): TObjectList<TClienteDTO>;
+      const AIncluirInactivos: Boolean; out ATotal: Int64)
+      : TObjectList<TClienteDTO>;
 
     function Obtener(const AId: Integer): TClienteDTO;
 
@@ -35,6 +35,9 @@ type
     procedure Actualizar(const AId: Integer; const ADto: TClienteEdicionDTO);
 
     procedure Inactivar(const AId: Integer);
+
+    function RegistrarCompleto(const ADto: TClienteRegistroCompletoDTO)
+      : Integer;
   end;
 
 implementation

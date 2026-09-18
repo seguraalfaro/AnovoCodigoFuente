@@ -11,6 +11,7 @@ interface
 
 uses
   System.Generics.Collections,
+  System.NetEncoding,
   MVCFramework,
   Anovo.DTOs.Clientes,
   Anovo.Entities.Clientes,
@@ -30,12 +31,14 @@ type
     constructor Create(ARepo: IClienteRepository); reintroduce;
 
     function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
-      const AIncluirInactivos: Boolean;
-      out ATotal: Int64): TObjectList<TClienteDTO>;
+      const AIncluirInactivos: Boolean; out ATotal: Int64)
+      : TObjectList<TClienteDTO>;
     function Obtener(const AId: Integer): TClienteDTO;
     function Crear(const ADto: TClienteNuevoDTO): Integer;
     procedure Actualizar(const AId: Integer; const ADto: TClienteEdicionDTO);
     procedure Inactivar(const AId: Integer);
+    function RegistrarCompleto(const ADto
+      : TClienteRegistroCompletoDTO): Integer;
   end;
 
 implementation
@@ -50,6 +53,9 @@ const
   // Estado inicial del consentimiento. Lo pone el servidor, no el cliente: si
   // viajara en el cuerpo del POST, cualquiera podria darse por consentido.
   CONSENTIMIENTO_PENDIENTE = 'pendiente';
+  CONSENTIMIENTO_FIRMADO = 'firmado';
+  ACCION_OTORGADO = 'otorgado';
+  ORIGEN_MOVIL = 'movil';
 
 constructor TClienteService.Create(ARepo: IClienteRepository);
 begin
@@ -150,12 +156,135 @@ begin
   end;
 end;
 
+function TClienteService.RegistrarCompleto
+  (const ADto: TClienteRegistroCompletoDTO): Integer;
+var
+  lExistente: TClientes;
+  lCliente: TClientes;
+  lContacto: TClienteContactos;
+  lFirma: TClienteConsentimientoHistorial;
+  lDatos: TContactoNuevoDTO;
+  lIdPorUuid: TDictionary<string, Integer>;
+  lPrincipales: Integer;
+  lFechaFirma: TDateTime;
+  lBytes: TBytes;
+begin
+  // Una sola transaccion para las tres tablas. Si falla la firma, el cliente y
+  // sus contactos tampoco quedan: un cliente sin consentimiento no puede existir.
+  var
+  lTx := TMVCRepository.UseTransactionContext;
+
+  // Idempotencia. Basta con mirar el cliente: si ya subio.
+  if ADto.Cliente.UuidLocal.HasValue then
+  begin
+    lExistente := fRepo.ObtenerPorUuidLocal(ADto.Cliente.UuidLocal.Value);
+    if lExistente <> nil then
+      try
+        Exit(lExistente.ID.Value);
+      finally
+        lExistente.Free;
+      end;
+  end;
+
+  if ADto.Contactos.Count = 0 then
+    raise EDatoInvalido.Create('El alta debe traer al menos un contacto.');
+
+  lPrincipales := 0;
+  for lDatos in ADto.Contactos do
+    if lDatos.Principal then
+      Inc(lPrincipales);
+  // La tabla no lo impide: Firebird no tiene indices unicos parciales.
+  if lPrincipales > 1 then
+    raise EDatoInvalido.Create('Solo un contacto puede ser el principal.');
+
+  lBytes := TNetEncoding.Base64.DecodeStringToBytes(ADto.Firma.FirmaBase64);
+  if Length(lBytes) = 0 then
+    raise EDatoInvalido.Create('La imagen de la firma viene vacia.');
+
+  if ADto.Firma.Fecha.HasValue then
+    lFechaFirma := ADto.Firma.Fecha.Value
+  else
+    lFechaFirma := Now;
+
+  lIdPorUuid := TDictionary<string, Integer>.Create;
+  lCliente := TClientes.Create;
+  try
+
+    AEntidad(ADto.Cliente, lCliente);
+    lCliente.Activo := True;
+    lCliente.Anonimizado := False;
+    lCliente.ConsentimientoEstado := CONSENTIMIENTO_FIRMADO;
+    lCliente.ConsentimientoFecha := lFechaFirma;
+    lCliente.ConsentimientoVersion := ADto.Firma.VersionTexto;
+    fRepo.Insert(lCliente);
+
+    // 2. Los contactos, guardando que id le toco a cada uuid.
+    for lDatos in ADto.Contactos do
+    begin
+      lContacto := TClienteContactos.Create;
+      try
+        lContacto.ClienteId := lCliente.ID.Value;
+        lContacto.UuidLocal := lDatos.UuidLocal;
+        lContacto.Nombre := lDatos.Nombre;
+        lContacto.Area := lDatos.Area;
+        lContacto.Telefono := lDatos.Telefono;
+        lContacto.Celular := lDatos.Celular;
+        lContacto.Correo := lDatos.Correo;
+        lContacto.Principal := lDatos.Principal;
+        lContacto.Activo := True;
+        lContacto.Anonimizado := False;
+        lContacto.ConsentimientoEstado := CONSENTIMIENTO_PENDIENTE;
+        fRepo.InsertarContacto(lContacto);
+        if lDatos.UuidLocal.HasValue then
+          lIdPorUuid.AddOrSetValue(lDatos.UuidLocal.Value, lContacto.ID.Value);
+      finally
+        lContacto.Free;
+      end;
+    end;
+
+    // 3. La firma, enlazada al contacto que firmo.
+    lFirma := TClienteConsentimientoHistorial.Create;
+    try
+      lFirma.ClienteId := lCliente.ID.Value;
+      if ADto.Firma.ClienteContactoUuid.HasValue then
+      begin
+        if not lIdPorUuid.ContainsKey(ADto.Firma.ClienteContactoUuid.Value) then
+          raise EDatoInvalido.Create
+            ('Quien firma debe ser uno de los contactos incluidos en el alta.');
+        lFirma.ClienteContactoId :=
+          lIdPorUuid[ADto.Firma.ClienteContactoUuid.Value];
+      end;
+      lFirma.Accion := ACCION_OTORGADO;
+      lFirma.VersionTexto := ADto.Firma.VersionTexto;
+      lFirma.Fecha := lFechaFirma;
+      lFirma.FirmanteNombre := ADto.Firma.FirmanteNombre;
+      lFirma.FirmanteIdentificacion := ADto.Firma.FirmanteIdentificacion;
+      lFirma.FirmaImagen.WriteBuffer(lBytes, Length(lBytes));
+      if ADto.Firma.Mime.IsEmpty then
+        lFirma.FirmaMime := 'image/png'
+      else
+        lFirma.FirmaMime := ADto.Firma.Mime;
+      lFirma.Origen := ORIGEN_MOVIL;
+      fRepo.InsertarFirma(lFirma);
+    finally
+      lFirma.Free;
+    end;
+
+    Result := lCliente.ID.Value;
+  finally
+    lCliente.Free;
+    lIdPorUuid.Free;
+  end;
+
+end;
+
 function TClienteService.Crear(const ADto: TClienteNuevoDTO): Integer;
 var
   lExistente: TClientes;
   lCliente: TClientes;
 begin
-  var lTx := TMVCRepository.UseTransactionContext;
+  var
+  lTx := TMVCRepository.UseTransactionContext;
 
   // Idempotencia. El telefono guarda sin conexion y sube cuando puede; si la
   // respuesta se pierde de vuelta, reintenta. Sin esta comprobacion cada
@@ -194,13 +323,14 @@ procedure TClienteService.Actualizar(const AId: Integer;
 var
   lCliente: TClientes;
 begin
-  var lTx := TMVCRepository.UseTransactionContext;
+  var
+  lTx := TMVCRepository.UseTransactionContext;
 
   // Nullable a proposito: 0 es una version legitima -la de un cliente recien
   // creado-, asi que el cero no sirve como senal de "no vino".
   if not ADto.ObjVersion.HasValue then
-    raise EDatoInvalido.Create(
-      'Falta la version del registro. Recargue el cliente y vuelva a editarlo.');
+    raise EDatoInvalido.Create
+      ('Falta la version del registro. Recargue el cliente y vuelva a editarlo.');
 
   lCliente := TraerVigente(AId);
   try
@@ -235,7 +365,8 @@ procedure TClienteService.Inactivar(const AId: Integer);
 var
   lCliente: TClientes;
 begin
-  var lTx := TMVCRepository.UseTransactionContext;
+  var
+  lTx := TMVCRepository.UseTransactionContext;
 
   lCliente := TraerVigente(AId);
   try
