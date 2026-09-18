@@ -49,7 +49,16 @@ uses
   Anovo.SQL.Clientes in 'src\SQL\Anovo.SQL.Clientes.pas',
   Anovo.Services.Clientes in 'src\Services\Anovo.Services.Clientes.pas',
   Anovo.Services.Intf.Clientes in 'src\Interfaces\Anovo.Services.Intf.Clientes.pas',
-  Anovo.Controllers.Clientes in 'src\Controllers\Anovo.Controllers.Clientes.pas';
+  Anovo.Controllers.Clientes in 'src\Controllers\Anovo.Controllers.Clientes.pas',
+  Anovo.Entities.Permisos in 'src\Entities\Anovo.Entities.Permisos.pas',
+  Anovo.SQL.Permisos in 'src\SQL\Anovo.SQL.Permisos.pas',
+  Anovo.Repositories.Intf.Permisos in 'src\Interfaces\Anovo.Repositories.Intf.Permisos.pas',
+  Anovo.Repositories.Permisos in 'src\Repositories\Anovo.Repositories.Permisos.pas',
+  Anovo.Services.Intf.Permisos in 'src\Interfaces\Anovo.Services.Intf.Permisos.pas',
+  Anovo.Services.Permisos in 'src\Services\Anovo.Services.Permisos.pas',
+  Anovo.Auth.Permisos in 'src\Auth\Anovo.Auth.Permisos.pas',
+  Anovo.DTOs.Sesion in 'src\DTOs\Anovo.DTOs.Sesion.pas',
+  Anovo.Controllers.Sesion in 'src\Controllers\Anovo.Controllers.Sesion.pas';
 
 {$R *.res}
 

@@ -192,6 +192,15 @@
         <DCCReference Include="src\Services\Anovo.Services.Clientes.pas"/>
         <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Clientes.pas"/>
         <DCCReference Include="src\Controllers\Anovo.Controllers.Clientes.pas"/>
+        <DCCReference Include="src\Entities\Anovo.Entities.Permisos.pas"/>
+        <DCCReference Include="src\SQL\Anovo.SQL.Permisos.pas"/>
+        <DCCReference Include="src\Interfaces\Anovo.Repositories.Intf.Permisos.pas"/>
+        <DCCReference Include="src\Repositories\Anovo.Repositories.Permisos.pas"/>
+        <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Permisos.pas"/>
+        <DCCReference Include="src\Services\Anovo.Services.Permisos.pas"/>
+        <DCCReference Include="src\Auth\Anovo.Auth.Permisos.pas"/>
+        <DCCReference Include="src\DTOs\Anovo.DTOs.Sesion.pas"/>
+        <DCCReference Include="src\Controllers\Anovo.Controllers.Sesion.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

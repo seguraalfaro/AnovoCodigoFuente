@@ -55,10 +55,15 @@ type
     [MVCRequired]
     [MVCMaxLength(120)]
     fNombre: String;
+    [MVCTableField('AMBITO')]
+    [MVCRequired]
+    [MVCMaxLength(15)]
+    fAmbito: String;
   public
     property ID: Int32 read fID write fID;
     property Codigo: String read fCodigo write fCodigo;
     property Nombre: String read fNombre write fNombre;
+    property Ambito: String read fAmbito write fAmbito;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -84,9 +89,9 @@ type
     [MVCRequired]
     fDebeCambiarClave: Boolean;
     [MVCTableField('FECHA_CREACION')]
-    fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
+    fFechaCreacion: NullableTDateTime { dtDateTimeStamp };
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
-    fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
+    fFechaModificacion: NullableTDateTime { dtDateTimeStamp };
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -94,9 +99,12 @@ type
     property Nombre: String read fNombre write fNombre;
     property RolId: Int32 read fRolId write fRolId;
     property Activo: NullableBoolean read fActivo write fActivo;
-    property DebeCambiarClave: Boolean read fDebeCambiarClave write fDebeCambiarClave;
-    property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
-    property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
+    property DebeCambiarClave: Boolean read fDebeCambiarClave
+      write fDebeCambiarClave;
+    property FechaCreacion: NullableTDateTime { dtDateTimeStamp }
+      read fFechaCreacion write fFechaCreacion;
+    property FechaModificacion: NullableTDateTime { dtDateTimeStamp }
+      read fFechaModificacion write fFechaModificacion;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -109,7 +117,7 @@ type
     [MVCRequired]
     fUsuarioId: Int32;
 
-    //Escrito Muanual :La regla de verdad es que no sale del handler, esto es la red.
+    // Escrito Muanual :La regla de verdad es que no sale del handler, esto es la red.
     [MVCTableField('CLAVE_HASH')]
     [MVCRequired]
     [MVCMaxLength(255)]
@@ -118,14 +126,15 @@ type
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
     [MVCTableField('FECHA_CAMBIO')]
-    fFechaCambio: NullableTDateTime {dtDateTimeStamp};
+    fFechaCambio: NullableTDateTime { dtDateTimeStamp };
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
     property UsuarioId: Int32 read fUsuarioId write fUsuarioId;
     property ClaveHash: String read fClaveHash write fClaveHash;
     property Activo: NullableBoolean read fActivo write fActivo;
-    property FechaCambio: NullableTDateTime {dtDateTimeStamp} read fFechaCambio write fFechaCambio;
+    property FechaCambio: NullableTDateTime { dtDateTimeStamp }
+      read fFechaCambio write fFechaCambio;
   end;
 
 implementation

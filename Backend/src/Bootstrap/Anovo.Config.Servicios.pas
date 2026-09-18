@@ -25,6 +25,10 @@ implementation
 
 uses
   MVCFramework.Repository,
+  Anovo.Repositories.Intf.Permisos,
+  Anovo.Repositories.Permisos,
+  Anovo.Services.Intf.Permisos,
+  Anovo.Services.Permisos,
   Anovo.Services.Clave,
   Anovo.Repositories.Intf.Clientes,
   Anovo.Repositories.Clientes,
@@ -45,7 +49,18 @@ begin
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TClienteService, IClienteService,
     TRegistrationType.SingletonPerRequest);
+  // Por peticion, por lo mismo que clientes: usa la conexion del middleware.
+  Container.RegisterType(TPermisoRepository, IPermisoRepository,
+    TRegistrationType.SingletonPerRequest);
 
+  // Singleton, al reves que los repositorios: no toca la base, guarda texto, y
+  // tiene que sobrevivir a la peticion o no seria cache.
+  Container.RegisterType(TPermisoCache, IPermisoCache,
+    TRegistrationType.Singleton);
+    // Por peticion: lleva dentro el repositorio, que usa la conexion de la
+  // peticion. La cache que recibe es la singleton.
+  Container.RegisterType(TPermisoService, IPermisoService,
+    TRegistrationType.SingletonPerRequest);
 end;
 
 end.

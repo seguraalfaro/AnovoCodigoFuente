@@ -21,6 +21,7 @@ implementation
 
 uses
   Anovo.Controllers.Clientes,
+  Anovo.Controllers.Sesion,
   Anovo.Auth.RoleHandler,
   Anovo.Errors,
   Anovo.Middleware.ContextoAuditoria,
@@ -52,7 +53,7 @@ begin
   // Controllers
 
   AEngine.AddController(TClientesController);
-
+  AEngine.AddController(TSesionController);
   // Controllers - END
 
   AEngine.SetExceptionHandler(ManejadorDeErrores());
@@ -118,10 +119,10 @@ begin
   // Swagger 2.0, el que la pagina apunta por defecto .
   AEngine.AddMiddleware(TMVCSwaggerMiddleware.Create(AEngine, LSwaggerInfo,
     '/api/swagger.json',
-    'Autenticacion por JSON Web Token (JWT). Escribir la palabra Bearer, un '
-    + 'espacio, y el token que devolvio /api/auth/login. Sin el prefijo Bearer '
-    + 'el servidor no lee la cabecera y responde 401.',
-    False, // AEnableBasicAuthentication
+    'Autenticacion por JSON Web Token (JWT). Escribir la palabra Bearer, un ' +
+    'espacio, y el token que devolvio /api/auth/login. Sin el prefijo Bearer ' +
+    'el servidor no lee la cabecera y responde 401.', False,
+    // AEnableBasicAuthentication
     '', // AHost: vacio = el del navegador
     '', // ABasePath
     '', // APathFilter

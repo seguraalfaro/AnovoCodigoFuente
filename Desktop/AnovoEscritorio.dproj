@@ -1,4 +1,4 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{EDF597E2-39ED-4412-9C1B-F66422BB074F}</ProjectGuid>
         <ProjectVersion>19.1</ProjectVersion>
@@ -137,8 +137,7 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Src\Sources\Anovo.UI.TemaGrid.pas"/>
-        <DCCReference Include="Src\Sources\Anovo.Cliente.Sesion.pas"/>
+        <DCCReference Include="Src\Recursos\Anovo.UI.TemaGrid.pas"/>
         <DCCReference Include="Src\Common\Anovo.Sesion.pas"/>
         <DCCReference Include="Src\Common\Anovo.Config.pas"/>
         <DCCReference Include="Src\Api\Anovo.Api.Base.pas"/>
@@ -146,6 +145,8 @@
         <DCCReference Include="Src\Api\Anovo.Api.Autenticacion.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Login.pas"/>
         <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Login.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Principal.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Principal.pas"/>
         <DCCReference Include="Src\Forms\Anovo.Forms.AgregarItem.pas">
             <Form>frmAgregarItem</Form>
             <FormType>dfm</FormType>

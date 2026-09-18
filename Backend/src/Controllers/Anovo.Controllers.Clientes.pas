@@ -15,11 +15,12 @@
 // la forma unica del contrato. Atraparlas aqui solo serviria para escribir dos
 // veces lo mismo, peor.
 //
-// PERMISOS. Cada accion declara su lista completa. DMVC no hereda de un rol a
-// otro: la accion que se quede sin atributo queda abierta a cualquier token
-// valido, y eso no da error ni aviso. Segun lo acordado el 15/09/2026 y
-// pendiente de minuta (P18): el administrador queda fuera de clientes por ser
-// rol de TI, e inactivar se reserva a supervisor y gerencia.
+// PERMISOS. Cada accion declara el suyo con [MVCRequiresPermiso]; quien lo
+// tiene lo dice ROLES_PERMISOS, no este archivo. La clase exige ademas
+// clientes.ver: una accion que se quede sin atributo no queda abierta, pero
+// si abierta a todo el que vea clientes. La matriz inicial es la de la minuta
+// 06/2026 (P18): el administrador queda fuera de clientes por ser rol de TI, e
+// inactivar se reserva a supervisor y gerencia.
 
 interface
 
@@ -28,27 +29,32 @@ uses
   MVCFramework.Commons,
   MVCFramework.Serializer.Commons,
   MVCFramework.Swagger.Commons,
-  MVCFramework.Middleware.Authentication.RoleBasedAuthHandler,
+  Anovo.Auth.Permisos,
   Anovo.DTOs.Clientes,
   Anovo.Services.Intf.Clientes;
 
 const
-  // Quienes trabajan con clientes. El separador por defecto de
-  // MVCRequiresRole es el punto y coma, y reOR significa "con uno basta".
-  ROLES_CLIENTES = 'asesor;asistente;supervisor;gerencia';
-  ROLES_INACTIVAR = 'supervisor;gerencia';
+  // Los codigos de PERMISOS. Un error de tipeo aqui no da error: deja a todos
+  // con 403, que se nota en la primera prueba.
+  PERMISO_VER = 'clientes.ver';
+  PERMISO_CREAR = 'clientes.crear';
+  PERMISO_EDITAR = 'clientes.editar';
+  PERMISO_INACTIVAR = 'clientes.inactivar';
+  PERMISO_CONSENTIMIENTO = 'clientes.consentimiento';
 
   POR_PAGINA_POR_DEFECTO = 50;
   POR_PAGINA_MAXIMO = 200;
 
 type
 
+  // Permiso a nivel de clase: toda accion exige al menos ver clientes, ademas
+  // del suyo. Una accion nueva que se quede sin atributo no queda abierta.
   [MVCPath('/api/clientes')]
+  [MVCRequiresPermiso(PERMISO_VER)]
   TClientesController = class(TMVCController)
   public
     [MVCPath]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresRole(ROLES_CLIENTES, reOR)]
     [MVCSwagSummary('Clientes', 'Lista y busca clientes, paginado',
       'listarClientes')]
     [MVCSwagParam(plQuery, 'q',
@@ -62,7 +68,7 @@ type
       'Incluir los clientes dados de baja', ptBoolean, False)]
     [MVCSwagResponses(200, 'Pagina de clientes', TClientesPaginaDTO)]
     [MVCSwagResponses(401, 'Sin token o token vencido')]
-    [MVCSwagResponses(403, 'El rol del token no alcanza para esta operacion')]
+    [MVCSwagResponses(403, 'El rol no tiene el permiso para esta operacion')]
     function Listar([MVCInject] AServicio: IClienteService;
       const [MVCFromQueryString('q', '')] ABusqueda: string;
       const [MVCFromQueryString('pagina', 1)] APagina: Integer;
@@ -73,33 +79,32 @@ type
 
     [MVCPath('/($AId)')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresRole(ROLES_CLIENTES, reOR)]
     [MVCSwagSummary('Clientes', 'Obtiene un cliente por su numero',
       'obtenerCliente')]
     [MVCSwagParam(plPath, 'AId', 'Numero del cliente', ptInteger, True)]
     [MVCSwagResponses(200, 'El cliente', TClienteDTO)]
     [MVCSwagResponses(401, 'Sin token o token vencido')]
-    [MVCSwagResponses(403, 'El rol del token no alcanza para esta operacion')]
+    [MVCSwagResponses(403, 'El rol no tiene el permiso para esta operacion')]
     [MVCSwagResponses(404, 'No existe un cliente con ese numero')]
     function Obtener([MVCInject] AServicio: IClienteService; const AId: Integer)
       : IMVCResponse;
 
     [MVCPath]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresRole(ROLES_CLIENTES, reOR)]
+    [MVCRequiresPermiso(PERMISO_CREAR)]
     [MVCSwagSummary('Clientes', 'Registra un cliente nuevo', 'crearCliente')]
     [MVCSwagParam(plBody, 'Cliente', 'Datos del cliente nuevo',
       TClienteNuevoDTO)]
     [MVCSwagResponses(201, 'Creado. La cabecera Location apunta al cliente')]
     [MVCSwagResponses(401, 'Sin token o token vencido')]
-    [MVCSwagResponses(403, 'El rol del token no alcanza para esta operacion')]
+    [MVCSwagResponses(403, 'El rol no tiene el permiso para esta operacion')]
     [MVCSwagResponses(422, 'Algun campo no paso la validacion')]
     function Crear([MVCInject] AServicio: IClienteService;
       [MVCFromBody] const ADto: TClienteNuevoDTO): IMVCResponse;
 
     [MVCPath('/($AId)')]
     [MVCHTTPMethods([httpPUT])]
-    [MVCRequiresRole(ROLES_CLIENTES, reOR)]
+    [MVCRequiresPermiso(PERMISO_EDITAR)]
     [MVCSwagSummary('Clientes', 'Modifica un cliente existente',
       'actualizarCliente')]
     [MVCSwagParam(plPath, 'AId', 'Numero del cliente', ptInteger, True)]
@@ -107,7 +112,7 @@ type
       TClienteEdicionDTO)]
     [MVCSwagResponses(204, 'Actualizado')]
     [MVCSwagResponses(401, 'Sin token o token vencido')]
-    [MVCSwagResponses(403, 'El rol del token no alcanza para esta operacion')]
+    [MVCSwagResponses(403, 'El rol no tiene el permiso para esta operacion')]
     [MVCSwagResponses(404, 'No existe un cliente con ese numero')]
     [MVCSwagResponses(409, 'Otra persona lo modifico: objversion vencida')]
     [MVCSwagResponses(422, 'Algun campo no paso la validacion')]
@@ -121,32 +126,34 @@ type
     // a quien lea el contrato.
     [MVCPath('/($AId)/inactivacion')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresRole(ROLES_INACTIVAR, reOR)]
+    [MVCRequiresPermiso(PERMISO_INACTIVAR)]
     [MVCSwagSummary('Clientes', 'Inactiva un cliente. Baja logica',
       'inactivarCliente')]
     [MVCSwagParam(plPath, 'AId', 'Numero del cliente', ptInteger, True)]
     [MVCSwagResponses(204, 'Inactivado, o ya estaba inactivo')]
     [MVCSwagResponses(401, 'Sin token o token vencido')]
-    [MVCSwagResponses(403, 'El rol del token no alcanza para esta operacion')]
+    [MVCSwagResponses(403, 'El rol no tiene el permiso para esta operacion')]
     [MVCSwagResponses(404, 'No existe un cliente con ese numero')]
     function Inactivar([MVCInject] AServicio: IClienteService;
       const AId: Integer): IMVCResponse;
 
     [MVCPath('/registro-completo')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresRole(ROLES_CLIENTES, reOR)]
+    // Los dos: crea al cliente y guarda su firma de consentimiento.
+    [MVCRequiresPermiso(PERMISO_CREAR)]
+    [MVCRequiresPermiso(PERMISO_CONSENTIMIENTO)]
     [MVCSwagSummary('Clientes',
       'Registra un cliente con sus contactos y la firma, todo o nada',
       'registrarClienteCompleto')]
     [MVCSwagParam(plBody, 'Registro',
-      'Cliente, contactos y firma de consentimiento', TClienteRegistroCompletoDTO)]
+      'Cliente, contactos y firma de consentimiento',
+      TClienteRegistroCompletoDTO)]
     [MVCSwagResponses(201, 'Creado. La cabecera Location apunta al cliente')]
     [MVCSwagResponses(401, 'Sin token o token vencido')]
-    [MVCSwagResponses(403, 'El rol del token no alcanza para esta operacion')]
+    [MVCSwagResponses(403, 'El rol no tiene el permiso para esta operacion')]
     [MVCSwagResponses(422, 'Faltan datos o no son coherentes entre si')]
     function RegistrarCompleto([MVCInject] AServicio: IClienteService;
       [MVCFromBody] const ADto: TClienteRegistroCompletoDTO): IMVCResponse;
-
   end;
 
 implementation
@@ -214,8 +221,8 @@ end;
 function TClientesController.RegistrarCompleto(AServicio: IClienteService;
   const ADto: TClienteRegistroCompletoDTO): IMVCResponse;
 begin
-  Result := CreatedResponse('/api/clientes/' +
-    AServicio.RegistrarCompleto(ADto).ToString);
+  Result := CreatedResponse('/api/clientes/' + AServicio.RegistrarCompleto(ADto)
+    .ToString);
 end;
 
 end.

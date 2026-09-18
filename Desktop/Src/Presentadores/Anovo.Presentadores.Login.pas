@@ -4,10 +4,10 @@ unit Anovo.Presentadores.Login;
 
   Dos metodos a proposito:
 
-    Resolver   sincronico. Llama a la API, abre la sesion y decide el destino.
-               Es lo que se prueba con DUnitX, con una API y una vista falsas.
-    Ingresar   lo que llama la pantalla. Ejecuta Resolver fuera del hilo de la
-               interfaz y devuelve el resultado a la vista en el hilo principal.
+  Resolver   sincronico. Llama a la API, abre la sesion y decide el destino.
+  Es lo que se prueba con DUnitX, con una API y una vista falsas.
+  Ingresar   lo que llama la pantalla. Ejecuta Resolver fuera del hilo de la
+  interfaz y devuelve el resultado a la vista en el hilo principal.
 
   Asi la prueba no tiene que lidiar con hilos, y la ventana no se congela
   mientras el servidor contesta o tarda en rendirse. }
@@ -26,7 +26,8 @@ type
     FVista: IVistaLogin;
     FApi: IApiAutenticacion;
   public
-    constructor Create(const AVista: IVistaLogin; const AApi: IApiAutenticacion);
+    constructor Create(const AVista: IVistaLogin;
+      const AApi: IApiAutenticacion);
     procedure Ingresar(const ACorreo, AClave: string);
     function Resolver(const ACorreo, AClave: string): TResultadoLogin;
   end;
@@ -46,8 +47,8 @@ const
     responde igual en los dos casos para no delatar que correos existen; la
     pantalla no debe deshacerlo. }
   MENSAJE_CREDENCIALES = 'El correo o la clave no son correctos.';
-  MENSAJE_SIN_ACCESO = 'Su perfil trabaja con la aplicacion movil. ' +
-    'La aplicacion de escritorio no tiene modulos para asesores.';
+  MENSAJE_SIN_ACCESO = 'Su usuario no tiene permisos asignados en el ' +
+    'sistema. Avise al administrador.';
   MENSAJE_INESPERADO = 'Ocurrio un error inesperado al ingresar. ' +
     'Intente de nuevo; si persiste, avise al administrador.';
 
@@ -59,17 +60,22 @@ begin
   FApi := AApi;
 end;
 
-function TPresentadorLogin.Resolver(const ACorreo, AClave: string): TResultadoLogin;
+function TPresentadorLogin.Resolver(const ACorreo, AClave: string)
+  : TResultadoLogin;
 begin
   TSesion.Abrir(FApi.IniciarSesion(ACorreo.Trim, AClave));
 
   { Primero la clave provisional: con ella el token trae el rol clave_vencida,
-    que cae en asesor, y se le negaria el acceso a alguien que solo tiene que
-    cambiar la clave. }
+    que no tiene permisos, y se le negaria el acceso a alguien que solo tiene
+    que cambiar la clave. }
   if TSesion.DebeCambiarClave then
     Exit(rlDebeCambiarClave);
 
-  if TSesion.Rol = rolAsesor then
+  TSesion.AsignarPermisos(FApi.ObtenerPermisos);
+
+  { Sin ningun permiso no hay modulo que abrir. Ya no se mira el rol: el
+    asesor tambien entra, con lo que la matriz le da. }
+  if Length(TSesion.Permisos) = 0 then
   begin
     TSesion.Cerrar;
     Exit(rlSinAccesoEscritorio);

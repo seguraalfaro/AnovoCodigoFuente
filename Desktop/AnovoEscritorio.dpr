@@ -19,8 +19,7 @@ uses
   Anovo.Frames.Roles in 'Src\Frames\Anovo.Frames.Roles.pas' {fraRoles: TFrame} ,
   Anovo.Frames.Catalogos
     in 'Src\Frames\Anovo.Frames.Catalogos.pas' {fraCatalogos: TFrame} ,
-  Anovo.UI.TemaGrid in 'Src\Sources\Anovo.UI.TemaGrid.pas',
-  Anovo.Cliente.Sesion in 'Src\Sources\Anovo.Cliente.Sesion.pas',
+  Anovo.UI.TemaGrid in 'Src\Recursos\Anovo.UI.TemaGrid.pas',
   Anovo.Sesion in 'Src\Common\Anovo.Sesion.pas',
   Anovo.Config in 'Src\Common\Anovo.Config.pas',
   Anovo.Api.Base in 'Src\Api\Anovo.Api.Base.pas',
@@ -30,6 +29,10 @@ uses
   Anovo.Vistas.Intf.Login in 'Src\Interfaces\Anovo.Vistas.Intf.Login.pas',
   Anovo.Presentadores.Login
     in 'Src\Presentadores\Anovo.Presentadores.Login.pas',
+  Anovo.Vistas.Intf.Principal
+    in 'Src\Interfaces\Anovo.Vistas.Intf.Principal.pas',
+  Anovo.Presentadores.Principal
+    in 'Src\Presentadores\Anovo.Presentadores.Principal.pas',
   Anovo.Forms.AgregarItem
     in 'Src\Forms\Anovo.Forms.AgregarItem.pas' {frmAgregarItem} ,
   Anovo.Frames.Usuarios

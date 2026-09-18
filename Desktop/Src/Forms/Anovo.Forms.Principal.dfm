@@ -33,6 +33,7 @@ object frmPrincipal: TfrmPrincipal
   StyleElements = [seFont]
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 15
   object TitleBarPanel1: TTitleBarPanel

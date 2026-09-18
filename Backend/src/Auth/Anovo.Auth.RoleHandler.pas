@@ -18,27 +18,41 @@ unit Anovo.Auth.RoleHandler;
 // [MVCRequiresRole] por RTTI. Implementando la interfaz directamente esos
 // atributos compilan y no protegen nada.
 //
-// Por eso aqui solo se sobrescribe OnAuthentication: lo demas ya esta resuelto.
+// OnAuthorization se sobrescribe para sumar [MVCRequiresPermiso]: primero
+// decide el framework por rol, despues se revisan los permisos contra
+// ROLES_PERMISOS a traves de IPermisoService.
 
 interface
 
 uses
   System.Generics.Collections,
+  System.Rtti,
   MVCFramework,
   MVCFramework.Middleware.Authentication.RoleBasedAuthHandler,
-  Anovo.Services.Clave;
+  Anovo.Services.Clave,
+  Anovo.Services.Intf.Permisos;
 
 type
   TAuthentication = class(TRoleBasedAuthHandler)
   private
     fClave: IClaveService;
+    fRtti: TRttiContext;
+    function TieneAlguno(const APermisos: IPermisoService;
+      UserRoles: TList<string>; const ACodigos: TArray<string>): Boolean;
+    function CumplePermisos(const AContext: TWebContext;
+      UserRoles: TList<string>;
+      const AAtributos: TArray<TCustomAttribute>): Boolean;
   public
     // Se instancea el servicio al crear y no cada login
     constructor Create;
+    destructor Destroy; override;
     procedure OnAuthentication(const AContext: TWebContext;
       const UserName: string; const Password: string; UserRoles: TList<string>;
       var IsValid: Boolean;
       const SessionData: TDictionary<string, string>); override;
+    procedure OnAuthorization(const AContext: TWebContext;
+      UserRoles: TList<string>; const ControllerQualifiedClassName: string;
+      const ActionName: string; var IsAuthorized: Boolean); override;
   end;
 
 implementation
@@ -48,6 +62,7 @@ uses
   MVCFramework.ActiveRecord,
   MVCFramework.Container,
   MVCFramework.Logger,
+  Anovo.Auth.Permisos,
   Anovo.Auditoria.Contexto,
   Anovo.Entities.Usuarios;
 
@@ -56,6 +71,47 @@ begin
   inherited Create;
   fClave := NewServiceContainerResolver.Resolve(TypeInfo(IClaveService))
     as IClaveService;
+  fRtti := TRttiContext.Create;
+end;
+
+destructor TAuthentication.Destroy;
+begin
+  fRtti.Free;
+  inherited;
+end;
+
+function TAuthentication.CumplePermisos(const AContext: TWebContext;
+  UserRoles: TList<string>; const AAtributos: TArray<TCustomAttribute>)
+  : Boolean;
+var
+  lAtributo: TCustomAttribute;
+  lPermisos: IPermisoService;
+begin
+  Result := True;
+  for lAtributo in AAtributos do
+    if lAtributo is MVCRequiresPermisoAttribute then
+    begin
+      // Se pide al resolver de esta peticion: el servicio lleva un repositorio
+      // que usa la conexion que abrio el middleware de ActiveRecord.
+      if lPermisos = nil then
+        lPermisos := AContext.ServiceContainerResolver.Resolve(
+          TypeInfo(IPermisoService)) as IPermisoService;
+      if not TieneAlguno(lPermisos, UserRoles,
+        MVCRequiresPermisoAttribute(lAtributo).GetPermisos) then
+        Exit(False);
+    end;
+end;
+
+function TAuthentication.TieneAlguno(const APermisos: IPermisoService;
+  UserRoles: TList<string>; const ACodigos: TArray<string>): Boolean;
+var
+  lRol, lCodigo: string;
+begin
+  for lRol in UserRoles do
+    for lCodigo in ACodigos do
+      if APermisos.Tiene(lRol, lCodigo) then
+        Exit(True);
+  Result := False;
 end;
 
 procedure TAuthentication.OnAuthentication(const AContext: TWebContext;
@@ -155,9 +211,12 @@ begin
       lRol.Free;
     end;
 
-    // Va al token. Nada de datos personales aqui: un JWT va firmado, no
-    // cifrado, y cualquiera que lo tenga lee su contenido.
+    // Va al token, que va firmado y no cifrado: cualquiera que lo tenga lee su
+    // contenido. El nombre entra a proposito para el encabezado de los
+    // clientes; el correo ya viaja igual en el claim username. Por eso el
+    // token solo sale por HTTPS y vive en memoria.
     SessionData.AddOrSetValue('USUARIO_ID', lUsuario.ID.Value.ToString);
+    SessionData.AddOrSetValue('NOMBRE', lUsuario.Nombre);
     SessionData.AddOrSetValue('DEBE_CAMBIAR_CLAVE',
       BoolToStr(lUsuario.DebeCambiarClave, True));
 
@@ -166,6 +225,32 @@ begin
   finally
     lUsuario.Free;
   end;
+end;
+
+procedure TAuthentication.OnAuthorization(const AContext: TWebContext;
+  UserRoles: TList<string>; const ControllerQualifiedClassName,
+  ActionName: string; var IsAuthorized: Boolean);
+var
+  lTipo: TRttiType;
+  lMetodo: TRttiMethod;
+begin
+  // Primero lo del framework: sigue valiendo MVCRequiresRole, que es lo que usa
+  // el cambio de clave con clave_vencida.
+  inherited;
+  if not IsAuthorized then
+    Exit;
+
+  lTipo := fRtti.FindType(ControllerQualifiedClassName);
+  if not CumplePermisos(AContext, UserRoles, lTipo.GetAttributes) then
+  begin
+    IsAuthorized := False;
+    Exit;
+  end;
+
+  lMetodo := lTipo.GetMethod(ActionName);
+  if (lMetodo <> nil) and not CumplePermisos(AContext, UserRoles,
+    lMetodo.GetAttributes) then
+    IsAuthorized := False;
 end;
 
 end.
