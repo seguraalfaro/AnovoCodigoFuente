@@ -7,15 +7,16 @@ unit Anovo.Vistas.Intf.Principal;
 interface
 
 type
-  TSeccion = (secDashboard, secCotizaciones, secGeneracion, secDetalle,
-    secMateriales, secClientes, secReportes, secBandeja, secGerencia,
-    secUsuarios, secRoles, secConfiguracion);
+  TSeccion = (secDashboard, secDashboardCuentas, secSolicitudes, secBandeja,
+    secCotizaciones, secGeneracion, secDetalle, secClientes, secMateriales,
+    secReportes, secGerencia, secUsuarios, secRoles, secConfiguracion);
   TSecciones = set of TSeccion;
 
   IVistaPrincipal = interface
     ['{C4E81B27-9A3D-4F60-B5C2-7D19E0A4F638}']
     procedure MostrarUsuario(const ANombre, ARol, AIniciales: string);
-    procedure MostrarSecciones(const ASecciones: TSecciones);
+    { Ya filtradas y en el orden del menu: la vista solo las dibuja. }
+    procedure MostrarSecciones(const ASecciones: TArray<TSeccion>);
     procedure AbrirSeccion(const ASeccion: TSeccion);
   end;
 

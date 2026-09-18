@@ -29,7 +29,7 @@ object frmPrincipal: TfrmPrincipal
   GlassFrame.Enabled = True
   GlassFrame.Top = 31
   OldCreateOrder = False
-  Position = poOwnerFormCenter
+  Position = poDesktopCenter
   StyleElements = [seFont]
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
@@ -205,198 +205,20 @@ object frmPrincipal: TfrmPrincipal
       TabOrder = 1
       StyleElements = []
     end
-    object RelativePanel1: TRelativePanel
+    object pnlMenu: TPanel
       Tag = 1
       Left = 0
       Top = 62
       Width = 200
       Height = 546
-      ControlCollection = <
-        item
-          Control = FnDashboard
-          AlignBottomWithPanel = False
-          AlignHorizontalCenterWithPanel = False
-          AlignLeftWithPanel = False
-          AlignRightWithPanel = False
-          AlignTopWithPanel = True
-          AlignVerticalCenterWithPanel = False
-        end
-        item
-          Control = FnCotizaciones
-          AlignBottomWithPanel = False
-          AlignHorizontalCenterWithPanel = False
-          AlignLeftWithPanel = False
-          AlignRightWithPanel = False
-          AlignTopWithPanel = False
-          AlignVerticalCenterWithPanel = False
-          Below = FnDashboard
-        end
-        item
-          Control = FnClientes
-          AlignBottomWithPanel = False
-          AlignHorizontalCenterWithPanel = False
-          AlignLeftWithPanel = False
-          AlignRightWithPanel = False
-          AlignTopWithPanel = False
-          AlignVerticalCenterWithPanel = False
-        end
-        item
-          Control = FnReportes
-          AlignBottomWithPanel = False
-          AlignHorizontalCenterWithPanel = False
-          AlignLeftWithPanel = False
-          AlignRightWithPanel = False
-          AlignTopWithPanel = False
-          AlignVerticalCenterWithPanel = False
-        end
-        item
-          Control = FnUsuarios
-          AlignBottomWithPanel = False
-          AlignHorizontalCenterWithPanel = False
-          AlignLeftWithPanel = False
-          AlignRightWithPanel = False
-          AlignTopWithPanel = False
-          AlignVerticalCenterWithPanel = False
-        end
-        item
-          Control = FnRoles
-          AlignBottomWithPanel = False
-          AlignHorizontalCenterWithPanel = False
-          AlignLeftWithPanel = False
-          AlignRightWithPanel = False
-          AlignTopWithPanel = False
-          AlignVerticalCenterWithPanel = False
-        end
-        item
-          Control = FnConfiguracion
-          AlignBottomWithPanel = False
-          AlignHorizontalCenterWithPanel = False
-          AlignLeftWithPanel = False
-          AlignRightWithPanel = False
-          AlignTopWithPanel = False
-          AlignVerticalCenterWithPanel = False
-          Below = FnRoles
-        end
-        item
-          Control = PlanoNavItem1
-          AlignBottomWithPanel = False
-          AlignHorizontalCenterWithPanel = False
-          AlignLeftWithPanel = True
-          AlignRightWithPanel = True
-          AlignTopWithPanel = False
-          AlignVerticalCenterWithPanel = False
-        end>
       Align = alClient
       BevelOuter = bvNone
       Color = 6044186
+      Padding.Left = 5
+      Padding.Right = 6
       ParentBackground = False
       TabOrder = 2
       StyleElements = []
-      DesignSize = (
-        200
-        546)
-      object FnDashboard: TFlatNavItem
-        Left = 5
-        Top = 0
-        Width = 189
-        Height = 40
-        SelectedColor = clGrayText
-        Images = dmIconos.ViAnovo
-        ImageIndex = 62
-        Action = AcDashboard
-        Align = alTop
-        ParentShowHint = False
-        ShowHint = False
-      end
-      object FnCotizaciones: TFlatNavItem
-        Left = 5
-        Top = 40
-        Width = 189
-        Height = 40
-        SelectedColor = clGrayText
-        Images = dmIconos.ViAnovo
-        ImageIndex = 50
-        Action = AcCotizaciones
-        Align = alTop
-        ParentShowHint = False
-        ShowHint = False
-      end
-      object FnClientes: TFlatNavItem
-        Left = 5
-        Top = 72
-        Width = 189
-        Height = 40
-        SelectedColor = clGrayText
-        Images = dmIconos.ViAnovo
-        ImageIndex = 66
-        Action = AcClientes
-        Align = alTop
-        ParentShowHint = False
-        ShowHint = False
-      end
-      object FnReportes: TFlatNavItem
-        Left = 5
-        Top = 146
-        Width = 189
-        Height = 40
-        SelectedColor = clGrayText
-        Images = dmIconos.ViAnovo
-        ImageIndex = 60
-        Action = AcReportes
-        Align = alTop
-        ParentShowHint = False
-        ShowHint = False
-      end
-      object FnUsuarios: TFlatNavItem
-        Left = 5
-        Top = 192
-        Width = 189
-        Height = 40
-        SelectedColor = clGrayText
-        Images = dmIconos.ViAnovo
-        ImageIndex = 66
-        Action = AcUsuarios
-        Align = alTop
-        ParentShowHint = False
-        ShowHint = False
-      end
-      object FnRoles: TFlatNavItem
-        Left = 5
-        Top = 222
-        Width = 189
-        Height = 40
-        SelectedColor = clGrayText
-        Images = dmIconos.ViAnovo
-        ImageIndex = 68
-        Action = AcRoles
-        Align = alTop
-        ParentShowHint = False
-        ShowHint = False
-      end
-      object FnConfiguracion: TFlatNavItem
-        Left = 5
-        Top = 262
-        Width = 189
-        Height = 40
-        SelectedColor = clGrayText
-        Images = dmIconos.ViAnovo
-        ImageIndex = 70
-        Action = AcConfiguracion
-        Align = alTop
-        ParentShowHint = False
-        ShowHint = False
-      end
-      object PlanoNavItem1: TPlanoNavItem
-        AlignWithMargins = True
-        Left = 3
-        Top = 106
-        Width = 194
-        Height = 40
-        Images = dmIconos.ViAnovo
-        ImageIndex = 58
-        Action = AcBandeja
-        Anchors = []
-      end
     end
     object pnlBottom: TRelativePanel
       Tag = 1
@@ -455,59 +277,10 @@ object frmPrincipal: TfrmPrincipal
     Images = dmIconos.ViAnovo
     Left = 824
     Top = 366
-    object AcDashboard: TAction
-      Caption = 'Dashboard'
-      ImageIndex = 62
-      ImageName = 'Blanco\06-dashboard-blanco'
-      OnExecute = AcDashboardExecute
-    end
-    object AcCotizaciones: TAction
-      Caption = 'Cotizaciones'
-      ImageIndex = 50
-      ImageName = 'Blanco\00-cotizaciones-blanco'
-    end
-    object acNueva: TAction
-      Caption = 'Nueva'
-      ImageIndex = 76
-      ImageName = 'Blanco\13-agregar-blanco'
-    end
-    object AcClientes: TAction
-      Caption = 'Clientes'
-      ImageIndex = 66
-      ImageName = 'Blanco\08-usuarios-blanco'
-    end
-    object AcMateriales: TAction
-      Caption = 'AcMateriales'
-    end
-    object AcReportes: TAction
-      Caption = 'Reportes'
-      ImageIndex = 60
-      ImageName = 'Blanco\05-reportes-blanco'
-    end
-    object AcBandeja: TAction
-      Caption = 'Bandeja'
-      ImageIndex = 58
-      ImageName = 'Blanco\04-bandeja-blanco'
-    end
     object AcSalir: TAction
       Caption = 'Cerrar Sesi'#243'n'
       ImageIndex = 72
       ImageName = 'Blanco\11-salir-blanco'
-    end
-    object AcConfiguracion: TAction
-      Caption = 'Configuraci'#243'n'
-      ImageIndex = 70
-      ImageName = 'Blanco\10-configuracion-blanco'
-    end
-    object AcRoles: TAction
-      Caption = 'Roles'
-      ImageIndex = 68
-      ImageName = 'Blanco\09-roles-blanco'
-    end
-    object AcUsuarios: TAction
-      Caption = ' Usuarios'
-      ImageIndex = 66
-      ImageName = 'Blanco\08-usuarios-blanco'
     end
   end
 end

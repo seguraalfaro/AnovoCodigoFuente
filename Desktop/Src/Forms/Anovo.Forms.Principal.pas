@@ -1,5 +1,11 @@
 unit Anovo.Forms.Principal;
 
+{ Ventana principal: menu lateral y el frame de la seccion abierta.
+
+  El menu se arma en ejecucion con lo que manda el presentador, ya filtrado y
+  ordenado. Aqui solo se decide como se ve: texto e icono de cada seccion. Un
+  item que no corresponde no se oculta, no se crea: asi no quedan huecos. }
+
 interface
 
 uses
@@ -14,7 +20,6 @@ uses
   Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.ToolWin, Vcl.VirtualImage,
   Vcl.WinXCtrls, Vcl.CategoryButtons, Vcl.Buttons, FlatVcl.NavItem,
   System.Actions, Vcl.ActnList, PestanasPlanas, Vcl.WinXPanels,
-  VclPlano.NavItem,
   Anovo.Vistas.Intf.Principal,
   Anovo.Presentadores.Principal;
 
@@ -30,42 +35,28 @@ type
     pnlAvatar: TPanel;
     lblIniciales: TLabel;
     pnsep: TRelativePanel;
-    RelativePanel1: TRelativePanel;
-    FnDashboard: TFlatNavItem;
+    pnlMenu: TPanel;
     ActionList1: TActionList;
-    AcDashboard: TAction;
-    FnCotizaciones: TFlatNavItem;
-    AcCotizaciones: TAction;
-    acNueva: TAction;
-    AcClientes: TAction;
-    AcMateriales: TAction;
-    AcReportes: TAction;
-    FnClientes: TFlatNavItem;
-    AcBandeja: TAction;
-    FnReportes: TFlatNavItem;
     pnlBottom: TRelativePanel;
     pnlsepBottom: TRelativePanel;
     FlatNavItem1: TFlatNavItem;
     AcSalir: TAction;
-    AcConfiguracion: TAction;
-    AcRoles: TAction;
-    AcUsuarios: TAction;
-    FnUsuarios: TFlatNavItem;
-    FnRoles: TFlatNavItem;
-    FnConfiguracion: TFlatNavItem;
-    PlanoNavItem1: TPlanoNavItem;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure VirtualImage1Click(Sender: TObject);
-    procedure AcDashboardExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   private
     FPresentador: TPresentadorPrincipal;
     FFrameTemp: TFrame;
+    FItems: TArray<TFlatNavItem>;
     function ObtenerFrame(ASeccion: TSeccion): TFrame;
+    procedure LimpiarMenu;
+
+    procedure AgregarItem(const ASeccion: TSeccion);
+    procedure ItemMenuClick(Sender: TObject);
     { IVistaPrincipal }
     procedure MostrarUsuario(const ANombre, ARol, AIniciales: string);
-    procedure MostrarSecciones(const ASecciones: TSecciones);
+    procedure MostrarSecciones(const ASecciones: TArray<TSeccion>);
     procedure AbrirSeccion(const ASeccion: TSeccion);
   public
     { Public declarations }
@@ -80,6 +71,38 @@ implementation
 
 uses
   Anovo.UI.Iconos;
+
+type
+  TItemMenu = record
+    Titulo: string;
+    Icono: string;
+  end;
+
+const
+  ALTO_ITEM = 40;
+
+  ITEMS_MENU: array [TSeccion] of TItemMenu = (
+    { secDashboard } (Titulo: 'Dashboard'; Icono: 'Blanco\06-dashboard-blanco'),
+    { secDashboardCuentas } (Titulo: 'Dashboard';
+    Icono: 'Blanco\06-dashboard-blanco'),
+    { secSolicitudes } (Titulo: 'Solicitudes';
+    Icono: 'Blanco\00-cotizaciones-blanco'),
+    { secBandeja } (Titulo: 'Bandeja'; Icono: 'Blanco\04-bandeja-blanco'),
+    { secCotizaciones } (Titulo: 'Cotizaciones';
+    Icono: 'Blanco\00-cotizaciones-blanco'),
+    { secGeneracion } (Titulo: 'Nueva cotizaci'#243'n';
+    Icono: 'Blanco\01-nueva-blanco'),
+    { secDetalle } (Titulo: 'Detalle'; Icono: 'Blanco\00-cotizaciones-blanco'),
+    { secClientes } (Titulo: 'Clientes'; Icono: 'Blanco\02-clientes-blanco'),
+    { secMateriales } (Titulo: 'Materiales';
+    Icono: 'Blanco\03-materiales-blanco'),
+    { secReportes } (Titulo: 'Reportes'; Icono: 'Blanco\05-reportes-blanco'),
+    { secGerencia } (Titulo: 'Vista de gerencia';
+    Icono: 'Blanco\07-gerencia-blanco'),
+    { secUsuarios } (Titulo: 'Usuarios'; Icono: 'Blanco\08-usuarios-blanco'),
+    { secRoles } (Titulo: 'Roles'; Icono: 'Blanco\09-roles-blanco'),
+    { secConfiguracion } (Titulo: 'Configuraci'#243'n';
+    Icono: 'Blanco\10-configuracion-blanco'));
 
 procedure TfrmPrincipal.FormCreate(Sender: TObject);
 begin
@@ -100,11 +123,6 @@ begin
     FreeAndNil(FFrameTemp);
 end;
 
-procedure TfrmPrincipal.AcDashboardExecute(Sender: TObject);
-begin
-  FPresentador.Navegar(secDashboard);
-end;
-
 procedure TfrmPrincipal.VirtualImage1Click(Sender: TObject);
 begin
   SV.Opened := not SV.Opened;
@@ -117,28 +135,63 @@ begin
   lblIniciales.Caption := AIniciales;
 end;
 
-procedure TfrmPrincipal.MostrarSecciones(const ASecciones: TSecciones);
+procedure TfrmPrincipal.LimpiarMenu;
+var
+  I: Integer;
 begin
-  { Oculta, no deshabilitada: un boton gris invita a preguntar por que no
-    funciona. }
-  AcDashboard.Visible := secDashboard in ASecciones;
-  AcCotizaciones.Visible := secCotizaciones in ASecciones;
-  acNueva.Visible := secGeneracion in ASecciones;
-  AcMateriales.Visible := secMateriales in ASecciones;
-  AcClientes.Visible := secClientes in ASecciones;
-  AcReportes.Visible := secReportes in ASecciones;
-  AcBandeja.Visible := secBandeja in ASecciones;
-  AcUsuarios.Visible := secUsuarios in ASecciones;
-  AcRoles.Visible := secRoles in ASecciones;
-  AcConfiguracion.Visible := secConfiguracion in ASecciones;
+  FItems := nil;
+  for I := pnlMenu.ControlCount - 1 downto 0 do
+    pnlMenu.Controls[I].Free;
+end;
+
+procedure TfrmPrincipal.AgregarItem(const ASeccion: TSeccion);
+var
+  lItem: TFlatNavItem;
+begin
+  lItem := TFlatNavItem.Create(Self);
+  lItem.Top := MaxInt div 2;
+  lItem.Parent := pnlMenu;
+  lItem.Align := alTop;
+  lItem.Height := ALTO_ITEM;
+  lItem.Caption := ITEMS_MENU[ASeccion].Titulo;
+  lItem.Images := dmIconos.ViAnovo;
+  lItem.ImageIndex := dmIconos.ViAnovo.GetIndexByName
+    (ITEMS_MENU[ASeccion].Icono);
+  lItem.SelectedColor := clGrayText;
+  lItem.ShowHint := False;
+  { El Tag guarda la seccion. pnlMenu lleva TAG_RAW, asi que el tema no lo lee. }
+  lItem.Tag := Ord(ASeccion);
+  lItem.OnClick := ItemMenuClick;
+  FItems := FItems + [lItem];
+end;
+
+procedure TfrmPrincipal.MostrarSecciones(const ASecciones: TArray<TSeccion>);
+var
+  lSeccion: TSeccion;
+begin
+  LimpiarMenu;
+  for lSeccion in ASecciones do
+  begin
+    AgregarItem(lSeccion);
+  end;
+end;
+
+procedure TfrmPrincipal.ItemMenuClick(Sender: TObject);
+begin
+  FPresentador.Navegar(TSeccion((Sender as TFlatNavItem).Tag));
 end;
 
 procedure TfrmPrincipal.AbrirSeccion(const ASeccion: TSeccion);
+var
+  lItem: TFlatNavItem;
 begin
+  for lItem in FItems do
+    lItem.Selected := lItem.Tag = Ord(ASeccion);
+
   if Assigned(FFrameTemp) then
     FreeAndNil(FFrameTemp);
   FFrameTemp := ObtenerFrame(ASeccion);
-  { Mientras haya secciones sin frame, el panel queda vacio en vez de caerse. }
+
   if FFrameTemp = nil then
     Exit;
   FFrameTemp.Parent := pnlContenido;
