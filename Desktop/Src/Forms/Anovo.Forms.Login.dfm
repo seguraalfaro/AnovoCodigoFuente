@@ -25,11 +25,14 @@ object frmLogin: TfrmLogin
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  GlassFrame.Enabled = True
   GlassFrame.Top = 26
   OldCreateOrder = False
   Position = poDesktopCenter
   StyleElements = [seFont, seClient]
+  OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
   object TitleBarPanel1: TTitleBarPanel
@@ -428,15 +431,6 @@ object frmLogin: TfrmLogin
         AlignVerticalCenterWithPanel = False
       end
       item
-        Control = Panel1
-        AlignBottomWithPanel = False
-        AlignHorizontalCenterWithPanel = False
-        AlignLeftWithPanel = False
-        AlignRightWithPanel = False
-        AlignTopWithPanel = False
-        AlignVerticalCenterWithPanel = False
-      end
-      item
         Control = lblTitulo
         AlignBottomWithPanel = False
         AlignHorizontalCenterWithPanel = False
@@ -480,6 +474,15 @@ object frmLogin: TfrmLogin
         AlignRightWithPanel = False
         AlignTopWithPanel = False
         AlignVerticalCenterWith = lblConfigurar
+        AlignVerticalCenterWithPanel = False
+      end
+      item
+        Control = BtnIngresar
+        AlignBottomWithPanel = False
+        AlignHorizontalCenterWithPanel = False
+        AlignLeftWithPanel = False
+        AlignRightWithPanel = False
+        AlignTopWithPanel = False
         AlignVerticalCenterWithPanel = False
       end>
     Align = alClient
@@ -648,38 +651,6 @@ object frmLogin: TfrmLogin
         StyleElements = []
       end
     end
-    object Panel1: TPanel
-      Tag = 17
-      Left = 58
-      Top = 306
-      Width = 368
-      Height = 55
-      Cursor = crHandPoint
-      Anchors = []
-      BevelOuter = bvNone
-      Color = clBlue
-      ParentBackground = False
-      TabOrder = 3
-      object BtnIngresar: TSpeedButton
-        Tag = 11
-        Left = 0
-        Top = 0
-        Width = 368
-        Height = 55
-        Action = AcIngresar
-        Align = alClient
-        Flat = True
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clYellow
-        Font.Height = -15
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        StyleElements = []
-        ExplicitTop = 11
-        ExplicitHeight = 42
-      end
-    end
     object lblTitulo: TLabel
       Tag = 11
       Left = 56
@@ -735,6 +706,20 @@ object frmLogin: TfrmLogin
       ImageHeight = 0
       ImageIndex = 110
       ImageName = 'Marca\10-configuracion-marca'
+    end
+    object BtnIngresar: TPlanoBotonWin
+      Left = 56
+      Top = 312
+      Width = 369
+      Height = 58
+      Cursor = crHandPoint
+      Action = AcIngresar
+      Anchors = []
+      ImageIndex = 98
+      Images = dmIconos.ViAnovo
+      TabOrder = 3
+      StyleElements = []
+      ColorOverride = 6044186
     end
   end
   object ActionList1: TActionList

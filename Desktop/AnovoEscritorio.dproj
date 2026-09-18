@@ -139,6 +139,13 @@
         </DCCReference>
         <DCCReference Include="Src\Sources\Anovo.UI.TemaGrid.pas"/>
         <DCCReference Include="Src\Sources\Anovo.Cliente.Sesion.pas"/>
+        <DCCReference Include="Src\Common\Anovo.Sesion.pas"/>
+        <DCCReference Include="Src\Common\Anovo.Config.pas"/>
+        <DCCReference Include="Src\Api\Anovo.Api.Base.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Autenticacion.pas"/>
+        <DCCReference Include="Src\Api\Anovo.Api.Autenticacion.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Login.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Login.pas"/>
         <DCCReference Include="Src\Forms\Anovo.Forms.AgregarItem.pas">
             <Form>frmAgregarItem</Form>
             <FormType>dfm</FormType>
