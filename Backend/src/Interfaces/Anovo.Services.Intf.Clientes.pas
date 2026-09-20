@@ -20,16 +20,16 @@ type
     ['{8B3F0D51-6A27-4E94-A0C8-5F71D2B6E438}']
 
     // ATotal sale aparte porque el cliente necesita saber cuantas paginas hay,
-    // y contar los que caben en una pagina no lo dice.
+    // y contar los que caben en una pagina no lo dice. AConsentimiento vacio
+    // es todos; si no, pendiente, firmado o revocado.
     function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
-      const AIncluirInactivos: Boolean; out ATotal: Int64)
-      : TObjectList<TClienteDTO>;
+      const AIncluirInactivos: Boolean; const AConsentimiento: string;
+      out ATotal: Int64): TObjectList<TClienteDTO>;
 
     function Obtener(const AId: Integer): TClienteDTO;
 
-    // Devuelve el id. Si el alta ya habia subido con ese uuid_local, devuelve
-    // el id existente sin crear nada: el telefono reenvia lo que no sabe si
-    // llego, y dos altas iguales no pueden ser dos clientes.
+    // Devuelve el id. Si el registro ya habia subido con ese uuid_local,
+    
     function Crear(const ADto: TClienteNuevoDTO): Integer;
 
     procedure Actualizar(const AId: Integer; const ADto: TClienteEdicionDTO);
@@ -38,6 +38,22 @@ type
 
     function RegistrarCompleto(const ADto: TClienteRegistroCompletoDTO)
       : Integer;
+
+
+    function Contactos(const AId: Integer): TObjectList<TContactoDTO>;
+    function CrearContacto(const AId: Integer;
+      const ADto: TContactoNuevoDTO): Integer;
+    procedure ActualizarContacto(const AId, AContactoId: Integer;
+      const ADto: TContactoEdicionDTO);
+    procedure InactivarContacto(const AId, AContactoId: Integer);
+
+    // CONSENTIMIENTO. El historial solo se lee y se agrega: ninguna fila se
+    // modifica ni se borra, porque es la prueba de lo que se consintio.
+    function Consentimientos(const AId: Integer)
+      : TObjectList<TConsentimientoDTO>;
+    procedure Revocar(const AId: Integer; const ADto: TRevocacionDTO);
+
+
   end;
 
 implementation

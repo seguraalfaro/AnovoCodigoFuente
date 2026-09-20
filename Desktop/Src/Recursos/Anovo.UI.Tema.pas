@@ -349,7 +349,7 @@ begin
     TAG_BTN_AVISO:
       Result := clEstPendienteFondo;
     TAG_BTN_SECUNDARIO:
-
+     Result := clAnovoMarca;
     else
       Result := clAnovoMarca;
   end;

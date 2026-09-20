@@ -1,10 +1,10 @@
 unit Anovo.Forms.Principal;
 
-{ Ventana principal: menu lateral y el frame de la seccion abierta.
-
-  El menu se arma en ejecucion con lo que manda el presentador, ya filtrado y
-  ordenado. Aqui solo se decide como se ve: texto e icono de cada seccion. Un
-  item que no corresponde no se oculta, no se crea: asi no quedan huecos. }
+// Ventana principal: menu lateral y el frame de la seccion abierta.
+//
+// El menu se arma en ejecucion con lo que manda el presentador, ya filtrado y
+// ordenado. Aqui solo se decide como se ve: texto e icono de cada seccion. Un
+// item que no corresponde no se oculta, no se crea: asi no quedan huecos.
 
 interface
 
@@ -14,6 +14,10 @@ uses
   Anovo.Frames.Clientes,
   Anovo.Frames.Dashboard,
   Anovo.Frames.GeneracionCotizacion,
+  Anovo.Frames.Bandeja,
+  Anovo.Frames.Cotizaciones,
+  Anovo.Frames.Usuarios,
+  Anovo.Frames.Roles,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.TitleBarCtrls, Vcl.StdCtrls,
   Vcl.ExtCtrls, Anovo.UI.Tema,
@@ -45,6 +49,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure VirtualImage1Click(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure AcSalirExecute(Sender: TObject);
   private
     FPresentador: TPresentadorPrincipal;
     FFrameTemp: TFrame;
@@ -54,12 +59,12 @@ type
 
     procedure AgregarItem(const ASeccion: TSeccion);
     procedure ItemMenuClick(Sender: TObject);
-    { IVistaPrincipal }
+    // IVistaPrincipal
     procedure MostrarUsuario(const ANombre, ARol, AIniciales: string);
     procedure MostrarSecciones(const ASecciones: TArray<TSeccion>);
     procedure AbrirSeccion(const ASeccion: TSeccion);
   public
-    { Public declarations }
+    // Public declarations
   end;
 
 var
@@ -144,6 +149,11 @@ begin
     pnlMenu.Controls[I].Free;
 end;
 
+procedure TfrmPrincipal.AcSalirExecute(Sender: TObject);
+begin
+ close;
+end;
+
 procedure TfrmPrincipal.AgregarItem(const ASeccion: TSeccion);
 var
   lItem: TFlatNavItem;
@@ -159,7 +169,7 @@ begin
     (ITEMS_MENU[ASeccion].Icono);
   lItem.SelectedColor := clGrayText;
   lItem.ShowHint := False;
-  { El Tag guarda la seccion. pnlMenu lleva TAG_RAW, asi que el tema no lo lee. }
+  // El Tag guarda la seccion. pnlMenu lleva TAG_RAW, asi que el tema no lo lee.
   lItem.Tag := Ord(ASeccion);
   lItem.OnClick := ItemMenuClick;
   FItems := FItems + [lItem];
@@ -200,9 +210,27 @@ end;
 
 function TfrmPrincipal.ObtenerFrame(ASeccion: TSeccion): TFrame;
 begin
+  // Sin frame todavia: Dashboard de cuentas, Solicitudes, Detalle, Reportes y
+  // Configuracion. Devuelven nil y el panel queda vacio.
   case ASeccion of
     secDashboard:
+      Result := TfraDashboard.Create(Self);
+    secBandeja:
+      Result := TfraBandeja.Create(Self);
+    secCotizaciones:
+      Result := TfraCotizaciones.Create(Self);
+    secGeneracion:
       Result := TfraGeneracionCotizacion.Create(Self);
+    secClientes:
+      Result := TfraClientes.Create(Self);
+    secMateriales:
+      Result := TfraCatalogos.Create(Self);
+    secGerencia:
+      Result := TfraDashboardGerencia.Create(Self);
+    secUsuarios:
+      Result := TfraUsuarios.Create(Self);
+    secRoles:
+      Result := TfraRoles.Create(Self);
   else
     Result := nil;
   end;

@@ -11,7 +11,7 @@ uses
   Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.WinXCtrls, Vcl.WinXPanels,
   Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   FlatVcl.BotonWin, VclPlano.Pestanas,
-  Anovo.UI.Tema, Anovo.UI.TemaGrid, VclPlano.BotonWin;
+  Anovo.UI.Tema, Anovo.UI.DBGridExtend, VclPlano.BotonWin;
 
 type
   TfraCatalogos = class(TFrame)

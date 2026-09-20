@@ -1,6 +1,6 @@
 unit Anovo.Api.Autenticacion;
 
-{ Autenticacion contra el servidor: credenciales a cambio de un token. }
+// Autenticacion contra el servidor: credenciales a cambio de un token.
 
 interface
 
@@ -34,9 +34,9 @@ begin
   lRespuesta := Ejecutar(
     function: IMVCRESTResponse
     begin
-      { El middleware JWT del framework lee las credenciales de dos cabeceras,
-        no del cuerpo. Viajan cifradas porque la conexion es HTTPS. Sin token:
-        todavia no hay sesion. }
+      // El middleware JWT del framework lee las credenciales de dos cabeceras,
+      // no del cuerpo. Viajan cifradas porque la conexion es HTTPS. Sin token:
+      // todavia no hay sesion.
       Result := NuevoCliente(False).AddHeader('jwtusername', ACorreo)
         .AddHeader('jwtpassword', AClave).Post(RUTA_LOGIN);
     end, True);
@@ -66,7 +66,7 @@ begin
       Result := NuevoCliente.Get(RUTA_SESION);
     end);
 
-  { Esta si viene en el sobre del contrato, al reves que el login. }
+  // Esta si viene en el sobre del contrato, al reves que el login.
   lJson := TJsonObject.Parse(lRespuesta.Content) as TJsonObject;
   try
     lLista := lJson.O['data'].A['permisos'];

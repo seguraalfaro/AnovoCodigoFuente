@@ -58,7 +58,9 @@ uses
   Anovo.Services.Permisos in 'src\Services\Anovo.Services.Permisos.pas',
   Anovo.Auth.Permisos in 'src\Auth\Anovo.Auth.Permisos.pas',
   Anovo.DTOs.Sesion in 'src\DTOs\Anovo.DTOs.Sesion.pas',
-  Anovo.Controllers.Sesion in 'src\Controllers\Anovo.Controllers.Sesion.pas';
+  Anovo.Controllers.Sesion in 'src\Controllers\Anovo.Controllers.Sesion.pas',
+  Anovo.Mapeo in 'src\Common\Anovo.Mapeo.pas',
+  Anovo.Repositories.Base in 'src\Repositories\Anovo.Repositories.Base.pas';
 
 {$R *.res}
 

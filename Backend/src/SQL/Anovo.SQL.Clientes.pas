@@ -1,5 +1,5 @@
 unit Anovo.SQL.Clientes;
-
+
 // Las consultas de clientes, en un solo sitio.
 //
 // Sacadas del repositorio para que un cambio de columna o de orden se haga una
@@ -32,6 +32,10 @@ const
   // Se concatena al filtro cuando no se piden los inactivos.
   CLIENTES_SOLO_ACTIVOS = ' AND ACTIVO = TRUE';
 
+  // Se concatena al filtro cuando se pide un estado de consentimiento. Un ?
+  // mas, despues de los cuatro del texto: el estado.
+  CLIENTES_POR_CONSENTIMIENTO = ' AND CONSENTIMIENTO_ESTADO = ?';
+
   // Se concatena al final de la busqueda. Dos ? mas: desde y hasta. ROWS de
   // Firebird cuenta desde 1 e incluye los dos extremos.
   CLIENTES_ORDEN_Y_PAGINA = ' ORDER BY NOMBRE ROWS ? TO ?';
@@ -48,7 +52,22 @@ const
   // llama por defecto.
   CONTACTOS_DE_CLIENTE =
     'CLIENTE_ID = ? AND ACTIVO = TRUE ORDER BY PRINCIPAL DESC, NOMBRE';
+  // Un ?: el id del cliente. Consulta completa y no solo el WHERE: se nombran
+  // las columnas para dejar fuera FIRMA_IMAGEN, que es un BLOB y el listado
+  // no la muestra. El mas reciente primero; ID desempata dos registros del
+  // mismo instante, como un otorgado y su revocacion seguidos.
+  CONSENTIMIENTOS_DE_CLIENTE =
+    'select ID, CLIENTE_ID, CLIENTE_CONTACTO_ID, ACCION, VERSION_TEXTO, ' +
+    'FECHA, FIRMANTE_NOMBRE, FIRMANTE_IDENTIFICACION, FIRMA_MIME, ORIGEN ' +
+    'from CLIENTE_CONSENTIMIENTO_HISTORIAL where CLIENTE_ID = ? ' +
+    'order by FECHA desc, ID desc';
+  // Un ?: el uuid que genero el telefono antes de tener ID del servidor.
+  // Consulta completa: solo hace falta el id, no cargar el cliente entero.
+  CLIENTES_ID_POR_UUID_LOCAL = 'select ID from CLIENTES where UUID_LOCAL = ?';
+
+  CONTACTO_DE_CLIENTE = 'ID = ? AND CLIENTE_ID = ? AND ACTIVO = TRUE';
 
 implementation
 
 end.
+

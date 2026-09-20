@@ -72,8 +72,22 @@ object fraClientes: TfraClientes
       BevelInner = bvNone
       BevelOuter = bvNone
       TabOrder = 0
-      TextHint = 'Nombre o identificaci'#243'n'
+      TextHint = 'Nombre, identificaci'#243'n, tel'#233'fono o correo'
       StyleElements = [seFont]
+      OnInvokeSearch = sbBuscarInvokeSearch
+    end
+    object btnLimpiar: TPlanoBotonWin
+      Left = 328
+      Top = 12
+      Width = 90
+      Height = 28
+      Cursor = crHandPoint
+      Caption = 'Limpiar'
+      Enabled = False
+      TabOrder = 3
+      StyleElements = []
+      OnClick = btnLimpiarClick
+      Kind = fkSecondary
     end
     object btnExportar: TPlanoBotonWin
       Left = 656
@@ -85,6 +99,7 @@ object fraClientes: TfraClientes
       Caption = 'Exportar listado'
       TabOrder = 1
       StyleElements = []
+      OnClick = btnExportarClick
       Kind = fkSecondary
     end
     object btnNuevo: TPlanoBotonWin
@@ -97,6 +112,7 @@ object fraClientes: TfraClientes
       Caption = '+ Nuevo cliente'
       TabOrder = 2
       StyleElements = []
+      OnClick = btnNuevoClick
     end
   end
   object pnclient: TRelativePanel
@@ -104,7 +120,7 @@ object fraClientes: TfraClientes
     Left = 3
     Top = 175
     Width = 954
-    Height = 371
+    Height = 392
     ControlCollection = <
       item
         Control = grClientes
@@ -122,9 +138,10 @@ object fraClientes: TfraClientes
       Left = 0
       Top = 0
       Width = 954
-      Height = 371
+      Height = 392
       Align = alClient
       BorderStyle = bsNone
+      DataSource = dmMemoria.dsClientes
       DefaultDrawing = False
       Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
       TabOrder = 0
@@ -179,32 +196,55 @@ object fraClientes: TfraClientes
         end>
     end
   end
-  object pnbottom: TRelativePanel
+  object pnlPie: TPanel
     AlignWithMargins = True
     Left = 3
-    Top = 552
+    Top = 573
     Width = 954
-    Height = 65
-    ControlCollection = <
-      item
-        AlignBottomWithPanel = False
-        AlignHorizontalCenterWithPanel = False
-        AlignLeftWithPanel = False
-        AlignRightWithPanel = False
-        AlignTopWithPanel = True
-        AlignVerticalCenterWithPanel = False
-      end
-      item
-        AlignBottomWithPanel = False
-        AlignHorizontalCenterWithPanel = False
-        AlignLeftWithPanel = False
-        AlignRightWithPanel = True
-        AlignTopWithPanel = True
-        AlignVerticalCenterWithPanel = False
-      end>
+    Height = 44
     Align = alBottom
     BevelOuter = bvNone
+    Color = 16447477
+    ParentBackground = False
     TabOrder = 3
+    DesignSize = (
+      954
+      44)
+    object lblPaginacion: TLabel
+      Tag = 13
+      Left = 20
+      Top = 14
+      Width = 3
+      Height = 15
+    end
+    object btnAnterior: TPlanoBotonWin
+      Left = 700
+      Top = 8
+      Width = 110
+      Height = 28
+      Cursor = crHandPoint
+      Anchors = [akTop, akRight]
+      Caption = 'Anterior'
+      Enabled = False
+      TabOrder = 0
+      StyleElements = []
+      OnClick = btnAnteriorClick
+      Kind = fkSecondary
+    end
+    object btnSiguiente: TPlanoBotonWin
+      Left = 824
+      Top = 8
+      Width = 110
+      Height = 28
+      Cursor = crHandPoint
+      Anchors = [akTop, akRight]
+      Caption = 'Siguiente'
+      Enabled = False
+      TabOrder = 1
+      StyleElements = []
+      OnClick = btnSiguienteClick
+      Kind = fkSecondary
+    end
   end
   object pstFiltros: TPlanoPestanas
     AlignWithMargins = True
@@ -229,6 +269,7 @@ object fraClientes: TfraClientes
     ActiveFont.Height = -12
     ActiveFont.Name = 'Segoe UI Semibold'
     ActiveFont.Style = []
+    OnChange = pstFiltrosChange
     ParentFont = False
   end
 end

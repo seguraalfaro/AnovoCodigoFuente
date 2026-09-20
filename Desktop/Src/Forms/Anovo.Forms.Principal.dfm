@@ -124,6 +124,7 @@ object frmPrincipal: TfrmPrincipal
         200
         41)
       object lblRol: TLabel
+        Tag = 1
         Left = 50
         Top = 26
         Width = 150
@@ -140,6 +141,7 @@ object frmPrincipal: TfrmPrincipal
         Transparent = True
       end
       object lblUsuario: TLabel
+        Tag = 1
         Left = 50
         Top = 12
         Width = 150
@@ -168,6 +170,7 @@ object frmPrincipal: TfrmPrincipal
         TabOrder = 0
         StyleElements = []
         object lblIniciales: TLabel
+          Tag = 1
           Left = 0
           Top = 0
           Width = 36
@@ -281,6 +284,7 @@ object frmPrincipal: TfrmPrincipal
       Caption = 'Cerrar Sesi'#243'n'
       ImageIndex = 72
       ImageName = 'Blanco\11-salir-blanco'
+      OnExecute = AcSalirExecute
     end
   end
 end

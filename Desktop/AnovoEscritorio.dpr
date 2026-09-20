@@ -7,48 +7,37 @@ uses
   Vcl.Themes,
   Vcl.Styles,
   Anovo.UI.Tema in 'Src\Recursos\Anovo.UI.Tema.pas',
-  Anovo.UI.Iconos
-    in 'Src\Recursos\Anovo.UI.Iconos.pas' {dmIconos: TDataModule} ,
-  Anovo.Forms.Login in 'Src\Forms\Anovo.Forms.Login.pas' {frmLogin} ,
-  Anovo.Forms.Principal
-    in 'Src\Forms\Anovo.Forms.Principal.pas' {frmPrincipal} ,
-  Anovo.Frames.Cotizaciones
-    in 'Src\Frames\Anovo.Frames.Cotizaciones.pas' {fraCotizaciones: TFrame} ,
-  Anovo.Frames.Clientes
-    in 'Src\Frames\Anovo.Frames.Clientes.pas' {fraClientes: TFrame} ,
-  Anovo.Frames.Roles in 'Src\Frames\Anovo.Frames.Roles.pas' {fraRoles: TFrame} ,
-  Anovo.Frames.Catalogos
-    in 'Src\Frames\Anovo.Frames.Catalogos.pas' {fraCatalogos: TFrame} ,
-  Anovo.UI.TemaGrid in 'Src\Recursos\Anovo.UI.TemaGrid.pas',
+  Anovo.UI.Iconos in 'Src\Recursos\Anovo.UI.Iconos.pas' {dmIconos: TDataModule},
+  Anovo.Forms.Login in 'Src\Forms\Anovo.Forms.Login.pas' {frmLogin},
+  Anovo.Forms.Principal in 'Src\Forms\Anovo.Forms.Principal.pas' {frmPrincipal},
+  Anovo.Frames.Cotizaciones in 'Src\Frames\Anovo.Frames.Cotizaciones.pas' {fraCotizaciones: TFrame},
+  Anovo.Frames.Clientes in 'Src\Frames\Anovo.Frames.Clientes.pas' {fraClientes: TFrame},
+  Anovo.Frames.Roles in 'Src\Frames\Anovo.Frames.Roles.pas' {fraRoles: TFrame},
+  Anovo.Frames.Catalogos in 'Src\Frames\Anovo.Frames.Catalogos.pas' {fraCatalogos: TFrame},
+  Anovo.UI.DBGridExtend in 'Src\Recursos\Anovo.UI.DBGridExtend.pas',
   Anovo.Sesion in 'Src\Common\Anovo.Sesion.pas',
   Anovo.Config in 'Src\Common\Anovo.Config.pas',
   Anovo.Api.Base in 'Src\Api\Anovo.Api.Base.pas',
-  Anovo.Api.Intf.Autenticacion
-    in 'Src\Interfaces\Anovo.Api.Intf.Autenticacion.pas',
+  Anovo.Api.Intf.Autenticacion in 'Src\Interfaces\Anovo.Api.Intf.Autenticacion.pas',
   Anovo.Api.Autenticacion in 'Src\Api\Anovo.Api.Autenticacion.pas',
   Anovo.Vistas.Intf.Login in 'Src\Interfaces\Anovo.Vistas.Intf.Login.pas',
-  Anovo.Presentadores.Login
-    in 'Src\Presentadores\Anovo.Presentadores.Login.pas',
-  Anovo.Vistas.Intf.Principal
-    in 'Src\Interfaces\Anovo.Vistas.Intf.Principal.pas',
-  Anovo.Presentadores.Principal
-    in 'Src\Presentadores\Anovo.Presentadores.Principal.pas',
-  Anovo.Forms.AgregarItem
-    in 'Src\Forms\Anovo.Forms.AgregarItem.pas' {frmAgregarItem} ,
-  Anovo.Frames.Usuarios
-    in 'Src\Frames\Anovo.Frames.Usuarios.pas' {fraUsuarios: TFrame} ,
-  Anovo.Frames.Auditoria
-    in 'Src\Frames\Anovo.Frames.Auditoria.pas' {fraAuditoria: TFrame} ,
-  Anovo.Frames.Bandeja
-    in 'Src\Frames\Anovo.Frames.Bandeja.pas' {fraBandeja: TFrame} ,
-  Anovo.Frames.ClienteDatos
-    in 'Src\Frames\Anovo.Frames.ClienteDatos.pas' {Frame1: TFrame} ,
-  Anovo.Frames.Dashboard.Gerencia
-    in 'Src\Frames\Anovo.Frames.Dashboard.Gerencia.pas' {fraDashboardGerencia: TFrame} ,
-  Anovo.Frames.Dashboard
-    in 'Src\Frames\Anovo.Frames.Dashboard.pas' {fraDashboard: TFrame} ,
-  Anovo.Frames.GeneracionCotizacion
-    in 'Src\Frames\Anovo.Frames.GeneracionCotizacion.pas' {fraGeneracionCotizacion: TFrame};
+  Anovo.Presentadores.Login in 'Src\Presentadores\Anovo.Presentadores.Login.pas',
+  Anovo.Vistas.Intf.Principal in 'Src\Interfaces\Anovo.Vistas.Intf.Principal.pas',
+  Anovo.Presentadores.Principal in 'Src\Presentadores\Anovo.Presentadores.Principal.pas',
+  Anovo.Forms.AgregarItem in 'Src\Forms\Anovo.Forms.AgregarItem.pas' {frmAgregarItem},
+  Anovo.Frames.Usuarios in 'Src\Frames\Anovo.Frames.Usuarios.pas' {fraUsuarios: TFrame},
+  Anovo.Frames.Auditoria in 'Src\Frames\Anovo.Frames.Auditoria.pas' {fraAuditoria: TFrame},
+  Anovo.Frames.Bandeja in 'Src\Frames\Anovo.Frames.Bandeja.pas' {fraBandeja: TFrame},
+  Anovo.Frames.ClienteDatos in 'Src\Frames\Anovo.Frames.ClienteDatos.pas' {TfraClienteDatos: TFrame},
+  Anovo.Frames.Dashboard.Gerencia in 'Src\Frames\Anovo.Frames.Dashboard.Gerencia.pas' {fraDashboardGerencia: TFrame},
+  Anovo.Frames.Dashboard in 'Src\Frames\Anovo.Frames.Dashboard.pas' {fraDashboard: TFrame},
+  Anovo.Frames.GeneracionCotizacion in 'Src\Frames\Anovo.Frames.GeneracionCotizacion.pas' {fraGeneracionCotizacion: TFrame},
+  Anovo.DTOs.Clientes in '..\Backend\src\DTOs\Anovo.DTOs.Clientes.pas',
+  Anovo.Api.Intf.Clientes in 'Src\Interfaces\Anovo.Api.Intf.Clientes.pas',
+  Anovo.Api.Clientes in 'Src\Api\Anovo.Api.Clientes.pas',
+  Anovo.Vistas.Intf.Clientes in 'Src\Interfaces\Anovo.Vistas.Intf.Clientes.pas',
+  Anovo.Presentadores.Clientes in 'Src\Presentadores\Anovo.Presentadores.Clientes.pas',
+  Anovo.Datos.Memoria in 'Src\Datos\Anovo.Datos.Memoria.pas' {dmMemoria: TDataModule};
 
 {$R *.res}
 
@@ -63,6 +52,7 @@ begin
   Application.Initialize;
   Application.MainFormOnTaskbar := true;
   Application.CreateForm(TdmIconos, dmIconos);
+  Application.CreateForm(TdmMemoria, dmMemoria);
   lLogin := TfrmLogin.Create(nil);
   try
     lDestino := lLogin.ShowModal;

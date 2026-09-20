@@ -137,7 +137,7 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Src\Recursos\Anovo.UI.TemaGrid.pas"/>
+        <DCCReference Include="Src\Recursos\Anovo.UI.DBGridExtend.pas"/>
         <DCCReference Include="Src\Common\Anovo.Sesion.pas"/>
         <DCCReference Include="Src\Common\Anovo.Config.pas"/>
         <DCCReference Include="Src\Api\Anovo.Api.Base.pas"/>
@@ -167,7 +167,7 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Src\Frames\Anovo.Frames.ClienteDatos.pas">
-            <Form>Frame1</Form>
+            <Form>TfraClienteDatos</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -185,6 +185,15 @@
             <Form>fraGeneracionCotizacion</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Clientes.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Clientes.pas"/>
+        <DCCReference Include="Src\Api\Anovo.Api.Clientes.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Clientes.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Clientes.pas"/>
+        <DCCReference Include="Src\Datos\Anovo.Datos.Memoria.pas">
+            <Form>dmMemoria</Form>
+            <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>

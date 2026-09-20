@@ -24,7 +24,7 @@ procedure RegisterServices(Container: IMVCServiceContainer);
 implementation
 
 uses
-  MVCFramework.Repository,
+   MVCFramework.Repository,
   Anovo.Repositories.Intf.Permisos,
   Anovo.Repositories.Permisos,
   Anovo.Services.Intf.Permisos,
@@ -41,15 +41,21 @@ begin
   Container.RegisterType(TClaveService, IClaveService,
     TRegistrationType.Singleton);
 
-  // Clientes. Los dos por peticion, no singleton: por dentro usan la conexion
+  // Clientes. Todos por peticion, no singleton: por dentro usan la conexion
   // que el middleware de ActiveRecord abre y cierra en cada peticion, asi que
   // una instancia que sobreviva a la peticion se queda con una conexion que ya
-  // no existe.
+  // no existe. Un repositorio por tabla; el servicio recibe los tres.
   Container.RegisterType(TClienteRepository, IClienteRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TClienteContactoRepository,
+    IClienteContactoRepository, TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TConsentimientoRepository, IConsentimientoRepository,
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TClienteService, IClienteService,
     TRegistrationType.SingletonPerRequest);
-  // Por peticion, por lo mismo que clientes: usa la conexion del middleware.
+
+  // Permisos. El repositorio por peticion, por lo mismo que clientes: usa la
+  // conexion del middleware.
   Container.RegisterType(TPermisoRepository, IPermisoRepository,
     TRegistrationType.SingletonPerRequest);
 
@@ -57,7 +63,8 @@ begin
   // tiene que sobrevivir a la peticion o no seria cache.
   Container.RegisterType(TPermisoCache, IPermisoCache,
     TRegistrationType.Singleton);
-    // Por peticion: lleva dentro el repositorio, que usa la conexion de la
+
+  // Por peticion: lleva dentro el repositorio, que usa la conexion de la
   // peticion. La cache que recibe es la singleton.
   Container.RegisterType(TPermisoService, IPermisoService,
     TRegistrationType.SingletonPerRequest);
