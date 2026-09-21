@@ -6,6 +6,7 @@ uses
   Vcl.Forms,
   Vcl.Themes,
   Vcl.Styles,
+  Anovo.UI.Requeridos in 'Src\Recursos\Anovo.UI.Requeridos.pas',
   Anovo.UI.Tema in 'Src\Recursos\Anovo.UI.Tema.pas',
   Anovo.UI.Iconos in 'Src\Recursos\Anovo.UI.Iconos.pas' {dmIconos: TDataModule},
   Anovo.Forms.Login in 'Src\Forms\Anovo.Forms.Login.pas' {frmLogin},
@@ -28,6 +29,13 @@ uses
   Anovo.Frames.Usuarios in 'Src\Frames\Anovo.Frames.Usuarios.pas' {fraUsuarios: TFrame},
   Anovo.Frames.Auditoria in 'Src\Frames\Anovo.Frames.Auditoria.pas' {fraAuditoria: TFrame},
   Anovo.Frames.Bandeja in 'Src\Frames\Anovo.Frames.Bandeja.pas' {fraBandeja: TFrame},
+  Anovo.Cancelacion in 'Src\Common\Anovo.Cancelacion.pas',
+  Anovo.Vistas.Intf.ClienteDatos in 'Src\Interfaces\Anovo.Vistas.Intf.ClienteDatos.pas',
+  Anovo.Presentadores.ClienteDatos in 'Src\Presentadores\Anovo.Presentadores.ClienteDatos.pas',
+  Anovo.Vistas.Intf.Registro in 'Src\Interfaces\Anovo.Vistas.Intf.Registro.pas',
+  Anovo.Presentadores.Registro in 'Src\Presentadores\Anovo.Presentadores.Registro.pas',
+  Anovo.Forms.ClienteNuevo in 'Src\Forms\Anovo.Forms.ClienteNuevo.pas' {frmClienteNuevo},
+  Anovo.Forms.ContactoNuevo in 'Src\Forms\Anovo.Forms.ContactoNuevo.pas' {frmContactoNuevo},
   Anovo.Frames.ClienteDatos in 'Src\Frames\Anovo.Frames.ClienteDatos.pas' {TfraClienteDatos: TFrame},
   Anovo.Frames.Dashboard.Gerencia in 'Src\Frames\Anovo.Frames.Dashboard.Gerencia.pas' {fraDashboardGerencia: TFrame},
   Anovo.Frames.Dashboard in 'Src\Frames\Anovo.Frames.Dashboard.pas' {fraDashboard: TFrame},
@@ -37,7 +45,10 @@ uses
   Anovo.Api.Clientes in 'Src\Api\Anovo.Api.Clientes.pas',
   Anovo.Vistas.Intf.Clientes in 'Src\Interfaces\Anovo.Vistas.Intf.Clientes.pas',
   Anovo.Presentadores.Clientes in 'Src\Presentadores\Anovo.Presentadores.Clientes.pas',
-  Anovo.Datos.Memoria in 'Src\Datos\Anovo.Datos.Memoria.pas' {dmMemoria: TDataModule};
+  Anovo.Datos.Memoria in 'Src\Datos\Anovo.Datos.Memoria.pas' {dmMemoria: TDataModule},
+  Anovo.Formato in 'Src\Common\Anovo.Formato.pas',
+  Anovo.Validacion in 'Src\Common\Anovo.Validacion.pas',
+  Anovo.Mapeo.Datos in 'Src\Common\Anovo.Mapeo.Datos.pas';
 
 {$R *.res}
 
@@ -51,6 +62,8 @@ begin
 
   Application.Initialize;
   Application.MainFormOnTaskbar := true;
+  // Los campos con Required avisan solos al salir del control.
+  EngancharRequeridos;
   Application.CreateForm(TdmIconos, dmIconos);
   Application.CreateForm(TdmMemoria, dmMemoria);
   lLogin := TfrmLogin.Create(nil);

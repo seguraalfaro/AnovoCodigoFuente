@@ -1,6 +1,7 @@
 object dmMemoria: TdmMemoria
   OldCreateOrder = True
-  Height = 484
+  OnCreate = DataModuleCreate
+  Height = 518
   Width = 1033
   object mtClientes: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -31,8 +32,8 @@ object dmMemoria: TdmMemoria
       FieldName = 'CORREO'
       Size = 150
     end
-    object mtClientesCONSENTIMIENTO: TStringField
-      FieldName = 'CONSENTIMIENTO'
+    object mtClientesCONSENTIMIENTO_ESTADO: TStringField
+      FieldName = 'CONSENTIMIENTO_ESTADO'
     end
     object mtClientesACCIONES: TStringField
       FieldName = 'ACCIONES'
@@ -47,7 +48,7 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 184
+    Left = 128
     Top = 24
     object mtClienteDetalleID: TIntegerField
       FieldName = 'ID'
@@ -67,12 +68,23 @@ object dmMemoria: TdmMemoria
     object mtClienteDetalleTIPO_IDENTIFICACION: TSmallintField
       FieldName = 'TIPO_IDENTIFICACION'
     end
+    object mtClienteDetalleTIPO_IDENTIFICACION_TEXTO: TStringField
+      DisplayLabel = 'Tipo de identificaci'#243'n'
+      FieldKind = fkLookup
+      FieldName = 'TIPO_IDENTIFICACION_TEXTO'
+      LookupDataSet = mtTiposIdentificacion
+      LookupKeyFields = 'ID'
+      LookupResultField = 'NOMBRE'
+      KeyFields = 'TIPO_IDENTIFICACION'
+      Lookup = True
+    end
     object mtClienteDetalleCONTACTO: TStringField
       FieldName = 'CONTACTO'
       Size = 120
     end
     object mtClienteDetalleTELEFONO: TStringField
       FieldName = 'TELEFONO'
+      EditMask = '0000-0000;1;_'
       Size = 30
     end
     object mtClienteDetalleCORREO: TStringField
@@ -123,7 +135,7 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 288
+    Left = 200
     Top = 24
     object mtContactosID: TIntegerField
       FieldName = 'ID'
@@ -132,12 +144,13 @@ object dmMemoria: TdmMemoria
       FieldName = 'NOMBRE'
       Size = 120
     end
-    object mtContactosCARGO: TStringField
-      FieldName = 'CARGO'
+    object mtContactosAREA: TStringField
+      FieldName = 'AREA'
       Size = 60
     end
     object mtContactosTELEFONO: TStringField
       FieldName = 'TELEFONO'
+      EditMask = '0000-0000;1;_'
       Size = 30
     end
     object mtContactosCORREO: TStringField
@@ -161,21 +174,21 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 408
+    Left = 280
     Top = 24
-    object mtConsentimientosMOMENTO: TDateTimeField
-      FieldName = 'MOMENTO'
+    object mtConsentimientosFECHA: TDateTimeField
+      FieldName = 'FECHA'
       DisplayFormat = 'dd/mm/yyyy hh:nn'
     end
     object mtConsentimientosACCION: TStringField
       FieldName = 'ACCION'
       Size = 40
     end
-    object mtConsentimientosVERSION: TStringField
-      FieldName = 'VERSION'
+    object mtConsentimientosVERSION_TEXTO: TStringField
+      FieldName = 'VERSION_TEXTO'
     end
-    object mtConsentimientosUSUARIO: TStringField
-      FieldName = 'USUARIO'
+    object mtConsentimientosFIRMANTE_NOMBRE: TStringField
+      FieldName = 'FIRMANTE_NOMBRE'
       Size = 60
     end
   end
@@ -187,33 +200,37 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 528
+    Left = 704
     Top = 24
     object mtClienteCotizacionesID: TIntegerField
       FieldName = 'ID'
     end
-    object mtClienteCotizacionesCODIGO: TStringField
-      FieldName = 'CODIGO'
+    object mtClienteCotizacionesNUMERO: TStringField
+      FieldName = 'NUMERO'
     end
     object mtClienteCotizacionesTIPO: TStringField
       FieldName = 'TIPO'
       Size = 60
     end
-    object mtClienteCotizacionesFECHA: TDateField
-      FieldName = 'FECHA'
+    object mtClienteCotizacionesFECHA_ELABORACION: TDateField
+      FieldName = 'FECHA_ELABORACION'
       DisplayFormat = 'dd/mm/yyyy'
     end
     object mtClienteCotizacionesASESOR: TStringField
       FieldName = 'ASESOR'
       Size = 80
     end
-    object mtClienteCotizacionesMONTO: TCurrencyField
-      FieldName = 'MONTO'
+    object mtClienteCotizacionesMONTO_TOTAL: TCurrencyField
+      FieldName = 'MONTO_TOTAL'
       DisplayFormat = '#,##0.00'
       currency = False
     end
     object mtClienteCotizacionesESTADO: TStringField
       FieldName = 'ESTADO'
+    end
+    object mtClienteCotizacionesACCIONES: TStringField
+      FieldName = 'ACCIONES'
+      Size = 1
     end
   end
   object mtSolicitudes: TFDMemTable
@@ -224,8 +241,8 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 648
-    Top = 24
+    Left = 800
+    Top = 40
     object mtSolicitudesID: TIntegerField
       FieldName = 'ID'
     end
@@ -240,8 +257,8 @@ object dmMemoria: TdmMemoria
       FieldName = 'ASESOR'
       Size = 80
     end
-    object mtSolicitudesRECIBIDA: TDateTimeField
-      FieldName = 'RECIBIDA'
+    object mtSolicitudesFECHA_RECEPCION: TDateTimeField
+      FieldName = 'FECHA_RECEPCION'
       DisplayFormat = 'dd/mm/yyyy hh:nn'
     end
     object mtSolicitudesFOTOS: TIntegerField
@@ -267,8 +284,8 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 48
-    Top = 88
+    Left = 32
+    Top = 312
     object mtPorCotizarID: TIntegerField
       FieldName = 'ID'
     end
@@ -279,8 +296,8 @@ object dmMemoria: TdmMemoria
       FieldName = 'CLIENTE'
       Size = 120
     end
-    object mtPorCotizarFECHA: TDateField
-      FieldName = 'FECHA'
+    object mtPorCotizarFECHA_RECEPCION: TDateField
+      FieldName = 'FECHA_RECEPCION'
       DisplayFormat = 'dd/mm/yyyy'
     end
     object mtPorCotizarASESOR: TStringField
@@ -303,28 +320,28 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 168
-    Top = 88
+    Left = 152
+    Top = 312
     object mtPorAprobarID: TIntegerField
       FieldName = 'ID'
     end
-    object mtPorAprobarCODIGO: TStringField
-      FieldName = 'CODIGO'
+    object mtPorAprobarNUMERO: TStringField
+      FieldName = 'NUMERO'
     end
     object mtPorAprobarCLIENTE: TStringField
       FieldName = 'CLIENTE'
       Size = 120
     end
-    object mtPorAprobarFECHA: TDateField
-      FieldName = 'FECHA'
+    object mtPorAprobarFECHA_ELABORACION: TDateField
+      FieldName = 'FECHA_ELABORACION'
       DisplayFormat = 'dd/mm/yyyy'
     end
     object mtPorAprobarASESOR: TStringField
       FieldName = 'ASESOR'
       Size = 80
     end
-    object mtPorAprobarMONTO: TCurrencyField
-      FieldName = 'MONTO'
+    object mtPorAprobarMONTO_TOTAL: TCurrencyField
+      FieldName = 'MONTO_TOTAL'
       DisplayFormat = '#,##0.00'
       currency = False
     end
@@ -344,28 +361,28 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 288
-    Top = 88
+    Left = 272
+    Top = 312
     object mtCotizacionesID: TIntegerField
       FieldName = 'ID'
     end
-    object mtCotizacionesCODIGO: TStringField
-      FieldName = 'CODIGO'
+    object mtCotizacionesNUMERO: TStringField
+      FieldName = 'NUMERO'
     end
     object mtCotizacionesCLIENTE: TStringField
       FieldName = 'CLIENTE'
       Size = 120
     end
-    object mtCotizacionesFECHA: TDateField
-      FieldName = 'FECHA'
+    object mtCotizacionesFECHA_ELABORACION: TDateField
+      FieldName = 'FECHA_ELABORACION'
       DisplayFormat = 'dd/mm/yyyy'
     end
     object mtCotizacionesASESOR: TStringField
       FieldName = 'ASESOR'
       Size = 80
     end
-    object mtCotizacionesMONTO: TCurrencyField
-      FieldName = 'MONTO'
+    object mtCotizacionesMONTO_TOTAL: TCurrencyField
+      FieldName = 'MONTO_TOTAL'
       DisplayFormat = '#,##0.00'
       currency = False
     end
@@ -385,8 +402,8 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 408
-    Top = 88
+    Left = 392
+    Top = 312
     object mtCotizacionLineasID: TIntegerField
       FieldName = 'ID'
     end
@@ -397,16 +414,16 @@ object dmMemoria: TdmMemoria
       FieldName = 'DESCRIPCION'
       Size = 120
     end
-    object mtCotizacionLineasUNIDAD: TStringField
-      FieldName = 'UNIDAD'
+    object mtCotizacionLineasUNIDAD_MEDIDA: TStringField
+      FieldName = 'UNIDAD_MEDIDA'
       Size = 15
     end
     object mtCotizacionLineasCANTIDAD: TFloatField
       FieldName = 'CANTIDAD'
       DisplayFormat = '#,##0.00'
     end
-    object mtCotizacionLineasPRECIO: TCurrencyField
-      FieldName = 'PRECIO'
+    object mtCotizacionLineasPRECIO_UNITARIO: TCurrencyField
+      FieldName = 'PRECIO_UNITARIO'
       DisplayFormat = '#,##0.00'
       currency = False
     end
@@ -428,24 +445,24 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 528
-    Top = 88
+    Left = 512
+    Top = 312
     object mtRecientesID: TIntegerField
       FieldName = 'ID'
     end
-    object mtRecientesCODIGO: TStringField
-      FieldName = 'CODIGO'
+    object mtRecientesNUMERO: TStringField
+      FieldName = 'NUMERO'
     end
     object mtRecientesCLIENTE: TStringField
       FieldName = 'CLIENTE'
       Size = 120
     end
-    object mtRecientesFECHA: TDateField
-      FieldName = 'FECHA'
+    object mtRecientesFECHA_ELABORACION: TDateField
+      FieldName = 'FECHA_ELABORACION'
       DisplayFormat = 'dd/mm/yyyy'
     end
-    object mtRecientesMONTO: TCurrencyField
-      FieldName = 'MONTO'
+    object mtRecientesMONTO_TOTAL: TCurrencyField
+      FieldName = 'MONTO_TOTAL'
       DisplayFormat = '#,##0.00'
       currency = False
     end
@@ -461,28 +478,28 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 648
-    Top = 88
+    Left = 632
+    Top = 312
     object mtGerenciaPendientesID: TIntegerField
       FieldName = 'ID'
     end
-    object mtGerenciaPendientesCODIGO: TStringField
-      FieldName = 'CODIGO'
+    object mtGerenciaPendientesNUMERO: TStringField
+      FieldName = 'NUMERO'
     end
     object mtGerenciaPendientesCLIENTE: TStringField
       FieldName = 'CLIENTE'
       Size = 120
     end
-    object mtGerenciaPendientesFECHA: TDateField
-      FieldName = 'FECHA'
+    object mtGerenciaPendientesFECHA_ELABORACION: TDateField
+      FieldName = 'FECHA_ELABORACION'
       DisplayFormat = 'dd/mm/yyyy'
     end
     object mtGerenciaPendientesASESOR: TStringField
       FieldName = 'ASESOR'
       Size = 80
     end
-    object mtGerenciaPendientesMONTO: TCurrencyField
-      FieldName = 'MONTO'
+    object mtGerenciaPendientesMONTO_TOTAL: TCurrencyField
+      FieldName = 'MONTO_TOTAL'
       DisplayFormat = '#,##0.00'
       currency = False
     end
@@ -502,28 +519,28 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 48
-    Top = 152
+    Left = 32
+    Top = 376
     object mtGerenciaRecientesID: TIntegerField
       FieldName = 'ID'
     end
-    object mtGerenciaRecientesCODIGO: TStringField
-      FieldName = 'CODIGO'
+    object mtGerenciaRecientesNUMERO: TStringField
+      FieldName = 'NUMERO'
     end
     object mtGerenciaRecientesCLIENTE: TStringField
       FieldName = 'CLIENTE'
       Size = 120
     end
-    object mtGerenciaRecientesFECHA: TDateField
-      FieldName = 'FECHA'
+    object mtGerenciaRecientesFECHA_ELABORACION: TDateField
+      FieldName = 'FECHA_ELABORACION'
       DisplayFormat = 'dd/mm/yyyy'
     end
     object mtGerenciaRecientesASESOR: TStringField
       FieldName = 'ASESOR'
       Size = 80
     end
-    object mtGerenciaRecientesMONTO: TCurrencyField
-      FieldName = 'MONTO'
+    object mtGerenciaRecientesMONTO_TOTAL: TCurrencyField
+      FieldName = 'MONTO_TOTAL'
       DisplayFormat = '#,##0.00'
       currency = False
     end
@@ -543,8 +560,8 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 168
-    Top = 152
+    Left = 152
+    Top = 376
     object mtMaterialesID: TIntegerField
       FieldName = 'ID'
     end
@@ -555,21 +572,21 @@ object dmMemoria: TdmMemoria
       FieldName = 'DESCRIPCION'
       Size = 120
     end
-    object mtMaterialesUNIDAD: TStringField
-      FieldName = 'UNIDAD'
+    object mtMaterialesUNIDAD_MEDIDA: TStringField
+      FieldName = 'UNIDAD_MEDIDA'
       Size = 15
     end
-    object mtMaterialesPRECIO: TCurrencyField
-      FieldName = 'PRECIO'
+    object mtMaterialesPRECIO_UNITARIO: TCurrencyField
+      FieldName = 'PRECIO_UNITARIO'
       DisplayFormat = '#,##0.00'
       currency = False
     end
-    object mtMaterialesVIGENTE: TDateField
-      FieldName = 'VIGENTE'
+    object mtMaterialesFECHA_VIGENCIA: TDateField
+      FieldName = 'FECHA_VIGENCIA'
       DisplayFormat = 'dd/mm/yyyy'
     end
-    object mtMaterialesESTADO: TStringField
-      FieldName = 'ESTADO'
+    object mtMaterialesACTIVO: TStringField
+      FieldName = 'ACTIVO'
       Size = 15
     end
     object mtMaterialesACCIONES: TStringField
@@ -585,8 +602,8 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 288
-    Top = 152
+    Left = 272
+    Top = 376
     object mtManoObraID: TIntegerField
       FieldName = 'ID'
     end
@@ -597,21 +614,21 @@ object dmMemoria: TdmMemoria
       FieldName = 'DESCRIPCION'
       Size = 120
     end
-    object mtManoObraUNIDAD: TStringField
-      FieldName = 'UNIDAD'
+    object mtManoObraUNIDAD_MEDIDA: TStringField
+      FieldName = 'UNIDAD_MEDIDA'
       Size = 15
     end
-    object mtManoObraTARIFA: TCurrencyField
-      FieldName = 'TARIFA'
+    object mtManoObraCOSTO_UNITARIO: TCurrencyField
+      FieldName = 'COSTO_UNITARIO'
       DisplayFormat = '#,##0.00'
       currency = False
     end
-    object mtManoObraVIGENTE: TDateField
-      FieldName = 'VIGENTE'
+    object mtManoObraFECHA_VIGENCIA: TDateField
+      FieldName = 'FECHA_VIGENCIA'
       DisplayFormat = 'dd/mm/yyyy'
     end
-    object mtManoObraESTADO: TStringField
-      FieldName = 'ESTADO'
+    object mtManoObraACTIVO: TStringField
+      FieldName = 'ACTIVO'
       Size = 15
     end
     object mtManoObraACCIONES: TStringField
@@ -627,33 +644,33 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 408
-    Top = 152
+    Left = 392
+    Top = 376
     object mtMaquinasID: TIntegerField
       FieldName = 'ID'
     end
     object mtMaquinasCODIGO: TStringField
       FieldName = 'CODIGO'
     end
-    object mtMaquinasDESCRIPCION: TStringField
-      FieldName = 'DESCRIPCION'
+    object mtMaquinasNOMBRE: TStringField
+      FieldName = 'NOMBRE'
       Size = 120
     end
     object mtMaquinasUNIDAD: TStringField
       FieldName = 'UNIDAD'
       Size = 15
     end
-    object mtMaquinasTARIFA: TCurrencyField
-      FieldName = 'TARIFA'
+    object mtMaquinasCOSTO_HORA: TCurrencyField
+      FieldName = 'COSTO_HORA'
       DisplayFormat = '#,##0.00'
       currency = False
     end
-    object mtMaquinasVIGENTE: TDateField
-      FieldName = 'VIGENTE'
+    object mtMaquinasFECHA_VIGENCIA: TDateField
+      FieldName = 'FECHA_VIGENCIA'
       DisplayFormat = 'dd/mm/yyyy'
     end
-    object mtMaquinasESTADO: TStringField
-      FieldName = 'ESTADO'
+    object mtMaquinasACTIVO: TStringField
+      FieldName = 'ACTIVO'
       Size = 15
     end
     object mtMaquinasACCIONES: TStringField
@@ -669,24 +686,24 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 528
-    Top = 152
+    Left = 512
+    Top = 376
     object mtTiposTrabajoID: TIntegerField
       FieldName = 'ID'
     end
     object mtTiposTrabajoCODIGO: TStringField
       FieldName = 'CODIGO'
     end
-    object mtTiposTrabajoDESCRIPCION: TStringField
-      FieldName = 'DESCRIPCION'
+    object mtTiposTrabajoNOMBRE: TStringField
+      FieldName = 'NOMBRE'
       Size = 120
     end
     object mtTiposTrabajoMARGEN: TFloatField
       FieldName = 'MARGEN'
       DisplayFormat = '#,##0.00'
     end
-    object mtTiposTrabajoESTADO: TStringField
-      FieldName = 'ESTADO'
+    object mtTiposTrabajoACTIVO: TStringField
+      FieldName = 'ACTIVO'
       Size = 15
     end
     object mtTiposTrabajoACCIONES: TStringField
@@ -702,14 +719,14 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 648
-    Top = 152
-    object mtHistorialPreciosVIGENTE: TDateField
-      FieldName = 'VIGENTE'
+    Left = 632
+    Top = 376
+    object mtHistorialPreciosFECHA_VIGENCIA: TDateField
+      FieldName = 'FECHA_VIGENCIA'
       DisplayFormat = 'dd/mm/yyyy'
     end
-    object mtHistorialPreciosPRECIO: TCurrencyField
-      FieldName = 'PRECIO'
+    object mtHistorialPreciosPRECIO_UNITARIO: TCurrencyField
+      FieldName = 'PRECIO_UNITARIO'
       DisplayFormat = '#,##0.00'
       currency = False
     end
@@ -717,8 +734,8 @@ object dmMemoria: TdmMemoria
       FieldName = 'VARIACION'
       Size = 15
     end
-    object mtHistorialPreciosUSUARIO: TStringField
-      FieldName = 'USUARIO'
+    object mtHistorialPreciosMODIFICADO_POR: TStringField
+      FieldName = 'MODIFICADO_POR'
       Size = 60
     end
     object mtHistorialPreciosREGISTRADO: TDateTimeField
@@ -734,17 +751,17 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 48
-    Top = 216
+    Left = 32
+    Top = 440
     object mtFotosID: TIntegerField
       FieldName = 'ID'
     end
-    object mtFotosARCHIVO: TStringField
-      FieldName = 'ARCHIVO'
+    object mtFotosNOMBRE_ARCHIVO: TStringField
+      FieldName = 'NOMBRE_ARCHIVO'
       Size = 180
     end
-    object mtFotosTOMADA: TDateTimeField
-      FieldName = 'TOMADA'
+    object mtFotosFECHA_CREACION: TDateTimeField
+      FieldName = 'FECHA_CREACION'
       DisplayFormat = 'dd/mm/yyyy hh:nn'
     end
     object mtFotosACCIONES: TStringField
@@ -760,8 +777,8 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 168
-    Top = 216
+    Left = 152
+    Top = 440
     object mtUsuariosID: TIntegerField
       FieldName = 'ID'
     end
@@ -784,8 +801,8 @@ object dmMemoria: TdmMemoria
       FieldName = 'ULTIMO_ACCESO'
       DisplayFormat = 'dd/mm/yyyy hh:nn'
     end
-    object mtUsuariosESTADO: TStringField
-      FieldName = 'ESTADO'
+    object mtUsuariosACTIVO: TStringField
+      FieldName = 'ACTIVO'
       Size = 15
     end
     object mtUsuariosACCIONES: TStringField
@@ -801,16 +818,16 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 288
-    Top = 216
+    Left = 272
+    Top = 440
     object mtRolesID: TIntegerField
       FieldName = 'ID'
     end
-    object mtRolesROL: TStringField
-      FieldName = 'ROL'
+    object mtRolesCODIGO: TStringField
+      FieldName = 'CODIGO'
     end
-    object mtRolesDESCRIPCION: TStringField
-      FieldName = 'DESCRIPCION'
+    object mtRolesNOMBRE: TStringField
+      FieldName = 'NOMBRE'
       Size = 140
     end
     object mtRolesUSUARIOS: TIntegerField
@@ -819,8 +836,8 @@ object dmMemoria: TdmMemoria
     object mtRolesPERMISOS: TIntegerField
       FieldName = 'PERMISOS'
     end
-    object mtRolesESTADO: TStringField
-      FieldName = 'ESTADO'
+    object mtRolesACTIVO: TStringField
+      FieldName = 'ACTIVO'
       Size = 15
     end
     object mtRolesACCIONES: TStringField
@@ -836,8 +853,8 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 408
-    Top = 216
+    Left = 392
+    Top = 440
     object mtPermisosID: TIntegerField
       FieldName = 'ID'
     end
@@ -865,10 +882,10 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 528
-    Top = 216
-    object mtAuditoriaMOMENTO: TDateTimeField
-      FieldName = 'MOMENTO'
+    Left = 512
+    Top = 440
+    object mtAuditoriaFECHA: TDateTimeField
+      FieldName = 'FECHA'
       DisplayFormat = 'dd/mm/yyyy hh:nn'
     end
     object mtAuditoriaUSUARIO: TStringField
@@ -883,8 +900,8 @@ object dmMemoria: TdmMemoria
       FieldName = 'ENTIDAD'
       Size = 40
     end
-    object mtAuditoriaREFERENCIA: TStringField
-      FieldName = 'REFERENCIA'
+    object mtAuditoriaENTIDAD_ID: TStringField
+      FieldName = 'ENTIDAD_ID'
       Size = 30
     end
     object mtAuditoriaORIGEN: TStringField
@@ -896,10 +913,223 @@ object dmMemoria: TdmMemoria
       Size = 1
     end
   end
+  object mtTiposIdentificacion: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 600
+    Top = 24
+    object mtTiposIdentificacionID: TSmallintField
+      FieldName = 'ID'
+    end
+    object mtTiposIdentificacionNOMBRE: TStringField
+      FieldName = 'NOMBRE'
+    end
+  end
+  object dsTiposIdentificacion: TDataSource
+    AutoEdit = False
+    DataSet = mtTiposIdentificacion
+    Left = 600
+    Top = 80
+  end
   object dsClientes: TDataSource
     AutoEdit = False
     DataSet = mtClientes
-    Left = 104
+    Left = 48
+    Top = 80
+  end
+  object dsClienteDetalle: TDataSource
+    AutoEdit = False
+    DataSet = mtClienteDetalle
+    Left = 120
+    Top = 80
+  end
+  object dsContactos: TDataSource
+    AutoEdit = False
+    DataSet = mtContactos
+    Left = 200
+    Top = 80
+  end
+  object dsConsentimientos: TDataSource
+    AutoEdit = False
+    DataSet = mtConsentimientos
+    Left = 280
+    Top = 80
+  end
+  object FDGUIxWaitCursor1: TFDGUIxWaitCursor
+    Provider = 'Forms'
+    Left = 936
+    Top = 336
+  end
+  object mtClienteNuevo: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 384
     Top = 24
+    object mtClienteNuevoUUID_LOCAL: TStringField
+      FieldName = 'UUID_LOCAL'
+      Size = 36
+    end
+    object mtClienteNuevoNOMBRE: TStringField
+      DisplayLabel = 'Nombre o raz'#243'n social'
+      FieldName = 'NOMBRE'
+      Required = True
+      Size = 120
+    end
+    object mtClienteNuevoIDENTIFICACION: TStringField
+      DisplayLabel = 'Identificaci'#243'n'
+      FieldName = 'IDENTIFICACION'
+      Required = True
+      Size = 30
+    end
+    object mtClienteNuevoTIPO_IDENTIFICACION: TSmallintField
+      DisplayLabel = 'Tipo de identificaci'#243'n'
+      FieldName = 'TIPO_IDENTIFICACION'
+      Required = True
+    end
+    object mtClienteNuevoTIPO_IDENTIFICACION_TEXTO: TStringField
+      DisplayLabel = 'Tipo de identificaci'#243'n'
+      FieldKind = fkLookup
+      FieldName = 'TIPO_IDENTIFICACION_TEXTO'
+      LookupDataSet = mtTiposIdentificacion
+      LookupKeyFields = 'ID'
+      LookupResultField = 'NOMBRE'
+      KeyFields = 'TIPO_IDENTIFICACION'
+      Lookup = True
+    end
+    object mtClienteNuevoCONTACTO: TStringField
+      FieldName = 'CONTACTO'
+      Size = 120
+    end
+    object mtClienteNuevoTELEFONO: TStringField
+      DisplayLabel = 'Tel'#233'fono'
+      FieldName = 'TELEFONO'
+      Required = True
+      EditMask = '0000-0000;1;_'
+      Size = 30
+    end
+    object mtClienteNuevoCORREO: TStringField
+      DisplayLabel = 'Correo'
+      FieldName = 'CORREO'
+      Required = True
+      Size = 150
+    end
+    object mtClienteNuevoDIRECCION: TStringField
+      DisplayLabel = 'Direcci'#243'n'
+      FieldName = 'DIRECCION'
+      Required = True
+      Size = 500
+    end
+    object mtClienteNuevoLATITUD: TFloatField
+      FieldName = 'LATITUD'
+      DisplayFormat = '0.000000'
+    end
+    object mtClienteNuevoLONGITUD: TFloatField
+      FieldName = 'LONGITUD'
+      DisplayFormat = '0.000000'
+    end
+    object mtClienteNuevoACTIVO: TBooleanField
+      FieldName = 'ACTIVO'
+    end
+    object mtClienteNuevoEXONERADO: TBooleanField
+      FieldName = 'EXONERADO'
+    end
+    object mtClienteNuevoCODIGO_EXONERACION: TStringField
+      DisplayLabel = 'C'#243'digo de exoneraci'#243'n'
+      FieldName = 'CODIGO_EXONERACION'
+      Required = True
+      Size = 30
+    end
+    object mtClienteNuevoCONSENTIMIENTO_ESTADO: TStringField
+      FieldName = 'CONSENTIMIENTO_ESTADO'
+    end
+    object mtClienteNuevoCONSENTIMIENTO_FECHA: TDateTimeField
+      FieldName = 'CONSENTIMIENTO_FECHA'
+    end
+    object mtClienteNuevoCONSENTIMIENTO_VERSION: TStringField
+      FieldName = 'CONSENTIMIENTO_VERSION'
+      Size = 10
+    end
+    object mtClienteNuevoANONIMIZADO: TBooleanField
+      FieldName = 'ANONIMIZADO'
+    end
+  end
+  object mtContactoNuevo: TFDMemTable
+    BeforePost = mtContactoNuevoBeforePost
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 496
+    Top = 24
+    object mtContactoNuevoUUID_LOCAL: TStringField
+      FieldName = 'UUID_LOCAL'
+      Size = 36
+    end
+    object mtContactoNuevoCLIENTE_ID: TIntegerField
+      FieldName = 'CLIENTE_ID'
+    end
+    object mtContactoNuevoNOMBRE: TStringField
+      DisplayLabel = 'Nombre'
+      FieldName = 'NOMBRE'
+      Required = True
+      Size = 120
+    end
+    object mtContactoNuevoAREA: TStringField
+      DisplayLabel = #193'rea'
+      FieldName = 'AREA'
+      Size = 80
+    end
+    object mtContactoNuevoTELEFONO: TStringField
+      DisplayLabel = 'Tel'#233'fono'
+      FieldName = 'TELEFONO'
+      Size = 30
+    end
+    object mtContactoNuevoCELULAR: TStringField
+      DisplayLabel = 'Celular'
+      FieldName = 'CELULAR'
+      EditMask = '0000-0000;1;_'
+      Size = 30
+    end
+    object mtContactoNuevoCORREO: TStringField
+      DisplayLabel = 'Correo'
+      FieldName = 'CORREO'
+      Required = True
+      Size = 150
+    end
+    object mtContactoNuevoPRINCIPAL: TBooleanField
+      FieldName = 'PRINCIPAL'
+    end
+    object mtContactoNuevoCONSENTIMIENTO_ESTADO: TStringField
+      FieldName = 'CONSENTIMIENTO_ESTADO'
+    end
+    object mtContactoNuevoANONIMIZADO: TBooleanField
+      FieldName = 'ANONIMIZADO'
+    end
+    object mtContactoNuevoACTIVO: TBooleanField
+      FieldName = 'ACTIVO'
+    end
+  end
+  object dsClienteNuevo: TDataSource
+    DataSet = mtClienteNuevo
+    Left = 384
+    Top = 80
+  end
+  object dsContactoNuevo: TDataSource
+    DataSet = mtContactoNuevo
+    Left = 488
+    Top = 80
   end
 end

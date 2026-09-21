@@ -17,17 +17,10 @@ interface
 
 uses
   Anovo.Api.Intf.Clientes,
+  Anovo.Cancelacion,
   Anovo.Vistas.Intf.Clientes;
 
 type
-  // Compartida entre el presentador y las tareas en vuelo: la tarea la
-  // conserva aunque el presentador ya no exista.
-  ICancelacion = interface
-    ['{D2B87F16-4A93-4E0C-8C51-6F3A90E27B18}']
-    function Cancelada: Boolean;
-    procedure Cancelar;
-  end;
-
   TPresentadorClientes = class
   private
     FVista: IVistaClientes;
@@ -38,6 +31,8 @@ type
     FPagina: Integer;
     FTotalPaginas: Integer;
     FSolicitud: Integer;
+    // El cliente cuya ficha esta abierta, o 0 si se ve el listado.
+    FDetalle: Integer;
     procedure Cargar;
   public
     constructor Create(const AVista: IVistaClientes;
@@ -52,6 +47,7 @@ type
     procedure PaginaSiguiente;
     procedure PaginaAnterior;
     procedure VerDetalle(const AId: Integer);
+    procedure VolverAlListado;
     // No toca la vista: se prueba asignando permisos a TSesion.
     class function AccionesPermitidas: TAccionesCliente;
     class function PuedeCrear: Boolean;
@@ -71,15 +67,6 @@ uses
   Anovo.DTOs.Clientes,
   Anovo.Sesion;
 
-type
-  TCancelacion = class(TInterfacedObject, ICancelacion)
-  private
-    FCancelada: Boolean;
-  public
-    function Cancelada: Boolean;
-    procedure Cancelar;
-  end;
-
 const
   MENSAJE_INESPERADO = 'Ocurrio un error inesperado al cargar los ' +
     'clientes. Intente de nuevo; si persiste, avise al administrador.';
@@ -90,18 +77,6 @@ const
 
   // Mismo orden que TAccionCliente. Separados por ; vale cualquiera.
   PERMISOS_ACCION: array [TAccionCliente] of string = ('clientes.ver');
-
-// TCancelacion
-
-function TCancelacion.Cancelada: Boolean;
-begin
-  Result := FCancelada;
-end;
-
-procedure TCancelacion.Cancelar;
-begin
-  FCancelada := True;
-end;
 
 // TPresentadorClientes
 
@@ -187,7 +162,16 @@ procedure TPresentadorClientes.VerDetalle(const AId: Integer);
 begin
   if AId <= 0 then
     Exit;
+  FDetalle := AId;
   FVista.MostrarDetalle(AId);
+end;
+
+procedure TPresentadorClientes.VolverAlListado;
+begin
+  FDetalle := 0;
+  FVista.MostrarListado;
+  // Recargar la pagina actual queda pendiente: sin esto, un cliente que se
+  // edito en la ficha se sigue viendo como estaba en el listado.
 end;
 
 procedure TPresentadorClientes.Cargar;

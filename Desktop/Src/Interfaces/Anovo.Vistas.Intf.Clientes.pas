@@ -34,6 +34,8 @@ type
     procedure MostrarError(const AMensaje: string);
     // Abre la ficha del cliente encima del listado.
     procedure MostrarDetalle(const AId: Integer);
+    // Cierra la ficha y vuelve al listado, con la busqueda donde estaba.
+    procedure MostrarListado;
   end;
 
 implementation

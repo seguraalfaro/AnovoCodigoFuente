@@ -135,10 +135,12 @@ object fraClientes: TfraClientes
     BevelOuter = bvNone
     TabOrder = 2
     object grClientes: TrDBGrid
-      Left = 0
-      Top = 0
-      Width = 954
-      Height = 392
+      AlignWithMargins = True
+      Left = 20
+      Top = 3
+      Width = 931
+      Height = 386
+      Margins.Left = 20
       Align = alClient
       BorderStyle = bsNone
       DataSource = dmMemoria.dsClientes
@@ -182,7 +184,7 @@ object fraClientes: TfraClientes
         end
         item
           Expanded = False
-          FieldName = 'CONSENTIMIENTO'
+          FieldName = 'CONSENTIMIENTO_ESTADO'
           Title.Caption = 'Consentimiento'
           Width = 102
           Visible = True

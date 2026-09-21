@@ -76,6 +76,7 @@ begin
   // OnAfterRouting, que corre despues de esto.
   try
     LimpiarUsuario;
+    LimpiarDetalle;
   except
     on E: Exception do
         LogE('No se pudo limpiar el contexto de auditoria: ' + E.Message);

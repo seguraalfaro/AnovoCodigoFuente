@@ -229,10 +229,10 @@ type
   [MVCNameCase(ncSnakeCase)]
   TClienteEdicionDTO = class(TClienteNuevoDTO)
   private
-    fObjVersion: NullableInteger;
+    fObjVersion: NullableInt32;
   public
     [MVCNameAs('objversion')]
-    property ObjVersion: NullableInteger read fObjVersion write fObjVersion;
+    property ObjVersion: NullableInt32 read fObjVersion write fObjVersion;
   end;
 
   // Espeja CLIENTE_CONTACTOS. uuid_local es obligatorio en el registro con
@@ -278,10 +278,10 @@ type
   [MVCNameCase(ncSnakeCase)]
   TContactoEdicionDTO = class(TContactoNuevoDTO)
   private
-    fObjVersion: NullableInteger;
+    fObjVersion: NullableInt32;
   public
     [MVCNameAs('objversion')]
-    property ObjVersion: NullableInteger read fObjVersion write fObjVersion;
+    property ObjVersion: NullableInt32 read fObjVersion write fObjVersion;
   end;
 
   // Espeja CLIENTE_CONSENTIMIENTO_HISTORIAL. Dos campos no coinciden con la
@@ -331,7 +331,7 @@ type
     fFirmanteNombre: string;
     fFirmanteIdentificacion: string;
     fOrigen: NullableString;
-    fObjVersion: NullableInteger;
+    fObjVersion: NullableInt32;
   public
     // Quien pidio la revocacion, si es uno de los contactos del cliente.
     property ClienteContactoId: NullableInt32 read fClienteContactoId
@@ -342,7 +342,7 @@ type
     // De donde viene: escritorio o movil. Lo dice quien llama.
     property Origen: NullableString read fOrigen write fOrigen;
     [MVCNameAs('objversion')]
-    property ObjVersion: NullableInteger read fObjVersion write fObjVersion;
+    property ObjVersion: NullableInt32 read fObjVersion write fObjVersion;
   end;
 
   // Los datos del cliente completo entran todos o no entra nada.

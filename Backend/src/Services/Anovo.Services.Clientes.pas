@@ -75,6 +75,7 @@ uses
   System.StrUtils,
   MVCFramework.ActiveRecord,
   MVCFramework.Repository,
+  Anovo.Auditoria.Contexto,
   Anovo.Errors;
 
 const
@@ -188,6 +189,7 @@ begin
   lCliente := TClientes.Create;
   try
     TMapeo.Copiar(ADto, lCliente);
+    FijarDetalle('Registro del cliente ' + ADto.Nombre);
     fRepo.Insert(lCliente);
     Result := lCliente.ID.ValueOrDefault;
   finally
@@ -224,6 +226,7 @@ begin
 
     // PUT reemplaza: lo que el DTO trae en null queda en null.
     TMapeo.Copiar(ADto, lCliente);
+    FijarDetalle('Edicion de los datos del cliente');
     try
       fRepo.Update(lCliente);
     except
@@ -255,6 +258,7 @@ begin
       Exit;
 
     lCliente.Activo := False;
+    FijarDetalle('Inactivacion del cliente');
     fRepo.Update(lCliente);
   finally
     lCliente.Free;
@@ -307,6 +311,7 @@ begin
       // consentimiento: el control esta en el movil y en el escritorio.
       lCliente := TClientes.Create;
       TMapeo.Copiar(ADto.Cliente, lCliente);
+      FijarDetalle('Registro con los datos completos desde el movil');
       fRepo.Insert(lCliente);
       lId := lCliente.ID.Value;
 
@@ -378,6 +383,7 @@ begin
     // El de la ruta manda sobre el del cuerpo: la ruta es la que dice de que
     // cliente es el contacto.
     lContacto.ClienteId := AId;
+    FijarDetalle('Contacto nuevo del cliente ' + AId.ToString);
     fContactos.Insert(lContacto);
     Result := lContacto.ID.Value;
   finally
@@ -406,6 +412,7 @@ begin
 
     TMapeo.Copiar(ADto, lContacto);
     lContacto.ClienteId := AId;
+    FijarDetalle('Edicion del contacto ' + AContactoId.ToString);
     try
       fContactos.Update(lContacto);
     except
@@ -434,6 +441,7 @@ begin
       Exit;
 
     lContacto.Activo := False;
+    FijarDetalle('Inactivacion del contacto ' + AContactoId.ToString);
     fContactos.Update(lContacto);
   finally
     lContacto.Free;
@@ -494,6 +502,8 @@ begin
     lFirma.Accion := ACCION_REVOCADO;
     lFirma.VersionTexto := lCliente.ConsentimientoVersion.ValueOrDefault;
     lFirma.Fecha := lFecha;
+    FijarDetalle('Revocacion del consentimiento pedida por ' +
+      ADto.FirmanteNombre);
     fConsentimientos.Insert(lFirma);
 
     // Y el estado del cliente, que es lo que este endpoint significa.

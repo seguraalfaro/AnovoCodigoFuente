@@ -66,14 +66,15 @@ object fraClienteDatos: TfraClienteDatos
     ActiveFont.Height = -12
     ActiveFont.Name = 'Segoe UI Semibold'
     ActiveFont.Style = []
+    OnChange = pstClienteChange
     ParentFont = False
   end
   object pnbottom: TRelativePanel
     AlignWithMargins = True
     Left = 3
-    Top = 552
+    Top = 544
     Width = 954
-    Height = 65
+    Height = 73
     ControlCollection = <
       item
         AlignBottomWithPanel = False
@@ -100,7 +101,7 @@ object fraClienteDatos: TfraClienteDatos
     Left = 3
     Top = 111
     Width = 954
-    Height = 435
+    Height = 427
     Align = alClient
     ActiveCard = CarDatos
     BevelOuter = bvNone
@@ -110,7 +111,7 @@ object fraClienteDatos: TfraClienteDatos
       Left = 0
       Top = 0
       Width = 954
-      Height = 435
+      Height = 427
       Caption = 'Card1'
       CardIndex = 0
       TabOrder = 1
@@ -118,7 +119,7 @@ object fraClienteDatos: TfraClienteDatos
         Left = 0
         Top = 0
         Width = 954
-        Height = 435
+        Height = 427
         ControlCollection = <
           item
             Control = tjIdentificacion
@@ -134,203 +135,339 @@ object fraClienteDatos: TfraClienteDatos
             AlignBottomWithPanel = False
             AlignHorizontalCenterWithPanel = False
             AlignLeftWithPanel = False
-            AlignRightWithPanel = True
-            AlignTopWithPanel = True
+            AlignRightWithPanel = False
+            AlignTopWithPanel = False
             AlignVerticalCenterWithPanel = False
             RightOf = tjIdentificacion
+          end
+          item
+            Control = btnEditarCliente
+            AlignBottomWithPanel = False
+            AlignHorizontalCenterWithPanel = False
+            AlignLeftWithPanel = False
+            AlignRightWithPanel = False
+            AlignTopWithPanel = False
+            AlignVerticalCenterWithPanel = False
+            Below = tjUbicacion
+            LeftOf = btnGuardarCliente
+          end
+          item
+            Control = btnGuardarCliente
+            AlignBottomWithPanel = False
+            AlignHorizontalCenterWithPanel = False
+            AlignLeftWithPanel = False
+            AlignRightWithPanel = False
+            AlignTopWithPanel = False
+            AlignVerticalCenterWithPanel = False
+            Below = tjUbicacion
+            LeftOf = btnCancelarEdicion
+          end
+          item
+            Control = btnCancelarEdicion
+            AlignBottomWithPanel = False
+            AlignHorizontalCenterWithPanel = False
+            AlignLeftWithPanel = False
+            AlignRightWith = tjUbicacion
+            AlignRightWithPanel = False
+            AlignTopWithPanel = False
+            AlignVerticalCenterWithPanel = False
+            Below = tjUbicacion
           end>
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitLeft = -3
         DesignSize = (
           954
-          435)
+          427)
         object tjIdentificacion: TPlanoTarjeta
           AlignWithMargins = True
           Left = 20
           Top = 3
-          Width = 477
-          Height = 300
+          Width = 450
+          Height = 374
           Margins.Left = 20
-          Caption = 'Identificaci'#243'n'
+          Caption = 'Informaci'#243'n general'
           Anchors = []
           TabOrder = 0
           object rDBEdit1: TrDBEdit
             Left = 16
             Top = 57
             Width = 353
-            Height = 21
+            Height = 23
             DataField = 'NOMBRE'
-            DataSource = dmMemoria.dsClientes
+            DataSource = dmMemoria.dsClienteDetalle
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -12
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
             TabOrder = 0
-            StyleElements = [seFont]
+            StyleElements = []
             ReadOnlyColor = 15987699
+            DBEditLabel.AlignWithMargins = True
+            DBEditLabel.Margins.Top = 5
             DBEditLabel.OwnCaption = 'Nombre'
+            DBEditLabel.Font.Charset = ANSI_CHARSET
+            DBEditLabel.Font.Color = clWindowText
+            DBEditLabel.Font.Height = -12
+            DBEditLabel.Font.Name = 'Segoe UI'
+            DBEditLabel.Font.Style = []
+            DBEditLabel.ParentFont = False
           end
           object rDBEdit2: TrDBEdit
             Left = 16
-            Top = 107
+            Top = 110
             Width = 353
-            Height = 21
+            Height = 23
             DataField = 'IDENTIFICACION'
-            DataSource = dmMemoria.dsClientes
+            DataSource = dmMemoria.dsClienteDetalle
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -12
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
             TabOrder = 1
-            StyleElements = [seFont]
+            StyleElements = []
             ReadOnlyColor = 15987699
+            DBEditLabel.AlignWithMargins = True
+            DBEditLabel.Margins.Top = 5
             DBEditLabel.OwnCaption = 'Identificaci'#243'n'
+            DBEditLabel.Font.Charset = ANSI_CHARSET
+            DBEditLabel.Font.Color = clWindowText
+            DBEditLabel.Font.Height = -12
+            DBEditLabel.Font.Name = 'Segoe UI'
+            DBEditLabel.Font.Style = []
+            DBEditLabel.ParentFont = False
           end
           object rDBEdit3: TrDBEdit
             Left = 16
-            Top = 157
+            Top = 161
             Width = 353
-            Height = 21
+            Height = 23
             DataField = 'TELEFONO'
-            DataSource = dmMemoria.dsClientes
+            DataSource = dmMemoria.dsClienteDetalle
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -12
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
             TabOrder = 2
-            StyleElements = [seFont]
+            StyleElements = []
             ReadOnlyColor = 15987699
+            DBEditLabel.AlignWithMargins = True
+            DBEditLabel.Margins.Top = 5
             DBEditLabel.OwnCaption = 'Tel'#233'fono'
+            DBEditLabel.Font.Charset = ANSI_CHARSET
+            DBEditLabel.Font.Color = clWindowText
+            DBEditLabel.Font.Height = -12
+            DBEditLabel.Font.Name = 'Segoe UI'
+            DBEditLabel.Font.Style = []
+            DBEditLabel.ParentFont = False
           end
-          object rDBEdit4: TrDBEdit
+          object rDBMemo1: TrDBMemo
             Left = 16
-            Top = 205
+            Top = 216
             Width = 353
-            Height = 21
-            DataField = 'CORREO'
-            DataSource = dmMemoria.dsClientes
+            Height = 137
+            BorderStyle = bsNone
+            DataField = 'DIRECCION'
+            DataSource = dmMemoria.dsClienteDetalle
+            PopupMenu = rDBMemo1.pmSearch
+            ScrollBars = ssVertical
             TabOrder = 3
-            StyleElements = [seFont]
+            StyleElements = []
             ReadOnlyColor = 15987699
-            DBEditLabel.OwnCaption = 'Correo'
-          end
-          object rDBEdit5: TrDBEdit
-            Left = 16
-            Top = 253
-            Width = 353
-            Height = 21
-            DataField = 'CORREO'
-            DataSource = dmMemoria.dsClientes
-            TabOrder = 4
-            StyleElements = [seFont]
-            ReadOnlyColor = 15987699
+            DBEditLabel.AlignWithMargins = True
+            DBEditLabel.Margins.Top = 5
             DBEditLabel.OwnCaption = 'Direcci'#243'n'
+            DBEditLabel.Font.Charset = ANSI_CHARSET
+            DBEditLabel.Font.Color = clWindowText
+            DBEditLabel.Font.Height = -12
+            DBEditLabel.Font.Name = 'Segoe UI'
+            DBEditLabel.Font.Style = []
+            DBEditLabel.ParentFont = False
           end
         end
         object tjUbicacion: TPlanoTarjeta
           AlignWithMargins = True
-          Left = 503
+          Left = 476
           Top = 3
-          Width = 332
-          Height = 300
+          Width = 450
+          Height = 374
           Margins.Right = 20
-          Caption = 'Impuesto y ubicaci'#243'n'
+          Caption = 'Informaci'#243'n facturaci'#243'n '
           Anchors = []
           TabOrder = 1
-          object lblRegimen: TLabel
-            Tag = 13
-            Left = 16
-            Top = 40
-            Width = 250
-            Height = 15
-            AutoSize = False
-            Caption = 'R'#233'gimen'
+          object rDBLabel1: TrDBLabel
+            Left = 376
+            Top = 350
+            Width = 48
+            Height = 13
+            Caption = 'rDBLabel1'
+            DataField = 'OBJVERSION'
+            DataSource = dmMemoria.dsClienteDetalle
           end
-          object valRegimen: TLabel
-            Left = 16
+          object Label1: TLabel
+            Left = 32
+            Top = 350
+            Width = 92
+            Height = 13
+            Caption = 'Versi'#243'n del registro'
+            StyleElements = []
+          end
+          object rDBEdit6: TrDBEdit
+            Left = 24
             Top = 57
-            Width = 250
-            Height = 18
-            AutoSize = False
-            Caption = 'Gravado 13 %'
-            Font.Charset = DEFAULT_CHARSET
+            Width = 353
+            Height = 23
+            DataField = 'CONTACTO'
+            DataSource = dmMemoria.dsClienteDetalle
+            Font.Charset = ANSI_CHARSET
             Font.Color = clWindowText
-            Font.Height = -13
-            Font.Name = 'Segoe UI Semibold'
+            Font.Height = -12
+            Font.Name = 'Segoe UI'
             Font.Style = []
             ParentFont = False
+            TabOrder = 0
+            StyleElements = []
+            ReadOnlyColor = 15987699
+            DBEditLabel.AlignWithMargins = True
+            DBEditLabel.Margins.Top = 5
+            DBEditLabel.OwnCaption = 'Encargado'
+            DBEditLabel.Font.Charset = ANSI_CHARSET
+            DBEditLabel.Font.Color = clWindowText
+            DBEditLabel.Font.Height = -12
+            DBEditLabel.Font.Name = 'Segoe UI'
+            DBEditLabel.Font.Style = []
+            DBEditLabel.ParentFont = False
           end
-          object lblExoneracion: TLabel
-            Tag = 13
-            Left = 16
-            Top = 90
-            Width = 250
-            Height = 15
-            AutoSize = False
-            Caption = 'C'#243'digo de exoneraci'#243'n'
-          end
-          object valExoneracion: TLabel
-            Left = 16
-            Top = 107
-            Width = 250
-            Height = 18
-            AutoSize = False
-            Caption = 'No aplica'
-            Font.Charset = DEFAULT_CHARSET
+          object rDBEdit4: TrDBEdit
+            Left = 24
+            Top = 110
+            Width = 353
+            Height = 23
+            DataField = 'CORREO'
+            DataSource = dmMemoria.dsClienteDetalle
+            Font.Charset = ANSI_CHARSET
             Font.Color = clWindowText
-            Font.Height = -13
-            Font.Name = 'Segoe UI Semibold'
+            Font.Height = -12
+            Font.Name = 'Segoe UI'
             Font.Style = []
             ParentFont = False
+            TabOrder = 1
+            StyleElements = []
+            ReadOnlyColor = 15987699
+            DBEditLabel.AlignWithMargins = True
+            DBEditLabel.Margins.Top = 5
+            DBEditLabel.OwnCaption = 'Correo'
+            DBEditLabel.Font.Charset = ANSI_CHARSET
+            DBEditLabel.Font.Color = clWindowText
+            DBEditLabel.Font.Height = -12
+            DBEditLabel.Font.Name = 'Segoe UI'
+            DBEditLabel.Font.Style = []
+            DBEditLabel.ParentFont = False
           end
-          object lblLatitud: TLabel
-            Tag = 13
-            Left = 16
-            Top = 140
-            Width = 250
-            Height = 15
-            AutoSize = False
-            Caption = 'Latitud'
-          end
-          object valLatitud: TLabel
-            Left = 16
-            Top = 157
-            Width = 250
-            Height = 18
-            AutoSize = False
-            Caption = '9,995431'
-            Font.Charset = DEFAULT_CHARSET
+          object rDBCheckBox1: TrDBCheckBox
+            Left = 24
+            Top = 152
+            Width = 97
+            Height = 17
+            Caption = '  Exonerado'
+            DataField = 'EXONERADO'
+            DataSource = dmMemoria.dsClienteDetalle
+            Font.Charset = ANSI_CHARSET
             Font.Color = clWindowText
-            Font.Height = -13
-            Font.Name = 'Segoe UI Semibold'
+            Font.Height = -12
+            Font.Name = 'Segoe UI'
             Font.Style = []
             ParentFont = False
+            TabOrder = 2
+            ReadOnlyColor = 15987699
+            ShowFieldCaption = False
           end
-          object lblLongitud: TLabel
-            Tag = 13
-            Left = 16
-            Top = 190
-            Width = 250
-            Height = 15
-            AutoSize = False
-            Caption = 'Longitud'
-          end
-          object valLongitud: TLabel
-            Left = 16
-            Top = 207
-            Width = 250
-            Height = 18
-            AutoSize = False
-            Caption = '-84,211907'
-            Font.Charset = DEFAULT_CHARSET
+          object rDBEdit5: TrDBEdit
+            Left = 24
+            Top = 200
+            Width = 353
+            Height = 23
+            DataField = 'CODIGO_EXONERACION'
+            DataSource = dmMemoria.dsClienteDetalle
+            Font.Charset = ANSI_CHARSET
             Font.Color = clWindowText
-            Font.Height = -13
-            Font.Name = 'Segoe UI Semibold'
+            Font.Height = -12
+            Font.Name = 'Segoe UI'
             Font.Style = []
             ParentFont = False
+            TabOrder = 3
+            StyleElements = []
+            ReadOnlyColor = 15987699
+            DBEditLabel.AlignWithMargins = True
+            DBEditLabel.Margins.Top = 5
+            DBEditLabel.OwnCaption = 'C'#243'digo de exoneraci'#243'n  '
+            DBEditLabel.Font.Charset = ANSI_CHARSET
+            DBEditLabel.Font.Color = clWindowText
+            DBEditLabel.Font.Height = -12
+            DBEditLabel.Font.Name = 'Segoe UI'
+            DBEditLabel.Font.Style = []
+            DBEditLabel.ParentFont = False
           end
-          object lblAvisoUbicacion: TLabel
-            Tag = 13
-            Left = 16
-            Top = 244
-            Width = 250
-            Height = 32
-            AutoSize = False
-            Caption = 
-              'Las coordenadas son de la visita t'#233'cnica, con prop'#243'sito declarad' +
-              'o y limitado.'
-            WordWrap = True
+          object separador: TPanel
+            Tag = 6
+            Left = 32
+            Top = 345
+            Width = 393
+            Height = 1
+            TabOrder = 4
           end
+        end
+        object btnEditarCliente: TPlanoBotonWin
+          AlignWithMargins = True
+          Left = 524
+          Top = 383
+          Width = 130
+          Height = 30
+          Cursor = crHandPoint
+          Anchors = []
+          Caption = 'Editar datos'
+          TabOrder = 2
+          Visible = False
+          StyleElements = []
+          OnClick = btnEditarClienteClick
+        end
+        object btnGuardarCliente: TPlanoBotonWin
+          AlignWithMargins = True
+          Left = 660
+          Top = 383
+          Width = 130
+          Height = 30
+          Cursor = crHandPoint
+          Anchors = []
+          Caption = 'Guardar'
+          Enabled = False
+          TabOrder = 3
+          Visible = False
+          StyleElements = []
+          OnClick = btnGuardarClienteClick
+        end
+        object btnCancelarEdicion: TPlanoBotonWin
+          AlignWithMargins = True
+          Left = 796
+          Top = 383
+          Width = 130
+          Height = 30
+          Cursor = crHandPoint
+          Margins.Right = 120
+          Anchors = []
+          Caption = 'Cancelar'
+          Enabled = False
+          TabOrder = 4
+          Visible = False
+          StyleElements = []
+          OnClick = btnCancelarEdicionClick
+          Kind = fkSecondary
         end
       end
     end
@@ -338,7 +475,7 @@ object fraClienteDatos: TfraClienteDatos
       Left = 0
       Top = 0
       Width = 954
-      Height = 435
+      Height = 427
       Caption = 'Card1'
       CardIndex = 1
       TabOrder = 2
@@ -382,10 +519,10 @@ object fraClienteDatos: TfraClienteDatos
         Left = 3
         Top = 61
         Width = 948
-        Height = 371
+        Height = 363
         ControlCollection = <
           item
-            Control = grDatos
+            Control = grContactos
             AlignBottomWithPanel = True
             AlignHorizontalCenterWithPanel = False
             AlignLeftWithPanel = True
@@ -396,13 +533,15 @@ object fraClienteDatos: TfraClienteDatos
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
-        object grDatos: TrDBGrid
+        object grContactos: TrDBGrid
+          Tag = -1
           Left = 0
           Top = 0
           Width = 948
-          Height = 371
+          Height = 363
           Align = alClient
           BorderStyle = bsNone
+          DataSource = dmMemoria.dsContactos
           DefaultDrawing = False
           Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
           TabOrder = 0
@@ -422,8 +561,8 @@ object fraClienteDatos: TfraClienteDatos
             end
             item
               Expanded = False
-              FieldName = 'CARGO'
-              Title.Caption = 'Cargo'
+              FieldName = 'AREA'
+              Title.Caption = 'Departamento'
               Width = 136
               Visible = True
             end
@@ -462,7 +601,7 @@ object fraClienteDatos: TfraClienteDatos
       Left = 0
       Top = 0
       Width = 954
-      Height = 435
+      Height = 427
       Caption = 'Card1'
       CardIndex = 2
       TabOrder = 3
@@ -470,7 +609,7 @@ object fraClienteDatos: TfraClienteDatos
         Left = 0
         Top = 0
         Width = 954
-        Height = 435
+        Height = 427
         Margins.Right = 20
         ControlCollection = <
           item
@@ -493,15 +632,16 @@ object fraClienteDatos: TfraClienteDatos
             Below = tjVigente
           end>
         Align = alClient
+        BevelOuter = bvNone
         TabOrder = 0
         DesignSize = (
           954
-          435)
+          427)
         object tjVigente: TPlanoTarjeta
           AlignWithMargins = True
           Left = 20
-          Top = 4
-          Width = 912
+          Top = 3
+          Width = 914
           Height = 104
           Margins.Left = 20
           Margins.Right = 20
@@ -605,9 +745,9 @@ object fraClienteDatos: TfraClienteDatos
         end
         object tjHistorial: TPlanoTarjeta
           AlignWithMargins = True
-          Left = 21
-          Top = 131
-          Width = 912
+          Left = 20
+          Top = 130
+          Width = 914
           Height = 288
           Margins.Left = 20
           Margins.Top = 20
@@ -619,7 +759,7 @@ object fraClienteDatos: TfraClienteDatos
           object pnlHistorial: TPanel
             Left = 0
             Top = 36
-            Width = 912
+            Width = 914
             Height = 252
             Align = alClient
             BevelOuter = bvNone
@@ -628,7 +768,7 @@ object fraClienteDatos: TfraClienteDatos
               AlignWithMargins = True
               Left = 10
               Top = 10
-              Width = 892
+              Width = 894
               Height = 232
               Margins.Left = 10
               Margins.Top = 10
@@ -636,6 +776,7 @@ object fraClienteDatos: TfraClienteDatos
               Margins.Bottom = 10
               Align = alClient
               BorderStyle = bsNone
+              DataSource = dmMemoria.dsConsentimientos
               Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
               TabOrder = 0
               TitleFont.Charset = DEFAULT_CHARSET
@@ -646,8 +787,9 @@ object fraClienteDatos: TfraClienteDatos
               StyleElements = [seFont]
               Columns = <
                 item
+                  ButtonStyle = cbsEllipsis
                   Expanded = False
-                  FieldName = 'MOMENTO'
+                  FieldName = 'FECHA'
                   Title.Caption = 'Fecha'
                   Width = 180
                   Visible = True
@@ -661,14 +803,14 @@ object fraClienteDatos: TfraClienteDatos
                 end
                 item
                   Expanded = False
-                  FieldName = 'VERSION'
+                  FieldName = 'VERSION_TEXTO'
                   Title.Caption = 'Versi'#243'n del texto'
                   Width = 180
                   Visible = True
                 end
                 item
                   Expanded = False
-                  FieldName = 'USUARIO'
+                  FieldName = 'FIRMANTE_NOMBRE'
                   Title.Caption = 'Registrado por'
                   Width = 340
                   Visible = True
@@ -682,7 +824,7 @@ object fraClienteDatos: TfraClienteDatos
       Left = 0
       Top = 0
       Width = 954
-      Height = 435
+      Height = 427
       Caption = 'Card1'
       CardIndex = 3
       StyleElements = [seFont]
@@ -691,7 +833,7 @@ object fraClienteDatos: TfraClienteDatos
         Left = 0
         Top = 0
         Width = 954
-        Height = 435
+        Height = 427
         ControlCollection = <
           item
             Control = Panel1
@@ -795,22 +937,23 @@ object fraClienteDatos: TfraClienteDatos
           Height = 377
           ControlCollection = <
             item
-              Control = rDBGrid1
+              Control = grCotizaciones
               AlignBottomWithPanel = True
               AlignHorizontalCenterWithPanel = False
               AlignLeftWithPanel = True
               AlignRightWithPanel = True
-              AlignTopWithPanel = False
+              AlignTopWithPanel = True
               AlignVerticalCenterWithPanel = False
             end>
           Align = alClient
           BevelOuter = bvNone
           TabOrder = 2
-          object rDBGrid1: TrDBGrid
-            Left = 0
-            Top = -5
-            Width = 948
-            Height = 382
+          object grCotizaciones: TrDBGrid
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 942
+            Height = 371
             Align = alClient
             BorderStyle = bsNone
             Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
@@ -820,11 +963,11 @@ object fraClienteDatos: TfraClienteDatos
             TitleFont.Height = -11
             TitleFont.Name = 'Tahoma'
             TitleFont.Style = []
-            StyleElements = [seFont]
+            StyleElements = []
             Columns = <
               item
                 Expanded = False
-                FieldName = 'CODIGO'
+                FieldName = 'NUMERO'
                 Title.Caption = 'N'#250'mero'
                 Width = 110
                 Visible = True
@@ -838,7 +981,7 @@ object fraClienteDatos: TfraClienteDatos
               end
               item
                 Expanded = False
-                FieldName = 'FECHA'
+                FieldName = 'FECHA_ELABORACION'
                 Title.Caption = 'Fecha'
                 Width = 110
                 Visible = True
@@ -853,7 +996,7 @@ object fraClienteDatos: TfraClienteDatos
               item
                 Alignment = taRightJustify
                 Expanded = False
-                FieldName = 'MONTO'
+                FieldName = 'MONTO_TOTAL'
                 Title.Alignment = taRightJustify
                 Title.Caption = 'Monto'
                 Width = 120
@@ -864,6 +1007,13 @@ object fraClienteDatos: TfraClienteDatos
                 FieldName = 'ESTADO'
                 Title.Caption = 'Estado'
                 Width = 110
+                Visible = True
+              end
+              item
+                Expanded = False
+                FieldName = 'ACCIONES'
+                Title.Caption = 'Acciones'
+                Width = 120
                 Visible = True
               end>
           end

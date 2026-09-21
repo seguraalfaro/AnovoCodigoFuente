@@ -13,7 +13,7 @@
 //   Nullable a simple con valor se copia; sin valor el destino queda como
 //                     estaba, igual que ValueOrDefault.
 //   simple a Nullable se copia y el destino queda con valor.
-//   Nullable a otro   se pasa el valor de adentro: NullableInteger del DTO a
+//   Nullable a otro   se pasa el valor de adentro: NullableInt32 del DTO a
 //   Nullable          NullableInt32 de la entidad son tipos distintos.
 // Cualquier otra combinacion es un error de diseno del DTO y se avisa con
 // EMapeo en vez de dejar el campo vacio.

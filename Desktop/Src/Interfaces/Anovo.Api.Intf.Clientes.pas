@@ -21,6 +21,25 @@ type
     function Buscar(const ATexto, AConsentimiento: string;
       const APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TClienteDTO>;
+
+    // La ficha del cliente. Los tres devuelven objetos nuevos y los libera
+    // quien los recibe. Un cliente que no existe llega como EAnovoApiError
+    // con Status 404.
+    function Obtener(const AId: Integer): TClienteDTO;
+    function Contactos(const AId: Integer): TObjectList<TContactoDTO>;
+    function Consentimientos(const AId: Integer)
+      : TObjectList<TConsentimientoDTO>;
+
+    // El DTO lleva la objversion que trajo la ficha: si otra persona lo
+    // cambio en el medio, el servidor responde 409 y aqui llega como
+    // EAnovoApiError con Status 409.
+    procedure Actualizar(const AId: Integer; const ADto: TClienteEdicionDTO);
+
+    // Los dos devuelven el numero que asigno la base, que viene en la
+    // cabecera Location de la respuesta 201.
+    function Crear(const ADto: TClienteNuevoDTO): Integer;
+    function CrearContacto(const AId: Integer;
+      const ADto: TContactoNuevoDTO): Integer;
   end;
 
 implementation

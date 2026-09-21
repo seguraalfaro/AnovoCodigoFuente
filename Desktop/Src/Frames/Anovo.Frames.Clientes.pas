@@ -4,6 +4,7 @@ unit Anovo.Frames.Clientes;
 
 
 
+
 // Gestion de clientes (HU-01, lado escritorio): la vista del listado.
 //
 // No decide nada. Pasa al presentador lo que se escribio, la pestana y la
@@ -31,6 +32,7 @@ uses
   VclPlano.BotonWin, Vcl.WinXCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.Pestanas,
   Anovo.DTOs.Clientes,
+  Anovo.Forms.ClienteNuevo,
   Anovo.Frames.ClienteDatos,
   Anovo.Vistas.Intf.Clientes,
   Anovo.Presentadores.Clientes;
@@ -76,6 +78,7 @@ type
       const ATotal: Int64);
     procedure MostrarError(const AMensaje: string);
     procedure MostrarDetalle(const AId: Integer);
+    procedure MostrarListado;
   protected
     procedure Resize; override;
   public
@@ -90,15 +93,16 @@ implementation
 
 uses
   Anovo.Api.Clientes,
+  Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria;
 
 const
   CAMPO_ACCIONES = 'ACCIONES';
-  CAMPO_CONSENTIMIENTO = 'CONSENTIMIENTO';
+  CAMPO_CONSENTIMIENTO = 'CONSENTIMIENTO_ESTADO';
 
   // Mismo orden que TAccionCliente. La clave es la que llega a Accion.
-   ACCIONES: array [TAccionCliente] of TAccionRejilla = (
-    (Clave: 'detalles'; Rotulo: 'Detalles'));
+  ACCIONES: array [TAccionCliente] of TAccionRejilla = ((Clave: 'detalles';
+    Rotulo: 'Detalles'));
 
   MENSAJE_PENDIENTE = 'Esta opcion todavia no esta disponible.';
 
@@ -112,11 +116,8 @@ end;
 
 destructor TfraClientes.Destroy;
 begin
-  // Antes que los componentes: el presentador cancela lo que este en vuelo
-  // para que no llegue a una rejilla ya liberada.
+
   FPresentador.Free;
-  // Si habia una carga en vuelo, la respuesta se descarta y nadie devuelve el
-  // cursor: se quedaria en espera en toda la aplicacion.
   Screen.Cursor := crDefault;
   inherited;
 end;
@@ -177,9 +178,7 @@ end;
 procedure TfraClientes.MostrarClientes(const AClientes
   : TObjectList<TClienteDTO>);
 begin
-
-  dmMemoria.MostrarClientes(AClientes);
-
+  TMapeoDatos.AListaTabla<TClienteDTO>(AClientes, dmMemoria.mtClientes);
 end;
 
 procedure TfraClientes.MostrarPaginacion(const APagina, ATotalPaginas: Integer;
@@ -214,8 +213,7 @@ begin
   // La anterior ya estaba oculta; liberarla aqui es seguro porque no estamos
   // dentro de ninguno de sus eventos.
   FreeAndNil(FDetalle);
-  FDetalle := TfraClienteDatos.Create(Self);
-  FDetalle.Tag := AId;
+  FDetalle := TfraClienteDatos.Crear(Self, AId);
   FDetalle.OnRegresar := CerrarDetalle;
   // Tapa todo el frame, barra y pie incluidos. alClient no sirve: se
   // repartiria el hueco con la rejilla, que tambien es alClient.
@@ -227,10 +225,18 @@ end;
 
 procedure TfraClientes.CerrarDetalle(Sender: TObject);
 begin
-  // Se llama desde el boton de la ficha: se oculta, no se libera. La libera
-  // la proxima MostrarDetalle o el propio frame al destruirse. El listado
-  // sigue con la busqueda, el filtro y la pagina que tenia.
-  FDetalle.Visible := False;
+  // El boton de la ficha no cierra nada por su cuenta: avisa al presentador,
+  // que es quien sabe en que estado esta la pantalla.
+  FPresentador.VolverAlListado;
+end;
+
+procedure TfraClientes.MostrarListado;
+begin
+  // Se oculta, no se libera: estamos dentro del evento del boton de la ficha.
+  // La libera la proxima MostrarDetalle o el propio frame al destruirse. El
+  // listado sigue con la busqueda, el filtro y la pagina que tenia.
+  if Assigned(FDetalle) then
+    FDetalle.Visible := False;
 end;
 
 procedure TfraClientes.sbBuscarInvokeSearch(Sender: TObject);
@@ -263,8 +269,18 @@ begin
 end;
 
 procedure TfraClientes.btnNuevoClick(Sender: TObject);
+var
+  lVentana: TfrmClienteNuevo;
 begin
-  MessageDlg(MENSAJE_PENDIENTE, mtInformation, [mbOK], 0);
+  lVentana := TfrmClienteNuevo.Create(Self);
+  try
+    if lVentana.ShowModal = mrOk then
+      // Vuelve a pedir la pagina: el cliente nuevo tiene que aparecer, y el
+      // total de la paginacion cambio.
+      FPresentador.Buscar(sbBuscar.Text);
+  finally
+    lVentana.Free;
+  end;
 end;
 
 procedure TfraClientes.btnExportarClick(Sender: TObject);

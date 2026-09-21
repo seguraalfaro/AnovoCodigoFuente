@@ -484,6 +484,15 @@ object frmLogin: TfrmLogin
         AlignRightWithPanel = False
         AlignTopWithPanel = False
         AlignVerticalCenterWithPanel = False
+      end
+      item
+        Control = ComboBox1
+        AlignBottomWithPanel = False
+        AlignHorizontalCenterWithPanel = False
+        AlignLeftWithPanel = False
+        AlignRightWithPanel = False
+        AlignTopWithPanel = False
+        AlignVerticalCenterWithPanel = False
       end>
     Align = alClient
     BevelOuter = bvNone
@@ -623,6 +632,7 @@ object frmLogin: TfrmLogin
         ImageHeight = 0
         ImageIndex = 145
         ImageName = 'Neutro\21-ojo-neutro'
+        OnClick = pbOjoClick
         ExplicitLeft = 8
       end
       object edtClave: TEdit
@@ -648,6 +658,7 @@ object frmLogin: TfrmLogin
         PasswordChar = '*'
         ShowHint = True
         TabOrder = 0
+        Text = 'Anovo2026'
         StyleElements = []
       end
     end
@@ -720,6 +731,23 @@ object frmLogin: TfrmLogin
       TabOrder = 3
       StyleElements = []
       ColorOverride = 6044186
+    end
+    object ComboBox1: TComboBox
+      Left = 56
+      Top = 272
+      Width = 145
+      Height = 21
+      Anchors = []
+      ItemIndex = 0
+      TabOrder = 4
+      Text = 'asesor@anovo.test'#9
+      OnChange = ComboBox1Change
+      Items.Strings = (
+        'asesor@anovo.test'#9
+        'asistente@anovo.test'#9
+        'supervisor@anovo.test'#9
+        'gerencia@anovo.test'#9
+        'admin@anovo.test')
     end
   end
   object ActionList1: TActionList

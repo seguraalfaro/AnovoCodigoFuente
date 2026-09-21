@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,System.UITypes,
+  System.Classes, Vcl.Graphics, System.UITypes,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.WinXCtrls, Vcl.Imaging.pngimage, Vcl.ComCtrls, Vcl.ToolWin, Vcl.ActnMan,
   Vcl.ActnCtrls, Vcl.ActnMenus, Vcl.TitleBarCtrls, Vcl.Buttons,
@@ -40,10 +40,13 @@ type
     ActionList1: TActionList;
     AcIngresar: TAction;
     BtnIngresar: TPlanoBotonWin;
+    ComboBox1: TComboBox;
     procedure FormCreate(Sender: TObject);
     procedure AcIngresarExecute(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure pbOjoClick(Sender: TObject);
+    procedure ComboBox1Change(Sender: TObject);
   private
     FPresentador: TPresentadorLogin;
     FCargando: Boolean;
@@ -132,6 +135,11 @@ begin
 
 end;
 
+procedure TfrmLogin.ComboBox1Change(Sender: TObject);
+begin
+edtUsuario.Text:=ComboBox1.Text;
+end;
+
 procedure TfrmLogin.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   CanClose := not FCargando;
@@ -139,6 +147,7 @@ end;
 
 procedure TfrmLogin.FormCreate(Sender: TObject);
 begin
+edtUsuario.Text:=ComboBox1.Text;
   CargarMarca;
   AplicarTemaBarraTitulo(Self, TitleBarPanel1);
   AplicarTema(Self);
@@ -176,6 +185,21 @@ begin
   MessageDlg(AMensaje, mtWarning, [mbOK], 0);
   edtClave.Clear;
   edtClave.SetFocus;
+end;
+
+procedure TfrmLogin.pbOjoClick(Sender: TObject);
+begin
+
+  if pbOjo.ImageIndex = 145 then
+  begin
+    pbOjo.ImageIndex := 146;
+    edtClave.PasswordChar := #0
+  end
+  else
+  begin
+    pbOjo.ImageIndex := 145;
+    edtClave.PasswordChar := '*';
+  end;
 end;
 
 end.

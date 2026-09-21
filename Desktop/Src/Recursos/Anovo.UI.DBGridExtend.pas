@@ -369,6 +369,9 @@ begin
   lEstado := AColumn.Field.AsString;
   if Trim(lEstado) = '' then
     Exit;
+  // Con mayuscula inicial se lee como etiqueta y no como valor de base. Es
+  // cosa del dibujo: en la tabla el estado queda tal como vino del servidor.
+  lEstado := UpperCase(lEstado[1]) + Copy(lEstado, 2, MaxInt);
 
   FuenteDeCelda(FGrid.Canvas, FGrid.Font);
   R.Left := ARect.Left + MARGEN_CELDA;
@@ -675,7 +678,7 @@ begin
   // texto - relleno a los lados mas el margen de la celda - y el ajuste mide
   // solo el texto, asi que las cortaria. Se quedan con el ancho del diseñador.
   AGrid.FieldsFixedColumnWidth.Text :=
-    'ACCIONES'#13#10'ESTADO'#13#10'CONSENTIMIENTO'#13#10'PRINCIPAL';
+    'ACCIONES'#13#10'ESTADO'#13#10'CONSENTIMIENTO_ESTADO'#13#10'PRINCIPAL';
 
   // El borde redondeado de la tarjeta no sale de la rejilla: se consigue
   // metiendola dentro de un TPanel con TAG_CARD.

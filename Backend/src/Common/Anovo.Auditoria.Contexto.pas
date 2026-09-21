@@ -19,6 +19,12 @@ interface
 procedure FijarUsuario(const AUsuarioId: Integer);
 procedure LimpiarUsuario;
 
+// El por que del cambio, que el disparador copia a AUDITORIA.DETALLE. Lo
+// pone el servicio justo antes de escribir, porque es el unico que conoce
+// la intencion: el disparador solo ve que cambio una fila.
+procedure FijarDetalle(const ADetalle: string);
+procedure LimpiarDetalle;
+
 implementation
 
 uses
@@ -35,6 +41,9 @@ const
   SQL_LIMPIAR =
     'select rdb$set_context(''USER_SESSION'', ''USUARIO_ID'', null) ' +
     'from rdb$database';
+  SQL_DETALLE =
+    'select rdb$set_context(''USER_SESSION'', ''DETALLE'', %s) ' +
+    'from rdb$database';
 
 procedure FijarUsuario(const AUsuarioId: Integer);
 begin
@@ -49,6 +58,23 @@ end;
 procedure LimpiarUsuario;
 begin
   TMVCActiveRecord.CurrentConnection.ExecSQLScalar(SQL_LIMPIAR);
+end;
+
+procedure FijarDetalle(const ADetalle: string);
+begin
+  // QuotedStr y no parametro, por lo mismo que arriba. El texto lo escribe el
+  // servicio y no llega de la peticion, pero se escapa igual: una comilla
+  // suelta en un nombre partiria la sentencia.
+  TMVCActiveRecord.CurrentConnection.ExecSQLScalar
+    (Format(SQL_DETALLE, [QuotedStr(Copy(ADetalle, 1, 500))]));
+end;
+
+procedure LimpiarDetalle;
+begin
+  // El contexto dura lo que la conexion, y la conexion se reutiliza entre
+  // peticiones: sin esto, la siguiente escritura hereda este detalle.
+  TMVCActiveRecord.CurrentConnection.ExecSQLScalar
+    (Format(SQL_DETALLE, ['null']));
 end;
 
 end.
