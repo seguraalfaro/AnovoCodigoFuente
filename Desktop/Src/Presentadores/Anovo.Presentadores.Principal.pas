@@ -46,26 +46,28 @@ const
   PERMISOS_SECCION: array [TSeccion] of string = (
     // Mismo orden que TSeccion: el arreglo se llena por posicion, no por el
     // comentario. Una fila fuera de lugar corre todas las de abajo y compila.
-    { secDashboard }        'cotizaciones.ver_todas;cotizaciones.ver_aprobadas_propias',
+    { secDashboard }
+    'cotizaciones.ver_todas;cotizaciones.ver_aprobadas_propias',
     { secDashboardCuentas } 'usuarios.administrar',
-    { secSolicitudes }      'solicitudes.ver_propias',
-    { secBandeja }          'cotizaciones.elaborar;cotizaciones.aprobar',
-    { secCotizaciones }     'cotizaciones.ver_todas',
-    { secGeneracion }       'cotizaciones.elaborar',
-    { secDetalle }          'cotizaciones.ver_todas;cotizaciones.ver_aprobadas_propias',
-    { secClientes }         'clientes.ver',
-    { secMateriales }       'cotizaciones.elaborar;catalogos.editar',
-    { secReportes }         'reportes.ver',
-    { secGerencia }         'auditoria.ver_toda',
-    { secUsuarios }         'usuarios.administrar',
-    { secRoles }            'permisos.ver',
-    { secConfiguracion }    SIEMPRE);
+    { secSolicitudes } 'solicitudes.ver_propias',
+    { secBandeja } 'cotizaciones.elaborar;cotizaciones.aprobar',
+    { secCotizaciones } 'cotizaciones.ver_todas',
+    { secGeneracion } 'cotizaciones.elaborar',
+    { secDetalle } 'cotizaciones.ver_todas;cotizaciones.ver_aprobadas_propias',
+    { secClientes } 'clientes.ver',
+    { secMateriales } 'cotizaciones.elaborar;catalogos.editar',
+    { secReportes } 'reportes.ver',
+    { secGerencia } 'auditoria.ver_toda',
+    { secUsuarios } 'usuarios.administrar',
+    { secRoles } 'permisos.ver',
+    { secAuditoria } 'auditoria.ver_toda;auditoria.ver_cuentas',
+    { secConfiguracion } SIEMPRE);
 
   // Orden del menu lateral. Detalle no esta: se abre desde una lista.
-  ORDEN_MENU: array [0 .. 12] of TSeccion = (secDashboard, secDashboardCuentas,
+  ORDEN_MENU: array [0 .. 13] of TSeccion = (secDashboard, secDashboardCuentas,
     secSolicitudes, secBandeja, secCotizaciones, secGeneracion, secClientes,
     secMateriales, secReportes, secGerencia, secUsuarios, secRoles,
-    secConfiguracion);
+    secAuditoria, secConfiguracion);
 
   // Donde se abre al entrar: la primera de estas que se pueda ver. El admin no
   // ve el Dashboard de negocio y abre en el de cuentas.

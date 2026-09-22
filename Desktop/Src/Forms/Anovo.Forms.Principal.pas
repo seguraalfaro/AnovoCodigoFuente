@@ -106,6 +106,7 @@ const
     Icono: 'Blanco\07-gerencia-blanco'),
     { secUsuarios } (Titulo: 'Usuarios'; Icono: 'Blanco\08-usuarios-blanco'),
     { secRoles } (Titulo: 'Roles'; Icono: 'Blanco\09-roles-blanco'),
+    { secAuditoria} (Titulo: 'Auditoria';Icono: 'Blanco\26-auditoria-blanco'),
     { secConfiguracion } (Titulo: 'Configuraci'#243'n';
     Icono: 'Blanco\10-configuracion-blanco'));
 
@@ -151,7 +152,7 @@ end;
 
 procedure TfrmPrincipal.AcSalirExecute(Sender: TObject);
 begin
- close;
+  close;
 end;
 
 procedure TfrmPrincipal.AgregarItem(const ASeccion: TSeccion);

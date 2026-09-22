@@ -9,7 +9,8 @@ interface
 type
   TSeccion = (secDashboard, secDashboardCuentas, secSolicitudes, secBandeja,
     secCotizaciones, secGeneracion, secDetalle, secClientes, secMateriales,
-    secReportes, secGerencia, secUsuarios, secRoles, secConfiguracion);
+    secReportes, secGerencia, secUsuarios, secRoles, secAuditoria,
+    secConfiguracion);
   TSecciones = set of TSeccion;
 
   IVistaPrincipal = interface
