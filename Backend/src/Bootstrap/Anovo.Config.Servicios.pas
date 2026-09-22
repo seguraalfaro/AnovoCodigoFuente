@@ -24,16 +24,22 @@ procedure RegisterServices(Container: IMVCServiceContainer);
 implementation
 
 uses
-   MVCFramework.Repository,
+  MVCFramework.Repository,
   Anovo.Repositories.Intf.Permisos,
   Anovo.Repositories.Permisos,
   Anovo.Services.Intf.Permisos,
   Anovo.Services.Permisos,
   Anovo.Services.Clave,
   Anovo.Repositories.Intf.Clientes,
+  Anovo.Repositories.Intf.Auditoria,
+  Anovo.Repositories.Auditoria,
   Anovo.Repositories.Clientes,
   Anovo.Services.Intf.Clientes,
-  Anovo.Services.Clientes;
+  Anovo.Services.Clientes,
+  Anovo.Repositories.Intf.Usuarios,
+  Anovo.Repositories.Usuarios,
+  Anovo.Services.Intf.Auditoria,
+  Anovo.Services.Auditoria;
 
 procedure RegisterServices(Container: IMVCServiceContainer);
 begin
@@ -47,11 +53,22 @@ begin
   // no existe. Un repositorio por tabla; el servicio recibe los tres.
   Container.RegisterType(TClienteRepository, IClienteRepository,
     TRegistrationType.SingletonPerRequest);
-  Container.RegisterType(TClienteContactoRepository,
-    IClienteContactoRepository, TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TClienteContactoRepository, IClienteContactoRepository,
+    TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TConsentimientoRepository, IConsentimientoRepository,
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TClienteService, IClienteService,
+    TRegistrationType.SingletonPerRequest);
+
+  // Auditoria. Solo consulta, pero por peticion igual: los repositorios usan
+  // la conexion que el middleware abre y cierra en cada peticion. El
+  // repositorio de usuarios esta aqui porque la bitacora guarda numeros y
+  // quien muestra nombres es el servicio.
+  Container.RegisterType(TUsuarioRepository, IUsuarioRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TAuditoriaService, IAuditoriaService,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TAuditoriaRepository, IAuditoriaRepository,
     TRegistrationType.SingletonPerRequest);
 
   // Permisos. El repositorio por peticion, por lo mismo que clientes: usa la

@@ -60,7 +60,17 @@ uses
   Anovo.DTOs.Sesion in 'src\DTOs\Anovo.DTOs.Sesion.pas',
   Anovo.Controllers.Sesion in 'src\Controllers\Anovo.Controllers.Sesion.pas',
   Anovo.Mapeo in 'src\Common\Anovo.Mapeo.pas',
-  Anovo.Repositories.Base in 'src\Repositories\Anovo.Repositories.Base.pas';
+  Anovo.Repositories.Base in 'src\Repositories\Anovo.Repositories.Base.pas',
+  Anovo.Repositories.Auditoria in 'src\Repositories\Anovo.Repositories.Auditoria.pas',
+  Anovo.Repositories.Intf.Auditoria in 'src\Interfaces\Anovo.Repositories.Intf.Auditoria.pas',
+  Anovo.SQL.Auditoria in 'src\SQL\Anovo.SQL.Auditoria.pas',
+  Anovo.DTOs.Auditoria in 'src\DTOs\Anovo.DTOs.Auditoria.pas',
+  Anovo.Services.Intf.Auditoria in 'src\Interfaces\Anovo.Services.Intf.Auditoria.pas',
+  Anovo.Services.Auditoria in 'src\Services\Anovo.Services.Auditoria.pas',
+  Anovo.Controllers.Auditoria in 'src\Controllers\Anovo.Controllers.Auditoria.pas',
+  Anovo.SQL.Usuarios in 'src\SQL\Anovo.SQL.Usuarios.pas',
+  Anovo.Repositories.Intf.Usuarios in 'src\Interfaces\Anovo.Repositories.Intf.Usuarios.pas',
+  Anovo.Repositories.Usuarios in 'src\Repositories\Anovo.Repositories.Usuarios.pas';
 
 {$R *.res}
 

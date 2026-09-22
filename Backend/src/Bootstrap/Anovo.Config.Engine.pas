@@ -19,7 +19,8 @@ procedure ConfigureEngine(AEngine: TMVCEngine);
 
 implementation
 
-uses
+uses
+  Anovo.Controllers.Auditoria,
   Anovo.Controllers.Clientes,
   Anovo.Controllers.Sesion,
   Anovo.Auth.RoleHandler,
@@ -54,6 +55,7 @@ begin
 
   AEngine.AddController(TClientesController);
   AEngine.AddController(TSesionController);
+  AEngine.AddController(TAuditoriaController);
   // Controllers - END
 
   AEngine.SetExceptionHandler(ManejadorDeErrores());
