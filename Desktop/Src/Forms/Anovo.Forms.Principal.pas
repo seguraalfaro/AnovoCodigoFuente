@@ -1,4 +1,4 @@
-unit Anovo.Forms.Principal;
+﻿unit Anovo.Forms.Principal;
 
 // Ventana principal: menu lateral y el frame de la seccion abierta.
 //
@@ -18,6 +18,7 @@ uses
   Anovo.Frames.Cotizaciones,
   Anovo.Frames.Usuarios,
   Anovo.Frames.Roles,
+  Anovo.Frames.Auditoria,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.TitleBarCtrls, Vcl.StdCtrls,
   Vcl.ExtCtrls, Anovo.UI.Tema,
@@ -106,7 +107,8 @@ const
     Icono: 'Blanco\07-gerencia-blanco'),
     { secUsuarios } (Titulo: 'Usuarios'; Icono: 'Blanco\08-usuarios-blanco'),
     { secRoles } (Titulo: 'Roles'; Icono: 'Blanco\09-roles-blanco'),
-    { secAuditoria} (Titulo: 'Auditoria';Icono: 'Blanco\26-auditoria-blanco'),
+    { secAuditoria } (Titulo: 'Auditor'#237'a';
+    Icono: 'Blanco\26-auditoria-blanco'),
     { secConfiguracion } (Titulo: 'Configuraci'#243'n';
     Icono: 'Blanco\10-configuracion-blanco'));
 
@@ -232,6 +234,8 @@ begin
       Result := TfraUsuarios.Create(Self);
     secRoles:
       Result := TfraRoles.Create(Self);
+    secAuditoria:
+      Result := TfraAuditoria.Create(Self);
   else
     Result := nil;
   end;

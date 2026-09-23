@@ -123,6 +123,11 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Auditoria.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Auditoria.pas"/>
+        <DCCReference Include="Src\Api\Anovo.Api.Auditoria.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Auditoria.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Auditoria.pas"/>
         <DCCReference Include="Src\Frames\Anovo.Frames.Clientes.pas">
             <Form>fraClientes</Form>
             <FormType>dfm</FormType>

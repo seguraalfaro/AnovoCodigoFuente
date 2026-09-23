@@ -244,13 +244,14 @@ type
     mtPermisosMODULO: TStringField;
     mtPermisosOTORGADO: TBooleanField;
     mtAuditoria: TFDMemTable;
+    mtAuditoriaID: TIntegerField;
     mtAuditoriaFECHA: TDateTimeField;
     mtAuditoriaUSUARIO: TStringField;
     mtAuditoriaACCION: TStringField;
     mtAuditoriaENTIDAD: TStringField;
-    mtAuditoriaENTIDAD_ID: TStringField;
-    mtAuditoriaORIGEN: TStringField;
-    mtAuditoriaACCIONES: TStringField;
+    mtAuditoriaENTIDAD_ID: TIntegerField;
+    mtAuditoriaDETALLE: TStringField;
+    dsAuditoria: TDataSource;
     dsClientes: TDataSource;
     dsClienteDetalle: TDataSource;
     dsContactos: TDataSource;

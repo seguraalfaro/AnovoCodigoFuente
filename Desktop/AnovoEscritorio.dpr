@@ -1,4 +1,4 @@
-program AnovoEscritorio;
+﻿program AnovoEscritorio;
 
 uses
   Vcl.Dialogs,
@@ -41,6 +41,11 @@ uses
   Anovo.Frames.Dashboard in 'Src\Frames\Anovo.Frames.Dashboard.pas' {fraDashboard: TFrame},
   Anovo.Frames.GeneracionCotizacion in 'Src\Frames\Anovo.Frames.GeneracionCotizacion.pas' {fraGeneracionCotizacion: TFrame},
   Anovo.DTOs.Clientes in '..\Backend\src\DTOs\Anovo.DTOs.Clientes.pas',
+  Anovo.DTOs.Auditoria in '..\Backend\src\DTOs\Anovo.DTOs.Auditoria.pas',
+  Anovo.Api.Intf.Auditoria in 'Src\Interfaces\Anovo.Api.Intf.Auditoria.pas',
+  Anovo.Api.Auditoria in 'Src\Api\Anovo.Api.Auditoria.pas',
+  Anovo.Vistas.Intf.Auditoria in 'Src\Interfaces\Anovo.Vistas.Intf.Auditoria.pas',
+  Anovo.Presentadores.Auditoria in 'Src\Presentadores\Anovo.Presentadores.Auditoria.pas',
   Anovo.Api.Intf.Clientes in 'Src\Interfaces\Anovo.Api.Intf.Clientes.pas',
   Anovo.Api.Clientes in 'Src\Api\Anovo.Api.Clientes.pas',
   Anovo.Vistas.Intf.Clientes in 'Src\Interfaces\Anovo.Vistas.Intf.Clientes.pas',

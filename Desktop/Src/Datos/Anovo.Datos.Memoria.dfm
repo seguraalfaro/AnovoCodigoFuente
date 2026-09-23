@@ -884,33 +884,37 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AutoCommitUpdates = True
     Left = 512
     Top = 440
+    object mtAuditoriaID: TIntegerField
+      FieldName = 'ID'
+    end
     object mtAuditoriaFECHA: TDateTimeField
+      DisplayLabel = 'Fecha'
       FieldName = 'FECHA'
       DisplayFormat = 'dd/mm/yyyy hh:nn'
     end
     object mtAuditoriaUSUARIO: TStringField
+      DisplayLabel = 'Usuario'
       FieldName = 'USUARIO'
-      Size = 60
+      Size = 120
     end
     object mtAuditoriaACCION: TStringField
+      DisplayLabel = 'Acción'
       FieldName = 'ACCION'
-      Size = 40
+      Size = 50
     end
     object mtAuditoriaENTIDAD: TStringField
+      DisplayLabel = 'Entidad'
       FieldName = 'ENTIDAD'
-      Size = 40
+      Size = 50
     end
-    object mtAuditoriaENTIDAD_ID: TStringField
+    object mtAuditoriaENTIDAD_ID: TIntegerField
+      DisplayLabel = 'Nº'
       FieldName = 'ENTIDAD_ID'
-      Size = 30
     end
-    object mtAuditoriaORIGEN: TStringField
-      FieldName = 'ORIGEN'
-      Size = 30
-    end
-    object mtAuditoriaACCIONES: TStringField
-      FieldName = 'ACCIONES'
-      Size = 1
+    object mtAuditoriaDETALLE: TStringField
+      DisplayLabel = 'Detalle'
+      FieldName = 'DETALLE'
+      Size = 500
     end
   end
   object mtTiposIdentificacion: TFDMemTable
@@ -1126,6 +1130,12 @@ object dmMemoria: TdmMemoria
     DataSet = mtClienteNuevo
     Left = 384
     Top = 80
+  end
+  object dsAuditoria: TDataSource
+    AutoEdit = False
+    DataSet = mtAuditoria
+    Left = 512
+    Top = 384
   end
   object dsContactoNuevo: TDataSource
     DataSet = mtContactoNuevo
