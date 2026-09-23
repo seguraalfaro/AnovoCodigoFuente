@@ -70,7 +70,26 @@ uses
   Anovo.Controllers.Auditoria in 'src\Controllers\Anovo.Controllers.Auditoria.pas',
   Anovo.SQL.Usuarios in 'src\SQL\Anovo.SQL.Usuarios.pas',
   Anovo.Repositories.Intf.Usuarios in 'src\Interfaces\Anovo.Repositories.Intf.Usuarios.pas',
-  Anovo.Repositories.Usuarios in 'src\Repositories\Anovo.Repositories.Usuarios.pas';
+  Anovo.Repositories.Usuarios in 'src\Repositories\Anovo.Repositories.Usuarios.pas',
+  Anovo.Repositories.Intf.Catalogos in 'src\Interfaces\Anovo.Repositories.Intf.Catalogos.pas',
+  Anovo.Repositories.Catalogos in 'src\Repositories\Anovo.Repositories.Catalogos.pas',
+  Anovo.SQL.Catalogos in 'src\SQL\Anovo.SQL.Catalogos.pas',
+  Anovo.Services.Intf.Catalogos in 'src\Interfaces\Anovo.Services.Intf.Catalogos.pas',
+  Anovo.Services.Catalogos in 'src\Services\Anovo.Services.Catalogos.pas',
+  Anovo.DTOs.Catalogos in 'src\DTOs\Anovo.DTOs.Catalogos.pas',
+  Anovo.Controllers.Catalogos in 'src\Controllers\Anovo.Controllers.Catalogos.pas',
+  Anovo.Repositories.Intf.Solicitudes in 'src\Interfaces\Anovo.Repositories.Intf.Solicitudes.pas',
+  Anovo.Repositories.Solicitudes in 'src\Repositories\Anovo.Repositories.Solicitudes.pas',
+  Anovo.SQL.Solicitudes in 'src\SQL\Anovo.SQL.Solicitudes.pas',
+  Anovo.Services.Intf.Solicitudes in 'src\Interfaces\Anovo.Services.Intf.Solicitudes.pas',
+  Anovo.DTOs.Solicitudes in 'src\DTOs\Anovo.DTOs.Solicitudes.pas',
+  Anovo.Controllers.Solicitudes in 'src\Controllers\Anovo.Controllers.Solicitudes.pas',
+  Anovo.Repositories.Intf.Cotizaciones in 'src\Interfaces\Anovo.Repositories.Intf.Cotizaciones.pas',
+  Anovo.Repositories.Cotizaciones in 'src\Repositories\Anovo.Repositories.Cotizaciones.pas',
+  Anovo.SQL.Cotizaciones in 'src\SQL\Anovo.SQL.Cotizaciones.pas',
+  Anovo.Services.Intf.Cotizaciones in 'src\Interfaces\Anovo.Services.Intf.Cotizaciones.pas',
+  Anovo.DTOs.Cotizaciones in 'src\DTOs\Anovo.DTOs.Cotizaciones.pas',
+  Anovo.Controllers.Cotizaciones in 'src\Controllers\Anovo.Controllers.Cotizaciones.pas';
 
 {$R *.res}
 
