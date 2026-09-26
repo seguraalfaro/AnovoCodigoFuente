@@ -1,4 +1,4 @@
-﻿unit Anovo.Errors;
+unit Anovo.Errors;
 // Excepciones de dominio y la forma unica del error.
 //
 // Las dos mitades van juntas a proposito. Las clases por si solas no cambian
@@ -145,7 +145,23 @@ begin
       lMensaje: string;
       lStatus: Integer;
     begin
-      if E is EAnovoError then
+      if E = nil then
+      begin
+        // Ruta sin controller. DMVC no lanza excepcion en este caso: deja el
+        // 404 puesto en la respuesta y llama al manejador con E en nil
+        // (MVCFramework.pas:3226-3233). Sin esta rama ningun "E is" acierta
+        // -nil no es instancia de nada-, se cae al else final y el 404 sale
+        // convertido en 500: al cliente se le dice que avise al administrador
+        // por haber escrito mal una URL, y el log se llena de alarmas falsas.
+        lCodigo := 'RUTA_NO_ENCONTRADA';
+        lMensaje := 'La direccion solicitada no existe.';
+        // El que ya dejo el framework, no uno fijo: si manana llama por otro
+        // motivo, se respeta.
+        lStatus := WebContext.Response.StatusCode;
+        if lStatus < 400 then
+          lStatus := HTTP_STATUS.NotFound;
+      end
+      else if E is EAnovoError then
       begin
         lCodigo := EAnovoError(E).Codigo;
         lMensaje := E.Message;
