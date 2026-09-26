@@ -74,7 +74,8 @@ uses
   JsonDataObjects,
   MVCFramework.Logger,
   MVCFramework.Serializer.Commons,
-  MVCFramework.ActiveRecord;
+  MVCFramework.ActiveRecord,
+  Anovo.Textos;
 
 { EAnovoError }
 
@@ -91,7 +92,7 @@ constructor ERecursoNoEncontrado.Create(const ARecurso: string;
   const AId: Integer);
 begin
   inherited Create('RECURSO_NO_ENCONTRADO',
-    Format('No existe %s con el numero %d.', [ARecurso, AId]),
+    Format(SRecursoNoExiste, [ARecurso, AId]),
     HTTP_STATUS.NotFound);
 end;
 
@@ -100,7 +101,7 @@ end;
 constructor ESinPermiso.Create(const AAccion: string);
 begin
   inherited Create('SIN_PERMISO',
-    Format('Su perfil no tiene permitido %s.', [AAccion]),
+    Format(SSinPermiso, [AAccion]),
     HTTP_STATUS.Forbidden);
 end;
 
@@ -112,8 +113,7 @@ begin
   // El mensaje dice que hacer, no solo que fallo: quien lo lee esta a mitad de
   // una edicion y necesita saber que no perdio nada, que tiene que recargar.
   inherited Create('VERSION_VENCIDA',
-    Format('Otra persona modifico %s %d mientras usted lo editaba. ' +
-    'Recargue y vuelva a aplicar sus cambios.', [ARecurso, AId]),
+    Format(SVersionVencida, [ARecurso, AId]),
     HTTP_STATUS.Conflict);
 end;
 
@@ -154,7 +154,7 @@ begin
         // convertido en 500: al cliente se le dice que avise al administrador
         // por haber escrito mal una URL, y el log se llena de alarmas falsas.
         lCodigo := 'RUTA_NO_ENCONTRADA';
-        lMensaje := 'La direccion solicitada no existe.';
+        lMensaje := SRutaNoExiste;
         // El que ya dejo el framework, no uno fijo: si manana llama por otro
         // motivo, se respeta.
         lStatus := WebContext.Response.StatusCode;
@@ -187,14 +187,13 @@ begin
         // El framework la lanza cuando el UPDATE con
         // ... AND OBJVERSION = :vieja  afecta cero filas.
         lCodigo := 'VERSION_VENCIDA';
-        lMensaje := 'Otra persona modifico el registro mientras usted lo ' +
-          'editaba. Recargue y vuelva a aplicar sus cambios.';
+        lMensaje := SVersionVencidaGenerico;
         lStatus := HTTP_STATUS.Conflict;
       end
       else if E is EMVCActiveRecordNotFound then
       begin
         lCodigo := 'RECURSO_NO_ENCONTRADO';
-        lMensaje := 'El recurso solicitado no existe.';
+        lMensaje := SRecursoNoExisteGenerico;
         lStatus := HTTP_STATUS.NotFound;
       end
       else if E is EMVCException then
@@ -210,8 +209,7 @@ begin
         // hecha la base por dentro.
         LogE(Format('Excepcion no controlada %s: %s', [E.ClassName, E.Message]));
         lCodigo := 'ERROR_INTERNO';
-        lMensaje := 'Ocurrio un error inesperado. Intente de nuevo; ' +
-          'si persiste, avise al administrador.';
+        lMensaje := SErrorInterno;
         lStatus := HTTP_STATUS.InternalServerError;
       end;
 

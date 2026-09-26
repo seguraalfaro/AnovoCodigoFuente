@@ -3,21 +3,6 @@ unit Anovo.Forms.ItemCatalogo;
 // Ventana del item de catalogo: sirve a los cuatro. Modal, sin borde y con el
 // tema de la aplicacion, como la de cliente nuevo.
 //
-// Una tarjeta por catalogo, y al abrir se activa la que toca. Antes eran los
-// campos de los cuatro encimados en un panel, mostrandose y escondiendose: dos
-// controles distintos ocupaban la misma posicion y cual se veia dependia de
-// una linea suelta. Con TCardPanel cada catalogo tiene su propia distribucion.
-//
-// Los controles de las cuatro tarjetas se ligan a la misma tabla,
-// mtItemCatalogo, que es la union de los cuatro. El campo que la tarjeta
-// activa no usa se queda vacio y el DTO que se arma no lo lleva.
-//
-// El precio aparece al registrar y al editar, pero no es una tarjeta: no
-// sustituye a las otras, va con ellas.
-//
-// Al editar, los valores se copian de la fila que ya esta en la rejilla: no
-// hace falta volver a pedirle el item al servidor para mostrar lo que la
-// persona tiene delante.
 
 interface
 
@@ -33,7 +18,8 @@ uses
   Anovo.DTOs.Catalogos,
   Anovo.Vistas.Intf.Catalogos,
   Anovo.Vistas.Intf.Registro,
-  Anovo.Presentadores.CatalogoItem;
+  Anovo.Presentadores.CatalogoItem,
+  Anovo.UI.Vigencia;
 
 type
   TfrmItemCatalogo = class(TForm, IVistaRegistro)
@@ -65,10 +51,12 @@ type
     edCosto: TrDBEdit;
     edPrecio: TrDBEdit;
     edCostoHora: TrDBEdit;
-    edVigencia: TrDBEdit;
+    chkProgramado: TCheckBox;
+    lblNotaVigencia: TLabel;
     pnlPie: TPanel;
     btnGuardar: TPlanoBotonWin;
     btnCancelar: TPlanoBotonWin;
+    edVigencia: TrDBEditDate;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnGuardarClick(Sender: TObject);
@@ -85,6 +73,11 @@ type
     FPrecioOriginal: Currency;
     FCostoHoraOriginal: Currency;
     FVigenciaOriginal: TDateTime;
+    // El check de programado, la fecha y la nota. La comparte con la ventana
+    // del boton Precio: ver Anovo.UI.Vigencia.
+    FVigencia: TVigenciaPrecio;
+    // Fecha del cambio que ya espera en cola, 0 si no hay ninguno.
+    FProgramadoExistente: TDateTime;
     procedure PrepararCampos;
     procedure PrepararTabla;
     procedure PrepararPrecio;
@@ -112,18 +105,35 @@ implementation
 uses
   Anovo.Api.Catalogos,
   Anovo.Mapeo.Datos,
-  Anovo.Datos.Memoria;
+  Anovo.Datos.Memoria,
+  Anovo.Textos;
 
 const
-  TITULOS: array [TCatalogo] of string = ('material', 'mano de obra',
-    'm' + #225 + 'quina', 'tipo de trabajo');
-
   // Las letras con las que Anovo clasifica cada catalogo. Al registrar, el
   // codigo viene con las suyas y la persona escribe el resto; asi no hay que
   // acordarse de la convencion ni se cuelan codigos con otra forma.
   //
   // Los tipos de trabajo no llevan codigo: esa entrada queda vacia.
-  PREFIJO: array [TCatalogo] of string = ('MAT-', 'MO-', 'MAQ-', '');
+  PREFIJO: array [TCatalogo] of string = ('', 'MAT-', 'MO-', 'MAQ-', '');
+
+// El nombre del catalogo en singular, para las frases que hablan de un item.
+// Funcion y no arreglo const: el texto es resourcestring y un resourcestring
+// no sirve en una expresion constante.
+function ItemDe(const ACatalogo: TCatalogo): string;
+begin
+  // ctTodos no llega aqui: el presentador lo cambia por el catalogo de la
+  // fila antes de abrir la ventana. Cae en el else.
+  case ACatalogo of
+    ctManoObra:
+      Result := SItemManoObra;
+    ctMaquinas:
+      Result := SItemMaquina;
+    ctTiposTrabajo:
+      Result := SItemTipoTrabajo;
+  else
+    Result := SItemMaterial;
+  end;
+end;
 
 class function TfrmItemCatalogo.Mostrar(AOwner: TComponent;
   const ACatalogo: TCatalogo; const AId: Integer;
@@ -140,6 +150,9 @@ begin
     lForma.PrepararCampos;
     lForma.PrepararTabla;
     lForma.PrepararPrecio;
+    lForma.FVigencia := TVigenciaPrecio.Create(lForma.chkProgramado,
+      lForma.edVigencia, lForma.lblNotaVigencia, lForma.FProgramadoExistente);
+    lForma.FVigencia.MostrarNota;
     lForma.ShowModal;
     Result := lForma.FGuardado;
   finally
@@ -159,6 +172,7 @@ end;
 
 procedure TfrmItemCatalogo.FormDestroy(Sender: TObject);
 begin
+  FVigencia.Free;
   FPresentador.Free;
   FPresentadorPrecio.Free;
   // Las tablas quedan cerradas: si no, la proxima ventana abre con lo de esta.
@@ -171,9 +185,9 @@ end;
 procedure TfrmItemCatalogo.PrepararCampos;
 begin
   if FId = 0 then
-    lblTitulo.Caption := 'Nuevo ' + TITULOS[FCatalogo]
+    lblTitulo.Caption := Format(STituloNuevoItem, [ItemDe(FCatalogo)])
   else
-    lblTitulo.Caption := 'Editar ' + TITULOS[FCatalogo];
+    lblTitulo.Caption := Format(STituloEditarItem, [ItemDe(FCatalogo)]);
 
   case FCatalogo of
     ctManoObra:
@@ -193,11 +207,19 @@ begin
   edCostoHora.Visible := FCatalogo = ctMaquinas;
 
   if FId = 0 then
-    lblPrecio.Caption := 'Precio inicial (opcional, se puede cargar despu' +
-      #233 + 's)'
+    lblPrecio.Caption := SPrecioInicial
   else
-    lblPrecio.Caption := 'Precio vigente. Si lo cambia, el anterior queda ' +
-      'en el historial';
+    lblPrecio.Caption := SPrecioVigente;
+end;
+
+procedure CopiarCampo(const AOrigen: TDataSet; const ACampo: string;
+  const ADestino: TField);
+var
+  lCampo: TField;
+begin
+  lCampo := AOrigen.FindField(ACampo);
+  if lCampo <> nil then
+    ADestino.AsString := lCampo.AsString;
 end;
 
 procedure TfrmItemCatalogo.PrepararTabla;
@@ -219,14 +241,14 @@ begin
   if (lOrigen = nil) or lOrigen.IsEmpty then
     Exit;
 
-  dmMemoria.mtItemCatalogoCODIGO.AsString :=
-    lOrigen.FieldByName('CODIGO').AsString;
-  dmMemoria.mtItemCatalogoNOMBRE.AsString :=
-    lOrigen.FieldByName('NOMBRE').AsString;
-  dmMemoria.mtItemCatalogoDESCRIPCION.AsString :=
-    lOrigen.FieldByName('DESCRIPCION').AsString;
-  dmMemoria.mtItemCatalogoUNIDAD_MEDIDA.AsString :=
-    lOrigen.FieldByName('UNIDAD_MEDIDA').AsString;
+  // Por FindField y no FieldByName: la fila puede venir de cualquiera de los
+  // cinco listados, y no todos tienen todas las columnas. Maquinas no tiene
+  // unidad y tipos de trabajo no tiene codigo ni descripcion; con FieldByName
+  // editar uno de esos reventaba al abrir.
+  CopiarCampo(lOrigen, 'CODIGO', dmMemoria.mtItemCatalogoCODIGO);
+  CopiarCampo(lOrigen, 'NOMBRE', dmMemoria.mtItemCatalogoNOMBRE);
+  CopiarCampo(lOrigen, 'DESCRIPCION', dmMemoria.mtItemCatalogoDESCRIPCION);
+  CopiarCampo(lOrigen, 'UNIDAD_MEDIDA', dmMemoria.mtItemCatalogoUNIDAD_MEDIDA);
   if FCatalogo = ctManoObra then
     cbCategoriaMo.ItemIndex := cbCategoriaMo.Items.IndexOfObject
       (TObject(lOrigen.FieldByName('CATEGORIA_ID').AsInteger));
@@ -240,6 +262,7 @@ begin
   FPrecioOriginal := 0;
   FCostoHoraOriginal := 0;
   FVigenciaOriginal := 0;
+  FProgramadoExistente := 0;
 
   if not LlevaPrecio then
     Exit;
@@ -271,12 +294,18 @@ begin
     end;
   end;
 
+  // El campo de fecha queda vacio a proposito: es para cuando empieza a regir
+  // el cambio, no para cuando empezo el precio que se esta viendo. Esa se
+  // muestra en el rotulo, que es donde no se puede editar por error.
+  FProgramadoExistente := ProgramadoDeLaFila(lOrigen);
+
   FVigenciaOriginal := lOrigen.FieldByName('FECHA_VIGENCIA').AsDateTime;
   if FVigenciaOriginal > 0 then
-    dmMemoria.mtPrecioCatalogoFECHA_VIGENCIA.AsDateTime := FVigenciaOriginal;
+    lblPrecio.Caption := Format(SPrecioVigenteDesde,
+      [FormatDateTime('dd/mm/yyyy', FVigenciaOriginal)]);
 end;
 
-// Apoyo
+//Apoyo
 
 function TfrmItemCatalogo.LlevaPrecio: Boolean;
 begin
@@ -292,22 +321,17 @@ end;
 
 function TfrmItemCatalogo.PrecioCambio: Boolean;
 begin
-  // Contra lo que traia al abrir, no contra cero. Al editar los campos llegan
-  // llenos: sin esta comparacion, corregir una tilde en el nombre registraria
-  // un cambio de precio, con su fila en el historial y su asiento de
-  // auditoria, y el historial se llenaria de precios que nunca cambiaron.
-  //
-  // Al registrar los originales son cero, asi que cualquier monto cuenta como
-  // cambio y una ventana sin precio no manda nada.
+ 
   Result := LlevaPrecio and
     ((dmMemoria.mtPrecioCatalogoCOSTO_UNITARIO.AsCurrency <> FCostoOriginal) or
     (dmMemoria.mtPrecioCatalogoPRECIO_UNITARIO.AsCurrency <> FPrecioOriginal) or
     (dmMemoria.mtPrecioCatalogoCOSTO_HORA.AsCurrency <> FCostoHoraOriginal) or
-    (dmMemoria.mtPrecioCatalogoFECHA_VIGENCIA.AsDateTime <>
-    FVigenciaOriginal));
+    FVigencia.Programado);
 end;
 
 function TfrmItemCatalogo.ValidarCampos: Boolean;
+var
+  lError: string;
 begin
   Result := False;
 
@@ -317,27 +341,34 @@ begin
     PREFIJO[FCatalogo])) then
   begin
     // Vacio o solo el prefijo: el prefijo lo puso la ventana, no la persona.
-    MostrarError('Complete el c' + #243 + 'digo despu' + #233 + 's de ' +
-      PREFIJO[FCatalogo]);
+    MostrarError(Format(SCompleteCodigo, [PREFIJO[FCatalogo]]));
     Exit;
   end;
 
   if dmMemoria.mtItemCatalogoNOMBRE.AsString.Trim.IsEmpty then
   begin
-    MostrarError('El nombre es obligatorio.');
+    MostrarError(SNombreObligatorio);
     Exit;
   end;
 
   if (FCatalogo in [ctMateriales, ctManoObra]) and
     dmMemoria.mtItemCatalogoUNIDAD_MEDIDA.AsString.Trim.IsEmpty then
   begin
-    MostrarError('Escoja la unidad de medida.');
+    MostrarError(SEscojaUnidadMedida);
     Exit;
   end;
 
   if (FCatalogo = ctManoObra) and (CategoriaEscogida = 0) then
   begin
-    MostrarError('Escoja una categor' + #237 + 'a.');
+    MostrarError(SEscojaCategoria);
+    Exit;
+  end;
+
+  lError := FVigencia.Error;
+  if not lError.IsEmpty then
+  begin
+    MostrarError(lError);
+    edVigencia.SetFocus;
     Exit;
   end;
 
@@ -346,7 +377,7 @@ begin
   if PrecioCambio and (FCatalogo = ctMateriales) and
     (dmMemoria.mtPrecioCatalogoPRECIO_UNITARIO.AsCurrency <= 0) then
   begin
-    MostrarError('Falta el precio de venta.');
+    MostrarError(SFaltaPrecioVenta);
     edPrecio.SetFocus;
     Exit;
   end;

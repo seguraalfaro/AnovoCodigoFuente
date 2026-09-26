@@ -1,5 +1,6 @@
 unit Anovo.Frames.Clientes;
-
+
+
 
 
 
@@ -97,7 +98,8 @@ uses
   rDBExport,
   Anovo.Api.Clientes,
   Anovo.Mapeo.Datos,
-  Anovo.Datos.Memoria;
+  Anovo.Datos.Memoria,
+  Anovo.Textos;
 
 const
   CAMPO_ACCIONES = 'ACCIONES';
@@ -107,7 +109,6 @@ const
   ACCIONES: array [TAccionCliente] of TAccionRejilla = ((Clave: 'detalles';
     Rotulo: 'Detalles'));
 
-  MENSAJE_PENDIENTE = 'Esta opcion todavia no esta disponible.';
 
 constructor TfraClientes.Create(AOwner: TComponent);
 begin
@@ -162,7 +163,7 @@ procedure TfraClientes.MostrarCargando(const AActivo: Boolean);
 begin
   if AActivo then
   begin
-    lblPaginacion.Caption := 'Cargando clientes...';
+    lblPaginacion.Caption := SCargandoClientes;
     Screen.Cursor := crAppStart;
   end
   else
@@ -188,9 +189,9 @@ procedure TfraClientes.MostrarPaginacion(const APagina, ATotalPaginas: Integer;
   const ATotal: Int64);
 begin
   if ATotal = 0 then
-    lblPaginacion.Caption := 'No hay clientes que coincidan'
+    lblPaginacion.Caption := SSinClientes
   else
-    lblPaginacion.Caption := Format('%d clientes '#183' p'#225'gina %d de %d',
+    lblPaginacion.Caption := Format(SPaginacionClientes,
       [ATotal, APagina, ATotalPaginas]);
   btnAnterior.Enabled := APagina > 1;
   btnSiguiente.Enabled := APagina < ATotalPaginas;
@@ -293,4 +294,4 @@ begin
 end;
 
 end.
-
+

@@ -42,6 +42,7 @@ object frmItemCatalogo: TfrmItemCatalogo
     Width = 527
     Height = 25
     CustomButtons = <>
+    ExplicitWidth = 314
   end
   object pnlTitulo: TPanel
     Left = 0
@@ -126,9 +127,22 @@ object frmItemCatalogo: TfrmItemCatalogo
       Tag = 13
       Left = 20
       Top = 12
-      Width = 250
+      Width = 259
       Height = 15
       Caption = 'Precio inicial (opcional, se puede cargar despu'#233's)'
+    end
+    object lblNotaVigencia: TLabel
+      Left = 20
+      Top = 105
+      Width = 130
+      Height = 15
+      Caption = 'El precio rige de una vez.'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clGrayText
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentFont = False
     end
     object edCosto: TrDBEdit
       Left = 20
@@ -175,19 +189,28 @@ object frmItemCatalogo: TfrmItemCatalogo
       DBEditLabel.OwnCaption = 'Costo por hora'
       DBEditLabel.Visible = False
     end
-    object edVigencia: TrDBEdit
-      Left = 380
+    object chkProgramado: TCheckBox
+      Left = 484
+      Top = 33
+      Width = 16
+      Height = 17
+      TabOrder = 3
+    end
+    object edVigencia: TrDBEditDate
+      AlignWithMargins = True
+      Left = 379
       Top = 55
-      Width = 130
+      Width = 121
       Height = 23
       DataField = 'FECHA_VIGENCIA'
       DataSource = dmMemoria.dsPrecioCatalogo
-      TabOrder = 3
-      StyleElements = []
+      Enabled = False
+      TabOrder = 4
       ReadOnlyColor = 15987699
       DBEditLabel.AlignWithMargins = True
       DBEditLabel.Margins.Top = 5
-      DBEditLabel.OwnCaption = 'Vigente desde'
+      DBEditLabel.OwnCaption = 'Rige desde'
+      DateValue = 46291.000000000000000000
     end
   end
   object cpCatalogo: TCardPanel
@@ -196,6 +219,7 @@ object frmItemCatalogo: TfrmItemCatalogo
     Width = 527
     Height = 283
     Align = alClient
+    ActiveCard = CarManoObra
     BevelOuter = bvNone
     Caption = 'cpCatalogo'
     TabOrder = 2
@@ -262,6 +286,7 @@ object frmItemCatalogo: TfrmItemCatalogo
         Height = 110
         DataField = 'DESCRIPCION'
         DataSource = dmMemoria.dsItemCatalogo
+        PopupMenu = meDescripcionMat.pmSearch
         ScrollBars = ssVertical
         TabOrder = 3
         StyleElements = []
@@ -350,6 +375,7 @@ object frmItemCatalogo: TfrmItemCatalogo
         Height = 70
         DataField = 'DESCRIPCION'
         DataSource = dmMemoria.dsItemCatalogo
+        PopupMenu = meDescripcionMo.pmSearch
         ScrollBars = ssVertical
         TabOrder = 4
         StyleElements = []
@@ -404,6 +430,7 @@ object frmItemCatalogo: TfrmItemCatalogo
         Height = 110
         DataField = 'DESCRIPCION'
         DataSource = dmMemoria.dsItemCatalogo
+        PopupMenu = meDescripcionMaq.pmSearch
         ScrollBars = ssVertical
         TabOrder = 2
         StyleElements = []

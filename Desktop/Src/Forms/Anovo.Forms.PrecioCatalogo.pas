@@ -23,7 +23,8 @@ uses
   Anovo.DTOs.Catalogos,
   Anovo.Vistas.Intf.Catalogos,
   Anovo.Vistas.Intf.Registro,
-  Anovo.Presentadores.CatalogoItem, Vcl.Mask, Vcl.DBCtrls;
+  Anovo.Presentadores.CatalogoItem, Vcl.Mask, Vcl.DBCtrls,
+  Anovo.UI.Vigencia;
 
 type
   TModoPrecio = (mpCambiar, mpHistorial);
@@ -37,13 +38,15 @@ type
     edCosto: TrDBEdit;
     edPrecio: TrDBEdit;
     edCostoHora: TrDBEdit;
-    edVigencia: TrDBEdit;
     pnlHistorial: TPanel;
     lblHistorial: TLabel;
     grHistorial: TrDBGrid;
     pnlPie: TPanel;
     btnGuardar: TPlanoBotonWin;
     btnCancelar: TPlanoBotonWin;
+    edVigencia: TrDBEditDate;
+    chkProgramado: TCheckBox;
+    lblNotaVigencia: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnGuardarClick(Sender: TObject);
@@ -54,6 +57,9 @@ type
     FModo: TModoPrecio;
     FId: Integer;
     FGuardado: Boolean;
+    // El check de programado, la fecha y la nota. La misma que usa la ventana
+    // del item: ver Anovo.UI.Vigencia.
+    FVigencia: TVigenciaPrecio;
     procedure PrepararCampos;
     function ValidarCampos: Boolean;
     function DtoEscrito: TPrecioNuevoDTO;
@@ -76,7 +82,8 @@ implementation
 uses
   Anovo.Api.Catalogos,
   Anovo.Mapeo.Datos,
-  Anovo.Datos.Memoria;
+  Anovo.Datos.Memoria,
+  Anovo.Textos;
 
 class function TfrmPrecioCatalogo.Mostrar(AOwner: TComponent;
   const ACatalogo: TCatalogo; const AId: Integer; const ANombre: string;
@@ -104,11 +111,13 @@ begin
   AplicarTemaBarraTitulo(Self, TitleBarPanel1);
   AplicarTemaGrid(grHistorial);
   FPresentador := nil;
+  FVigencia := nil;
   FGuardado := False;
 end;
 
 procedure TfrmPrecioCatalogo.FormDestroy(Sender: TObject);
 begin
+  FVigencia.Free;
   FPresentador.Free;
   dmMemoria.mtPrecioCatalogo.Close;
 end;
@@ -123,27 +132,38 @@ begin
 
   if FModo = mpHistorial then
   begin
-    lblTitulo.Caption := 'Historial de precios';
+   self.Height:=533;
+    lblTitulo.Caption := STituloHistorialPrecios;
     pnlCampos.Visible := False;
     btnGuardar.Visible := False;
-    btnCancelar.Caption := 'Cerrar';
+    btnCancelar.Caption := SCerrar;
     Exit;
   end;
 
-  lblTitulo.Caption := 'Cambiar precio';
+  lblTitulo.Caption := STituloCambiarPrecio;
   // El historial se consulta con su propia accion: aqui solo se registra.
   pnlHistorial.Visible := False;
+  self.Height:=244;
   dmMemoria.PrepararPrecioCatalogo;
+
+  // Despues de preparar la tabla: la rutina escribe la fecha en ella al marcar
+  // y desmarcar. La fecha en cola sale de la fila que la persona tiene
+  // seleccionada en el listado, que es el item de esta ventana.
+  FVigencia := TVigenciaPrecio.Create(chkProgramado, edVigencia,
+    lblNotaVigencia, ProgramadoDeLaFila(dmMemoria.dsCatalogo.DataSet));
+  FVigencia.MostrarNota;
 end;
 
 function TfrmPrecioCatalogo.ValidarCampos: Boolean;
+var
+  lError: string;
 begin
   Result := False;
 
   if edPrecio.Visible and (dmMemoria.mtPrecioCatalogoPRECIO_UNITARIO
     .AsCurrency <= 0) then
   begin
-    MostrarError('El precio unitario debe ser mayor que cero.');
+    MostrarError(SPrecioUnitarioMayorCero);
     edPrecio.SetFocus;
     Exit;
   end;
@@ -151,7 +171,7 @@ begin
   if edCosto.Visible and (dmMemoria.mtPrecioCatalogoCOSTO_UNITARIO
     .AsCurrency <= 0) then
   begin
-    MostrarError('El costo unitario debe ser mayor que cero.');
+    MostrarError(SCostoUnitarioMayorCero);
     edCosto.SetFocus;
     Exit;
   end;
@@ -159,8 +179,16 @@ begin
   if edCostoHora.Visible and (dmMemoria.mtPrecioCatalogoCOSTO_HORA
     .AsCurrency <= 0) then
   begin
-    MostrarError('El costo por hora debe ser mayor que cero.');
+    MostrarError(SCostoHoraMayorCero);
     edCostoHora.SetFocus;
+    Exit;
+  end;
+
+  lError := FVigencia.Error;
+  if not lError.IsEmpty then
+  begin
+    MostrarError(lError);
+    edVigencia.SetFocus;
     Exit;
   end;
 

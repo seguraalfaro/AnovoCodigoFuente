@@ -21,6 +21,12 @@ type
 
     // MATERIALES. ATotal sale aparte porque el cliente necesita saber cuantas
     // paginas hay.
+    // Materiales, mano de obra y maquinas en una sola lista, para la pestana
+    // Todos. Cada fila trae su tipo.
+    function BuscarTodos(const ATexto: string;
+      const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
+      out ATotal: Int64): TObjectList<TCatalogoItemDTO>;
+
     function BuscarMateriales(const ATexto: string;
       const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
       out ATotal: Int64): TObjectList<TMaterialDTO>;

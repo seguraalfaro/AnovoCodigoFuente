@@ -35,6 +35,28 @@ type
       const AExcluirId: Integer = 0): Boolean;
   end;
 
+  TCatalogoTodosRepository = class(TInterfacedObject, ICatalogoTodosRepository)
+  private
+    function Filtro(const AIncluirInactivos: Boolean): string;
+  public
+    function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
+      const AIncluirInactivos: Boolean = False)
+      : TObjectList<TCatalogoItemConPrecio>;
+    function ContarBusqueda(const ATexto: string;
+      const AIncluirInactivos: Boolean = False): Int64;
+  end;
+
+  TPrecioProgramadoRepository = class(TAnovoRepository<TPreciosProgramados>,
+    IPrecioProgramadoRepository)
+  public
+    function PendientesDeMaterial(const AMaterialId: Integer)
+      : TObjectList<TPreciosProgramados>;
+    function PendientesDeManoObra(const AManoObraId: Integer)
+      : TObjectList<TPreciosProgramados>;
+    function PendientesDeMaquina(const AMaquinaId: Integer)
+      : TObjectList<TPreciosProgramados>;
+  end;
+
   TMaterialPrecioRepository = class(TAnovoRepository<TMaterialesPrecios>,
     IMaterialPrecioRepository)
   public
@@ -205,6 +227,59 @@ function TMaterialRepository.ExisteNombre(const ANombre: string;
   const AExcluirId: Integer): Boolean;
 begin
   Result := HayOtroCon(MATERIALES_NOMBRE_DUPLICADO, ANombre, AExcluirId);
+end;
+
+{ TCatalogoTodosRepository }
+
+function TCatalogoTodosRepository.Filtro(const AIncluirInactivos
+  : Boolean): string;
+begin
+  Result := CATALOGOS_TODOS_FILTRO;
+  if not AIncluirInactivos then
+    Result := Result + CATALOGOS_TODOS_SOLO_ACTIVOS;
+end;
+
+function TCatalogoTodosRepository.Buscar(const ATexto: string;
+  const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean)
+  : TObjectList<TCatalogoItemConPrecio>;
+var
+  lDesde, lHasta: Integer;
+begin
+  Extremos(APagina, APorPagina, lDesde, lHasta);
+  Result := TMVCActiveRecord.Select<TCatalogoItemConPrecio>
+    (CATALOGOS_TODOS + Filtro(AIncluirInactivos) +
+    CATALOGOS_TODOS_ORDEN_Y_PAGINA,
+    [ATexto, ATexto, ATexto, lDesde, lHasta]);
+end;
+
+function TCatalogoTodosRepository.ContarBusqueda(const ATexto: string;
+  const AIncluirInactivos: Boolean): Int64;
+begin
+  // Sin repositorio generico no hay GetConnection: la conexion es la misma
+  // que dejo abierta el middleware para esta peticion.
+  Result := TMVCActiveRecord.CurrentConnection.ExecSQLScalar
+    (CATALOGOS_TODOS_CONTAR + Filtro(AIncluirInactivos),
+    [ATexto, ATexto, ATexto]);
+end;
+
+{ TPrecioProgramadoRepository }
+
+function TPrecioProgramadoRepository.PendientesDeMaterial
+  (const AMaterialId: Integer): TObjectList<TPreciosProgramados>;
+begin
+  Result := GetWhere(PROGRAMADOS_DE_MATERIAL, [AMaterialId]);
+end;
+
+function TPrecioProgramadoRepository.PendientesDeManoObra
+  (const AManoObraId: Integer): TObjectList<TPreciosProgramados>;
+begin
+  Result := GetWhere(PROGRAMADOS_DE_MANO_OBRA, [AManoObraId]);
+end;
+
+function TPrecioProgramadoRepository.PendientesDeMaquina
+  (const AMaquinaId: Integer): TObjectList<TPreciosProgramados>;
+begin
+  Result := GetWhere(PROGRAMADOS_DE_MAQUINA, [AMaquinaId]);
 end;
 
 { TMaterialPrecioRepository }

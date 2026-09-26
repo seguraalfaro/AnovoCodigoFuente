@@ -3,7 +3,7 @@ object frmPrecioCatalogo: TfrmPrecioCatalogo
   Top = 0
   BorderStyle = bsDialog
   Caption = 'Precio'
-  ClientHeight = 470
+  ClientHeight = 524
   ClientWidth = 560
   Color = 16447477
   CustomTitleBar.CaptionAlignment = taCenter
@@ -79,10 +79,23 @@ object frmPrecioCatalogo: TfrmPrecioCatalogo
     Left = 0
     Top = 87
     Width = 560
-    Height = 110
+    Height = 90
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 2
+    object lblNotaVigencia: TLabel
+      Left = 20
+      Top = 62
+      Width = 130
+      Height = 15
+      Caption = 'El precio rige de una vez.'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clGrayText
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentFont = False
+    end
     object edCosto: TrDBEdit
       Left = 20
       Top = 25
@@ -130,43 +143,59 @@ object frmPrecioCatalogo: TfrmPrecioCatalogo
       DBEditLabel.ShowRequiredBold = True
       DBEditLabel.Visible = False
     end
-    object edVigencia: TrDBEdit
-      Left = 380
+    object edVigencia: TrDBEditDate
+      AlignWithMargins = True
+      Left = 382
       Top = 25
-      Width = 160
+      Width = 139
       Height = 23
       DataField = 'FECHA_VIGENCIA'
       DataSource = dmMemoria.dsPrecioCatalogo
+      Enabled = False
       TabOrder = 3
-      StyleElements = []
       ReadOnlyColor = 15987699
       DBEditLabel.AlignWithMargins = True
       DBEditLabel.Margins.Top = 5
-      DBEditLabel.OwnCaption = 'Vigente desde'
+      DBEditLabel.OwnCaption = 'Rige desde'
+      DateValue = 46291.000000000000000000
+    end
+    object chkProgramado: TCheckBox
+      Left = 505
+      Top = 2
+      Width = 16
+      Height = 17
+      TabOrder = 4
     end
   end
   object pnlHistorial: TPanel
     Left = 0
-    Top = 197
+    Top = 177
     Width = 560
-    Height = 213
+    Height = 287
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 3
     object lblHistorial: TLabel
       Tag = 13
+      AlignWithMargins = True
       Left = 20
-      Top = 8
-      Width = 93
+      Top = 3
+      Width = 537
       Height = 15
+      Margins.Left = 20
+      Align = alTop
       Caption = 'Precios anteriores'
+      ExplicitWidth = 93
     end
     object grHistorial: TrDBGrid
       AlignWithMargins = True
       Left = 20
-      Top = 30
+      Top = 24
       Width = 520
-      Height = 170
+      Height = 260
+      Margins.Left = 20
+      Margins.Right = 20
+      Align = alClient
       DataSource = dmMemoria.dsHistorialPrecio
       Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
       ReadOnly = True
@@ -180,7 +209,7 @@ object frmPrecioCatalogo: TfrmPrecioCatalogo
   end
   object pnlPie: TPanel
     Left = 0
-    Top = 410
+    Top = 464
     Width = 560
     Height = 60
     Align = alBottom
@@ -192,7 +221,7 @@ object frmPrecioCatalogo: TfrmPrecioCatalogo
       560
       60)
     object btnGuardar: TPlanoBotonWin
-      Left = 416
+      Left = 420
       Top = 14
       Width = 120
       Height = 32

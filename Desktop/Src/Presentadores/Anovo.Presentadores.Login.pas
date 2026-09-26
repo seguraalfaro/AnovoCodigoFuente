@@ -39,18 +39,15 @@ uses
   System.Classes,
   System.Threading,
   Anovo.Api.Base,
-  Anovo.Sesion;
+  Anovo.Sesion,
+  Anovo.Textos;
 
-const
-  MENSAJE_FALTAN_DATOS = 'Escriba su correo y su clave.';
-  // El mismo texto para correo inexistente y clave incorrecta. El servidor ya
-  // responde igual en los dos casos para no delatar que correos existen; la
-  // pantalla no debe deshacerlo.
-  MENSAJE_CREDENCIALES = 'El correo o la clave no son correctos.';
-  MENSAJE_SIN_ACCESO = 'Su usuario no tiene permisos asignados en el ' +
-    'sistema. Avise al administrador.';
-  MENSAJE_INESPERADO = 'Ocurrio un error inesperado al ingresar. ' +
-    'Intente de nuevo; si persiste, avise al administrador.';
+// La frase completa vive en Anovo.Textos. Aqui solo se dice de que accion
+// se habla, que es lo unico que cambia de una pantalla a otra.
+function MensajeInesperado: string;
+begin
+  Result := Format(SErrorInesperado, [SAccionIngresar]);
+end;
 
 constructor TPresentadorLogin.Create(const AVista: IVistaLogin;
   const AApi: IApiAutenticacion);
@@ -93,7 +90,7 @@ begin
 
   if lCorreo.Trim.IsEmpty or lClave.IsEmpty then
   begin
-    FVista.MostrarError(MENSAJE_FALTAN_DATOS);
+    FVista.MostrarError(SFaltanCredenciales);
     Exit;
   end;
 
@@ -112,7 +109,7 @@ begin
       except
         on E: EAnovoApiError do
           if E.Status = 401 then
-            lError := MENSAJE_CREDENCIALES
+            lError := SCredencialesInvalidas
           else
             lError := E.Message;
         // Sin conexion y sesion vencida ya traen su mensaje para la persona.
@@ -121,7 +118,7 @@ begin
         // Una excepcion que se escapa de TTask no la ve nadie: el hilo muere en
         // silencio y el indicador de carga se queda girando para siempre.
         on E: Exception do
-          lError := MENSAJE_INESPERADO;
+          lError := MensajeInesperado;
       end;
 
       // Los controles solo se tocan desde el hilo principal.
@@ -138,7 +135,7 @@ begin
               rlDebeCambiarClave:
                 FVista.IrACambioDeClave;
               rlSinAccesoEscritorio:
-                FVista.MostrarError(MENSAJE_SIN_ACCESO);
+                FVista.MostrarError(SUsuarioSinPermisos);
             end;
         end);
     end);

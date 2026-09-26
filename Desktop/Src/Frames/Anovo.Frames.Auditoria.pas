@@ -83,7 +83,8 @@ implementation
 uses
   Anovo.Api.Auditoria,
   Anovo.Mapeo.Datos,
-  Anovo.Datos.Memoria;
+  Anovo.Datos.Memoria,
+  Anovo.Textos;
 
 constructor TfraAuditoria.Create(AOwner: TComponent);
 begin
@@ -117,7 +118,7 @@ procedure TfraAuditoria.MostrarCargando(const AActivo: Boolean);
 begin
   if AActivo then
   begin
-    lblPaginacion.Caption := 'Cargando la bit' + #225 + 'cora...';
+    lblPaginacion.Caption := SCargandoBitacora;
     Screen.Cursor := crAppStart;
   end
   else
@@ -156,10 +157,10 @@ procedure TfraAuditoria.MostrarPaginacion(const APagina, ATotalPaginas: Integer;
   const ATotal: Int64);
 begin
   if ATotal = 0 then
-    lblPaginacion.Caption := 'No hay movimientos en ese periodo'
+    lblPaginacion.Caption := SSinMovimientos
   else
     lblPaginacion.Caption :=
-      Format('%d movimientos '#183' p'#225'gina %d de %d',
+      Format(SPaginacionMovimientos,
       [ATotal, APagina, ATotalPaginas]);
   btnAnterior.Enabled := APagina > 1;
   btnSiguiente.Enabled := APagina < ATotalPaginas;

@@ -148,10 +148,6 @@
         <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Login.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Principal.pas"/>
         <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Principal.pas"/>
-        <DCCReference Include="Src\Forms\Anovo.Forms.AgregarItem.pas">
-            <Form>frmAgregarItem</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="Src\Frames\Anovo.Frames.Usuarios.pas">
             <Form>fraUsuarios</Form>
             <FormType>dfm</FormType>
@@ -200,6 +196,8 @@
         </DCCReference>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Clientes.pas"/>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Auditoria.pas"/>
+        <DCCReference Include="..\Backend\src\Common\Anovo.Textos.pas"/>
+        <DCCReference Include="Src\Recursos\Anovo.UI.Vigencia.pas"/>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Catalogos.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Auditoria.pas"/>
         <DCCReference Include="Src\Api\Anovo.Api.Auditoria.pas"/>

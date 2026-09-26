@@ -9,8 +9,12 @@ uses
   Anovo.DTOs.Catalogos;
 
 type
-  // En el orden de las pestanas del frame.
-  TCatalogo = (ctMateriales, ctManoObra, ctMaquinas, ctTiposTrabajo);
+  // En el orden de las pestanas del frame, que se traducen por posicion.
+  //
+  // ctTodos no es un catalogo: es la lista unificada de los tres con precio.
+  // Nunca llega a una ventana de item ni a una llamada de escritura; antes de
+  // eso el presentador la cambia por el catalogo real de la fila.
+  TCatalogo = (ctTodos, ctMateriales, ctManoObra, ctMaquinas, ctTiposTrabajo);
 
   // Los botones de cada fila. Cuales se ven lo decide el presentador con los
   // permisos; como se ven, la vista.
@@ -41,6 +45,12 @@ type
     procedure MostrarManoObra(const AFilas: TObjectList<TManoObraDTO>);
     procedure MostrarMaquinas(const AFilas: TObjectList<TMaquinaDTO>);
     procedure MostrarTiposTrabajo(const AFilas: TObjectList<TTipoTrabajoDTO>);
+    procedure MostrarTodos(const AFilas: TObjectList<TCatalogoItemDTO>);
+
+    // En la pestana Todos, de que catalogo es la fila seleccionada. La vista
+    // lo sabe porque tiene la fila; el presentador lo pregunta para saber que
+    // ventana abrir o a que ruta llamar.
+    function CatalogoDeLaFila: TCatalogo;
 
     // Llena el desplegable de categorias de la pestana de mano de obra. Se
     // pide una vez: es catalogo fijo.

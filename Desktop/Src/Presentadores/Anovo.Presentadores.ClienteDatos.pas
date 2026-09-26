@@ -54,11 +54,15 @@ uses
   System.Threading,
   System.Generics.Collections,
   Anovo.Api.Base,
-  Anovo.Sesion;
+  Anovo.Sesion,
+  Anovo.Textos;
 
-const
-  MENSAJE_INESPERADO = 'Ocurrio un error inesperado al cargar la ficha del ' +
-    'cliente. Intente de nuevo; si persiste, avise al administrador.';
+// La frase completa vive en Anovo.Textos. Aqui solo se dice de que accion
+// se habla, que es lo unico que cambia de una pantalla a otra.
+function MensajeInesperado: string;
+begin
+  Result := Format(SErrorInesperado, [SAccionCargarFichaCliente]);
+end;
 
 constructor TPresentadorClienteDatos.Create(const AVista: IVistaClienteDatos;
   const AApi: IApiClientes; const AClienteId: Integer);
@@ -150,7 +154,7 @@ begin
           on E: EAnovoCliente do
             lError := E.Message;
           on E: Exception do
-            lError := MENSAJE_INESPERADO;
+            lError := MensajeInesperado;
         end;
       finally
         ADto.Free;
@@ -207,7 +211,7 @@ begin
           lError := E.Message;
 
         on E: Exception do
-          lError := MENSAJE_INESPERADO;
+          lError := MensajeInesperado;
       end;
 
       TThread.Queue(nil,
@@ -258,7 +262,7 @@ begin
         on E: EAnovoCliente do
           lError := E.Message;
         on E: Exception do
-          lError := MENSAJE_INESPERADO;
+          lError := MensajeInesperado;
       end;
 
       TThread.Queue(nil,
@@ -308,7 +312,7 @@ begin
         on E: EAnovoCliente do
           lError := E.Message;
         on E: Exception do
-          lError := MENSAJE_INESPERADO;
+          lError := MensajeInesperado;
       end;
 
       TThread.Queue(nil,

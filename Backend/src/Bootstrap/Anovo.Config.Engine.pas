@@ -21,6 +21,7 @@ implementation
 
 uses
 
+  Anovo.Middleware.Actividad,
   Anovo.Controllers.Auditoria,
   Anovo.Controllers.Catalogos,
   Anovo.Controllers.Solicitudes,
@@ -159,6 +160,9 @@ begin
 
   // Despues del JWT y del de ActiveRecord porque necesita las dos cosas
   AEngine.AddMiddleware(TContextoAuditoriaMiddleware.Create);
+  // El ultimo de los propios: OnAfterRouting llega cuando la respuesta ya
+  // tiene su codigo, incluso si ninguna ruta coincidio.
+  AEngine.AddMiddleware(TActividadMiddleware.Create);
   AEngine.AddMiddleware(TMVCCompressionMiddleware.Create);
   AEngine.AddMiddleware(TMVCETagMiddleware.Create);
   // Middleware - END

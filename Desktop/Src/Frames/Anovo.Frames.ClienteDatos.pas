@@ -125,7 +125,8 @@ uses
   Anovo.Api.Clientes,
   Anovo.Forms.ContactoNuevo,
   Anovo.Mapeo.Datos,
-  Anovo.Datos.Memoria;
+  Anovo.Datos.Memoria,
+  Anovo.Textos;
 
 const
   // Lo que se ve cuando el cliente no tiene ese dato.
@@ -142,7 +143,6 @@ const
   ACCIONES_COTIZACION: array [0 .. 0] of TAccionRejilla = ((Clave: 'ver';
     Rotulo: 'Ver'));
 
-  MENSAJE_PENDIENTE = 'Esta opcion todavia no esta disponible.';
 
 constructor TfraClienteDatos.Crear(AOwner: TComponent;
   const AClienteId: Integer);
@@ -311,7 +311,7 @@ begin
     Exit;
   // Editar y quitar se construyen en los pasos siguientes: el backend ya
   // tiene PUT e inactivacion de contactos.
-  MessageDlg(MENSAJE_PENDIENTE, mtInformation, [mbOK], 0);
+  MessageDlg(SOpcionPendiente, mtInformation, [mbOK], 0);
 end;
 
 procedure TfraClienteDatos.AccionCotizacion(Sender: TObject;
@@ -320,7 +320,7 @@ begin
   if dmMemoria.mtClienteCotizaciones.IsEmpty then
     Exit;
   // Abrir la cotizacion queda para cuando exista ese modulo.
-  MessageDlg(MENSAJE_PENDIENTE, mtInformation, [mbOK], 0);
+  MessageDlg(SOpcionPendiente, mtInformation, [mbOK], 0);
 end;
 
 procedure TfraClienteDatos.MostrarCliente(const ACliente: TClienteDTO);

@@ -48,11 +48,15 @@ uses
   System.SysUtils,
   System.Classes,
   System.Threading,
-  Anovo.Api.Base;
+  Anovo.Api.Base,
+  Anovo.Textos;
 
-const
-  MENSAJE_INESPERADO = 'Ocurrio un error inesperado al guardar. Intente de ' +
-    'nuevo; si persiste, avise al administrador.';
+// La frase completa vive en Anovo.Textos. Aqui solo se dice de que accion
+// se habla, que es lo unico que cambia de una pantalla a otra.
+function MensajeInesperado: string;
+begin
+  Result := Format(SErrorInesperado, [SAccionGuardar]);
+end;
 
   // TPresentadorClienteNuevo
 
@@ -95,7 +99,7 @@ begin
           on E: EAnovoCliente do
             lError := E.Message;
           on E: Exception do
-            lError := MENSAJE_INESPERADO;
+            lError := MensajeInesperado;
         end;
       finally
         ADto.Free;
@@ -160,7 +164,7 @@ begin
           on E: EAnovoCliente do
             lError := E.Message;
           on E: Exception do
-            lError := MENSAJE_INESPERADO;
+            lError := MensajeInesperado;
         end;
       finally
         ADto.Free;

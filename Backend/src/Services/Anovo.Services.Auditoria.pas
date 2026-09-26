@@ -55,7 +55,8 @@ uses
   System.SysUtils,
   System.StrUtils,
   Anovo.Errors,
-  Anovo.Mapeo;
+  Anovo.Mapeo,
+  Anovo.Textos;
 
 const
   // Las dos entidades que forman la bitacora de cuentas.
@@ -108,7 +109,7 @@ var
   lEntidad: string;
 begin
   if ADesde > AHasta then
-    raise EDatoInvalido.Create('La fecha de inicio es posterior a la del fin.');
+    raise EDatoInvalido.Create(SPeriodoInvertido);
 
   lEntidad := EntidadSegun(AAlcance, AEntidad);
 

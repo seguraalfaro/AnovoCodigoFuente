@@ -8,8 +8,8 @@ unit Anovo.Presentadores.Catalogos;
 // seccion y la respuesta puede llegar despues, y quien busca seguido dispara
 // varias peticiones que pueden volver en otro orden.
 //
-// Los cuatro catalogos se cargan en cuatro metodos casi iguales. Es a
-// proposito: lo unico que comparten es el andamiaje de la tarea, y unificarlo
+// Los cinco listados -Todos y los cuatro catalogos- se cargan en cinco metodos
+// casi iguales. Es a proposito: lo unico que comparten es el andamiaje de la tarea, y unificarlo
 // obligaria a mover las listas como TObject y devolverles el tipo con un cast
 // del lado de la vista.
 //
@@ -39,9 +39,13 @@ type
     procedure CargarMateriales;
     procedure CargarManoObra;
     procedure CargarMaquinas;
+    procedure CargarTodos;
     procedure CargarTiposTrabajo;
     procedure CargarCategorias;
     procedure PublicarAcciones;
+    // El catalogo sobre el que actua una accion de fila. En Todos es el de la
+    // fila; en las demas pestanas, la pestana.
+    function CatalogoDeFila: TCatalogo;
   public
     constructor Create(const AVista: IVistaCatalogos;
       const AApi: IApiCatalogos);
@@ -85,14 +89,20 @@ uses
   System.Generics.Collections,
   Anovo.Api.Base,
   Anovo.DTOs.Catalogos,
-  Anovo.Sesion;
+  Anovo.Sesion,
+  Anovo.Textos;
 
 const
-  MENSAJE_INESPERADO = 'Ocurrio un error inesperado al cargar el catalogo. ' +
-    'Intente de nuevo; si persiste, avise al administrador.';
 
   PERMISO_VER = 'catalogos.ver';
   PERMISO_EDITAR = 'catalogos.editar';
+
+  // La frase completa vive en Anovo.Textos. Aqui solo se dice de que accion
+  // se habla, que es lo unico que cambia de una pantalla a otra.
+function MensajeInesperado: string;
+begin
+  Result := Format(SErrorInesperado, [SAccionCargarCatalogo]);
+end;
 
 // TPresentadorCatalogos
 
@@ -103,7 +113,7 @@ begin
   FVista := AVista;
   FApi := AApi;
   FCancelacion := TCancelacion.Create;
-  FCatalogo := ctMateriales;
+  FCatalogo := ctTodos;
   FPagina := 1;
 end;
 
@@ -131,7 +141,9 @@ begin
   // abrir nada.
   if FCatalogo = ctTiposTrabajo then
     lAcciones := lAcciones - [acPrecio, acHistorial];
-  FVista.MostrarAcciones(lAcciones, PuedeEditar);
+  // En Todos no se crea: el boton no sabria de que catalogo es el item nuevo.
+  // Las acciones de fila si, porque cada fila trae su tipo.
+  FVista.MostrarAcciones(lAcciones, PuedeEditar and (FCatalogo <> ctTodos));
 end;
 
 // Consulta
@@ -139,11 +151,18 @@ end;
 procedure TPresentadorCatalogos.Cargar;
 begin
   case FCatalogo of
+    ctTodos:
+      begin
+
+        if not FCategoriasPedidas then
+          CargarCategorias;
+        CargarTodos;
+      end;
     ctMateriales:
       CargarMateriales;
     ctManoObra:
       begin
-        // El desplegable se llena una sola vez: es catalogo fijo.
+
         if not FCategoriasPedidas then
           CargarCategorias;
         CargarManoObra;
@@ -193,7 +212,7 @@ begin
           lError := E.Message;
         // Una excepcion que se escapa de TTask no la ve nadie.
         on E: Exception do
-          lError := MENSAJE_INESPERADO;
+          lError := MensajeInesperado;
       end;
 
       TThread.Queue(nil,
@@ -212,8 +231,8 @@ begin
               Exit;
             end;
 
-            FTotalPaginas := (lTotal + CATALOGO_POR_PAGINA - 1) div
-              CATALOGO_POR_PAGINA;
+            FTotalPaginas := (lTotal + CATALOGO_POR_PAGINA - 1)
+              div CATALOGO_POR_PAGINA;
             FVista.MostrarMateriales(lLista);
             FVista.MostrarPaginacion(lPagina, FTotalPaginas, lTotal);
           finally
@@ -257,7 +276,7 @@ begin
         on E: EAnovoCliente do
           lError := E.Message;
         on E: Exception do
-          lError := MENSAJE_INESPERADO;
+          lError := MensajeInesperado;
       end;
 
       TThread.Queue(nil,
@@ -274,8 +293,8 @@ begin
               Exit;
             end;
 
-            FTotalPaginas := (lTotal + CATALOGO_POR_PAGINA - 1) div
-              CATALOGO_POR_PAGINA;
+            FTotalPaginas := (lTotal + CATALOGO_POR_PAGINA - 1)
+              div CATALOGO_POR_PAGINA;
             FVista.MostrarManoObra(lLista);
             FVista.MostrarPaginacion(lPagina, FTotalPaginas, lTotal);
           finally
@@ -318,7 +337,7 @@ begin
         on E: EAnovoCliente do
           lError := E.Message;
         on E: Exception do
-          lError := MENSAJE_INESPERADO;
+          lError := MensajeInesperado;
       end;
 
       TThread.Queue(nil,
@@ -335,9 +354,70 @@ begin
               Exit;
             end;
 
-            FTotalPaginas := (lTotal + CATALOGO_POR_PAGINA - 1) div
-              CATALOGO_POR_PAGINA;
+            FTotalPaginas := (lTotal + CATALOGO_POR_PAGINA - 1)
+              div CATALOGO_POR_PAGINA;
             FVista.MostrarMaquinas(lLista);
+            FVista.MostrarPaginacion(lPagina, FTotalPaginas, lTotal);
+          finally
+            lLista.Free;
+          end;
+        end);
+    end);
+end;
+
+procedure TPresentadorCatalogos.CargarTodos;
+var
+  lCancelacion: ICancelacion;
+  lApi: IApiCatalogos;
+  lNumero, lPagina: Integer;
+  lTexto: string;
+begin
+  Inc(FSolicitud);
+  lNumero := FSolicitud;
+  lCancelacion := FCancelacion;
+  lApi := FApi;
+  lTexto := FTexto;
+  lPagina := FPagina;
+
+  FVista.MostrarCargando(True);
+
+  TTask.Run(
+    procedure
+    var
+      lLista: TObjectList<TCatalogoItemDTO>;
+      lTotal: Int64;
+      lError: string;
+    begin
+      lLista := nil;
+      lTotal := 0;
+      lError := '';
+      try
+        lLista := lApi.BuscarTodos(lTexto, lPagina, CATALOGO_POR_PAGINA,
+          False, lTotal);
+      except
+        on E: EAnovoCliente do
+          lError := E.Message;
+        on E: Exception do
+          lError := MensajeInesperado;
+      end;
+
+      TThread.Queue(nil,
+        procedure
+        begin
+          try
+            if lCancelacion.Cancelada or (lNumero <> FSolicitud) then
+              Exit;
+
+            FVista.MostrarCargando(False);
+            if not lError.IsEmpty then
+            begin
+              FVista.MostrarError(lError);
+              Exit;
+            end;
+
+            FTotalPaginas := (lTotal + CATALOGO_POR_PAGINA - 1)
+              div CATALOGO_POR_PAGINA;
+            FVista.MostrarTodos(lLista);
             FVista.MostrarPaginacion(lPagina, FTotalPaginas, lTotal);
           finally
             lLista.Free;
@@ -374,7 +454,7 @@ begin
         on E: EAnovoCliente do
           lError := E.Message;
         on E: Exception do
-          lError := MENSAJE_INESPERADO;
+          lError := MensajeInesperado;
       end;
 
       TThread.Queue(nil,
@@ -509,9 +589,17 @@ end;
 
 // Acciones de la fila
 
+function TPresentadorCatalogos.CatalogoDeFila: TCatalogo;
+begin
+  if FCatalogo = ctTodos then
+    Result := FVista.CatalogoDeLaFila
+  else
+    Result := FCatalogo;
+end;
+
 procedure TPresentadorCatalogos.Nuevo;
 begin
-  if not PuedeEditar then
+  if not PuedeEditar or (FCatalogo = ctTodos) then
     Exit;
   FVista.MostrarFormularioItem(FCatalogo, 0);
 end;
@@ -520,16 +608,16 @@ procedure TPresentadorCatalogos.Editar(const AId: Integer);
 begin
   if not PuedeEditar then
     Exit;
-  FVista.MostrarFormularioItem(FCatalogo, AId);
+  FVista.MostrarFormularioItem(CatalogoDeFila, AId);
 end;
 
 procedure TPresentadorCatalogos.CambiarPrecio(const AId: Integer);
 begin
   if not PuedeEditar then
     Exit;
-  if FCatalogo = ctTiposTrabajo then
+  if CatalogoDeFila = ctTiposTrabajo then
     Exit;
-  FVista.MostrarFormularioPrecio(FCatalogo, AId);
+  FVista.MostrarFormularioPrecio(CatalogoDeFila, AId);
 end;
 
 procedure TPresentadorCatalogos.VerHistorial(const AId: Integer);
@@ -538,12 +626,12 @@ var
   lApi: IApiCatalogos;
   lCatalogo: TCatalogo;
 begin
-  if FCatalogo = ctTiposTrabajo then
+  lCatalogo := CatalogoDeFila;
+  if lCatalogo = ctTiposTrabajo then
     Exit;
 
   lCancelacion := FCancelacion;
   lApi := FApi;
-  lCatalogo := FCatalogo;
 
   FVista.MostrarCargando(True);
 
@@ -568,7 +656,7 @@ begin
         on E: EAnovoCliente do
           lError := E.Message;
         on E: Exception do
-          lError := MENSAJE_INESPERADO;
+          lError := MensajeInesperado;
       end;
 
       TThread.Queue(nil,
@@ -604,7 +692,7 @@ begin
 
   lCancelacion := FCancelacion;
   lApi := FApi;
-  lCatalogo := FCatalogo;
+  lCatalogo := CatalogoDeFila;
 
   FVista.MostrarCargando(True);
 
@@ -629,7 +717,7 @@ begin
         on E: EAnovoCliente do
           lError := E.Message;
         on E: Exception do
-          lError := MENSAJE_INESPERADO;
+          lError := MensajeInesperado;
       end;
 
       TThread.Queue(nil,

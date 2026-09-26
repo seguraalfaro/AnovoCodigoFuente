@@ -132,6 +132,34 @@ type
       const AExcluirId: Integer = 0): Boolean;
   end;
 
+  // Los tres catalogos con precio en una sola lista. No extiende
+  // IMVCRepository<T> porque no hay tabla detras: es una consulta de lectura
+  // sobre la union, y lo unico que se le pide es la pagina y el total.
+  ICatalogoTodosRepository = interface
+    ['{BC32AB29-783D-4B48-9AAA-EFFF014686AB}']
+    function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
+      const AIncluirInactivos: Boolean = False)
+      : TObjectList<TCatalogoItemConPrecio>;
+    function ContarBusqueda(const ATexto: string;
+      const AIncluirInactivos: Boolean = False): Int64;
+  end;
+
+  // La cola de cambios de precio con fecha futura. Una sola para los tres
+  // catalogos: el cambio tiene la misma forma en todos y el servidor la vacia
+  // de una pasada. Ver migracion 14.
+  IPrecioProgramadoRepository = interface
+    (IMVCRepository<TPreciosProgramados>)
+    ['{BDF59790-0698-43C4-B4F5-10F9874A86CA}']
+
+    // Lo que le queda por aplicar a un item, para avisarlo en el catalogo.
+    function PendientesDeMaterial(const AMaterialId: Integer)
+      : TObjectList<TPreciosProgramados>;
+    function PendientesDeManoObra(const AManoObraId: Integer)
+      : TObjectList<TPreciosProgramados>;
+    function PendientesDeMaquina(const AMaquinaId: Integer)
+      : TObjectList<TPreciosProgramados>;
+  end;
+
 implementation
 
 end.

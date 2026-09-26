@@ -1,4 +1,4 @@
-﻿program AnovoEscritorio;
+program AnovoEscritorio;
 
 uses
   Vcl.Dialogs,
@@ -25,7 +25,6 @@ uses
   Anovo.Presentadores.Login in 'Src\Presentadores\Anovo.Presentadores.Login.pas',
   Anovo.Vistas.Intf.Principal in 'Src\Interfaces\Anovo.Vistas.Intf.Principal.pas',
   Anovo.Presentadores.Principal in 'Src\Presentadores\Anovo.Presentadores.Principal.pas',
-  Anovo.Forms.AgregarItem in 'Src\Forms\Anovo.Forms.AgregarItem.pas' {frmAgregarItem},
   Anovo.Frames.Usuarios in 'Src\Frames\Anovo.Frames.Usuarios.pas' {fraUsuarios: TFrame},
   Anovo.Frames.Auditoria in 'Src\Frames\Anovo.Frames.Auditoria.pas' {fraAuditoria: TFrame},
   Anovo.Frames.Bandeja in 'Src\Frames\Anovo.Frames.Bandeja.pas' {fraBandeja: TFrame},
@@ -42,6 +41,8 @@ uses
   Anovo.Frames.GeneracionCotizacion in 'Src\Frames\Anovo.Frames.GeneracionCotizacion.pas' {fraGeneracionCotizacion: TFrame},
   Anovo.DTOs.Clientes in '..\Backend\src\DTOs\Anovo.DTOs.Clientes.pas',
   Anovo.DTOs.Auditoria in '..\Backend\src\DTOs\Anovo.DTOs.Auditoria.pas',
+  Anovo.Textos in '..\Backend\src\Common\Anovo.Textos.pas',
+  Anovo.UI.Vigencia in 'Src\Recursos\Anovo.UI.Vigencia.pas',
   Anovo.DTOs.Catalogos in '..\Backend\src\DTOs\Anovo.DTOs.Catalogos.pas',
   Anovo.Api.Intf.Auditoria in 'Src\Interfaces\Anovo.Api.Intf.Auditoria.pas',
   Anovo.Api.Auditoria in 'Src\Api\Anovo.Api.Auditoria.pas',

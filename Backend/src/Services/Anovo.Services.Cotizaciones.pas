@@ -110,7 +110,8 @@ uses
   Anovo.Entities.Clientes,
   Anovo.Entities.Solicitudes,
   Anovo.Errors,
-  Anovo.Mapeo;
+  Anovo.Mapeo,
+  Anovo.Textos;
 
 constructor TCotizacionService.Create(ARepo: ICotizacionRepository;
   ADetalle: ICotizacionDetalleRepository; ASolicitudes: ISolicitudRepository;
@@ -221,16 +222,16 @@ begin
   // CK_DETALLE_TIPO exige que el id que corresponde al tipo venga lleno y los
   // otros dos vacios. Se comprueba antes para dar un mensaje util.
   if (ADto.Tipo = TIPO_MATERIAL) and not ADto.MaterialId.HasValue then
-    raise EDatoInvalido.Create('Una linea de material necesita el material.');
+    raise EDatoInvalido.Create(SLineaSinMaterial);
   if (ADto.Tipo = TIPO_MANO_OBRA) and not ADto.ManoObraId.HasValue then
     raise EDatoInvalido.Create
       ('Una linea de mano de obra necesita la mano de obra.');
   if (ADto.Tipo = TIPO_MAQUINA) and not ADto.MaquinaId.HasValue then
-    raise EDatoInvalido.Create('Una linea de maquina necesita la maquina.');
+    raise EDatoInvalido.Create(SLineaSinMaquina);
 
   if (ADto.Tipo <> TIPO_MATERIAL) and (ADto.Tipo <> TIPO_MANO_OBRA) and
     (ADto.Tipo <> TIPO_MAQUINA) and (ADto.Tipo <> TIPO_NOTA) then
-    raise EDatoInvalido.Create('El tipo de linea no es valido.');
+    raise EDatoInvalido.Create(STipoLineaInvalido);
 
   ALinea.Tipo := ADto.Tipo;
   ALinea.Descripcion := ADto.Descripcion;
@@ -262,7 +263,7 @@ begin
 
   lCantidad := ADto.Cantidad.ValueOrDefault;
   if lCantidad <= 0 then
-    raise EDatoInvalido.Create('La cantidad debe ser mayor que cero.');
+    raise EDatoInvalido.Create(SCantidadInvalida);
 
   // El precio que manda el asistente gana; si no manda ninguno, se copia el
   // vigente del catalogo. Copiado, no referenciado.
@@ -349,7 +350,7 @@ begin
 
   lSolicitud := fSolicitudes.GetByPK(ADto.SolicitudId, False);
   if lSolicitud = nil then
-    raise EDatoInvalido.Create('La solicitud indicada no existe.');
+    raise EDatoInvalido.Create(SSolicitudNoExiste);
 
   try
     lCotizacion := TCotizaciones.Create;
@@ -666,7 +667,7 @@ begin
   // Lo exige CK_COTIZ_MOTIVO_RECHAZO, y ademas es condicion de aceptacion de
   // la HU-07: un rechazo sin motivo no le dice nada a quien la rehace.
   if ADto.Motivo.IsEmpty then
-    raise EDatoInvalido.Create('Rechazar exige indicar el motivo.');
+    raise EDatoInvalido.Create(SRechazarSinMotivo);
 
   lCotizacion := TraerVigente(AId);
   try
@@ -693,7 +694,7 @@ begin
   lTx := TMVCRepository.UseTransactionContext;
 
   if ADto.Motivo.IsEmpty then
-    raise EDatoInvalido.Create('Devolver exige una observacion.');
+    raise EDatoInvalido.Create(SDevolverSinObservacion);
 
   lCotizacion := TraerVigente(AId);
   try

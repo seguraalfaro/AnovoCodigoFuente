@@ -12,6 +12,10 @@ unit Anovo.Entities.Vistas.Catalogos;
 // es cosa de TMateriales y compania. Por lo mismo no llevan validadores, que
 // solo corren al guardar.
 //
+// PROGRAMADO_FECHA no es del precio: es la fecha del proximo cambio que espera
+// en PRECIOS_PROGRAMADOS, nula si no hay ninguno. Viaja con el listado para que
+// la rejilla y la ventana de edicion puedan avisarlo sin pedirlo aparte.
+//
 // El precio viene de un LEFT JOIN, asi que es nulo mientras el item no tenga
 // precio cargado. De ahi que sea NullableCurrency y no Currency: un cero se
 // confundiria con un precio de cero.
@@ -47,6 +51,8 @@ type
     fPrecioUnitario: NullableCurrency;
     [MVCTableField('FECHA_VIGENCIA')]
     fFechaVigencia: NullableTDateTime;
+    [MVCTableField('PROGRAMADO_FECHA')]
+    fProgramadoFecha: NullableTDateTime;
   public
     property ID: NullableInt32 read fID write fID;
     property Codigo: String read fCodigo write fCodigo;
@@ -60,6 +66,8 @@ type
       write fPrecioUnitario;
     property FechaVigencia: NullableTDateTime read fFechaVigencia
       write fFechaVigencia;
+    property ProgramadoFecha: NullableTDateTime read fProgramadoFecha
+      write fProgramadoFecha;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -89,6 +97,8 @@ type
     fCostoUnitario: NullableCurrency;
     [MVCTableField('FECHA_VIGENCIA')]
     fFechaVigencia: NullableTDateTime;
+    [MVCTableField('PROGRAMADO_FECHA')]
+    fProgramadoFecha: NullableTDateTime;
   public
     property ID: NullableInt32 read fID write fID;
     property Codigo: String read fCodigo write fCodigo;
@@ -103,6 +113,8 @@ type
       write fCostoUnitario;
     property FechaVigencia: NullableTDateTime read fFechaVigencia
       write fFechaVigencia;
+    property ProgramadoFecha: NullableTDateTime read fProgramadoFecha
+      write fProgramadoFecha;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -124,6 +136,8 @@ type
     fCostoHora: NullableCurrency;
     [MVCTableField('FECHA_VIGENCIA')]
     fFechaVigencia: NullableTDateTime;
+    [MVCTableField('PROGRAMADO_FECHA')]
+    fProgramadoFecha: NullableTDateTime;
   public
     property ID: NullableInt32 read fID write fID;
     property Codigo: String read fCodigo write fCodigo;
@@ -133,6 +147,64 @@ type
     property CostoHora: NullableCurrency read fCostoHora write fCostoHora;
     property FechaVigencia: NullableTDateTime read fFechaVigencia
       write fFechaVigencia;
+    property ProgramadoFecha: NullableTDateTime read fProgramadoFecha
+      write fProgramadoFecha;
+  end;
+
+  // Una fila de CATALOGOS_TODOS: la union de los tres catalogos con precio.
+  // Tiene las columnas de los tres; lo que no aplica al tipo de la fila llega
+  // nulo.
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  TCatalogoItemConPrecio = class(TMVCActiveRecord)
+  private
+    [MVCTableField('TIPO')]
+    fTipo: String;
+    [MVCTableField('ID')]
+    fID: NullableInt32;
+    [MVCTableField('CODIGO')]
+    fCodigo: String;
+    [MVCTableField('NOMBRE')]
+    fNombre: String;
+    [MVCTableField('DESCRIPCION')]
+    fDescripcion: NullableString;
+    [MVCTableField('UNIDAD_MEDIDA')]
+    fUnidadMedida: String;
+    [MVCTableField('CATEGORIA_ID')]
+    fCategoriaId: NullableInt32;
+    [MVCTableField('COSTO_UNITARIO')]
+    fCostoUnitario: NullableCurrency;
+    [MVCTableField('PRECIO_UNITARIO')]
+    fPrecioUnitario: NullableCurrency;
+    [MVCTableField('COSTO_HORA')]
+    fCostoHora: NullableCurrency;
+    [MVCTableField('COSTO')]
+    fCosto: NullableCurrency;
+    [MVCTableField('FECHA_VIGENCIA')]
+    fFechaVigencia: NullableTDateTime;
+    [MVCTableField('ACTIVO')]
+    fActivo: NullableBoolean;
+    [MVCTableField('PROGRAMADO_FECHA')]
+    fProgramadoFecha: NullableTDateTime;
+  public
+    property Tipo: String read fTipo write fTipo;
+    property ID: NullableInt32 read fID write fID;
+    property Codigo: String read fCodigo write fCodigo;
+    property Nombre: String read fNombre write fNombre;
+    property Descripcion: NullableString read fDescripcion write fDescripcion;
+    property UnidadMedida: String read fUnidadMedida write fUnidadMedida;
+    property CategoriaId: NullableInt32 read fCategoriaId write fCategoriaId;
+    property CostoUnitario: NullableCurrency read fCostoUnitario
+      write fCostoUnitario;
+    property PrecioUnitario: NullableCurrency read fPrecioUnitario
+      write fPrecioUnitario;
+    property CostoHora: NullableCurrency read fCostoHora write fCostoHora;
+    property Costo: NullableCurrency read fCosto write fCosto;
+    property FechaVigencia: NullableTDateTime read fFechaVigencia
+      write fFechaVigencia;
+    property Activo: NullableBoolean read fActivo write fActivo;
+    property ProgramadoFecha: NullableTDateTime read fProgramadoFecha
+      write fProgramadoFecha;
   end;
 
 implementation

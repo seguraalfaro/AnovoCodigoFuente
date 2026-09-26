@@ -65,11 +65,10 @@ uses
   System.Generics.Collections,
   Anovo.Api.Base,
   Anovo.DTOs.Clientes,
-  Anovo.Sesion;
+  Anovo.Sesion,
+  Anovo.Textos;
 
 const
-  MENSAJE_INESPERADO = 'Ocurrio un error inesperado al cargar los ' +
-    'clientes. Intente de nuevo; si persiste, avise al administrador.';
 
   // Mismo orden que TFiltroConsentimiento, mismos valores que la API.
   CONSENTIMIENTO_API: array [TFiltroConsentimiento] of string = ('',
@@ -77,6 +76,13 @@ const
 
   // Mismo orden que TAccionCliente. Separados por ; vale cualquiera.
   PERMISOS_ACCION: array [TAccionCliente] of string = ('clientes.ver');
+
+// La frase completa vive en Anovo.Textos. Aqui solo se dice de que accion
+// se habla, que es lo unico que cambia de una pantalla a otra.
+function MensajeInesperado: string;
+begin
+  Result := Format(SErrorInesperado, [SAccionCargarClientes]);
+end;
 
 // TPresentadorClientes
 
@@ -214,7 +220,7 @@ begin
           lError := E.Message;
         // Una excepcion que se escapa de TTask no la ve nadie.
         on E: Exception do
-          lError := MENSAJE_INESPERADO;
+          lError := MensajeInesperado;
       end;
 
       TThread.Queue(nil,

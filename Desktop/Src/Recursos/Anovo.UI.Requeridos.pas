@@ -29,7 +29,8 @@ uses
   Vcl.Dialogs,
   Vcl.Controls,
   System.UITypes,
-  RosiCompGlobalCfg;
+  RosiCompGlobalCfg,
+  Anovo.Textos;
 
 type
   // El evento de Rosi es un metodo de objeto, asi que hace falta alguien que
@@ -46,7 +47,7 @@ procedure TManejadorRequeridos.AlSalir(Sender: TObject; AField: TField;
   var ACanExit: Boolean);
 begin
   // DisplayLabel es el rotulo que ve la persona, no el nombre de la columna.
-  MessageDlg(Format('%s es obligatorio.', [AField.DisplayLabel]),
+  MessageDlg(Format(SCampoObligatorio, [AField.DisplayLabel]),
     mtWarning, [mbOK], 0);
   ACanExit := False;
 end;

@@ -20,6 +20,14 @@ uses
   MVCFramework.Serializer.Commons,
   MVCFramework.Nullables;
 
+const
+  // El valor de la columna TIPO del listado unificado. Lo escribe la consulta
+  // del backend y lo lee el escritorio para saber de que catalogo es la fila;
+  // esta unidad la compilan los dos, asi que no pueden desalinearse.
+  TIPO_MATERIAL = 'material';
+  TIPO_MANO_OBRA = 'mano_obra';
+  TIPO_MAQUINA = 'maquina';
+
 type
 
   // MATERIALES
@@ -36,6 +44,7 @@ type
     fCostoUnitario: NullableCurrency;
     fPrecioUnitario: NullableCurrency;
     fFechaVigencia: NullableTDateTime;
+    fProgramadoFecha: NullableTDateTime;
   public
     property ID: Integer read fID write fID;
     property Codigo: string read fCodigo write fCodigo;
@@ -50,6 +59,10 @@ type
       write fPrecioUnitario;
     property FechaVigencia: NullableTDateTime read fFechaVigencia
       write fFechaVigencia;
+    // Fecha del proximo cambio de precio en cola, nula si no hay ninguno. No
+    // es del precio que rige: es el aviso de que este item va a cambiar.
+    property ProgramadoFecha: NullableTDateTime read fProgramadoFecha
+      write fProgramadoFecha;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -95,6 +108,7 @@ type
     fActivo: Boolean;
     fCostoUnitario: NullableCurrency;
     fFechaVigencia: NullableTDateTime;
+    fProgramadoFecha: NullableTDateTime;
   public
     property ID: Integer read fID write fID;
     property Codigo: string read fCodigo write fCodigo;
@@ -110,6 +124,10 @@ type
       write fCostoUnitario;
     property FechaVigencia: NullableTDateTime read fFechaVigencia
       write fFechaVigencia;
+    // Fecha del proximo cambio de precio en cola, nula si no hay ninguno. No
+    // es del precio que rige: es el aviso de que este item va a cambiar.
+    property ProgramadoFecha: NullableTDateTime read fProgramadoFecha
+      write fProgramadoFecha;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -168,6 +186,7 @@ type
     fActivo: Boolean;
     fCostoHora: NullableCurrency;
     fFechaVigencia: NullableTDateTime;
+    fProgramadoFecha: NullableTDateTime;
   public
     property ID: Integer read fID write fID;
     property Codigo: string read fCodigo write fCodigo;
@@ -177,6 +196,10 @@ type
     property CostoHora: NullableCurrency read fCostoHora write fCostoHora;
     property FechaVigencia: NullableTDateTime read fFechaVigencia
       write fFechaVigencia;
+    // Fecha del proximo cambio de precio en cola, nula si no hay ninguno. No
+    // es del precio que rige: es el aviso de que este item va a cambiar.
+    property ProgramadoFecha: NullableTDateTime read fProgramadoFecha
+      write fProgramadoFecha;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -325,7 +348,89 @@ type
     property PorPagina: Integer read fPorPagina write fPorPagina;
   end;
 
+  // TODOS LOS CATALOGOS
+
+  // Una fila de la union de materiales, mano de obra y maquinas. Lleva las
+  // columnas de los tres con el mismo nombre que en su listado propio, nulas
+  // donde no aplican, para que la ventana del item se abra desde aqui igual
+  // que desde su pestana. Costo es la columna comun para mostrar: costo
+  // unitario en los dos primeros, costo por hora en maquinas.
+  [MVCNameCase(ncSnakeCase)]
+  TCatalogoItemDTO = class
+  private
+    fTipo: string;
+    fID: Integer;
+    fCodigo: string;
+    fNombre: string;
+    fDescripcion: NullableString;
+    fUnidadMedida: string;
+    fCategoriaId: NullableInt32;
+    fCostoUnitario: NullableCurrency;
+    fPrecioUnitario: NullableCurrency;
+    fCostoHora: NullableCurrency;
+    fCosto: NullableCurrency;
+    fFechaVigencia: NullableTDateTime;
+    fActivo: Boolean;
+    fProgramadoFecha: NullableTDateTime;
+  public
+    // TIPO_MATERIAL, TIPO_MANO_OBRA o TIPO_MAQUINA.
+    property Tipo: string read fTipo write fTipo;
+    property ID: Integer read fID write fID;
+    property Codigo: string read fCodigo write fCodigo;
+    property Nombre: string read fNombre write fNombre;
+    property Descripcion: NullableString read fDescripcion write fDescripcion;
+    property UnidadMedida: string read fUnidadMedida write fUnidadMedida;
+    property CategoriaId: NullableInt32 read fCategoriaId write fCategoriaId;
+    property CostoUnitario: NullableCurrency read fCostoUnitario
+      write fCostoUnitario;
+    property PrecioUnitario: NullableCurrency read fPrecioUnitario
+      write fPrecioUnitario;
+    property CostoHora: NullableCurrency read fCostoHora write fCostoHora;
+    property Costo: NullableCurrency read fCosto write fCosto;
+    property FechaVigencia: NullableTDateTime read fFechaVigencia
+      write fFechaVigencia;
+    property Activo: Boolean read fActivo write fActivo;
+    property ProgramadoFecha: NullableTDateTime read fProgramadoFecha
+      write fProgramadoFecha;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TCatalogoItemsPaginaDTO = class
+  private
+    fData: TObjectList<TCatalogoItemDTO>;
+    fTotal: Int64;
+    fPagina: Integer;
+    fPorPagina: Integer;
+  public
+    constructor Create(const AData: TObjectList<TCatalogoItemDTO>;
+      const ATotal: Int64; const APagina, APorPagina: Integer); reintroduce;
+    destructor Destroy; override;
+    property Data: TObjectList<TCatalogoItemDTO> read fData write fData;
+    property Total: Int64 read fTotal write fTotal;
+    property Pagina: Integer read fPagina write fPagina;
+    property PorPagina: Integer read fPorPagina write fPorPagina;
+  end;
+
 implementation
+
+{ TCatalogoItemsPaginaDTO }
+
+constructor TCatalogoItemsPaginaDTO.Create
+  (const AData: TObjectList<TCatalogoItemDTO>; const ATotal: Int64;
+  const APagina, APorPagina: Integer);
+begin
+  inherited Create;
+  fData := AData;
+  fTotal := ATotal;
+  fPagina := APagina;
+  fPorPagina := APorPagina;
+end;
+
+destructor TCatalogoItemsPaginaDTO.Destroy;
+begin
+  fData.Free;
+  inherited;
+end;
 
 { TMaterialesPaginaDTO }
 

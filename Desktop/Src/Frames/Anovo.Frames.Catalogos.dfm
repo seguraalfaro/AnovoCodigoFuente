@@ -11,33 +11,6 @@ object fraCatalogos: TfraCatalogos
   Font.Style = []
   ParentFont = False
   TabOrder = 0
-  object pnbottom: TRelativePanel
-    AlignWithMargins = True
-    Left = 3
-    Top = 502
-    Width = 954
-    Height = 65
-    ControlCollection = <
-      item
-        AlignBottomWithPanel = False
-        AlignHorizontalCenterWithPanel = False
-        AlignLeftWithPanel = False
-        AlignRightWithPanel = False
-        AlignTopWithPanel = True
-        AlignVerticalCenterWithPanel = False
-      end
-      item
-        AlignBottomWithPanel = False
-        AlignHorizontalCenterWithPanel = False
-        AlignLeftWithPanel = False
-        AlignRightWithPanel = True
-        AlignTopWithPanel = True
-        AlignVerticalCenterWithPanel = False
-      end>
-    Align = alBottom
-    BevelOuter = bvNone
-    TabOrder = 0
-  end
   object pnlBarra: TPanel
     AlignWithMargins = True
     Left = 3
@@ -46,8 +19,7 @@ object fraCatalogos: TfraCatalogos
     Height = 52
     Align = alTop
     BevelOuter = bvNone
-    Caption = 'Panel1'
-    TabOrder = 1
+    TabOrder = 0
     DesignSize = (
       954
       52)
@@ -120,7 +92,7 @@ object fraCatalogos: TfraCatalogos
     Height = 62
     Align = alTop
     BevelOuter = bvNone
-    TabOrder = 2
+    TabOrder = 1
     object lblTitulo: TLabel
       Tag = 11
       Left = 20
@@ -153,6 +125,7 @@ object fraCatalogos: TfraCatalogos
     Width = 954
     Height = 40
     Items.Strings = (
+      'Todos'
       'Materiales'
       'Mano de obra'
       'M'#225'quinas'
@@ -178,7 +151,7 @@ object fraCatalogos: TfraCatalogos
     Left = 3
     Top = 175
     Width = 954
-    Height = 321
+    Height = 392
     ControlCollection = <
       item
         Control = grDatos
@@ -191,13 +164,14 @@ object fraCatalogos: TfraCatalogos
       end>
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 5
+    TabOrder = 4
+    ExplicitHeight = 321
     object grDatos: TrDBGrid
       AlignWithMargins = True
       Left = 20
       Top = 3
       Width = 914
-      Height = 315
+      Height = 386
       Margins.Left = 20
       Margins.Right = 20
       Align = alClient
@@ -211,6 +185,7 @@ object fraCatalogos: TfraCatalogos
       TitleFont.Name = 'Segoe UI'
       TitleFont.Style = []
       StyleElements = [seFont]
+      ColumnWidth = cwAutoWidth
     end
   end
   object pnlPie: TPanel
@@ -223,7 +198,7 @@ object fraCatalogos: TfraCatalogos
     BevelOuter = bvNone
     Color = 16447477
     ParentBackground = False
-    TabOrder = 4
+    TabOrder = 3
     DesignSize = (
       954
       44)

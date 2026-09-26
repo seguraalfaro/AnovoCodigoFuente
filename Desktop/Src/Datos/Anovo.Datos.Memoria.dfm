@@ -564,6 +564,7 @@ object dmMemoria: TdmMemoria
     Top = 376
     object mtMaterialesID: TIntegerField
       FieldName = 'ID'
+      Visible = False
     end
     object mtMaterialesCODIGO: TStringField
       DisplayLabel = 'C'#243'digo'
@@ -578,6 +579,7 @@ object dmMemoria: TdmMemoria
     object mtMaterialesDESCRIPCION: TStringField
       DisplayLabel = 'Descripci'#243'n'
       FieldName = 'DESCRIPCION'
+      Visible = False
       Size = 500
     end
     object mtMaterialesUNIDAD_MEDIDA: TStringField
@@ -602,8 +604,15 @@ object dmMemoria: TdmMemoria
       FieldName = 'FECHA_VIGENCIA'
       DisplayFormat = 'dd/mm/yyyy'
     end
+    object mtMaterialesPROGRAMADO_FECHA: TDateField
+      DisplayLabel = 'Programado'
+      FieldName = 'PROGRAMADO_FECHA'
+      Visible = False
+      DisplayFormat = 'dd/mm/yyyy'
+    end
     object mtMaterialesACTIVO: TBooleanField
       FieldName = 'ACTIVO'
+      Visible = False
     end
     object mtMaterialesESTADO: TStringField
       DisplayLabel = 'Estado'
@@ -627,6 +636,7 @@ object dmMemoria: TdmMemoria
     Top = 376
     object mtManoObraID: TIntegerField
       FieldName = 'ID'
+      Visible = False
     end
     object mtManoObraCODIGO: TStringField
       DisplayLabel = 'C'#243'digo'
@@ -635,20 +645,22 @@ object dmMemoria: TdmMemoria
     end
     object mtManoObraCATEGORIA_ID: TIntegerField
       FieldName = 'CATEGORIA_ID'
-    end
-    object mtManoObraCATEGORIA_NOMBRE: TStringField
-      DisplayLabel = 'Categor'#237'a'
-      FieldName = 'CATEGORIA_NOMBRE'
-      Size = 120
+      Visible = False
     end
     object mtManoObraNOMBRE: TStringField
       DisplayLabel = 'Nombre'
       FieldName = 'NOMBRE'
       Size = 120
     end
+    object mtManoObraCATEGORIA_NOMBRE: TStringField
+      DisplayLabel = 'Categor'#237'a'
+      FieldName = 'CATEGORIA_NOMBRE'
+      Size = 120
+    end
     object mtManoObraDESCRIPCION: TStringField
       DisplayLabel = 'Descripci'#243'n'
       FieldName = 'DESCRIPCION'
+      Visible = False
       Size = 500
     end
     object mtManoObraUNIDAD_MEDIDA: TStringField
@@ -667,8 +679,15 @@ object dmMemoria: TdmMemoria
       FieldName = 'FECHA_VIGENCIA'
       DisplayFormat = 'dd/mm/yyyy'
     end
+    object mtManoObraPROGRAMADO_FECHA: TDateField
+      DisplayLabel = 'Programado'
+      FieldName = 'PROGRAMADO_FECHA'
+      Visible = False
+      DisplayFormat = 'dd/mm/yyyy'
+    end
     object mtManoObraACTIVO: TBooleanField
       FieldName = 'ACTIVO'
+      Visible = False
     end
     object mtManoObraESTADO: TStringField
       DisplayLabel = 'Estado'
@@ -692,6 +711,7 @@ object dmMemoria: TdmMemoria
     Top = 376
     object mtMaquinasID: TIntegerField
       FieldName = 'ID'
+      Visible = False
     end
     object mtMaquinasCODIGO: TStringField
       DisplayLabel = 'C'#243'digo'
@@ -719,8 +739,15 @@ object dmMemoria: TdmMemoria
       FieldName = 'FECHA_VIGENCIA'
       DisplayFormat = 'dd/mm/yyyy'
     end
+    object mtMaquinasPROGRAMADO_FECHA: TDateField
+      DisplayLabel = 'Programado'
+      FieldName = 'PROGRAMADO_FECHA'
+      Visible = False
+      DisplayFormat = 'dd/mm/yyyy'
+    end
     object mtMaquinasACTIVO: TBooleanField
       FieldName = 'ACTIVO'
+      Visible = False
     end
     object mtMaquinasESTADO: TStringField
       DisplayLabel = 'Estado'
@@ -728,6 +755,99 @@ object dmMemoria: TdmMemoria
       Size = 15
     end
     object mtMaquinasACCIONES: TStringField
+      FieldName = 'ACCIONES'
+      Size = 1
+    end
+  end
+  object mtTodos: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 360
+    Top = 440
+    object mtTodosTIPO: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'TIPO'
+      Size = 10
+    end
+    object mtTodosID: TIntegerField
+      FieldName = 'ID'
+      Visible = False
+    end
+    object mtTodosCODIGO: TStringField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'CODIGO'
+      Size = 30
+    end
+    object mtTodosNOMBRE: TStringField
+      DisplayLabel = 'Nombre'
+      FieldName = 'NOMBRE'
+      Size = 120
+    end
+    object mtTodosDESCRIPCION: TStringField
+      DisplayLabel = 'Descripci'#243'n'
+      FieldName = 'DESCRIPCION'
+      Visible = False
+      Size = 500
+    end
+    object mtTodosUNIDAD_MEDIDA: TStringField
+      DisplayLabel = 'Unidad'
+      FieldName = 'UNIDAD_MEDIDA'
+    end
+    object mtTodosCATEGORIA_ID: TIntegerField
+      FieldName = 'CATEGORIA_ID'
+      Visible = False
+    end
+    object mtTodosCOSTO_UNITARIO: TCurrencyField
+      FieldName = 'COSTO_UNITARIO'
+      Visible = False
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtTodosCOSTO: TCurrencyField
+      DisplayLabel = 'Costo'
+      FieldName = 'COSTO'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtTodosPRECIO_UNITARIO: TCurrencyField
+      DisplayLabel = 'P. venta'
+      FieldName = 'PRECIO_UNITARIO'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtTodosCOSTO_HORA: TCurrencyField
+      FieldName = 'COSTO_HORA'
+      Visible = False
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtTodosFECHA_VIGENCIA: TDateField
+      DisplayLabel = 'Vigente desde'
+      FieldName = 'FECHA_VIGENCIA'
+      Visible = False
+      DisplayFormat = 'dd/mm/yyyy'
+    end
+    object mtTodosPROGRAMADO_FECHA: TDateField
+      DisplayLabel = 'Programado'
+      FieldName = 'PROGRAMADO_FECHA'
+      Visible = False
+      DisplayFormat = 'dd/mm/yyyy'
+    end
+    object mtTodosACTIVO: TBooleanField
+      FieldName = 'ACTIVO'
+      Visible = False
+    end
+    object mtTodosESTADO: TStringField
+      DisplayLabel = 'Estado'
+      FieldName = 'ESTADO'
+      Size = 15
+    end
+    object mtTodosACCIONES: TStringField
       FieldName = 'ACCIONES'
       Size = 1
     end
@@ -744,6 +864,7 @@ object dmMemoria: TdmMemoria
     Top = 376
     object mtTiposTrabajoID: TIntegerField
       FieldName = 'ID'
+      Visible = False
     end
     object mtTiposTrabajoNOMBRE: TStringField
       DisplayLabel = 'Nombre'
@@ -752,6 +873,7 @@ object dmMemoria: TdmMemoria
     end
     object mtTiposTrabajoACTIVO: TBooleanField
       FieldName = 'ACTIVO'
+      Visible = False
     end
     object mtTiposTrabajoESTADO: TStringField
       DisplayLabel = 'Estado'

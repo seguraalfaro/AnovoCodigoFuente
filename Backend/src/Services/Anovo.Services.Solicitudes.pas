@@ -105,7 +105,8 @@ uses
   Anovo.Auditoria.Contexto,
   Anovo.Entities.Clientes,
   Anovo.Errors,
-  Anovo.Mapeo;
+  Anovo.Mapeo,
+  Anovo.Textos;
 
 constructor TSolicitudService.Create(ARepo: ISolicitudRepository;
   AMedidas: ISolicitudMedidaRepository;
@@ -192,7 +193,7 @@ begin
   // de la violacion de clave foranea, que sale como error del motor.
   lCliente := fClientes.GetByPK(AClienteId, False);
   if lCliente = nil then
-    raise EDatoInvalido.Create('El cliente indicado no existe.');
+    raise EDatoInvalido.Create(SClienteNoExiste);
   lCliente.Free;
 end;
 
@@ -247,7 +248,7 @@ begin
   lTx := TMVCRepository.UseTransactionContext;
 
   if ADto.UuidLocal.IsEmpty then
-    raise EDatoInvalido.Create('Falta el identificador local de la solicitud.');
+    raise EDatoInvalido.Create(SFaltaIdLocalSolicitud);
 
   // Idempotencia: si ya subio, se devuelve la que hay.
   Result := fRepo.ExisteUuidLocal(ADto.UuidLocal);
@@ -364,7 +365,7 @@ begin
     // Anular sin decir por que deja un hueco que nadie puede explicar despues.
     if (ADto.Estado = ESTADO_ANULADA) and
       (not ADto.Observacion.HasValue or ADto.Observacion.Value.IsEmpty) then
-      raise EDatoInvalido.Create('Anular exige una observacion.');
+      raise EDatoInvalido.Create(SAnularSinObservacion);
 
     lSolicitud.Estado := ADto.Estado;
     if ADto.Observacion.HasValue then
@@ -537,10 +538,10 @@ var
   lStream: TMemoryStream;
 begin
   if ADto.UuidLocal.IsEmpty then
-    raise EDatoInvalido.Create('Falta el identificador local del adjunto.');
+    raise EDatoInvalido.Create(SFaltaIdLocalAdjunto);
 
   if (ADto.Tipo <> ADJUNTO_CROQUIS) and (ADto.Tipo <> ADJUNTO_FOTO) then
-    raise EDatoInvalido.Create('El tipo de adjunto debe ser croquis o foto.');
+    raise EDatoInvalido.Create(STipoAdjuntoInvalido);
 
   lExistente := fAdjuntos.ObtenerPorUuidLocal(ADto.UuidLocal);
   if lExistente <> nil then

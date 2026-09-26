@@ -70,19 +70,24 @@ uses
   System.Generics.Collections,
   Anovo.Api.Base,
   Anovo.DTOs.Auditoria,
-  Anovo.Sesion;
+  Anovo.Sesion,
+  Anovo.Textos;
 
 const
-  MENSAJE_INESPERADO = 'Ocurrio un error inesperado al cargar la bitacora. ' +
-    'Intente de nuevo; si persiste, avise al administrador.';
 
-  MENSAJE_PERIODO = 'La fecha de inicio es posterior a la del fin.';
 
   // Mismo orden que TFiltroEntidad, mismos valores que la columna ENTIDAD.
   // Cuentas es USUARIOS: el cambio de clave, que es USUARIOS_CLAVES, se ve
   // desde la pantalla del administrador.
   ENTIDAD_API: array [TFiltroEntidad] of string = ('', 'CLIENTES',
     'COTIZACIONES', 'USUARIOS');
+
+// La frase completa vive en Anovo.Textos. Aqui solo se dice de que accion
+// se habla, que es lo unico que cambia de una pantalla a otra.
+function MensajeInesperado: string;
+begin
+  Result := Format(SErrorInesperado, [SAccionCargarBitacora]);
+end;
 
 // TPresentadorAuditoria
 
@@ -163,7 +168,7 @@ begin
   // quien escoge las fechas, no del servidor.
   if ADesde > AHasta then
   begin
-    FVista.MostrarError(MENSAJE_PERIODO);
+    FVista.MostrarError(SPeriodoInvertido);
     FVista.MostrarPeriodo(FDesde, FHasta);
     Exit;
   end;
@@ -239,7 +244,7 @@ begin
           lError := E.Message;
         // Una excepcion que se escapa de TTask no la ve nadie.
         on E: Exception do
-          lError := MENSAJE_INESPERADO;
+          lError := MensajeInesperado;
       end;
 
       TThread.Queue(nil,

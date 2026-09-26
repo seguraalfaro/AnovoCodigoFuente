@@ -53,7 +53,8 @@ uses
   MVCFramework.RESTClient,
   MVCFramework.RESTClient.Commons,
   Anovo.Config,
-  Anovo.Sesion;
+  Anovo.Sesion,
+  Anovo.Textos;
 
 const
 
@@ -61,11 +62,6 @@ const
 
   TIEMPO_LECTURA_MS = 60000;
 
-  MENSAJE_SIN_CONEXION = 'No se pudo conectar con el servidor de Anovo. ' +
-    'Revise la red o avise al administrador.';
-  MENSAJE_SESION_VENCIDA = 'Su sesion vencio. Vuelva a ingresar.';
-  MENSAJE_CERTIFICADO = 'No se pudo verificar el certificado del servidor ' +
-    'de Anovo. Avise al administrador.';
 
 // Validacion del certificado del servidor
 
@@ -118,7 +114,7 @@ begin
     // Se comprueba antes de salir: no tiene sentido ir al servidor para que
     // conteste 401 cuando ya se sabe que el token vencio.
     if not TSesion.EstaVigente then
-      raise EAnovoSesionVencida.Create(MENSAJE_SESION_VENCIDA);
+      raise EAnovoSesionVencida.Create(SSesionVencida);
     Result.SetBearerAuthorization(TSesion.Token);
   end;
 end;
@@ -146,9 +142,9 @@ begin
     // esta.
     on E: EMVCRESTClientHttpException do
       if E.InnerException is ENetHTTPCertificateException then
-        raise EAnovoSinConexion.Create(MENSAJE_CERTIFICADO)
+        raise EAnovoSinConexion.Create(SCertificadoInvalido)
       else
-        raise EAnovoSinConexion.Create(MENSAJE_SIN_CONEXION);
+        raise EAnovoSinConexion.Create(SSinConexion);
   end;
 
   if Result.Success then
@@ -159,7 +155,7 @@ begin
   if (Result.StatusCode = 401) and not AEsLogin then
   begin
     TSesion.Cerrar;
-    raise EAnovoSesionVencida.Create(MENSAJE_SESION_VENCIDA);
+    raise EAnovoSesionVencida.Create(SSesionVencida);
   end;
 
   lCodigo := 'ERROR';

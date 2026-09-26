@@ -33,6 +33,33 @@ type
   [MVCRequiresPermiso(PERMISO_VER)]
   TCatalogosController = class(TMVCController)
   public
+    // TODOS
+
+    // La raiz de /api/catalogos: los tres catalogos con precio en una lista.
+    [MVCPath('')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCSwagSummary('Catalogos', 'Lista y busca materiales, mano de obra y ' +
+      'maquinas juntos, con su precio vigente, paginado', 'listarTodos')]
+    [MVCSwagParam(plQuery, 'q', 'Texto a buscar en codigo, nombre o ' +
+      'descripcion', ptString, False)]
+    [MVCSwagParam(plQuery, 'pagina', 'Numero de pagina, desde 1',
+      ptInteger, False)]
+    [MVCSwagParam(plQuery, 'por_pagina', 'Cuantos por pagina. Maximo 200',
+      ptInteger, False)]
+    [MVCSwagParam(plQuery, 'incluir_inactivos',
+      'Incluir los items inactivos', ptBoolean, False)]
+    [MVCSwagResponses(200, 'Pagina de items de los tres catalogos',
+      TCatalogoItemsPaginaDTO)]
+    [MVCSwagResponses(401, 'Sin token o token vencido')]
+    [MVCSwagResponses(403, 'El rol no tiene el permiso para esta operacion')]
+    function ListarTodos([MVCInject] AServicio: ICatalogoService;
+      const [MVCFromQueryString('q', '')] ABusqueda: string;
+      const [MVCFromQueryString('pagina', 1)] APagina: Integer;
+      const [MVCFromQueryString('por_pagina', POR_PAGINA_POR_DEFECTO)
+      ] APorPagina: Integer;
+      const [MVCFromQueryString('incluir_inactivos', False)] AIncluirInactivos
+      : Boolean): TCatalogoItemsPaginaDTO;
+
     // MATERIALES
 
     [MVCPath('/materiales')]
@@ -335,6 +362,24 @@ uses
   System.Generics.Collections;
 
 // Materiales
+
+function TCatalogosController.ListarTodos(AServicio: ICatalogoService;
+  const ABusqueda: string; const APagina, APorPagina: Integer;
+  const AIncluirInactivos: Boolean): TCatalogoItemsPaginaDTO;
+var
+  lTotal: Int64;
+  lPagina, lPorPagina: Integer;
+  lDatos: TObjectList<TCatalogoItemDTO>;
+begin
+  // Los mismos topes que los listados de cada catalogo, por lo mismo.
+  lPagina := Max(APagina, 1);
+  lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
+
+  lDatos := AServicio.BuscarTodos(ABusqueda, lPagina, lPorPagina,
+    AIncluirInactivos, lTotal);
+  Result := TCatalogoItemsPaginaDTO.Create(lDatos, lTotal, lPagina,
+    lPorPagina);
+end;
 
 function TCatalogosController.ListarMateriales(AServicio: ICatalogoService;
   const ABusqueda: string; const APagina, APorPagina: Integer;

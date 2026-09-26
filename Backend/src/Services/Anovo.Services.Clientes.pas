@@ -1,5 +1,6 @@
-﻿unit Anovo.Services.Clientes;
-
+unit Anovo.Services.Clientes;
+
+
 
 // Servicio de clientes: donde vive el negocio.
 //
@@ -76,7 +77,8 @@ uses
   MVCFramework.ActiveRecord,
   MVCFramework.Repository,
   Anovo.Auditoria.Contexto,
-  Anovo.Errors;
+  Anovo.Errors,
+  Anovo.Textos;
 
 const
   // Los tres estados del consentimiento, para validar el filtro del listado.
@@ -292,10 +294,10 @@ begin
     Exit(lId);
 
   if ADto.Contactos.Count = 0 then
-    raise EDatoInvalido.Create('El registro debe traer al menos un contacto.');
+    raise EDatoInvalido.Create(SRegistroSinContacto);
 
   if not VerificarImagen(ADto.Firma.FirmaBase64) then
-    raise EDatoInvalido.Create('La imagen de la firma viene vacia.');
+    raise EDatoInvalido.Create(SFirmaVacia);
 
   lImagen := TNetEncoding.Base64.DecodeStringToBytes(ADto.Firma.FirmaBase64);
 
@@ -523,4 +525,4 @@ begin
 end;
 
 end.
-
+

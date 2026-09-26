@@ -15,13 +15,21 @@ unit Anovo.Bootstrap;
 
 interface
 
-procedure Boot;
+uses
+  LoggerPro;
+
+// AAppender es por donde la ventana del servidor mete su propio destino de
+// log. Bootstrap no sabe que existe VCL: solo ve la interfaz.
+//
+// AConConsola en falso para la version con ventana: una aplicacion grafica no
+// tiene consola donde escribir.
+procedure Boot(const AAppender: ILogAppender = nil;
+  const AConConsola: Boolean = True);
 
 implementation
 
 uses
   System.SysUtils,  
-  LoggerPro,
   LoggerPro.Builder,
   LoggerPro.ConsoleAppender,
   LoggerPro.FileAppender,
@@ -48,17 +56,25 @@ begin
     end);
 end;
 
-procedure ConfigLogger;
+procedure ConfigLogger(const AAppender: ILogAppender;
+  const AConConsola: Boolean);
 var
   lBuilder: ILoggerProBuilder;
-  
+
 begin
-  lBuilder := LoggerProBuilder
-    .WithDefaultMinimumLevel(TLogType.Debug)
-    .WriteToConsole
-      .WithUTF8Output
-      .WithRenderer(TMVCColorConsoleRenderer.Create)
-      .Done
+  lBuilder := LoggerProBuilder.WithDefaultMinimumLevel(TLogType.Debug);
+
+  if AConConsola then
+    lBuilder := lBuilder
+      .WriteToConsole
+        .WithUTF8Output
+        .WithRenderer(TMVCColorConsoleRenderer.Create)
+        .Done;
+
+  if AAppender <> nil then
+    lBuilder := lBuilder.WriteToAppender(AAppender);
+
+  lBuilder := lBuilder
     .WriteToFile
       .WithLogsFolder(dotEnv.Env('logger.file.folder', 'logs'))
       .WithFileBaseName(dotEnv.Env('logger.file.basename', 'DMVCFrameworkProject1'))
@@ -85,10 +101,10 @@ end;
 
 { --- public ----------------------------------------------------------------- }
 
-procedure Boot;
+procedure Boot(const AAppender: ILogAppender; const AConConsola: Boolean);
 begin
   ConfigDotEnv;
-  ConfigLogger;
+  ConfigLogger(AAppender, AConConsola);
   ConfigProfiler;
 end;
 

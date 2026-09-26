@@ -62,6 +62,10 @@ type
     function Categorias: TObjectList<TCategoriaDTO>;
 
     // MAQUINAS. El precio es costo por hora.
+    // Los tres catalogos con precio en una sola lista, para la pestana Todos.
+    function BuscarTodos(const ATexto: string;
+      const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
+      out ATotal: Int64): TObjectList<TCatalogoItemDTO>;
     function BuscarMaquinas(const ATexto: string;
       const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
       out ATotal: Int64): TObjectList<TMaquinaDTO>;

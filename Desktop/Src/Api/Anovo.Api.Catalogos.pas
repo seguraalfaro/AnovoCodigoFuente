@@ -54,6 +54,10 @@ type
       : TObjectList<TPrecioDTO>;
     function Categorias: TObjectList<TCategoriaDTO>;
 
+    // Los tres catalogos con precio en una sola lista, para la pestana Todos.
+    function BuscarTodos(const ATexto: string;
+      const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
+      out ATotal: Int64): TObjectList<TCatalogoItemDTO>;
     function BuscarMaquinas(const ATexto: string;
       const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
       out ATotal: Int64): TObjectList<TMaquinaDTO>;
@@ -84,6 +88,7 @@ uses
   MVCFramework.RESTClient.Intf;
 
 const
+  RUTA_TODOS = '/api/catalogos';
   RUTA_MATERIALES = '/api/catalogos/materiales';
   RUTA_MANO_OBRA = '/api/catalogos/mano-obra';
   RUTA_MAQUINAS = '/api/catalogos/maquinas';
@@ -336,6 +341,14 @@ begin
 end;
 
 { Maquinas }
+
+function TApiCatalogos.BuscarTodos(const ATexto: string;
+  const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
+  out ATotal: Int64): TObjectList<TCatalogoItemDTO>;
+begin
+  Result := PaginaDe<TCatalogoItemDTO>(RUTA_TODOS, ATexto, APagina,
+    APorPagina, AIncluirInactivos, 0, ATotal);
+end;
 
 function TApiCatalogos.BuscarMaquinas(const ATexto: string;
   const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;

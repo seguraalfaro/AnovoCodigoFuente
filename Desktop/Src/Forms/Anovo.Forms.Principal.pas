@@ -1,4 +1,4 @@
-﻿unit Anovo.Forms.Principal;
+unit Anovo.Forms.Principal;
 
 // Ventana principal: menu lateral y el frame de la seccion abierta.
 //
@@ -76,41 +76,70 @@ implementation
 {$R *.dfm}
 
 uses
-  Anovo.UI.Iconos;
-
-type
-  TItemMenu = record
-    Titulo: string;
-    Icono: string;
-  end;
+  Anovo.UI.Iconos,
+  Anovo.Textos;
 
 const
   ALTO_ITEM = 40;
 
-  ITEMS_MENU: array [TSeccion] of TItemMenu = (
-    { secDashboard } (Titulo: 'Dashboard'; Icono: 'Blanco\06-dashboard-blanco'),
-    { secDashboardCuentas } (Titulo: 'Dashboard';
-    Icono: 'Blanco\06-dashboard-blanco'),
-    { secSolicitudes } (Titulo: 'Solicitudes';
-    Icono: 'Blanco\00-cotizaciones-blanco'),
-    { secBandeja } (Titulo: 'Bandeja'; Icono: 'Blanco\04-bandeja-blanco'),
-    { secCotizaciones } (Titulo: 'Cotizaciones';
-    Icono: 'Blanco\00-cotizaciones-blanco'),
-    { secGeneracion } (Titulo: 'Nueva cotizaci'#243'n';
-    Icono: 'Blanco\01-nueva-blanco'),
-    { secDetalle } (Titulo: 'Detalle'; Icono: 'Blanco\00-cotizaciones-blanco'),
-    { secClientes } (Titulo: 'Clientes'; Icono: 'Blanco\02-clientes-blanco'),
-    { secMateriales } (Titulo: 'Materiales';
-    Icono: 'Blanco\03-materiales-blanco'),
-    { secReportes } (Titulo: 'Reportes'; Icono: 'Blanco\05-reportes-blanco'),
-    { secGerencia } (Titulo: 'Vista de gerencia';
-    Icono: 'Blanco\07-gerencia-blanco'),
-    { secUsuarios } (Titulo: 'Usuarios'; Icono: 'Blanco\08-usuarios-blanco'),
-    { secRoles } (Titulo: 'Roles'; Icono: 'Blanco\09-roles-blanco'),
-    { secAuditoria } (Titulo: 'Auditor'#237'a';
-    Icono: 'Blanco\26-auditoria-blanco'),
-    { secConfiguracion } (Titulo: 'Configuraci'#243'n';
-    Icono: 'Blanco\10-configuracion-blanco'));
+  // Solo el icono. El rotulo salio de aqui a Anovo.Textos, donde vive todo el
+  // texto que lee una persona, y lo devuelve TituloSeccion. Van separados a
+  // proposito: el icono es un nombre de recurso, no se traduce ni se corrige
+  // por estilo. Los dos se indexan por TSeccion, asi que una seccion nueva
+  // necesita entrada en los dos sitios.
+  ICONOS_MENU: array [TSeccion] of string = (
+    { secDashboard } 'Blanco\06-dashboard-blanco',
+    { secDashboardCuentas } 'Blanco\06-dashboard-blanco',
+    { secSolicitudes } 'Blanco\00-cotizaciones-blanco',
+    { secBandeja } 'Blanco\04-bandeja-blanco',
+    { secCotizaciones } 'Blanco\00-cotizaciones-blanco',
+    { secGeneracion } 'Blanco\01-nueva-blanco',
+    { secDetalle } 'Blanco\00-cotizaciones-blanco',
+    { secClientes } 'Blanco\02-clientes-blanco',
+    { secMateriales } 'Blanco\03-materiales-blanco',
+    { secReportes } 'Blanco\05-reportes-blanco',
+    { secGerencia } 'Blanco\07-gerencia-blanco',
+    { secUsuarios } 'Blanco\08-usuarios-blanco',
+    { secRoles } 'Blanco\09-roles-blanco',
+    { secAuditoria } 'Blanco\26-auditoria-blanco',
+    { secConfiguracion } 'Blanco\10-configuracion-blanco');
+
+function TituloSeccion(const ASeccion: TSeccion): string;
+begin
+  case ASeccion of
+    secDashboard, secDashboardCuentas:
+      Result := SMenuDashboard;
+    secSolicitudes:
+      Result := SMenuSolicitudes;
+    secBandeja:
+      Result := SMenuBandeja;
+    secCotizaciones:
+      Result := SMenuCotizaciones;
+    secGeneracion:
+      Result := SMenuNuevaCotizacion;
+    secDetalle:
+      Result := SMenuDetalle;
+    secClientes:
+      Result := SMenuClientes;
+    secMateriales:
+      Result := SMenuMateriales;
+    secReportes:
+      Result := SMenuReportes;
+    secGerencia:
+      Result := SMenuGerencia;
+    secUsuarios:
+      Result := SMenuUsuarios;
+    secRoles:
+      Result := SMenuRoles;
+    secAuditoria:
+      Result := SMenuAuditoria;
+    secConfiguracion:
+      Result := SMenuConfiguracion;
+  else
+    // Una seccion sin rotulo: se ve el hueco en el menu, no revienta.
+    Result := '';
+  end;
+end;
 
 procedure TfrmPrincipal.FormCreate(Sender: TObject);
 begin
@@ -166,10 +195,10 @@ begin
   lItem.Parent := pnlMenu;
   lItem.Align := alTop;
   lItem.Height := ALTO_ITEM;
-  lItem.Caption := ITEMS_MENU[ASeccion].Titulo;
+  lItem.Caption := TituloSeccion(ASeccion);
   lItem.Images := dmIconos.ViAnovo;
   lItem.ImageIndex := dmIconos.ViAnovo.GetIndexByName
-    (ITEMS_MENU[ASeccion].Icono);
+    (ICONOS_MENU[ASeccion]);
   lItem.SelectedColor := clGrayText;
   lItem.ShowHint := False;
   // El Tag guarda la seccion. pnlMenu lleva TAG_RAW, asi que el tema no lo lee.

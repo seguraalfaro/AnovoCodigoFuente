@@ -102,6 +102,10 @@ begin
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TTipoTrabajoRepository, ITipoTrabajoRepository,
     TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TPrecioProgramadoRepository,
+    IPrecioProgramadoRepository, TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TCatalogoTodosRepository, ICatalogoTodosRepository,
+    TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TCatalogoService, ICatalogoService,
     TRegistrationType.SingletonPerRequest);
 

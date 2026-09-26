@@ -217,7 +217,8 @@ begin
   e := LowerCase(Trim(lEstado));
   // Borrador y pendiente comparten el ambar a proposito: la distincion la hace
   // el texto de la pastilla, no el color. Igual que en el movil.
-  if (e = 'borrador') or (e = 'pendiente') or (e = 'recibida') then
+  if (e = 'borrador') or (e = 'pendiente') or (e = 'recibida') or
+    (e = 'programado') then
     Result := fsPending
   else if (e = 'aprobada') or (e = 'activo') or (e = 'firmado') then
     Result := fsSuccess
