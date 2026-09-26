@@ -232,6 +232,7 @@
         <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Cotizaciones.pas"/>
         <DCCReference Include="src\DTOs\Anovo.DTOs.Cotizaciones.pas"/>
         <DCCReference Include="src\Controllers\Anovo.Controllers.Cotizaciones.pas"/>
+        <DCCReference Include="src\Entities\Anovo.Entities.Vistas.Catalogos.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

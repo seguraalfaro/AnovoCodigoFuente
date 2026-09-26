@@ -1,4 +1,4 @@
-﻿// ***************************************************************************
+// ***************************************************************************
 //
 // Delphi MVC Framework
 //
@@ -89,7 +89,10 @@ uses
   Anovo.SQL.Cotizaciones in 'src\SQL\Anovo.SQL.Cotizaciones.pas',
   Anovo.Services.Intf.Cotizaciones in 'src\Interfaces\Anovo.Services.Intf.Cotizaciones.pas',
   Anovo.DTOs.Cotizaciones in 'src\DTOs\Anovo.DTOs.Cotizaciones.pas',
-  Anovo.Controllers.Cotizaciones in 'src\Controllers\Anovo.Controllers.Cotizaciones.pas';
+  Anovo.Controllers.Cotizaciones in 'src\Controllers\Anovo.Controllers.Cotizaciones.pas',
+  Anovo.Entities.Vistas.Catalogos in 'src\Entities\Anovo.Entities.Vistas.Catalogos.pas',
+  Anovo.Services.Solicitudes in 'src\Services\Anovo.Services.Solicitudes.pas',
+  Anovo.Services.Cotizaciones in 'src\Services\Anovo.Services.Cotizaciones.pas';
 
 {$R *.res}
 

@@ -122,10 +122,15 @@ type
     [MVCTableField('CATEGORIA_ID')]
     [MVCRequired]
     fCategoriaId: Int32;
-    [MVCTableField('DESCRIPCION')]
+    // Agregado a mano tras la migracion 12: MVCEntGen solo lo emitiria al
+    // regenerar desde la base.
+    [MVCTableField('NOMBRE')]
     [MVCRequired]
+    [MVCMaxLength(120)]
+    fNombre: String;
+    [MVCTableField('DESCRIPCION')]
     [MVCMaxLength(500)]
-    fDescripcion: String;
+    fDescripcion: NullableString;
     [MVCTableField('UNIDAD_MEDIDA')]
     [MVCRequired]
     [MVCMaxLength(20)]
@@ -141,7 +146,8 @@ type
     property ID: NullableInt32 read fID write fID;
     property Codigo: String read fCodigo write fCodigo;
     property CategoriaId: Int32 read fCategoriaId write fCategoriaId;
-    property Descripcion: String read fDescripcion write fDescripcion;
+    property Nombre: String read fNombre write fNombre;
+    property Descripcion: NullableString read fDescripcion write fDescripcion;
     property UnidadMedida: String read fUnidadMedida write fUnidadMedida;
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;

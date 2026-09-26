@@ -1,7 +1,406 @@
 unit Anovo.Controllers.Solicitudes;
 
+// Solicitudes bajo /api/solicitudes.
+//
+// El alcance no se resuelve solo con el atributo de permiso. Quien tiene
+// ver_propias y no ver_todas pasa el filtro del atributo igual, asi que aqui
+// hay que preguntar cual de los dos tiene y pasarselo al servicio, que filtra
+// por asesor. Sin esto, un asesor veria las visitas de sus companeros.
+
 interface
 
+uses
+  MVCFramework,
+  MVCFramework.Commons,
+  MVCFramework.Swagger.Commons,
+  Anovo.Auth.Permisos,
+  Anovo.DTOs.Solicitudes,
+  Anovo.Services.Intf.Permisos,
+  Anovo.Services.Intf.Solicitudes;
+
+const
+  PERMISO_VER_PROPIAS = 'solicitudes.ver_propias';
+  PERMISO_VER_TODAS = 'solicitudes.ver_todas';
+  PERMISO_CREAR = 'solicitudes.crear';
+  PERMISO_EDITAR_PROPIAS = 'solicitudes.editar_propias';
+  PERMISO_EDITAR_TODAS = 'solicitudes.editar_todas';
+  PERMISO_ADJUNTOS_VER = 'adjuntos.ver';
+  PERMISO_ADJUNTOS_CREAR = 'adjuntos.crear';
+
+  // Los dos juntos: el atributo deja pasar a quien tenga cualquiera de ellos.
+  PERMISO_VER = PERMISO_VER_PROPIAS + ';' + PERMISO_VER_TODAS;
+  PERMISO_EDITAR = PERMISO_EDITAR_PROPIAS + ';' + PERMISO_EDITAR_TODAS;
+
+  POR_PAGINA_POR_DEFECTO = 50;
+  POR_PAGINA_MAXIMO = 200;
+
+type
+
+  [MVCPath('/api/solicitudes')]
+  [MVCRequiresPermiso(PERMISO_VER)]
+  TSolicitudesController = class(TMVCController)
+  private
+    // Quien es y que alcance tiene, sacados del token de esta peticion.
+    function UsuarioId: Integer;
+    function SoloPropias(const APermisos: IPermisoService): Boolean;
+  public
+    [MVCPath]
+    [MVCHTTPMethods([httpGET])]
+    [MVCSwagSummary('Solicitudes', 'Lista y busca solicitudes, paginado',
+      'listarSolicitudes')]
+    [MVCSwagParam(plQuery, 'q', 'Texto a buscar en descripcion u ' +
+      'observaciones', ptString, False)]
+    [MVCSwagParam(plQuery, 'estado', 'Filtra por estado', ptString, False)]
+    [MVCSwagParam(plQuery, 'desde', 'Fecha de captura desde, aaaa-mm-dd',
+      ptString, False)]
+    [MVCSwagParam(plQuery, 'hasta', 'Fecha de captura hasta, aaaa-mm-dd',
+      ptString, False)]
+    [MVCSwagParam(plQuery, 'pagina', 'Numero de pagina, desde 1',
+      ptInteger, False)]
+    [MVCSwagParam(plQuery, 'por_pagina', 'Cuantos por pagina. Maximo 200',
+      ptInteger, False)]
+    [MVCSwagResponses(200, 'Pagina de solicitudes', TSolicitudesPaginaDTO)]
+    [MVCSwagResponses(401, 'Sin token o token vencido')]
+    [MVCSwagResponses(403, 'El rol no tiene el permiso para esta operacion')]
+    function Listar([MVCInject] AServicio: ISolicitudService;
+      [MVCInject] APermisos: IPermisoService;
+      const [MVCFromQueryString('q', '')] ABusqueda: string;
+      const [MVCFromQueryString('estado', '')] AEstado: string;
+      const [MVCFromQueryString('desde', '')] ADesde: string;
+      const [MVCFromQueryString('hasta', '')] AHasta: string;
+      const [MVCFromQueryString('pagina', 1)] APagina: Integer;
+      const [MVCFromQueryString('por_pagina', POR_PAGINA_POR_DEFECTO)
+      ] APorPagina: Integer): TSolicitudesPaginaDTO;
+
+    [MVCPath('/pendientes-de-cotizar')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCSwagSummary('Solicitudes', 'Las recibidas que todavia no tienen ' +
+      'cotizacion. Es la bandeja del asistente',
+      'solicitudesPendientesDeCotizar')]
+    [MVCSwagResponses(200, 'Las pendientes, la mas antigua primero')]
+    function PendientesDeCotizar([MVCInject] AServicio: ISolicitudService)
+      : IMVCResponse;
+
+    [MVCPath('/($AId)')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCSwagSummary('Solicitudes', 'Obtiene una solicitud por su numero',
+      'obtenerSolicitud')]
+    [MVCSwagResponses(200, 'La solicitud', TSolicitudDTO)]
+    [MVCSwagResponses(404, 'No existe solicitud con ese numero')]
+    function Obtener([MVCInject] AServicio: ISolicitudService;
+      const AId: Integer): IMVCResponse;
+
+    [MVCPath]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_CREAR)]
+    [MVCSwagSummary('Solicitudes', 'Registra una solicitud. Idempotente por ' +
+      'uuid_local', 'crearSolicitud')]
+    [MVCSwagResponses(201, 'Creada. Location apunta a la solicitud')]
+    [MVCSwagResponses(422, 'Falta el uuid local o el cliente no existe')]
+    function Crear([MVCInject] AServicio: ISolicitudService;
+      const [MVCFromBody] ADto: TSolicitudNuevaDTO): IMVCResponse;
+
+    [MVCPath('/completa')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_CREAR)]
+    [MVCRequiresPermiso(PERMISO_ADJUNTOS_CREAR)]
+    [MVCSwagSummary('Solicitudes', 'El envio del movil: solicitud, medidas y ' +
+      'adjuntos en una transaccion', 'registrarSolicitudCompleta')]
+    [MVCSwagResponses(201, 'Registrada. Location apunta a la solicitud')]
+    [MVCSwagResponses(422, 'Algun dato del lote no es valido')]
+    function RegistrarCompleta([MVCInject] AServicio: ISolicitudService;
+      const [MVCFromBody] ADto: TSolicitudCompletaDTO): IMVCResponse;
+
+    [MVCPath('/($AId)')]
+    [MVCHTTPMethods([httpPUT])]
+    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCSwagSummary('Solicitudes', 'Actualiza una solicitud',
+      'actualizarSolicitud')]
+    [MVCSwagResponses(204, 'Actualizada')]
+    [MVCSwagResponses(409, 'Otra persona la modifico, o ya esta cotizada')]
+    function Actualizar([MVCInject] AServicio: ISolicitudService;
+      const AId: Integer;
+      const [MVCFromBody] ADto: TSolicitudEdicionDTO): IMVCResponse;
+
+    [MVCPath('/($AId)/recepcion')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCSwagSummary('Solicitudes', 'Sella la fecha de recepcion. Se hace una ' +
+      'sola vez', 'marcarSolicitudRecibida')]
+    [MVCSwagResponses(204, 'Recibida')]
+    function Recibir([MVCInject] AServicio: ISolicitudService;
+      const AId: Integer): IMVCResponse;
+
+    [MVCPath('/($AId)/estado')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCSwagSummary('Solicitudes', 'Cambia el estado de la solicitud',
+      'cambiarEstadoSolicitud')]
+    [MVCSwagResponses(204, 'Estado cambiado')]
+    [MVCSwagResponses(409, 'La transicion no es valida desde el estado actual')]
+    function CambiarEstado([MVCInject] AServicio: ISolicitudService;
+      const AId: Integer;
+      const [MVCFromBody] ADto: TCambioEstadoDTO): IMVCResponse;
+
+    // MEDIDAS
+
+    [MVCPath('/($AId)/medidas')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCSwagSummary('Solicitudes', 'Las medidas de la solicitud',
+      'listarMedidas')]
+    [MVCSwagResponses(200, 'Las medidas, en el orden en que se capturaron')]
+    function Medidas([MVCInject] AServicio: ISolicitudService;
+      const AId: Integer): IMVCResponse;
+
+    [MVCPath('/($AId)/medidas')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCSwagSummary('Solicitudes', 'Agrega una medida', 'agregarMedida')]
+    [MVCSwagResponses(201, 'Creada')]
+    function AgregarMedida([MVCInject] AServicio: ISolicitudService;
+      const AId: Integer;
+      const [MVCFromBody] ADto: TMedidaNuevaDTO): IMVCResponse;
+
+    [MVCPath('/($AId)/medidas/($AMedidaId)')]
+    [MVCHTTPMethods([httpPUT])]
+    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCSwagSummary('Solicitudes', 'Actualiza una medida',
+      'actualizarMedida')]
+    [MVCSwagResponses(204, 'Actualizada')]
+    function ActualizarMedida([MVCInject] AServicio: ISolicitudService;
+      const AId: Integer; const AMedidaId: Integer;
+      const [MVCFromBody] ADto: TMedidaNuevaDTO): IMVCResponse;
+
+    [MVCPath('/($AId)/medidas/($AMedidaId)')]
+    [MVCHTTPMethods([httpDELETE])]
+    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCSwagSummary('Solicitudes', 'Elimina una medida. Es un dato de ' +
+      'captura, no un registro historico', 'eliminarMedida')]
+    [MVCSwagResponses(204, 'Eliminada')]
+    function EliminarMedida([MVCInject] AServicio: ISolicitudService;
+      const AId: Integer; const AMedidaId: Integer): IMVCResponse;
+
+    // ADJUNTOS
+
+    [MVCPath('/($AId)/adjuntos')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCRequiresPermiso(PERMISO_ADJUNTOS_VER)]
+    [MVCSwagSummary('Solicitudes', 'Metadatos de los adjuntos. Sin el ' +
+      'contenido', 'listarAdjuntos')]
+    [MVCSwagResponses(200, 'Los adjuntos activos')]
+    function Adjuntos([MVCInject] AServicio: ISolicitudService;
+      const AId: Integer): IMVCResponse;
+
+    [MVCPath('/($AId)/adjuntos/($AAdjuntoId)')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCRequiresPermiso(PERMISO_ADJUNTOS_VER)]
+    [MVCSwagSummary('Solicitudes', 'Un adjunto con su contenido en base64',
+      'obtenerAdjunto')]
+    [MVCSwagResponses(200, 'El adjunto', TAdjuntoContenidoDTO)]
+    [MVCSwagResponses(404, 'No existe ese adjunto en la solicitud')]
+    function ObtenerAdjunto([MVCInject] AServicio: ISolicitudService;
+      const AId: Integer; const AAdjuntoId: Integer): IMVCResponse;
+
+    [MVCPath('/($AId)/adjuntos')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_ADJUNTOS_CREAR)]
+    [MVCSwagSummary('Solicitudes', 'Agrega un adjunto. Contenido en base64, ' +
+      'maximo 3 MB', 'agregarAdjunto')]
+    [MVCSwagResponses(201, 'Creado')]
+    [MVCSwagResponses(422, 'Tipo invalido, adjunto vacio o mayor de 3 MB')]
+    function AgregarAdjunto([MVCInject] AServicio: ISolicitudService;
+      const AId: Integer;
+      const [MVCFromBody] ADto: TAdjuntoNuevoDTO): IMVCResponse;
+
+    [MVCPath('/($AId)/adjuntos/($AAdjuntoId)/inactivacion')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_ADJUNTOS_CREAR)]
+    [MVCSwagSummary('Solicitudes', 'Inactiva un adjunto. No se borra: es la ' +
+      'evidencia de lo que se midio', 'inactivarAdjunto')]
+    [MVCSwagResponses(204, 'Inactivado')]
+    function InactivarAdjunto([MVCInject] AServicio: ISolicitudService;
+      const AId: Integer; const AAdjuntoId: Integer): IMVCResponse;
+  end;
+
 implementation
+
+uses
+  System.Math,
+  System.SysUtils,
+  System.Generics.Collections;
+
+// Apoyo
+
+function TSolicitudesController.UsuarioId: Integer;
+var
+  lTexto: string;
+begin
+  lTexto := '';
+  if Assigned(Context.LoggedUser.CustomData) then
+    Context.LoggedUser.CustomData.TryGetValue('USUARIO_ID', lTexto);
+  if not TryStrToInt(lTexto, Result) then
+    Result := 0;
+end;
+
+function TSolicitudesController.SoloPropias(const APermisos
+  : IPermisoService): Boolean;
+var
+  lRol: string;
+begin
+  // Basta uno de los roles con ver_todas. Si ninguno lo tiene, el usuario
+  // llego aqui por ver_propias y hay que acotarlo.
+  for lRol in Context.LoggedUser.Roles do
+    if APermisos.Tiene(lRol, PERMISO_VER_TODAS) then
+      Exit(False);
+  Result := True;
+end;
+
+// Convierte aaaa-mm-dd a fecha. Vacio o mal escrito es cero, que el
+// repositorio entiende como "sin filtro".
+function ComoFecha(const ATexto: string): TDateTime;
+var
+  lFormato: TFormatSettings;
+begin
+  if ATexto.IsEmpty then
+    Exit(0);
+  lFormato := TFormatSettings.Create;
+  lFormato.DateSeparator := '-';
+  lFormato.ShortDateFormat := 'yyyy-mm-dd';
+  if not TryStrToDate(ATexto, Result, lFormato) then
+    Result := 0;
+end;
+
+// Solicitudes
+
+function TSolicitudesController.Listar(AServicio: ISolicitudService;
+  APermisos: IPermisoService; const ABusqueda, AEstado, ADesde, AHasta: string;
+  const APagina, APorPagina: Integer): TSolicitudesPaginaDTO;
+var
+  lTotal: Int64;
+  lPagina, lPorPagina: Integer;
+  lHasta: TDateTime;
+  lDatos: TObjectList<TSolicitudDTO>;
+begin
+  lPagina := Max(APagina, 1);
+  lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
+
+  // El hasta incluye el dia entero: quien escribe 30-09 espera ver lo del 30,
+  // y una fecha sin hora es la medianoche de ese dia.
+  lHasta := ComoFecha(AHasta);
+  if lHasta > 0 then
+    lHasta := lHasta + 1 - (1 / SecsPerDay);
+
+  lDatos := AServicio.Buscar(ABusqueda, AEstado, ComoFecha(ADesde), lHasta,
+    SoloPropias(APermisos), UsuarioId, lPagina, lPorPagina, lTotal);
+
+  Result := TSolicitudesPaginaDTO.Create(lDatos, lTotal, lPagina, lPorPagina);
+end;
+
+function TSolicitudesController.PendientesDeCotizar
+  (AServicio: ISolicitudService): IMVCResponse;
+begin
+  Result := OKResponse(AServicio.PendientesDeCotizar);
+end;
+
+function TSolicitudesController.Obtener(AServicio: ISolicitudService;
+  const AId: Integer): IMVCResponse;
+begin
+  Result := OKResponse(AServicio.Obtener(AId));
+end;
+
+function TSolicitudesController.Crear(AServicio: ISolicitudService;
+  const ADto: TSolicitudNuevaDTO): IMVCResponse;
+begin
+  // Si ya habia subido con ese uuid_local, el servicio devuelve el id
+  // existente y el Location apunta al mismo sitio: el telefono que reintenta
+  // no distingue si creo o reencontro, y no necesita distinguirlo.
+  Result := CreatedResponse('/api/solicitudes/' +
+    AServicio.Crear(ADto).ToString);
+end;
+
+function TSolicitudesController.RegistrarCompleta(AServicio: ISolicitudService;
+  const ADto: TSolicitudCompletaDTO): IMVCResponse;
+begin
+  Result := CreatedResponse('/api/solicitudes/' +
+    AServicio.RegistrarCompleta(ADto).ToString);
+end;
+
+function TSolicitudesController.Actualizar(AServicio: ISolicitudService;
+  const AId: Integer; const ADto: TSolicitudEdicionDTO): IMVCResponse;
+begin
+  AServicio.Actualizar(AId, ADto);
+  Result := NoContentResponse;
+end;
+
+function TSolicitudesController.Recibir(AServicio: ISolicitudService;
+  const AId: Integer): IMVCResponse;
+begin
+  AServicio.MarcarRecibida(AId);
+  Result := NoContentResponse;
+end;
+
+function TSolicitudesController.CambiarEstado(AServicio: ISolicitudService;
+  const AId: Integer; const ADto: TCambioEstadoDTO): IMVCResponse;
+begin
+  AServicio.CambiarEstado(AId, ADto);
+  Result := NoContentResponse;
+end;
+
+// Medidas
+
+function TSolicitudesController.Medidas(AServicio: ISolicitudService;
+  const AId: Integer): IMVCResponse;
+begin
+  Result := OKResponse(AServicio.Medidas(AId));
+end;
+
+function TSolicitudesController.AgregarMedida(AServicio: ISolicitudService;
+  const AId: Integer; const ADto: TMedidaNuevaDTO): IMVCResponse;
+begin
+  Result := CreatedResponse('/api/solicitudes/' + AId.ToString + '/medidas/' +
+    AServicio.AgregarMedida(AId, ADto).ToString);
+end;
+
+function TSolicitudesController.ActualizarMedida(AServicio: ISolicitudService;
+  const AId, AMedidaId: Integer; const ADto: TMedidaNuevaDTO): IMVCResponse;
+begin
+  AServicio.ActualizarMedida(AId, AMedidaId, ADto);
+  Result := NoContentResponse;
+end;
+
+function TSolicitudesController.EliminarMedida(AServicio: ISolicitudService;
+  const AId, AMedidaId: Integer): IMVCResponse;
+begin
+  AServicio.EliminarMedida(AId, AMedidaId);
+  Result := NoContentResponse;
+end;
+
+// Adjuntos
+
+function TSolicitudesController.Adjuntos(AServicio: ISolicitudService;
+  const AId: Integer): IMVCResponse;
+begin
+  Result := OKResponse(AServicio.Adjuntos(AId));
+end;
+
+function TSolicitudesController.ObtenerAdjunto(AServicio: ISolicitudService;
+  const AId, AAdjuntoId: Integer): IMVCResponse;
+begin
+  Result := OKResponse(AServicio.ObtenerAdjunto(AId, AAdjuntoId));
+end;
+
+function TSolicitudesController.AgregarAdjunto(AServicio: ISolicitudService;
+  const AId: Integer; const ADto: TAdjuntoNuevoDTO): IMVCResponse;
+begin
+  Result := CreatedResponse('/api/solicitudes/' + AId.ToString + '/adjuntos/' +
+    AServicio.AgregarAdjunto(AId, ADto).ToString);
+end;
+
+function TSolicitudesController.InactivarAdjunto(AServicio: ISolicitudService;
+  const AId, AAdjuntoId: Integer): IMVCResponse;
+begin
+  AServicio.InactivarAdjunto(AId, AAdjuntoId);
+  Result := NoContentResponse;
+end;
 
 end.

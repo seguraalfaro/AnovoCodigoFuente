@@ -76,8 +76,7 @@ type
 
     function ObtenerPorCodigo(const ACodigo: string): TManoObra;
 
-    // El duplicado se mide por descripcion: esta tabla no tiene nombre.
-    function ExisteDescripcion(const ADescripcion: string;
+    function ExisteNombre(const ANombre: string;
       const AExcluirId: Integer = 0): Boolean;
   end;
 

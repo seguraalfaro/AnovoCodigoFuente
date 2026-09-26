@@ -76,8 +76,10 @@ type
     // el numero.
     [MVCTableField('CATEGORIA_NOMBRE')]
     fCategoriaNombre: String;
+    [MVCTableField('NOMBRE')]
+    fNombre: String;
     [MVCTableField('DESCRIPCION')]
-    fDescripcion: String;
+    fDescripcion: NullableString;
     [MVCTableField('UNIDAD_MEDIDA')]
     fUnidadMedida: String;
     [MVCTableField('ACTIVO')]
@@ -93,7 +95,8 @@ type
     property CategoriaId: Int32 read fCategoriaId write fCategoriaId;
     property CategoriaNombre: String read fCategoriaNombre
       write fCategoriaNombre;
-    property Descripcion: String read fDescripcion write fDescripcion;
+    property Nombre: String read fNombre write fNombre;
+    property Descripcion: NullableString read fDescripcion write fDescripcion;
     property UnidadMedida: String read fUnidadMedida write fUnidadMedida;
     property Activo: NullableBoolean read fActivo write fActivo;
     property CostoUnitario: NullableCurrency read fCostoUnitario

@@ -19,6 +19,12 @@ interface
 procedure FijarUsuario(const AUsuarioId: Integer);
 procedure LimpiarUsuario;
 
+// Quien escribe, leido del mismo contexto que fijo el middleware. Es para las
+// columnas MODIFICADO_POR, que no las pone ningun disparador. Devuelve 0 si no
+// hay usuario, y entonces la escritura va a fallar en el disparador de todos
+// modos.
+function UsuarioActual: Integer;
+
 // El por que del cambio, que el disparador copia a AUDITORIA.DETALLE. Lo
 // pone el servicio justo antes de escribir, porque es el unico que conoce
 // la intencion: el disparador solo ve que cambio una fila.
@@ -29,6 +35,7 @@ implementation
 
 uses
   System.SysUtils,
+  System.Variants,
   MVCFramework.ActiveRecord;
 
 const
@@ -44,6 +51,9 @@ const
   SQL_DETALLE =
     'select rdb$set_context(''USER_SESSION'', ''DETALLE'', %s) ' +
     'from rdb$database';
+  SQL_USUARIO =
+    'select rdb$get_context(''USER_SESSION'', ''USUARIO_ID'') ' +
+    'from rdb$database';
 
 procedure FijarUsuario(const AUsuarioId: Integer);
 begin
@@ -58,6 +68,16 @@ end;
 procedure LimpiarUsuario;
 begin
   TMVCActiveRecord.CurrentConnection.ExecSQLScalar(SQL_LIMPIAR);
+end;
+
+function UsuarioActual: Integer;
+var
+  lValor: Variant;
+begin
+  // RDB$GET_CONTEXT devuelve texto: lo que se fijo con Format.
+  lValor := TMVCActiveRecord.CurrentConnection.ExecSQLScalar(SQL_USUARIO);
+  if VarIsNull(lValor) or not TryStrToInt(VarToStr(lValor), Result) then
+    Result := 0;
 end;
 
 procedure FijarDetalle(const ADetalle: string);

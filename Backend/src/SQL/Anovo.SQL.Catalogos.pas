@@ -68,16 +68,17 @@ const
 
   // MANO DE OBRA -------------------------------------------------------------
 
-  // Dos ? con el mismo texto: esta tabla no tiene NOMBRE.
+  // Tres ? con el mismo texto.
   MANO_OBRA_FILTRO_BUSQUEDA =
-    '(MANO_OBRA.CODIGO CONTAINING ? OR MANO_OBRA.DESCRIPCION CONTAINING ?)';
+    '(MANO_OBRA.CODIGO CONTAINING ? OR MANO_OBRA.NOMBRE CONTAINING ? ' +
+    ' OR MANO_OBRA.DESCRIPCION CONTAINING ?)';
 
   MANO_OBRA_SOLO_ACTIVOS = ' AND MANO_OBRA.ACTIVO = TRUE';
 
   // Un ? mas, despues de los dos del texto.
   MANO_OBRA_POR_CATEGORIA = ' AND MANO_OBRA.CATEGORIA_ID = ?';
 
-  MANO_OBRA_ORDEN_Y_PAGINA = ' ORDER BY MANO_OBRA.DESCRIPCION ROWS ? TO ?';
+  MANO_OBRA_ORDEN_Y_PAGINA = ' ORDER BY MANO_OBRA.NOMBRE ROWS ? TO ?';
 
   MANO_OBRA_CONTAR = 'select count(*) from MANO_OBRA where ';
 
@@ -85,7 +86,8 @@ const
   // NULL; el precio con LEFT, por lo mismo que en materiales.
   MANO_OBRA_CON_PRECIO =
     'select MANO_OBRA.ID, MANO_OBRA.CODIGO, MANO_OBRA.CATEGORIA_ID, ' +
-    ' c.NOMBRE as CATEGORIA_NOMBRE, MANO_OBRA.DESCRIPCION, ' +
+    ' c.NOMBRE as CATEGORIA_NOMBRE, MANO_OBRA.NOMBRE, ' +
+    ' MANO_OBRA.DESCRIPCION, ' +
     ' MANO_OBRA.UNIDAD_MEDIDA, MANO_OBRA.ACTIVO, ' +
     ' p.COSTO_UNITARIO, p.FECHA_VIGENCIA ' +
     'from MANO_OBRA ' +
@@ -96,11 +98,11 @@ const
 
   MANO_OBRA_POR_CODIGO = 'MANO_OBRA.CODIGO = ?';
 
-  // Completa. Dos ?: descripcion e ID a excluir. El duplicado se mide por
-  // DESCRIPCION, que es lo que se lee en la lista.
-  MANO_OBRA_DESCRIPCION_DUPLICADA =
+  // Completa. Dos ?: nombre e ID a excluir. Desde la migracion 12 se mide por
+  // NOMBRE, igual que en los otros dos catalogos.
+  MANO_OBRA_NOMBRE_DUPLICADO =
     'select first 1 ID from MANO_OBRA ' +
-    'where UPPER(DESCRIPCION) = UPPER(?) and ID <> ?';
+    'where UPPER(NOMBRE) = UPPER(?) and ID <> ?';
 
   // La condicion siempre cierta esta porque GetWhere exige un WHERE.
   MANO_OBRA_CATEGORIAS = 'ID > 0 ORDER BY NOMBRE';

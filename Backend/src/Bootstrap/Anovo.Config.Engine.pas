@@ -1,4 +1,4 @@
-﻿// ***************************************************************************
+// ***************************************************************************
 //
 // Delphi MVC Framework
 //
@@ -19,8 +19,12 @@ procedure ConfigureEngine(AEngine: TMVCEngine);
 
 implementation
 
-uses
+uses
+
   Anovo.Controllers.Auditoria,
+  Anovo.Controllers.Catalogos,
+  Anovo.Controllers.Solicitudes,
+  Anovo.Controllers.Cotizaciones,
   Anovo.Controllers.Clientes,
   Anovo.Controllers.Sesion,
   Anovo.Auth.RoleHandler,
@@ -56,6 +60,9 @@ begin
   AEngine.AddController(TClientesController);
   AEngine.AddController(TSesionController);
   AEngine.AddController(TAuditoriaController);
+  AEngine.AddController(TCatalogosController);
+  AEngine.AddController(TSolicitudesController);
+  AEngine.AddController(TCotizacionesController);
   // Controllers - END
 
   AEngine.SetExceptionHandler(ManejadorDeErrores());

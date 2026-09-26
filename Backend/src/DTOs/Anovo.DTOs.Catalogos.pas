@@ -89,7 +89,8 @@ type
     fCodigo: string;
     fCategoriaId: Integer;
     fCategoriaNombre: string;
-    fDescripcion: string;
+    fNombre: string;
+    fDescripcion: NullableString;
     fUnidadMedida: string;
     fActivo: Boolean;
     fCostoUnitario: NullableCurrency;
@@ -100,7 +101,8 @@ type
     property CategoriaId: Integer read fCategoriaId write fCategoriaId;
     property CategoriaNombre: string read fCategoriaNombre
       write fCategoriaNombre;
-    property Descripcion: string read fDescripcion write fDescripcion;
+    property Nombre: string read fNombre write fNombre;
+    property Descripcion: NullableString read fDescripcion write fDescripcion;
     property UnidadMedida: string read fUnidadMedida write fUnidadMedida;
     property Activo: Boolean read fActivo write fActivo;
     // Sin precio de venta: la mano de obra solo lleva costo.
@@ -115,12 +117,14 @@ type
   private
     fCodigo: string;
     fCategoriaId: Integer;
-    fDescripcion: string;
+    fNombre: string;
+    fDescripcion: NullableString;
     fUnidadMedida: string;
   public
     property Codigo: string read fCodigo write fCodigo;
     property CategoriaId: Integer read fCategoriaId write fCategoriaId;
-    property Descripcion: string read fDescripcion write fDescripcion;
+    property Nombre: string read fNombre write fNombre;
+    property Descripcion: NullableString read fDescripcion write fDescripcion;
     property UnidadMedida: string read fUnidadMedida write fUnidadMedida;
   end;
 
@@ -129,12 +133,14 @@ type
   private
     fCodigo: string;
     fCategoriaId: Integer;
-    fDescripcion: string;
+    fNombre: string;
+    fDescripcion: NullableString;
     fUnidadMedida: string;
   public
     property Codigo: string read fCodigo write fCodigo;
     property CategoriaId: Integer read fCategoriaId write fCategoriaId;
-    property Descripcion: string read fDescripcion write fDescripcion;
+    property Nombre: string read fNombre write fNombre;
+    property Descripcion: NullableString read fDescripcion write fDescripcion;
     property UnidadMedida: string read fUnidadMedida write fUnidadMedida;
   end;
 

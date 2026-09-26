@@ -1,4 +1,4 @@
-﻿// ***************************************************************************
+// ***************************************************************************
 //
 // Delphi MVC Framework
 //
@@ -39,7 +39,19 @@ uses
   Anovo.Repositories.Intf.Usuarios,
   Anovo.Repositories.Usuarios,
   Anovo.Services.Intf.Auditoria,
-  Anovo.Services.Auditoria;
+  Anovo.Services.Auditoria,
+  Anovo.Repositories.Intf.Catalogos,
+  Anovo.Repositories.Catalogos,
+  Anovo.Services.Intf.Catalogos,
+  Anovo.Services.Catalogos,
+  Anovo.Repositories.Intf.Solicitudes,
+  Anovo.Repositories.Solicitudes,
+  Anovo.Services.Intf.Solicitudes,
+  Anovo.Services.Solicitudes,
+  Anovo.Repositories.Intf.Cotizaciones,
+  Anovo.Repositories.Cotizaciones,
+  Anovo.Services.Intf.Cotizaciones,
+  Anovo.Services.Cotizaciones;
 
 procedure RegisterServices(Container: IMVCServiceContainer);
 begin
@@ -69,6 +81,51 @@ begin
   Container.RegisterType(TAuditoriaService, IAuditoriaService,
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TAuditoriaRepository, IAuditoriaRepository,
+    TRegistrationType.SingletonPerRequest);
+
+  // Catalogos. Ocho repositorios, uno por tabla, y un solo servicio que los
+  // junta: el item y su precio se tocan en la misma transaccion. Por peticion
+  // como los demas, porque usan la conexion del middleware.
+  Container.RegisterType(TMaterialRepository, IMaterialRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TMaterialPrecioRepository, IMaterialPrecioRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TManoObraRepository, IManoObraRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TManoObraPrecioRepository, IManoObraPrecioRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TManoObraCategoriaRepository,
+    IManoObraCategoriaRepository, TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TMaquinaRepository, IMaquinaRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TMaquinaPrecioRepository, IMaquinaPrecioRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TTipoTrabajoRepository, ITipoTrabajoRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TCatalogoService, ICatalogoService,
+    TRegistrationType.SingletonPerRequest);
+
+  // Solicitudes. El servicio recibe ademas el repositorio de clientes, que ya
+  // esta registrado arriba: necesita el nombre del cliente para el listado y
+  // comprobar que existe antes de insertar.
+  Container.RegisterType(TSolicitudRepository, ISolicitudRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TSolicitudMedidaRepository,
+    ISolicitudMedidaRepository, TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TSolicitudAdjuntoRepository,
+    ISolicitudAdjuntoRepository, TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TSolicitudService, ISolicitudService,
+    TRegistrationType.SingletonPerRequest);
+
+  // Cotizaciones. El servicio recibe ademas los repositorios de solicitudes,
+  // clientes y los tres de precios: la cabecera se arrastra de la solicitud y
+  // cada linea copia el precio vigente del catalogo. Todos estan registrados
+  // arriba.
+  Container.RegisterType(TCotizacionRepository, ICotizacionRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TCotizacionDetalleRepository,
+    ICotizacionDetalleRepository, TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TCotizacionService, ICotizacionService,
     TRegistrationType.SingletonPerRequest);
 
   // Permisos. El repositorio por peticion, por lo mismo que clientes: usa la
