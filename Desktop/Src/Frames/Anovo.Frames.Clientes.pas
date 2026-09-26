@@ -5,6 +5,8 @@ unit Anovo.Frames.Clientes;
 
 
 
+
+
 // Gestion de clientes (HU-01, lado escritorio): la vista del listado.
 //
 // No decide nada. Pasa al presentador lo que se escribio, la pestana y la
@@ -92,6 +94,7 @@ implementation
 {$R *.dfm}
 
 uses
+  rDBExport,
   Anovo.Api.Clientes,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria;
@@ -263,6 +266,12 @@ begin
   FPresentador.PaginaAnterior;
 end;
 
+procedure TfraClientes.btnExportarClick(Sender: TObject);
+begin
+  rDBExport.DBExport(grClientes, true, true);
+
+end;
+
 procedure TfraClientes.btnSiguienteClick(Sender: TObject);
 begin
   FPresentador.PaginaSiguiente;
@@ -281,11 +290,6 @@ begin
   finally
     lVentana.Free;
   end;
-end;
-
-procedure TfraClientes.btnExportarClick(Sender: TObject);
-begin
-  MessageDlg(MENSAJE_PENDIENTE, mtInformation, [mbOK], 0);
 end;
 
 end.

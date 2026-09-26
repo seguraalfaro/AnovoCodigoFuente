@@ -566,27 +566,48 @@ object dmMemoria: TdmMemoria
       FieldName = 'ID'
     end
     object mtMaterialesCODIGO: TStringField
+      DisplayLabel = 'C'#243'digo'
       FieldName = 'CODIGO'
+      Size = 30
     end
-    object mtMaterialesDESCRIPCION: TStringField
-      FieldName = 'DESCRIPCION'
+    object mtMaterialesNOMBRE: TStringField
+      DisplayLabel = 'Nombre'
+      FieldName = 'NOMBRE'
       Size = 120
     end
+    object mtMaterialesDESCRIPCION: TStringField
+      DisplayLabel = 'Descripci'#243'n'
+      FieldName = 'DESCRIPCION'
+      Size = 500
+    end
     object mtMaterialesUNIDAD_MEDIDA: TStringField
+      DisplayLabel = 'Unidad'
       FieldName = 'UNIDAD_MEDIDA'
-      Size = 15
+      Size = 20
+    end
+    object mtMaterialesCOSTO_UNITARIO: TCurrencyField
+      DisplayLabel = 'Costo'
+      FieldName = 'COSTO_UNITARIO'
+      DisplayFormat = '#,##0.00'
+      currency = False
     end
     object mtMaterialesPRECIO_UNITARIO: TCurrencyField
+      DisplayLabel = 'Precio'
       FieldName = 'PRECIO_UNITARIO'
       DisplayFormat = '#,##0.00'
       currency = False
     end
     object mtMaterialesFECHA_VIGENCIA: TDateField
+      DisplayLabel = 'Vigente desde'
       FieldName = 'FECHA_VIGENCIA'
       DisplayFormat = 'dd/mm/yyyy'
     end
-    object mtMaterialesACTIVO: TStringField
+    object mtMaterialesACTIVO: TBooleanField
       FieldName = 'ACTIVO'
+    end
+    object mtMaterialesESTADO: TStringField
+      DisplayLabel = 'Estado'
+      FieldName = 'ESTADO'
       Size = 15
     end
     object mtMaterialesACCIONES: TStringField
@@ -602,33 +623,56 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 272
+    Left = 256
     Top = 376
     object mtManoObraID: TIntegerField
       FieldName = 'ID'
     end
     object mtManoObraCODIGO: TStringField
+      DisplayLabel = 'C'#243'digo'
       FieldName = 'CODIGO'
+      Size = 30
     end
-    object mtManoObraDESCRIPCION: TStringField
-      FieldName = 'DESCRIPCION'
+    object mtManoObraCATEGORIA_ID: TIntegerField
+      FieldName = 'CATEGORIA_ID'
+    end
+    object mtManoObraCATEGORIA_NOMBRE: TStringField
+      DisplayLabel = 'Categor'#237'a'
+      FieldName = 'CATEGORIA_NOMBRE'
       Size = 120
     end
+    object mtManoObraNOMBRE: TStringField
+      DisplayLabel = 'Nombre'
+      FieldName = 'NOMBRE'
+      Size = 120
+    end
+    object mtManoObraDESCRIPCION: TStringField
+      DisplayLabel = 'Descripci'#243'n'
+      FieldName = 'DESCRIPCION'
+      Size = 500
+    end
     object mtManoObraUNIDAD_MEDIDA: TStringField
+      DisplayLabel = 'Unidad'
       FieldName = 'UNIDAD_MEDIDA'
-      Size = 15
+      Size = 20
     end
     object mtManoObraCOSTO_UNITARIO: TCurrencyField
+      DisplayLabel = 'Costo'
       FieldName = 'COSTO_UNITARIO'
       DisplayFormat = '#,##0.00'
       currency = False
     end
     object mtManoObraFECHA_VIGENCIA: TDateField
+      DisplayLabel = 'Vigente desde'
       FieldName = 'FECHA_VIGENCIA'
       DisplayFormat = 'dd/mm/yyyy'
     end
-    object mtManoObraACTIVO: TStringField
+    object mtManoObraACTIVO: TBooleanField
       FieldName = 'ACTIVO'
+    end
+    object mtManoObraESTADO: TStringField
+      DisplayLabel = 'Estado'
+      FieldName = 'ESTADO'
       Size = 15
     end
     object mtManoObraACCIONES: TStringField
@@ -644,33 +688,43 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 392
+    Left = 360
     Top = 376
     object mtMaquinasID: TIntegerField
       FieldName = 'ID'
     end
     object mtMaquinasCODIGO: TStringField
+      DisplayLabel = 'C'#243'digo'
       FieldName = 'CODIGO'
+      Size = 30
     end
     object mtMaquinasNOMBRE: TStringField
+      DisplayLabel = 'Nombre'
       FieldName = 'NOMBRE'
       Size = 120
     end
-    object mtMaquinasUNIDAD: TStringField
-      FieldName = 'UNIDAD'
-      Size = 15
+    object mtMaquinasDESCRIPCION: TStringField
+      DisplayLabel = 'Descripci'#243'n'
+      FieldName = 'DESCRIPCION'
+      Size = 500
     end
     object mtMaquinasCOSTO_HORA: TCurrencyField
+      DisplayLabel = 'Costo por hora'
       FieldName = 'COSTO_HORA'
       DisplayFormat = '#,##0.00'
       currency = False
     end
     object mtMaquinasFECHA_VIGENCIA: TDateField
+      DisplayLabel = 'Vigente desde'
       FieldName = 'FECHA_VIGENCIA'
       DisplayFormat = 'dd/mm/yyyy'
     end
-    object mtMaquinasACTIVO: TStringField
+    object mtMaquinasACTIVO: TBooleanField
       FieldName = 'ACTIVO'
+    end
+    object mtMaquinasESTADO: TStringField
+      DisplayLabel = 'Estado'
+      FieldName = 'ESTADO'
       Size = 15
     end
     object mtMaquinasACCIONES: TStringField
@@ -686,24 +740,22 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 512
+    Left = 464
     Top = 376
     object mtTiposTrabajoID: TIntegerField
       FieldName = 'ID'
     end
-    object mtTiposTrabajoCODIGO: TStringField
-      FieldName = 'CODIGO'
-    end
     object mtTiposTrabajoNOMBRE: TStringField
+      DisplayLabel = 'Nombre'
       FieldName = 'NOMBRE'
       Size = 120
     end
-    object mtTiposTrabajoMARGEN: TFloatField
-      FieldName = 'MARGEN'
-      DisplayFormat = '#,##0.00'
-    end
-    object mtTiposTrabajoACTIVO: TStringField
+    object mtTiposTrabajoACTIVO: TBooleanField
       FieldName = 'ACTIVO'
+    end
+    object mtTiposTrabajoESTADO: TStringField
+      DisplayLabel = 'Estado'
+      FieldName = 'ESTADO'
       Size = 15
     end
     object mtTiposTrabajoACCIONES: TStringField
@@ -939,6 +991,148 @@ object dmMemoria: TdmMemoria
     DataSet = mtTiposIdentificacion
     Left = 600
     Top = 80
+  end
+  object mtItemCatalogo: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 568
+    Top = 376
+    object mtItemCatalogoCODIGO: TStringField
+      FieldName = 'CODIGO'
+      Size = 30
+    end
+    object mtItemCatalogoNOMBRE: TStringField
+      FieldName = 'NOMBRE'
+      Size = 120
+    end
+    object mtItemCatalogoDESCRIPCION: TStringField
+      FieldName = 'DESCRIPCION'
+      Size = 500
+    end
+    object mtItemCatalogoUNIDAD_MEDIDA: TStringField
+      FieldName = 'UNIDAD_MEDIDA'
+      Size = 20
+    end
+  end
+  object mtPrecioCatalogo: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 568
+    Top = 440
+    object mtPrecioCatalogoCOSTO_UNITARIO: TCurrencyField
+      FieldName = 'COSTO_UNITARIO'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtPrecioCatalogoPRECIO_UNITARIO: TCurrencyField
+      FieldName = 'PRECIO_UNITARIO'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtPrecioCatalogoCOSTO_HORA: TCurrencyField
+      FieldName = 'COSTO_HORA'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtPrecioCatalogoFECHA_VIGENCIA: TDateField
+      FieldName = 'FECHA_VIGENCIA'
+      DisplayFormat = 'dd/mm/yyyy'
+    end
+  end
+  object mtHistorialPrecio: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 672
+    Top = 376
+    object mtHistorialPrecioFECHA_VIGENCIA: TDateField
+      FieldName = 'FECHA_VIGENCIA'
+      DisplayLabel = 'Vigente desde'
+      DisplayFormat = 'dd/mm/yyyy'
+    end
+    object mtHistorialPrecioCOSTO_UNITARIO: TCurrencyField
+      FieldName = 'COSTO_UNITARIO'
+      DisplayLabel = 'Costo'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtHistorialPrecioPRECIO_UNITARIO: TCurrencyField
+      FieldName = 'PRECIO_UNITARIO'
+      DisplayLabel = 'Precio'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtHistorialPrecioCOSTO_HORA: TCurrencyField
+      FieldName = 'COSTO_HORA'
+      DisplayLabel = 'Costo por hora'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtHistorialPrecioACTIVO: TBooleanField
+      FieldName = 'ACTIVO'
+      Visible = False
+    end
+    object mtHistorialPrecioESTADO: TStringField
+      FieldName = 'ESTADO'
+      DisplayLabel = 'Estado'
+      Size = 15
+    end
+  end
+  object mtUnidadesMedida: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 776
+    Top = 376
+    object mtUnidadesMedidaNOMBRE: TStringField
+      FieldName = 'NOMBRE'
+      Size = 20
+    end
+  end
+  object dsUnidadesMedida: TDataSource
+    AutoEdit = False
+    DataSet = mtUnidadesMedida
+    Left = 776
+    Top = 440
+  end
+  object dsItemCatalogo: TDataSource
+    DataSet = mtItemCatalogo
+    Left = 568
+    Top = 504
+  end
+  object dsPrecioCatalogo: TDataSource
+    DataSet = mtPrecioCatalogo
+    Left = 672
+    Top = 440
+  end
+  object dsHistorialPrecio: TDataSource
+    AutoEdit = False
+    DataSet = mtHistorialPrecio
+    Left = 672
+    Top = 504
+  end
+  object dsCatalogo: TDataSource
+    AutoEdit = False
+    Left = 152
+    Top = 440
   end
   object dsClientes: TDataSource
     AutoEdit = False

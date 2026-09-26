@@ -178,36 +178,43 @@ type
     mtMateriales: TFDMemTable;
     mtMaterialesID: TIntegerField;
     mtMaterialesCODIGO: TStringField;
+    mtMaterialesNOMBRE: TStringField;
     mtMaterialesDESCRIPCION: TStringField;
     mtMaterialesUNIDAD_MEDIDA: TStringField;
+    mtMaterialesCOSTO_UNITARIO: TCurrencyField;
     mtMaterialesPRECIO_UNITARIO: TCurrencyField;
     mtMaterialesFECHA_VIGENCIA: TDateField;
-    mtMaterialesACTIVO: TStringField;
+    mtMaterialesACTIVO: TBooleanField;
+    mtMaterialesESTADO: TStringField;
     mtMaterialesACCIONES: TStringField;
     mtManoObra: TFDMemTable;
     mtManoObraID: TIntegerField;
     mtManoObraCODIGO: TStringField;
+    mtManoObraCATEGORIA_ID: TIntegerField;
+    mtManoObraCATEGORIA_NOMBRE: TStringField;
+    mtManoObraNOMBRE: TStringField;
     mtManoObraDESCRIPCION: TStringField;
     mtManoObraUNIDAD_MEDIDA: TStringField;
     mtManoObraCOSTO_UNITARIO: TCurrencyField;
     mtManoObraFECHA_VIGENCIA: TDateField;
-    mtManoObraACTIVO: TStringField;
+    mtManoObraACTIVO: TBooleanField;
+    mtManoObraESTADO: TStringField;
     mtManoObraACCIONES: TStringField;
     mtMaquinas: TFDMemTable;
     mtMaquinasID: TIntegerField;
     mtMaquinasCODIGO: TStringField;
     mtMaquinasNOMBRE: TStringField;
-    mtMaquinasUNIDAD: TStringField;
+    mtMaquinasDESCRIPCION: TStringField;
     mtMaquinasCOSTO_HORA: TCurrencyField;
     mtMaquinasFECHA_VIGENCIA: TDateField;
-    mtMaquinasACTIVO: TStringField;
+    mtMaquinasACTIVO: TBooleanField;
+    mtMaquinasESTADO: TStringField;
     mtMaquinasACCIONES: TStringField;
     mtTiposTrabajo: TFDMemTable;
     mtTiposTrabajoID: TIntegerField;
-    mtTiposTrabajoCODIGO: TStringField;
     mtTiposTrabajoNOMBRE: TStringField;
-    mtTiposTrabajoMARGEN: TFloatField;
-    mtTiposTrabajoACTIVO: TStringField;
+    mtTiposTrabajoACTIVO: TBooleanField;
+    mtTiposTrabajoESTADO: TStringField;
     mtTiposTrabajoACCIONES: TStringField;
     mtHistorialPrecios: TFDMemTable;
     mtHistorialPreciosFECHA_VIGENCIA: TDateField;
@@ -252,6 +259,30 @@ type
     mtAuditoriaENTIDAD_ID: TIntegerField;
     mtAuditoriaDETALLE: TStringField;
     dsAuditoria: TDataSource;
+    mtItemCatalogo: TFDMemTable;
+    mtItemCatalogoCODIGO: TStringField;
+    mtItemCatalogoNOMBRE: TStringField;
+    mtItemCatalogoDESCRIPCION: TStringField;
+    mtItemCatalogoUNIDAD_MEDIDA: TStringField;
+    mtPrecioCatalogo: TFDMemTable;
+    mtPrecioCatalogoCOSTO_UNITARIO: TCurrencyField;
+    mtPrecioCatalogoPRECIO_UNITARIO: TCurrencyField;
+    mtPrecioCatalogoCOSTO_HORA: TCurrencyField;
+    mtPrecioCatalogoFECHA_VIGENCIA: TDateField;
+    mtHistorialPrecio: TFDMemTable;
+    mtHistorialPrecioFECHA_VIGENCIA: TDateField;
+    mtHistorialPrecioCOSTO_UNITARIO: TCurrencyField;
+    mtHistorialPrecioPRECIO_UNITARIO: TCurrencyField;
+    mtHistorialPrecioCOSTO_HORA: TCurrencyField;
+    mtHistorialPrecioACTIVO: TBooleanField;
+    mtHistorialPrecioESTADO: TStringField;
+    dsCatalogo: TDataSource;
+    mtUnidadesMedida: TFDMemTable;
+    mtUnidadesMedidaNOMBRE: TStringField;
+    dsUnidadesMedida: TDataSource;
+    dsItemCatalogo: TDataSource;
+    dsPrecioCatalogo: TDataSource;
+    dsHistorialPrecio: TDataSource;
     dsClientes: TDataSource;
     dsClienteDetalle: TDataSource;
     dsContactos: TDataSource;
@@ -301,6 +332,9 @@ type
   public
     // Dejan la tabla con una fila lista para escribir encima: el uuid y
     // lo que decide la aplicacion, que no se pregunta en el formulario.
+    procedure CargarUnidadesMedida;
+    procedure PrepararItemCatalogo;
+    procedure PrepararPrecioCatalogo;
     procedure PrepararClienteNuevo;
     procedure PrepararContactoNuevo(const AClienteId: Integer);
   end;
@@ -317,6 +351,10 @@ const
   // Ni el cliente ni el contacto han firmado nada al crearse.
   CONSENTIMIENTO_PENDIENTE = 'pendiente';
 
+  UNIDADES_MEDIDA: array [0 .. 9] of string = ('unidad', 'metro',
+    'metro cuadrado', 'kilogramo', 'tonelada', 'litro', 'hora', 'pulgada',
+    'lamina', 'tubo');
+
 // El uuid lo genera quien crea el registro, aqui el escritorio. Es lo que
 // hace idempotente reenviarlo si la respuesta se pierde de vuelta: el
 // servidor lo usa para no duplicar.
@@ -328,6 +366,7 @@ end;
 procedure TdmMemoria.DataModuleCreate(Sender: TObject);
 begin
   CargarTiposIdentificacion;
+  CargarUnidadesMedida;
 end;
 
 // El catalogo sale del enum, no de una lista escrita aparte: el valor que se
@@ -351,6 +390,36 @@ procedure TdmMemoria.mtContactoNuevoBeforePost(DataSet: TDataSet);
 begin
   mtContactoNuevoTELEFONO.AsString :=
     TFormato.TelefonoExt(mtContactoNuevoTELEFONO.AsString);
+end;
+
+// Las unidades con las que Anovo cotiza. Lista local y no del servidor: la
+// columna es texto libre de 20, asi que esto guia lo que se escribe pero no
+// lo limita, y un valor viejo que no este aqui se sigue mostrando igual.
+procedure TdmMemoria.CargarUnidadesMedida;
+var
+  lUnidad: string;
+begin
+  mtUnidadesMedida.Close;
+  mtUnidadesMedida.CreateDataSet;
+  for lUnidad in UNIDADES_MEDIDA do
+    mtUnidadesMedida.AppendRecord([lUnidad]);
+  mtUnidadesMedida.First;
+end;
+
+procedure TdmMemoria.PrepararItemCatalogo;
+begin
+  mtItemCatalogo.Close;
+  mtItemCatalogo.CreateDataSet;
+  mtItemCatalogo.Append;
+end;
+
+procedure TdmMemoria.PrepararPrecioCatalogo;
+begin
+  mtPrecioCatalogo.Close;
+  mtPrecioCatalogo.CreateDataSet;
+  mtPrecioCatalogo.Append;
+  // Rige desde hoy salvo que la persona ponga otra.
+  mtPrecioCatalogoFECHA_VIGENCIA.AsDateTime := Date;
 end;
 
 procedure TdmMemoria.PrepararClienteNuevo;

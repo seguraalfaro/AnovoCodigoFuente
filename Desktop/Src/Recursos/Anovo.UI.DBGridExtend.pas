@@ -168,6 +168,9 @@ type
     // El campo que ocupa la columna de acciones. Los botones van con Agregar.
     procedure ColumnaAcciones(const ACampo: string);
     procedure Agregar(const AClave, ARotulo: string);
+    // Borra los botones agregados. Hace falta en una pantalla con
+    // pestanas: sin esto, cada cambio los suma otra vez.
+    procedure Limpiar;
     // Ancho que necesita la columna de acciones con los rotulos agregados.
     function AnchoAcciones: Integer;
 
@@ -279,6 +282,11 @@ begin
   lNueva.Clave := AClave;
   lNueva.Rotulo := ARotulo;
   FAcciones := FAcciones + [lNueva];
+end;
+
+procedure TDBGridExtend.Limpiar;
+begin
+  SetLength(FAcciones, 0);
 end;
 
 function TDBGridExtend.EsColumnaEstado(const ACampo: string): Boolean;

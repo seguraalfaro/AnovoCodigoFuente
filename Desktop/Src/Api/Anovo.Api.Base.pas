@@ -40,6 +40,8 @@ type
     function NuevoCliente(const AConToken: Boolean = True): IMVCRESTClient;
     function Ejecutar(const ALlamada: TFunc<IMVCRESTResponse>;
       const AEsLogin: Boolean = False): IMVCRESTResponse;
+
+    function IdDeLocation(const ARespuesta: IMVCRESTResponse): Integer;
   end;
 
 implementation
@@ -181,6 +183,16 @@ begin
   end;
 
   raise EAnovoApiError.Create(lCodigo, lMensaje, Result.StatusCode);
+end;
+
+// Location llega como /api/clientes/42 o /api/clientes/7/contactos/42: el
+// numero es lo que hay despues de la ultima barra.
+function TApiBase.IdDeLocation(const ARespuesta: IMVCRESTResponse): Integer;
+var
+  lRuta: string;
+begin
+  lRuta := ARespuesta.HeaderValue('Location');
+  Result := StrToIntDef(Copy(lRuta, LastDelimiter('/', lRuta) + 1, MaxInt), 0);
 end;
 
 end.

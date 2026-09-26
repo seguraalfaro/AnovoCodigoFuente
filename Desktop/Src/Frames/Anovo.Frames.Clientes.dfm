@@ -90,7 +90,7 @@ object fraClientes: TfraClientes
       Kind = fkSecondary
     end
     object btnExportar: TPlanoBotonWin
-      Left = 656
+      Left = 658
       Top = 12
       Width = 130
       Height = 28
@@ -138,9 +138,10 @@ object fraClientes: TfraClientes
       AlignWithMargins = True
       Left = 20
       Top = 3
-      Width = 931
+      Width = 914
       Height = 386
       Margins.Left = 20
+      Margins.Right = 20
       Align = alClient
       BorderStyle = bsNone
       DataSource = dmMemoria.dsClientes

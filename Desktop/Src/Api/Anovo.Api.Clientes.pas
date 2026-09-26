@@ -142,17 +142,6 @@ begin
   end;
 end;
 
-// El numero del registro nuevo viene en Location: /api/clientes/42 o
-// /api/clientes/7/contactos/42. Se toma lo que hay despues de la ultima
-// barra.
-function IdDeLocation(const ARespuesta: IMVCRESTResponse): Integer;
-var
-  lRuta: string;
-begin
-  lRuta := ARespuesta.HeaderValue('Location');
-  Result := StrToIntDef(Copy(lRuta, LastDelimiter('/', lRuta) + 1, MaxInt), 0);
-end;
-
 procedure TApiClientes.Actualizar(const AId: Integer;
   const ADto: TClienteEdicionDTO);
 begin

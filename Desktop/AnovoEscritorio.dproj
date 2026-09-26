@@ -123,11 +123,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Auditoria.pas"/>
-        <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Auditoria.pas"/>
-        <DCCReference Include="Src\Api\Anovo.Api.Auditoria.pas"/>
-        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Auditoria.pas"/>
-        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Auditoria.pas"/>
         <DCCReference Include="Src\Frames\Anovo.Frames.Clientes.pas">
             <Form>fraClientes</Form>
             <FormType>dfm</FormType>
@@ -204,6 +199,12 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Clientes.pas"/>
+        <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Auditoria.pas"/>
+        <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Catalogos.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Auditoria.pas"/>
+        <DCCReference Include="Src\Api\Anovo.Api.Auditoria.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Auditoria.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Auditoria.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Clientes.pas"/>
         <DCCReference Include="Src\Api\Anovo.Api.Clientes.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Clientes.pas"/>
@@ -215,6 +216,19 @@
         <DCCReference Include="Src\Common\Anovo.Formato.pas"/>
         <DCCReference Include="Src\Common\Anovo.Validacion.pas"/>
         <DCCReference Include="Src\Common\Anovo.Mapeo.Datos.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Catalogos.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Catalogos.pas"/>
+        <DCCReference Include="Src\Api\Anovo.Api.Catalogos.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Catalogos.pas"/>
+        <DCCReference Include="Src\Forms\Anovo.Forms.ItemCatalogo.pas">
+            <Form>frmItemCatalogo</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Src\Forms\Anovo.Forms.PrecioCatalogo.pas">
+            <Form>frmPrecioCatalogo</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.CatalogoItem.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

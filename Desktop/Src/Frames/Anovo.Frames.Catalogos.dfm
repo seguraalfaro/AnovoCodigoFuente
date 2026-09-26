@@ -14,7 +14,7 @@ object fraCatalogos: TfraCatalogos
   object pnbottom: TRelativePanel
     AlignWithMargins = True
     Left = 3
-    Top = 552
+    Top = 502
     Width = 954
     Height = 65
     ControlCollection = <
@@ -61,6 +61,7 @@ object fraCatalogos: TfraCatalogos
       TabOrder = 0
       TextHint = 'C'#243'digo o descripci'#243'n'
       StyleElements = [seFont]
+      OnInvokeSearch = sbBuscarInvokeSearch
     end
     object btnExportar: TPlanoBotonWin
       Left = 634
@@ -72,10 +73,11 @@ object fraCatalogos: TfraCatalogos
       Caption = 'Exportar listado'
       TabOrder = 1
       StyleElements = []
+      OnClick = btnExportarClick
       Kind = fkSecondary
     end
     object btnNuevo: TPlanoBotonWin
-      Left = 772
+      Left = 770
       Top = 12
       Width = 162
       Height = 28
@@ -84,6 +86,30 @@ object fraCatalogos: TfraCatalogos
       Caption = '+ Nuevo material'
       TabOrder = 2
       StyleElements = []
+      OnClick = btnNuevoClick
+    end
+    object btnLimpiar: TPlanoBotonWin
+      Left = 330
+      Top = 12
+      Width = 90
+      Height = 28
+      Cursor = crHandPoint
+      Caption = 'Limpiar'
+      TabOrder = 3
+      Visible = False
+      StyleElements = []
+      OnClick = btnLimpiarClick
+      Kind = fkSecondary
+    end
+    object cbCategoria: TComboBox
+      Left = 430
+      Top = 13
+      Width = 180
+      Height = 21
+      Style = csDropDownList
+      TabOrder = 4
+      Visible = False
+      OnChange = cbCategoriaChange
     end
   end
   object pnlTitulo: TPanel
@@ -121,9 +147,10 @@ object fraCatalogos: TfraCatalogos
     end
   end
   object pstCatalogo: TPlanoPestanas
-    Left = 0
-    Top = 126
-    Width = 960
+    AlignWithMargins = True
+    Left = 3
+    Top = 129
+    Width = 954
     Height = 40
     Items.Strings = (
       'Materiales'
@@ -143,14 +170,15 @@ object fraCatalogos: TfraCatalogos
     ActiveFont.Height = -12
     ActiveFont.Name = 'Segoe UI Semibold'
     ActiveFont.Style = []
+    OnChange = pstCatalogoChange
     ParentFont = False
   end
   object pnclient: TRelativePanel
     AlignWithMargins = True
     Left = 3
-    Top = 169
+    Top = 175
     Width = 954
-    Height = 377
+    Height = 321
     ControlCollection = <
       item
         Control = grDatos
@@ -163,12 +191,15 @@ object fraCatalogos: TfraCatalogos
       end>
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 4
+    TabOrder = 5
     object grDatos: TrDBGrid
-      Left = 0
-      Top = 0
-      Width = 954
-      Height = 377
+      AlignWithMargins = True
+      Left = 20
+      Top = 3
+      Width = 914
+      Height = 315
+      Margins.Left = 20
+      Margins.Right = 20
       Align = alClient
       BorderStyle = bsNone
       DefaultDrawing = False
@@ -180,6 +211,56 @@ object fraCatalogos: TfraCatalogos
       TitleFont.Name = 'Segoe UI'
       TitleFont.Style = []
       StyleElements = [seFont]
+    end
+  end
+  object pnlPie: TPanel
+    AlignWithMargins = True
+    Left = 3
+    Top = 573
+    Width = 954
+    Height = 44
+    Align = alBottom
+    BevelOuter = bvNone
+    Color = 16447477
+    ParentBackground = False
+    TabOrder = 4
+    DesignSize = (
+      954
+      44)
+    object lblPaginacion: TLabel
+      Tag = 13
+      Left = 20
+      Top = 14
+      Width = 3
+      Height = 13
+    end
+    object btnAnterior: TPlanoBotonWin
+      Left = 700
+      Top = 8
+      Width = 110
+      Height = 28
+      Cursor = crHandPoint
+      Anchors = [akTop, akRight]
+      Caption = 'Anterior'
+      Enabled = False
+      TabOrder = 0
+      StyleElements = []
+      OnClick = btnAnteriorClick
+      Kind = fkSecondary
+    end
+    object btnSiguiente: TPlanoBotonWin
+      Left = 824
+      Top = 8
+      Width = 110
+      Height = 28
+      Cursor = crHandPoint
+      Anchors = [akTop, akRight]
+      Caption = 'Siguiente'
+      Enabled = False
+      TabOrder = 1
+      StyleElements = []
+      OnClick = btnSiguienteClick
+      Kind = fkSecondary
     end
   end
 end

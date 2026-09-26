@@ -42,6 +42,7 @@ uses
   Anovo.Frames.GeneracionCotizacion in 'Src\Frames\Anovo.Frames.GeneracionCotizacion.pas' {fraGeneracionCotizacion: TFrame},
   Anovo.DTOs.Clientes in '..\Backend\src\DTOs\Anovo.DTOs.Clientes.pas',
   Anovo.DTOs.Auditoria in '..\Backend\src\DTOs\Anovo.DTOs.Auditoria.pas',
+  Anovo.DTOs.Catalogos in '..\Backend\src\DTOs\Anovo.DTOs.Catalogos.pas',
   Anovo.Api.Intf.Auditoria in 'Src\Interfaces\Anovo.Api.Intf.Auditoria.pas',
   Anovo.Api.Auditoria in 'Src\Api\Anovo.Api.Auditoria.pas',
   Anovo.Vistas.Intf.Auditoria in 'Src\Interfaces\Anovo.Vistas.Intf.Auditoria.pas',
@@ -53,7 +54,14 @@ uses
   Anovo.Datos.Memoria in 'Src\Datos\Anovo.Datos.Memoria.pas' {dmMemoria: TDataModule},
   Anovo.Formato in 'Src\Common\Anovo.Formato.pas',
   Anovo.Validacion in 'Src\Common\Anovo.Validacion.pas',
-  Anovo.Mapeo.Datos in 'Src\Common\Anovo.Mapeo.Datos.pas';
+  Anovo.Mapeo.Datos in 'Src\Common\Anovo.Mapeo.Datos.pas',
+  Anovo.Presentadores.Catalogos in 'Src\Presentadores\Anovo.Presentadores.Catalogos.pas',
+  Anovo.Vistas.Intf.Catalogos in 'Src\Interfaces\Anovo.Vistas.Intf.Catalogos.pas',
+  Anovo.Api.Catalogos in 'Src\Api\Anovo.Api.Catalogos.pas',
+  Anovo.Api.Intf.Catalogos in 'Src\Interfaces\Anovo.Api.Intf.Catalogos.pas',
+  Anovo.Forms.ItemCatalogo in 'Src\Forms\Anovo.Forms.ItemCatalogo.pas' {frmItemCatalogo},
+  Anovo.Forms.PrecioCatalogo in 'Src\Forms\Anovo.Forms.PrecioCatalogo.pas' {frmPrecioCatalogo},
+  Anovo.Presentadores.CatalogoItem in 'Src\Presentadores\Anovo.Presentadores.CatalogoItem.pas';
 
 {$R *.res}
 
