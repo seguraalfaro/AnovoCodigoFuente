@@ -132,9 +132,10 @@ BEGIN
       ELSE 'Acabado y pulido' END;
     COSTO = 4200 + (I * 180);
 
-    INSERT INTO MANO_OBRA (CODIGO, CATEGORIA_ID, DESCRIPCION, UNIDAD_MEDIDA,
-      ACTIVO)
+    INSERT INTO MANO_OBRA (CODIGO, CATEGORIA_ID, NOMBRE, DESCRIPCION,
+      UNIDAD_MEDIDA, ACTIVO)
       VALUES ('DEMO-MO-' || LPAD(:I, 3, '0'), :CAT,
+              :DESCR,
               :DESCR || ' (nivel ' || (1 + MOD(:I, 3)) || ')', 'hora', TRUE)
       RETURNING ID INTO :ID_MO;
 
