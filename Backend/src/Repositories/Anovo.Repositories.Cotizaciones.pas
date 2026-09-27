@@ -1,9 +1,6 @@
 unit Anovo.Repositories.Cotizaciones;
 
-// Repositorios de cotizaciones. El CRUD lo heredan; aqui estan las consultas
-// con nombre propio.
-//
-// El SQL vive en Anovo.SQL.Cotizaciones.
+// Repositorios de cotizaciones y su detalle.
 
 interface
 
@@ -59,12 +56,9 @@ uses
   Anovo.SQL.Cotizaciones;
 
 const
-  // Los tipos de linea, tal como los escribe CK_DETALLE_TIPO.
   TIPO_MATERIAL = 'material';
   TIPO_MANO_OBRA = 'mano_obra';
   TIPO_MAQUINA = 'maquina';
-
-{ TCotizacionRepository }
 
 function TCotizacionRepository.Filtro(const AEstado: string;
   const AClienteId, AElaboradaPor: Integer;
@@ -85,7 +79,6 @@ function TCotizacionRepository.Parametros(const ATexto, AEstado: string;
   const AClienteId, AElaboradaPor: Integer; const ADesde, AHasta: TDateTime)
   : TArray<Variant>;
 begin
-  // En el mismo orden en que Filtro pone los ?.
   Result := [ATexto];
   if AEstado <> '' then
     Result := Result + [Variant(AEstado)];
@@ -141,12 +134,8 @@ end;
 function TCotizacionRepository.EnviadasSinRespuesta(const ADias: Integer)
   : TObjectList<TCotizaciones>;
 begin
-  // La fecha limite se calcula aqui y viaja como parametro: asi la consulta no
-  // depende de la hora del servidor de base de datos.
   Result := GetWhere(COTIZACIONES_ENVIADAS_SIN_RESPUESTA, [Now - ADias]);
 end;
-
-{ TCotizacionDetalleRepository }
 
 function TCotizacionDetalleRepository.DetalleDe(const ACotizacionId: Integer)
   : TObjectList<TCotizacionDetalle>;

@@ -1,34 +1,7 @@
-// ***************************************************************************
-//
-// Delphi MVC Framework
-//
-// Copyright (c) 2010-2026 Daniele Teti and the DMVCFramework Team
-//
-// https://github.com/danieleteti/delphimvcframework
-//
-// ***************************************************************************
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// ***************************************************************************
-
 unit Anovo.Entities.Cotizaciones;
 
-// COTIZACIONES Y SU DETALLE
-//
-// Generada por MVCEntGen y separada por recurso desde
-// db-firebird\generado\Anovo.Entities.Generadas.pas. Al regenerar, volver a
-// partir de ahi: lo que se escriba a mano aqui se pierde.
+// Entidades de cotizaciones y su detalle.
+// Generada por MVCEntGen; al regenerar, partir de Db/generado.
 
 interface
 
@@ -95,13 +68,13 @@ type
     [MVCMaxLength(500)]
     fMotivoRechazo: NullableString;
     [MVCTableField('FECHA_ELABORACION')]
-    fFechaElaboracion: NullableTDateTime {dtDateTimeStamp};
+    fFechaElaboracion: NullableTDateTime ;
     [MVCTableField('FECHA_APROBACION')]
-    fFechaAprobacion: NullableTDateTime {dtDateTimeStamp};
+    fFechaAprobacion: NullableTDateTime ;
     [MVCTableField('FECHA_ENVIO')]
-    fFechaEnvio: NullableTDateTime {dtDateTimeStamp};
+    fFechaEnvio: NullableTDateTime ;
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
-    fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
+    fFechaModificacion: NullableTDateTime ;
     [MVCTableField('OBJVERSION')]
     fObjversion: NullableInt32;
   public
@@ -125,10 +98,10 @@ type
     property MontoImpuesto: NullableCurrency read fMontoImpuesto write fMontoImpuesto;
     property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
     property MotivoRechazo: NullableString read fMotivoRechazo write fMotivoRechazo;
-    property FechaElaboracion: NullableTDateTime {dtDateTimeStamp} read fFechaElaboracion write fFechaElaboracion;
-    property FechaAprobacion: NullableTDateTime {dtDateTimeStamp} read fFechaAprobacion write fFechaAprobacion;
-    property FechaEnvio: NullableTDateTime {dtDateTimeStamp} read fFechaEnvio write fFechaEnvio;
-    property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
+    property FechaElaboracion: NullableTDateTime  read fFechaElaboracion write fFechaElaboracion;
+    property FechaAprobacion: NullableTDateTime  read fFechaAprobacion write fFechaAprobacion;
+    property FechaEnvio: NullableTDateTime  read fFechaEnvio write fFechaEnvio;
+    property FechaModificacion: NullableTDateTime  read fFechaModificacion write fFechaModificacion;
     property Objversion: NullableInt32 read fObjversion write fObjversion;
   end;
 

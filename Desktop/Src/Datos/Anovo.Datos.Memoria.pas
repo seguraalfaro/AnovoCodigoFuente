@@ -1,45 +1,6 @@
 unit Anovo.Datos.Memoria;
 
-// Las tablas en memoria de la aplicacion, en un solo sitio.
-//
-// Son parte de la vista, no del presentador: el presentador trabaja con DTO y
-// no sabe que esto existe. La pantalla copia los DTO a su tabla y la enlaza a
-// la rejilla, o a los controles con LiveBindings en las fichas.
-//
-// Campos persistentes a proposito: la pantalla escribe
-// dmMemoria.mtClientesNOMBRE y no FieldByName('NOMBRE'). Un nombre mal escrito
-// no compila, en vez de fallar al ejecutar.
-//
-// Una tabla por uso, no una compartida: si la lista y la ficha usaran la misma,
-// abrir la ficha moveria el cursor de la lista.
-//
-// Viven lo que vive la aplicacion, asi que guardan datos personales de terceros
-// mas alla de la pantalla que los mostro. Limpiar va al cerrar sesion: Ley 8968.
-//
-// mtClientes              Gestion de clientes: la lista
-// mtClienteDetalle        Ficha de un cliente: un registro, para LiveBindings
-// mtContactos             Contactos del cliente abierto
-// mtConsentimientos       Historial de consentimiento del cliente abierto
-// mtClienteCotizaciones   Cotizaciones del cliente abierto
-// mtSolicitudes           Solicitudes del asesor
-// mtPorCotizar            Bandeja: solicitudes sin cotizacion
-// mtPorAprobar            Bandeja: cotizaciones pendientes, sin las propias
-// mtCotizaciones          Listado de cotizaciones
-// mtCotizacionLineas      Lineas de la cotizacion que se arma
-// mtRecientes             Dashboard: ultimas cotizaciones
-// mtGerenciaPendientes    Vista de gerencia: por aprobar
-// mtGerenciaRecientes     Vista de gerencia: movimiento reciente
-// mtMateriales            Catalogo de materiales
-// mtManoObra              Catalogo de mano de obra
-// mtMaquinas              Catalogo de maquinas
-// mtTiposTrabajo          Catalogo de tipos de trabajo
-// mtHistorialPrecios      Historial de precios del item abierto
-// mtFotos                 Fotos y croquis de la solicitud abierta
-// mtUsuarios              Gestion de usuarios
-// mtRoles                 Roles y permisos: los roles
-// mtPermisos              Roles y permisos: la matriz del rol abierto
-// mtAuditoria             Bitacora de auditoria
-// mtTiposIdentificacion  Catalogo: los tres tipos de identificacion
+// Tablas en memoria de las pantallas.
 
 interface
 
@@ -230,6 +191,24 @@ type
     mtTodosACTIVO: TBooleanField;
     mtTodosESTADO: TStringField;
     mtTodosACCIONES: TStringField;
+    mtDashboardAsesor: TFDMemTable;
+    mtDashboardAsesorID: TIntegerField;
+    mtDashboardAsesorCOTIZACION_ID: TIntegerField;
+    mtDashboardAsesorFECHA_CAPTURA: TDateTimeField;
+    mtDashboardAsesorCLIENTE_NOMBRE: TStringField;
+    mtDashboardAsesorDESCRIPCION: TStringField;
+    mtDashboardAsesorESTADO: TStringField;
+    mtDashboardAsesorMONTO_APROBADO: TCurrencyField;
+    dsDashboardAsesor: TDataSource;
+    mtSeguimiento: TFDMemTable;
+    mtSeguimientoID: TIntegerField;
+    mtSeguimientoCOTIZACION_ID: TIntegerField;
+    mtSeguimientoFECHA_CAPTURA: TDateTimeField;
+    mtSeguimientoCLIENTE_NOMBRE: TStringField;
+    mtSeguimientoDESCRIPCION: TStringField;
+    mtSeguimientoESTADO: TStringField;
+    mtSeguimientoMONTO_APROBADO: TCurrencyField;
+    dsSeguimiento: TDataSource;
     mtTiposTrabajo: TFDMemTable;
     mtTiposTrabajoID: TIntegerField;
     mtTiposTrabajoNOMBRE: TStringField;
@@ -350,8 +329,6 @@ type
   private
     procedure CargarTiposIdentificacion;
   public
-    // Dejan la tabla con una fila lista para escribir encima: el uuid y
-    // lo que decide la aplicacion, que no se pregunta en el formulario.
     procedure CargarUnidadesMedida;
     procedure PrepararItemCatalogo;
     procedure PrepararPrecioCatalogo;
@@ -364,20 +341,15 @@ var
 
 implementation
 
-{%CLASSGROUP 'Vcl.Controls.TControl'}
 {$R *.dfm}
 
 const
-  // Ni el cliente ni el contacto han firmado nada al crearse.
   CONSENTIMIENTO_PENDIENTE = 'pendiente';
 
   UNIDADES_MEDIDA: array [0 .. 9] of string = ('unidad', 'metro',
     'metro cuadrado', 'kilogramo', 'tonelada', 'litro', 'hora', 'pulgada',
     'lamina', 'tubo');
 
-// El uuid lo genera quien crea el registro, aqui el escritorio. Es lo que
-// hace idempotente reenviarlo si la respuesta se pierde de vuelta: el
-// servidor lo usa para no duplicar.
 function NuevoUuid: string;
 begin
   Result := LowerCase(TGUID.NewGuid.ToString.Trim(['{', '}']));
@@ -389,10 +361,6 @@ begin
   CargarUnidadesMedida;
 end;
 
-// El catalogo sale del enum, no de una lista escrita aparte: el valor que se
-// guarda es el orden del enum -1 fisica, 2 juridica, 3 DIMEX-, el mismo que
-// admite CK_CLIENTES_TIPO_IDENT y el mismo que manda el movil.
-// tiSinEspecificar no entra: sin tipo elegido la columna queda nula.
 procedure TdmMemoria.CargarTiposIdentificacion;
 var
   lTipo: TTipoIdentificacion;
@@ -405,16 +373,12 @@ begin
   mtTiposIdentificacion.First;
 end;
 
-
 procedure TdmMemoria.mtContactoNuevoBeforePost(DataSet: TDataSet);
 begin
   mtContactoNuevoTELEFONO.AsString :=
     TFormato.TelefonoExt(mtContactoNuevoTELEFONO.AsString);
 end;
 
-// Las unidades con las que Anovo cotiza. Lista local y no del servidor: la
-// columna es texto libre de 20, asi que esto guia lo que se escribe pero no
-// lo limita, y un valor viejo que no este aqui se sigue mostrando igual.
 procedure TdmMemoria.CargarUnidadesMedida;
 var
   lUnidad: string;
@@ -438,7 +402,6 @@ begin
   mtPrecioCatalogo.Close;
   mtPrecioCatalogo.CreateDataSet;
   mtPrecioCatalogo.Append;
-  // Rige desde hoy salvo que la persona ponga otra.
   mtPrecioCatalogoFECHA_VIGENCIA.AsDateTime := Date;
 end;
 
@@ -448,7 +411,6 @@ begin
   mtClienteNuevo.CreateDataSet;
   mtClienteNuevo.Append;
   mtClienteNuevoUUID_LOCAL.AsString := NuevoUuid;
-  // Lo que decide la aplicacion y no se pregunta en la ventana.
   mtClienteNuevoACTIVO.AsBoolean := True;
   mtClienteNuevoANONIMIZADO.AsBoolean := False;
   mtClienteNuevoEXONERADO.AsBoolean := False;
@@ -461,12 +423,10 @@ begin
   mtContactoNuevo.CreateDataSet;
   mtContactoNuevo.Append;
   mtContactoNuevoUUID_LOCAL.AsString := NuevoUuid;
-  // De que cliente es lo dice quien abre la ventana, no lo que se escriba.
   mtContactoNuevoCLIENTE_ID.AsInteger := AClienteId;
   mtContactoNuevoACTIVO.AsBoolean := True;
   mtContactoNuevoANONIMIZADO.AsBoolean := False;
   mtContactoNuevoPRINCIPAL.AsBoolean := False;
-  // El consentimiento es del cliente, no de cada persona de contacto.
   mtContactoNuevoCONSENTIMIENTO_ESTADO.AsString := CONSENTIMIENTO_PENDIENTE;
 end;
 

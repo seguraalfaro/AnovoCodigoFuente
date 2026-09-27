@@ -1,14 +1,10 @@
 unit Anovo.Services.Clave;
 
-// HASH DE CONTRASENAS
-//
-// bcrypt sobre la libreria de F:\Componetes de terceros\bcrypt-master\src.
-// 
+// Hash y verificacion de claves con bcrypt.
 
 interface
 
 type
-  // REGENERAR EL GUID
   IClaveService = interface
     ['{6C08D012-896A-45F8-8E7A-1B90C26DC065}']
 
@@ -25,7 +21,6 @@ type
   end;
 
 const
-  // 12 tarda unos 250 ms por verificacion 
   COSTO_BCRYPT = 12;
 
 implementation
@@ -54,7 +49,6 @@ begin
   end;
 end;
 
-//esto queda or si mas adelante se decide cambiar el costo actualizarlo.
 function TClaveService.RequiereRehash(const AHash: string): Boolean;
 begin
   if AHash.IsEmpty then

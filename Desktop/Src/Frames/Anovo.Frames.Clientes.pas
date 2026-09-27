@@ -1,26 +1,6 @@
 unit Anovo.Frames.Clientes;
 
-
-
-
-
-
-
-
-
-// Gestion de clientes (HU-01, lado escritorio): la vista del listado.
-//
-// No decide nada. Pasa al presentador lo que se escribio, la pestana y la
-// pagina, y muestra lo que el presentador le manda. Que acciones y botones se
-// ven tambien lo decide el presentador, con los permisos.
-//
-// La rejilla lee de dmMemoria.mtClientes: la lista de DTO que llega del
-// presentador se copia ahi y se libera alla. Asi la vista no guarda objetos
-// que no son suyos.
-//
-// El consentimiento se otorga y registra en el movil, en pantalla propia. Aqui
-// solo se muestra: la carga de la prueba recae en el responsable, asi que
-// nunca se edita desde el escritorio.
+// Seccion Clientes: listado y ficha del cliente.
 
 interface
 
@@ -70,7 +50,6 @@ type
     FDetalle: TfraClienteDatos;
     procedure CerrarDetalle(Sender: TObject);
     procedure Accion(Sender: TObject; const AClave: string);
-    // IVistaClientes
     procedure MostrarAcciones(const AAcciones: TAccionesCliente;
       const APuedeCrear: Boolean);
     procedure MostrarCargando(const AActivo: Boolean);
@@ -105,10 +84,8 @@ const
   CAMPO_ACCIONES = 'ACCIONES';
   CAMPO_CONSENTIMIENTO = 'CONSENTIMIENTO_ESTADO';
 
-  // Mismo orden que TAccionCliente. La clave es la que llega a Accion.
   ACCIONES: array [TAccionCliente] of TAccionRejilla = ((Clave: 'detalles';
     Rotulo: 'Detalles'));
-
 
 constructor TfraClientes.Create(AOwner: TComponent);
 begin
@@ -142,8 +119,6 @@ var
 begin
   btnNuevo.Visible := APuedeCrear;
 
-  // El dibujo es del TDBGridExtend que AplicarTemaGrid le dejo a la rejilla:
-  // aqui solo se le dice que columnas son suyas.
   lRejilla := TDBGridExtend.De(grClientes);
   lRejilla.ColumnaEstado(CAMPO_CONSENTIMIENTO);
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
@@ -205,7 +180,6 @@ end;
 
 procedure TfraClientes.Accion(Sender: TObject; const AClave: string);
 begin
-  // La rejilla ya movio el cursor a la fila pulsada: el ID es el de esa fila.
   if dmMemoria.mtClientes.IsEmpty then
     Exit;
   if SameText(AClave, ACCIONES[acDetalles].Clave) then
@@ -214,31 +188,23 @@ end;
 
 procedure TfraClientes.MostrarDetalle(const AId: Integer);
 begin
-  // La anterior ya estaba oculta; liberarla aqui es seguro porque no estamos
-  // dentro de ninguno de sus eventos.
   FreeAndNil(FDetalle);
   FDetalle := TfraClienteDatos.Crear(Self, AId);
   FDetalle.OnRegresar := CerrarDetalle;
-  // Tapa todo el frame, barra y pie incluidos. alClient no sirve: se
-  // repartiria el hueco con la rejilla, que tambien es alClient.
   FDetalle.Parent := Self;
   FDetalle.SetBounds(0, 0, ClientWidth, ClientHeight);
   FDetalle.Anchors := [akLeft, akTop, akRight, akBottom];
   FDetalle.BringToFront;
+  AplicarTemaFrame(FDetalle);
 end;
 
 procedure TfraClientes.CerrarDetalle(Sender: TObject);
 begin
-  // El boton de la ficha no cierra nada por su cuenta: avisa al presentador,
-  // que es quien sabe en que estado esta la pantalla.
   FPresentador.VolverAlListado;
 end;
 
 procedure TfraClientes.MostrarListado;
 begin
-  // Se oculta, no se libera: estamos dentro del evento del boton de la ficha.
-  // La libera la proxima MostrarDetalle o el propio frame al destruirse. El
-  // listado sigue con la busqueda, el filtro y la pagina que tenia.
   if Assigned(FDetalle) then
     FDetalle.Visible := False;
 end;
@@ -255,8 +221,6 @@ end;
 
 procedure TfraClientes.pstFiltrosChange(Sender: TObject);
 begin
-  // TPlanoPestanas dispara OnChange desde su Loaded, al leer el DFM: eso es
-  // dentro del inherited Create, antes de que exista el presentador.
   if FPresentador = nil then
     Exit;
   FPresentador.Filtrar(TFiltroConsentimiento(pstFiltros.ItemIndex));
@@ -285,8 +249,6 @@ begin
   lVentana := TfrmClienteNuevo.Create(Self);
   try
     if lVentana.ShowModal = mrOk then
-      // Vuelve a pedir la pagina: el cliente nuevo tiene que aparecer, y el
-      // total de la paginacion cambio.
       FPresentador.Buscar(sbBuscar.Text);
   finally
     lVentana.Free;
@@ -294,4 +256,3 @@ begin
 end;
 
 end.
-

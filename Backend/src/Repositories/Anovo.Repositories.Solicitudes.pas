@@ -1,9 +1,6 @@
 unit Anovo.Repositories.Solicitudes;
 
-// Repositorios del modulo de solicitudes. El CRUD lo heredan; aqui estan las
-// consultas con nombre propio.
-//
-// El SQL vive en Anovo.SQL.Solicitudes.
+// Repositorios de solicitudes, medidas y adjuntos.
 
 interface
 
@@ -11,7 +8,8 @@ uses
   System.Generics.Collections,
   Anovo.Repositories.Base,
   Anovo.Repositories.Intf.Solicitudes,
-  Anovo.Entities.Solicitudes;
+  Anovo.Entities.Solicitudes,
+  Anovo.Entities.Vistas.Dashboard;
 
 type
   TSolicitudRepository = class(TAnovoRepository<TSolicitudes>,
@@ -34,6 +32,11 @@ type
     function ExisteUuidLocal(const AUuid: string): Integer;
     function PendientesDeCotizar(const AEstado: string)
       : TObjectList<TSolicitudes>;
+    function Seguimiento(const AAsesorId: Integer; const ATexto: string;
+      const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer)
+      : TObjectList<TSolicitudAsesorVista>;
+    function ContarSeguimiento(const AAsesorId: Integer; const ATexto: string;
+      const ADesde, AHasta: TDateTime): Int64;
   end;
 
   TSolicitudMedidaRepository = class(TAnovoRepository<TSolicitudMedidas>,
@@ -68,8 +71,6 @@ uses
   MVCFramework.ActiveRecord,
   Anovo.SQL.Solicitudes;
 
-{ TSolicitudRepository }
-
 function TSolicitudRepository.Filtro(const AAsesorId: Integer;
   const AEstado: string; const ADesde, AHasta: TDateTime): string;
 begin
@@ -86,7 +87,6 @@ function TSolicitudRepository.Parametros(const ATexto: string;
   const AAsesorId: Integer; const AEstado: string;
   const ADesde, AHasta: TDateTime): TArray<Variant>;
 begin
-  // En el mismo orden en que Filtro pone los ?.
   Result := [ATexto, ATexto];
   if AAsesorId > 0 then
     Result := Result + [Variant(AAsesorId)];
@@ -143,8 +143,6 @@ begin
   Result := GetWhere(SOLICITUDES_PENDIENTES_DE_COTIZAR, [AEstado]);
 end;
 
-{ TSolicitudMedidaRepository }
-
 function TSolicitudMedidaRepository.MedidasDe(const ASolicitudId: Integer)
   : TObjectList<TSolicitudMedidas>;
 begin
@@ -170,14 +168,9 @@ begin
   Result := GetOneByWhere(MEDIDAS_POR_UUID_LOCAL, [AUuid], False);
 end;
 
-{ TSolicitudAdjuntoRepository }
-
 function TSolicitudAdjuntoRepository.AdjuntosDe(const ASolicitudId: Integer)
   : TObjectList<TSolicitudAdjuntos>;
 begin
-  // La consulta deja fuera los dos BLOB; sin loIgnoreNotExistentFields la
-  // carga fallaria por esas columnas. En la entidad queda el stream vacio: una
-  // entidad cargada asi no se guarda.
   Result := SelectConOpciones(ADJUNTOS_DE_SOLICITUD, [ASolicitudId],
     [loIgnoreNotExistentFields]);
 end;
@@ -199,6 +192,43 @@ function TSolicitudAdjuntoRepository.ObtenerPorUuidLocal(const AUuid: string)
   : TSolicitudAdjuntos;
 begin
   Result := GetOneByWhere(ADJUNTOS_POR_UUID_LOCAL, [AUuid], False);
+end;
+
+procedure FiltroSeguimiento(const AAsesorId: Integer; const ATexto: string;
+  const ADesde, AHasta: TDateTime; out AFiltro: string;
+  out AParams: TArray<Variant>);
+begin
+  AFiltro := SEGUIMIENTO_FILTRO_TEXTO;
+  AParams := [AAsesorId, ATexto, ATexto];
+  if (ADesde > 0) and (AHasta > 0) then
+  begin
+    AFiltro := AFiltro + SEGUIMIENTO_ENTRE_FECHAS;
+    AParams := AParams + [ADesde, AHasta];
+  end;
+end;
+
+function TSolicitudRepository.Seguimiento(const AAsesorId: Integer;
+  const ATexto: string; const ADesde, AHasta: TDateTime;
+  const APagina, APorPagina: Integer): TObjectList<TSolicitudAsesorVista>;
+var
+  lFiltro: string;
+  lParams: TArray<Variant>;
+begin
+  FiltroSeguimiento(AAsesorId, ATexto, ADesde, AHasta, lFiltro, lParams);
+  lParams := lParams + [((APagina - 1) * APorPagina) + 1,
+    APagina * APorPagina];
+  Result := TMVCActiveRecord.Select<TSolicitudAsesorVista>(SEGUIMIENTO_ASESOR +
+    lFiltro + SEGUIMIENTO_ORDEN + SEGUIMIENTO_PAGINA, lParams);
+end;
+
+function TSolicitudRepository.ContarSeguimiento(const AAsesorId: Integer;
+  const ATexto: string; const ADesde, AHasta: TDateTime): Int64;
+var
+  lFiltro: string;
+  lParams: TArray<Variant>;
+begin
+  FiltroSeguimiento(AAsesorId, ATexto, ADesde, AHasta, lFiltro, lParams);
+  Result := GetConnection.ExecSQLScalar(SEGUIMIENTO_CONTAR + lFiltro, lParams);
 end;
 
 end.

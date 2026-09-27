@@ -1,34 +1,8 @@
-// ***************************************************************************
-//
-// Delphi MVC Framework
-//
-// Copyright (c) 2010-2026 Daniele Teti and the DMVCFramework Team
-//
-// https://github.com/danieleteti/delphimvcframework
-//
-// ***************************************************************************
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// ***************************************************************************
-
 unit Anovo.Entities.Catalogos;
 
-// CATALOGOS: MATERIALES, MANO DE OBRA, MAQUINAS Y TIPOS DE TRABAJO
-//
-// Generada por MVCEntGen y separada por recurso desde
-// db-firebird\generado\Anovo.Entities.Generadas.pas. Al regenerar, volver a
-// partir de ahi: lo que se escriba a mano aqui se pierde.
+// Entidades de materiales, mano de obra, maquinas,
+// tipos de trabajo y sus precios.
+// Generada por MVCEntGen; al regenerar, partir de Db/generado.
 
 interface
 
@@ -64,9 +38,9 @@ type
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
     [MVCTableField('FECHA_CREACION')]
-    fFechaCreacion: NullableTDateTime { dtDateTimeStamp };
+    fFechaCreacion: NullableTDateTime ;
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
-    fFechaModificacion: NullableTDateTime { dtDateTimeStamp };
+    fFechaModificacion: NullableTDateTime ;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -75,9 +49,9 @@ type
     property Descripcion: NullableString read fDescripcion write fDescripcion;
     property UnidadMedida: String read fUnidadMedida write fUnidadMedida;
     property Activo: NullableBoolean read fActivo write fActivo;
-    property FechaCreacion: NullableTDateTime { dtDateTimeStamp }
+    property FechaCreacion: NullableTDateTime
       read fFechaCreacion write fFechaCreacion;
-    property FechaModificacion: NullableTDateTime { dtDateTimeStamp }
+    property FechaModificacion: NullableTDateTime
       read fFechaModificacion write fFechaModificacion;
   end;
 
@@ -97,7 +71,7 @@ type
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
     [MVCTableField('FECHA_VIGENCIA')]
-    fFechaVigencia: NullableTDateTime { dtDateTimeStamp };
+    fFechaVigencia: NullableTDateTime ;
     [MVCTableField('MODIFICADO_POR')]
     fModificadoPor: NullableInt32;
   public
@@ -109,7 +83,7 @@ type
     property PrecioUnitario: NullableCurrency read fPrecioUnitario
       write fPrecioUnitario;
     property Activo: NullableBoolean read fActivo write fActivo;
-    property FechaVigencia: NullableTDateTime { dtDateTimeStamp }
+    property FechaVigencia: NullableTDateTime
       read fFechaVigencia write fFechaVigencia;
     property ModificadoPor: NullableInt32 read fModificadoPor
       write fModificadoPor;
@@ -128,8 +102,6 @@ type
     [MVCTableField('CATEGORIA_ID')]
     [MVCRequired]
     fCategoriaId: Int32;
-    // Agregado a mano tras la migracion 12: MVCEntGen solo lo emitiria al
-    // regenerar desde la base.
     [MVCTableField('NOMBRE')]
     [MVCRequired]
     [MVCMaxLength(120)]
@@ -144,9 +116,9 @@ type
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
     [MVCTableField('FECHA_CREACION')]
-    fFechaCreacion: NullableTDateTime { dtDateTimeStamp };
+    fFechaCreacion: NullableTDateTime ;
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
-    fFechaModificacion: NullableTDateTime { dtDateTimeStamp };
+    fFechaModificacion: NullableTDateTime ;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -156,9 +128,9 @@ type
     property Descripcion: NullableString read fDescripcion write fDescripcion;
     property UnidadMedida: String read fUnidadMedida write fUnidadMedida;
     property Activo: NullableBoolean read fActivo write fActivo;
-    property FechaCreacion: NullableTDateTime { dtDateTimeStamp }
+    property FechaCreacion: NullableTDateTime
       read fFechaCreacion write fFechaCreacion;
-    property FechaModificacion: NullableTDateTime { dtDateTimeStamp }
+    property FechaModificacion: NullableTDateTime
       read fFechaModificacion write fFechaModificacion;
   end;
 
@@ -197,7 +169,7 @@ type
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
     [MVCTableField('FECHA_VIGENCIA')]
-    fFechaVigencia: NullableTDateTime { dtDateTimeStamp };
+    fFechaVigencia: NullableTDateTime ;
     [MVCTableField('MODIFICADO_POR')]
     fModificadoPor: NullableInt32;
   public
@@ -207,7 +179,7 @@ type
     property CostoUnitario: NullableCurrency read fCostoUnitario
       write fCostoUnitario;
     property Activo: NullableBoolean read fActivo write fActivo;
-    property FechaVigencia: NullableTDateTime { dtDateTimeStamp }
+    property FechaVigencia: NullableTDateTime
       read fFechaVigencia write fFechaVigencia;
     property ModificadoPor: NullableInt32 read fModificadoPor
       write fModificadoPor;
@@ -233,9 +205,9 @@ type
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
     [MVCTableField('FECHA_CREACION')]
-    fFechaCreacion: NullableTDateTime { dtDateTimeStamp };
+    fFechaCreacion: NullableTDateTime ;
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
-    fFechaModificacion: NullableTDateTime { dtDateTimeStamp };
+    fFechaModificacion: NullableTDateTime ;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -243,9 +215,9 @@ type
     property Nombre: String read fNombre write fNombre;
     property Descripcion: NullableString read fDescripcion write fDescripcion;
     property Activo: NullableBoolean read fActivo write fActivo;
-    property FechaCreacion: NullableTDateTime { dtDateTimeStamp }
+    property FechaCreacion: NullableTDateTime
       read fFechaCreacion write fFechaCreacion;
-    property FechaModificacion: NullableTDateTime { dtDateTimeStamp }
+    property FechaModificacion: NullableTDateTime
       read fFechaModificacion write fFechaModificacion;
   end;
 
@@ -263,7 +235,7 @@ type
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
     [MVCTableField('FECHA_VIGENCIA')]
-    fFechaVigencia: NullableTDateTime { dtDateTimeStamp };
+    fFechaVigencia: NullableTDateTime ;
     [MVCTableField('MODIFICADO_POR')]
     fModificadoPor: NullableInt32;
   public
@@ -272,7 +244,7 @@ type
     property MaquinaId: Int32 read fMaquinaId write fMaquinaId;
     property CostoHora: NullableCurrency read fCostoHora write fCostoHora;
     property Activo: NullableBoolean read fActivo write fActivo;
-    property FechaVigencia: NullableTDateTime { dtDateTimeStamp }
+    property FechaVigencia: NullableTDateTime
       read fFechaVigencia write fFechaVigencia;
     property ModificadoPor: NullableInt32 read fModificadoPor
       write fModificadoPor;
@@ -291,16 +263,15 @@ type
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
     [MVCTableField('FECHA_CREACION')]
-    fFechaCreacion: NullableTDateTime { dtDateTimeStamp };
+    fFechaCreacion: NullableTDateTime ;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
     property Nombre: String read fNombre write fNombre;
     property Activo: NullableBoolean read fActivo write fActivo;
-    property FechaCreacion: NullableTDateTime { dtDateTimeStamp }
+    property FechaCreacion: NullableTDateTime
       read fFechaCreacion write fFechaCreacion;
   end;
-
 
   [MVCNameCase(ncSnakeCase)]
   [MVCTable('PRECIOS_PROGRAMADOS')]
@@ -322,7 +293,7 @@ type
     fCostoHora: NullableCurrency;
     [MVCTableField('FECHA_VIGENCIA')]
     [MVCRequired]
-    fFechaVigencia: TDateTime { dtDateTimeStamp };
+    fFechaVigencia: TDateTime ;
     [MVCTableField('ESTADO')]
     [MVCRequired]
     [MVCMaxLength(20)]
@@ -330,11 +301,11 @@ type
     [MVCTableField('PRECIO_ID')]
     fPrecioId: NullableInt32;
     [MVCTableField('FECHA_APLICACION')]
-    fFechaAplicacion: NullableTDateTime { dtDateTimeStamp };
+    fFechaAplicacion: NullableTDateTime ;
     [MVCTableField('CREADO_POR')]
     fCreadoPor: NullableInt32;
     [MVCTableField('FECHA_CREACION')]
-    fFechaCreacion: NullableTDateTime { dtDateTimeStamp };
+    fFechaCreacion: NullableTDateTime ;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -346,14 +317,14 @@ type
     property PrecioUnitario: NullableCurrency read fPrecioUnitario
       write fPrecioUnitario;
     property CostoHora: NullableCurrency read fCostoHora write fCostoHora;
-    property FechaVigencia: TDateTime { dtDateTimeStamp } read fFechaVigencia
+    property FechaVigencia: TDateTime  read fFechaVigencia
       write fFechaVigencia;
     property Estado: String read fEstado write fEstado;
     property PrecioId: NullableInt32 read fPrecioId write fPrecioId;
-    property FechaAplicacion: NullableTDateTime { dtDateTimeStamp }
+    property FechaAplicacion: NullableTDateTime
       read fFechaAplicacion write fFechaAplicacion;
     property CreadoPor: NullableInt32 read fCreadoPor write fCreadoPor;
-    property FechaCreacion: NullableTDateTime { dtDateTimeStamp }
+    property FechaCreacion: NullableTDateTime
       read fFechaCreacion write fFechaCreacion;
   end;
 

@@ -1,5 +1,7 @@
 unit Anovo.Forms.Login;
 
+// Ventana de inicio de sesion.
+
 interface
 
 uses
@@ -51,14 +53,15 @@ type
     FPresentador: TPresentadorLogin;
     FCargando: Boolean;
     procedure CargarMarca;
-    { IVistaLogin }
+    procedure lblConfigurarClick(Sender: TObject);
+
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarError(const AMensaje: string);
     procedure IrACambioDeClave;
     procedure IrAPrincipal;
 
   public
-    { Public declarations }
+
   end;
 
 var
@@ -71,11 +74,12 @@ implementation
 uses
   Anovo.UI.Iconos,
   Anovo.UI.Tema,
-  Anovo.Api.Autenticacion;
+  Anovo.Api.Autenticacion,
+  Anovo.Config,
+  Anovo.Forms.Conexion;
 
 const
   ANCHO_MARCA = 420;
-  { TfrmLogin }
 
 procedure TfrmLogin.AcIngresarExecute(Sender: TObject);
 begin
@@ -88,9 +92,7 @@ var
   lRuta: string;
   lPng: TPngImage;
 begin
-  { El logo va en Recursos y no incrustado en el .res: asi se reemplaza sin
-    recompilar cuando Anovo mande una version nueva. Si el archivo no esta,
-    FLogoCargado queda en False y el arte dibuja el engranaje de respaldo. }
+
   lRuta := ExtractFilePath(Application.ExeName) + 'Recursos\Marca\';
   if FileExists(lRuta + 'fondo-marca.png') then
   begin
@@ -110,7 +112,7 @@ begin
         ImgLogo.Picture.Assign(lPng);
         ImgLogo.Width := lPng.Width;
         ImgLogo.Height := lPng.Height;
-        { Centrado sobre la mitad util del panel, la que no tapa la diagonal. }
+
         ImgLogo.Left := (ANCHO_MARCA - 60 - ImgLogo.Width) div 2;
         ImgLogo.Top := 153 - ImgLogo.Height div 2;
 
@@ -118,12 +120,9 @@ begin
         lPng.Free;
       end;
     except
-      { Un PNG ilegible no puede tumbar el arranque. }
 
     end;
 
-  { La filigrana viene ya atenuada desde el archivo: TImage no tiene opacidad
-    y mezclarla en tiempo de ejecucion obligaria a un TBitmap32. }
   if FileExists(lRuta + 'logo-filigrana.png') then
     try
       imgFiligrana.Picture.LoadFromFile(lRuta + 'logo-filigrana.png');
@@ -151,7 +150,14 @@ edtUsuario.Text:=ComboBox1.Text;
   CargarMarca;
   AplicarTemaBarraTitulo(Self, TitleBarPanel1);
   AplicarTema(Self);
+  lblConfigurar.OnClick := lblConfigurarClick;
+  lblVersion.Caption := 'v' + TConfig.VersionEscritorio;
   FPresentador := TPresentadorLogin.Create(Self, TApiAutenticacion.Create);
+end;
+
+procedure TfrmLogin.lblConfigurarClick(Sender: TObject);
+begin
+  TfrmConexion.Mostrar(Self);
 end;
 
 procedure TfrmLogin.FormDestroy(Sender: TObject);
@@ -174,7 +180,7 @@ begin
   FCargando := AActivo;
   aiCargando.Visible := AActivo;
   aiCargando.Animate := AActivo;
-  { Sin esto, un segundo Enter lanza otro login mientras el primero sigue. }
+
   AcIngresar.Enabled := not AActivo;
   edtUsuario.Enabled := not AActivo;
   edtClave.Enabled := not AActivo;

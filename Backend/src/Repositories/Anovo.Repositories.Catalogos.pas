@@ -1,10 +1,6 @@
 unit Anovo.Repositories.Catalogos;
 
-// Repositorios de catalogos. El CRUD lo heredan de TAnovoRepository<T>; aqui
-// estan las consultas con nombre propio.
-//
-// El SQL vive en Anovo.SQL.Catalogos. Lo que se lee aqui es que hace cada
-// metodo; el como, alla.
+// Repositorios de catalogos y de la lista Todos.
 
 interface
 
@@ -35,7 +31,8 @@ type
       const AExcluirId: Integer = 0): Boolean;
   end;
 
-  TCatalogoTodosRepository = class(TInterfacedObject, ICatalogoTodosRepository)
+  TCatalogoTodosRepository = class(TAnovoRepository<TMateriales>,
+    ICatalogoTodosRepository)
   private
     function Filtro(const AIncluirInactivos: Boolean): string;
   public
@@ -144,8 +141,6 @@ uses
   MVCFramework.ActiveRecord,
   Anovo.SQL.Catalogos;
 
-// Convierte pagina y tamano en los dos extremos que espera ROWS, que cuenta
-// desde 1 e incluye los dos.
 procedure Extremos(const APagina, APorPagina: Integer;
   out ADesde, AHasta: Integer);
 begin
@@ -153,7 +148,6 @@ begin
   AHasta := APagina * APorPagina;
 end;
 
-// Las tres comprobaciones de duplicado son la misma consulta con otra tabla.
 function HayOtroCon(const ASQL, AValor: string;
   const AExcluirId: Integer): Boolean;
 var
@@ -164,8 +158,6 @@ begin
   Result := not VarIsNull(lId);
 end;
 
-{ TMaterialRepository }
-
 function TMaterialRepository.Filtro(const AIncluirInactivos: Boolean): string;
 begin
   Result := MATERIALES_FILTRO_BUSQUEDA;
@@ -175,7 +167,6 @@ end;
 
 function TMaterialRepository.Parametros(const ATexto: string): TArray<Variant>;
 begin
-  // En el mismo orden en que Filtro pone los ?.
   Result := [ATexto, ATexto, ATexto];
 end;
 
@@ -186,8 +177,6 @@ var
   lDesde, lHasta: Integer;
 begin
   Extremos(APagina, APorPagina, lDesde, lHasta);
-  // Variant(...) explicito: sin el, [lDesde, lHasta] es un arreglo de enteros
-  // y no se concatena con uno de Variant.
   Result := GetWhere(Filtro(AIncluirInactivos) + MATERIALES_ORDEN_Y_PAGINA,
     Parametros(ATexto) + [Variant(lDesde), Variant(lHasta)]);
 end;
@@ -195,7 +184,6 @@ end;
 function TMaterialRepository.ContarBusqueda(const ATexto: string;
   const AIncluirInactivos: Boolean): Int64;
 begin
-  // Count del repositorio solo acepta RQL: el total va por la conexion.
   Result := GetConnection.ExecSQLScalar(MATERIALES_CONTAR +
     Filtro(AIncluirInactivos), Parametros(ATexto));
 end;
@@ -207,8 +195,6 @@ var
   lDesde, lHasta: Integer;
 begin
   Extremos(APagina, APorPagina, lDesde, lHasta);
-  // No pasa por el repositorio generico: el resultado no es la entidad de esta
-  // tabla sino la proyeccion con el precio.
   Result := TMVCActiveRecord.Select<TMaterialConPrecio>
     (MATERIALES_CON_PRECIO + Filtro(AIncluirInactivos) +
     MATERIALES_ORDEN_Y_PAGINA,
@@ -218,8 +204,6 @@ end;
 function TMaterialRepository.ObtenerPorCodigo(const ACodigo: string)
   : TMateriales;
 begin
-  // El False es RaiseExceptionIfNotFound: no encontrarlo es respuesta, no
-  // error; quien decide que hacer es el servicio.
   Result := GetOneByWhere(MATERIALES_POR_CODIGO, [ACodigo], False);
 end;
 
@@ -228,8 +212,6 @@ function TMaterialRepository.ExisteNombre(const ANombre: string;
 begin
   Result := HayOtroCon(MATERIALES_NOMBRE_DUPLICADO, ANombre, AExcluirId);
 end;
-
-{ TCatalogoTodosRepository }
 
 function TCatalogoTodosRepository.Filtro(const AIncluirInactivos
   : Boolean): string;
@@ -255,14 +237,9 @@ end;
 function TCatalogoTodosRepository.ContarBusqueda(const ATexto: string;
   const AIncluirInactivos: Boolean): Int64;
 begin
-  // Sin repositorio generico no hay GetConnection: la conexion es la misma
-  // que dejo abierta el middleware para esta peticion.
-  Result := TMVCActiveRecord.CurrentConnection.ExecSQLScalar
-    (CATALOGOS_TODOS_CONTAR + Filtro(AIncluirInactivos),
-    [ATexto, ATexto, ATexto]);
+  Result := GetConnection.ExecSQLScalar(CATALOGOS_TODOS_CONTAR +
+    Filtro(AIncluirInactivos), [ATexto, ATexto, ATexto]);
 end;
-
-{ TPrecioProgramadoRepository }
 
 function TPrecioProgramadoRepository.PendientesDeMaterial
   (const AMaterialId: Integer): TObjectList<TPreciosProgramados>;
@@ -282,8 +259,6 @@ begin
   Result := GetWhere(PROGRAMADOS_DE_MAQUINA, [AMaquinaId]);
 end;
 
-{ TMaterialPrecioRepository }
-
 function TMaterialPrecioRepository.PrecioVigenteDe(const AMaterialId: Integer)
   : TMaterialesPrecios;
 begin
@@ -295,8 +270,6 @@ function TMaterialPrecioRepository.HistorialDe(const AMaterialId: Integer)
 begin
   Result := GetWhere(MATERIAL_PRECIOS_HISTORIAL, [AMaterialId]);
 end;
-
-{ TManoObraRepository }
 
 function TManoObraRepository.Filtro(const AIncluirInactivos: Boolean;
   const ACategoriaId: Integer): string;
@@ -311,7 +284,6 @@ end;
 function TManoObraRepository.Parametros(const ATexto: string;
   const ACategoriaId: Integer): TArray<Variant>;
 begin
-  // Tres, como los ? de MANO_OBRA_FILTRO_BUSQUEDA.
   Result := [ATexto, ATexto, ATexto];
   if ACategoriaId > 0 then
     Result := Result + [Variant(ACategoriaId)];
@@ -361,8 +333,6 @@ begin
   Result := HayOtroCon(MANO_OBRA_NOMBRE_DUPLICADO, ANombre, AExcluirId);
 end;
 
-{ TManoObraPrecioRepository }
-
 function TManoObraPrecioRepository.PrecioVigenteDe(const AManoObraId: Integer)
   : TManoObraPrecios;
 begin
@@ -375,14 +345,10 @@ begin
   Result := GetWhere(MANO_OBRA_PRECIOS_HISTORIAL, [AManoObraId]);
 end;
 
-{ TManoObraCategoriaRepository }
-
 function TManoObraCategoriaRepository.Todas: TObjectList<TManoObraCategoria>;
 begin
   Result := GetWhere(MANO_OBRA_CATEGORIAS, []);
 end;
-
-{ TMaquinaRepository }
 
 function TMaquinaRepository.Filtro(const AIncluirInactivos: Boolean): string;
 begin
@@ -438,8 +404,6 @@ begin
   Result := HayOtroCon(MAQUINAS_NOMBRE_DUPLICADO, ANombre, AExcluirId);
 end;
 
-{ TMaquinaPrecioRepository }
-
 function TMaquinaPrecioRepository.PrecioVigenteDe(const AMaquinaId: Integer)
   : TMaquinasPrecios;
 begin
@@ -451,8 +415,6 @@ function TMaquinaPrecioRepository.HistorialDe(const AMaquinaId: Integer)
 begin
   Result := GetWhere(MAQUINA_PRECIOS_HISTORIAL, [AMaquinaId]);
 end;
-
-{ TTipoTrabajoRepository }
 
 function TTipoTrabajoRepository.Todos(const AIncluirInactivos: Boolean)
   : TObjectList<TTiposTrabajo>;

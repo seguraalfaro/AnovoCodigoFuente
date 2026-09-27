@@ -1,34 +1,7 @@
-// ***************************************************************************
-//
-// Delphi MVC Framework
-//
-// Copyright (c) 2010-2026 Daniele Teti and the DMVCFramework Team
-//
-// https://github.com/danieleteti/delphimvcframework
-//
-// ***************************************************************************
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// ***************************************************************************
-
 unit Anovo.Entities.Solicitudes;
 
-// SOLICITUDES, SUS ADJUNTOS Y SUS MEDIDAS
-//
-// Generada por MVCEntGen y separada por recurso desde
-// db-firebird\generado\Anovo.Entities.Generadas.pas. Al regenerar, volver a
-// partir de ahi: lo que se escriba a mano aqui se pierde.
+// Entidades de solicitudes, adjuntos y medidas.
+// Generada por MVCEntGen; al regenerar, partir de Db/generado.
 
 interface
 
@@ -66,15 +39,15 @@ type
     fObservaciones: NullableString;
     [MVCTableField('FECHA_CAPTURA')]
     [MVCRequired]
-    fFechaCaptura: TDateTime {dtDateTimeStamp};
+    fFechaCaptura: TDateTime ;
     [MVCTableField('FECHA_RECEPCION')]
-    fFechaRecepcion: NullableTDateTime {dtDateTimeStamp};
+    fFechaRecepcion: NullableTDateTime ;
     [MVCTableField('ESTADO')]
     [MVCRequired]
     [MVCMaxLength(20)]
     fEstado: String;
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
-    fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
+    fFechaModificacion: NullableTDateTime ;
     [MVCTableField('OBJVERSION')]
     fObjversion: NullableInt32;
   public
@@ -85,10 +58,10 @@ type
     property AsesorId: Int32 read fAsesorId write fAsesorId;
     property Descripcion: String read fDescripcion write fDescripcion;
     property Observaciones: NullableString read fObservaciones write fObservaciones;
-    property FechaCaptura: TDateTime {dtDateTimeStamp} read fFechaCaptura write fFechaCaptura;
-    property FechaRecepcion: NullableTDateTime {dtDateTimeStamp} read fFechaRecepcion write fFechaRecepcion;
+    property FechaCaptura: TDateTime  read fFechaCaptura write fFechaCaptura;
+    property FechaRecepcion: NullableTDateTime  read fFechaRecepcion write fFechaRecepcion;
     property Estado: String read fEstado write fEstado;
-    property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
+    property FechaModificacion: NullableTDateTime  read fFechaModificacion write fFechaModificacion;
     property Objversion: NullableInt32 read fObjversion write fObjversion;
   end;
 
@@ -124,7 +97,7 @@ type
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
     [MVCTableField('FECHA_CREACION')]
-    fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
+    fFechaCreacion: NullableTDateTime ;
     [MVCTableField('OBJVERSION')]
     fObjversion: NullableInt32;
   public
@@ -141,7 +114,7 @@ type
     property Contenido: TStream read fContenido write fContenido;
     property ContenidoJson: NullableString read fContenidoJson write fContenidoJson;
     property Activo: NullableBoolean read fActivo write fActivo;
-    property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
+    property FechaCreacion: NullableTDateTime  read fFechaCreacion write fFechaCreacion;
     property Objversion: NullableInt32 read fObjversion write fObjversion;
   end;
 
@@ -179,7 +152,7 @@ type
     [MVCRequired]
     fOrden: Int16;
     [MVCTableField('FECHA_CREACION')]
-    fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
+    fFechaCreacion: NullableTDateTime ;
     [MVCTableField('OBJVERSION')]
     fObjversion: NullableInt32;
   public
@@ -194,7 +167,7 @@ type
     property UnidadMedida: String read fUnidadMedida write fUnidadMedida;
     property Observacion: NullableString read fObservacion write fObservacion;
     property Orden: Int16 read fOrden write fOrden;
-    property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
+    property FechaCreacion: NullableTDateTime  read fFechaCreacion write fFechaCreacion;
     property Objversion: NullableInt32 read fObjversion write fObjversion;
   end;
 

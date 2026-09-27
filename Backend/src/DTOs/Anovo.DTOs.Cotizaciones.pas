@@ -1,12 +1,7 @@
 unit Anovo.DTOs.Cotizaciones;
 
-// El contrato de cotizaciones: lo que viaja entre la API y sus clientes.
-//
-// Compartida con el escritorio, que la compila desde esta misma ruta.
-//
-// Los totales no se reciben nunca: los calcula el servidor a partir del
-// detalle. Un cliente que pudiera mandar el total podria mandar uno que no
-// cuadra con las lineas.
+// DTOs de cotizaciones y su detalle.
+// Compartidos con el escritorio.
 
 interface
 
@@ -47,11 +42,9 @@ type
     fObjVersion: Integer;
   public
     property ID: Integer read fID write fID;
-    // El consecutivo que ve el cliente. Unico e irrepetible.
     property Numero: Integer read fNumero write fNumero;
     property SolicitudId: Integer read fSolicitudId write fSolicitudId;
     property ClienteId: Integer read fClienteId write fClienteId;
-    // No sale de la tabla: lo llena el servicio.
     property ClienteNombre: string read fClienteNombre write fClienteNombre;
     property TipoTrabajoId: NullableInt32 read fTipoTrabajoId
       write fTipoTrabajoId;
@@ -99,7 +92,6 @@ type
     property SolicitudId: Integer read fSolicitudId write fSolicitudId;
     property TipoTrabajoId: NullableInt32 read fTipoTrabajoId
       write fTipoTrabajoId;
-    // Si viene vacia, el servicio copia la de la solicitud.
     property DescripcionTrabajo: string read fDescripcionTrabajo
       write fDescripcionTrabajo;
     property PorcentajeIva: Currency read fPorcentajeIva write fPorcentajeIva;
@@ -122,8 +114,6 @@ type
     property ObjVersion: NullableInt32 read fObjVersion write fObjVersion;
   end;
 
-  // DETALLE
-
   [MVCNameCase(ncSnakeCase)]
   TLineaDTO = class
   private
@@ -142,7 +132,6 @@ type
   public
     property ID: Integer read fID write fID;
     property CotizacionId: Integer read fCotizacionId write fCotizacionId;
-    // material, mano_obra, maquina o nota.
     property Tipo: string read fTipo write fTipo;
     property MaterialId: NullableInt32 read fMaterialId write fMaterialId;
     property ManoObraId: NullableInt32 read fManoObraId write fManoObraId;
@@ -151,8 +140,6 @@ type
     property UnidadMedida: NullableString read fUnidadMedida
       write fUnidadMedida;
     property Cantidad: NullableCurrency read fCantidad write fCantidad;
-    // Copiado del catalogo al agregar la linea, no referenciado: si manana
-    // sube el material, la cotizacion aprobada no cambia.
     property PrecioUnitario: NullableCurrency read fPrecioUnitario
       write fPrecioUnitario;
     property Subtotal: NullableCurrency read fSubtotal write fSubtotal;
@@ -179,13 +166,9 @@ type
     property UnidadMedida: NullableString read fUnidadMedida
       write fUnidadMedida;
     property Cantidad: NullableCurrency read fCantidad write fCantidad;
-    // Opcional: si no viene, el servicio toma el precio vigente del catalogo.
-    // Viene cuando el asistente lo corrige a mano para esta cotizacion.
     property PrecioUnitario: NullableCurrency read fPrecioUnitario
       write fPrecioUnitario;
   end;
-
-  // OPERACIONES
 
   [MVCNameCase(ncSnakeCase)]
   TAjusteDTO = class
@@ -195,8 +178,6 @@ type
   public
     property PorcentajeAjuste: Currency read fPorcentajeAjuste
       write fPorcentajeAjuste;
-    // Obligatorio cuando el porcentaje no es cero. Lo exige la base con
-    // CK_COTIZ_MOTIVO_AJUSTE y se comprueba antes para dar mejor mensaje.
     property MotivoAjuste: NullableString read fMotivoAjuste
       write fMotivoAjuste;
   end;
@@ -206,8 +187,6 @@ type
   private
     fMotivo: string;
   public
-    // Sirve para rechazar y para devolver: en los dos el motivo es
-    // obligatorio.
     property Motivo: string read fMotivo write fMotivo;
   end;
 
@@ -229,8 +208,6 @@ type
   end;
 
 implementation
-
-{ TCotizacionesPaginaDTO }
 
 constructor TCotizacionesPaginaDTO.Create(const AData
   : TObjectList<TCotizacionDTO>; const ATotal: Int64;

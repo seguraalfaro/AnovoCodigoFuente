@@ -1,20 +1,7 @@
 unit Anovo.Services.Solicitudes;
 
-// Servicio de solicitudes: donde vive el negocio de lo que captura el movil.
-//
-// Tres cosas pasan aqui y en ningun otro sitio.
-//
-// La idempotencia. El telefono guarda sin conexion y sube cuando puede; si la
-// respuesta se pierde de vuelta, reintenta. Sin comprobar el uuid_local, cada
-// reintento seria una solicitud nueva y el asesor terminaria con la misma
-// visita tres veces sin haber hecho nada mal.
-//
-// La maquina de estados. La base no la impone -ESTADO es un VARCHAR sin
-// CHECK-, asi que las transiciones validas estan aqui y solo aqui.
-//
-// El limite de los adjuntos. El tamano se calcula al decodificar, no se cree
-// el que manda el cliente: la restriccion de 3 MB de la tabla se comprueba
-// antes para devolver un mensaje util en lugar del error del motor.
+// Servicio de solicitudes: captura idempotente desde el movil,
+// alcance por asesor y cambios de estado.
 
 interface
 
@@ -25,18 +12,15 @@ uses
   Anovo.Entities.Solicitudes,
   Anovo.Repositories.Intf.Clientes,
   Anovo.Repositories.Intf.Solicitudes,
-  Anovo.Services.Intf.Solicitudes;
+  Anovo.Services.Intf.Solicitudes,
+  Anovo.DTOs.Dashboard;
 
 const
-  // Los estados por los que pasa una solicitud. No estan en la base: si
-  // manana se agrega uno, se agrega aqui y en TRANSICIONES.
-  ESTADO_BORRADOR = 'borrador';
-  ESTADO_ENVIADA = 'enviada';
+  ESTADO_CAPTURADA = 'capturada';
   ESTADO_RECIBIDA = 'recibida';
-  ESTADO_COTIZADA = 'cotizada';
-  ESTADO_ANULADA = 'anulada';
+  ESTADO_EN_COTIZACION = 'en_cotizacion';
+  ESTADO_DESCARTADA = 'descartada';
 
-  // El tope que ya impone CK_ADJUNTO_TAMANO.
   ADJUNTO_MAXIMO_BYTES = 3145728;
 
   ADJUNTO_CROQUIS = 'croquis';
@@ -79,6 +63,10 @@ type
     procedure MarcarRecibida(const AId: Integer);
     procedure CambiarEstado(const AId: Integer; const ADto: TCambioEstadoDTO);
     function PendientesDeCotizar: TObjectList<TSolicitudDTO>;
+    function Seguimiento(const AAsesorId: Integer; const ATexto: string;
+      const ASoloMes: Boolean; const APagina, APorPagina: Integer;
+      out ADesde, AHasta: TDateTime; out ATotal: Int64)
+      : TObjectList<TSolicitudAsesorDTO>;
 
     function Medidas(const AId: Integer): TObjectList<TMedidaDTO>;
     function AgregarMedida(const AId: Integer;
@@ -106,7 +94,9 @@ uses
   Anovo.Entities.Clientes,
   Anovo.Errors,
   Anovo.Mapeo,
-  Anovo.Textos;
+  Anovo.Textos,
+  System.DateUtils,
+  Anovo.Entities.Vistas.Dashboard;
 
 constructor TSolicitudService.Create(ARepo: ISolicitudRepository;
   AMedidas: ISolicitudMedidaRepository;
@@ -118,8 +108,6 @@ begin
   fAdjuntos := AAdjuntos;
   fClientes := AClientes;
 end;
-
-// Apoyo
 
 function TSolicitudService.TraerVigente(const AId: Integer): TSolicitudes;
 begin
@@ -149,9 +137,6 @@ var
   lCliente: TClientes;
 begin
   Result := TMapeo.ADto<TSolicitudDTO>(ASolicitud);
-  // El nombre del cliente no esta en la tabla y la pantalla lo necesita. En el
-  // listado esto es una consulta por fila; si el listado llega a pesar, se
-  // resuelve con una proyeccion como la de catalogos.
   lCliente := fClientes.GetByPK(ASolicitud.ClienteId, False);
   if lCliente <> nil then
     try
@@ -165,17 +150,12 @@ procedure TSolicitudService.ValidarTransicion(const ADesde, AHacia: string);
 var
   lValida: Boolean;
 begin
-  // Borrador y enviada las pone el movil; recibida la pone el servidor al
-  // recibirla; cotizada la pone el modulo de cotizaciones. Anular se puede
-  // desde cualquier estado que no sea cotizada.
-  if AHacia = ESTADO_ANULADA then
-    lValida := ADesde <> ESTADO_COTIZADA
-  else if ADesde = ESTADO_BORRADOR then
-    lValida := AHacia = ESTADO_ENVIADA
-  else if ADesde = ESTADO_ENVIADA then
+  if AHacia = ESTADO_DESCARTADA then
+    lValida := ADesde <> ESTADO_EN_COTIZACION
+  else if ADesde = ESTADO_CAPTURADA then
     lValida := AHacia = ESTADO_RECIBIDA
   else if ADesde = ESTADO_RECIBIDA then
-    lValida := AHacia = ESTADO_COTIZADA
+    lValida := AHacia = ESTADO_EN_COTIZACION
   else
     lValida := False;
 
@@ -189,15 +169,11 @@ procedure TSolicitudService.ValidarCliente(const AClienteId: Integer);
 var
   lCliente: TClientes;
 begin
-  // Se comprueba antes de insertar para devolver un 422 con mensaje en lugar
-  // de la violacion de clave foranea, que sale como error del motor.
   lCliente := fClientes.GetByPK(AClienteId, False);
   if lCliente = nil then
     raise EDatoInvalido.Create(SClienteNoExiste);
   lCliente.Free;
 end;
-
-// Solicitudes
 
 function TSolicitudService.Buscar(const ATexto, AEstado: string;
   const ADesde, AHasta: TDateTime; const ASoloPropias: Boolean;
@@ -208,7 +184,6 @@ var
   lFilas: TObjectList<TSolicitudes>;
   lFila: TSolicitudes;
 begin
-  // 0 es "todos". El alcance lo decidio el controller con los permisos.
   if ASoloPropias then
     lFiltroAsesor := AAsesorId
   else
@@ -250,7 +225,6 @@ begin
   if ADto.UuidLocal.IsEmpty then
     raise EDatoInvalido.Create(SFaltaIdLocalSolicitud);
 
-  // Idempotencia: si ya subio, se devuelve la que hay.
   Result := fRepo.ExisteUuidLocal(ADto.UuidLocal);
   if Result > 0 then
     Exit;
@@ -264,7 +238,7 @@ begin
       lSolicitud.FechaCaptura := ADto.FechaCaptura.Value
     else
       lSolicitud.FechaCaptura := Now;
-    lSolicitud.Estado := ESTADO_ENVIADA;
+    lSolicitud.Estado := ESTADO_RECIBIDA;
     lSolicitud.FechaRecepcion := Now;
     FijarDetalle('Registro de la solicitud ' + ADto.Descripcion);
     fRepo.Insert(lSolicitud);
@@ -288,12 +262,10 @@ begin
 
   lSolicitud := TraerVigente(AId);
   try
-    if lSolicitud.Estado = ESTADO_COTIZADA then
+    if lSolicitud.Estado = ESTADO_EN_COTIZACION then
       raise EConflictoDeEstado.Create('SOLICITUD_COTIZADA',
         'Esta solicitud ya tiene cotizacion y no admite cambios.');
 
-    // La comparacion se hace aqui, y no se deja solo a foVersion, para que el
-    // caso corriente salga con 409 y un mensaje que diga que hacer.
     if lSolicitud.Objversion.ValueOrDefault <> ADto.ObjVersion.Value then
       raise EVersionVencida.Create('la solicitud', AId);
 
@@ -311,9 +283,6 @@ var
   lMedida: TMedidaNuevaDTO;
   lAdjunto: TAdjuntoNuevoDTO;
 begin
-  // Una sola transaccion para las tres tablas: o entra la visita entera o no
-  // entra. Una solicitud con la mitad de las fotos es peor que ninguna,
-  // porque nadie sabe que falta.
   var
   lTx := TMVCRepository.UseTransactionContext;
 
@@ -335,14 +304,14 @@ begin
 
   lSolicitud := TraerVigente(AId);
   try
-    // Se sella una sola vez: la primera recepcion es la que cuenta para medir
-    // el tiempo entre la visita y la llegada.
-    if lSolicitud.FechaRecepcion.HasValue then
+    if (lSolicitud.Estado <> ESTADO_CAPTURADA) and
+      lSolicitud.FechaRecepcion.HasValue then
       Exit;
 
-    lSolicitud.FechaRecepcion := Now;
-    if lSolicitud.Estado = ESTADO_ENVIADA then
+    if lSolicitud.Estado = ESTADO_CAPTURADA then
       lSolicitud.Estado := ESTADO_RECIBIDA;
+    if not lSolicitud.FechaRecepcion.HasValue then
+      lSolicitud.FechaRecepcion := Now;
     FijarDetalle('Recepcion de la solicitud ' + AId.ToString);
     fRepo.Update(lSolicitud);
   finally
@@ -362,10 +331,9 @@ begin
   try
     ValidarTransicion(lSolicitud.Estado, ADto.Estado);
 
-    // Anular sin decir por que deja un hueco que nadie puede explicar despues.
-    if (ADto.Estado = ESTADO_ANULADA) and
+    if (ADto.Estado = ESTADO_DESCARTADA) and
       (not ADto.Observacion.HasValue or ADto.Observacion.Value.IsEmpty) then
-      raise EDatoInvalido.Create(SAnularSinObservacion);
+      raise EDatoInvalido.Create(SDescartarSinMotivo);
 
     lSolicitud.Estado := ADto.Estado;
     if ADto.Observacion.HasValue then
@@ -394,8 +362,6 @@ begin
   end;
 end;
 
-// Medidas
-
 function TSolicitudService.Medidas(const AId: Integer): TObjectList<TMedidaDTO>;
 var
   lFilas: TObjectList<TSolicitudMedidas>;
@@ -414,7 +380,6 @@ var
   lMedida: TSolicitudMedidas;
   lExistente: TSolicitudMedidas;
 begin
-  // Idempotencia, igual que la solicitud: el telefono puede reenviar el lote.
   if ADto.UuidLocal.HasValue and not ADto.UuidLocal.Value.IsEmpty then
   begin
     lExistente := fMedidas.ObtenerPorUuidLocal(ADto.UuidLocal.Value);
@@ -465,7 +430,6 @@ begin
   lMedida := TraerMedida(AId, AMedidaId);
   try
     TMapeo.Copiar(ADto, lMedida);
-    // El uuid y la solicitud no se cambian: identifican la fila.
     lMedida.SolicitudId := AId;
     FijarDetalle('Cambio en una medida de la solicitud ' + AId.ToString);
     fMedidas.Update(lMedida);
@@ -489,8 +453,6 @@ begin
     lMedida.Free;
   end;
 end;
-
-// Adjuntos
 
 function TSolicitudService.Adjuntos(const AId: Integer)
   : TObjectList<TAdjuntoDTO>;
@@ -516,7 +478,6 @@ begin
     Result := TMapeo.ADto<TAdjuntoContenidoDTO>(lAdjunto);
     Result.ContenidoJson := lAdjunto.ContenidoJson;
 
-    // JSON no lleva binario: los bytes salen en base64.
     if (lAdjunto.Contenido <> nil) and (lAdjunto.Contenido.Size > 0) then
     begin
       SetLength(lBytes, lAdjunto.Contenido.Size);
@@ -566,8 +527,6 @@ begin
     begin
       lBytes := TNetEncoding.Base64.DecodeStringToBytes(ADto.Contenido.Value);
 
-      // El tamano se mide, no se cree: un cliente que mienta en el tamano no
-      // debe poder saltarse el limite.
       if Length(lBytes) > ADJUNTO_MAXIMO_BYTES then
         raise EDatoInvalido.Create
           ('El adjunto supera el maximo de 3 MB permitido.');
@@ -575,13 +534,10 @@ begin
       lStream := TMemoryStream.Create;
       lStream.WriteBuffer(lBytes[0], Length(lBytes));
       lStream.Position := 0;
-      // La entidad se queda con el stream y lo libera ella.
       lAdjunto.Contenido := lStream;
       lAdjunto.TamanoBytes := Length(lBytes);
     end
     else if not ADto.ContenidoJson.HasValue then
-      // Un adjunto sin bytes y sin trazos no es nada: seria una fila que dice
-      // que hay una foto que no existe.
       raise EDatoInvalido.Create
         ('El adjunto viene vacio: falta el contenido o los trazos.');
 
@@ -623,6 +579,32 @@ begin
     fAdjuntos.Update(lAdjunto);
   finally
     lAdjunto.Free;
+  end;
+end;
+
+function TSolicitudService.Seguimiento(const AAsesorId: Integer;
+  const ATexto: string; const ASoloMes: Boolean;
+  const APagina, APorPagina: Integer; out ADesde, AHasta: TDateTime;
+  out ATotal: Int64): TObjectList<TSolicitudAsesorDTO>;
+var
+  lFilas: TObjectList<TSolicitudAsesorVista>;
+begin
+  ADesde := 0;
+  AHasta := 0;
+  if ASoloMes then
+  begin
+    ADesde := StartOfTheMonth(Date);
+    AHasta := IncMonth(ADesde, 1);
+  end;
+
+  ATotal := fRepo.ContarSeguimiento(AAsesorId, ATexto, ADesde, AHasta);
+  lFilas := fRepo.Seguimiento(AAsesorId, ATexto, ADesde, AHasta, APagina,
+    APorPagina);
+  try
+    Result := TMapeo.AListaDto<TSolicitudAsesorVista,
+      TSolicitudAsesorDTO>(lFilas);
+  finally
+    lFilas.Free;
   end;
 end;
 

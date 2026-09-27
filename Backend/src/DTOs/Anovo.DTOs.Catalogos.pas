@@ -1,17 +1,7 @@
 unit Anovo.DTOs.Catalogos;
 
-// El contrato de catalogos: lo que viaja entre la API y sus clientes.
-//
-// Compartida con el escritorio, que la compila desde esta misma ruta.
-//
-// Los DTO de entrada espejan sus tablas para que TMapeo copie por nombre.
-// Quedan fuera las columnas que genera la base: ID y fechas de creacion y
-// modificacion.
-//
-// El precio no entra en el DTO de edicion del item. Cambiarlo es otra
-// operacion, con su propia ruta, porque deja rastro en el historial.
-//
-// Sin validadores: lo obligatorio y el largo estan en las entidades.
+// DTOs de catalogos y precios.
+// Compartidos con el escritorio.
 
 interface
 
@@ -21,16 +11,11 @@ uses
   MVCFramework.Nullables;
 
 const
-  // El valor de la columna TIPO del listado unificado. Lo escribe la consulta
-  // del backend y lo lee el escritorio para saber de que catalogo es la fila;
-  // esta unidad la compilan los dos, asi que no pueden desalinearse.
   TIPO_MATERIAL = 'material';
   TIPO_MANO_OBRA = 'mano_obra';
   TIPO_MAQUINA = 'maquina';
 
 type
-
-  // MATERIALES
 
   [MVCNameCase(ncSnakeCase)]
   TMaterialDTO = class
@@ -52,15 +37,12 @@ type
     property Descripcion: NullableString read fDescripcion write fDescripcion;
     property UnidadMedida: string read fUnidadMedida write fUnidadMedida;
     property Activo: Boolean read fActivo write fActivo;
-    // Nulos mientras el material no tenga precio cargado.
     property CostoUnitario: NullableCurrency read fCostoUnitario
       write fCostoUnitario;
     property PrecioUnitario: NullableCurrency read fPrecioUnitario
       write fPrecioUnitario;
     property FechaVigencia: NullableTDateTime read fFechaVigencia
       write fFechaVigencia;
-    // Fecha del proximo cambio de precio en cola, nula si no hay ninguno. No
-    // es del precio que rige: es el aviso de que este item va a cambiar.
     property ProgramadoFecha: NullableTDateTime read fProgramadoFecha
       write fProgramadoFecha;
   end;
@@ -93,8 +75,6 @@ type
     property UnidadMedida: string read fUnidadMedida write fUnidadMedida;
   end;
 
-  // MANO DE OBRA
-
   [MVCNameCase(ncSnakeCase)]
   TManoObraDTO = class
   private
@@ -119,13 +99,10 @@ type
     property Descripcion: NullableString read fDescripcion write fDescripcion;
     property UnidadMedida: string read fUnidadMedida write fUnidadMedida;
     property Activo: Boolean read fActivo write fActivo;
-    // Sin precio de venta: la mano de obra solo lleva costo.
     property CostoUnitario: NullableCurrency read fCostoUnitario
       write fCostoUnitario;
     property FechaVigencia: NullableTDateTime read fFechaVigencia
       write fFechaVigencia;
-    // Fecha del proximo cambio de precio en cola, nula si no hay ninguno. No
-    // es del precio que rige: es el aviso de que este item va a cambiar.
     property ProgramadoFecha: NullableTDateTime read fProgramadoFecha
       write fProgramadoFecha;
   end;
@@ -174,8 +151,6 @@ type
     property Nombre: string read fNombre write fNombre;
   end;
 
-  // MAQUINAS
-
   [MVCNameCase(ncSnakeCase)]
   TMaquinaDTO = class
   private
@@ -196,8 +171,6 @@ type
     property CostoHora: NullableCurrency read fCostoHora write fCostoHora;
     property FechaVigencia: NullableTDateTime read fFechaVigencia
       write fFechaVigencia;
-    // Fecha del proximo cambio de precio en cola, nula si no hay ninguno. No
-    // es del precio que rige: es el aviso de que este item va a cambiar.
     property ProgramadoFecha: NullableTDateTime read fProgramadoFecha
       write fProgramadoFecha;
   end;
@@ -226,8 +199,6 @@ type
     property Descripcion: NullableString read fDescripcion write fDescripcion;
   end;
 
-  // TIPOS DE TRABAJO
-
   [MVCNameCase(ncSnakeCase)]
   TTipoTrabajoDTO = class
   private
@@ -248,10 +219,6 @@ type
     property Nombre: string read fNombre write fNombre;
   end;
 
-  // PRECIOS
-
-  // Una fila del historial. Sirve para los tres catalogos: el que no tiene
-  // precio de venta ni costo por hora los deja nulos.
   [MVCNameCase(ncSnakeCase)]
   TPrecioDTO = class
   private
@@ -276,8 +243,6 @@ type
       write fModificadoPor;
   end;
 
-  // Lo que se manda al cambiar un precio. La fecha de vigencia es opcional: si
-  // no viene, rige desde ya.
   [MVCNameCase(ncSnakeCase)]
   TPrecioNuevoDTO = class
   private
@@ -294,8 +259,6 @@ type
     property FechaVigencia: NullableTDateTime read fFechaVigencia
       write fFechaVigencia;
   end;
-
-  // SOBRES DE PAGINA
 
   [MVCNameCase(ncSnakeCase)]
   TMaterialesPaginaDTO = class
@@ -348,13 +311,6 @@ type
     property PorPagina: Integer read fPorPagina write fPorPagina;
   end;
 
-  // TODOS LOS CATALOGOS
-
-  // Una fila de la union de materiales, mano de obra y maquinas. Lleva las
-  // columnas de los tres con el mismo nombre que en su listado propio, nulas
-  // donde no aplican, para que la ventana del item se abra desde aqui igual
-  // que desde su pestana. Costo es la columna comun para mostrar: costo
-  // unitario en los dos primeros, costo por hora en maquinas.
   [MVCNameCase(ncSnakeCase)]
   TCatalogoItemDTO = class
   private
@@ -373,7 +329,6 @@ type
     fActivo: Boolean;
     fProgramadoFecha: NullableTDateTime;
   public
-    // TIPO_MATERIAL, TIPO_MANO_OBRA o TIPO_MAQUINA.
     property Tipo: string read fTipo write fTipo;
     property ID: Integer read fID write fID;
     property Codigo: string read fCodigo write fCodigo;
@@ -413,8 +368,6 @@ type
 
 implementation
 
-{ TCatalogoItemsPaginaDTO }
-
 constructor TCatalogoItemsPaginaDTO.Create
   (const AData: TObjectList<TCatalogoItemDTO>; const ATotal: Int64;
   const APagina, APorPagina: Integer);
@@ -432,8 +385,6 @@ begin
   inherited;
 end;
 
-{ TMaterialesPaginaDTO }
-
 constructor TMaterialesPaginaDTO.Create(const AData: TObjectList<TMaterialDTO>;
   const ATotal: Int64; const APagina, APorPagina: Integer);
 begin
@@ -450,8 +401,6 @@ begin
   inherited;
 end;
 
-{ TManoObraPaginaDTO }
-
 constructor TManoObraPaginaDTO.Create(const AData: TObjectList<TManoObraDTO>;
   const ATotal: Int64; const APagina, APorPagina: Integer);
 begin
@@ -467,8 +416,6 @@ begin
   fData.Free;
   inherited;
 end;
-
-{ TMaquinasPaginaDTO }
 
 constructor TMaquinasPaginaDTO.Create(const AData: TObjectList<TMaquinaDTO>;
   const ATotal: Int64; const APagina, APorPagina: Integer);

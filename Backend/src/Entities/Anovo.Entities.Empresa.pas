@@ -1,34 +1,7 @@
-// ***************************************************************************
-//
-// Delphi MVC Framework
-//
-// Copyright (c) 2010-2026 Daniele Teti and the DMVCFramework Team
-//
-// https://github.com/danieleteti/delphimvcframework
-//
-// ***************************************************************************
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// ***************************************************************************
-
 unit Anovo.Entities.Empresa;
 
-// EMPRESA: los datos del emisor de la cotizacion
-//
-// Generada por MVCEntGen y separada por recurso desde
-// db-firebird\generado\Anovo.Entities.Generadas.pas. Al regenerar, volver a
-// partir de ahi: lo que se escriba a mano aqui se pierde.
+// Entidad de EMPRESA, el emisor de la cotizacion.
+// Generada por MVCEntGen; al regenerar, partir de Db/generado.
 
 interface
 
@@ -76,7 +49,7 @@ type
     [MVCTableField('MODIFICADO_POR')]
     fModificadoPor: NullableInt32;
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
-    fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
+    fFechaModificacion: NullableTDateTime ;
   public
     property ID: Int32 read fID write fID;
     property RazonSocial: String read fRazonSocial write fRazonSocial;
@@ -88,7 +61,7 @@ type
     property RepresentanteLegal: NullableString read fRepresentanteLegal write fRepresentanteLegal;
     property CuentaBancaria: NullableString read fCuentaBancaria write fCuentaBancaria;
     property ModificadoPor: NullableInt32 read fModificadoPor write fModificadoPor;
-    property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
+    property FechaModificacion: NullableTDateTime  read fFechaModificacion write fFechaModificacion;
   end;
 
 implementation

@@ -1,20 +1,7 @@
 unit Anovo.Forms.Servidor;
 
-// La ventana del servidor. Sustituye a la consola: el mismo servidor, pero
-// con el log legible y con lo que hace falta saber mientras corre.
-//
-// Muestra tres cosas que la consola no daba y que costaron tiempo esta semana:
-// a que archivo de base esta conectado -cuando se cambio de base, el sintoma
-// fue "no me entra" y no "estas en otra base"-, el estado de la cache de
-// permisos con un boton para invalidarla -hoy un cambio de permisos en la base
-// no se ve hasta reiniciar-, y los errores aparte del log corrido.
-//
-// Lo que NO hace, a proposito: administrar usuarios, roles ni ver auditoria.
-// Eso ya esta en el escritorio, detras de un login y con rastro. Quien esta
-// frente al servidor no paso por ningun control de acceso.
-//
-// La actividad que lista es volatil y no reemplaza a la auditoria: sirve para
-// mirar el servidor trabajando, no para saber quien cambio que.
+// Ventana del servidor: log, base, cache de permisos, actividad
+// y errores.
 
 interface
 
@@ -89,15 +76,10 @@ uses
   Anovo.Services.Intf.Permisos;
 
 const
-  // Un segundo alcanza: nadie mira esto esperando reaccion inmediata, y
-  // refrescar mas seguido solo gasta.
   REFRESCO_MS = 1000;
 
   LINEAS_LOG = 500;
 
-  // Cada hora y no a medianoche: no hay que calcular cuando es medianoche, y
-  // un equipo suspendido o con la fecha movida se pone al dia en la siguiente
-  // vuelta en vez de esperar un dia entero.
   VIGENCIAS_MS = 60 * 60 * 1000;
 
 procedure TfrmServidor.FormCreate(Sender: TObject);
@@ -107,13 +89,9 @@ begin
   FDesde := 0;
   FYaArranco := False;
 
-  // El appender se arma aqui y no en Bootstrap: necesita el memo, que existe
-  // recien ahora. Sin consola, porque una aplicacion grafica no tiene.
   Boot(TVCLMemoLogAppender.Create(memRegistro, LINEAS_LOG) as ILogAppender,
     False);
 
-  // Antes de mostrar nada: la cabecera y el estado de la cache salen del .env
-  // y del contenedor, que hasta aqui no existian.
   PrepararServicios;
 
   MostrarCabecera;
@@ -124,9 +102,6 @@ end;
 
 procedure TfrmServidor.FormShow(Sender: TObject);
 begin
-  // Arranca solo: el programa existe para servir, no para esperar un clic. Va
-  // en OnShow y no en OnCreate para que un fallo se vea sobre la ventana ya
-  // dibujada y con el log a la vista.
   if FYaArranco then
     Exit;
   FYaArranco := True;
@@ -145,8 +120,6 @@ begin
   end;
 end;
 
-// Estado
-
 function TfrmServidor.EstaEscuchando: Boolean;
 begin
   Result := FServidor <> nil;
@@ -154,8 +127,6 @@ end;
 
 procedure TfrmServidor.MostrarCabecera;
 begin
-  // La base se lee del .env, no de una conexion abierta: es la configurada, y
-  // es justo el dato que hace falta cuando algo no cuadra.
   lblBase.Caption := 'Base: ' + BaseConfigurada + '   Usuario: ' +
     UsuarioDeBase;
   lblVersion.Caption := 'DelphiMVCFramework ' + DMVCFRAMEWORK_VERSION;
@@ -186,12 +157,8 @@ begin
   Screen.Cursor := crAppStart;
   try
     try
-      // Listen y no RunAndWait: el segundo bloquea el hilo hasta Ctrl+C, que
-      // es lo que hacia la consola y lo que una ventana no puede hacer.
       FServidor := CrearServidor;
 
-      // Antes de escuchar: si el servidor estuvo apagado, nadie debe leer un
-      // precio viejo mientras se pone al dia.
       RelevarPrecios;
 
       FServidor.Listen(PuertoConfigurado);
@@ -233,8 +200,6 @@ procedure TfrmServidor.btnInvalidarClick(Sender: TObject);
 var
   lCache: IPermisoCache;
 begin
-  // La cache es singleton: vive mientras viva el proceso. Sin esto, un cambio
-  // de permisos en la base no se ve hasta reiniciar el servidor.
   lCache := NewServiceContainerResolver.Resolve(TypeInfo(IPermisoCache))
     as IPermisoCache;
   lCache.Invalidar;
@@ -244,8 +209,6 @@ end;
 
 procedure TfrmServidor.RelevarPrecios;
 begin
-  // Un fallo aqui no impide servir: los precios se quedan como estaban, que es
-  // el estado anterior y no uno inventado.
   try
     AplicarVigencias;
   except
@@ -259,8 +222,6 @@ procedure TfrmServidor.tmrVigenciasTimer(Sender: TObject);
 begin
   RelevarPrecios;
 end;
-
-// Refresco
 
 procedure TfrmServidor.tmrRefrescoTimer(Sender: TObject);
 begin
@@ -293,8 +254,6 @@ begin
     else
       lblCache.Caption := 'Permisos: sin cargar';
   except
-    // Antes de la primera peticion el contenedor puede no tener nada que
-    // resolver todavia. No es un error que valga la pena mostrar.
     lblCache.Caption := 'Permisos: sin cargar';
   end;
 end;
@@ -320,8 +279,6 @@ var
   end;
 
 begin
-  // Solo la pestana que se esta viendo: redibujar las dos listas cada segundo
-  // no lo ve nadie y se nota en el uso de procesador.
   if not(pgc.ActivePage = tabActividad) and not(pgc.ActivePage = tabErrores)
   then
     Exit;

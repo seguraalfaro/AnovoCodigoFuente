@@ -1,12 +1,7 @@
 unit Anovo.Controllers.Catalogos;
 
-// Los cuatro catalogos bajo /api/catalogos.
-//
-// Un solo controller y no cuatro: comparten el par de permisos y el escritorio
-// los muestra como pestanas de una misma pantalla. Las subrutas los separan.
-//
-// El controller traduce HTTP a dominio y nada mas. Lo unico que decide aqui es
-// acotar pagina y por_pagina, que es problema de la frontera.
+// Catalogos bajo /api/catalogos: materiales, mano de obra,
+// maquinas, tipos de trabajo, precios y la lista Todos.
 
 interface
 
@@ -19,8 +14,6 @@ uses
   Anovo.Services.Intf.Catalogos;
 
 const
-  // Un error de tipeo aqui no da error de compilacion: deja a todos con 403,
-  // que se nota en la primera prueba.
   PERMISO_VER = 'catalogos.ver';
   PERMISO_EDITAR = 'catalogos.editar';
 
@@ -33,9 +26,7 @@ type
   [MVCRequiresPermiso(PERMISO_VER)]
   TCatalogosController = class(TMVCController)
   public
-    // TODOS
 
-    // La raiz de /api/catalogos: los tres catalogos con precio en una lista.
     [MVCPath('')]
     [MVCHTTPMethods([httpGET])]
     [MVCSwagSummary('Catalogos', 'Lista y busca materiales, mano de obra y ' +
@@ -59,8 +50,6 @@ type
       ] APorPagina: Integer;
       const [MVCFromQueryString('incluir_inactivos', False)] AIncluirInactivos
       : Boolean): TCatalogoItemsPaginaDTO;
-
-    // MATERIALES
 
     [MVCPath('/materiales')]
     [MVCHTTPMethods([httpGET])]
@@ -142,8 +131,6 @@ type
     function CambiarPrecioMaterial([MVCInject] AServicio: ICatalogoService;
       const AId: Integer;
       const [MVCFromBody] ADto: TPrecioNuevoDTO): IMVCResponse;
-
-    // MANO DE OBRA
 
     [MVCPath('/mano-obra')]
     [MVCHTTPMethods([httpGET])]
@@ -234,8 +221,6 @@ type
       const AId: Integer;
       const [MVCFromBody] ADto: TPrecioNuevoDTO): IMVCResponse;
 
-    // MAQUINAS
-
     [MVCPath('/maquinas')]
     [MVCHTTPMethods([httpGET])]
     [MVCSwagSummary('Catalogos', 'Lista y busca maquinas con su costo por ' +
@@ -311,8 +296,6 @@ type
       const AId: Integer;
       const [MVCFromBody] ADto: TPrecioNuevoDTO): IMVCResponse;
 
-    // TIPOS DE TRABAJO
-
     [MVCPath('/tipos-trabajo')]
     [MVCHTTPMethods([httpGET])]
     [MVCSwagSummary('Catalogos', 'Tipos de trabajo. Lista corta, sin paginar',
@@ -361,8 +344,6 @@ uses
   System.SysUtils,
   System.Generics.Collections;
 
-// Materiales
-
 function TCatalogosController.ListarTodos(AServicio: ICatalogoService;
   const ABusqueda: string; const APagina, APorPagina: Integer;
   const AIncluirInactivos: Boolean): TCatalogoItemsPaginaDTO;
@@ -371,7 +352,6 @@ var
   lPagina, lPorPagina: Integer;
   lDatos: TObjectList<TCatalogoItemDTO>;
 begin
-  // Los mismos topes que los listados de cada catalogo, por lo mismo.
   lPagina := Max(APagina, 1);
   lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
 
@@ -389,18 +369,12 @@ var
   lPagina, lPorPagina: Integer;
   lDatos: TObjectList<TMaterialDTO>;
 begin
-  // Se acotan aqui y no en el servicio porque son un problema de la frontera:
-  // pagina 0 produce un ROWS invalido, y un por_pagina de 100000 deja al
-  // servidor armando cien mil objetos porque alguien escribio mal un numero.
   lPagina := Max(APagina, 1);
   lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
 
   lDatos := AServicio.BuscarMateriales(ABusqueda, lPagina, lPorPagina,
     AIncluirInactivos, lTotal);
 
-  // El sobre se devuelve tal cual y no dentro de OKResponse, que lo envolveria
-  // en otro data. El sobre se queda con la lista y el framework libera el
-  // sobre.
   Result := TMaterialesPaginaDTO.Create(lDatos, lTotal, lPagina, lPorPagina);
 end;
 
@@ -443,8 +417,6 @@ begin
   AServicio.CambiarPrecioMaterial(AId, ADto);
   Result := NoContentResponse;
 end;
-
-// Mano de obra
 
 function TCatalogosController.ListarManoObra(AServicio: ICatalogoService;
   const ABusqueda: string; const APagina, APorPagina: Integer;
@@ -510,8 +482,6 @@ begin
   Result := NoContentResponse;
 end;
 
-// Maquinas
-
 function TCatalogosController.ListarMaquinas(AServicio: ICatalogoService;
   const ABusqueda: string; const APagina, APorPagina: Integer;
   const AIncluirInactivos: Boolean): TMaquinasPaginaDTO;
@@ -568,8 +538,6 @@ begin
   AServicio.CambiarCostoMaquina(AId, ADto);
   Result := NoContentResponse;
 end;
-
-// Tipos de trabajo
 
 function TCatalogosController.ListarTiposTrabajo(AServicio: ICatalogoService;
   const AIncluirInactivos: Boolean): IMVCResponse;

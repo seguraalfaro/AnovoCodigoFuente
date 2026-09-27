@@ -1,10 +1,6 @@
 unit Anovo.Forms.Principal;
 
-// Ventana principal: menu lateral y el frame de la seccion abierta.
-//
-// El menu se arma en ejecucion con lo que manda el presentador, ya filtrado y
-// ordenado. Aqui solo se decide como se ve: texto e icono de cada seccion. Un
-// item que no corresponde no se oculta, no se crea: asi no quedan huecos.
+// Ventana principal: menu lateral y frame de la seccion abierta.
 
 interface
 
@@ -13,12 +9,15 @@ uses
   Anovo.Frames.Catalogos,
   Anovo.Frames.Clientes,
   Anovo.Frames.Dashboard,
+  Anovo.Frames.Dashboard.Asesor,
+  Anovo.Frames.Solicitudes,
   Anovo.Frames.GeneracionCotizacion,
   Anovo.Frames.Bandeja,
   Anovo.Frames.Cotizaciones,
   Anovo.Frames.Usuarios,
   Anovo.Frames.Roles,
   Anovo.Frames.Auditoria,
+  Anovo.Frames.Configuracion,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.TitleBarCtrls, Vcl.StdCtrls,
   Vcl.ExtCtrls, Anovo.UI.Tema,
@@ -60,12 +59,10 @@ type
 
     procedure AgregarItem(const ASeccion: TSeccion);
     procedure ItemMenuClick(Sender: TObject);
-    // IVistaPrincipal
     procedure MostrarUsuario(const ANombre, ARol, AIniciales: string);
     procedure MostrarSecciones(const ASecciones: TArray<TSeccion>);
     procedure AbrirSeccion(const ASeccion: TSeccion);
   public
-    // Public declarations
   end;
 
 var
@@ -82,32 +79,28 @@ uses
 const
   ALTO_ITEM = 40;
 
-  // Solo el icono. El rotulo salio de aqui a Anovo.Textos, donde vive todo el
-  // texto que lee una persona, y lo devuelve TituloSeccion. Van separados a
-  // proposito: el icono es un nombre de recurso, no se traduce ni se corrige
-  // por estilo. Los dos se indexan por TSeccion, asi que una seccion nueva
-  // necesita entrada en los dos sitios.
   ICONOS_MENU: array [TSeccion] of string = (
-    { secDashboard } 'Blanco\06-dashboard-blanco',
-    { secDashboardCuentas } 'Blanco\06-dashboard-blanco',
-    { secSolicitudes } 'Blanco\00-cotizaciones-blanco',
-    { secBandeja } 'Blanco\04-bandeja-blanco',
-    { secCotizaciones } 'Blanco\00-cotizaciones-blanco',
-    { secGeneracion } 'Blanco\01-nueva-blanco',
-    { secDetalle } 'Blanco\00-cotizaciones-blanco',
-    { secClientes } 'Blanco\02-clientes-blanco',
-    { secMateriales } 'Blanco\03-materiales-blanco',
-    { secReportes } 'Blanco\05-reportes-blanco',
-    { secGerencia } 'Blanco\07-gerencia-blanco',
-    { secUsuarios } 'Blanco\08-usuarios-blanco',
-    { secRoles } 'Blanco\09-roles-blanco',
-    { secAuditoria } 'Blanco\26-auditoria-blanco',
-    { secConfiguracion } 'Blanco\10-configuracion-blanco');
+     'Blanco\06-dashboard-blanco',
+     'Blanco\06-dashboard-blanco',
+     'Blanco\06-dashboard-blanco',
+     'Blanco\00-cotizaciones-blanco',
+     'Blanco\04-bandeja-blanco',
+     'Blanco\00-cotizaciones-blanco',
+     'Blanco\01-nueva-blanco',
+     'Blanco\00-cotizaciones-blanco',
+     'Blanco\02-clientes-blanco',
+     'Blanco\03-materiales-blanco',
+     'Blanco\05-reportes-blanco',
+     'Blanco\07-gerencia-blanco',
+     'Blanco\08-usuarios-blanco',
+     'Blanco\09-roles-blanco',
+     'Blanco\26-auditoria-blanco',
+     'Blanco\10-configuracion-blanco');
 
 function TituloSeccion(const ASeccion: TSeccion): string;
 begin
   case ASeccion of
-    secDashboard, secDashboardCuentas:
+    secDashboard, secDashboardCuentas, secDashboardAsesor:
       Result := SMenuDashboard;
     secSolicitudes:
       Result := SMenuSolicitudes;
@@ -136,7 +129,6 @@ begin
     secConfiguracion:
       Result := SMenuConfiguracion;
   else
-    // Una seccion sin rotulo: se ve el hueco en el menu, no revienta.
     Result := '';
   end;
 end;
@@ -201,7 +193,6 @@ begin
     (ICONOS_MENU[ASeccion]);
   lItem.SelectedColor := clGrayText;
   lItem.ShowHint := False;
-  // El Tag guarda la seccion. pnlMenu lleva TAG_RAW, asi que el tema no lo lee.
   lItem.Tag := Ord(ASeccion);
   lItem.OnClick := ItemMenuClick;
   FItems := FItems + [lItem];
@@ -238,15 +229,19 @@ begin
     Exit;
   FFrameTemp.Parent := pnlContenido;
   FFrameTemp.Align := alClient;
+
+  AplicarTemaFrame(FFrameTemp);
 end;
 
 function TfrmPrincipal.ObtenerFrame(ASeccion: TSeccion): TFrame;
 begin
-  // Sin frame todavia: Dashboard de cuentas, Solicitudes, Detalle, Reportes y
-  // Configuracion. Devuelven nil y el panel queda vacio.
   case ASeccion of
     secDashboard:
       Result := TfraDashboard.Create(Self);
+    secDashboardAsesor:
+      Result := TfraDashboardAsesor.Create(Self);
+    secSolicitudes:
+      Result := TfraSolicitudes.Create(Self);
     secBandeja:
       Result := TfraBandeja.Create(Self);
     secCotizaciones:
@@ -265,6 +260,8 @@ begin
       Result := TfraRoles.Create(Self);
     secAuditoria:
       Result := TfraAuditoria.Create(Self);
+    secConfiguracion:
+      Result := TfraConfiguracion.Create(Self);
   else
     Result := nil;
   end;

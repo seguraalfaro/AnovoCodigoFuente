@@ -1,18 +1,7 @@
 unit Anovo.Services.Auditoria;
 
-// Servicio de auditoria: donde vive el negocio de la bitacora.
-//
-// Dos reglas y nada mas, porque la bitacora solo se consulta:
-//
-//   1. El alcance. Quien tiene auditoria.ver_cuentas y no auditoria.ver_toda
-//      solo ve lo de USUARIOS y USUARIOS_CLAVES. Que ese sea el permiso lo
-//      decide el controller; aqui se traduce a un filtro.
-//
-//   2. El nombre del usuario. La tabla guarda el numero; el nombre sale del
-//      repositorio de usuarios, en una sola consulta por pagina.
-//
-// Recibe los dos repositorios, uno por tabla, y los junta: es lo que cruza
-// tablas, que es justo lo que le toca al servicio.
+// Servicio de auditoria: alcance de la bitacora por permiso
+// y nombres de quien escribio.
 
 interface
 
@@ -30,7 +19,6 @@ type
   private
     fRepo: IAuditoriaRepository;
     fUsuarios: IUsuarioRepository;
-    // De la lista de entidades a la de DTO, con el nombre del usuario puesto.
     function AListaDto(const AEntidades: TObjectList<TAuditoria>)
       : TObjectList<TAuditoriaDTO>;
     procedure PonerNombres(const ALista: TObjectList<TAuditoriaDTO>);
@@ -59,16 +47,11 @@ uses
   Anovo.Textos;
 
 const
-  // Las dos entidades que forman la bitacora de cuentas.
   ENTIDAD_USUARIOS = 'USUARIOS';
   ENTIDAD_USUARIOS_CLAVES = 'USUARIOS_CLAVES';
 
-  // Lo que se muestra cuando la fila quedo de un usuario que ya no esta. La
-  // fila no se borra ni se corrige: para eso es la bitacora.
   USUARIO_DESCONOCIDO = 'Usuario eliminado';
   USUARIO_SISTEMA = 'Sistema';
-
-{ TAuditoriaService }
 
 constructor TAuditoriaService.Create(ARepo: IAuditoriaRepository;
   AUsuarios: IUsuarioRepository);
@@ -88,9 +71,6 @@ begin
   if AAlcance = aaTodo then
     Exit(lEntidad);
 
-  // Quien solo ve cuentas: sin entidad pedida se le da USUARIOS, y si pide
-  // otra cosa se le dice que no puede, en vez de devolverle una lista vacia
-  // que parece que no paso nada.
   if lEntidad = '' then
     Exit(ENTIDAD_USUARIOS);
   if not MatchStr(lEntidad, [ENTIDAD_USUARIOS, ENTIDAD_USUARIOS_CLAVES]) then
@@ -140,7 +120,6 @@ end;
 function TAuditoriaService.AListaDto(const AEntidades
   : TObjectList<TAuditoria>): TObjectList<TAuditoriaDTO>;
 begin
-  // La lista a medio armar, si el mapeo falla, la libera TMapeo.
   Result := TMapeo.AListaDto<TAuditoria, TAuditoriaDTO>(AEntidades);
   try
     PonerNombres(Result);
@@ -159,8 +138,6 @@ var
   lFila: TAuditoriaDTO;
   lNombre: string;
 begin
-  // Los numeros distintos de la pagina. Un conjunto para no repetir: una
-  // pagina de cincuenta filas suele ser de menos de diez personas.
   lVistos := TList<Integer>.Create;
   try
     for lFila in ALista do
@@ -176,8 +153,6 @@ begin
   try
     for lFila in ALista do
     begin
-      // Sin numero: la fila la puso algo que no era una sesion, como un
-      // script de carga.
       if not lFila.UsuarioId.HasValue then
         lFila.Usuario := USUARIO_SISTEMA
       else if lNombres.TryGetValue(lFila.UsuarioId.Value, lNombre) then

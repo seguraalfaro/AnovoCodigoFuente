@@ -189,6 +189,11 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Src\Frames\Anovo.Frames.Dashboard.Asesor.pas">
+            <Form>fraDashboardAsesor</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <DCCReference Include="Src\Frames\Anovo.Frames.GeneracionCotizacion.pas">
             <Form>fraGeneracionCotizacion</Form>
             <FormType>dfm</FormType>
@@ -197,6 +202,20 @@
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Clientes.pas"/>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Auditoria.pas"/>
         <DCCReference Include="..\Backend\src\Common\Anovo.Textos.pas"/>
+        <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Dashboard.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Dashboard.pas"/>
+        <DCCReference Include="Src\Api\Anovo.Api.Dashboard.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.DashboardAsesor.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.DashboardAsesor.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Solicitudes.pas"/>
+        <DCCReference Include="Src\Api\Anovo.Api.Solicitudes.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Solicitudes.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Solicitudes.pas"/>
+        <DCCReference Include="Src\Frames\Anovo.Frames.Solicitudes.pas">
+            <Form>fraSolicitudes</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <DCCReference Include="Src\Recursos\Anovo.UI.Vigencia.pas"/>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Catalogos.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Auditoria.pas"/>
@@ -227,6 +246,21 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Src\Presentadores\Anovo.Presentadores.CatalogoItem.pas"/>
+        <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Sesion.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Configuracion.pas"/>
+        <DCCReference Include="Src\Api\Anovo.Api.Configuracion.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Configuracion.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Configuracion.pas"/>
+        <DCCReference Include="Src\Frames\Anovo.Frames.Configuracion.pas">
+            <Form>fraConfiguracion</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Src\Forms\Anovo.Forms.CambioClave.pas">
+            <Form>frmCambioClave</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Forms\Anovo.Forms.Conexion.pas">
+            <Form>frmConexion</Form>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -1,15 +1,7 @@
 unit Anovo.Formato;
 
-// Da formato a lo que se escribe, con las mismas mascaras que Formato.bas del
-// movil: 2440-8812, 2440-8812 ext 423, 3-101-284719, 155-812345678.
-//
-// Las funciones son puras -entra texto y sale texto-, sin VCL ni controles:
-// asi se prueban solas y las usa cualquier pantalla. Quien las llama decide
-// cuando aplicarlas, al escribir o al salir del campo.
-//
-// El formato es de la pantalla, no del dato: a la API el valor viaja
-// normalizado con TValidacion.Normalizar, porque si el movil manda con
-// guiones y el escritorio sin ellos, al sincronizar se duplican los clientes.
+// Formato de telefonos, identificaciones, estados, fechas y montos.
+// Mismas mascaras que Formato.bas del movil.
 
 interface
 
@@ -19,21 +11,18 @@ uses
 type
   TFormato = class
   public
-    // 2440-8812. Corta en ocho digitos, como el movil.
     class function Telefono(const ATexto: string): string; static;
-    // 2440-8812 ext 423. Hasta catorce digitos: ocho del numero y seis de la
-    // extension.
     class function TelefonoExt(const ATexto: string): string; static;
-    // Segun el tipo: la fisica va sin guiones, la juridica 3-101-284719 y el
-    // DIMEX 1-55812-345678.
     class function Identificacion(const ATexto: string;
       const ATipo: TTipoIdentificacion): string; static;
     class function SoloDigitos(const ATexto: string): string; static;
-    // La juridica pasa a alfanumerica (3-101-A00001) a finales de 2026, por
-    // eso aqui no se filtran solo digitos.
     class function SoloAlfanumerico(const ATexto: string): string; static;
-    // El correo no pasa por SoloAlfanumerico: se comeria la arroba y el punto.
     class function Correo(const ATexto: string): string; static;
+
+    class function Estado(const AValor: string): string; static;
+    class function MesAnio(const AFecha: TDateTime): string; static;
+    class function Colones(const AMonto: Currency): string; static;
+    class function FechaHora(const AFecha: TDateTime): string; static;
   end;
 
 const
@@ -45,7 +34,71 @@ implementation
 uses
   System.SysUtils,
   System.Character,
-  System.Math;
+  System.Math,
+  System.DateUtils,
+  Anovo.Textos;
+
+class function TFormato.Estado(const AValor: string): string;
+var
+  lValor: string;
+begin
+  lValor := LowerCase(Trim(AValor));
+  if lValor = 'capturada' then
+    Result := SEstCapturada
+  else if lValor = 'recibida' then
+    Result := SEstRecibida
+  else if lValor = 'en_cotizacion' then
+    Result := SEstEnCotizacion
+  else if lValor = 'descartada' then
+    Result := SEstDescartada
+  else if lValor = 'borrador' then
+    Result := SEstBorrador
+  else if lValor = 'pendiente' then
+    Result := SEstPendiente
+  else if lValor = 'aprobada' then
+    Result := SEstAprobada
+  else if lValor = 'rechazada' then
+    Result := SEstRechazada
+  else if lValor = 'enviada' then
+    Result := SEstEnviada
+  else if lValor = '' then
+    Result := ''
+  else
+    Result := UpperCase(lValor[1]) + Copy(lValor, 2, MaxInt);
+end;
+
+class function TFormato.MesAnio(const AFecha: TDateTime): string;
+var
+  lMes: string;
+begin
+  case MonthOf(AFecha) of
+    1: lMes := SMesEnero;
+    2: lMes := SMesFebrero;
+    3: lMes := SMesMarzo;
+    4: lMes := SMesAbril;
+    5: lMes := SMesMayo;
+    6: lMes := SMesJunio;
+    7: lMes := SMesJulio;
+    8: lMes := SMesAgosto;
+    9: lMes := SMesSetiembre;
+    10: lMes := SMesOctubre;
+    11: lMes := SMesNoviembre;
+    12: lMes := SMesDiciembre;
+  else
+    lMes := '';
+  end;
+  Result := Format(SMesAnio, [lMes, YearOf(AFecha)]);
+end;
+
+class function TFormato.Colones(const AMonto: Currency): string;
+begin
+  Result := Format(SColones, [FormatFloat('#,##0.00', AMonto)]);
+end;
+
+class function TFormato.FechaHora(const AFecha: TDateTime): string;
+begin
+  Result := FormatDateTime('dd/mm/yyyy hh:nn', AFecha);
+end;
 
 class function TFormato.SoloDigitos(const ATexto: string): string;
 var
@@ -127,7 +180,6 @@ begin
           Result := Result + '-' + Copy(lValor, 6, MaxInt);
       end;
   else
-    // Sin tipo elegido no hay mascara que aplicar.
     Result := ATexto;
   end;
 end;

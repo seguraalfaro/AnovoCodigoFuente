@@ -1,28 +1,20 @@
 unit Anovo.Repositories.Intf.Solicitudes;
 
-// Contratos de los repositorios del modulo de solicitudes: uno por tabla.
-//
-// El CRUD directo lo da IMVCRepository<T>. Aqui van las consultas con nombre
-// propio en el negocio.
-//
-// Los tres llevan ObtenerPorUuidLocal. No es una consulta mas: es la pieza que
-// hace idempotente reenviar lo que capturo el telefono sin conexion. El movil
-// guarda con un uuid propio y reintenta cuando hay senal, sin saber si el
-// envio anterior llego.
+// Contratos de los repositorios de solicitudes,
+// medidas y adjuntos.
 
 interface
 
 uses
   System.Generics.Collections,
   MVCFramework.Repository,
-  Anovo.Entities.Solicitudes;
+  Anovo.Entities.Solicitudes,
+  Anovo.Entities.Vistas.Dashboard;
 
 type
   ISolicitudRepository = interface(IMVCRepository<TSolicitudes>)
     ['{B7E2049C-3A61-4D85-92F7-05C8B1E6A374}']
 
-    // AAsesorId en 0 son todos: lo pone el servicio segun el permiso. Estado
-    // vacio son todos. Las fechas en cero no filtran.
     function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
       const AAsesorId: Integer = 0; const AEstado: string = '';
       const ADesde: TDateTime = 0; const AHasta: TDateTime = 0)
@@ -32,15 +24,17 @@ type
       const AAsesorId: Integer = 0; const AEstado: string = '';
       const ADesde: TDateTime = 0; const AHasta: TDateTime = 0): Int64;
 
-    // Nil si no existe: no encontrarlo es el caso normal, significa que el
-    // registro todavia no habia subido.
     function ObtenerPorUuidLocal(const AUuid: string): TSolicitudes;
     function ExisteUuidLocal(const AUuid: string): Integer;
 
-    // Las que estan en el estado dado y todavia no tienen cotizacion. Es la
-    // bandeja del asistente.
     function PendientesDeCotizar(const AEstado: string)
       : TObjectList<TSolicitudes>;
+
+    function Seguimiento(const AAsesorId: Integer; const ATexto: string;
+      const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer)
+      : TObjectList<TSolicitudAsesorVista>;
+    function ContarSeguimiento(const AAsesorId: Integer; const ATexto: string;
+      const ADesde, AHasta: TDateTime): Int64;
   end;
 
   ISolicitudMedidaRepository = interface(IMVCRepository<TSolicitudMedidas>)
@@ -50,7 +44,6 @@ type
       : TObjectList<TSolicitudMedidas>;
     function MedidaDe(const ASolicitudId, AMedidaId: Integer)
       : TSolicitudMedidas;
-    // Las que cuelgan de un croquis, para pintar sus etiquetas encima.
     function MedidasDeCroquis(const ACroquisId: Integer)
       : TObjectList<TSolicitudMedidas>;
     function ObtenerPorUuidLocal(const AUuid: string): TSolicitudMedidas;
@@ -59,12 +52,9 @@ type
   ISolicitudAdjuntoRepository = interface(IMVCRepository<TSolicitudAdjuntos>)
     ['{6C05B9E1-7D43-42A8-95F0-8B1467A3D29C}']
 
-    // Sin el BLOB: la consulta nombra sus columnas y deja fuera CONTENIDO y
-    // CONTENIDO_JSON. Listar treinta fotos no debe mover treinta fotos.
     function AdjuntosDe(const ASolicitudId: Integer)
       : TObjectList<TSolicitudAdjuntos>;
 
-    // Este si trae el contenido: es la descarga de un adjunto concreto.
     function AdjuntoDe(const ASolicitudId, AAdjuntoId: Integer)
       : TSolicitudAdjuntos;
 

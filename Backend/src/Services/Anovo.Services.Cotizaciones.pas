@@ -1,23 +1,7 @@
 unit Anovo.Services.Cotizaciones;
 
-// Servicio de cotizaciones: el nucleo del negocio del sistema.
-//
-// Cuatro reglas viven aqui y en ningun otro sitio.
-//
-// El consecutivo sale del generador de Firebird, no de un max(NUMERO): dos
-// asistentes que graben a la vez no pueden recibir el mismo numero, y la HU-04
-// pide que sea unico e irrepetible.
-//
-// El precio se copia del catalogo al agregar la linea; no se referencia. Si
-// manana sube el material, la cotizacion ya aprobada conserva el precio con
-// el que se calculo.
-//
-// Los totales los calcula el servidor a partir del detalle, cada vez que el
-// detalle cambia. Nunca llegan desde el cliente.
-//
-// La maquina de estados. La base no la impone -ESTADO es un VARCHAR sin
-// CHECK-, asi que las transiciones validas y la regla de que una cotizacion
-// enviada ya no se modifica estan aqui.
+// Servicio de cotizaciones: consecutivo, precios copiados del
+// catalogo, flujo de aprobacion y totales.
 
 interface
 
@@ -34,10 +18,13 @@ uses
 
 const
   ESTADO_BORRADOR = 'borrador';
-  ESTADO_EN_PROCESO = 'en_proceso';
-  ESTADO_ENVIADA = 'enviada';
+  ESTADO_PENDIENTE = 'pendiente';
   ESTADO_APROBADA = 'aprobada';
   ESTADO_RECHAZADA = 'rechazada';
+  ESTADO_ENVIADA = 'enviada';
+
+  SOLICITUD_RECIBIDA = 'recibida';
+  SOLICITUD_EN_COTIZACION = 'en_cotizacion';
 
   TIPO_MATERIAL = 'material';
   TIPO_MANO_OBRA = 'mano_obra';
@@ -91,10 +78,11 @@ type
     procedure Recalcular(const AId: Integer);
     procedure AplicarAjuste(const AId: Integer; const ADto: TAjusteDTO);
 
-    procedure Enviar(const AId: Integer);
+    procedure Presentar(const AId: Integer);
     procedure Aprobar(const AId: Integer);
     procedure Rechazar(const AId: Integer; const ADto: TMotivoDTO);
     procedure Devolver(const AId: Integer; const ADto: TMotivoDTO);
+    procedure Enviar(const AId: Integer);
 
     function EnviadasSinRespuesta(const ADias: Integer)
       : TObjectList<TCotizacionDTO>;
@@ -128,8 +116,6 @@ begin
   fMaquinas := AMaquinas;
 end;
 
-// Apoyo
-
 function TCotizacionService.TraerVigente(const AId: Integer): TCotizaciones;
 begin
   Result := fRepo.GetByPK(AId, False);
@@ -162,11 +148,7 @@ end;
 
 procedure TCotizacionService.ExigirEditable(const ACotizacion: TCotizaciones);
 begin
-  // Una cotizacion no puede modificarse una vez enviada al cliente. Es
-  // condicion de aceptacion de la HU-04 y la unica forma de que el papel que
-  // recibio el cliente y lo que guarda el sistema digan lo mismo.
-  if (ACotizacion.Estado <> ESTADO_BORRADOR) and
-    (ACotizacion.Estado <> ESTADO_EN_PROCESO) then
+  if ACotizacion.Estado <> ESTADO_BORRADOR then
     raise EConflictoDeEstado.Create('COTIZACION_NO_EDITABLE',
       Format('Una cotizacion en estado %s ya no admite cambios.',
       [ACotizacion.Estado]));
@@ -219,8 +201,6 @@ var
   lPrecio: Currency;
   lCantidad: Currency;
 begin
-  // CK_DETALLE_TIPO exige que el id que corresponde al tipo venga lleno y los
-  // otros dos vacios. Se comprueba antes para dar un mensaje util.
   if (ADto.Tipo = TIPO_MATERIAL) and not ADto.MaterialId.HasValue then
     raise EDatoInvalido.Create(SLineaSinMaterial);
   if (ADto.Tipo = TIPO_MANO_OBRA) and not ADto.ManoObraId.HasValue then
@@ -237,8 +217,6 @@ begin
   ALinea.Descripcion := ADto.Descripcion;
   ALinea.UnidadMedida := ADto.UnidadMedida;
 
-  // Solo el id que corresponde al tipo; los otros dos en null, o el CHECK
-  // rechaza la fila.
   if ADto.Tipo = TIPO_MATERIAL then
     ALinea.MaterialId := ADto.MaterialId
   else
@@ -252,7 +230,6 @@ begin
   else
     ALinea.MaquinaId.Clear;
 
-  // Una nota no suma: es texto que el cliente lee en el documento.
   if ADto.Tipo = TIPO_NOTA then
   begin
     ALinea.Cantidad := 0;
@@ -265,8 +242,6 @@ begin
   if lCantidad <= 0 then
     raise EDatoInvalido.Create(SCantidadInvalida);
 
-  // El precio que manda el asistente gana; si no manda ninguno, se copia el
-  // vigente del catalogo. Copiado, no referenciado.
   if ADto.PrecioUnitario.HasValue then
     lPrecio := ADto.PrecioUnitario.Value
   else
@@ -281,8 +256,6 @@ begin
   ALinea.PrecioUnitario := lPrecio;
   ALinea.Subtotal := lCantidad * lPrecio;
 end;
-
-// Cotizaciones
 
 function TCotizacionService.Buscar(const ATexto, AEstado: string;
   const AClienteId: Integer; const ADesde, AHasta: TDateTime;
@@ -353,11 +326,15 @@ begin
     raise EDatoInvalido.Create(SSolicitudNoExiste);
 
   try
+    if (lSolicitud.Estado <> SOLICITUD_RECIBIDA) and
+      (lSolicitud.Estado <> SOLICITUD_EN_COTIZACION) then
+      raise EConflictoDeEstado.Create('SOLICITUD_NO_COTIZABLE',
+        Format('Una solicitud en estado %s no se puede cotizar.',
+        [lSolicitud.Estado]));
+
     lCotizacion := TCotizaciones.Create;
     try
       lCotizacion.SolicitudId := lSolicitud.ID.ValueOrDefault;
-      // El cliente se arrastra de la solicitud y no se recibe: son la misma
-      // visita, y recibirlo abriria la puerta a cotizarle a otro.
       lCotizacion.ClienteId := lSolicitud.ClienteId;
       lCotizacion.TipoTrabajoId := ADto.TipoTrabajoId;
 
@@ -377,6 +354,12 @@ begin
         [lCotizacion.Numero, lSolicitud.ID.ValueOrDefault]));
       fRepo.Insert(lCotizacion);
       Result := lCotizacion.ID.ValueOrDefault;
+
+      if lSolicitud.Estado = SOLICITUD_RECIBIDA then
+      begin
+        lSolicitud.Estado := SOLICITUD_EN_COTIZACION;
+        fSolicitudes.Update(lSolicitud);
+      end;
     finally
       lCotizacion.Free;
     end;
@@ -413,11 +396,8 @@ begin
     lCotizacion.Free;
   end;
 
-  // El IVA pudo cambiar: el total tiene que reflejarlo.
   Recalcular(AId);
 end;
-
-// Detalle
 
 function TCotizacionService.Detalle(const AId: Integer)
   : TObjectList<TLineaDTO>;
@@ -520,8 +500,6 @@ begin
   Recalcular(AId);
 end;
 
-// Totales
-
 procedure TCotizacionService.Recalcular(const AId: Integer);
 var
   lCotizacion: TCotizaciones;
@@ -542,8 +520,6 @@ begin
     lCosto := lMateriales + lManoObra + lMaquina;
     lCotizacion.CostoTotal := lCosto;
 
-    // El ajuste va sobre el costo y el impuesto sobre el costo ya ajustado,
-    // que es como se factura en Costa Rica.
     lAjustado := lCosto + (lCosto * lCotizacion.PorcentajeAjuste / 100);
     lImpuesto := lAjustado * lCotizacion.PorcentajeIva / 100;
 
@@ -570,8 +546,6 @@ begin
   try
     ExigirEditable(lCotizacion);
 
-    // Lo exige CK_COTIZ_MOTIVO_AJUSTE; se comprueba antes para devolver un 422
-    // con mensaje en lugar del error del motor.
     if (ADto.PorcentajeAjuste <> 0) and
       (not ADto.MotivoAjuste.HasValue or ADto.MotivoAjuste.Value.IsEmpty) then
       raise EDatoInvalido.Create
@@ -593,9 +567,7 @@ begin
   Recalcular(AId);
 end;
 
-// Estados
-
-procedure TCotizacionService.Enviar(const AId: Integer);
+procedure TCotizacionService.Presentar(const AId: Integer);
 var
   lCotizacion: TCotizaciones;
   lLineas: TObjectList<TCotizacionDetalle>;
@@ -608,9 +580,6 @@ begin
   try
     ExigirEditable(lCotizacion);
 
-    // Enviar una cotizacion sin lineas manda al cliente un documento en cero.
-    // Se trae el detalle en lugar de contarlo: son unas pocas filas y evita
-    // otra consulta con nombre propio en el repositorio.
     lLineas := fDetalle.DetalleDe(AId);
     try
       lVacia := lLineas.Count = 0;
@@ -619,11 +588,11 @@ begin
     end;
     if lVacia then
       raise EConflictoDeEstado.Create('COTIZACION_SIN_DETALLE',
-        'La cotizacion no tiene lineas: no hay nada que enviar.');
+        'La cotizacion no tiene lineas: no hay nada que revisar.');
 
-    lCotizacion.Estado := ESTADO_ENVIADA;
-    lCotizacion.FechaEnvio := Now;
-    FijarDetalle('Envio de la cotizacion ' + lCotizacion.Numero.ToString);
+    lCotizacion.Estado := ESTADO_PENDIENTE;
+    FijarDetalle('Cotizacion ' + lCotizacion.Numero.ToString +
+      ' presentada a revision');
     fRepo.Update(lCotizacion);
   finally
     lCotizacion.Free;
@@ -639,8 +608,7 @@ begin
 
   lCotizacion := TraerVigente(AId);
   try
-    // Solo se aprueba lo que se envio a revision.
-    if lCotizacion.Estado <> ESTADO_ENVIADA then
+    if lCotizacion.Estado <> ESTADO_PENDIENTE then
       raise EConflictoDeEstado.Create('TRANSICION_INVALIDA',
         Format('Una cotizacion en estado %s no se puede aprobar.',
         [lCotizacion.Estado]));
@@ -664,14 +632,12 @@ begin
   var
   lTx := TMVCRepository.UseTransactionContext;
 
-  // Lo exige CK_COTIZ_MOTIVO_RECHAZO, y ademas es condicion de aceptacion de
-  // la HU-07: un rechazo sin motivo no le dice nada a quien la rehace.
   if ADto.Motivo.IsEmpty then
     raise EDatoInvalido.Create(SRechazarSinMotivo);
 
   lCotizacion := TraerVigente(AId);
   try
-    if lCotizacion.Estado <> ESTADO_ENVIADA then
+    if lCotizacion.Estado <> ESTADO_PENDIENTE then
       raise EConflictoDeEstado.Create('TRANSICION_INVALIDA',
         Format('Una cotizacion en estado %s no se puede rechazar.',
         [lCotizacion.Estado]));
@@ -698,17 +664,38 @@ begin
 
   lCotizacion := TraerVigente(AId);
   try
-    // Devolver no es rechazar: vuelve al asistente para corregirla, y por eso
-    // regresa a un estado editable en lugar de cerrarse.
-    if lCotizacion.Estado <> ESTADO_ENVIADA then
+    if lCotizacion.Estado <> ESTADO_PENDIENTE then
       raise EConflictoDeEstado.Create('TRANSICION_INVALIDA',
         Format('Una cotizacion en estado %s no se puede devolver.',
         [lCotizacion.Estado]));
 
-    lCotizacion.Estado := ESTADO_EN_PROCESO;
+    lCotizacion.Estado := ESTADO_BORRADOR;
     lCotizacion.MotivoRechazo := ADto.Motivo;
-    lCotizacion.FechaEnvio.Clear;
     FijarDetalle('Devolucion de la cotizacion ' +
+      lCotizacion.Numero.ToString);
+    fRepo.Update(lCotizacion);
+  finally
+    lCotizacion.Free;
+  end;
+end;
+
+procedure TCotizacionService.Enviar(const AId: Integer);
+var
+  lCotizacion: TCotizaciones;
+begin
+  var
+  lTx := TMVCRepository.UseTransactionContext;
+
+  lCotizacion := TraerVigente(AId);
+  try
+    if lCotizacion.Estado <> ESTADO_APROBADA then
+      raise EConflictoDeEstado.Create('TRANSICION_INVALIDA',
+        Format('Una cotizacion en estado %s no se puede enviar al cliente.',
+        [lCotizacion.Estado]));
+
+    lCotizacion.Estado := ESTADO_ENVIADA;
+    lCotizacion.FechaEnvio := Now;
+    FijarDetalle('Envio al cliente de la cotizacion ' +
       lCotizacion.Numero.ToString);
     fRepo.Update(lCotizacion);
   finally

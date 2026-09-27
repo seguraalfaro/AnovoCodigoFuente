@@ -1,19 +1,7 @@
 unit Anovo.Services.Catalogos;
 
-// Servicio de catalogos: donde vive el negocio de los cuatro.
-//
-// Dos reglas se repiten en los tres catalogos con precio y son la razon de que
-// esto no sea un CRUD generico:
-//
-// La primera, el duplicado por nombre que pide la HU-05. La base solo tiene
-// UNIQUE en CODIGO, asi que el nombre se comprueba aqui.
-//
-// La segunda, el cambio de precio: se desactiva la fila vigente y se inserta
-// otra, las dos en la misma transaccion. Nunca se modifica la anterior, porque
-// el historial es lo que sostiene el precio de las cotizaciones ya aprobadas.
-//
-// Nada se borra: se inactiva. Una cotizacion de hace seis meses sigue
-// nombrando ese material.
+// Servicio de catalogos: duplicados por nombre, cambio de
+// precio con historial y precios programados.
 
 interface
 
@@ -35,7 +23,6 @@ type
     fCategorias: IManoObraCategoriaRepository;
     fMaquinas: IMaquinaRepository;
     fMaquinasPrecios: IMaquinaPrecioRepository;
-    // La cola de cambios con fecha futura, comun a los tres catalogos.
     fProgramados: IPrecioProgramadoRepository;
     fTodos: ICatalogoTodosRepository;
     fTiposTrabajo: ITipoTrabajoRepository;
@@ -45,8 +32,6 @@ type
     function TraerMaquina(const AId: Integer): TMaquinas;
     function TraerTipoTrabajo(const AId: Integer): TTiposTrabajo;
   public
-    // Un repositorio por tabla. El servicio los junta: las reglas que cruzan
-    // tablas -el item y su precio- y la transaccion viven aqui.
     [MVCInject]
     constructor Create(AMateriales: IMaterialRepository;
       AMaterialesPrecios: IMaterialPrecioRepository;
@@ -59,8 +44,6 @@ type
       AProgramados: IPrecioProgramadoRepository;
       ATodos: ICatalogoTodosRepository); reintroduce;
 
-    // Materiales, mano de obra y maquinas en una sola lista, para la pestana
-    // Todos. Cada fila trae su tipo.
     function BuscarTodos(const ATexto: string;
       const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
       out ATotal: Int64): TObjectList<TCatalogoItemDTO>;
@@ -148,14 +131,9 @@ begin
   fTodos := ATodos;
 end;
 
-// Apoyo
-
 const
   ESTADO_PENDIENTE = 'pendiente';
 
-// La frase completa sale de Anovo.Textos: una para el cambio que rige ya y
-// otra para el programado. Antes se armaba pegando un encabezado a un trozo de
-// frase, con media oracion aqui y media alla.
 function Detalle(const AProgramado: Boolean;
   const ACambio, AProgramada, ANombre: string): string;
 begin
@@ -165,20 +143,11 @@ begin
     Result := Format(ACambio, [ANombre]);
 end;
 
-// Un precio con fecha futura no desplaza al vigente: entra inactivo y el
-// servidor lo releva cuando llega la fecha, al arrancar o en la vuelta de cada
-// hora (Anovo.Services.Vigencias). Sin fecha, o con una ya cumplida, rige de
-// una vez.
 function Programado(const ADto: TPrecioNuevoDTO): Boolean;
 begin
   Result := ADto.FechaVigencia.HasValue and (ADto.FechaVigencia.Value > Now);
 end;
 
-// Antefechar rompe dos cosas. Las cotizaciones ya emitidas se sostienen en el
-// precio que regia ese dia, y el historial es lo que lo prueba. Y el relevo da
-// por hecho que el vigente es el de fecha mas nueva: con un vigente antefechado
-// pasaria a ver al anterior como programado y lo devolveria a la vuelta
-// siguiente, deshaciendo el cambio.
 procedure ValidarVigencia(const ADto: TPrecioNuevoDTO);
 begin
   if ADto.FechaVigencia.HasValue and (ADto.FechaVigencia.Value < Date) then
@@ -188,8 +157,6 @@ end;
 
 function TCatalogoService.TraerMaterial(const AId: Integer): TMateriales;
 begin
-  // El False es RaiseExceptionIfNotFound: se prefiere la excepcion propia, que
-  // sale con el codigo y el mensaje del contrato.
   Result := fMateriales.GetByPK(AId, False);
   if Result = nil then
     raise ERecursoNoEncontrado.Create('el material', AId);
@@ -215,8 +182,6 @@ begin
   if Result = nil then
     raise ERecursoNoEncontrado.Create('el tipo de trabajo', AId);
 end;
-
-// Materiales
 
 function TCatalogoService.BuscarTodos(const ATexto: string;
   const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
@@ -262,8 +227,6 @@ begin
     lMaterial.Free;
   end;
 
-  // El precio viene de otra tabla: la ficha lo pide aparte, a diferencia del
-  // listado, que lo trae en la misma consulta.
   lPrecio := fMaterialesPrecios.PrecioVigenteDe(AId);
   if lPrecio <> nil then
     try
@@ -308,8 +271,6 @@ begin
 
   lMaterial := TraerMaterial(AId);
   try
-    // Excluyendo el propio, o editar sin cambiar el nombre chocaria consigo
-    // mismo.
     if fMateriales.ExisteNombre(ADto.Nombre, AId) then
       raise EDatoInvalido.Create
         (SNombreDuplicadoOtroMaterial);
@@ -353,8 +314,6 @@ begin
 
   lMaterial := TraerMaterial(AId);
   try
-    // El precio de venta es el que va a la cotizacion: sin el, la linea
-    // quedaria en cero y nadie lo notaria hasta ver el total.
     if not ADto.PrecioUnitario.HasValue then
       raise EDatoInvalido.Create(SFaltaPrecioUnitario);
 
@@ -362,17 +321,11 @@ begin
 
     lProgramado := Programado(ADto);
 
-    // Antes de la primera escritura, no antes del Insert: la desactivacion
-    // tambien pasa por el disparador y sin esto queda con el texto fijo.
     FijarDetalle(Detalle(lProgramado, SDetalleCambioPrecioMaterial,
       SDetallePrecioProgramadoMaterial, lMaterial.Nombre));
 
     if lProgramado then
     begin
-      // Con fecha futura no se toca ningun precio. El cambio espera en la cola
-      // y lo aplica el servidor cuando llegue la fecha, jubilando al vigente e
-      // insertando este (Anovo.Services.Vigencias). Asi el historial de precios
-      // guarda solo lo que rigio, no lo que alguien penso cambiar.
       lPendiente := TPreciosProgramados.Create;
       try
         lPendiente.MaterialId := AId;
@@ -407,7 +360,6 @@ begin
         lNuevo.FechaVigencia := ADto.FechaVigencia.Value
       else
         lNuevo.FechaVigencia := Now;
-      // MODIFICADO_POR no lo pone ningun disparador: es columna de negocio.
       lNuevo.ModificadoPor := UsuarioActual;
       fMaterialesPrecios.Insert(lNuevo);
     finally
@@ -430,8 +382,6 @@ begin
     lFilas.Free;
   end;
 end;
-
-// Mano de obra
 
 function TCatalogoService.BuscarManoObra(const ATexto: string;
   const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
@@ -558,10 +508,6 @@ begin
 
     if lProgramado then
     begin
-      // Con fecha futura no se toca ningun precio. El cambio espera en la cola
-      // y lo aplica el servidor cuando llegue la fecha, jubilando al vigente e
-      // insertando este (Anovo.Services.Vigencias). Asi el historial de precios
-      // guarda solo lo que rigio, no lo que alguien penso cambiar.
       lPendiente := TPreciosProgramados.Create;
       try
         lPendiente.ManoObraId := AId;
@@ -628,8 +574,6 @@ begin
     lFilas.Free;
   end;
 end;
-
-// Maquinas
 
 function TCatalogoService.BuscarMaquinas(const ATexto: string;
   const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
@@ -755,10 +699,6 @@ begin
 
     if lProgramado then
     begin
-      // Con fecha futura no se toca ningun precio. El cambio espera en la cola
-      // y lo aplica el servidor cuando llegue la fecha, jubilando al vigente e
-      // insertando este (Anovo.Services.Vigencias). Asi el historial de precios
-      // guarda solo lo que rigio, no lo que alguien penso cambiar.
       lPendiente := TPreciosProgramados.Create;
       try
         lPendiente.MaquinaId := AId;
@@ -814,8 +754,6 @@ begin
   end;
 end;
 
-// Tipos de trabajo
-
 function TCatalogoService.TiposTrabajo(const AIncluirInactivos: Boolean)
   : TObjectList<TTipoTrabajoDTO>;
 var
@@ -837,8 +775,6 @@ begin
   var
   lTx := TMVCRepository.UseTransactionContext;
 
-  // NOMBRE si es UNIQUE en esta tabla; se comprueba igual para que salga el
-  // error del contrato y no el del motor.
   if fTiposTrabajo.ExisteNombre(ADto.Nombre) then
     raise EDatoInvalido.Create(SNombreDuplicadoTipoTrabajo);
 

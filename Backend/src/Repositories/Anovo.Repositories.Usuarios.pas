@@ -1,9 +1,6 @@
 unit Anovo.Repositories.Usuarios;
 
-// Repositorio de usuarios.
-//
-// Por ahora solo resuelve nombres para la bitacora. El CRUD lo hereda de
-// TMVCRepository<TUsuarios> y no hay nada escrito a mano.
+// Repositorios de usuarios y de sus claves.
 
 interface
 
@@ -21,13 +18,17 @@ type
       : TDictionary<Integer, string>;
   end;
 
+  TUsuarioClaveRepository = class(TAnovoRepository<TUsuariosClaves>,
+    IUsuarioClaveRepository)
+  public
+    function ClaveActivaDe(const AUsuarioId: Integer): TUsuariosClaves;
+  end;
+
 implementation
 
 uses
   System.SysUtils,
   Anovo.SQL.Usuarios;
-
-{ TUsuarioRepository }
 
 function TUsuarioRepository.NombresDe(const AIds: TArray<Integer>)
   : TDictionary<Integer, string>;
@@ -41,9 +42,6 @@ begin
   if Length(AIds) = 0 then
     Exit;
 
-  // La lista va armada y no por parametros: son numeros que salieron de la
-  // propia base, no texto de nadie, y un IN con parametros obliga a armar
-  // tantos ? como ids traiga la pagina.
   lLista := '';
   for lId in AIds do
   begin
@@ -64,6 +62,12 @@ begin
     Result.Free;
     raise;
   end;
+end;
+
+function TUsuarioClaveRepository.ClaveActivaDe(const AUsuarioId: Integer)
+  : TUsuariosClaves;
+begin
+  Result := GetOneByWhere(USUARIO_CLAVE_ACTIVA, [AUsuarioId], False);
 end;
 
 end.

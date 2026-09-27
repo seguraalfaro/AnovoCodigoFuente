@@ -1,36 +1,19 @@
 unit Anovo.Servidor;
 
-// El servidor HTTPS, armado en un solo sitio.
-//
-// Estaba dentro del .dpr, que servia mientras el programa era una consola.
-// Ahora lo arrancan dos cosas -la ventana del servidor y, si algun dia hace
-// falta, un servicio de Windows- y ninguna de las dos deberia repetir la
-// configuracion del motor ni la del certificado.
-//
-// CrearServidor no escucha: devuelve el servidor listo y quien lo recibe
-// decide cuando. La consola usaba RunAndWait, que bloquea el hilo hasta
-// Ctrl+C; una ventana no puede hacer eso, asi que usa Listen y Stop.
-//
-// El motor lo libera el servidor al soltarse la interfaz.
+// Servidor HTTPS: arma el motor, el certificado y el puerto.
 
 interface
 
 uses
   MVCFramework.Server.Intf;
 
-// Puerto del .env, 443 si no esta.
 function PuertoConfigurado: Integer;
 
-// Ruta del .fdb y usuario con el que se conecta, para mostrarlos. No abre
-// nada: solo lee la configuracion.
 function BaseConfigurada: string;
 function UsuarioDeBase: string;
 
-// Registra los servicios y arma el contenedor. Una sola vez por proceso: el
-// Build del contenedor no admite repeticion.
 procedure PrepararServicios;
 
-// El servidor con el motor ya configurado y HTTPS puesto. Todavia no escucha.
 function CrearServidor: IMVCServer;
 
 implementation
@@ -118,8 +101,6 @@ begin
       'certificates\localhost.key');
     Result.CertPassword := dotEnv.Env('https.cert.password', '');
   except
-    // El motor todavia no es de nadie: si algo falla al configurarlo, aqui se
-    // libera. Una vez que el servidor lo recibe, lo libera el.
     lEngine.Free;
     raise;
   end;

@@ -1,21 +1,10 @@
-// Servidor de la API de Anovo.
-//
-// Era una aplicacion de consola. Ahora abre una ventana: el mismo servidor,
-// pero con el log a la vista y con el estado de la base, la cache de permisos
-// y la actividad reciente, que en la consola no se veian.
-//
-// El armado del servidor vive en Anovo.Servidor, no aqui: asi la ventana -y
-// manana un servicio de Windows- lo levantan igual sin repetir configuracion.
-
 program AnovoAPI;
+
+// Servidor REST de Anovo: ventana VCL que aplica las vigencias
+// de precios pendientes y levanta los servicios.
 
 uses
   Vcl.Forms,
-  // FireDAC pide un TFDGUIxWaitCursor en cuanto alguien abre una conexion, y
-  // el enlace hay que linkearlo a mano. No hizo falta mientras las conexiones
-  // salian solo de los hilos de Indy; con la ventana, la rutina de vigencias
-  // abre la suya en el hilo principal y sin esto revienta con "Object factory
-  // for class ... is missing".
   FireDAC.VCLUI.Wait,
   FireDAC.Phys.FB,
   FireDAC.Phys.FBDef,
@@ -100,6 +89,17 @@ uses
   Anovo.Services.Cotizaciones in 'src\Services\Anovo.Services.Cotizaciones.pas',
   Anovo.Servidor in 'src\Bootstrap\Anovo.Servidor.pas',
   Anovo.Services.Vigencias in 'src\Services\Anovo.Services.Vigencias.pas',
+  Anovo.SQL.Dashboard in 'src\SQL\Anovo.SQL.Dashboard.pas',
+  Anovo.Entities.Vistas.Dashboard in 'src\Entities\Anovo.Entities.Vistas.Dashboard.pas',
+  Anovo.DTOs.Dashboard in 'src\DTOs\Anovo.DTOs.Dashboard.pas',
+  Anovo.Repositories.Intf.Dashboard in 'src\Interfaces\Anovo.Repositories.Intf.Dashboard.pas',
+  Anovo.Services.Intf.Dashboard in 'src\Interfaces\Anovo.Services.Intf.Dashboard.pas',
+  Anovo.Repositories.Dashboard in 'src\Repositories\Anovo.Repositories.Dashboard.pas',
+  Anovo.Services.Dashboard in 'src\Services\Anovo.Services.Dashboard.pas',
+  Anovo.Controllers.Dashboard in 'src\Controllers\Anovo.Controllers.Dashboard.pas',
+  Anovo.Services.Intf.Sesion in 'src\Interfaces\Anovo.Services.Intf.Sesion.pas',
+  Anovo.Services.Sesion in 'src\Services\Anovo.Services.Sesion.pas',
+  Anovo.Controllers.Version in 'src\Controllers\Anovo.Controllers.Version.pas',
   Anovo.Middleware.Actividad in 'src\Middleware\Anovo.Middleware.Actividad.pas',
   Anovo.Forms.Servidor in 'src\UI\Anovo.Forms.Servidor.pas' {frmServidor};
 

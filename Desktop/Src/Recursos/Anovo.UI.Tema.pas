@@ -1,24 +1,7 @@
 unit Anovo.UI.Tema;
 
-{ Tema visual del cliente de escritorio.
-
-  Un único lugar donde viven la paleta, las fuentes y los dibujos compartidos
-  (pastilla de estado, tarjeta, barra de color). Si un color aparece escrito a
-  mano en un formulario, ya empezó a divergir.
-
-  PALETA COMPARTIDA
-  Los valores son los mismos del módulo Colores de la aplicación móvil, que a
-  su vez salen del anteproyecto aprobado (Estilo Visual > Paleta de colores,
-  figura 25). El nombre de la constante móvil va en el comentario de cada
-  línea: al cambiar un color hay que cambiarlo en las dos plataformas, o el
-  informe deja de ser cierto cuando afirma que comparten lenguaje visual.
-
-  Roles, tal como los fija el anteproyecto: el azul primario va en barras de
-  navegación, encabezados de tabla y botón de acción principal; el azul medio
-  en iconos activos, bordes con foco, enlaces y selección.
-
-  Todo se resuelve con VCL nativa: los controles llevan Color propio y
-  StyleElements sin seClient, y lo que no da el control se pinta en el Canvas. }
+// Tema visual del escritorio: paleta, letras y el recorrido que
+// aplica cada rol segun el Tag del control.
 
 interface
 
@@ -26,58 +9,53 @@ uses
   Winapi.Windows, System.SysUtils, System.Classes, System.Types,
   System.ImageList, Vcl.TitleBarCtrls,
   Vcl.Graphics, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Forms,
-  Vcl.ComCtrls, Vcl.ImgList, Vcl.Buttons;
+  Vcl.ComCtrls, Vcl.ImgList, Vcl.Buttons,
+  VclPlano.Tarjeta;
 
 const
-  { Paleta. Las constantes van en TColor (BGR), el comentario en el hex de
-    diseño y el nombre que tiene en el módulo Colores del móvil. }
-  clAnovoMarca = TColor($005C3A1A); // #1A3A5C  COLOR_PRIMARIO
-  clAnovoCabecera = TColor($005C3A1A); // #1A3A5C  COLOR_PRIMARIO
-  clAnovoAcento = TColor($00A06029); // #2960A0  COLOR_MEDIO
-  clAnovoAcentoClaro = TColor($008A5C2E); // #2E5C8A  COLOR_PRIMARIO_CLARO
-  clAnovoAcentoSuave = TColor($00F5E4D6); // #D6E4F5  COLOR_PRIMARIO_TENUE
-  clAnovoAcentoHover = TColor($00ECD0B8); // #B8D0EC  COLOR_PRIMARIO_SUAVE
 
-  clAnovoLateralTexto = TColor($00E8DCD0); // #D0DCE8  COLOR_FONDO_SUAVE
-  clAnovoLateralTenue = TColor($00C1B8B0); // #B0B8C1  COLOR_DESHABILITADO
+  clAnovoMarca = TColor($005C3A1A);
+  clAnovoCabecera = TColor($005C3A1A);
+  clAnovoAcento = TColor($00A06029);
+  clAnovoAcentoClaro = TColor($008A5C2E);
+  clAnovoAcentoSuave = TColor($00F5E4D6);
+  clAnovoAcentoHover = TColor($00ECD0B8);
 
-  clAnovoFondo = TColor($00FAF7F5); // #F5F7FA  COLOR_FONDO_PANTALLA
-  clAnovoTarjeta = TColor($00FFFFFF); // #FFFFFF  COLOR_SUPERFICIE
-  clAnovoBorde = TColor($00E4DED9); // #D9DEE4  COLOR_BORDE
-  clAnovoSuave = TColor($00E8DCD0); // #D0DCE8  COLOR_FONDO_SUAVE
-  clAnovoSeleccion = TColor($00F5E4D6); // #D6E4F5  COLOR_PRIMARIO_TENUE
-  clAnovoFilaAlterna = TColor($00FAF7F5); // #F5F7FA  COLOR_FONDO_PANTALLA
-  clAnovoDeshabilitado = TColor($00C1B8B0); // #B0B8C1  COLOR_DESHABILITADO
+  clAnovoLateralTexto = TColor($00E8DCD0);
+  clAnovoLateralTenue = TColor($00C1B8B0);
 
-  clAnovoTexto = TColor($001E1C1C); // #1C1C1E  COLOR_TEXTO_PRIMARIO
-  clAnovoTextoSuave = TColor($0080726B); // #6B7280  COLOR_TEXTO_SECUNDARIO
-  clAnovoTextoTenue = TColor($0080726B); // #6B7280  COLOR_TEXTO_SECUNDARIO
+  clAnovoFondo = TColor($00FAF7F5);
+  clAnovoTarjeta = TColor($00FFFFFF);
+  clAnovoBorde = TColor($00E4DED9);
+  clAnovoSuave = TColor($00E8DCD0);
+  clAnovoSeleccion = TColor($00F5E4D6);
+  clAnovoFilaAlterna = TColor($00FAF7F5);
+  clAnovoDeshabilitado = TColor($00C1B8B0);
 
-  { Estados. El móvil pinta borrador y pendiente con el mismo ámbar
-    (Colores.ColorDeEstado), así que aquí también: la distinción la hace el
-    texto de la pastilla, no el color. Está pendiente de confirmar con Anovo.
-    Sobre ámbar el texto va oscuro; sobre los otros tres, blanco. }
-  clEstBorradorBarra = TColor($000B9EF5); // #F59E0B  COLOR_BORRADOR_PENDIENTE
+  clAnovoTexto = TColor($001E1C1C);
+  clAnovoTextoSuave = TColor($0080726B);
+  clAnovoTextoTenue = TColor($0080726B);
+
+  clEstBorradorBarra = TColor($000B9EF5);
   clEstBorradorFondo = TColor($000B9EF5);
-  clEstBorradorTexto = TColor($001E1C1C); // #1C1C1E
+  clEstBorradorTexto = TColor($001E1C1C);
 
-  clEstPendienteBarra = TColor($000B9EF5); // #F59E0B  COLOR_BORRADOR_PENDIENTE
+  clEstPendienteBarra = TColor($000B9EF5);
   clEstPendienteFondo = TColor($000B9EF5);
-  clEstPendienteTexto = TColor($001E1C1C); // #1C1C1E
+  clEstPendienteTexto = TColor($001E1C1C);
 
-  clEstAprobadaBarra = TColor($005EC522); // #22C55E  COLOR_APROBADA
+  clEstAprobadaBarra = TColor($005EC522);
   clEstAprobadaFondo = TColor($005EC522);
   clEstAprobadaTexto = clWhite;
 
-  clEstRechazadaBarra = TColor($004444EF); // #EF4444  COLOR_RECHAZADA_ERROR
+  clEstRechazadaBarra = TColor($004444EF);
   clEstRechazadaFondo = TColor($004444EF);
   clEstRechazadaTexto = clWhite;
 
-  clEstEnviadaBarra = TColor($00A06029); // #2960A0  COLOR_MEDIO
+  clEstEnviadaBarra = TColor($00A06029);
   clEstEnviadaFondo = TColor($00A06029);
   clEstEnviadaTexto = clWhite;
 
-  { Rejilla }
   MARGEN = 16;
   SEPARACION = 8;
   ALTO_FILA = 56;
@@ -88,50 +66,33 @@ const
   FUENTE = 'Segoe UI';
   FUENTE_SEMI = 'Segoe UI Semibold';
 
-  { ETIQUETAS DE ROL
-
-    El equivalente de los TAG_* del modulo UI del movil, con una diferencia:
-    en la VCL Tag es NativeInt, no cadena. Un rol por control, del 1 al 20; no
-    se combinan.
-
-    Tag = 0 deja el trato neutro. TAG_RAW corta la rama entera: sirve para el
-    arte del Login y para cualquier control que se pinte solo.
-
-    El rol se lee en TPanel y TLabel; el TSpeedButton toma el de su panel. En
-    el resto el Tag sigue libre para la aplicacion, salvo TAG_RAW, que se
-    respeta en cualquier control. Ojo con los TSpeedButton del filtro de
-    Cotizaciones, que usan el Tag como indice.
-
-    En el .dfm se ve un numero y no un nombre; NombreDeEtiqueta lo traduce. }
   TAG_NINGUNO = 0;
-  TAG_RAW = 1; // no tocar este control ni sus hijos
+  TAG_RAW = 1;
 
-  { Superficies }
   TAG_FONDO = 2;
   TAG_CARD = 3;
-  TAG_CABECERA = 4; // franja azul con titulo
+  TAG_CABECERA = 4;
   TAG_BARRA = 5;
   TAG_SEP = 6;
 
-  { Tarjetas de cifras. Las etiquetas de dentro no necesitan Tag: la cifra se
-    marca con TAG_CIFRA y el resto sale como nota. }
   TAG_KPI_ACENTO = 7;
   TAG_KPI_AMBAR = 8;
   TAG_KPI_VERDE = 9;
   TAG_KPI_MARCA = 10;
 
-  { Texto }
   TAG_TITULO = 11;
   TAG_TITULO_GRANDE = 22;
   TAG_TEXTO_LATERAL = 23;
+
+  TAG_TEXTO_LATERAL_FUERTE = 24;
+
+  TAG_VALOR = 25;
   TAG_SECCION = 12;
   TAG_APOYO = 13;
   TAG_ERROR = 14;
   TAG_LINK = 15;
   TAG_CIFRA = 16;
 
-  { Botones de panel mas etiqueta. El Tag va en el panel; el rotulo sale de su
-    primer TLabel hijo, que no lleva Tag propio. }
   TAG_BTN_PRIMARIO = 17;
   TAG_BTN_APROBAR = 18;
   TAG_BTN_RECHAZAR = 19;
@@ -140,34 +101,39 @@ const
 
 type
   TAnovoRolTexto = (rtTituloGrande, rtTitulo, rtSeccion, rtCuerpo, rtApoyo,
-    rtCifra, rtCabecera, rtCifraKPI, rtNotaKPI, rtEnlace, rtError, rtLateral);
+    rtCifra, rtCabecera, rtCifraKPI, rtNotaKPI, rtEnlace, rtError, rtLateral,
+    rtLateralFuerte, rtValor);
 
-  { interface }
 procedure AplicarTemaBarraTitulo(AFormulario: TCustomForm;
   APanel: TCustomTitleBarPanel; AAlto: Integer = 0);
 
-{ Aplicación de estilo a controles }
 procedure AplicarTarjeta(APanel: TPanel);
 procedure AplicarSuperficie(APanel: TPanel; AColor: TColor);
 
-{ Etiquetas }
 function EsKPI(ATag: NativeInt): Boolean;
 function EsBoton(ATag: NativeInt): Boolean;
 
-{ Recorrido }
 procedure AplicarTema(AFormulario: TCustomForm);
 procedure AplicarTemaControl(AControl: TControl);
 procedure AplicarTemaEnCascada(AContenedor: TWinControl);
 
-{ Cada tipo por separado. La cascada llama a estas, y se pueden llamar sueltas
-  para un control creado en tiempo de ejecucion, que no pasa por el .dfm. }
+procedure AplicarTemaFrame(AFrame: TFrame);
+
 procedure AplicarTemaPanel(APanel: TPanel);
 procedure AplicarTemaBoton(ABoton: TSpeedButton);
 procedure AplicarTemaEtiqueta(ALabel: TLabel);
 procedure AplicarTemaGroupBox(AGroupBox: TGroupBox);
 procedure AplicarTemaListView(AListView: TListView);
+procedure AplicarTemaTarjeta(ATarjeta: TPlanoTarjeta);
+
+procedure AplicarTemaControlEstandar(AControl: TControl);
+
+procedure AplicarTemaRotuloRosi(AControl: TControl);
 
 implementation
+
+uses
+  System.TypInfo;
 
 procedure AplicarTemaBarraTitulo(AFormulario: TCustomForm;
   APanel: TCustomTitleBarPanel; AAlto: Integer = 0);
@@ -181,7 +147,6 @@ begin
   AFormulario.CustomTitleBar.SystemColors := False;
   AFormulario.CustomTitleBar.SystemButtons := False;
 
-  { AAlto en cero deja el alto del sistema, que es lo que quiere un dialogo. }
   AFormulario.CustomTitleBar.SystemHeight := AAlto <= 0;
   if AAlto > 0 then
     AFormulario.CustomTitleBar.Height := AAlto;
@@ -205,7 +170,7 @@ end;
 
 procedure AplicarSuperficie(APanel: TPanel; AColor: TColor);
 begin
-  { Sin seClient el estilo VCL deja de pintar el fondo y respeta Color. }
+
   APanel.BevelOuter := bvNone;
   APanel.ParentBackground := False;
   APanel.ParentColor := False;
@@ -262,7 +227,7 @@ begin
       end;
     rtCabecera:
       begin
-        { Título dentro de una franja azul: el color lo pone la franja. }
+
         ALabel.Font.Name := FUENTE_SEMI;
         ALabel.Font.Height := -13;
         ALabel.Font.Color := clWhite;
@@ -294,13 +259,24 @@ begin
         ALabel.Font.Height := -11;
         ALabel.Font.Color := clAnovoLateralTexto;
       end;
+    rtLateralFuerte:
+      begin
+        ALabel.Font.Name := FUENTE_SEMI;
+        ALabel.Font.Height := -12;
+        ALabel.Font.Color := clWhite;
+      end;
+    rtValor:
+      begin
+        ALabel.Font.Name := FUENTE_SEMI;
+        ALabel.Font.Height := -12;
+        ALabel.Font.Color := clAnovoTexto;
+      end;
   end;
 end;
 
 procedure AplicarKPI(APanel: TPanel; AColor: TColor);
 begin
-  { Las cuatro tarjetas de cifras del panel de control: fondo saturado,
-    texto blanco, sin borde. }
+
   AplicarSuperficie(APanel, AColor);
 end;
 
@@ -375,7 +351,7 @@ begin
       TAG_SEP:
         AplicarSuperficie(APanel, clAnovoBorde);
     else
-      { Sin etiqueta queda de superficie blanca }
+
       AplicarSuperficie(APanel, clAnovoTarjeta);
     end;
 end;
@@ -406,8 +382,12 @@ begin
       AplicarTexto(ALabel, rtEnlace);
     TAG_TEXTO_LATERAL:
       AplicarTexto(ALabel, rtLateral);
+    TAG_TEXTO_LATERAL_FUERTE:
+      AplicarTexto(ALabel, rtLateralFuerte);
+    TAG_VALOR:
+      AplicarTexto(ALabel, rtValor);
     TAG_CIFRA:
-      { Dentro de un KPI la cifra va blanca y grande; fuera, oscura. }
+
       if (lPadre <> nil) and EsKPI(lPadre.Tag) then
         AplicarTexto(ALabel, rtCifraKPI)
       else
@@ -421,9 +401,7 @@ begin
       AplicarTexto(ALabel, rtCuerpo);
   end;
 
-  { Sobre el ambar el blanco no se lee. }
-  if (lPadre <> nil) and ((lPadre.Tag = TAG_KPI_AMBAR) or
-    (lPadre.Tag = TAG_BTN_AVISO)) then
+  if (lPadre <> nil) and (lPadre.Tag = TAG_BTN_AVISO) then
     ALabel.Font.Color := clAnovoTexto;
 end;
 
@@ -442,11 +420,20 @@ begin
 
 end;
 
+procedure AplicarEstiloPropio(AControl: TControl); forward;
+
 procedure AplicarTemaControl(AControl: TControl);
 begin
-  if AControl.Tag = TAG_RAW then
-    Exit;
 
+  if AControl.Tag <> TAG_RAW then
+    AplicarEstiloPropio(AControl);
+
+  if AControl is TWinControl then
+    AplicarTemaEnCascada(TWinControl(AControl));
+end;
+
+procedure AplicarEstiloPropio(AControl: TControl);
+begin
   if AControl is TPanel then
     AplicarTemaPanel(TPanel(AControl))
   else if AControl is TSpeedButton then
@@ -457,11 +444,92 @@ begin
     AplicarTemaGroupBox(TGroupBox(AControl))
   else if AControl is TCustomListView then
     AplicarTemaListView(TListView(AControl))
+  else if AControl is TPlanoTarjeta then
+    AplicarTemaTarjeta(TPlanoTarjeta(AControl))
   else if AControl is TCustomEdit then
-    AplicarCampo(TCustomEdit(AControl));
+    AplicarCampo(TCustomEdit(AControl))
+  else
+    AplicarTemaControlEstandar(AControl);
 
-  if AControl is TWinControl then
-    AplicarTemaEnCascada(TWinControl(AControl));
+  AplicarTemaRotuloRosi(AControl);
+end;
+
+procedure AplicarTemaTarjeta(ATarjeta: TPlanoTarjeta);
+begin
+
+  ATarjeta.ParentFont := False;
+  if EsKPI(ATarjeta.Tag) then
+  begin
+    ATarjeta.CardColor := ColorKPI(ATarjeta.Tag);
+    ATarjeta.Font.Name := FUENTE;
+    ATarjeta.Font.Height := -12;
+    ATarjeta.Font.Style := [];
+    ATarjeta.Font.Color := clWhite;
+  end
+  else
+  begin
+
+    ATarjeta.Font.Name := FUENTE_SEMI;
+    ATarjeta.Font.Height := -15;
+    ATarjeta.Font.Style := [];
+    ATarjeta.Font.Color := clAnovoTexto;
+  end;
+end;
+
+function EsDibujadoPropio(AControl: TControl): Boolean;
+var
+  lUnidad: string;
+begin
+  lUnidad := AControl.UnitName;
+  Result := lUnidad.StartsWith('VclPlano') or lUnidad.StartsWith('FlatVcl');
+end;
+
+procedure AplicarLetra(AControl: TControl);
+var
+  lFuente: TFont;
+begin
+
+  if not IsPublishedProp(AControl, 'Font') then
+    Exit;
+  lFuente := GetObjectProp(AControl, 'Font') as TFont;
+  if lFuente = nil then
+    Exit;
+  lFuente.Name := FUENTE;
+  lFuente.Height := -12;
+  lFuente.Color := clAnovoTexto;
+end;
+
+procedure AplicarTemaControlEstandar(AControl: TControl);
+begin
+  if EsDibujadoPropio(AControl) then
+    Exit;
+
+  if not ((AControl is TCustomComboBox) or (AControl is TCustomCheckBox) or
+    (AControl is TDateTimePicker) or (AControl is TCustomListControl) or
+    IsPublishedProp(AControl, 'DataField')) then
+    Exit;
+  AControl.StyleElements := [seBorder];
+  AplicarLetra(AControl);
+end;
+
+procedure AplicarTemaRotuloRosi(AControl: TControl);
+var
+  lRotulo: TObject;
+  lFuente: TFont;
+begin
+  if not IsPublishedProp(AControl, 'DBEditLabel') then
+    Exit;
+  lRotulo := GetObjectProp(AControl, 'DBEditLabel');
+  if not (lRotulo is TControl) or not IsPublishedProp(lRotulo, 'Font') then
+    Exit;
+  lFuente := GetObjectProp(lRotulo, 'Font') as TFont;
+  if lFuente = nil then
+    Exit;
+
+  lFuente.Name := FUENTE;
+  lFuente.Height := -12;
+  lFuente.Color := clAnovoTexto;
+  TControl(lRotulo).StyleElements := [seBorder];
 end;
 
 procedure AplicarTemaEnCascada(AContenedor: TWinControl);
@@ -476,7 +544,17 @@ procedure AplicarTema(AFormulario: TCustomForm);
 begin
   AFormulario.Color := clAnovoFondo;
 
+  AplicarLetra(AFormulario);
+
   AplicarTemaEnCascada(AFormulario);
+end;
+
+procedure AplicarTemaFrame(AFrame: TFrame);
+begin
+  AFrame.ParentFont := False;
+  AplicarLetra(AFrame);
+
+  AplicarTemaEnCascada(AFrame);
 end;
 
 end.

@@ -1,11 +1,7 @@
 unit Anovo.Controllers.Solicitudes;
 
-// Solicitudes bajo /api/solicitudes.
-//
-// El alcance no se resuelve solo con el atributo de permiso. Quien tiene
-// ver_propias y no ver_todas pasa el filtro del atributo igual, asi que aqui
-// hay que preguntar cual de los dos tiene y pasarselo al servicio, que filtra
-// por asesor. Sin esto, un asesor veria las visitas de sus companeros.
+// Solicitudes bajo /api/solicitudes: captura del movil,
+// listado, seguimiento del asesor y cambios de estado.
 
 interface
 
@@ -16,7 +12,8 @@ uses
   Anovo.Auth.Permisos,
   Anovo.DTOs.Solicitudes,
   Anovo.Services.Intf.Permisos,
-  Anovo.Services.Intf.Solicitudes;
+  Anovo.Services.Intf.Solicitudes,
+  Anovo.DTOs.Dashboard;
 
 const
   PERMISO_VER_PROPIAS = 'solicitudes.ver_propias';
@@ -27,12 +24,14 @@ const
   PERMISO_ADJUNTOS_VER = 'adjuntos.ver';
   PERMISO_ADJUNTOS_CREAR = 'adjuntos.crear';
 
-  // Los dos juntos: el atributo deja pasar a quien tenga cualquiera de ellos.
   PERMISO_VER = PERMISO_VER_PROPIAS + ';' + PERMISO_VER_TODAS;
   PERMISO_EDITAR = PERMISO_EDITAR_PROPIAS + ';' + PERMISO_EDITAR_TODAS;
 
   POR_PAGINA_POR_DEFECTO = 50;
   POR_PAGINA_MAXIMO = 200;
+
+  PERIODO_MES = 'mes';
+  PERIODO_TODO = 'todo';
 
 type
 
@@ -40,7 +39,6 @@ type
   [MVCRequiresPermiso(PERMISO_VER)]
   TSolicitudesController = class(TMVCController)
   private
-    // Quien es y que alcance tiene, sacados del token de esta peticion.
     function UsuarioId: Integer;
     function SoloPropias(const APermisos: IPermisoService): Boolean;
   public
@@ -80,6 +78,30 @@ type
     [MVCSwagResponses(200, 'Las pendientes, la mas antigua primero')]
     function PendientesDeCotizar([MVCInject] AServicio: ISolicitudService)
       : IMVCResponse;
+
+    [MVCPath('/seguimiento')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCRequiresPermiso(PERMISO_VER_PROPIAS)]
+    [MVCSwagSummary('Solicitudes', 'Las del asesor que consulta, con el ' +
+      'estado como lo ve el: el de la cotizacion si esta aprobada o enviada ' +
+      'al cliente, el de la solicitud si no (HU-03)', 'seguimientoSolicitudes')]
+    [MVCSwagParam(plQuery, 'q', 'Texto a buscar en el cliente o la ' +
+      'descripcion', ptString, False)]
+    [MVCSwagParam(plQuery, 'periodo', 'mes (el mes en curso, por defecto) o ' +
+      'todo (el historial completo)', ptString, False)]
+    [MVCSwagParam(plQuery, 'pagina', 'Numero de pagina, desde 1',
+      ptInteger, False)]
+    [MVCSwagParam(plQuery, 'por_pagina', 'Cuantos por pagina. Maximo 200',
+      ptInteger, False)]
+    [MVCSwagResponses(200, 'Pagina del seguimiento', TSeguimientoPaginaDTO)]
+    [MVCSwagResponses(401, 'Sin token o token vencido')]
+    [MVCSwagResponses(403, 'El rol no tiene el permiso para esta operacion')]
+    function Seguimiento([MVCInject] AServicio: ISolicitudService;
+      const [MVCFromQueryString('q', '')] ABusqueda: string;
+      const [MVCFromQueryString('periodo', PERIODO_MES)] APeriodo: string;
+      const [MVCFromQueryString('pagina', 1)] APagina: Integer;
+      const [MVCFromQueryString('por_pagina', POR_PAGINA_POR_DEFECTO)
+      ] APorPagina: Integer): TSeguimientoPaginaDTO;
 
     [MVCPath('/($AId)')]
     [MVCHTTPMethods([httpGET])]
@@ -142,8 +164,6 @@ type
       const AId: Integer;
       const [MVCFromBody] ADto: TCambioEstadoDTO): IMVCResponse;
 
-    // MEDIDAS
-
     [MVCPath('/($AId)/medidas')]
     [MVCHTTPMethods([httpGET])]
     [MVCSwagSummary('Solicitudes', 'Las medidas de la solicitud',
@@ -179,8 +199,6 @@ type
     [MVCSwagResponses(204, 'Eliminada')]
     function EliminarMedida([MVCInject] AServicio: ISolicitudService;
       const AId: Integer; const AMedidaId: Integer): IMVCResponse;
-
-    // ADJUNTOS
 
     [MVCPath('/($AId)/adjuntos')]
     [MVCHTTPMethods([httpGET])]
@@ -229,8 +247,6 @@ uses
   System.SysUtils,
   System.Generics.Collections;
 
-// Apoyo
-
 function TSolicitudesController.UsuarioId: Integer;
 var
   lTexto: string;
@@ -247,16 +263,12 @@ function TSolicitudesController.SoloPropias(const APermisos
 var
   lRol: string;
 begin
-  // Basta uno de los roles con ver_todas. Si ninguno lo tiene, el usuario
-  // llego aqui por ver_propias y hay que acotarlo.
   for lRol in Context.LoggedUser.Roles do
     if APermisos.Tiene(lRol, PERMISO_VER_TODAS) then
       Exit(False);
   Result := True;
 end;
 
-// Convierte aaaa-mm-dd a fecha. Vacio o mal escrito es cero, que el
-// repositorio entiende como "sin filtro".
 function ComoFecha(const ATexto: string): TDateTime;
 var
   lFormato: TFormatSettings;
@@ -270,8 +282,6 @@ begin
     Result := 0;
 end;
 
-// Solicitudes
-
 function TSolicitudesController.Listar(AServicio: ISolicitudService;
   APermisos: IPermisoService; const ABusqueda, AEstado, ADesde, AHasta: string;
   const APagina, APorPagina: Integer): TSolicitudesPaginaDTO;
@@ -284,8 +294,6 @@ begin
   lPagina := Max(APagina, 1);
   lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
 
-  // El hasta incluye el dia entero: quien escribe 30-09 espera ver lo del 30,
-  // y una fecha sin hora es la medianoche de ese dia.
   lHasta := ComoFecha(AHasta);
   if lHasta > 0 then
     lHasta := lHasta + 1 - (1 / SecsPerDay);
@@ -311,9 +319,6 @@ end;
 function TSolicitudesController.Crear(AServicio: ISolicitudService;
   const ADto: TSolicitudNuevaDTO): IMVCResponse;
 begin
-  // Si ya habia subido con ese uuid_local, el servicio devuelve el id
-  // existente y el Location apunta al mismo sitio: el telefono que reintenta
-  // no distingue si creo o reencontro, y no necesita distinguirlo.
   Result := CreatedResponse('/api/solicitudes/' +
     AServicio.Crear(ADto).ToString);
 end;
@@ -346,8 +351,6 @@ begin
   Result := NoContentResponse;
 end;
 
-// Medidas
-
 function TSolicitudesController.Medidas(AServicio: ISolicitudService;
   const AId: Integer): IMVCResponse;
 begin
@@ -375,8 +378,6 @@ begin
   Result := NoContentResponse;
 end;
 
-// Adjuntos
-
 function TSolicitudesController.Adjuntos(AServicio: ISolicitudService;
   const AId: Integer): IMVCResponse;
 begin
@@ -401,6 +402,30 @@ function TSolicitudesController.InactivarAdjunto(AServicio: ISolicitudService;
 begin
   AServicio.InactivarAdjunto(AId, AAdjuntoId);
   Result := NoContentResponse;
+end;
+
+function TSolicitudesController.Seguimiento(AServicio: ISolicitudService;
+  const ABusqueda, APeriodo: string; const APagina, APorPagina: Integer)
+  : TSeguimientoPaginaDTO;
+var
+  lTotal: Int64;
+  lPagina, lPorPagina: Integer;
+  lDesde, lHasta: TDateTime;
+  lDatos: TObjectList<TSolicitudAsesorDTO>;
+begin
+  lPagina := Max(APagina, 1);
+  lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
+
+  lDatos := AServicio.Seguimiento(UsuarioId, ABusqueda,
+    not SameText(APeriodo, PERIODO_TODO), lPagina, lPorPagina, lDesde,
+    lHasta, lTotal);
+
+  Result := TSeguimientoPaginaDTO.Create(lDatos, lTotal, lPagina, lPorPagina);
+  if lDesde > 0 then
+  begin
+    Result.Desde := lDesde;
+    Result.Hasta := lHasta;
+  end;
 end;
 
 end.

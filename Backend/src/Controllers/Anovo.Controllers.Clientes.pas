@@ -1,29 +1,7 @@
-﻿                                                         unit Anovo.Controllers.Clientes;
+﻿unit Anovo.Controllers.Clientes;
 
-// Clientes: la frontera HTTP.
-//
-// Aqui no hay negocio ni base de datos. Cada accion traduce lo que llega por
-// HTTP a una llamada del servicio, y lo que el servicio devuelve a una
-// respuesta. Si una accion crece mas de tres o cuatro lineas, es que se le
-// esta metiendo algo que le toca al servicio.
-//
-// El servicio entra por parametro con [MVCInject], no por constructor. El
-// framework lo resuelve por accion, no una vez por peticion, y deja la firma
-// diciendo de que depende cada una.
-//
-// Las excepciones no se atrapan: el manejador de Anovo.Errors las convierte a
-// la forma unica del contrato.
-//
-// Los contactos y el historial de consentimiento van como sub-recursos del
-// cliente: no existen fuera de su cliente, y la ruta es la que dice de quien
-// son.
-//
-// PERMISOS. Cada accion declara el suyo con [MVCRequiresPermiso]; quien lo
-// tiene lo dice ROLES_PERMISOS, no este archivo. La clase exige ademas
-// clientes.ver: una accion que se quede sin atributo no queda abierta, pero
-// si abierta a todo el que vea clientes. La matriz inicial es la de la minuta
-// 06/2026 (P18): el administrador queda fuera de clientes por ser rol de TI, e
-// inactivar se reserva a supervisor y gerencia.
+// Clientes bajo /api/clientes: registro, contactos y
+// consentimiento.
 
 interface
 
@@ -37,8 +15,6 @@ uses
   Anovo.Services.Intf.Clientes;
 
 const
-  // Los codigos de PERMISOS. Un error de tipeo aqui no da error: deja a todos
-  // con 403, que se nota en la primera prueba.
   PERMISO_VER = 'clientes.ver';
   PERMISO_CREAR = 'clientes.crear';
   PERMISO_EDITAR = 'clientes.editar';
@@ -127,10 +103,6 @@ type
       const AId: Integer; [MVCFromBody] const ADto: TClienteEdicionDTO)
       : IMVCResponse;
 
-    // Sub-recurso y POST, no DELETE: la baja es logica. Un cliente inactivo
-    // sigue referenciado desde sus solicitudes y cotizaciones, asi que borrarlo
-    // de verdad no es una opcion, y llamar DELETE a algo que no borra confunde
-    // a quien lea el contrato.
     [MVCPath('/($AId)/inactivacion')]
     [MVCHTTPMethods([httpPOST])]
     [MVCRequiresPermiso(PERMISO_INACTIVAR)]
@@ -146,7 +118,6 @@ type
 
     [MVCPath('/registro-completo')]
     [MVCHTTPMethods([httpPOST])]
-    // Los dos: crea al cliente y guarda su firma de consentimiento.
     [MVCRequiresPermiso(PERMISO_CREAR)]
     [MVCRequiresPermiso(PERMISO_CONSENTIMIENTO)]
     [MVCSwagSummary('Clientes',
@@ -161,8 +132,6 @@ type
     [MVCSwagResponses(422, 'Faltan datos o no son coherentes entre si')]
     function RegistrarCompleto([MVCInject] AServicio: IClienteService;
       [MVCFromBody] const ADto: TClienteRegistroCompletoDTO): IMVCResponse;
-
-    // CONTACTOS
 
     [MVCPath('/($AId)/contactos')]
     [MVCHTTPMethods([httpGET])]
@@ -225,8 +194,6 @@ type
     function InactivarContacto([MVCInject] AServicio: IClienteService;
       const AId, AContactoId: Integer): IMVCResponse;
 
-    // CONSENTIMIENTO
-
     [MVCPath('/($AId)/consentimientos')]
     [MVCHTTPMethods([httpGET])]
     [MVCSwagSummary('Clientes',
@@ -240,8 +207,6 @@ type
     function Consentimientos([MVCInject] AServicio: IClienteService;
       const AId: Integer): IMVCResponse;
 
-    // Sub-recurso del historial: revocar no modifica ninguna fila, agrega
-    // una. El estado del cliente cambia en la misma transaccion.
     [MVCPath('/($AId)/consentimientos/revocacion')]
     [MVCHTTPMethods([httpPOST])]
     [MVCRequiresPermiso(PERMISO_CONSENTIMIENTO)]
@@ -268,8 +233,6 @@ uses
   System.SysUtils,
   System.Generics.Collections;
 
-// Clientes
-
 function TClientesController.Listar(AServicio: IClienteService;
   const ABusqueda: string; const APagina, APorPagina: Integer;
   const AIncluirInactivos: Boolean; const AConsentimiento: string)
@@ -279,18 +242,12 @@ var
   lPagina, lPorPagina: Integer;
   lDatos: TObjectList<TClienteDTO>;
 begin
-  // Se acotan aqui y no en el servicio porque son un problema de la frontera:
-  // pagina 0 o -3 producen un ROWS invalido, y un por_pagina de 100000 deja al
-  // servidor armando cien mil objetos porque alguien escribio mal un numero.
   lPagina := Max(APagina, 1);
   lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
 
   lDatos := AServicio.Buscar(ABusqueda, lPagina, lPorPagina,
     AIncluirInactivos, AConsentimiento, lTotal);
 
-  // El sobre se devuelve tal cual y no dentro de OKResponse: OKResponse lo
-  // envuelve en otro "data" y la lista quedaria en data.data. El sobre se queda
-  // con la lista y el framework libera el sobre.
   Result := TClientesPaginaDTO.Create(lDatos, lTotal, lPagina, lPorPagina);
 end;
 
@@ -306,10 +263,6 @@ var
   lId: Integer;
 begin
   lId := AServicio.Crear(ADto);
-  // 201 con Location. Si el registro ya habia subido con ese uuid_local, el
-  // servicio devuelve el id existente y el Location apunta al mismo sitio: el
-  // telefono que reintenta no distingue si creo o reencontro, y no necesita
-  // distinguirlo.
   Result := CreatedResponse('/api/clientes/' + lId.ToString);
 end;
 
@@ -334,13 +287,9 @@ begin
     .ToString);
 end;
 
-// Contactos
-
 function TClientesController.Contactos(AServicio: IClienteService;
   const AId: Integer): IMVCResponse;
 begin
-  // La lista va dentro de "data", como el resto de las colecciones del
-  // contrato. Sin paginar: un cliente tiene unos pocos contactos.
   Result := OKResponse(AServicio.Contactos(AId));
 end;
 
@@ -365,8 +314,6 @@ begin
   AServicio.InactivarContacto(AId, AContactoId);
   Result := NoContentResponse;
 end;
-
-// Consentimiento
 
 function TClientesController.Consentimientos(AServicio: IClienteService;
   const AId: Integer): IMVCResponse;

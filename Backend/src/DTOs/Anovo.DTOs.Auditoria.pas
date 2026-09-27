@@ -1,15 +1,6 @@
 unit Anovo.DTOs.Auditoria;
 
-// El contrato de la bitacora de auditoria: lo que viaja entre la API y sus
-// clientes.
-//
-// Solo salida. La bitacora no se escribe desde afuera -la ponen los
-// disparadores- asi que no hay DTO de entrada; lo que el cliente manda son
-// filtros, y esos viajan en la consulta de la URL.
-//
-// USUARIO no es columna de AUDITORIA: la tabla guarda el numero y el nombre lo
-// resuelve el servicio. Va en el contrato porque una bitacora que dice
-// "usuario 4" no sirve para rendir cuentas.
+// DTOs de la bitacora de auditoria. Solo salida.
 
 interface
 
@@ -33,9 +24,7 @@ type
     fFecha: NullableTDateTime;
   public
     property ID: Integer read fID write fID;
-    // Nulo cuando la fila quedo de un usuario que ya no esta.
     property UsuarioId: NullableInt32 read fUsuarioId write fUsuarioId;
-    // Lo pone el servicio, no la tabla.
     property Usuario: string read fUsuario write fUsuario;
     property Accion: string read fAccion write fAccion;
     property Entidad: string read fEntidad write fEntidad;
@@ -44,8 +33,6 @@ type
     property Fecha: NullableTDateTime read fFecha write fFecha;
   end;
 
-  // El sobre de la pagina, igual que el de clientes: la lista mas lo que hace
-  // falta para saber cuantas paginas hay.
   [MVCNameCase(ncSnakeCase)]
   TAuditoriaPaginaDTO = class
   private
@@ -64,8 +51,6 @@ type
   end;
 
 implementation
-
-// TAuditoriaPaginaDTO
 
 constructor TAuditoriaPaginaDTO.Create(const AData: TObjectList<TAuditoriaDTO>;
   const ATotal: Int64; const APagina, APorPagina: Integer);

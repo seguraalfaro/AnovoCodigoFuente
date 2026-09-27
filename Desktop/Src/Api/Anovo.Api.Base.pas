@@ -1,17 +1,7 @@
 unit Anovo.Api.Base;
 
-// El unico sitio de la aplicacion que habla HTTP.
-//
-// Pantallas y presentadores no ven URLs, verbos ni codigos de estado: llaman a
-// metodos de dominio de las clases que heredan de aqui, y cuando algo falla
-// reciben siempre una de estas tres excepciones:
-//
-//   EAnovoSinConexion     el servidor no respondio
-//   EAnovoSesionVencida   el token vencio o fue rechazado
-//   EAnovoApiError        el servidor respondio que no, con codigo y mensaje
-//
-// Los codigos son los del contrato de la API, los mismos que usa la app movil.
-// Se compara siempre por Codigo, nunca por Mensaje.
+// Base de los clientes de la API: el unico sitio que habla HTTP.
+// Traduce los fallos a EAnovoSinConexion, EAnovoSesionVencida y EAnovoApiError.
 
 interface
 
@@ -37,7 +27,8 @@ type
 
   TApiBase = class(TInterfacedObject)
   protected
-    function NuevoCliente(const AConToken: Boolean = True): IMVCRESTClient;
+    function NuevoCliente(const AConToken: Boolean = True;
+      const AUrl: string = ''): IMVCRESTClient;
     function Ejecutar(const ALlamada: TFunc<IMVCRESTResponse>;
       const AEsLogin: Boolean = False): IMVCRESTResponse;
 
@@ -62,33 +53,12 @@ const
 
   TIEMPO_LECTURA_MS = 60000;
 
-
-// Validacion del certificado del servidor
-
 procedure ValidarCertificado(const aSender: TObject; const aRequest: TURLRequest;
   const aCertificate: TCertificate; var aAccepted: Boolean);
 begin
-  // En Delphi 10.4 con WinHTTP este procedimiento se llama en DOS situaciones
-  // (System.Net.HttpClient.Win.pas, al enviar la peticion):
-  //
-  //   - con el certificado VALIDO, SecureFailureReasons vacio: WinHTTP ya lo
-  //     acepto y solo ofrece una validacion adicional;
-  //   - con el certificado RECHAZADO por Windows, con el motivo en
-  //     SecureFailureReasons.
-  //
-  // El cliente REST de DMVC asigna su propio validador y responde siempre
-  // MVCRESTClientAcceptInvalidCertificates, que es False: supone que solo lo
-  // llaman en el segundo caso, y en 10.4 rechaza tambien certificados validos.
-  // Por eso el login fallaba aunque Windows confiara en la CA.
-  //
-  // Aqui se acepta solo lo que Windows ya dio por bueno. Cualquier motivo de
-  // rechazo -CA desconocida, nombre, fecha- se mantiene: no se perdona nada que
-  // la plataforma haya rechazado.
   aAccepted := (aSender is THTTPClient) and
     (THTTPClient(aSender).SecureFailureReasons = []);
 end;
-
-// EAnovoApiError
 
 constructor EAnovoApiError.Create(const ACodigo, AMensaje: string;
   const AStatus: Integer);
@@ -98,12 +68,17 @@ begin
   FStatus := AStatus;
 end;
 
-// TApiBase
-
-function TApiBase.NuevoCliente(const AConToken: Boolean): IMVCRESTClient;
+function TApiBase.NuevoCliente(const AConToken: Boolean;
+  const AUrl: string): IMVCRESTClient;
+var
+  lUrl: string;
 begin
+  lUrl := AUrl;
+  if lUrl.IsEmpty then
+    lUrl := TConfig.UrlServidor;
+
   Result := TMVCRESTClient.New
-    .BaseURL(TConfig.UrlServidor)
+    .BaseURL(lUrl)
     .ConnectTimeout(TIEMPO_CONEXION_MS)
     .ReadTimeout(TIEMPO_LECTURA_MS)
     .Accept('application/json')
@@ -111,8 +86,6 @@ begin
 
   if AConToken then
   begin
-    // Se comprueba antes de salir: no tiene sentido ir al servidor para que
-    // conteste 401 cuando ya se sabe que el token vencio.
     if not TSesion.EstaVigente then
       raise EAnovoSesionVencida.Create(SSesionVencida);
     Result.SetBearerAuthorization(TSesion.Token);
@@ -128,18 +101,6 @@ begin
   try
     Result := ALlamada();
   except
-    // El cliente REST del framework atrapa todo error de red y lo relanza
-    // envuelto en EMVCRESTClientHttpException, con el original guardado en
-    // InnerException (MVCFramework.RESTClient.pas, en Execute). Por eso no se
-    // pregunta por ENetException: nunca llega hasta aqui con ese tipo.
-    //
-    // Hay que mirar dentro para no mostrar "sin conexion" cuando si conecto y lo
-    // que fallo fue la confianza en el certificado: con ese mensaje nadie
-    // buscaria donde es.
-    //
-    // Solo se capturan errores de la llamada HTTP. Un fallo de programacion no
-    // se disfraza de "sin conexion", porque entonces nadie lo buscaria donde
-    // esta.
     on E: EMVCRESTClientHttpException do
       if E.InnerException is ENetHTTPCertificateException then
         raise EAnovoSinConexion.Create(SCertificadoInvalido)
@@ -150,8 +111,6 @@ begin
   if Result.Success then
     Exit;
 
-  // En el login, 401 significa clave incorrecta, no sesion vencida: todavia no
-  // hay sesion. Se deja seguir para que llegue con su codigo.
   if (Result.StatusCode = 401) and not AEsLogin then
   begin
     TSesion.Cerrar;
@@ -173,7 +132,6 @@ begin
       lCuerpo.Free;
     end;
   except
-    // Cuerpo vacio o que no es JSON: un proxy, un 502. Queda el generico.
     on EJsonException do
       ;
   end;
@@ -181,8 +139,6 @@ begin
   raise EAnovoApiError.Create(lCodigo, lMensaje, Result.StatusCode);
 end;
 
-// Location llega como /api/clientes/42 o /api/clientes/7/contactos/42: el
-// numero es lo que hay despues de la ultima barra.
 function TApiBase.IdDeLocation(const ARespuesta: IMVCRESTResponse): Integer;
 var
   lRuta: string;

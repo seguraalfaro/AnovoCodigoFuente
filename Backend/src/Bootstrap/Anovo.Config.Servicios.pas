@@ -1,23 +1,12 @@
-// ***************************************************************************
-//
-// Delphi MVC Framework
-//
-// Copyright (c) 2010-2026 Daniele Teti and the DMVCFramework Team
-//
-// https://github.com/danieleteti/delphimvcframework
-//
-// ***************************************************************************
-
 unit Anovo.Config.Servicios;
+
+// Registro de repositorios y servicios en el contenedor.
+// Los que usan la base van por peticion.
 
 interface
 
 uses
   MVCFramework.Container;
-
-// Registro de servicios en el contenedor. Los que tocan la base van como
-// SingletonPerRequest: la conexion la maneja el middleware por peticion.
-// Transient           una instancia por cada resolucion.
 
 procedure RegisterServices(Container: IMVCServiceContainer);
 
@@ -51,18 +40,19 @@ uses
   Anovo.Repositories.Intf.Cotizaciones,
   Anovo.Repositories.Cotizaciones,
   Anovo.Services.Intf.Cotizaciones,
-  Anovo.Services.Cotizaciones;
+  Anovo.Services.Cotizaciones,
+  Anovo.Repositories.Dashboard,
+  Anovo.Services.Dashboard,
+  Anovo.Repositories.Intf.Dashboard,
+  Anovo.Services.Intf.Dashboard,
+  Anovo.Services.Intf.Sesion,
+  Anovo.Services.Sesion;
 
 procedure RegisterServices(Container: IMVCServiceContainer);
 begin
-  // Singleton: solo hashea y compara, no guarda nada ni abre conexiones.
   Container.RegisterType(TClaveService, IClaveService,
     TRegistrationType.Singleton);
 
-  // Clientes. Todos por peticion, no singleton: por dentro usan la conexion
-  // que el middleware de ActiveRecord abre y cierra en cada peticion, asi que
-  // una instancia que sobreviva a la peticion se queda con una conexion que ya
-  // no existe. Un repositorio por tabla; el servicio recibe los tres.
   Container.RegisterType(TClienteRepository, IClienteRepository,
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TClienteContactoRepository, IClienteContactoRepository,
@@ -72,10 +62,6 @@ begin
   Container.RegisterType(TClienteService, IClienteService,
     TRegistrationType.SingletonPerRequest);
 
-  // Auditoria. Solo consulta, pero por peticion igual: los repositorios usan
-  // la conexion que el middleware abre y cierra en cada peticion. El
-  // repositorio de usuarios esta aqui porque la bitacora guarda numeros y
-  // quien muestra nombres es el servicio.
   Container.RegisterType(TUsuarioRepository, IUsuarioRepository,
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TAuditoriaService, IAuditoriaService,
@@ -83,9 +69,6 @@ begin
   Container.RegisterType(TAuditoriaRepository, IAuditoriaRepository,
     TRegistrationType.SingletonPerRequest);
 
-  // Catalogos. Ocho repositorios, uno por tabla, y un solo servicio que los
-  // junta: el item y su precio se tocan en la misma transaccion. Por peticion
-  // como los demas, porque usan la conexion del middleware.
   Container.RegisterType(TMaterialRepository, IMaterialRepository,
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TMaterialPrecioRepository, IMaterialPrecioRepository,
@@ -106,12 +89,14 @@ begin
     IPrecioProgramadoRepository, TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TCatalogoTodosRepository, ICatalogoTodosRepository,
     TRegistrationType.SingletonPerRequest);
+
+  Container.RegisterType(TDashboardRepository, IDashboardRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TDashboardService, IDashboardService,
+    TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TCatalogoService, ICatalogoService,
     TRegistrationType.SingletonPerRequest);
 
-  // Solicitudes. El servicio recibe ademas el repositorio de clientes, que ya
-  // esta registrado arriba: necesita el nombre del cliente para el listado y
-  // comprobar que existe antes de insertar.
   Container.RegisterType(TSolicitudRepository, ISolicitudRepository,
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TSolicitudMedidaRepository,
@@ -121,10 +106,6 @@ begin
   Container.RegisterType(TSolicitudService, ISolicitudService,
     TRegistrationType.SingletonPerRequest);
 
-  // Cotizaciones. El servicio recibe ademas los repositorios de solicitudes,
-  // clientes y los tres de precios: la cabecera se arrastra de la solicitud y
-  // cada linea copia el precio vigente del catalogo. Todos estan registrados
-  // arriba.
   Container.RegisterType(TCotizacionRepository, ICotizacionRepository,
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TCotizacionDetalleRepository,
@@ -132,18 +113,17 @@ begin
   Container.RegisterType(TCotizacionService, ICotizacionService,
     TRegistrationType.SingletonPerRequest);
 
-  // Permisos. El repositorio por peticion, por lo mismo que clientes: usa la
-  // conexion del middleware.
+  Container.RegisterType(TUsuarioClaveRepository, IUsuarioClaveRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TSesionService, ISesionService,
+    TRegistrationType.SingletonPerRequest);
+
   Container.RegisterType(TPermisoRepository, IPermisoRepository,
     TRegistrationType.SingletonPerRequest);
 
-  // Singleton, al reves que los repositorios: no toca la base, guarda texto, y
-  // tiene que sobrevivir a la peticion o no seria cache.
   Container.RegisterType(TPermisoCache, IPermisoCache,
     TRegistrationType.Singleton);
 
-  // Por peticion: lleva dentro el repositorio, que usa la conexion de la
-  // peticion. La cache que recibe es la singleton.
   Container.RegisterType(TPermisoService, IPermisoService,
     TRegistrationType.SingletonPerRequest);
 end;

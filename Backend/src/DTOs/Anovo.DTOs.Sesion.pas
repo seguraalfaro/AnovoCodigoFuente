@@ -1,15 +1,12 @@
 unit Anovo.DTOs.Sesion;
 
-// Lo que GET /api/sesion le devuelve al cliente para armar el menu.
-//
-// El rol es el del token, no el de la base: es con el que el servidor autoriza.
-// Si se leyera de la base y alguien lo hubiera cambiado, el menu mostraria
-// opciones que despues dan 403.
+// DTOs de /api/sesion y /api/version.
 
 interface
 
 uses
-  MVCFramework.Serializer.Commons;
+  MVCFramework.Serializer.Commons,
+  MVCFramework.Nullables;
 
 type
   [MVCNameCase(ncSnakeCase)]
@@ -20,6 +17,44 @@ type
   public
     property Rol: string read fRol write fRol;
     property Permisos: TArray<string> read fPermisos write fPermisos;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TCuentaDTO = class
+  private
+    fNombre: string;
+    fCorreo: string;
+    fRol: string;
+    fClaveCambiada: NullableTDateTime;
+  public
+    property Nombre: string read fNombre write fNombre;
+    property Correo: string read fCorreo write fCorreo;
+    property Rol: string read fRol write fRol;
+    property ClaveCambiada: NullableTDateTime read fClaveCambiada
+      write fClaveCambiada;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TCambioClaveDTO = class
+  private
+    fClaveActual: string;
+    fClaveNueva: string;
+  public
+    property ClaveActual: string read fClaveActual write fClaveActual;
+    property ClaveNueva: string read fClaveNueva write fClaveNueva;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TVersionDTO = class
+  private
+    fServidor: string;
+    fMovil: string;
+    fAvisoPrivacidad: string;
+  public
+    property Servidor: string read fServidor write fServidor;
+    property Movil: string read fMovil write fMovil;
+    property AvisoPrivacidad: string read fAvisoPrivacidad
+      write fAvisoPrivacidad;
   end;
 
 implementation

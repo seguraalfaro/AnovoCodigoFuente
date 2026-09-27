@@ -1,17 +1,6 @@
 unit Anovo.Forms.ClienteNuevo;
-
 
-
-
-
-
-// Ventana de cliente nuevo. Modal, sin borde y con el tema de la aplicacion,
-// como la de agregar item.
-//
-// No decide nada: arma el DTO con lo que se escribio y se lo pasa al
-// presentador. Lo que el servidor no acepta desde afuera -el consentimiento-
-// arranca en pendiente, que es lo que corresponde a un cliente que todavia no
-// ha firmado.
+// Ventana de registro de un cliente nuevo.
 
 interface
 
@@ -79,15 +68,12 @@ uses
   Anovo.Api.Clientes;
 
 const
-  // Un cliente nuevo no ha firmado nada todavia.
   CONSENTIMIENTO_PENDIENTE = 'pendiente';
 
 procedure TfrmClienteNuevo.FormCreate(Sender: TObject);
 begin
   AplicarTema(Self);
   AplicarTemaBarraTitulo(Self, TitleBarPanel1);
-  // La fila en blanco con el uuid y lo que la ventana no pregunta: los
-  // controles enlazados escriben sobre ella.
   dmMemoria.PrepararClienteNuevo;
   FPresentador := TPresentadorClienteNuevo.Create(Self, TApiClientes.Create);
   chkExoneradoClick(nil);
@@ -207,4 +193,3 @@ begin
 end;
 
 end.
-

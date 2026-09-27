@@ -1,12 +1,7 @@
 unit Anovo.Config;
 
-{ Datos de conexion, leidos de un .ini junto al ejecutable. Nada cableado: la
-  URL de desarrollo no es la del servidor de Anovo.
-
-  El archivo se llama igual que el ejecutable:
-
-    [Servidor]
-    Url=https://localhost:443 }
+// Configuracion local del escritorio: la URL del servidor en el .ini
+// junto al ejecutable y la version del programa.
 
 interface
 
@@ -14,36 +9,78 @@ type
   TConfig = class
   private
     class var FUrl: string;
+    class function RutaIni: string;
   public
     class function UrlServidor: string;
+
+    class function UrlGuardada: string;
+
+    class procedure GuardarUrl(const AUrl: string);
+    class function VersionEscritorio: string;
   end;
 
 implementation
 
 uses
   System.SysUtils,
-  System.IniFiles;
+  System.IniFiles,
+  Anovo.Textos;
 
 const
   URL_POR_DEFECTO = 'https://localhost:443';
 
-class function TConfig.UrlServidor: string;
+class function TConfig.RutaIni: string;
+begin
+  Result := ChangeFileExt(ParamStr(0), '.ini');
+end;
+
+class function TConfig.UrlGuardada: string;
 var
   lIni: TIniFile;
 begin
+  lIni := TIniFile.Create(RutaIni);
+  try
+    Result := lIni.ReadString('Servidor', 'Url', URL_POR_DEFECTO).Trim;
+  finally
+    lIni.Free;
+  end;
+end;
+
+class function TConfig.UrlServidor: string;
+begin
   if FUrl.IsEmpty then
   begin
-    lIni := TIniFile.Create(ChangeFileExt(ParamStr(0), '.ini'));
-    try
-      FUrl := lIni.ReadString('Servidor', 'Url', URL_POR_DEFECTO).Trim;
-    finally
-      lIni.Free;
-    end;
-    { Por http:// el token y la clave viajarian en claro. }
+    FUrl := UrlGuardada;
+
     if not FUrl.StartsWith('https://', True) then
-      raise Exception.Create('La URL del servidor debe empezar por https://');
+      raise Exception.Create(SUrlSinHttps);
   end;
   Result := FUrl;
+end;
+
+class procedure TConfig.GuardarUrl(const AUrl: string);
+var
+  lIni: TIniFile;
+begin
+  if not AUrl.StartsWith('https://', True) then
+    raise Exception.Create(SUrlSinHttps);
+  lIni := TIniFile.Create(RutaIni);
+  try
+    lIni.WriteString('Servidor', 'Url', AUrl);
+  finally
+    lIni.Free;
+  end;
+  FUrl := AUrl;
+end;
+
+class function TConfig.VersionEscritorio: string;
+var
+  lMayor, lMenor, lCompilacion: Cardinal;
+begin
+  if GetProductVersion(ParamStr(0), lMayor, lMenor, lCompilacion) then
+    Result := Format('%d.%d.%d', [lMayor, lMenor, lCompilacion])
+  else
+    Result := SSinDato;
 end;
 
 end.

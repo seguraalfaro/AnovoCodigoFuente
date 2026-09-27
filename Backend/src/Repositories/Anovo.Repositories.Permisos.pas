@@ -1,8 +1,6 @@
 unit Anovo.Repositories.Permisos;
 
-// Repositorio de permisos.
-//
-// El SQL esta en Anovo.SQL.Permisos.
+// Repositorio de permisos: la matriz rol-permiso.
 
 interface
 
@@ -31,7 +29,6 @@ var
   lLista: TList<TRolPermiso>;
   lPar: TRolPermiso;
 begin
-  // El dataset es nuestro: SelectDataSet no lo libera.
   lDatos := TMVCActiveRecord.SelectDataSet(PERMISOS_MATRIZ, []);
   try
     lLista := TList<TRolPermiso>.Create;

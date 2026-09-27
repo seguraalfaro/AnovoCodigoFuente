@@ -1,11 +1,6 @@
 unit Anovo.Repositories.Auditoria;
 
-// Repositorio de la bitacora de auditoria. Solo lee.
-//
-// Desciende de TAnovoRepository<TAuditoria> porque de ahi sale la conexion y
-// el armado del SELECT, pero el contrato que publica -IAuditoriaRepository- no
-// tiene Insert ni Update: sobre AUDITORIA el backend tiene GRANT SELECT y nada
-// mas, y quien escribe es el disparador.
+// Repositorio de la bitacora de auditoria. Solo lectura.
 
 interface
 
@@ -25,7 +20,6 @@ type
     function ParametrosSegun(const ADesde, AHasta: TDateTime;
       const AUsuarioId: Integer; const AEntidad, AAccion, ATexto: string)
       : TArray<Variant>;
-    // El fin del dia cuando solo viene la fecha, ver el comentario de Buscar.
     function HastaElFinal(const AHasta: TDateTime): TDateTime;
   public
     function Buscar(const ADesde, AHasta: TDateTime;
@@ -46,8 +40,6 @@ uses
   System.DateUtils,
   Anovo.SQL.Auditoria;
 
-{ TAuditoriaRepository }
-
 function TAuditoriaRepository.Buscar(const ADesde, AHasta: TDateTime;
   const APagina, APorPagina: Integer; const AUsuarioId: Integer;
   const AEntidad, AAccion, ATexto: string): TObjectList<TAuditoria>;
@@ -65,7 +57,6 @@ end;
 function TAuditoriaRepository.ContarBusqueda(const ADesde, AHasta: TDateTime;
   const AUsuarioId: Integer; const AEntidad, AAccion, ATexto: string): Int64;
 begin
-  // Count del repositorio solo acepta RQL: el total va por la conexion.
   Result := GetConnection.ExecSQLScalar(AUDITORIA_CONTAR +
     FiltroSegun(AUsuarioId, AEntidad, AAccion, ATexto),
     ParametrosSegun(ADesde, AHasta, AUsuarioId, AEntidad, AAccion, ATexto));
@@ -91,10 +82,6 @@ begin
     Result := Result + AUDITORIA_POR_TEXTO;
 end;
 
-// FECHA es un TIMESTAMP. Si quien llama manda el 20 de setiembre a secas, eso
-// son las cero horas y el BETWEEN deja fuera todo lo del propio dia. Cuando
-// AHasta no trae hora se asume el final de ese dia, que es lo que la persona
-// quiso decir al escoger la fecha en la pantalla.
 function TAuditoriaRepository.HastaElFinal(const AHasta: TDateTime): TDateTime;
 begin
   if Frac(AHasta) = 0 then
@@ -107,7 +94,6 @@ function TAuditoriaRepository.ParametrosSegun(const ADesde, AHasta: TDateTime;
   const AUsuarioId: Integer; const AEntidad, AAccion, ATexto: string)
   : TArray<Variant>;
 begin
-  // En el mismo orden en que FiltroSegun pone los ?.
   Result := [Variant(ADesde), Variant(HastaElFinal(AHasta))];
   if AUsuarioId > 0 then
     Result := Result + [Variant(AUsuarioId)];

@@ -1,24 +1,7 @@
 unit Anovo.Entities.Vistas.Catalogos;
 
-// Las tres proyecciones de catalogo con su precio vigente, para recibir el
-// resultado de MATERIALES_CON_PRECIO y sus dos hermanas.
-//
-// No son tablas ni se generan con MVCEntGen: se escriben a mano y hay que
-// mantenerlas a la par de esas consultas, porque el enganche es el nombre de
-// la columna y nada mas. Si a una consulta se le agrega una columna y aqui no
-// esta el campo, el dato se pierde sin error.
-//
-// Sin MVCTable y con eaRetrieve: no se guardan nunca. Escribir en el catalogo
-// es cosa de TMateriales y compania. Por lo mismo no llevan validadores, que
-// solo corren al guardar.
-//
-// PROGRAMADO_FECHA no es del precio: es la fecha del proximo cambio que espera
-// en PRECIOS_PROGRAMADOS, nula si no hay ninguno. Viaja con el listado para que
-// la rejilla y la ventana de edicion puedan avisarlo sin pedirlo aparte.
-//
-// El precio viene de un LEFT JOIN, asi que es nulo mientras el item no tenga
-// precio cargado. De ahi que sea NullableCurrency y no Currency: un cero se
-// confundiria con un precio de cero.
+// Filas de solo lectura de los catalogos con su precio
+// vigente. Escritas a mano, no por MVCEntGen.
 
 interface
 
@@ -80,8 +63,6 @@ type
     fCodigo: String;
     [MVCTableField('CATEGORIA_ID')]
     fCategoriaId: Int32;
-    // Viene del join con MANO_OBRA_CATEGORIA: la lista muestra el nombre, no
-    // el numero.
     [MVCTableField('CATEGORIA_NOMBRE')]
     fCategoriaNombre: String;
     [MVCTableField('NOMBRE')]
@@ -92,7 +73,6 @@ type
     fUnidadMedida: String;
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
-    // Sin precio de venta: la mano de obra solo lleva costo.
     [MVCTableField('COSTO_UNITARIO')]
     fCostoUnitario: NullableCurrency;
     [MVCTableField('FECHA_VIGENCIA')]
@@ -131,7 +111,6 @@ type
     fDescripcion: NullableString;
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
-    // La maquina se cobra por hora, no por unidad.
     [MVCTableField('COSTO_HORA')]
     fCostoHora: NullableCurrency;
     [MVCTableField('FECHA_VIGENCIA')]
@@ -151,9 +130,6 @@ type
       write fProgramadoFecha;
   end;
 
-  // Una fila de CATALOGOS_TODOS: la union de los tres catalogos con precio.
-  // Tiene las columnas de los tres; lo que no aplica al tipo de la fila llega
-  // nulo.
   [MVCNameCase(ncSnakeCase)]
   [MVCEntityActions([eaRetrieve])]
   TCatalogoItemConPrecio = class(TMVCActiveRecord)

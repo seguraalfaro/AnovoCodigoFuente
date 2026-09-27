@@ -238,6 +238,17 @@
         <DCCReference Include="src\Services\Anovo.Services.Cotizaciones.pas"/>
         <DCCReference Include="src\Bootstrap\Anovo.Servidor.pas"/>
         <DCCReference Include="src\Services\Anovo.Services.Vigencias.pas"/>
+        <DCCReference Include="src\SQL\Anovo.SQL.Dashboard.pas"/>
+        <DCCReference Include="src\Entities\Anovo.Entities.Vistas.Dashboard.pas"/>
+        <DCCReference Include="src\DTOs\Anovo.DTOs.Dashboard.pas"/>
+        <DCCReference Include="src\Interfaces\Anovo.Repositories.Intf.Dashboard.pas"/>
+        <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Dashboard.pas"/>
+        <DCCReference Include="src\Repositories\Anovo.Repositories.Dashboard.pas"/>
+        <DCCReference Include="src\Services\Anovo.Services.Dashboard.pas"/>
+        <DCCReference Include="src\Controllers\Anovo.Controllers.Dashboard.pas"/>
+        <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Sesion.pas"/>
+        <DCCReference Include="src\Services\Anovo.Services.Sesion.pas"/>
+        <DCCReference Include="src\Controllers\Anovo.Controllers.Version.pas"/>
         <DCCReference Include="src\Middleware\Anovo.Middleware.Actividad.pas"/>
         <DCCReference Include="src\UI\Anovo.Forms.Servidor.pas">
             <Form>frmServidor</Form>

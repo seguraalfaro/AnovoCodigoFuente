@@ -1,14 +1,7 @@
 unit Anovo.Controllers.Cotizaciones;
 
-// Cotizaciones bajo /api/cotizaciones.
-//
-// Elaborar y aprobar son permisos distintos a proposito: quien arma la
-// cotizacion no es quien la aprueba. Es la separacion que pide la HU-07 y la
-// que hace que la aprobacion signifique algo.
-//
-// El alcance del listado se resuelve como en solicitudes: el atributo deja
-// pasar a quien tenga cualquiera de los dos permisos, y aqui se pregunta cual
-// para acotar o no por usuario.
+// Cotizaciones bajo /api/cotizaciones: elaborar, enviar a
+// aprobacion, aprobar, rechazar y enviar al cliente.
 
 interface
 
@@ -32,7 +25,6 @@ const
   POR_PAGINA_POR_DEFECTO = 50;
   POR_PAGINA_MAXIMO = 200;
 
-  // Los dias sin respuesta del recordatorio de la HU-07.
   DIAS_SIN_RESPUESTA = 7;
 
 type
@@ -121,8 +113,6 @@ type
       const AId: Integer;
       const [MVCFromBody] ADto: TCotizacionEdicionDTO): IMVCResponse;
 
-    // DETALLE
-
     [MVCPath('/($AId)/detalle')]
     [MVCHTTPMethods([httpGET])]
     [MVCSwagSummary('Cotizaciones', 'Las lineas de la cotizacion',
@@ -161,8 +151,6 @@ type
     function EliminarLinea([MVCInject] AServicio: ICotizacionService;
       const AId: Integer; const ALineaId: Integer): IMVCResponse;
 
-    // OPERACIONES
-
     [MVCPath('/($AId)/ajuste')]
     [MVCHTTPMethods([httpPOST])]
     [MVCRequiresPermiso(PERMISO_ELABORAR)]
@@ -174,13 +162,23 @@ type
       const AId: Integer;
       const [MVCFromBody] ADto: TAjusteDTO): IMVCResponse;
 
+    [MVCPath('/($AId)/presentacion')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_ELABORAR)]
+    [MVCSwagSummary('Cotizaciones', 'Presenta la cotizacion a revision. ' +
+      'Desde aqui ya no se modifica', 'presentarCotizacion')]
+    [MVCSwagResponses(204, 'Pendiente de aprobacion')]
+    [MVCSwagResponses(409, 'No tiene lineas, o no esta en borrador')]
+    function Presentar([MVCInject] AServicio: ICotizacionService;
+      const AId: Integer): IMVCResponse;
+
     [MVCPath('/($AId)/envio')]
     [MVCHTTPMethods([httpPOST])]
     [MVCRequiresPermiso(PERMISO_ELABORAR)]
-    [MVCSwagSummary('Cotizaciones', 'Envia la cotizacion a revision. Desde ' +
-      'aqui ya no se modifica', 'enviarCotizacion')]
-    [MVCSwagResponses(204, 'Enviada')]
-    [MVCSwagResponses(409, 'No tiene lineas, o ya fue enviada')]
+    [MVCSwagSummary('Cotizaciones', 'Registra que la cotizacion aprobada se ' +
+      'envio al cliente', 'enviarCotizacion')]
+    [MVCSwagResponses(204, 'Enviada al cliente')]
+    [MVCSwagResponses(409, 'No esta aprobada')]
     function Enviar([MVCInject] AServicio: ICotizacionService;
       const AId: Integer): IMVCResponse;
 
@@ -224,8 +222,6 @@ uses
   System.SysUtils,
   System.Generics.Collections;
 
-// Apoyo
-
 function TCotizacionesController.UsuarioId: Integer;
 var
   lTexto: string;
@@ -248,7 +244,6 @@ begin
   Result := True;
 end;
 
-// Vacio o mal escrito es cero, que el repositorio entiende como sin filtro.
 function ComoFecha(const ATexto: string): TDateTime;
 var
   lFormato: TFormatSettings;
@@ -261,8 +256,6 @@ begin
   if not TryStrToDate(ATexto, Result, lFormato) then
     Result := 0;
 end;
-
-// Cotizaciones
 
 function TCotizacionesController.Listar(AServicio: ICotizacionService;
   APermisos: IPermisoService; const ABusqueda, AEstado: string;
@@ -277,7 +270,6 @@ begin
   lPagina := Max(APagina, 1);
   lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
 
-  // El hasta incluye el dia entero.
   lHasta := ComoFecha(AHasta);
   if lHasta > 0 then
     lHasta := lHasta + 1 - (1 / SecsPerDay);
@@ -321,8 +313,6 @@ begin
   Result := NoContentResponse;
 end;
 
-// Detalle
-
 function TCotizacionesController.Detalle(AServicio: ICotizacionService;
   const AId: Integer): IMVCResponse;
 begin
@@ -350,12 +340,17 @@ begin
   Result := NoContentResponse;
 end;
 
-// Operaciones
-
 function TCotizacionesController.AplicarAjuste(AServicio: ICotizacionService;
   const AId: Integer; const ADto: TAjusteDTO): IMVCResponse;
 begin
   AServicio.AplicarAjuste(AId, ADto);
+  Result := NoContentResponse;
+end;
+
+function TCotizacionesController.Presentar(AServicio: ICotizacionService;
+  const AId: Integer): IMVCResponse;
+begin
+  AServicio.Presentar(AId);
   Result := NoContentResponse;
 end;
 

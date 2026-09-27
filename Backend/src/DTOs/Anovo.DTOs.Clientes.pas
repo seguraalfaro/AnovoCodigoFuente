@@ -1,24 +1,7 @@
 ﻿unit Anovo.DTOs.Clientes;
-
-// El contrato de clientes: lo que viaja entre la API y sus clientes.
-//
-// Compartida con el escritorio, que la compila desde esta misma ruta. Renombrar
-// o quitar una propiedad rompe los dos proyectos a la vez, y es a proposito: un
-// cambio de contrato que compila en un lado y no en el otro se ve en el acto,
-// no en produccion con un campo que llega vacio.
-//
-// Los DTO de entrada espejan sus tablas: llevan todas las columnas que la app
-// decide, y los nombres son los de las entidades para que TMapeo copie por
-// nombre. Quedan fuera las que genera la base -ID, fechas y objversion- y las
-// dos que no pueden viajar tal cual: el numero del cliente en un registro que
-// lo esta creando, y la imagen de la firma, que va en base64.
-//
-// Sin validadores. Lo obligatorio y el largo de cada campo estan en las
-// entidades, que salen de MVCEntGen con [MVCRequired] y [MVCMaxLength], y los
-// aplica ActiveRecord al guardar. Aqui solo van los atributos de
-// serializacion.
-//
-// Solo unidades de DMVC que el escritorio tambien tiene. Nada del servidor aqui.
+
+// DTOs de clientes, contactos y consentimiento.
+// Compartidos con el escritorio.
 
 interface
 
@@ -28,8 +11,6 @@ uses
   MVCFramework.Nullables;
 
 type
-
-  // SALIDA
 
   [MVCNameCase(ncSnakeCase)]
   TClienteDTO = class
@@ -90,9 +71,6 @@ type
     property ObjVersion: Integer read fObjVersion write fObjVersion;
   end;
 
-  // Un contacto del cliente, tal como lo muestra la ficha. ObjVersion viaja
-  // para la edicion: sin ella no hay forma de detectar que otro lo cambio en
-  // el medio.
   [MVCNameCase(ncSnakeCase)]
   TContactoDTO = class
   private
@@ -137,10 +115,6 @@ type
     property ObjVersion: Integer read fObjVersion write fObjVersion;
   end;
 
-  // Una fila del historial de consentimiento. Sin la imagen de la firma: es
-  // un BLOB, el listado no la muestra y la consulta ni siquiera la trae. Si
-  // hace falta verla, se pide aparte. Sin ObjVersion: el historial no se
-  // edita, cada cambio es una fila nueva.
   [MVCNameCase(ncSnakeCase)]
   TConsentimientoDTO = class
   private
@@ -170,11 +144,6 @@ type
     property Origen: NullableString read fOrigen write fOrigen;
   end;
 
-  // ENTRADA
-
-  // Espeja CLIENTES. El estado del consentimiento, activo y anonimizado los
-  // manda la app: el control esta en el movil y en el escritorio, que son
-  // parte del mismo sistema.
   [MVCNameCase(ncSnakeCase)]
   TClienteNuevoDTO = class
   private
@@ -213,7 +182,6 @@ type
     property CodigoExoneracion: NullableString read fCodigoExoneracion
       write fCodigoExoneracion;
 
-    // pendiente, firmado o revocado: lo comprueba el CHECK de la tabla.
     property ConsentimientoEstado: string read fConsentimientoEstado
       write fConsentimientoEstado;
     property ConsentimientoFecha: NullableTDateTime read fConsentimientoFecha
@@ -224,8 +192,6 @@ type
     property Anonimizado: Boolean read fAnonimizado write fAnonimizado;
   end;
 
-  // Nullable a proposito: 0 es una version legitima -la de un registro recien
-  // creado-, asi que el cero no sirve como senal de "no vino".
   [MVCNameCase(ncSnakeCase)]
   TClienteEdicionDTO = class(TClienteNuevoDTO)
   private
@@ -235,9 +201,6 @@ type
     property ObjVersion: NullableInt32 read fObjVersion write fObjVersion;
   end;
 
-  // Espeja CLIENTE_CONTACTOS. uuid_local es obligatorio en el registro con
-  // los datos completos: es como la firma dice quien firmo, porque el
-  // telefono no conoce ids del servidor. Desde el escritorio no hace falta.
   [MVCNameCase(ncSnakeCase)]
   TContactoNuevoDTO = class
   private
@@ -255,9 +218,6 @@ type
   public
     property UuidLocal: NullableString read fUuidLocal write fUuidLocal;
 
-    // Lo manda la app cuando ya conoce el cliente. En el registro con los
-    // datos completos llega en cero: el cliente se esta creando en esa misma
-    // peticion y su numero lo da la base, asi que ahi lo pone el servidor.
     property ClienteId: Integer read fClienteId write fClienteId;
 
     property Nombre: string read fNombre write fNombre;
@@ -273,8 +233,6 @@ type
     property Activo: Boolean read fActivo write fActivo;
   end;
 
-  // Edicion de un contacto. Mismo criterio que la del cliente: objversion
-  // obligatoria para detectar que otro lo cambio en el medio.
   [MVCNameCase(ncSnakeCase)]
   TContactoEdicionDTO = class(TContactoNuevoDTO)
   private
@@ -284,9 +242,6 @@ type
     property ObjVersion: NullableInt32 read fObjVersion write fObjVersion;
   end;
 
-  // Espeja CLIENTE_CONSENTIMIENTO_HISTORIAL. Dos campos no coinciden con la
-  // tabla y no pueden: la imagen viaja en base64, y quien firmo viaja por
-  // uuid porque el telefono no conoce los ids del servidor.
   [MVCNameCase(ncSnakeCase)]
   TFirmaNuevaDTO = class
   private
@@ -303,14 +258,11 @@ type
     property ClienteContactoUuid: NullableString read fClienteContactoUuid
       write fClienteContactoUuid;
 
-    // otorgado o revocado: lo comprueba el CHECK de la tabla.
     property Accion: string read fAccion write fAccion;
     property VersionTexto: string read fVersionTexto write fVersionTexto;
 
-    // Hora en que se firmo en el telefono, que puede ser dias antes de subir.
     property Fecha: NullableTDateTime read fFecha write fFecha;
 
-    // La cedula queda para que la empresa sepa que empleado firmo.
     property FirmanteNombre: string read fFirmanteNombre write fFirmanteNombre;
     property FirmanteIdentificacion: string read fFirmanteIdentificacion
       write fFirmanteIdentificacion;
@@ -320,10 +272,6 @@ type
     property Origen: NullableString read fOrigen write fOrigen;
   end;
 
-    // La revocacion del consentimiento. ObjVersion es la del cliente, que
-  // cambia de estado en la misma transaccion en que se agrega la fila al
-  // historial. La fecha la pone el servidor: la revocacion ocurre cuando se
-  // registra, no antes.
   [MVCNameCase(ncSnakeCase)]
   TRevocacionDTO = class
   private
@@ -333,19 +281,16 @@ type
     fOrigen: NullableString;
     fObjVersion: NullableInt32;
   public
-    // Quien pidio la revocacion, si es uno de los contactos del cliente.
     property ClienteContactoId: NullableInt32 read fClienteContactoId
       write fClienteContactoId;
     property FirmanteNombre: string read fFirmanteNombre write fFirmanteNombre;
     property FirmanteIdentificacion: string read fFirmanteIdentificacion
       write fFirmanteIdentificacion;
-    // De donde viene: escritorio o movil. Lo dice quien llama.
     property Origen: NullableString read fOrigen write fOrigen;
     [MVCNameAs('objversion')]
     property ObjVersion: NullableInt32 read fObjVersion write fObjVersion;
   end;
 
-  // Los datos del cliente completo entran todos o no entra nada.
   [MVCNameCase(ncSnakeCase)]
   TClienteRegistroCompletoDTO = class
   private
@@ -362,14 +307,6 @@ type
     property Firma: TFirmaNuevaDTO read fFirma write fFirma;
   end;
 
-  // SOBRE DE COLECCION
-
-  // { "data": [...], "total", "pagina", "por_pagina" }.
-  //
-  // Es una clase y no un ObjectDict porque ObjectDict solo admite objetos y
-  // datasets, y aqui hacen falta tres escalares. Siempre sobre, nunca un arreglo
-  // desnudo en la raiz: el arreglo no deja sitio para el total sin romper el
-  // contrato, y sin total el cliente no sabe si hay mas paginas.
   [MVCNameCase(ncSnakeCase)]
   TClientesPaginaDTO = class
   private
@@ -389,8 +326,6 @@ type
 
 implementation
 
-// TClientesPaginaDTO
-
 constructor TClientesPaginaDTO.Create(const AData: TObjectList<TClienteDTO>;
   const ATotal: Int64; const APagina, APorPagina: Integer);
 begin
@@ -406,8 +341,6 @@ begin
   fData.Free;
   inherited;
 end;
-
-// TClienteRegistroCompletoDTO
 
 constructor TClienteRegistroCompletoDTO.Create;
 begin
@@ -426,4 +359,3 @@ begin
 end;
 
 end.
-

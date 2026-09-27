@@ -1,14 +1,7 @@
 unit Anovo.Repositories.Base;
 
-// Base de los repositorios del proyecto: TMVCRepository<T> mas lo que le
-// falta.
-//
-// Hoy le falta una cosa: los Select del repositorio de DMVC no reciben
-// TMVCActiveRecordLoadOptions, asi que una consulta que nombra sus columnas
-// para dejar alguna fuera (un BLOB en un listado) falla al cargar, porque la
-// entidad espera todas. Aqui se agrega sin tocar el fuente del framework.
-//
-// Es protected: la usa cada repositorio por dentro, el servicio no la ve.
+// Base de los repositorios: TMVCRepository<T> mas un Select
+// con opciones de carga.
 
 interface
 

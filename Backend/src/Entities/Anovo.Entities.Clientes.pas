@@ -1,34 +1,7 @@
-﻿// ***************************************************************************
-//
-// Delphi MVC Framework
-//
-// Copyright (c) 2010-2026 Daniele Teti and the DMVCFramework Team
-//
-// https://github.com/danieleteti/delphimvcframework
-//
-// ***************************************************************************
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// ***************************************************************************
+﻿unit Anovo.Entities.Clientes;
 
-unit Anovo.Entities.Clientes;
-
-// CLIENTES, SUS CONTACTOS Y EL HISTORIAL DE CONSENTIMIENTO
-//
-// Generada por MVCEntGen y separada por recurso desde
-// db-firebird\generado\Anovo.Entities.Generadas.pas. Al regenerar, volver a
-// partir de ahi: lo que se escriba a mano aqui se pierde.
+// Entidades de clientes, contactos y consentimiento.
+// Generada por MVCEntGen; al regenerar, partir de Db/generado.
 
 interface
 
@@ -74,8 +47,6 @@ type
     [MVCTableField('DIRECCION')]
     [MVCMaxLength(500, 'la direccion no puede pasar de 500 caracteres')]
     fDireccion: NullableString;
-    // Ultimo filtro. En el DTO estos validadores no hacen nada sobre un Nullable;
-    // aqui si, porque ActiveRecord desenvuelve el valor antes de validar.
     [MVCTableField('LATITUD')]
     [MVCLatitude('la latitud esta fuera de rango')]
     fLatitud: NullableDouble;
@@ -95,25 +66,18 @@ type
     [MVCMaxLength(20, 'el estado del consentimiento no puede pasar de 20 caracteres')]
     fConsentimientoEstado: String;
     [MVCTableField('CONSENTIMIENTO_FECHA')]
-    fConsentimientoFecha: NullableTDateTime { dtDateTimeStamp };
+    fConsentimientoFecha: NullableTDateTime ;
     [MVCTableField('CONSENTIMIENTO_VERSION')]
     [MVCMaxLength(10, 'la version del consentimiento no puede pasar de 10 caracteres')]
     fConsentimientoVersion: NullableString;
     [MVCTableField('ANONIMIZADO')]
     [MVCRequired('el indicador de anonimizacion es obligatorio')]
     fAnonimizado: Boolean;
-    // RETOQUE A MANO, reponer al regenerar. foDoNotInsert es lo que deja que
-    // actue el DEFAULT CURRENT_TIMESTAMP de la tabla: sin el, la ORM manda la
-    // columna con NULL en vez de omitirla, el DEFAULT no llega a aplicarse y el
-    // INSERT muere contra el NOT NULL. foRefresh trae de vuelta el valor que
-    // puso la base, para que el DTO salga con la fecha de verdad y no vacia.
     [MVCTableField('FECHA_CREACION', [foDoNotInsert, foDoNotUpdate, foRefresh])]
-    fFechaCreacion: NullableTDateTime { dtDateTimeStamp };
-    // Igual que la de creacion, y ademas foDoNotUpdate porque la pone
-    // TR_CLIENTES_BU en cada UPDATE, no la aplicacion.
+    fFechaCreacion: NullableTDateTime ;
     [MVCTableField('FECHA_MODIFICACION', [foDoNotInsert, foDoNotUpdate,
       foRefresh])]
-    fFechaModificacion: NullableTDateTime { dtDateTimeStamp };
+    fFechaModificacion: NullableTDateTime ;
     [MVCTableField('OBJVERSION', [foVersion])]
     fObjversion: Integer;
   protected
@@ -129,7 +93,7 @@ type
     property TipoIdentificacion: NullableInt16 read fTipoIdentificacion
       write fTipoIdentificacion;
     property Contacto: NullableString read fContacto write fContacto;
-  
+
     property Telefono: NullableString read fTelefono write fTelefono;
 
     property Correo: NullableString read fCorreo write fCorreo;
@@ -142,14 +106,14 @@ type
       write fCodigoExoneracion;
     property ConsentimientoEstado: String read fConsentimientoEstado
       write fConsentimientoEstado;
-    property ConsentimientoFecha: NullableTDateTime { dtDateTimeStamp }
+    property ConsentimientoFecha: NullableTDateTime
       read fConsentimientoFecha write fConsentimientoFecha;
     property ConsentimientoVersion: NullableString read fConsentimientoVersion
       write fConsentimientoVersion;
     property Anonimizado: Boolean read fAnonimizado write fAnonimizado;
-    property FechaCreacion: NullableTDateTime { dtDateTimeStamp }
+    property FechaCreacion: NullableTDateTime
       read fFechaCreacion write fFechaCreacion;
-    property FechaModificacion: NullableTDateTime { dtDateTimeStamp }
+    property FechaModificacion: NullableTDateTime
       read fFechaModificacion write fFechaModificacion;
     property ObjVersion: Integer read fObjversion write fObjversion;
   end;
@@ -190,7 +154,7 @@ type
     [MVCMaxLength(20, 'el estado del consentimiento no puede pasar de 20 caracteres')]
     fConsentimientoEstado: String;
     [MVCTableField('CONSENTIMIENTO_FECHA')]
-    fConsentimientoFecha: NullableTDateTime { dtDateTimeStamp };
+    fConsentimientoFecha: NullableTDateTime ;
     [MVCTableField('CONSENTIMIENTO_VERSION')]
     [MVCMaxLength(10, 'la version del consentimiento no puede pasar de 10 caracteres')]
     fConsentimientoVersion: NullableString;
@@ -199,13 +163,8 @@ type
     fAnonimizado: Boolean;
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
-    // RETOQUE A MANO, reponer al regenerar. foDoNotInsert es lo que deja que
-    // actue el DEFAULT CURRENT_TIMESTAMP de la tabla: sin el, la ORM manda la
-    // columna con NULL en vez de omitirla, el DEFAULT no llega a aplicarse y el
-    // INSERT muere contra el NOT NULL. foRefresh trae de vuelta el valor que
-    // puso la base, para que el DTO salga con la fecha de verdad y no vacia.
     [MVCTableField('FECHA_CREACION', [foDoNotInsert, foDoNotUpdate, foRefresh])]
-    fFechaCreacion: NullableTDateTime { dtDateTimeStamp };
+    fFechaCreacion: NullableTDateTime ;
     [MVCTableField('OBJVERSION')]
     fObjversion: NullableInt32;
   public
@@ -221,13 +180,13 @@ type
     property Principal: Boolean read fPrincipal write fPrincipal;
     property ConsentimientoEstado: String read fConsentimientoEstado
       write fConsentimientoEstado;
-    property ConsentimientoFecha: NullableTDateTime { dtDateTimeStamp }
+    property ConsentimientoFecha: NullableTDateTime
       read fConsentimientoFecha write fConsentimientoFecha;
     property ConsentimientoVersion: NullableString read fConsentimientoVersion
       write fConsentimientoVersion;
     property Anonimizado: Boolean read fAnonimizado write fAnonimizado;
     property Activo: NullableBoolean read fActivo write fActivo;
-    property FechaCreacion: NullableTDateTime { dtDateTimeStamp }
+    property FechaCreacion: NullableTDateTime
       read fFechaCreacion write fFechaCreacion;
     property ObjVersion: NullableInt32 read fObjversion write fObjversion;
   end;
@@ -252,7 +211,7 @@ type
     [MVCMaxLength(10, 'la version del texto no puede pasar de 10 caracteres')]
     fVersionTexto: String;
     [MVCTableField('FECHA')]
-    fFecha: NullableTDateTime { dtDateTimeStamp };
+    fFecha: NullableTDateTime ;
     [MVCTableField('FIRMANTE_NOMBRE')]
     [MVCMaxLength(120, 'el nombre del firmante no puede pasar de 120 caracteres')]
     fFirmanteNombre: NullableString;
@@ -277,7 +236,7 @@ type
       write fClienteContactoId;
     property Accion: String read fAccion write fAccion;
     property VersionTexto: String read fVersionTexto write fVersionTexto;
-    property Fecha: NullableTDateTime { dtDateTimeStamp } read fFecha
+    property Fecha: NullableTDateTime  read fFecha
       write fFecha;
     property FirmanteNombre: NullableString read fFirmanteNombre
       write fFirmanteNombre;
@@ -301,8 +260,6 @@ begin
   fFirmaImagen.Free;
   inherited;
 end;
-
-{ TClientes }
 
 procedure TClientes.OnStorageValidate(const AErrors: PMVCValidationErrors;
   const EntityAction: TMVCEntityAction);

@@ -1,14 +1,7 @@
 unit Anovo.Middleware.ContextoAuditoria;
 
-// Pasa el usuario del token al contexto de sesion de Firebird, que es de donde
-// los disparadores de auditoria sacan quien escribio.
-//
-// Va despues del JWT en la lista de middleware y no antes: hasta que el JWT no
-// valida el token, Context.LoggedUser esta vacio. Y despues del de
-// ActiveRecord, porque necesita la conexion abierta.
-//
-// Trabaja en OnBeforeControllerAction, que es donde el JWT ya dejo puesto al
-// usuario. En OnBeforeRouting todavia no esta.
+// Pasa el usuario del token al contexto de Firebird
+// que leen los disparadores de auditoria.
 
 interface
 
@@ -52,11 +45,6 @@ begin
   if Assigned(Context.LoggedUser.CustomData) then
     Context.LoggedUser.CustomData.TryGetValue('USUARIO_ID', lTexto);
 
-  // Si no hay usuario que poner, hay que borrar lo que hubiera. FireDAC
-  // reutiliza conexiones de un pozo comun y el contexto de sesion vive en la
-  // conexion, no en la peticion: sin este borrado, una peticion sin token
-  // heredaria el usuario de la anterior que uso esa misma conexion y la
-  // auditoria registraria escrituras a nombre de quien no las hizo.
   if not TryStrToInt(lTexto, lUsuarioId) then
   begin
     if lTexto <> '' then
@@ -72,8 +60,6 @@ procedure TContextoAuditoriaMiddleware.OnAfterControllerAction
   (Context: TWebContext; const AControllerQualifiedClassName: string;
   const AActionName: string; const AHandled: Boolean);
 begin
-  // La conexion sigue abierta: el middleware de ActiveRecord la cierra en
-  // OnAfterRouting, que corre despues de esto.
   try
     LimpiarUsuario;
     LimpiarDetalle;

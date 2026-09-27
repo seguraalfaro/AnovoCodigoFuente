@@ -1,13 +1,6 @@
 unit Anovo.Services.Permisos;
 
-// Cache de la matriz rol-permiso.
-//
-// Una sola instancia para todo el servidor y varias peticiones a la vez: todo
-// pasa por el candado. Son 57 pares; el candado solo se nota en la primera
-// carga, que es la unica vez que se espera a la base.
-//
-// TPermisoService es lo que usan el handler y los controllers. La cache no la
-// toca nadie mas: asi la carga perezosa vive en un solo sitio.
+// Cache de la matriz rol-permiso y el servicio que la consulta.
 
 interface
 
@@ -53,8 +46,6 @@ implementation
 
 uses
   System.SysUtils;
-
-{ TPermisoCache }
 
 constructor TPermisoCache.Create;
 begin
@@ -142,8 +133,6 @@ begin
   end;
 end;
 
-{ TPermisoService }
-
 constructor TPermisoService.Create(ARepo: IPermisoRepository;
   ACache: IPermisoCache);
 begin
@@ -154,8 +143,6 @@ end;
 
 procedure TPermisoService.AsegurarCargada;
 begin
-  // Si dos peticiones llegan a la vez con la cache vacia las dos cargan; da
-  // igual, cargan lo mismo.
   if not fCache.Cargada then
     fCache.Cargar(fRepo.Matriz);
 end;

@@ -1,52 +1,7 @@
 unit Anovo.UI.DBGridExtend;
 
-// La rejilla de datos en un solo sitio: su aspecto y todo lo que se dibuja
-// encima de una TrDBGrid.
-//
-// Una rejilla no admite controles en sus celdas: la franja de titulos, las
-// pastillas de estado y los botones de la columna de acciones se dibujan, y el
-// clic de un boton se resuelve por geometria.
-//
-// UNO POR REJILLA
-// Lo crea AplicarTemaGrid, con la rejilla de duena, y se libera con ella. El
-// frame no lo crea: lo pide con TDBGridExtend.De y le agrega sus columnas. Asi
-// ninguna pantalla declara manejadores de dibujo propios, y una que olvide algo
-// no se queda sin titulos ni pastillas sin avisar.
-//
-// LOS EVENTOS
-// Se engancha a OnDrawTitleCellEnd, OnDrawColumnCellEnd, OnMouseUp y
-// OnMouseMove. Lo que hubiera en ellos se guarda y se sigue llamando.
-//
-// El clic de los botones va en OnMouseUp y no en OnMouseDown: en una celda de
-// datos, TCustomDBGrid.MouseDown mueve el registro y no llama al inherited
-// (Vcl.DBGrids.pas), asi que OnMouseDown solo llega en titulos y bordes.
-// MouseUp si llama al inherited, en la VCL y en TrDBGrid.
-//
-// Los de "End" y no OnDrawColumnCell: TrDBGrid dispara el segundo ANTES de
-// pintar su fondo y su texto (rDBGrid.pas, inherited DrawColumnCell), y lo que
-// se dibujara ahi se lo lleva por delante. Es el evento que el fabricante
-// indica para dibujar en la celda: demo f_rdbgrid4 de RosiComp.
-//
-// EL FONDO
-// Al llegar al evento de "End" el Brush ya no tiene el color de la fila: el
-// componente lo cambio al dibujar el texto y las lineas. FondoDeCelda lo
-// calcula con las mismas reglas que rDBGrid.pas (lineas 9910-9926).
-//
-// LA COLUMNA DE ACCIONES
-// DBGrid no sabe de columnas sin campo: la de acciones se enlaza a un campo que
-// no se llena, y el dibujo lo tapa.
-//
-// EL ASPECTO
-// Va aparte de Anovo.UI.Tema a proposito: esta unidad necesita rDBGrid, y si
-// eso entrara en el tema general, cada formulario del proyecto arrastraria el
-// componente de terceros aunque no tuviera ninguna rejilla. Aqui solo lo paga
-// el que usa una.
-//
-// Los colores y las fuentes salen de Anovo.UI.Tema; ninguno se escribe aqui.
-//
-// Todo lo que hace se puede poner a mano en el Object Inspector, propiedad por
-// propiedad. Vive en codigo para no repetir veinte ajustes en cada rejilla y
-// para que, si el patrocinador pide cambiar el azul, se cambie en un sitio.
+// Aspecto de las rejillas y lo que se dibuja sobre ellas:
+// pastillas de estado, acciones y ajuste de columnas.
 
 interface
 
@@ -55,69 +10,20 @@ uses
   Vcl.Grids, Vcl.DBGrids, rDBGrid;
 
 const
-  // Alto de fila de un listado de escritorio. No se usa ALTO_FILA de
-  // Anovo.UI.Tema: ese vale 56 y es el alto de una tarjeta de lista del movil,
-  // que en una rejilla deja cuatro filas por pantalla.
   ALTO_FILA_LISTADO = 34;
 
-// Deja la rejilla con el aspecto de los mockups: encabezado azul liso, sin
-// lineas verticales, filas alternas y fila activa en azul tenue.
 procedure AplicarTemaGrid(AGrid: TrDBGrid; ASoloLectura: Boolean = True;
   AAltoFila: Integer = ALTO_FILA_LISTADO);
 
-// Pinta la fila de titulos. Va aparte porque hay que volver a llamarla cada vez
-// que se rehacen las columnas en ejecucion - Catalogos lo hace al cambiar de
-// pestaña - y una columna nueva nace con el titulo gris.
-//
-// FixedColor no basta: TrDBGrid saca el fondo del titulo de Columns[i].Title.Color
-// y el texto de Columns[i].Title.Font, y solo cae en FixedColor si nadie asigno
-// esa propiedad. Con tocar la columna una vez en el diseñador ya queda asignada
-// con clBtnFace dentro, y de ahi que el encabezado salga gris sin motivo
-// aparente. Asignarlo columna a columna quita la duda.
 procedure TemarTitulos(AGrid: TrDBGrid);
 
-
-// Ajusta cada columna al largo de su texto, titulo incluido.
-//
-// Va aparte y no dentro de AplicarTemaGrid porque necesita datos: mide los
-// registros cargados, y en el constructor del frame el dataset todavia no esta
-// puesto. Se llama justo despues de asignar el DataSource.
-//
-// La columna de acciones queda fuera del ajuste - va en FieldsFixedColumnWidth
-// de AplicarTemaGrid - porque su campo esta vacio y el ajuste la encogeria al
-// ancho de la palabra "Acciones", dejando los botones cortados.
-//
-// cwDataLabelWidth es de un solo uso: el componente lo aplica y devuelve la
-// propiedad a cwNone. Si el usuario mueve una columna a mano, se queda como la
-// dejo.
 procedure AjustarColumnas(AGrid: TrDBGrid);
 
-// Alinea a la derecha los campos indicados, titulo incluido. Para montos.
 procedure AlinearDerecha(AGrid: TrDBGrid; const ACampos: array of string);
 
-// Deja la barra vertical fuera de la vista. La rejilla se hace mas ancha que
-// su contenedor justo lo que mide la barra, y el contenedor la recorta: la
-// barra sigue existiendo, pero cae fuera del area visible.
-//
-// CUANDO LLAMARLA
-// En el Resize del frame o del formulario, NO en el constructor. Calcula desde
-// el tamaño actual del contenedor y despues fija el control con anclas; si se
-// llama antes de que el contenedor tenga su tamaño definitivo, la rejilla se
-// queda congelada con el del diseñador. Llamarla de mas no molesta.
-//
-// Es la unica forma que no pelea con el componente. TrDBGrid.UpdateScrollBar
-// la enciende a la fuerza en cada refresco, asi que apagarla por API obliga a
-// un encender-apagar por refresco, que parpadea. Recortando no hay nada que
-// apagar.
-//
-// La rejilla tiene que estar dentro de un contenedor propio - el TPanel con
-// TAG_CARD que ya pide el diseño - y queda anclada a los cuatro lados, no
-// alClient: alClient no admite ser mas ancha que el padre.
 procedure OcultarScrollVertical(AGrid: TrDBGrid);
 
 type
-  // La clave llega al manejador; el rotulo es lo que se ve. Separados para
-  // cambiar el texto sin tocar el codigo que decide.
   TAccionRejilla = record
     Clave: string;
     Rotulo: string;
@@ -136,8 +42,6 @@ type
     FCeldaAnterior: TDrawColumnCellEvent;
     FUpAnterior: TMouseEvent;
     FMoveAnterior: TMouseMoveEvent;
-    // La fila bajo el raton se reconoce por la posicion de su celda, no por el
-    // registro: fuera del pintado, DataSet.RecNo es el registro ACTUAL.
     FTopHover: Integer;
     FCoordHover: TGridCoord;
     FBotonHover: Integer;
@@ -160,18 +64,12 @@ type
   public
     constructor Crear(AGrid: TrDBGrid);
 
-    // El de esta rejilla; si todavia no tiene, lo crea.
     class function De(AGrid: TrDBGrid): TDBGridExtend;
 
-    // El campo se pinta como pastilla de estado.
     procedure ColumnaEstado(const ACampo: string);
-    // El campo que ocupa la columna de acciones. Los botones van con Agregar.
     procedure ColumnaAcciones(const ACampo: string);
     procedure Agregar(const AClave, ARotulo: string);
-    // Borra los botones agregados. Hace falta en una pantalla con
-    // pestanas: sin esto, cada cambio los suma otra vez.
     procedure Limpiar;
-    // Ancho que necesita la columna de acciones con los rotulos agregados.
     function AnchoAcciones: Integer;
 
     property OnAccion: TEventoAccion read FOnAccion write FOnAccion;
@@ -184,25 +82,18 @@ uses
   VclPlano.Paleta, VclPlano.Dibujo, VclPlano.Pastilla, Anovo.UI.Tema;
 
 const
-  // Respiro a la izquierda del contenido, el mismo en toda celda dibujada.
   MARGEN_CELDA = 10;
   ALTO_PASTILLA = 18;
   ALTO_BOTON = 22;
   RADIO_BOTON = 4;
-  RELLENO_BOTON = 10; // a cada lado del rotulo
+  RELLENO_BOTON = 10;
   SEPARACION_BOTONES = 6;
-  // El respiro lateral que usa el componente para el texto del titulo.
   RESPIRO_TITULO = 4;
-  // El rectangulo del titulo llega recortado y la rayita vertical que deja el
-  // componente cae fuera: con uno o dos pixeles seguia asomando.
   DESBORDE_TITULO = 3;
 
 type
-  // Row, FixedCols, CellRect, InvalidateCell y MouseOverRow son protegidos.
   TRejillaAbierta = class(TrDBGrid);
 
-// Medir y dibujar tienen que usar la misma fuente, o el boton queda donde no
-// se pulsa.
 procedure FuenteDeCelda(ACanvas: TCanvas; ABase: TFont);
 begin
   ACanvas.Font := ABase;
@@ -215,8 +106,6 @@ var
   e: string;
 begin
   e := LowerCase(Trim(lEstado));
-  // Borrador y pendiente comparten el ambar a proposito: la distincion la hace
-  // el texto de la pastilla, no el color. Igual que en el movil.
   if (e = 'borrador') or (e = 'pendiente') or (e = 'recibida') or
     (e = 'programado') then
     Result := fsPending
@@ -228,12 +117,8 @@ begin
   else if (e = 'enviada') or (e = 'en_cotizacion') or (e = 'en cotizacion') then
     Result := fsInfo
   else
-    // Un texto que no este en la lista se pinta en gris: mejor eso que no
-    // pintar nada y quedarse sin saber que llego.
     Result := fsNeutral;
 end;
-
-// TDBGridExtend
 
 constructor TDBGridExtend.Crear(AGrid: TrDBGrid);
 begin
@@ -300,13 +185,9 @@ begin
   Result := False;
 end;
 
-// Mide sobre un lienzo propio y no sobre el de la rejilla: se llama desde el
-// constructor del frame, cuando la rejilla todavia no tiene ventana y su lienzo
-// no mide bien.
 function TDBGridExtend.AnchoAcciones: Integer;
 var
   I: Integer;
-  // Calificado: Winapi.Windows tambien declara un TBitmap y gana por orden.
   lAux: Vcl.Graphics.TBitmap;
 begin
   Result := MARGEN_CELDA * 2;
@@ -335,16 +216,12 @@ begin
   Result := AColumn.Color;
   lFila := FGrid.MouseCoord(ARect.Left + 1, ARect.Top + 1).Y;
 
-  // El mismo orden que rDBGrid.pas: el raton gana a la activa y la activa a
-  // la alterna.
   if (lFila = TRejillaAbierta(FGrid).MouseOverRow) and
     (FGrid.ColorHotTrackRow <> clNone) then
     Exit(FGrid.ColorHotTrackRow);
   if (lFila = TRejillaAbierta(FGrid).Row) and (FGrid.ColorActiveRow <> clNone) then
     Exit(FGrid.ColorActiveRow);
 
-  // El rayado, con las condiciones del componente: solo con DrawColoredRow, y
-  // sin pisar una columna que tenga color propio si PreferColumnColor manda.
   if not FGrid.OptionsEx2.Appearance.DrawColoredRow or
     (FGrid.ColorOddRow = clNone) then
     Exit;
@@ -352,8 +229,6 @@ begin
     (AColumn.Color <> FGrid.Color) then
     Exit;
 
-  // Al dibujar, el dataset esta en la fila de la celda: RecNo es el de esa
-  // fila, como lo usa el propio componente para el rayado.
   if FGrid.DataSource <> nil then
   begin
     lDatos := FGrid.DataSource.DataSet;
@@ -372,15 +247,15 @@ end;
 procedure TDBGridExtend.DibujarEstado(const ARect: TRect; AColumn: TColumn);
 var
   R: TRect;
-  lEstado: string;
+  lValor, lEstado: string;
 begin
   RellenarFondo(ARect, AColumn);
-  lEstado := AColumn.Field.AsString;
-  if Trim(lEstado) = '' then
+  lValor := AColumn.Field.AsString;
+  if Trim(lValor) = '' then
     Exit;
-  // Con mayuscula inicial se lee como etiqueta y no como valor de base. Es
-  // cosa del dibujo: en la tabla el estado queda tal como vino del servidor.
-  lEstado := UpperCase(lEstado[1]) + Copy(lEstado, 2, MaxInt);
+  lEstado := AColumn.Field.DisplayText;
+  if lEstado = lValor then
+    lEstado := UpperCase(lEstado[1]) + Copy(lEstado, 2, MaxInt);
 
   FuenteDeCelda(FGrid.Canvas, FGrid.Font);
   R.Left := ARect.Left + MARGEN_CELDA;
@@ -390,7 +265,7 @@ begin
   if R.Right > ARect.Right then
     R.Right := ARect.Right;
 
-  TPlanoPastilla.DibujarEn(FGrid.Canvas, R, lEstado, EstadoPlano(lEstado));
+  TPlanoPastilla.DibujarEn(FGrid.Canvas, R, lEstado, EstadoPlano(lValor));
 end;
 
 function TDBGridExtend.RectDeBoton(const ACelda: TRect;
@@ -425,8 +300,6 @@ begin
     if lBoton.Right > ARect.Right then
       Break;
 
-    // Contorno, como el boton secundario: en una fila ya coloreada un boton
-    // relleno compite con la pastilla. El relleno solo al pasar por encima.
     if (FBotonHover = I) and (ARect.Top = FTopHover) then
     begin
       PlanoRectRedondeado(FGrid.Canvas, lBoton, RADIO_BOTON,
@@ -460,15 +333,10 @@ begin
       DibujarEstado(ARect, AColumn);
   end;
 
-  // Sin DefaultDrawColumnCell: a esta altura el componente ya dibujo la
-  // celda, y llamarlo pintaria el texto dos veces.
   if Assigned(FCeldaAnterior) then
     FCeldaAnterior(Sender, ARect, ADataCol, AColumn, AState);
 end;
 
-// Repinta lisa la fila de titulos: el componente deja rayitas verticales entre
-// titulos que ninguna propiedad apaga (probado con los *LineColor en clNone,
-// los *LineStyle en psClear y sin dgColLines ni dgRowLines).
 procedure TDBGridExtend.DibujarTitulo(Sender: TObject; ACol, ARow: Longint;
   Rect: TRect; State: TGridDrawState);
 var
@@ -504,7 +372,6 @@ begin
       R := Rect;
       R.Left := R.Left + RESPIRO_TITULO;
       R.Right := R.Right - RESPIRO_TITULO;
-      // TextRect declara Rect y Text como var: no admite una propiedad.
       lTexto := FGrid.Columns[lIndice].Title.Caption;
       FGrid.Canvas.TextRect(R, lTexto, lFormato);
       FGrid.Canvas.Brush.Style := bsSolid;
@@ -529,7 +396,6 @@ begin
     Exit;
 
   ACoord := FGrid.MouseCoord(AX, AY);
-  // Y = 0 es la fila de titulos.
   if (ACoord.X < 0) or (ACoord.Y <= 0) then
     Exit;
 
@@ -545,8 +411,6 @@ begin
     if PtInRect(RectDeBoton(lCelda, I), Point(AX, AY)) then
     begin
       Result := I;
-      // El alto de la celda identifica la fila en pantalla, y es lo que
-      // DibujarAcciones puede comparar: al pintar solo llega el rectangulo.
       ATop := lCelda.Top;
       Exit;
     end;
@@ -564,8 +428,6 @@ var
   lBoton, lTop: Integer;
   lCoord: TGridCoord;
 begin
-  // Al soltar, el MouseDown de la rejilla ya movio el dataset a la fila
-  // pulsada: el manejador recibe el registro correcto.
   if Assigned(FUpAnterior) then
     FUpAnterior(Sender, AButton, AShift, AX, AY);
 
@@ -606,13 +468,9 @@ begin
   else
     FGrid.Cursor := crDefault;
 
-  // Solo las dos celdas afectadas: repintar la rejilla entera en cada
-  // movimiento del raton es el parpadeo.
   RepintarCelda(lAnterior);
   RepintarCelda(FCoordHover);
 end;
-
-// El aspecto de la rejilla
 
 procedure AplicarTemaGrid(AGrid: TrDBGrid; ASoloLectura: Boolean = True;
   AAltoFila: Integer = ALTO_FILA_LISTADO);
@@ -620,58 +478,36 @@ begin
   if AGrid = nil then
     Exit;
 
-  // Con gdsThemed o gdsGradient el encabezado lo pinta el tema de Windows y
-  // FixedColor se ignora. Sin esta linea el resto no se ve.
   AGrid.DrawingStyle := gdsClassic;
-  // Los demas estilos meten degradados propios que pelean con el azul liso.
   AGrid.GridLookStyle := grs_Default;
 
-  // Encabezado
   TemarTitulos(AGrid);
   AGrid.TitleLines := 1;
 
-  // Los botoncitos que Rosi dibuja dentro del encabezado vienen encendidos de
-  // fabrica y rompen la franja lisa.
   AGrid.OptionsEx2.FixedCell.TitleExBtn := False;
   AGrid.OptionsEx2.FixedCell.TitleBtn := False;
   AGrid.OptionsEx2.FixedCell.FixedColBtn := False;
   AGrid.OptionsEx2.FixedCell.TitlePopup := False;
 
-  // Datos
   AGrid.Color := clAnovoTarjeta;
   AGrid.Font.Name := FUENTE;
   AGrid.Font.Height := -12;
   AGrid.Font.Color := clAnovoTexto;
+  AGrid.Font.Style := [];
   AGrid.RowFixHeight := AAltoFila;
 
-  // Ojo: el rayado solo funciona con dataset bidireccional; con un query
-  // unidireccional las filas salen todas iguales y no es culpa de esto.
   AGrid.ColorOddRow := clAnovoFilaAlterna;
   AGrid.ColorActiveRow := clAnovoSeleccion;
   AGrid.ColorHotTrackRow := clAnovoFilaAlterna;
 
-  // Lineas: solo la raya horizontal entre filas.
-  //
-  // Las rayitas verticales que se ven en el encabezado las traza el propio
-  // componente en su dibujo del titulo, y no hay propiedad que las apague:
-  // probado con los *LineColor en clNone, con los *LineStyle en psClear y
-  // quitando dgColLines y dgRowLines, y siguen. Quitarlas pide parchear
-  // rDBGrid, y eso no compensa por un pixel.
   AGrid.OptionsEx2.Appearance.DataRowLineColor := clAnovoBorde;
   AGrid.OptionsEx2.Appearance.DataColLineColor := clNone;
   AGrid.OptionsEx2.Appearance.TitleRowLineColor := clNone;
   AGrid.OptionsEx2.Appearance.TitleColLineColor := clNone;
 
-  // La fila entera se resalta; la celda activa dentro de ella, no.
   AGrid.OptionsEx2.Appearance.SkipCellHighlight := True;
   AGrid.OptionsEx2.Appearance.DrawRowFocus := False;
 
-  // Barra horizontal fuera. La vertical no se puede quitar por propiedad:
-  // UpdateScrollBar la fuerza con ShowScrollBar en cada refresco.
-  //AGrid.OptionsEx2.Appearance.HideHScrollBar := True;
-
-  // dgTitleHotTrack resalta el titulo bajo el raton, que en una cabecera lisa
-  // se ve como un parpadeo de bordes.
   AGrid.Options := AGrid.Options - [dgColLines, dgIndicator, dgTitleHotTrack] +
     [dgRowLines, dgTitles, dgRowSelect, dgAlwaysShowSelection];
   if ASoloLectura then
@@ -680,24 +516,12 @@ begin
     AGrid.ReadOnly := True;
   end;
 
-  // Columnas que el ajuste automatico de ancho no toca.
-  //
-  // ACCIONES tiene el campo vacio y se encogeria al ancho del rotulo, cortando
-  // los botones. Las de estado se dibujan como pastilla, que ocupa mas que su
-  // texto - relleno a los lados mas el margen de la celda - y el ajuste mide
-  // solo el texto, asi que las cortaria. Se quedan con el ancho del diseñador.
   AGrid.FieldsFixedColumnWidth.Text :=
     'ACCIONES'#13#10'ESTADO'#13#10'CONSENTIMIENTO_ESTADO'#13#10'PRINCIPAL';
 
-  // El borde redondeado de la tarjeta no sale de la rejilla: se consigue
-  // metiendola dentro de un TPanel con TAG_CARD.
   AGrid.BorderStyle := bsNone;
   AGrid.Ctl3D := False;
 
-  // Dibujamos encima de lo que ya pinto el componente - pastillas, botones y
-  // la franja de titulos - y eso son dos pasadas sobre la misma celda. Sin
-  // doble bufer se nota como parpadeo al desplazar y al pasar el raton, que en
-  // el video de la defensa se veria mal.
   AGrid.DoubleBuffered := True;
 end;
 
@@ -708,16 +532,10 @@ begin
   if AGrid = nil then
     Exit;
 
-  // El dibujo de la franja lo hace el TDBGridExtend de la rejilla. De lo
-  // crea la primera vez y despues lo devuelve: TemarTitulos se vuelve a
-  // llamar cada vez que se rehacen las columnas.
   TDBGridExtend.De(AGrid);
 
-  // Con esto en False el componente respeta el color que le ponemos al titulo;
-  // en True se lo pide al estilo de VCL y se pierde el azul.
   AGrid.OptionsEx2.Appearance.TitleFontStyleColor := False;
 
-  // Sigue haciendo falta para la columna fija, que es la unica que si lo usa.
   AGrid.FixedColor := clAnovoMarca;
   AGrid.TitleFont.Name := FUENTE_SEMI;
   AGrid.TitleFont.Height := -11;
@@ -738,8 +556,6 @@ begin
      (AGrid.DataSource.DataSet = nil) or not AGrid.DataSource.DataSet.Active then
     Exit;
 
-  // Primero al texto, y despues un reparto proporcional para llenar el ancho
-  // de la rejilla: solo con el ajuste al texto queda un hueco a la derecha.
   AGrid.ColumnWidth := cwDataLabelWidth;
   AGrid.ColumnWidth := cwAutoWidth;
 end;
@@ -751,17 +567,12 @@ begin
   if (AGrid = nil) or (AGrid.Parent = nil) then
     Exit;
 
-  // Si el contenedor todavia no tiene tamaño util, no se toca nada: mejor
-  // dejar la rejilla como esta que congelarla con medidas del diseñador.
   if (AGrid.Parent.ClientWidth <= 0) or (AGrid.Parent.ClientHeight <= 0) then
     Exit;
 
-  // Ancho de la barra segun el sistema; a 150 % de DPI no son 17 pixeles.
   lBarra := GetSystemMetrics(SM_CXVSCROLL);
 
   AGrid.Align := alNone;
-  // Anclada a los cuatro lados conserva el desborde al cambiar de tamaño: el
-  // borde derecho se queda siempre a -lBarra del padre.
   AGrid.Anchors := [akLeft, akTop, akRight, akBottom];
   AGrid.SetBounds(0, 0, AGrid.Parent.ClientWidth + lBarra,
     AGrid.Parent.ClientHeight);
@@ -778,8 +589,6 @@ begin
       if SameText(AGrid.Columns[i].FieldName, ACampos[j]) then
       begin
         AGrid.Columns[i].Alignment := taRightJustify;
-        // El titulo se alinea por separado, o el monto queda a la derecha y su
-        // encabezado a la izquierda.
         AGrid.Columns[i].Title.Alignment := taRightJustify;
       end;
 end;

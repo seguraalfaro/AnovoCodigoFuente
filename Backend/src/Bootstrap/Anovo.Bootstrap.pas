@@ -1,35 +1,20 @@
-﻿// ***************************************************************************
-//
-// Delphi MVC Framework
-//
-// Copyright (c) 2010-2026 Daniele Teti and the DMVCFramework Team
-//
-// https://github.com/danieleteti/delphimvcframework
-//
-// ***************************************************************************
+﻿unit Anovo.Bootstrap;
 
-unit Anovo.Bootstrap;
-
-// Startup configuration: dotEnv, LoggerPro, DMVC profiler, TemplatePro context.
-// Call Boot once, before any LogI/LogW/LogE call.
+// Arranque: .env, LoggerPro y profiler de DMVC.
+// Se llama una vez, antes de cualquier log.
 
 interface
 
 uses
   LoggerPro;
 
-// AAppender es por donde la ventana del servidor mete su propio destino de
-// log. Bootstrap no sabe que existe VCL: solo ve la interfaz.
-//
-// AConConsola en falso para la version con ventana: una aplicacion grafica no
-// tiene consola donde escribir.
 procedure Boot(const AAppender: ILogAppender = nil;
   const AConConsola: Boolean = True);
 
 implementation
 
 uses
-  System.SysUtils,  
+  System.SysUtils,
   LoggerPro.Builder,
   LoggerPro.ConsoleAppender,
   LoggerPro.FileAppender,
@@ -38,21 +23,16 @@ uses
   MVCFramework.Commons,
   MVCFramework.Logger;
 
-{ --- private ---------------------------------------------------------------- }
-
 procedure ConfigDotEnv;
 begin
-  // .UseLogger intentionally omitted: the dotEnv fallback calls LogI, which would
-  // create a default logger before ConfigLogger installs the configured one.
   dotEnvConfigure(
     function: IMVCDotEnv
     begin
       Result := NewDotEnv
                  .UseStrategy(TMVCDotEnvPriority.FileThenEnv)
-                                     //if available, by default, loads default environment (.env)
-                 .UseProfile('test') //if available loads the test environment (.env.test)
-                 .UseProfile('prod') //if available loads the prod environment (.env.prod)
-                 .Build(AppPath);    //uses the executable folder to look for .env* files
+                 .UseProfile('test')
+                 .UseProfile('prod')
+                 .Build(AppPath);
     end);
 end;
 
@@ -83,13 +63,12 @@ begin
       .Done
     ;
 
-
   SetDefaultLogger(lBuilder.Build);
 end;
 
 procedure ConfigProfiler;
 begin
-{$IF CompilerVersion >= 34} //SYDNEY+
+{$IF CompilerVersion >= 34}
   if dotEnv.Env('dmvc.profiler.enabled', False) then
   begin
     Profiler.ProfileLogger := Log;
@@ -98,8 +77,6 @@ begin
   end;
 {$ENDIF}
 end;
-
-{ --- public ----------------------------------------------------------------- }
 
 procedure Boot(const AAppender: ILogAppender; const AConConsola: Boolean);
 begin

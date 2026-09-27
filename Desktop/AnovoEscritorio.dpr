@@ -1,5 +1,8 @@
 program AnovoEscritorio;
 
+// Cliente de escritorio de Anovo: login, cambio de clave
+// provisional y ventana principal.
+
 uses
   Vcl.Dialogs,
   System.UITypes,
@@ -38,10 +41,21 @@ uses
   Anovo.Frames.ClienteDatos in 'Src\Frames\Anovo.Frames.ClienteDatos.pas' {TfraClienteDatos: TFrame},
   Anovo.Frames.Dashboard.Gerencia in 'Src\Frames\Anovo.Frames.Dashboard.Gerencia.pas' {fraDashboardGerencia: TFrame},
   Anovo.Frames.Dashboard in 'Src\Frames\Anovo.Frames.Dashboard.pas' {fraDashboard: TFrame},
+  Anovo.Frames.Dashboard.Asesor in 'Src\Frames\Anovo.Frames.Dashboard.Asesor.pas' {fraDashboardAsesor: TFrame},
   Anovo.Frames.GeneracionCotizacion in 'Src\Frames\Anovo.Frames.GeneracionCotizacion.pas' {fraGeneracionCotizacion: TFrame},
   Anovo.DTOs.Clientes in '..\Backend\src\DTOs\Anovo.DTOs.Clientes.pas',
   Anovo.DTOs.Auditoria in '..\Backend\src\DTOs\Anovo.DTOs.Auditoria.pas',
   Anovo.Textos in '..\Backend\src\Common\Anovo.Textos.pas',
+  Anovo.DTOs.Dashboard in '..\Backend\src\DTOs\Anovo.DTOs.Dashboard.pas',
+  Anovo.Api.Intf.Dashboard in 'Src\Interfaces\Anovo.Api.Intf.Dashboard.pas',
+  Anovo.Api.Dashboard in 'Src\Api\Anovo.Api.Dashboard.pas',
+  Anovo.Vistas.Intf.DashboardAsesor in 'Src\Interfaces\Anovo.Vistas.Intf.DashboardAsesor.pas',
+  Anovo.Presentadores.DashboardAsesor in 'Src\Presentadores\Anovo.Presentadores.DashboardAsesor.pas',
+  Anovo.Api.Intf.Solicitudes in 'Src\Interfaces\Anovo.Api.Intf.Solicitudes.pas',
+  Anovo.Api.Solicitudes in 'Src\Api\Anovo.Api.Solicitudes.pas',
+  Anovo.Vistas.Intf.Solicitudes in 'Src\Interfaces\Anovo.Vistas.Intf.Solicitudes.pas',
+  Anovo.Presentadores.Solicitudes in 'Src\Presentadores\Anovo.Presentadores.Solicitudes.pas',
+  Anovo.Frames.Solicitudes in 'Src\Frames\Anovo.Frames.Solicitudes.pas' {fraSolicitudes: TFrame},
   Anovo.UI.Vigencia in 'Src\Recursos\Anovo.UI.Vigencia.pas',
   Anovo.DTOs.Catalogos in '..\Backend\src\DTOs\Anovo.DTOs.Catalogos.pas',
   Anovo.Api.Intf.Auditoria in 'Src\Interfaces\Anovo.Api.Intf.Auditoria.pas',
@@ -62,7 +76,15 @@ uses
   Anovo.Api.Intf.Catalogos in 'Src\Interfaces\Anovo.Api.Intf.Catalogos.pas',
   Anovo.Forms.ItemCatalogo in 'Src\Forms\Anovo.Forms.ItemCatalogo.pas' {frmItemCatalogo},
   Anovo.Forms.PrecioCatalogo in 'Src\Forms\Anovo.Forms.PrecioCatalogo.pas' {frmPrecioCatalogo},
-  Anovo.Presentadores.CatalogoItem in 'Src\Presentadores\Anovo.Presentadores.CatalogoItem.pas';
+  Anovo.Presentadores.CatalogoItem in 'Src\Presentadores\Anovo.Presentadores.CatalogoItem.pas',
+  Anovo.DTOs.Sesion in '..\Backend\src\DTOs\Anovo.DTOs.Sesion.pas',
+  Anovo.Api.Intf.Configuracion in 'Src\Interfaces\Anovo.Api.Intf.Configuracion.pas',
+  Anovo.Api.Configuracion in 'Src\Api\Anovo.Api.Configuracion.pas',
+  Anovo.Vistas.Intf.Configuracion in 'Src\Interfaces\Anovo.Vistas.Intf.Configuracion.pas',
+  Anovo.Presentadores.Configuracion in 'Src\Presentadores\Anovo.Presentadores.Configuracion.pas',
+  Anovo.Frames.Configuracion in 'Src\Frames\Anovo.Frames.Configuracion.pas' {fraConfiguracion: TFrame},
+  Anovo.Forms.CambioClave in 'Src\Forms\Anovo.Forms.CambioClave.pas' {frmCambioClave},
+  Anovo.Forms.Conexion in 'Src\Forms\Anovo.Forms.Conexion.pas' {frmConexion};
 
 {$R *.res}
 
@@ -76,28 +98,31 @@ begin
 
   Application.Initialize;
   Application.MainFormOnTaskbar := true;
-  // Los campos con Required avisan solos al salir del control.
   EngancharRequeridos;
   Application.CreateForm(TdmIconos, dmIconos);
   Application.CreateForm(TdmMemoria, dmMemoria);
-  lLogin := TfrmLogin.Create(nil);
-  try
-    lDestino := lLogin.ShowModal;
-  finally
-    lLogin.Free;
-  end;
+  repeat
+    lLogin := TfrmLogin.Create(nil);
+    try
+      lDestino := lLogin.ShowModal;
+    finally
+      lLogin.Free;
+    end;
 
-  case lDestino of
-    mrOk:
-      begin
-        { El primer formulario creado con CreateForm pasa a ser el principal. }
-        Application.CreateForm(TfrmPrincipal, frmPrincipal);
-        Application.Run;
-      end;
-    mrRetry:
-      { Clave provisional: aqui ira el formulario de cambio de clave. }
-      MessageDlg('Debe cambiar su clave antes de continuar.', mtInformation,
-        [mbOK], 0);
+    if lDestino = mrRetry then
+    begin
+      if TfrmCambioClave.Mostrar(nil, True) then
+        MessageDlg(SClaveCambiadaReingreso, mtInformation, [mbOK], 0)
+      else
+        lDestino := mrCancel;
+      TSesion.Cerrar;
+    end;
+  until lDestino <> mrRetry;
+
+  if lDestino = mrOk then
+  begin
+    Application.CreateForm(TfrmPrincipal, frmPrincipal);
+    Application.Run;
   end;
 
 end.

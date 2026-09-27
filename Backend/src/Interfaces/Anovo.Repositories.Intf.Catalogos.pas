@@ -1,18 +1,7 @@
 unit Anovo.Repositories.Intf.Catalogos;
 
-// Contratos de los repositorios de catalogos: uno por tabla.
-//
-// El CRUD directo lo da IMVCRepository<T> y no hace falta escribirlo. Aqui van
-// las consultas que significan algo en el negocio.
-//
-// Los cuatro catalogos se repiten con la misma forma. No se unifican en un
-// generico porque las columnas difieren -mano de obra no tiene NOMBRE,
-// maquinas cobran por hora- y el generico acabaria recibiendo el nombre de la
-// columna por parametro, que es peor que repetir.
-//
-// BuscarConPrecio devuelve las clases de Anovo.Entities.Vistas.Catalogos, no
-// la entidad: el precio vive en otra tabla y la entidad no lo tiene. Pedirlo
-// fila por fila serian 51 consultas por pagina.
+// Contratos de los repositorios de catalogos,
+// uno por tabla, y el de la lista Todos.
 
 interface
 
@@ -32,18 +21,13 @@ type
     function ContarBusqueda(const ATexto: string;
       const AIncluirInactivos: Boolean = False): Int64;
 
-    // Lo que necesita la pantalla de armado de la cotizacion: nombre y precio
-    // en una sola consulta.
     function BuscarConPrecio(const ATexto: string;
       const APagina, APorPagina: Integer;
       const AIncluirInactivos: Boolean = False)
       : TObjectList<TMaterialConPrecio>;
 
-    // Devuelve nil si no existe.
     function ObtenerPorCodigo(const ACodigo: string): TMateriales;
 
-    // AExcluirId es el material que se esta editando, para que no choque
-    // consigo mismo. Al crear se pasa 0.
     function ExisteNombre(const ANombre: string;
       const AExcluirId: Integer = 0): Boolean;
   end;
@@ -51,7 +35,6 @@ type
   IMaterialPrecioRepository = interface(IMVCRepository<TMaterialesPrecios>)
     ['{6D3B08E5-4A91-47C2-B5F0-9E27C1A3D486}']
 
-    // Nil si el material todavia no tiene precio cargado.
     function PrecioVigenteDe(const AMaterialId: Integer): TMaterialesPrecios;
     function HistorialDe(const AMaterialId: Integer)
       : TObjectList<TMaterialesPrecios>;
@@ -60,7 +43,6 @@ type
   IManoObraRepository = interface(IMVCRepository<TManoObra>)
     ['{8E51C7D0-3F26-4B94-A0D8-5C73B9E1F248}']
 
-    // ACategoriaId en 0 son todas.
     function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
       const AIncluirInactivos: Boolean = False;
       const ACategoriaId: Integer = 0): TObjectList<TManoObra>;
@@ -88,7 +70,6 @@ type
       : TObjectList<TManoObraPrecios>;
   end;
 
-  // Catalogo fijo: se lee entero y no se edita desde la API.
   IManoObraCategoriaRepository = interface(IMVCRepository<TManoObraCategoria>)
     ['{5C08E3A7-9B14-42F6-A7D3-0E85C61B9F42}']
     function Todas: TObjectList<TManoObraCategoria>;
@@ -132,10 +113,7 @@ type
       const AExcluirId: Integer = 0): Boolean;
   end;
 
-  // Los tres catalogos con precio en una sola lista. No extiende
-  // IMVCRepository<T> porque no hay tabla detras: es una consulta de lectura
-  // sobre la union, y lo unico que se le pide es la pagina y el total.
-  ICatalogoTodosRepository = interface
+  ICatalogoTodosRepository = interface(IMVCRepository<TMateriales>)
     ['{BC32AB29-783D-4B48-9AAA-EFFF014686AB}']
     function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
       const AIncluirInactivos: Boolean = False)
@@ -144,14 +122,10 @@ type
       const AIncluirInactivos: Boolean = False): Int64;
   end;
 
-  // La cola de cambios de precio con fecha futura. Una sola para los tres
-  // catalogos: el cambio tiene la misma forma en todos y el servidor la vacia
-  // de una pasada. Ver migracion 14.
   IPrecioProgramadoRepository = interface
     (IMVCRepository<TPreciosProgramados>)
     ['{BDF59790-0698-43C4-B4F5-10F9874A86CA}']
 
-    // Lo que le queda por aplicar a un item, para avisarlo en el catalogo.
     function PendientesDeMaterial(const AMaterialId: Integer)
       : TObjectList<TPreciosProgramados>;
     function PendientesDeManoObra(const AManoObraId: Integer)

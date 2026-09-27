@@ -1,0 +1,18 @@
+unit Anovo.Services.Intf.Dashboard;
+
+// Contrato del servicio de dashboards.
+
+interface
+
+uses
+  Anovo.DTOs.Dashboard;
+
+type
+  IDashboardService = interface
+    ['{6F430C69-6CB2-491D-9DAC-F3238AEFCF16}']
+    function DelAsesor(const AAsesorId: Integer): TDashboardAsesorDTO;
+  end;
+
+implementation
+
+end.
