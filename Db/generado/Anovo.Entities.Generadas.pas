@@ -1572,6 +1572,8 @@ type
     fPorAprobar: NullableInt32;
     [MVCTableField('DIAS_MAS_ANTIGUA')]
     fDiasMasAntigua: NullableInt32;
+    [MVCTableField('MONTO_POR_APROBAR')]
+    fMontoPorAprobar: NullableCurrency;
   public
     property UsuarioId: NullableInt32 read fUsuarioId write fUsuarioId;
     property PorCotizar: NullableInt32 read fPorCotizar write fPorCotizar;
@@ -1580,6 +1582,7 @@ type
     property PorEnviar: NullableInt32 read fPorEnviar write fPorEnviar;
     property PorAprobar: NullableInt32 read fPorAprobar write fPorAprobar;
     property DiasMasAntigua: NullableInt32 read fDiasMasAntigua write fDiasMasAntigua;
+    property MontoPorAprobar: NullableCurrency read fMontoPorAprobar write fMontoPorAprobar;
   end;
 
 implementation
