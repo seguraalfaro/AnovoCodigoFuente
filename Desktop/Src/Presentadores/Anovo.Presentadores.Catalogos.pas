@@ -1,19 +1,6 @@
 unit Anovo.Presentadores.Catalogos;
 
-// La logica de los cuatro catalogos, fuera del frame.
-//
-// Guarda el estado de la consulta: pestana, texto, categoria y pagina. Cada
-// cambio vuelve a pedir al servidor, fuera del hilo de la interfaz, con las
-// dos precauciones del listado de clientes: el frame se destruye al cambiar de
-// seccion y la respuesta puede llegar despues, y quien busca seguido dispara
-// varias peticiones que pueden volver en otro orden.
-//
-// Los cinco listados -Todos y los cuatro catalogos- se cargan en cinco metodos
-// casi iguales. Es a proposito: lo unico que comparten es el andamiaje de la tarea, y unificarlo
-// obligaria a mover las listas como TObject y devolverles el tipo con un cast
-// del lado de la vista.
-//
-// Tipos de trabajo no pagina: es una lista corta que llena un desplegable.
+// Presentador de la seccion Catalogos.
 
 interface
 
@@ -43,8 +30,6 @@ type
     procedure CargarTiposTrabajo;
     procedure CargarCategorias;
     procedure PublicarAcciones;
-    // El catalogo sobre el que actua una accion de fila. En Todos es el de la
-    // fila; en las demas pestanas, la pestana.
     function CatalogoDeFila: TCatalogo;
   public
     constructor Create(const AVista: IVistaCatalogos;
@@ -52,27 +37,20 @@ type
     destructor Destroy; override;
     procedure Iniciar;
     procedure Buscar(const ATexto: string);
-    // Quita el texto y vuelve al catalogo completo. La pestana y la categoria
-    // se conservan.
     procedure Limpiar;
     procedure Filtrar(const ACatalogo: TCatalogo);
-    // Solo tiene efecto en mano de obra. 0 son todas.
     procedure FiltrarCategoria(const ACategoriaId: Integer);
     procedure IrAPagina(const APagina: Integer);
     procedure PaginaSiguiente;
     procedure PaginaAnterior;
 
-    // Las cuatro acciones de la fila. Abren formulario o traen el historial;
-    // ninguna escribe: eso lo hacen los formularios contra la API.
     procedure Nuevo;
     procedure Editar(const AId: Integer);
     procedure CambiarPrecio(const AId: Integer);
     procedure VerHistorial(const AId: Integer);
     procedure Inactivar(const AId: Integer);
-    // La llaman los formularios al guardar, para que la rejilla se entere.
     procedure Recargar;
 
-    // No tocan la vista: se prueban asignando permisos a TSesion.
     class function AccionesPermitidas: TAccionesCatalogo;
     class function PuedeEditar: Boolean;
   end;
@@ -97,14 +75,10 @@ const
   PERMISO_VER = 'catalogos.ver';
   PERMISO_EDITAR = 'catalogos.editar';
 
-  // La frase completa vive en Anovo.Textos. Aqui solo se dice de que accion
-  // se habla, que es lo unico que cambia de una pantalla a otra.
 function MensajeInesperado: string;
 begin
   Result := Format(SErrorInesperado, [SAccionCargarCatalogo]);
 end;
-
-// TPresentadorCatalogos
 
 constructor TPresentadorCatalogos.Create(const AVista: IVistaCatalogos;
   const AApi: IApiCatalogos);
@@ -119,7 +93,6 @@ end;
 
 destructor TPresentadorCatalogos.Destroy;
 begin
-  // Lo que venga en camino se tira: el frame ya no esta.
   FCancelacion.Cancelar;
   inherited;
 end;
@@ -137,16 +110,10 @@ var
   lAcciones: TAccionesCatalogo;
 begin
   lAcciones := AccionesPermitidas;
-  // Tipos de trabajo no lleva precio: sus dos acciones no tendrian que
-  // abrir nada.
   if FCatalogo = ctTiposTrabajo then
     lAcciones := lAcciones - [acPrecio, acHistorial];
-  // En Todos no se crea: el boton no sabria de que catalogo es el item nuevo.
-  // Las acciones de fila si, porque cada fila trae su tipo.
   FVista.MostrarAcciones(lAcciones, PuedeEditar and (FCatalogo <> ctTodos));
 end;
-
-// Consulta
 
 procedure TPresentadorCatalogos.Cargar;
 begin
@@ -181,8 +148,6 @@ var
   lNumero, lPagina: Integer;
   lTexto: string;
 begin
-  // Copias locales: la tarea no puede leer campos del presentador, que puede
-  // haberse liberado cuando ella termine.
   Inc(FSolicitud);
   lNumero := FSolicitud;
   lCancelacion := FCancelacion;
@@ -206,11 +171,8 @@ begin
         lLista := lApi.BuscarMateriales(lTexto, lPagina, CATALOGO_POR_PAGINA,
           False, lTotal);
       except
-        // Sin conexion, sesion vencida y errores del servidor ya traen su
-        // mensaje para la persona.
         on E: EAnovoCliente do
           lError := E.Message;
-        // Una excepcion que se escapa de TTask no la ve nadie.
         on E: Exception do
           lError := MensajeInesperado;
       end;
@@ -219,8 +181,6 @@ begin
         procedure
         begin
           try
-            // Primero la bandera, antes de tocar el presentador: si se
-            // cancelo, el presentador ya no existe.
             if lCancelacion.Cancelada or (lNumero <> FSolicitud) then
               Exit;
 
@@ -448,7 +408,6 @@ begin
       lLista := nil;
       lError := '';
       try
-        // Sin texto ni pagina: la ruta devuelve la lista entera.
         lLista := lApi.TiposTrabajo(False);
       except
         on E: EAnovoCliente do
@@ -473,7 +432,6 @@ begin
 
             FTotalPaginas := 0;
             FVista.MostrarTiposTrabajo(lLista);
-            // Cero paginas: la vista esconde los controles de paginacion.
             FVista.MostrarPaginacion(1, 0, lLista.Count);
           finally
             lLista.Free;
@@ -487,8 +445,6 @@ var
   lCancelacion: ICancelacion;
   lApi: IApiCatalogos;
 begin
-  // No lleva numero de solicitud: no compite con el listado y llega cuando
-  // llegue. Se marca antes de pedir para no dispararla dos veces seguidas.
   FCategoriasPedidas := True;
   lCancelacion := FCancelacion;
   lApi := FApi;
@@ -502,8 +458,6 @@ begin
       try
         lLista := lApi.Categorias;
       except
-        // Sin categorias el filtro queda vacio y el listado funciona igual:
-        // no vale la pena molestar a la persona con un mensaje.
         on E: Exception do
           Exit;
       end;
@@ -521,8 +475,6 @@ begin
         end);
     end);
 end;
-
-// Busqueda y navegacion
 
 procedure TPresentadorCatalogos.Buscar(const ATexto: string);
 begin
@@ -543,8 +495,6 @@ begin
     Exit;
 
   FCatalogo := ACatalogo;
-  // El texto no se conserva entre pestanas: lo que se busca en materiales no
-  // significa nada en maquinas.
   FTexto := '';
   FCategoriaId := 0;
   FPagina := 1;
@@ -586,8 +536,6 @@ procedure TPresentadorCatalogos.Recargar;
 begin
   Cargar;
 end;
-
-// Acciones de la fila
 
 function TPresentadorCatalogos.CatalogoDeFila: TCatalogo;
 begin
@@ -733,19 +681,13 @@ begin
             Exit;
           end;
 
-          // La fila cambio de estado en el servidor: se vuelve a pedir en vez
-          // de tocar la rejilla, que es lo unico que garantiza que lo que se
-          // ve es lo que hay.
           Cargar;
         end);
     end);
 end;
 
-// Permisos
-
 class function TPresentadorCatalogos.AccionesPermitidas: TAccionesCatalogo;
 begin
-  // El historial es de solo lectura: alcanza con poder ver el catalogo.
   Result := [];
   if TSesion.Tiene(PERMISO_VER) then
     Include(Result, acHistorial);

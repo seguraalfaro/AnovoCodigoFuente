@@ -1,5 +1,7 @@
 unit Anovo.UI.Iconos;
 
+// Modulo de datos con las imagenes de iconos de la aplicacion.
+
 interface
 
 uses
@@ -16,17 +18,13 @@ type
     Action1: TAction;
     ViAnovo: TVirtualImageList;
   private
-    { Private declarations }
   public
-    { Public declarations }
   end;
 
 var
   dmIconos: TdmIconos;
 
 implementation
-
-{%CLASSGROUP 'Vcl.Controls.TControl'}
 
 {$R *.dfm}
 

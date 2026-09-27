@@ -1,10 +1,6 @@
 unit Anovo.Api.Catalogos;
 
-// Los cuatro catalogos contra el servidor.
-//
-// Las cuatro busquedas son la misma consulta con otra subruta y otro tipo de
-// DTO, asi que la lectura de la pagina esta una sola vez en PaginaDe<T>. Lo
-// que cambia -que parametros lleva cada una- se arma antes y se le pasa.
+// Cliente de la API de catalogos, precios y la lista Todos.
 
 interface
 
@@ -54,7 +50,6 @@ type
       : TObjectList<TPrecioDTO>;
     function Categorias: TObjectList<TCategoriaDTO>;
 
-    // Los tres catalogos con precio en una sola lista, para la pestana Todos.
     function BuscarTodos(const ATexto: string;
       const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
       out ATotal: Int64): TObjectList<TCatalogoItemDTO>;
@@ -95,12 +90,9 @@ const
   RUTA_TIPOS_TRABAJO = '/api/catalogos/tipos-trabajo';
   RUTA_CATEGORIAS = '/api/catalogos/mano-obra/categorias';
 
-  // La subruta del precio es la misma en los tres catalogos que lo llevan.
   SUB_PRECIOS = '%s/%d/precios';
   SUB_INACTIVACION = '%s/%d/inactivacion';
   SUB_ID = '%s/%d';
-
-{ Apoyo }
 
 function TApiCatalogos.PaginaDe<T>(const ARuta, ATexto: string;
   const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
@@ -114,15 +106,12 @@ begin
     var
       lCliente: IMVCRESTClient;
     begin
-      // Por parametro y no pegado a la ruta: el cliente REST codifica los
-      // espacios y las tildes de lo que se escribio en el buscador.
       lCliente := NuevoCliente
         .AddQueryStringParam('q', ATexto)
         .AddQueryStringParam('pagina', APagina)
         .AddQueryStringParam('por_pagina', APorPagina);
       if AIncluirInactivos then
         lCliente.AddQueryStringParam('incluir_inactivos', 'true');
-      // Solo mano de obra lo usa; en los demas llega en 0 y no se manda.
       if ACategoriaId > 0 then
         lCliente.AddQueryStringParam('categoria_id', ACategoriaId);
       Result := lCliente.Get(ARuta);
@@ -130,10 +119,6 @@ begin
 
   Result := TObjectList<T>.Create(True);
   try
-    // Coleccion del contrato: la lista en data, la paginacion en la raiz.
-    //
-    // BodyForListOf pide un TClass y T es un tipo, no un valor: el parametro
-    // generico no se puede pasar tal cual. De ahi el rodeo por TypeInfo.
     lRespuesta.BodyForListOf(Result,
       GetTypeData(TypeInfo(T))^.ClassType, 'data');
 
@@ -144,8 +129,6 @@ begin
       lJson.Free;
     end;
   except
-    // Si falla a mitad de la lectura, la lista no la recibe nadie que la
-    // pueda liberar.
     Result.Free;
     raise;
   end;
@@ -162,7 +145,6 @@ begin
       lCliente: IMVCRESTClient;
     begin
       lCliente := NuevoCliente;
-      // Por parametro, como arriba: concatenarlo a la ruta no llega.
       if AIncluirInactivos then
         lCliente.AddQueryStringParam('incluir_inactivos', 'true');
       Result := lCliente.Get(ARuta);
@@ -170,8 +152,6 @@ begin
 
   Result := TObjectList<T>.Create(True);
   try
-    // Sin paginar: historiales de precio, categorias y tipos de trabajo son
-    // listas cortas por definicion.
     lRespuesta.BodyForListOf(Result,
       GetTypeData(TypeInfo(T))^.ClassType, 'data');
   except
@@ -183,8 +163,6 @@ end;
 procedure TApiCatalogos.CambiarPrecio(const ARuta: string;
   const AId: Integer; const ADto: TPrecioNuevoDTO);
 begin
-  // 204 sin cuerpo: no hay nada que leer, y Ejecutar ya convirtio cualquier
-  // error del servidor en excepcion.
   Ejecutar(
     function: IMVCRESTResponse
     begin
@@ -201,8 +179,6 @@ begin
       Result := NuevoCliente.Post(Format(SUB_INACTIVACION, [ARuta, AId]));
     end);
 end;
-
-{ Materiales }
 
 function TApiCatalogos.BuscarMateriales(const ATexto: string;
   const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
@@ -224,7 +200,6 @@ begin
 
   Result := TMaterialDTO.Create;
   try
-    // El objeto viene dentro de data, como en el resto del contrato.
     lRespuesta.BodyFor(Result, 'data');
   except
     Result.Free;
@@ -268,8 +243,6 @@ function TApiCatalogos.HistorialPrecioMaterial(const AId: Integer)
 begin
   Result := ListaDe<TPrecioDTO>(Format(SUB_PRECIOS, [RUTA_MATERIALES, AId]));
 end;
-
-{ Mano de obra }
 
 function TApiCatalogos.BuscarManoObra(const ATexto: string;
   const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
@@ -339,8 +312,6 @@ function TApiCatalogos.Categorias: TObjectList<TCategoriaDTO>;
 begin
   Result := ListaDe<TCategoriaDTO>(RUTA_CATEGORIAS);
 end;
-
-{ Maquinas }
 
 function TApiCatalogos.BuscarTodos(const ATexto: string;
   const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
@@ -413,8 +384,6 @@ function TApiCatalogos.HistorialCostoMaquina(const AId: Integer)
 begin
   Result := ListaDe<TPrecioDTO>(Format(SUB_PRECIOS, [RUTA_MAQUINAS, AId]));
 end;
-
-{ Tipos de trabajo }
 
 function TApiCatalogos.TiposTrabajo(const AIncluirInactivos: Boolean)
   : TObjectList<TTipoTrabajoDTO>;

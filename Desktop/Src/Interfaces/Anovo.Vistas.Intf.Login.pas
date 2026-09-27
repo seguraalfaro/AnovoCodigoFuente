@@ -1,8 +1,6 @@
 unit Anovo.Vistas.Intf.Login;
 
-{ Lo que el presentador del login necesita de la pantalla, y nada mas.
-
-}
+// Contrato de la vista del login.
 
 interface
 

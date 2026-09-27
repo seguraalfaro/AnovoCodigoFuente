@@ -1,14 +1,7 @@
 unit Anovo.Frames.ClienteDatos;
 
-// Ficha del cliente: datos, contactos, consentimiento y cotizaciones, una
-// pestana cada uno. La abre el listado de clientes encima de si mismo.
-//
-// No decide nada: pide al presentador lo de cada pestana y muestra lo que
-// vuelve. Los datos se copian a las tablas de dmMemoria, que es de donde leen
-// los controles enlazados.
-//
-// Regresar no se cierra solo: avisa con OnRegresar y el listado decide. Un
-// frame no puede liberarse dentro de su propio evento.
+// Ficha del cliente: datos, contactos, consentimiento y
+// cotizaciones.
 
 interface
 
@@ -88,13 +81,10 @@ type
   private
     FOnRegresar: TNotifyEvent;
     FPresentador: TPresentadorClienteDatos;
-    // Con clientes.editar: sin el permiso, no se ve ninguno de los tres.
     FPuedeEditar: Boolean;
-    // El cliente que esta abierto: la ventana de contacto nuevo lo necesita.
     FClienteId: Integer;
     function ClienteEditado: TClienteEdicionDTO;
     procedure BotonesDeEdicion(const AEdicion: Boolean);
-    // IVistaClienteDatos
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarError(const AMensaje: string);
     procedure MostrarCliente(const ACliente: TClienteDTO);
@@ -104,7 +94,6 @@ type
     procedure MostrarAcciones(const APuedeEditar, APuedeRevocar,
       APuedeVerCotizaciones: Boolean);
     procedure MostrarModoEdicion(const AActivo: Boolean);
-    // Los botones de cada rejilla, y la columna donde se dibujan.
     procedure AccionContacto(Sender: TObject; const AClave: string);
     procedure AccionCotizacion(Sender: TObject; const AClave: string);
     procedure PrepararAcciones(const AGrid: TrDBGrid;
@@ -129,20 +118,15 @@ uses
   Anovo.Textos;
 
 const
-  // Lo que se ve cuando el cliente no tiene ese dato.
   SIN_DATO = '-';
 
-  // La columna donde se dibujan los botones en las dos rejillas.
   CAMPO_ACCIONES = 'ACCIONES';
 
   ACCIONES_CONTACTO: array [0 .. 1] of TAccionRejilla = ((Clave: 'editar';
     Rotulo: 'Editar'), (Clave: 'quitar'; Rotulo: 'Quitar'));
 
-  // Ver la cotizacion: quien no tenga el permiso no ve ni el boton ni la
-  // columna. El servidor filtra ademas cuales puede abrir el asesor.
   ACCIONES_COTIZACION: array [0 .. 0] of TAccionRejilla = ((Clave: 'ver';
     Rotulo: 'Ver'));
-
 
 constructor TfraClienteDatos.Crear(AOwner: TComponent;
   const AClienteId: Integer);
@@ -186,8 +170,6 @@ begin
   lVentana := TfrmContactoNuevo.Crear(Self, FClienteId);
   try
     if lVentana.ShowModal = mrOk then
-      // La pestana ya estaba cargada, asi que hay que pedirla de nuevo para
-      // que aparezca el contacto.
       FPresentador.Refrescar(pcContactos);
   finally
     lVentana.Free;
@@ -215,8 +197,6 @@ var
   lAccion: TAccionRejilla;
   I: Integer;
 begin
-  // El dibujo es del TDBGridExtend que AplicarTemaGrid le dejo a la rejilla:
-  // aqui solo se le dice que columna es suya y que botones lleva.
   lRejilla := TDBGridExtend.De(AGrid);
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
   if AActiva then
@@ -224,8 +204,6 @@ begin
       lRejilla.Agregar(lAccion.Clave, lAccion.Rotulo);
   lRejilla.OnAccion := AManejador;
 
-  // Sin permiso la columna no se muestra: una columna vacia se lee como si
-  // faltara algo.
   for I := 0 to AGrid.Columns.Count - 1 do
     if SameText(AGrid.Columns[I].FieldName, CAMPO_ACCIONES) then
     begin
@@ -243,7 +221,6 @@ begin
   btnEditarCliente.Enabled := not AEdicion;
   btnGuardarCliente.Enabled := AEdicion;
   btnCancelarEdicion.Enabled := AEdicion;
-  // Cambiar de pestana a media edicion dejaria cambios sin guardar.
   pstCliente.Enabled := not AEdicion;
 end;
 
@@ -280,7 +257,6 @@ procedure TfraClienteDatos.btnGuardarClienteClick(Sender: TObject);
 begin
   if not dmMemoria.mtClienteDetalle.Active then
     Exit;
-  // Post baja a la tabla lo que quedo en los controles.
   if dmMemoria.mtClienteDetalle.State in dsEditModes then
     dmMemoria.mtClienteDetalle.Post;
   FPresentador.Guardar(ClienteEditado);
@@ -305,12 +281,8 @@ end;
 procedure TfraClienteDatos.AccionContacto(Sender: TObject;
   const AClave: string);
 begin
-  // La rejilla ya movio el cursor a la fila pulsada: el contacto es el de esa
-  // fila.
   if dmMemoria.mtContactos.IsEmpty then
     Exit;
-  // Editar y quitar se construyen en los pasos siguientes: el backend ya
-  // tiene PUT e inactivacion de contactos.
   MessageDlg(SOpcionPendiente, mtInformation, [mbOK], 0);
 end;
 
@@ -319,7 +291,6 @@ procedure TfraClienteDatos.AccionCotizacion(Sender: TObject;
 begin
   if dmMemoria.mtClienteCotizaciones.IsEmpty then
     Exit;
-  // Abrir la cotizacion queda para cuando exista ese modulo.
   MessageDlg(SOpcionPendiente, mtInformation, [mbOK], 0);
 end;
 
@@ -328,7 +299,6 @@ begin
 
   TMapeoDatos.ATabla(ACliente, dmMemoria.mtClienteDetalle);
 
-  // La tarjeta del consentimiento vigente, en la pestana de al lado.
   pstEstado.Caption := ACliente.ConsentimientoEstado;
   valVersion.Caption := ACliente.ConsentimientoVersion.ValueOrElse(SIN_DATO);
   if ACliente.ConsentimientoFecha.HasValue then

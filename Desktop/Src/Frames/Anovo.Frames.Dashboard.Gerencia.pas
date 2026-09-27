@@ -1,5 +1,7 @@
 unit Anovo.Frames.Dashboard.Gerencia;
 
+// Seccion Vista de gerencia.
+
 interface
 
 uses
@@ -34,22 +36,18 @@ type
     grDatos: TrDBGrid;
     rDBGrid1: TrDBGrid;
   private
-    { Private declarations }
 
   public
-    { Public declarations }
       constructor Create(AOwner: TComponent); override;
   end;
 
 implementation
 
 {$R *.dfm}
-{ TfraDashboardGerencia }
 
 constructor TfraDashboardGerencia.Create(AOwner: TComponent);
 begin
   inherited;
-  //AplicarTemaGrid(grDatos);
 end;
 
 end.

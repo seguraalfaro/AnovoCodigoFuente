@@ -1,10 +1,6 @@
 unit Anovo.Forms.ContactoNuevo;
 
-// Ventana de contacto nuevo, la que abre la pestana Contactos de la ficha.
-// Mismo molde que la de cliente nuevo.
-//
-// De que cliente es lo dice quien la abre, no la ventana: el numero entra por
-// el constructor y viaja en la ruta.
+// Ventana de registro de un contacto nuevo del cliente.
 
 interface
 
@@ -44,16 +40,13 @@ type
     FPresentador: TPresentadorContactoNuevo;
     FContactoId: Integer;
     function ContactoEscrito: TContactoNuevoDTO;
-    // Revisa lo que se escribio y, si hay reparos, los muestra todos juntos.
     function ValidarCampos: Boolean;
-    // IVistaRegistro
     procedure MostrarGuardando(const AActivo: Boolean);
     procedure MostrarError(const AMensaje: string);
     procedure Guardado(const AId: Integer);
   public
-  
+
     constructor Crear(AOwner: TComponent; const AClienteId: Integer);
-    // El numero del contacto que se creo, o 0 si se cancelo.
     property ContactoId: Integer read FContactoId;
   end;
 
@@ -106,7 +99,6 @@ begin
         lReparos.Add('El correo no tiene una forma valida, por ejemplo ' +
           'nombre@dominio.cr');
 
-      // El de la oficina admite extension, el celular no.
       if (mtContactoNuevoTELEFONO.AsString <> '') and
         not TValidacion.TelefonoExt(mtContactoNuevoTELEFONO.AsString) then
         lReparos.Add('El telefono debe tener ocho digitos, con extension o ' +

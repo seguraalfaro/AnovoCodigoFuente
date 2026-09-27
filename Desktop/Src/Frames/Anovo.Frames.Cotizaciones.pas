@@ -1,5 +1,7 @@
 unit Anovo.Frames.Cotizaciones;
 
+// Seccion Listado de cotizaciones.
+
 interface
 
 uses
@@ -25,16 +27,13 @@ type
     pnclient: TRelativePanel;
     grDatos: TrDBGrid;
   private
-    { Private declarations }
   public
-    { Public declarations }
     constructor Create(AOwner: TComponent); override;
   end;
 
 implementation
 
 {$R *.dfm}
-{ TfraCotizaciones }
 
 constructor TfraCotizaciones.Create(AOwner: TComponent);
 begin

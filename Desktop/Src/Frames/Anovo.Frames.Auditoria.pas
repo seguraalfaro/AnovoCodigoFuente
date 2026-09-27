@@ -1,18 +1,6 @@
 unit Anovo.Frames.Auditoria;
 
-// Bitacora de auditoria (HU-09, lado escritorio): la vista.
-//
-// No decide nada. Pasa al presentador el periodo, la pestana, el texto y la
-// pagina, y muestra lo que el presentador le manda. Quien ve que tambien lo
-// decide el presentador, con los permisos.
-//
-// La rejilla lee de dmMemoria.dsAuditoria: la lista de DTO que llega del
-// presentador se copia ahi y se libera alla. Asi la vista no guarda objetos
-// que no son suyos.
-//
-// Solo se consulta. No hay boton de crear, ni de editar, ni acciones de fila:
-// la bitacora la escriben los disparadores y no se corrige desde ningun lado.
-// Esa es la garantia que la hace servir de evidencia.
+// Seccion Bitacora de auditoria (HU-09).
 
 interface
 
@@ -59,7 +47,6 @@ type
     FPresentador: TPresentadorAuditoria;
 
     FPoniendoPeriodo: Boolean;
-    // IVistaAuditoria
     procedure MostrarAlcance(const APuedeVerTodo: Boolean);
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarPeriodo(const ADesde, AHasta: TDateTime);
@@ -106,8 +93,6 @@ begin
   inherited;
   OcultarScrollVertical(grAuditoria);
 end;
-
-// IVistaAuditoria
 
 procedure TfraAuditoria.MostrarAlcance(const APuedeVerTodo: Boolean);
 begin
@@ -171,8 +156,6 @@ begin
   lblPaginacion.Caption := '';
   MessageDlg(AMensaje, mtWarning, [mbOK], 0);
 end;
-
-// Lo que hace la persona
 
 procedure TfraAuditoria.sbBuscarInvokeSearch(Sender: TObject);
 begin

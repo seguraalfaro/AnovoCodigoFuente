@@ -1,14 +1,7 @@
 unit Anovo.Presentadores.CatalogoItem;
 
-// Los presentadores de las dos ventanas de catalogos: el item y su precio.
-// Son cortos y hacen lo mismo que los de registro de clientes, por eso
-// comparten IVistaRegistro y viven juntos.
-//
-// La ventana arma el DTO con lo que se escribio y el presentador lo manda,
-// fuera del hilo de la interfaz. El DTO se libera aqui.
-//
-// El catalogo llega por constructor: la ruta a la que va cada DTO depende de
-// la pestana desde la que se abrio la ventana.
+// Presentadores de las ventanas del item de catalogo
+// y de su precio.
 
 interface
 
@@ -29,14 +22,10 @@ type
     FCatalogo: TCatalogo;
     FId: Integer;
   public
-    // AId en 0 es un item nuevo; con numero, es una edicion.
     constructor Create(const AVista: IVistaRegistro;
       const AApi: IApiCatalogos; const ACatalogo: TCatalogo;
       const AId: Integer);
     destructor Destroy; override;
-    // La ventana arma el DTO que corresponde a su catalogo y a si crea o
-    // edita, y lo entrega. Aqui se comprueba con as: si mando el que no era,
-    // falla en el acto y no en la serializacion. El DTO se libera aqui.
     procedure Guardar(const ADto: TObject);
   end;
 
@@ -64,14 +53,10 @@ uses
   Anovo.Api.Base,
   Anovo.Textos;
 
-// La frase completa vive en Anovo.Textos. Aqui solo se dice de que accion
-// se habla, que es lo unico que cambia de una pantalla a otra.
 function MensajeInesperado: string;
 begin
   Result := Format(SErrorInesperado, [SAccionGuardar]);
 end;
-
-{ TPresentadorItemCatalogo }
 
 constructor TPresentadorItemCatalogo.Create(const AVista: IVistaRegistro;
   const AApi: IApiCatalogos; const ACatalogo: TCatalogo; const AId: Integer);
@@ -110,8 +95,6 @@ begin
       lNuevo: Integer;
     begin
       lError := '';
-      // Al crear, el numero lo asigna la base y viene en Location. Al editar
-      // no hay numero nuevo y se devuelve el que ya tenia.
       lNuevo := lId;
       try
         try
@@ -160,8 +143,6 @@ begin
         end);
     end);
 end;
-
-{ TPresentadorPrecioCatalogo }
 
 constructor TPresentadorPrecioCatalogo.Create(const AVista: IVistaRegistro;
   const AApi: IApiCatalogos; const ACatalogo: TCatalogo; const AId: Integer);

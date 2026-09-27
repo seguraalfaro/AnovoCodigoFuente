@@ -1,5 +1,7 @@
 unit Anovo.Frames.Usuarios;
 
+// Seccion Gestion de usuarios.
+
 interface
 
 uses
@@ -22,9 +24,7 @@ type
     rpCliente: TRelativePanel;
     grDatos: TrDBGrid;
   private
-    { Private declarations }
   public
-    { Public declarations }
   end;
 
 implementation

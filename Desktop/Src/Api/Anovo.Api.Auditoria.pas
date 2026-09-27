@@ -1,11 +1,6 @@
 unit Anovo.Api.Auditoria;
 
-// La bitacora de auditoria contra el servidor.
-//
-// Dos rutas de listado y no una con filtro, porque asi las separa el servidor:
-// /api/auditoria pide auditoria.ver_toda y /api/auditoria/cuentas pide
-// auditoria.ver_cuentas. Aqui solo se escoge cual, con lo que diga el
-// presentador.
+// Cliente de la API de auditoria: bitacora completa y de cuentas.
 
 interface
 
@@ -39,8 +34,6 @@ const
   RUTA_AUDITORIA = '/api/auditoria';
   RUTA_CUENTAS = '/api/auditoria/cuentas';
 
-  // El formato que espera el controller. Fijo y no el de la maquina: la fecha
-  // viaja en la URL y no debe depender de la configuracion regional.
   FORMATO_FECHA = 'yyyy-mm-dd';
 
 function ComoTexto(const AFecha: TDateTime): string;
@@ -61,8 +54,6 @@ begin
     var
       lCliente: IMVCRESTClient;
     begin
-      // Por parametro y no pegado a la ruta: el cliente REST codifica los
-      // espacios y las tildes de lo que se escribio en el buscador.
       lCliente := NuevoCliente
         .AddQueryStringParam('desde', ComoTexto(ADesde))
         .AddQueryStringParam('hasta', ComoTexto(AHasta))
@@ -83,7 +74,6 @@ begin
 
   Result := TObjectList<TAuditoriaDTO>.Create(True);
   try
-    // Coleccion del contrato: la lista en data, la paginacion en la raiz.
     lRespuesta.BodyForListOf(Result, TAuditoriaDTO, 'data');
 
     lJson := TJsonObject.Parse(lRespuesta.Content) as TJsonObject;
@@ -93,8 +83,6 @@ begin
       lJson.Free;
     end;
   except
-    // Si falla a mitad de la lectura, la lista no la recibe nadie que la
-    // pueda liberar.
     Result.Free;
     raise;
   end;

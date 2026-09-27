@@ -1,13 +1,7 @@
 unit Anovo.Presentadores.ClienteDatos;
 
-// La logica de la ficha del cliente, fuera del frame.
-//
-// Cada pestana pide sus datos la primera vez que se abre, no al entrar: quien
-// solo quiere ver el telefono no espera por los contactos ni por el historial.
-//
-// Mismas dos trampas que el listado, y se resuelven igual: el frame se puede
-// destruir mientras una respuesta viene en camino -el destructor cancela-, y
-// dos peticiones pueden volver en otro orden -solo se muestra la ultima-.
+// Presentador de la ficha del cliente: cada pestana
+// carga sus datos la primera vez que se abre.
 
 interface
 
@@ -36,11 +30,8 @@ type
     destructor Destroy; override;
     procedure Iniciar;
     procedure AbrirPestana(const APestana: TPestanaCliente);
-    // Vuelve a pedir lo de una pestana: despues de editar o de revocar.
     procedure Refrescar(const APestana: TPestanaCliente);
-    // El DTO lo arma la vista desde la tabla y lo libera el presentador.
     procedure Guardar(const ADto: TClienteEdicionDTO);
-    // No tocan la vista: se prueban asignando permisos a TSesion.
     class function PuedeEditar: Boolean;
     class function PuedeRevocar: Boolean;
     class function PuedeVerCotizaciones: Boolean;
@@ -57,8 +48,6 @@ uses
   Anovo.Sesion,
   Anovo.Textos;
 
-// La frase completa vive en Anovo.Textos. Aqui solo se dice de que accion
-// se habla, que es lo unico que cambia de una pantalla a otra.
 function MensajeInesperado: string;
 begin
   Result := Format(SErrorInesperado, [SAccionCargarFichaCliente]);

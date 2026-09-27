@@ -1,17 +1,6 @@
 unit Anovo.Frames.Catalogos;
 
-// Catalogos (HU-05, lado escritorio): la vista de los cuatro listados.
-//
-// No decide nada. Pasa al presentador la pestana, el texto, la categoria y la
-// pagina, y muestra lo que el presentador le manda. Que acciones y botones se
-// ven tambien lo decide el presentador, con los permisos.
-//
-// Una sola rejilla para los cuatro catalogos: dsCatalogo apunta a la tabla de
-// la pestana activa. Cuatro rejillas superpuestas serian cuatro juegos de
-// columnas que mantener.
-//
-// Las listas de DTO que llegan del presentador se copian a dmMemoria y se
-// liberan alla: la vista no guarda objetos que no son suyos.
+// Seccion Catalogos (HU-05): los listados y la lista Todos.
 
 interface
 
@@ -66,7 +55,6 @@ type
     procedure AjustarColumnas;
     procedure TipoGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
-    // IVistaCatalogos
     procedure MostrarCatalogo(const ACatalogo: TCatalogo);
     procedure MostrarAcciones(const AAcciones: TAccionesCatalogo;
       const APuedeCrear: Boolean);
@@ -117,28 +105,17 @@ type
 const
   CAMPO_ACCIONES = 'ACCIONES';
   CAMPO_ESTADO = 'ESTADO';
-  // Tipos de trabajo no lleva precio, asi que tampoco esta columna: por eso
-  // se busca con FindField y no con FieldByName.
   CAMPO_PROGRAMADO = 'PROGRAMADO_FECHA';
 
-  // Mismo orden que TAccionCatalogo. La clave es la que llega a Accion.
   ACCIONES: array [TAccionCatalogo] of TAccionRejilla =
     ((Clave: 'editar'; Rotulo: 'Editar'),
     (Clave: 'historial'; Rotulo: 'Historial'),
     (Clave: 'precio'; Rotulo: 'Precio'),
     (Clave: 'inactivar'; Rotulo: 'Inactivar'));
 
-  // Lo que la pastilla muestra. En la tabla se guarda el booleano tal como
-  // vino; esto es solo para el dibujo, que pinta texto y no un si o un no.
   ESTADO_ACTIVO = 'activo';
   ESTADO_INACTIVO = 'inactivo';
-  // Activo, pero con un cambio de precio esperando fecha. Gana sobre 'activo'
-  // porque es lo que hay que saber ahora: el precio que se ve va a cambiar.
   ESTADO_PROGRAMADO = 'programado';
-
-// Lo que se lee arriba, en el boton y en la caja de busqueda, por pestana.
-// Funciones y no arreglos const: el texto vive en Anovo.Textos como
-// resourcestring, y un resourcestring no sirve en una expresion constante.
 
 function TituloDe(const ACatalogo: TCatalogo): string;
 begin
@@ -170,11 +147,6 @@ begin
   end;
 end;
 
-// El codigo que manda el backend en la columna TIPO, pasado al catalogo del
-// escritorio. Un codigo que no se conoce cae en materiales: si el backend
-// agregara un tipo nuevo sin que el escritorio se entere, mejor abrir una
-// ventana equivocada que reventar; y los tres codigos salen de la misma unidad
-// de DTO que compilan los dos, asi que no deberian desalinearse.
 function CatalogoDeTipo(const ATipo: string): TCatalogo;
 begin
   if SameText(ATipo, TIPO_MANO_OBRA) then
@@ -187,8 +159,6 @@ end;
 
 function PistaBusquedaDe(const ACatalogo: TCatalogo): string;
 begin
-  // Tipos de trabajo solo tiene nombre: no hay codigo ni descripcion donde
-  // buscar.
   if ACatalogo = ctTiposTrabajo then
     Result := SPistaBusquedaNombre
   else
@@ -206,18 +176,13 @@ end;
 
 destructor TfraCatalogos.Destroy;
 begin
-  // dmMemoria vive mas que el frame: si el campo se quedara con el evento, la
-  // proxima vez que alguien lo dibujara llamaria a un objeto ya liberado.
   dmMemoria.mtTodosTIPO.OnGetText := nil;
   FPresentador.Free;
   inherited;
 end;
 
-// Apoyo
-
 function TfraCatalogos.IdDeLaFila: Integer;
 begin
-  // La rejilla ya movio el cursor a la fila pulsada: el ID es el de esa fila.
   Result := 0;
   if (dmMemoria.dsCatalogo.DataSet = nil) or
     dmMemoria.dsCatalogo.DataSet.IsEmpty then
@@ -229,8 +194,6 @@ procedure TfraCatalogos.MarcarEstados(const ATabla: TDataSet);
 var
   lProgramado: TField;
 begin
-  // El DTO trae ACTIVO como booleano y la pastilla dibuja texto, asi que el
-  // texto se deriva aqui, despues de copiar las filas.
   lProgramado := ATabla.FindField(CAMPO_PROGRAMADO);
 
   ATabla.DisableControls;
@@ -280,14 +243,10 @@ begin
   else if SameText(AClave, ACCIONES[acPrecio].Clave) then
     FPresentador.CambiarPrecio(lId)
   else if SameText(AClave, ACCIONES[acInactivar].Clave) then
-    // Se confirma aqui y no en el presentador: preguntar es cosa de la
-    // pantalla, y el presentador no sabe de ventanas.
     if MessageDlg(SConfirmarInactivar, mtConfirmation, [mbYes, mbNo], 0)
       = mrYes then
       FPresentador.Inactivar(lId);
 end;
-
-// IVistaCatalogos
 
 procedure TfraCatalogos.MostrarCatalogo(const ACatalogo: TCatalogo);
 begin
@@ -297,11 +256,8 @@ begin
   btnNuevo.Caption := RotuloNuevoDe(ACatalogo);
   sbBuscar.TextHint := PistaBusquedaDe(ACatalogo);
 
-  // La categoria solo existe en mano de obra.
   cbCategoria.Visible := ACatalogo = ctManoObra;
 
-  // Tipos de trabajo trae la lista entera: el buscador no tiene a quien
-  // preguntarle.
   sbBuscar.Visible := ACatalogo <> ctTiposTrabajo;
 
   case ACatalogo of
@@ -317,10 +273,6 @@ begin
     dmMemoria.dsCatalogo.DataSet := dmMemoria.mtMateriales;
   end;
   grDatos.DataSource := dmMemoria.dsCatalogo;
-  // Las columnas no se declaran aqui: salen de los campos visibles del dataset,
-  // en el orden en que estan en dmMemoria, con su DisplayLabel de titulo. Cada
-  // mtXxx dice que se ve y que no; el ancho lo pone AjustarColumnas midiendo lo
-  // que llego. Con csDefault la rejilla las vuelve a armar al cambiar de tabla.
   grDatos.Columns.State := csDefault;
 end;
 
@@ -332,11 +284,7 @@ var
 begin
   btnNuevo.Visible := APuedeCrear;
 
-  // El dibujo es del TDBGridExtend que AplicarTemaGrid le dejo a la rejilla:
-  // aqui solo se le dice que columnas son suyas.
   lRejilla := TDBGridExtend.De(grDatos);
-  // Limpiar primero: esto se llama en cada cambio de pestana y si no, los
-  // botones se van sumando.
   lRejilla.Limpiar;
   lRejilla.ColumnaEstado(CAMPO_ESTADO);
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
@@ -352,10 +300,6 @@ var
   lRejilla: TDBGridExtend;
   I: Integer;
 begin
-  // La rejilla arma sus columnas sola a partir del dataset, y lo rehace cada
-  // vez que llegan filas nuevas. Por eso esto corre despues de cargar y no
-  // solo al declarar las acciones: al declararlas la tabla todavia esta
-  // vacia y no hay columnas que ajustar.
   lRejilla := TDBGridExtend.De(grDatos);
   for I := 0 to grDatos.Columns.Count - 1 do
     if SameText(grDatos.Columns[I].FieldName, CAMPO_ACCIONES) then
@@ -364,8 +308,6 @@ begin
       grDatos.Columns[I].Width := lRejilla.AnchoAcciones;
     end;
 
-  // Las columnas se miden contra lo que trajo la pagina y se reparten el ancho
-  // de la rejilla. Con la unidad delante porque este metodo se llama igual.
   Anovo.UI.DBGridExtend.AjustarColumnas(grDatos);
 end;
 
@@ -373,8 +315,6 @@ procedure TfraCatalogos.Resize;
 begin
   inherited;
   OcultarScrollVertical(grDatos);
-  // Al agrandar o achicar la ventana, las columnas se vuelven a repartir el
-  // ancho. Sin datos cargados no hace nada: la rutina lo revisa.
   Anovo.UI.DBGridExtend.AjustarColumnas(grDatos);
 end;
 
@@ -428,16 +368,12 @@ function TfraCatalogos.CatalogoDeLaFila: TCatalogo;
 begin
   if dmMemoria.mtTodos.IsEmpty then
     Exit(ctMateriales);
-  // AsString y no Text: Text pasa por TipoGetText y trae el rotulo, no el
-  // codigo.
   Result := CatalogoDeTipo(dmMemoria.mtTodosTIPO.AsString);
 end;
 
 procedure TfraCatalogos.TipoGetText(Sender: TField; var Text: string;
   DisplayText: Boolean);
 begin
-  // La columna guarda el codigo que viaja en el JSON; en pantalla se lee el
-  // nombre del catalogo.
   case CatalogoDeTipo(Sender.AsString) of
     ctManoObra:
       Text := STipoManoObra;
@@ -472,8 +408,6 @@ begin
   cbCategoria.Items.BeginUpdate;
   try
     cbCategoria.Items.Clear;
-    // El objeto queda guardado en el item: al filtrar hace falta el id, no el
-    // texto.
     cbCategoria.Items.AddObject(STodasLasCategorias,
       TObject(0));
     for lCategoria in ACategorias do
@@ -508,8 +442,6 @@ end;
 procedure TfraCatalogos.MostrarFormularioItem(const ACatalogo: TCatalogo;
   const AId: Integer);
 begin
-  // Las categorias ya estan en el desplegable de la barra: se le prestan a la
-  // ventana en vez de volver a pedirlas.
   if TfrmItemCatalogo.Mostrar(Self, ACatalogo, AId, cbCategoria.Items) then
     FPresentador.Recargar;
 end;
@@ -525,12 +457,8 @@ end;
 procedure TfraCatalogos.MostrarHistorial(const AFilas
   : TObjectList<TPrecioDTO>);
 begin
-  // La lista es del presentador y se libera al volver: se copia a la tabla
-  // antes de abrir la ventana.
   TMapeoDatos.AListaTabla<TPrecioDTO>(AFilas, dmMemoria.mtHistorialPrecio);
   MarcarEstados(dmMemoria.mtHistorialPrecio);
-  // En Todos, FCatalogo no dice de que es la fila; la ventana lo necesita
-  // para saber que columnas de precio mostrar.
   if FCatalogo = ctTodos then
     TfrmPrecioCatalogo.Mostrar(Self, CatalogoDeLaFila, 0, NombreDeLaFila,
       mpHistorial)
@@ -538,9 +466,6 @@ begin
     TfrmPrecioCatalogo.Mostrar(Self, FCatalogo, 0, NombreDeLaFila,
       mpHistorial);
 end;
-
-// Eventos
-
 
 procedure TfraCatalogos.sbBuscarInvokeSearch(Sender: TObject);
 begin
@@ -554,7 +479,6 @@ end;
 
 procedure TfraCatalogos.pstCatalogoChange(Sender: TObject);
 begin
-  // Llega antes de que el presentador exista, mientras se carga el .dfm.
   if not Assigned(FPresentador) then
     Exit;
   FPresentador.Filtrar(TCatalogo(pstCatalogo.ItemIndex));
@@ -587,8 +511,6 @@ end;
 
 procedure TfraCatalogos.btnExportarClick(Sender: TObject);
 begin
-  // Exporta lo que la rejilla tiene cargado, que es la pagina actual. Traer
-  // el catalogo entero antes de exportar esta pendiente.
   rDBExport.DBExport(grDatos, True, True);
 end;
 

@@ -1,13 +1,7 @@
 unit Anovo.Cancelacion;
 
-// La bandera que comparten un presentador y las tareas que lanzo.
-//
-// El frame se destruye al cambiar de seccion y la respuesta puede llegar
-// despues. El destructor del presentador cancela, y lo que vuelva se tira sin
-// tocar una pantalla que ya no existe.
-//
-// Es una interfaz y no un campo del presentador porque la tarea la conserva
-// aunque el presentador ya se haya liberado.
+// Bandera que comparte un presentador con sus tareas, para tirar
+// la respuesta que llega cuando la pantalla ya se cerro.
 
 interface
 

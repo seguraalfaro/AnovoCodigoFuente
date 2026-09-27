@@ -1,7 +1,7 @@
 unit Anovo.Api.Clientes;
 
-// Clientes contra el servidor: el listado y la ficha (datos, contactos e
-// historial de consentimiento).
+// Cliente de la API de clientes: listado, ficha, contactos y
+// consentimiento.
 
 interface
 
@@ -49,8 +49,6 @@ begin
     var
       lCliente: IMVCRESTClient;
     begin
-      // Por parametro y no pegado a la ruta: el cliente REST codifica los
-      // espacios y las tildes de lo que se escribio en el buscador.
       lCliente := NuevoCliente
         .AddQueryStringParam('q', ATexto)
         .AddQueryStringParam('pagina', APagina)
@@ -62,7 +60,6 @@ begin
 
   Result := TObjectList<TClienteDTO>.Create(True);
   try
-    // Coleccion del contrato: la lista en data, la paginacion en la raiz.
     lRespuesta.BodyForListOf(Result, TClienteDTO, 'data');
 
     lJson := TJsonObject.Parse(lRespuesta.Content) as TJsonObject;
@@ -72,8 +69,6 @@ begin
       lJson.Free;
     end;
   except
-    // Si falla a mitad de la lectura, la lista no la recibe nadie que la
-    // pueda liberar.
     Result.Free;
     raise;
   end;
@@ -91,7 +86,6 @@ begin
 
   Result := TClienteDTO.Create;
   try
-    // El objeto viene dentro de data, como en el resto del contrato.
     lRespuesta.BodyFor(Result, 'data');
   except
     Result.Free;
@@ -113,7 +107,6 @@ begin
 
   Result := TObjectList<TContactoDTO>.Create(True);
   try
-    // Sin paginar: un cliente tiene unos pocos contactos.
     lRespuesta.BodyForListOf(Result, TContactoDTO, 'data');
   except
     Result.Free;
@@ -145,8 +138,6 @@ end;
 procedure TApiClientes.Actualizar(const AId: Integer;
   const ADto: TClienteEdicionDTO);
 begin
-  // 204 sin cuerpo: no hay nada que leer, y Ejecutar ya convirtio cualquier
-  // error del servidor en excepcion.
   Ejecutar(
     function: IMVCRESTResponse
     begin

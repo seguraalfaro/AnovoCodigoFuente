@@ -1,5 +1,7 @@
 unit Anovo.Frames.CotizacionNueva;
 
+// Frame de cotizacion nueva. Sin uso por ahora.
+
 interface
 
 uses
@@ -11,17 +13,13 @@ uses
 type
   TfraCotizacionNueva = class(TFrame)
   private
-    { Private declarations }
   public
-    { Public declarations }
     constructor Create(AOwner: TComponent); override;
   end;
 
 implementation
 
 {$R *.dfm}
-
-{ TfraCotizacionNueva }
 
 constructor TfraCotizacionNueva.Create(AOwner: TComponent);
 begin

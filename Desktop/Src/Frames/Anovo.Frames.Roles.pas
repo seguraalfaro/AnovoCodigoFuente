@@ -1,5 +1,7 @@
 unit Anovo.Frames.Roles;
 
+// Seccion Roles y permisos, solo consulta.
+
 interface
 
 uses
@@ -9,9 +11,7 @@ uses
 type
   TfraRoles = class(TFrame)
   private
-    { Private declarations }
   public
-    { Public declarations }
   end;
 
 implementation

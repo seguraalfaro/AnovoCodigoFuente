@@ -1,5 +1,7 @@
 unit Anovo.Frames.GeneracionCotizacion;
 
+// Seccion Generacion de cotizacion.
+
 interface
 
 uses
@@ -45,9 +47,7 @@ type
     lblAjuste: TLabel;
     lblSubtotal: TLabel;
   private
-    { Private declarations }
   public
-    { Public declarations }
   end;
 
 implementation

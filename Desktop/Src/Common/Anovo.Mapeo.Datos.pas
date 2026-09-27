@@ -1,21 +1,6 @@
 unit Anovo.Mapeo.Datos;
 
-// Pasa DTO a filas de una tabla en memoria, y filas a DTO, copiando por
-// nombre. Es el hermano del TMapeo del backend: alla entre entidad y DTO,
-// aqui entre DTO y dataset.
-//
-// El nombre del campo es el del contrato del DTO, en mayusculas: el mismo
-// que la columna de la base. Sale de [MVCNameAs] cuando la propiedad lo
-// lleva -objversion-, y si no de [MVCNameCase(ncSnakeCase)]: UuidLocal busca
-// UUID_LOCAL. Una sola regla, sin excepciones. Lo que no exista en la tabla
-// se salta: una tabla de listado lleva menos columnas que el DTO.
-//
-// Tipos, como en el backend: un Nullable sin valor deja el campo nulo, y un
-// campo nulo deja el Nullable sin valor. Lo demas se copia segun el tipo del
-// campo.
-//
-// Lo que no hace: objetos anidados ni listas. Esos necesitan su propio mapeo,
-// porque una fila no puede guardar otra tabla adentro.
+// Copia entre DTO y filas de una tabla en memoria, por nombre.
 
 interface
 
@@ -30,22 +15,15 @@ type
   private
     class procedure ALaFila(const AOrigen: TObject;
       const ATabla: TFDMemTable); static;
-    // Un metodo generico no puede llamar a una rutina suelta de la
-    // implementacion, asi que la vuelta tambien vive en la clase.
     class procedure DeLaFila(const ATabla: TDataSet;
       const ADestino: TObject); static;
   public
-    // La ficha: una fila con ese DTO y nada mas.
     class procedure ATabla(const AOrigen: TObject;
       const ATabla: TFDMemTable); static;
 
-    // El listado: la tabla queda con lo que trae la lista. La lista sigue
-    // siendo de quien la paso, aqui solo se lee.
     class procedure AListaTabla<T: class>(const AOrigen: TObjectList<T>;
       const ATabla: TFDMemTable); static;
 
-    // La vuelta: el registro actual en un DTO nuevo, que libera quien lo
-    // recibe.
     class function ADto<TD: class, constructor>(const ATabla: TDataSet)
       : TD; static;
   end;
@@ -59,10 +37,6 @@ uses
   MVCFramework.Nullables,
   MVCFramework.Serializer.Commons;
 
-// CAMPOS
-
-// NombreCliente pasa a NOMBRE_CLIENTE, que es como se llama en la base y en
-// el JSON del contrato.
 function ASnake(const ANombre: string): string;
 var
   I: Integer;
@@ -78,8 +52,6 @@ begin
   Result := UpperCase(Result);
 end;
 
-// El nombre que el DTO declara para esa propiedad. [MVCNameAs] manda sobre
-// la conversion, que es lo que resuelve objversion sin tratarla aparte.
 function NombreEnElContrato(const APropiedad: TRttiProperty): string;
 var
   lAtributo: TCustomAttribute;
@@ -90,11 +62,6 @@ begin
   Result := ASnake(APropiedad.Name);
 end;
 
-// Nil si la tabla no tiene esa columna, que es un caso normal.
-//
-// Los campos de busqueda y los calculados tampoco cuentan: no son columnas,
-// son el rotulo que la pantalla muestra en lugar del numero. Quien los guarda
-// es la columna de la que cuelgan.
 function CampoDe(const ATabla: TDataSet;
   const APropiedad: TRttiProperty): TField;
 begin
@@ -102,13 +69,6 @@ begin
   if Assigned(Result) and (Result.FieldKind <> fkData) then
     Result := nil;
 end;
-
-// NULLABLES
-//
-// Son registros con dos campos privados: fValue y fHasValue, este ultimo un
-// string que vale '' cuando no hay valor. Se leen y escriben los campos
-// porque HasValue y Value son metodos del registro, y llamarlos por RTTI
-// sobre un registro es mas enredado que tocar dos campos.
 
 function EsNulable(const ATipo: PTypeInfo): Boolean;
 begin
@@ -140,15 +100,10 @@ begin
   lCampo := lTipo.GetField('fValue');
   lCampo.SetValue(lRegistro.GetReferenceToRawData,
     AInterno.Cast(lCampo.FieldType.Handle));
-  // '_' es lo que escribe el SetValue del propio Nullable.
   lTipo.GetField('fHasValue').SetValue(lRegistro.GetReferenceToRawData, '_');
   ADestino.SetValue(AObjeto, lRegistro);
 end;
 
-// VALOR DE IDA Y VUELTA
-
-// TDateTime, TDate y TTime son Double por dentro: sin esto, una fecha entraria
-// al campo como numero.
 function EsFecha(const ATipo: PTypeInfo): Boolean;
 begin
   Result := (ATipo = TypeInfo(TDateTime)) or (ATipo = TypeInfo(TDate)) or
@@ -200,7 +155,6 @@ begin
   end;
 end;
 
-// Se salta lo que no tiene sentido en una fila: objetos, listas y punteros.
 function EsCopiable(const ATipo: TRttiType): Boolean;
 begin
   Result := Assigned(ATipo) and
@@ -231,7 +185,6 @@ begin
 
     if EsNulable(lPropiedad.PropertyType.Handle) then
     begin
-      // Un campo nulo deja el Nullable como estaba, sin valor.
       if lCampo.IsNull then
         Continue;
       lTipo := lContexto.GetType(lPropiedad.PropertyType.Handle)
@@ -247,8 +200,6 @@ begin
     end;
   end;
 end;
-
-// TMapeoDatos
 
 class procedure TMapeoDatos.ALaFila(const AOrigen: TObject;
   const ATabla: TFDMemTable);
@@ -267,7 +218,6 @@ begin
       Continue;
 
     lCampo := CampoDe(ATabla, lPropiedad);
-    // La tabla del listado lleva menos columnas que el DTO: no es un error.
     if (lCampo = nil) or lCampo.ReadOnly then
       Continue;
 
@@ -279,7 +229,6 @@ begin
       else
         lCampo.Clear;
     end
-    // Un registro que no es Nullable no se sabe como guardar.
     else if lPropiedad.PropertyType.TypeKind <> tkRecord then
       AlCampo(lCampo, lValor, lPropiedad.PropertyType.Handle);
   end;
@@ -288,7 +237,6 @@ end;
 class procedure TMapeoDatos.ATabla(const AOrigen: TObject;
   const ATabla: TFDMemTable);
 begin
-  // CreateDataSet sobre una tabla ya creada la deja vacia y lista.
   ATabla.Close;
   ATabla.CreateDataSet;
   ATabla.Append;
@@ -296,7 +244,6 @@ begin
     ALaFila(AOrigen, ATabla);
     ATabla.Post;
   except
-    // Sin esto la tabla se queda en insercion y el proximo Append falla.
     ATabla.Cancel;
     raise;
   end;

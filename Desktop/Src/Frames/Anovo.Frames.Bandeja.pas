@@ -1,5 +1,7 @@
 unit Anovo.Frames.Bandeja;
 
+// Seccion Bandeja del supervisor.
+
 interface
 
 uses
@@ -22,9 +24,7 @@ type
     RelativePanel1: TRelativePanel;
     tpPendiente: TPlanoTarjeta;
   private
-    { Private declarations }
   public
-    { Public declarations }
   end;
 
 implementation

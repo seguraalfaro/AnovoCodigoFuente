@@ -1,13 +1,7 @@
 unit Anovo.Presentadores.Registro;
 
-// Los presentadores de las dos ventanas de registro: cliente nuevo y contacto
-// nuevo. Son cortos y hacen lo mismo, por eso viven juntos.
-//
-// La ventana arma el DTO con lo que se escribio y el presentador lo manda,
-// fuera del hilo de la interfaz como el resto. El DTO se libera aqui.
-//
-// La ventana es modal, asi que no se destruye con la respuesta en camino; aun
-// asi se usa la misma cancelacion, para no tener dos formas de lo mismo.
+// Presentadores de las ventanas de cliente nuevo y
+// contacto nuevo.
 
 interface
 
@@ -51,14 +45,10 @@ uses
   Anovo.Api.Base,
   Anovo.Textos;
 
-// La frase completa vive en Anovo.Textos. Aqui solo se dice de que accion
-// se habla, que es lo unico que cambia de una pantalla a otra.
 function MensajeInesperado: string;
 begin
   Result := Format(SErrorInesperado, [SAccionGuardar]);
 end;
-
-  // TPresentadorClienteNuevo
 
 constructor TPresentadorClienteNuevo.Create(const AVista: IVistaRegistro;
   const AApi: IApiClientes);
@@ -119,8 +109,6 @@ begin
         end);
     end);
 end;
-
-// TPresentadorContactoNuevo
 
 constructor TPresentadorContactoNuevo.Create(const AVista: IVistaRegistro;
 const AApi: IApiClientes; const AClienteId: Integer);

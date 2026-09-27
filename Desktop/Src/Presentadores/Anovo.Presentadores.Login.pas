@@ -1,16 +1,7 @@
 unit Anovo.Presentadores.Login;
 
-// La logica del login, fuera del formulario.
-//
-// Dos metodos a proposito:
-//
-//   Resolver   sincronico. Llama a la API, abre la sesion y decide el destino.
-//              Es lo que se prueba con DUnitX, con una API y una vista falsas.
-//   Ingresar   lo que llama la pantalla. Ejecuta Resolver fuera del hilo de
-//              la interfaz y devuelve el resultado a la vista en el principal.
-//
-// Asi la prueba no tiene que lidiar con hilos, y la ventana no se congela
-// mientras el servidor contesta o tarda en rendirse.
+// Presentador del login: abre la sesion y decide si va a la
+// ventana principal o al cambio de clave.
 
 interface
 
@@ -42,8 +33,6 @@ uses
   Anovo.Sesion,
   Anovo.Textos;
 
-// La frase completa vive en Anovo.Textos. Aqui solo se dice de que accion
-// se habla, que es lo unico que cambia de una pantalla a otra.
 function MensajeInesperado: string;
 begin
   Result := Format(SErrorInesperado, [SAccionIngresar]);
@@ -62,16 +51,11 @@ function TPresentadorLogin.Resolver(const ACorreo, AClave: string)
 begin
   TSesion.Abrir(FApi.IniciarSesion(ACorreo.Trim, AClave));
 
-  // Primero la clave provisional: con ella el token trae el rol clave_vencida,
-  // que no tiene permisos, y se le negaria el acceso a alguien que solo tiene
-  // que cambiar la clave.
   if TSesion.DebeCambiarClave then
     Exit(rlDebeCambiarClave);
 
   TSesion.AsignarPermisos(FApi.ObtenerPermisos);
 
-  // Sin ningun permiso no hay modulo que abrir. Ya no se mira el rol: el
-  // asesor tambien entra, con lo que la matriz le da.
   if Length(TSesion.Permisos) = 0 then
   begin
     TSesion.Cerrar;
@@ -112,16 +96,12 @@ begin
             lError := SCredencialesInvalidas
           else
             lError := E.Message;
-        // Sin conexion y sesion vencida ya traen su mensaje para la persona.
         on E: EAnovoCliente do
           lError := E.Message;
-        // Una excepcion que se escapa de TTask no la ve nadie: el hilo muere en
-        // silencio y el indicador de carga se queda girando para siempre.
         on E: Exception do
           lError := MensajeInesperado;
       end;
 
-      // Los controles solo se tocan desde el hilo principal.
       TThread.Queue(nil,
         procedure
         begin

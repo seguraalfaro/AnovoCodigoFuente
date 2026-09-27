@@ -1,5 +1,6 @@
 ﻿unit Anovo.Frames.Dashboard;
 
+// Seccion Dashboard de asistente y supervisor.
 
 interface
 

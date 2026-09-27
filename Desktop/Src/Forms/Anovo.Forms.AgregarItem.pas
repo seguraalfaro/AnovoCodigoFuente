@@ -1,5 +1,7 @@
 unit Anovo.Forms.AgregarItem;
 
+// Ventana para agregar un item a una cotizacion. Sin uso por ahora.
+
 interface
 
 uses
@@ -35,9 +37,7 @@ type
     PlanoPastilla1: TPlanoPastilla;
     procedure Button1Click(Sender: TObject);
   private
-    { Private declarations }
   public
-    { Public declarations }
   end;
 
 var
