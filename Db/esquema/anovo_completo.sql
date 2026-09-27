@@ -3,7 +3,7 @@
    Firebird 4.0 - base ANOVO
 
    La base entera desde cero, en el estado que dejo la ultima migracion. Es la
-   suma de migraciones\01 a 15 en orden de aplicacion; cada tramo conserva la
+   suma de migraciones\01 a 20 en orden de aplicacion; cada tramo conserva la
    cabecera de su script para saber de donde salio. La 12 no tiene tramo
    propio: su cambio ya esta en la tabla MANO_OBRA del tramo 01.
 
@@ -2098,3 +2098,560 @@ GRANT USAGE ON EXCEPTION E_AUDITORIA_SIN_USUARIO TO TRIGGER TR_UNIDADES_MEDIDA_A
 GRANT SELECT, INSERT, UPDATE ON UNIDADES_MEDIDA TO ROL_BACKEND;
 
 COMMIT;
+
+
+/* ############################################################################
+   TRAMO 16_gerencia_sin_elaborar.sql
+   ############################################################################ */
+
+/* ============================================================================
+   Anovo - Migracion 16: gerencia revisa y aprueba, no elabora
+   ----------------------------------------------------------------------------
+   Gerencia tenia cotizaciones.elaborar desde la matriz inicial. Con la cola
+   comun de solicitudes eso le permitia tomar solicitudes y crear cotizaciones,
+   y Marcos definio el 27/09/2026 que gerencia solo revisa y aprueba: tomar de
+   la cola es del asistente y del supervisor.
+
+   Se quita el permiso en la base, no solo en el menu: el servidor evalua los
+   permisos en cada peticion contra ROLES_PERMISOS, y un boton oculto no
+   impide llamar a la API.
+
+   ROLES_PERMISOS esta auditada: el script se identifica como el primer
+   administrador activo, que es quien migra, como en la migracion 13.
+
+   Despues de aplicarla, invalidar la cache de permisos desde la ventana del
+   servidor o reiniciarlo.
+   ============================================================================ */
+
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID',
+  (SELECT MIN(ID) FROM USUARIOS WHERE ROL_ID = 5 AND ACTIVO = TRUE))
+  FROM RDB$DATABASE;
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE',
+  'Gerencia revisa y aprueba cotizaciones; no las elabora')
+  FROM RDB$DATABASE;
+
+DELETE FROM ROLES_PERMISOS
+ WHERE ROL_ID = (SELECT ID FROM ROLES WHERE CODIGO = 'gerencia')
+   AND PERMISO_ID = (SELECT ID FROM PERMISOS
+                      WHERE CODIGO = 'cotizaciones.elaborar');
+
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE', NULL) FROM RDB$DATABASE;
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID', NULL) FROM RDB$DATABASE;
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   COMPROBACION
+
+     SELECT R.CODIGO, P.CODIGO
+       FROM ROLES_PERMISOS RP
+       JOIN ROLES R ON R.ID = RP.ROL_ID
+       JOIN PERMISOS P ON P.ID = RP.PERMISO_ID
+      WHERE P.CODIGO = 'cotizaciones.elaborar';
+
+   Tienen que salir solo asistente y supervisor.
+   ---------------------------------------------------------------------------- */
+
+
+/* ############################################################################
+   TRAMO 17_gerencia_elabora.sql
+   ############################################################################ */
+
+/* ============================================================================
+   Anovo - Migracion 17: gerencia vuelve a elaborar cotizaciones
+   ----------------------------------------------------------------------------
+   Revierte la 16. La minuta 07/2026 (tema 2), firmada por el patrocinador,
+   dice que gerencia elabora y modifica cotizaciones; la 16 se lo habia
+   quitado sin un acuerdo nuevo que la respalde. Mientras no haya una minuta
+   que cambie esa matriz, manda la firmada.
+
+   La 16 no se edita ni se borra porque ya se aplico: los scripts son
+   acumulativos y un cambio es un script nuevo.
+
+   Despues de aplicarla, invalidar la cache de permisos desde la ventana del
+   servidor o reiniciarlo.
+   ============================================================================ */
+
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID',
+  (SELECT MIN(ID) FROM USUARIOS WHERE ROL_ID = 5 AND ACTIVO = TRUE))
+  FROM RDB$DATABASE;
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE',
+  'Gerencia elabora cotizaciones segun la minuta 07/2026')
+  FROM RDB$DATABASE;
+
+INSERT INTO ROLES_PERMISOS (ROL_ID, PERMISO_ID, AMBITO)
+  SELECT R.ID, P.ID, 'negocio'
+    FROM ROLES R, PERMISOS P
+   WHERE R.CODIGO = 'gerencia'
+     AND P.CODIGO = 'cotizaciones.elaborar'
+     AND NOT EXISTS (SELECT 1 FROM ROLES_PERMISOS RP
+                      WHERE RP.ROL_ID = R.ID AND RP.PERMISO_ID = P.ID);
+
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE', NULL) FROM RDB$DATABASE;
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID', NULL) FROM RDB$DATABASE;
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   COMPROBACION
+
+     SELECT R.CODIGO FROM ROLES_PERMISOS RP
+       JOIN ROLES R ON R.ID = RP.ROL_ID
+       JOIN PERMISOS P ON P.ID = RP.PERMISO_ID
+      WHERE P.CODIGO = 'cotizaciones.elaborar';
+
+   Tienen que salir asistente, supervisor y gerencia.
+   ---------------------------------------------------------------------------- */
+
+
+/* ############################################################################
+   TRAMO 18_vistas_lectura.sql
+   ############################################################################ */
+
+/* ============================================================================
+   Anovo - Migracion 18: vistas de lectura
+   ----------------------------------------------------------------------------
+   Las consultas de lectura repetian los mismos joins en varios archivos
+   Anovo.SQL.*: solicitud con cliente y asesor, cotizacion con cliente,
+   asesor y quien la elaboro, y los tres catalogos con su precio vigente.
+   Pasan a vistas: se escriben una vez, el generador de entidades las lee
+   como cualquier tabla (sin llave primaria, de solo lectura) y los reportes
+   se arman sobre ellas.
+
+   Las vistas describen los datos, no deciden nada: sin parametros y sin
+   reglas de negocio. Quien consulta, que estados cuentan como en curso y la
+   paginacion siguen en el repositorio, como filtros sobre la vista.
+
+   Todo en ASCII, como el resto de los scripts.
+   ============================================================================ */
+
+/* ----------------------------------------------------------------------------
+   1. V_SOLICITUDES. FECHA_RECEPCION cae a la de captura mientras la solicitud
+   no se ha recibido, y DIAS_ESPERA se cuenta desde ahi.
+   ---------------------------------------------------------------------------- */
+CREATE VIEW V_SOLICITUDES AS
+SELECT S.ID, S.ESTADO, S.DESCRIPCION, S.FECHA_CAPTURA,
+       COALESCE(S.FECHA_RECEPCION, S.FECHA_CAPTURA) AS FECHA_RECEPCION,
+       S.CLIENTE_ID, C.NOMBRE AS CLIENTE_NOMBRE,
+       S.ASESOR_ID, A.NOMBRE AS ASESOR_NOMBRE,
+       CAST(DATEDIFF(DAY FROM COALESCE(S.FECHA_RECEPCION, S.FECHA_CAPTURA)
+                     TO CURRENT_TIMESTAMP) AS INTEGER) AS DIAS_ESPERA,
+       CASE WHEN EXISTS (SELECT 1 FROM COTIZACIONES X
+                          WHERE X.SOLICITUD_ID = S.ID)
+            THEN TRUE ELSE FALSE END AS TIENE_COTIZACION
+  FROM SOLICITUDES S
+  JOIN CLIENTES C ON C.ID = S.CLIENTE_ID
+  JOIN USUARIOS A ON A.ID = S.ASESOR_ID;
+
+/* ----------------------------------------------------------------------------
+   2. V_COTIZACIONES. DEVUELTA: borrador con observacion del supervisor.
+   DIAS_EN_ESTADO se mide con FECHA_MODIFICACION, porque no hay fecha propia
+   de presentacion ni de rechazo. DIAS_RESPUESTA va de la recepcion de la
+   solicitud a la aprobacion; nulo si no se aprobo.
+   ---------------------------------------------------------------------------- */
+CREATE VIEW V_COTIZACIONES AS
+SELECT K.ID, K.NUMERO, K.ESTADO, K.DESCRIPCION_TRABAJO,
+       K.SUBTOTAL_MATERIALES, K.SUBTOTAL_MANO_OBRA, K.SUBTOTAL_MAQUINA,
+       K.COSTO_TOTAL, K.PORCENTAJE_AJUSTE, K.MOTIVO_AJUSTE, K.PORCENTAJE_IVA,
+       K.MONTO_IMPUESTO, K.MONTO_TOTAL, K.MOTIVO_RECHAZO,
+       K.FECHA_ELABORACION, K.FECHA_APROBACION, K.FECHA_ENVIO,
+       K.FECHA_MODIFICACION,
+       K.SOLICITUD_ID,
+       COALESCE(S.FECHA_RECEPCION, S.FECHA_CAPTURA) AS FECHA_RECEPCION,
+       K.CLIENTE_ID, C.NOMBRE AS CLIENTE_NOMBRE,
+       S.ASESOR_ID, A.NOMBRE AS ASESOR_NOMBRE,
+       K.ELABORADA_POR, E.NOMBRE AS ELABORADA_POR_NOMBRE,
+       K.APROBADA_POR, P.NOMBRE AS APROBADA_POR_NOMBRE,
+       K.TIPO_TRABAJO_ID, T.NOMBRE AS TIPO_TRABAJO_NOMBRE,
+       CASE WHEN K.ESTADO = 'borrador' AND K.MOTIVO_RECHAZO IS NOT NULL
+            THEN TRUE ELSE FALSE END AS DEVUELTA,
+       CAST(DATEDIFF(DAY FROM K.FECHA_MODIFICACION TO CURRENT_TIMESTAMP)
+            AS INTEGER) AS DIAS_EN_ESTADO,
+       CASE WHEN K.FECHA_APROBACION IS NOT NULL
+            THEN CAST(DATEDIFF(DAY FROM COALESCE(S.FECHA_RECEPCION,
+                      S.FECHA_CAPTURA) TO K.FECHA_APROBACION) AS INTEGER)
+       END AS DIAS_RESPUESTA
+  FROM COTIZACIONES K
+  JOIN SOLICITUDES S ON S.ID = K.SOLICITUD_ID
+  JOIN CLIENTES C ON C.ID = K.CLIENTE_ID
+  JOIN USUARIOS A ON A.ID = S.ASESOR_ID
+  JOIN USUARIOS E ON E.ID = K.ELABORADA_POR
+  LEFT JOIN USUARIOS P ON P.ID = K.APROBADA_POR
+  LEFT JOIN TIPOS_TRABAJO T ON T.ID = K.TIPO_TRABAJO_ID;
+
+/* ----------------------------------------------------------------------------
+   3. V_CATALOGO_ITEMS. Los tres catalogos con su precio vigente y el proximo
+   cambio programado. COSTO es el costo comparable entre tipos: el unitario en
+   materiales y mano de obra, el de la hora en maquinas, que se miden en hora.
+   ---------------------------------------------------------------------------- */
+CREATE VIEW V_CATALOGO_ITEMS AS
+SELECT CAST('material' AS VARCHAR(10)) AS TIPO,
+       M.ID, M.CODIGO, M.NOMBRE, M.DESCRIPCION,
+       M.UNIDAD_MEDIDA_ID, U.NOMBRE AS UNIDAD_MEDIDA,
+       CAST(NULL AS INTEGER) AS CATEGORIA_ID,
+       P.COSTO_UNITARIO, P.PRECIO_UNITARIO,
+       CAST(NULL AS NUMERIC(15,2)) AS COSTO_HORA,
+       P.COSTO_UNITARIO AS COSTO, P.FECHA_VIGENCIA, M.ACTIVO,
+       (SELECT MIN(PP.FECHA_VIGENCIA) FROM PRECIOS_PROGRAMADOS PP
+         WHERE PP.MATERIAL_ID = M.ID AND PP.ESTADO = 'pendiente')
+         AS PROGRAMADO_FECHA
+  FROM MATERIALES M
+  JOIN UNIDADES_MEDIDA U ON U.ID = M.UNIDAD_MEDIDA_ID
+  LEFT JOIN MATERIALES_PRECIOS P
+    ON P.MATERIAL_ID = M.ID AND P.ACTIVO = TRUE
+UNION ALL
+SELECT CAST('mano_obra' AS VARCHAR(10)),
+       MO.ID, MO.CODIGO, MO.NOMBRE, MO.DESCRIPCION,
+       MO.UNIDAD_MEDIDA_ID, U.NOMBRE,
+       MO.CATEGORIA_ID,
+       P.COSTO_UNITARIO, CAST(NULL AS NUMERIC(15,2)),
+       CAST(NULL AS NUMERIC(15,2)),
+       P.COSTO_UNITARIO, P.FECHA_VIGENCIA, MO.ACTIVO,
+       (SELECT MIN(PP.FECHA_VIGENCIA) FROM PRECIOS_PROGRAMADOS PP
+         WHERE PP.MANO_OBRA_ID = MO.ID AND PP.ESTADO = 'pendiente')
+  FROM MANO_OBRA MO
+  JOIN UNIDADES_MEDIDA U ON U.ID = MO.UNIDAD_MEDIDA_ID
+  LEFT JOIN MANO_OBRA_PRECIOS P
+    ON P.MANO_OBRA_ID = MO.ID AND P.ACTIVO = TRUE
+UNION ALL
+SELECT CAST('maquina' AS VARCHAR(10)),
+       Q.ID, Q.CODIGO, Q.NOMBRE, Q.DESCRIPCION,
+       CAST(NULL AS INTEGER), CAST('hora' AS VARCHAR(20)),
+       CAST(NULL AS INTEGER),
+       CAST(NULL AS NUMERIC(15,2)), CAST(NULL AS NUMERIC(15,2)),
+       P.COSTO_HORA,
+       P.COSTO_HORA, P.FECHA_VIGENCIA, Q.ACTIVO,
+       (SELECT MIN(PP.FECHA_VIGENCIA) FROM PRECIOS_PROGRAMADOS PP
+         WHERE PP.MAQUINA_ID = Q.ID AND PP.ESTADO = 'pendiente')
+  FROM MAQUINAS Q
+  LEFT JOIN MAQUINAS_PRECIOS P
+    ON P.MAQUINA_ID = Q.ID AND P.ACTIVO = TRUE;
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   4. Permisos. Solo lectura para el backend.
+   ---------------------------------------------------------------------------- */
+GRANT SELECT ON V_SOLICITUDES TO ROL_BACKEND;
+GRANT SELECT ON V_COTIZACIONES TO ROL_BACKEND;
+GRANT SELECT ON V_CATALOGO_ITEMS TO ROL_BACKEND;
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   COMPROBACION
+
+     SELECT COUNT(*) FROM V_SOLICITUDES;      -- igual que SOLICITUDES
+     SELECT COUNT(*) FROM V_COTIZACIONES;     -- igual que COTIZACIONES
+     SELECT TIPO, COUNT(*) FROM V_CATALOGO_ITEMS GROUP BY TIPO;
+   ---------------------------------------------------------------------------- */
+
+
+/* ############################################################################
+   TRAMO 19_vista_catalogo_categoria.sql
+   ############################################################################ */
+
+/* ============================================================================
+   Anovo - Migracion 19: V_CATALOGO_ITEMS con el nombre de la categoria
+   ----------------------------------------------------------------------------
+   El listado de mano de obra muestra la categoria por nombre y la vista de
+   la 18 solo traia CATEGORIA_ID. Se rehace con CATEGORIA_NOMBRE, nulo en
+   materiales y maquinas. CREATE OR ALTER conserva el GRANT de la 18.
+   ============================================================================ */
+
+CREATE OR ALTER VIEW V_CATALOGO_ITEMS AS
+SELECT CAST('material' AS VARCHAR(10)) AS TIPO,
+       M.ID, M.CODIGO, M.NOMBRE, M.DESCRIPCION,
+       M.UNIDAD_MEDIDA_ID, U.NOMBRE AS UNIDAD_MEDIDA,
+       CAST(NULL AS INTEGER) AS CATEGORIA_ID,
+       CAST(NULL AS VARCHAR(120)) AS CATEGORIA_NOMBRE,
+       P.COSTO_UNITARIO, P.PRECIO_UNITARIO,
+       CAST(NULL AS NUMERIC(15,2)) AS COSTO_HORA,
+       P.COSTO_UNITARIO AS COSTO, P.FECHA_VIGENCIA, M.ACTIVO,
+       (SELECT MIN(PP.FECHA_VIGENCIA) FROM PRECIOS_PROGRAMADOS PP
+         WHERE PP.MATERIAL_ID = M.ID AND PP.ESTADO = 'pendiente')
+         AS PROGRAMADO_FECHA
+  FROM MATERIALES M
+  JOIN UNIDADES_MEDIDA U ON U.ID = M.UNIDAD_MEDIDA_ID
+  LEFT JOIN MATERIALES_PRECIOS P
+    ON P.MATERIAL_ID = M.ID AND P.ACTIVO = TRUE
+UNION ALL
+SELECT CAST('mano_obra' AS VARCHAR(10)),
+       MO.ID, MO.CODIGO, MO.NOMBRE, MO.DESCRIPCION,
+       MO.UNIDAD_MEDIDA_ID, U.NOMBRE,
+       MO.CATEGORIA_ID, CAT.NOMBRE,
+       P.COSTO_UNITARIO, CAST(NULL AS NUMERIC(15,2)),
+       CAST(NULL AS NUMERIC(15,2)),
+       P.COSTO_UNITARIO, P.FECHA_VIGENCIA, MO.ACTIVO,
+       (SELECT MIN(PP.FECHA_VIGENCIA) FROM PRECIOS_PROGRAMADOS PP
+         WHERE PP.MANO_OBRA_ID = MO.ID AND PP.ESTADO = 'pendiente')
+  FROM MANO_OBRA MO
+  JOIN MANO_OBRA_CATEGORIA CAT ON CAT.ID = MO.CATEGORIA_ID
+  JOIN UNIDADES_MEDIDA U ON U.ID = MO.UNIDAD_MEDIDA_ID
+  LEFT JOIN MANO_OBRA_PRECIOS P
+    ON P.MANO_OBRA_ID = MO.ID AND P.ACTIVO = TRUE
+UNION ALL
+SELECT CAST('maquina' AS VARCHAR(10)),
+       Q.ID, Q.CODIGO, Q.NOMBRE, Q.DESCRIPCION,
+       CAST(NULL AS INTEGER), CAST('hora' AS VARCHAR(20)),
+       CAST(NULL AS INTEGER), CAST(NULL AS VARCHAR(120)),
+       CAST(NULL AS NUMERIC(15,2)), CAST(NULL AS NUMERIC(15,2)),
+       P.COSTO_HORA,
+       P.COSTO_HORA, P.FECHA_VIGENCIA, Q.ACTIVO,
+       (SELECT MIN(PP.FECHA_VIGENCIA) FROM PRECIOS_PROGRAMADOS PP
+         WHERE PP.MAQUINA_ID = Q.ID AND PP.ESTADO = 'pendiente')
+  FROM MAQUINAS Q
+  LEFT JOIN MAQUINAS_PRECIOS P
+    ON P.MAQUINA_ID = Q.ID AND P.ACTIVO = TRUE;
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   COMPROBACION
+
+     SELECT TIPO, COUNT(*), COUNT(CATEGORIA_NOMBRE)
+       FROM V_CATALOGO_ITEMS GROUP BY TIPO;
+
+   CATEGORIA_NOMBRE solo tiene valor en mano_obra, en todas sus filas.
+   ---------------------------------------------------------------------------- */
+
+
+/* ############################################################################
+   TRAMO 20_vistas_totales.sql
+   ############################################################################ */
+
+/* ============================================================================
+   Anovo - Migracion 20: vistas de totales
+   ----------------------------------------------------------------------------
+   Los totales de los dashboards y de los reportes estaban escritos como
+   consultas en el backend. Pasan a vistas: los dashboards siempre muestran el
+   mes en curso, asi que sus vistas lo toman de V_PERIODO_ACTUAL y no reciben
+   fechas; el backend solo filtra por usuario. Los reportes usan un rango libre:
+   V_COTIZACIONES_DIA las agrupa por dia y el servicio suma el rango.
+
+   Igual que la 18: sin parametros y sin reglas de negocio. La tasa de
+   aprobacion la calcula el servicio.
+
+   Todo en ASCII.
+   ============================================================================ */
+
+/* ----------------------------------------------------------------------------
+   1. V_PERIODO_ACTUAL: el mes en curso, escrito una sola vez. MES_HASTA es el
+   primer dia del mes siguiente: los filtros usan >= desde y < hasta.
+   ---------------------------------------------------------------------------- */
+CREATE VIEW V_PERIODO_ACTUAL AS
+SELECT CAST(DATEADD(1 - EXTRACT(DAY FROM CURRENT_DATE) DAY TO CURRENT_DATE)
+            AS TIMESTAMP) AS MES_DESDE,
+       CAST(DATEADD(1 MONTH TO DATEADD(1 - EXTRACT(DAY FROM CURRENT_DATE)
+            DAY TO CURRENT_DATE)) AS TIMESTAMP) AS MES_HASTA
+  FROM RDB$DATABASE;
+
+/* ----------------------------------------------------------------------------
+   2. V_TRABAJO_USUARIO: lo que cada usuario tiene en la mesa. POR_COTIZAR es
+   la cola comun, igual para todos. POR_APROBAR y DIAS_MAS_ANTIGUA cuentan las
+   pendientes que el usuario no elaboro: nadie revisa lo propio.
+   ---------------------------------------------------------------------------- */
+CREATE VIEW V_TRABAJO_USUARIO AS
+SELECT U.ID AS USUARIO_ID,
+       (SELECT CAST(COUNT(*) AS INTEGER) FROM V_SOLICITUDES S
+         WHERE S.ESTADO = 'recibida' AND S.TIENE_COTIZACION = FALSE)
+         AS POR_COTIZAR,
+       (SELECT CAST(COUNT(*) AS INTEGER) FROM COTIZACIONES C
+         WHERE C.ELABORADA_POR = U.ID AND C.ESTADO = 'borrador')
+         AS MIS_BORRADORES,
+       (SELECT CAST(COUNT(*) AS INTEGER) FROM COTIZACIONES C
+         WHERE C.ELABORADA_POR = U.ID AND C.ESTADO = 'pendiente')
+         AS EN_APROBACION,
+       (SELECT CAST(COUNT(*) AS INTEGER) FROM COTIZACIONES C
+         WHERE C.ELABORADA_POR = U.ID AND C.ESTADO = 'aprobada'
+           AND C.FECHA_ENVIO IS NULL)
+         AS POR_ENVIAR,
+       (SELECT CAST(COUNT(*) AS INTEGER) FROM COTIZACIONES C
+         WHERE C.ESTADO = 'pendiente' AND C.ELABORADA_POR <> U.ID)
+         AS POR_APROBAR,
+       (SELECT CAST(COALESCE(MAX(C.DIAS_EN_ESTADO), 0) AS INTEGER)
+          FROM V_COTIZACIONES C
+         WHERE C.ESTADO = 'pendiente' AND C.ELABORADA_POR <> U.ID)
+         AS DIAS_MAS_ANTIGUA
+  FROM USUARIOS U;
+
+/* ----------------------------------------------------------------------------
+   3. V_RESUMEN_MES: el mes de toda la empresa. Rechazadas por
+   FECHA_MODIFICACION: no hay fecha propia de rechazo.
+   ---------------------------------------------------------------------------- */
+CREATE VIEW V_RESUMEN_MES AS
+SELECT P.MES_DESDE AS DESDE, P.MES_HASTA AS HASTA,
+       (SELECT CAST(COALESCE(SUM(C.MONTO_TOTAL), 0) AS NUMERIC(18,2))
+          FROM COTIZACIONES C
+         WHERE C.ESTADO <> 'borrador'
+           AND C.FECHA_ELABORACION >= P.MES_DESDE
+           AND C.FECHA_ELABORACION < P.MES_HASTA)
+         AS COTIZADO_MES,
+       (SELECT CAST(COUNT(*) AS INTEGER) FROM COTIZACIONES C
+         WHERE C.ESTADO IN ('aprobada', 'enviada')
+           AND C.FECHA_APROBACION >= P.MES_DESDE
+           AND C.FECHA_APROBACION < P.MES_HASTA)
+         AS APROBADAS_MES,
+       (SELECT CAST(COALESCE(SUM(C.MONTO_TOTAL), 0) AS NUMERIC(18,2))
+          FROM COTIZACIONES C
+         WHERE C.ESTADO IN ('aprobada', 'enviada')
+           AND C.FECHA_APROBACION >= P.MES_DESDE
+           AND C.FECHA_APROBACION < P.MES_HASTA)
+         AS MONTO_APROBADO_MES,
+       (SELECT CAST(COUNT(*) AS INTEGER) FROM COTIZACIONES C
+         WHERE C.ESTADO = 'rechazada'
+           AND C.FECHA_MODIFICACION >= P.MES_DESDE
+           AND C.FECHA_MODIFICACION < P.MES_HASTA)
+         AS RECHAZADAS_MES,
+       (SELECT CAST(COALESCE(AVG(C.DIAS_RESPUESTA), 0) AS INTEGER)
+          FROM V_COTIZACIONES C
+         WHERE C.ESTADO IN ('aprobada', 'enviada')
+           AND C.FECHA_APROBACION >= P.MES_DESDE
+           AND C.FECHA_APROBACION < P.MES_HASTA)
+         AS RESPUESTA_MEDIA,
+       (SELECT CAST(COUNT(*) AS INTEGER) FROM USUARIOS U
+          JOIN ROLES R ON R.ID = U.ROL_ID
+         WHERE R.CODIGO = 'asesor' AND U.ACTIVO)
+         AS ASESORES_ACTIVOS
+  FROM V_PERIODO_ACTUAL P;
+
+/* ----------------------------------------------------------------------------
+   4. V_ASESORES_MES: el mes de cada asesor. ESPERANDO_COTIZACION no depende
+   del mes: son las suyas que siguen sin cotizacion aprobada ni enviada.
+   ---------------------------------------------------------------------------- */
+CREATE VIEW V_ASESORES_MES AS
+SELECT U.ID AS ASESOR_ID, U.NOMBRE AS ASESOR_NOMBRE, U.ACTIVO,
+       (SELECT CAST(COUNT(*) AS INTEGER) FROM SOLICITUDES S
+         WHERE S.ASESOR_ID = U.ID
+           AND S.FECHA_CAPTURA >= P.MES_DESDE
+           AND S.FECHA_CAPTURA < P.MES_HASTA)
+         AS SOLICITUDES_MES,
+       (SELECT CAST(COUNT(*) AS INTEGER) FROM SOLICITUDES S
+         WHERE S.ASESOR_ID = U.ID
+           AND S.ESTADO IN ('recibida', 'en_cotizacion')
+           AND NOT EXISTS (SELECT 1 FROM COTIZACIONES X
+                            WHERE X.SOLICITUD_ID = S.ID
+                              AND X.ESTADO IN ('aprobada', 'enviada')))
+         AS ESPERANDO_COTIZACION,
+       (SELECT CAST(COUNT(*) AS INTEGER) FROM V_COTIZACIONES C
+         WHERE C.ASESOR_ID = U.ID AND C.ESTADO IN ('aprobada', 'enviada')
+           AND C.FECHA_APROBACION >= P.MES_DESDE
+           AND C.FECHA_APROBACION < P.MES_HASTA)
+         AS APROBADAS_MES,
+       (SELECT CAST(COALESCE(SUM(C.MONTO_TOTAL), 0) AS NUMERIC(18,2))
+          FROM V_COTIZACIONES C
+         WHERE C.ASESOR_ID = U.ID AND C.ESTADO IN ('aprobada', 'enviada')
+           AND C.FECHA_APROBACION >= P.MES_DESDE
+           AND C.FECHA_APROBACION < P.MES_HASTA)
+         AS MONTO_APROBADO_MES
+  FROM USUARIOS U
+  JOIN ROLES R ON R.ID = U.ROL_ID
+  CROSS JOIN V_PERIODO_ACTUAL P
+ WHERE R.CODIGO = 'asesor';
+
+/* ----------------------------------------------------------------------------
+   5. V_COTIZACIONES_POR_ESTADO: todas, con el orden en que se presentan.
+   ---------------------------------------------------------------------------- */
+CREATE VIEW V_COTIZACIONES_POR_ESTADO AS
+SELECT ESTADO,
+       CASE ESTADO WHEN 'borrador' THEN 1 WHEN 'pendiente' THEN 2
+                   WHEN 'aprobada' THEN 3 WHEN 'enviada' THEN 4 ELSE 5 END
+         AS ORDEN,
+       CAST(COUNT(*) AS INTEGER) AS CANTIDAD,
+       CAST(COALESCE(SUM(MONTO_TOTAL), 0) AS NUMERIC(18,2)) AS MONTO
+  FROM COTIZACIONES
+ GROUP BY ESTADO;
+
+/* ----------------------------------------------------------------------------
+   6. V_CUENTAS_RESUMEN: las cuentas, sin el usuario Sistema (migracion 13),
+   que existe solo para firmar lo que el servidor hace solo.
+   ---------------------------------------------------------------------------- */
+CREATE VIEW V_CUENTAS_RESUMEN AS
+SELECT (SELECT CAST(COUNT(*) AS INTEGER) FROM USUARIOS U
+         WHERE U.ACTIVO AND U.CORREO <> 'sistema@anovo.local')
+         AS USUARIOS_ACTIVOS,
+       (SELECT CAST(COUNT(*) AS INTEGER) FROM USUARIOS U
+         WHERE NOT U.ACTIVO AND U.CORREO <> 'sistema@anovo.local')
+         AS USUARIOS_INACTIVOS,
+       (SELECT CAST(COUNT(*) AS INTEGER) FROM USUARIOS U
+         WHERE U.ACTIVO AND U.DEBE_CAMBIAR_CLAVE)
+         AS CLAVE_PENDIENTE,
+       (SELECT CAST(COUNT(*) AS INTEGER) FROM AUDITORIA A
+         WHERE A.ENTIDAD = 'USUARIOS'
+           AND A.FECHA >= P.MES_DESDE AND A.FECHA < P.MES_HASTA)
+         AS CAMBIOS_MES
+  FROM V_PERIODO_ACTUAL P;
+
+/* ----------------------------------------------------------------------------
+   7. V_AUDITORIA: la bitacora con el nombre de quien hizo cada cambio.
+   ---------------------------------------------------------------------------- */
+CREATE VIEW V_AUDITORIA AS
+SELECT A.ID, A.FECHA, A.USUARIO_ID, COALESCE(U.NOMBRE, '') AS USUARIO_NOMBRE,
+       A.ACCION, A.ENTIDAD, A.ENTIDAD_ID, A.DETALLE
+  FROM AUDITORIA A
+  LEFT JOIN USUARIOS U ON U.ID = A.USUARIO_ID;
+
+/* ----------------------------------------------------------------------------
+   8. V_SEGUIMIENTO_ASESOR: las solicitudes como las ve el asesor (HU-03): el
+   estado de la cotizacion si ya se aprobo o envio, si no el de la solicitud.
+   ---------------------------------------------------------------------------- */
+CREATE VIEW V_SEGUIMIENTO_ASESOR AS
+SELECT S.ID, S.ASESOR_ID, S.FECHA_CAPTURA, S.CLIENTE_NOMBRE, S.DESCRIPCION,
+       COALESCE(K.ESTADO, S.ESTADO) AS ESTADO,
+       K.ID AS COTIZACION_ID, K.MONTO_TOTAL AS MONTO_APROBADO
+  FROM V_SOLICITUDES S
+  LEFT JOIN COTIZACIONES K ON K.ID =
+       (SELECT MAX(X.ID) FROM COTIZACIONES X
+         WHERE X.SOLICITUD_ID = S.ID
+           AND X.ESTADO IN ('aprobada', 'enviada'));
+
+/* ----------------------------------------------------------------------------
+   9. V_COTIZACIONES_DIA: las cotizaciones agrupadas por dia de elaboracion,
+   estado, asesor y tipo de trabajo. Los reportes piden las filas de su rango
+   y el servicio las suma. SUMA_DIAS_RESPUESTA y CON_RESPUESTA dan el promedio
+   exacto sin promediar promedios.
+   ---------------------------------------------------------------------------- */
+CREATE VIEW V_COTIZACIONES_DIA AS
+SELECT CAST(FECHA_ELABORACION AS DATE) AS FECHA,
+       CAST(EXTRACT(YEAR FROM FECHA_ELABORACION) AS INTEGER) AS ANIO,
+       CAST(EXTRACT(MONTH FROM FECHA_ELABORACION) AS INTEGER) AS MES,
+       ESTADO, ASESOR_ID, ASESOR_NOMBRE, TIPO_TRABAJO_ID, TIPO_TRABAJO_NOMBRE,
+       CAST(COUNT(*) AS INTEGER) AS CANTIDAD,
+       CAST(COALESCE(SUM(MONTO_TOTAL), 0) AS NUMERIC(18,2)) AS MONTO_TOTAL,
+       CAST(SUM(CASE WHEN ESTADO IN ('aprobada', 'enviada') THEN 1 ELSE 0 END)
+            AS INTEGER) AS APROBADAS,
+       CAST(SUM(CASE WHEN ESTADO = 'rechazada' THEN 1 ELSE 0 END)
+            AS INTEGER) AS RECHAZADAS,
+       CAST(COALESCE(SUM(CASE WHEN ESTADO IN ('aprobada', 'enviada')
+            THEN MONTO_TOTAL ELSE 0 END), 0) AS NUMERIC(18,2))
+            AS MONTO_APROBADO,
+       CAST(COALESCE(SUM(DIAS_RESPUESTA), 0) AS INTEGER) AS SUMA_DIAS_RESPUESTA,
+       CAST(COUNT(DIAS_RESPUESTA) AS INTEGER) AS CON_RESPUESTA
+  FROM V_COTIZACIONES
+ GROUP BY 1, 2, 3, 4, 5, 6, 7, 8;
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   10. Permisos. Solo lectura para el backend.
+   ---------------------------------------------------------------------------- */
+GRANT SELECT ON V_PERIODO_ACTUAL TO ROL_BACKEND;
+GRANT SELECT ON V_TRABAJO_USUARIO TO ROL_BACKEND;
+GRANT SELECT ON V_RESUMEN_MES TO ROL_BACKEND;
+GRANT SELECT ON V_ASESORES_MES TO ROL_BACKEND;
+GRANT SELECT ON V_COTIZACIONES_POR_ESTADO TO ROL_BACKEND;
+GRANT SELECT ON V_CUENTAS_RESUMEN TO ROL_BACKEND;
+GRANT SELECT ON V_AUDITORIA TO ROL_BACKEND;
+GRANT SELECT ON V_SEGUIMIENTO_ASESOR TO ROL_BACKEND;
+GRANT SELECT ON V_COTIZACIONES_DIA TO ROL_BACKEND;
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   COMPROBACION
+
+     SELECT * FROM V_PERIODO_ACTUAL;
+     SELECT * FROM V_TRABAJO_USUARIO WHERE USUARIO_ID = 2;
+     SELECT * FROM V_RESUMEN_MES;
+     SELECT SUM(CANTIDAD) FROM V_COTIZACIONES_DIA;   -- igual que COTIZACIONES
+   ---------------------------------------------------------------------------- */
