@@ -56,12 +56,19 @@ type
     function HistorialCostoMaquina(const AId: Integer)
       : TObjectList<TPrecioDTO>;
 
-    function TiposTrabajo(const AIncluirInactivos: Boolean)
-      : TObjectList<TTipoTrabajoDTO>;
+    function TiposTrabajo(const AIncluirInactivos: Boolean;
+      const ATexto: string = ''): TObjectList<TTipoTrabajoDTO>;
     function CrearTipoTrabajo(const ADto: TTipoTrabajoNuevoDTO): Integer;
     procedure ActualizarTipoTrabajo(const AId: Integer;
       const ADto: TTipoTrabajoNuevoDTO);
     procedure InactivarTipoTrabajo(const AId: Integer);
+
+    function UnidadesMedida(const AIncluirInactivas: Boolean;
+      const ATexto: string = ''): TObjectList<TUnidadMedidaDTO>;
+    function CrearUnidadMedida(const ADto: TUnidadMedidaNuevaDTO): Integer;
+    procedure ActualizarUnidadMedida(const AId: Integer;
+      const ADto: TUnidadMedidaNuevaDTO);
+    procedure InactivarUnidadMedida(const AId: Integer);
   end;
 
 implementation

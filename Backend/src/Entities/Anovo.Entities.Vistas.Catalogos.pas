@@ -24,6 +24,8 @@ type
     fNombre: String;
     [MVCTableField('DESCRIPCION')]
     fDescripcion: NullableString;
+    [MVCTableField('UNIDAD_MEDIDA_ID')]
+    fUnidadMedidaId: NullableInt32;
     [MVCTableField('UNIDAD_MEDIDA')]
     fUnidadMedida: String;
     [MVCTableField('ACTIVO')]
@@ -41,6 +43,8 @@ type
     property Codigo: String read fCodigo write fCodigo;
     property Nombre: String read fNombre write fNombre;
     property Descripcion: NullableString read fDescripcion write fDescripcion;
+    property UnidadMedidaId: NullableInt32 read fUnidadMedidaId
+      write fUnidadMedidaId;
     property UnidadMedida: String read fUnidadMedida write fUnidadMedida;
     property Activo: NullableBoolean read fActivo write fActivo;
     property CostoUnitario: NullableCurrency read fCostoUnitario
@@ -69,6 +73,8 @@ type
     fNombre: String;
     [MVCTableField('DESCRIPCION')]
     fDescripcion: NullableString;
+    [MVCTableField('UNIDAD_MEDIDA_ID')]
+    fUnidadMedidaId: NullableInt32;
     [MVCTableField('UNIDAD_MEDIDA')]
     fUnidadMedida: String;
     [MVCTableField('ACTIVO')]
@@ -87,6 +93,8 @@ type
       write fCategoriaNombre;
     property Nombre: String read fNombre write fNombre;
     property Descripcion: NullableString read fDescripcion write fDescripcion;
+    property UnidadMedidaId: NullableInt32 read fUnidadMedidaId
+      write fUnidadMedidaId;
     property UnidadMedida: String read fUnidadMedida write fUnidadMedida;
     property Activo: NullableBoolean read fActivo write fActivo;
     property CostoUnitario: NullableCurrency read fCostoUnitario
@@ -144,6 +152,8 @@ type
     fNombre: String;
     [MVCTableField('DESCRIPCION')]
     fDescripcion: NullableString;
+    [MVCTableField('UNIDAD_MEDIDA_ID')]
+    fUnidadMedidaId: NullableInt32;
     [MVCTableField('UNIDAD_MEDIDA')]
     fUnidadMedida: String;
     [MVCTableField('CATEGORIA_ID')]
@@ -168,6 +178,8 @@ type
     property Codigo: String read fCodigo write fCodigo;
     property Nombre: String read fNombre write fNombre;
     property Descripcion: NullableString read fDescripcion write fDescripcion;
+    property UnidadMedidaId: NullableInt32 read fUnidadMedidaId
+      write fUnidadMedidaId;
     property UnidadMedida: String read fUnidadMedida write fUnidadMedida;
     property CategoriaId: NullableInt32 read fCategoriaId write fCategoriaId;
     property CostoUnitario: NullableCurrency read fCostoUnitario

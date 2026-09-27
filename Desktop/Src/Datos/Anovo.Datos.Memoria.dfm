@@ -583,6 +583,10 @@ object dmMemoria: TdmMemoria
       Visible = False
       Size = 500
     end
+    object mtMaterialesUNIDAD_MEDIDA_ID: TIntegerField
+      FieldName = 'UNIDAD_MEDIDA_ID'
+      Visible = False
+    end
     object mtMaterialesUNIDAD_MEDIDA: TStringField
       DisplayLabel = 'Unidad'
       FieldName = 'UNIDAD_MEDIDA'
@@ -665,6 +669,10 @@ object dmMemoria: TdmMemoria
       FieldName = 'DESCRIPCION'
       Visible = False
       Size = 500
+    end
+    object mtManoObraUNIDAD_MEDIDA_ID: TIntegerField
+      FieldName = 'UNIDAD_MEDIDA_ID'
+      Visible = False
     end
     object mtManoObraUNIDAD_MEDIDA: TStringField
       DisplayLabel = 'Unidad'
@@ -802,6 +810,10 @@ object dmMemoria: TdmMemoria
       FieldName = 'DESCRIPCION'
       Visible = False
       Size = 500
+    end
+    object mtTodosUNIDAD_MEDIDA_ID: TIntegerField
+      FieldName = 'UNIDAD_MEDIDA_ID'
+      Visible = False
     end
     object mtTodosUNIDAD_MEDIDA: TStringField
       DisplayLabel = 'Unidad'
@@ -1250,8 +1262,16 @@ object dmMemoria: TdmMemoria
       FieldName = 'DESCRIPCION'
       Size = 500
     end
-    object mtItemCatalogoUNIDAD_MEDIDA: TStringField
-      FieldName = 'UNIDAD_MEDIDA'
+    object mtItemCatalogoUNIDAD_MEDIDA_ID: TIntegerField
+      FieldName = 'UNIDAD_MEDIDA_ID'
+    end
+    object mtItemCatalogoABREVIATURA: TStringField
+      FieldName = 'ABREVIATURA'
+      Size = 10
+    end
+    object mtItemCatalogoMAGNITUD: TStringField
+      FieldName = 'MAGNITUD'
+      Size = 10
     end
   end
   object mtPrecioCatalogo: TFDMemTable
@@ -1340,8 +1360,57 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AutoCommitUpdates = True
     Left = 776
     Top = 376
+    object mtUnidadesMedidaID: TIntegerField
+      FieldName = 'ID'
+    end
     object mtUnidadesMedidaNOMBRE: TStringField
       FieldName = 'NOMBRE'
+    end
+  end
+  object mtUnidadesLista: TFDMemTable
+    OnCalcFields = CatalogoCalcFields
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 880
+    Top = 376
+    object mtUnidadesListaID: TIntegerField
+      FieldName = 'ID'
+      Visible = False
+    end
+    object mtUnidadesListaNOMBRE: TStringField
+      DisplayLabel = 'Nombre'
+      FieldName = 'NOMBRE'
+    end
+    object mtUnidadesListaABREVIATURA: TStringField
+      DisplayLabel = 'Abreviatura'
+      FieldName = 'ABREVIATURA'
+      Size = 10
+    end
+    object mtUnidadesListaMAGNITUD: TStringField
+      DisplayLabel = 'Magnitud'
+      FieldName = 'MAGNITUD'
+      OnGetText = MagnitudGetText
+      Size = 10
+    end
+    object mtUnidadesListaACTIVO: TBooleanField
+      FieldName = 'ACTIVO'
+      Visible = False
+    end
+    object mtUnidadesListaESTADO: TStringField
+      DisplayLabel = 'Estado'
+      FieldKind = fkCalculated
+      FieldName = 'ESTADO'
+      Size = 15
+      Calculated = True
+    end
+    object mtUnidadesListaACCIONES: TStringField
+      FieldName = 'ACCIONES'
+      Size = 1
     end
   end
   object dsUnidadesMedida: TDataSource

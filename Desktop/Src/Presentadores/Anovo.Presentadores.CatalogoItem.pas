@@ -114,6 +114,11 @@ begin
                 lNuevo := lApi.CrearTipoTrabajo(ADto as TTipoTrabajoNuevoDTO)
               else
                 lApi.ActualizarTipoTrabajo(lId, ADto as TTipoTrabajoNuevoDTO);
+            ctUnidadesMedida:
+              if lId = 0 then
+                lNuevo := lApi.CrearUnidadMedida(ADto as TUnidadMedidaNuevaDTO)
+              else
+                lApi.ActualizarUnidadMedida(lId, ADto as TUnidadMedidaNuevaDTO);
           else
             if lId = 0 then
               lNuevo := lApi.CrearMaterial(ADto as TMaterialNuevoDTO)

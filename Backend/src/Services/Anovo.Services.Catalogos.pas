@@ -26,11 +26,17 @@ type
     fProgramados: IPrecioProgramadoRepository;
     fTodos: ICatalogoTodosRepository;
     fTiposTrabajo: ITipoTrabajoRepository;
+    fUnidades: IUnidadMedidaRepository;
 
     function TraerMaterial(const AId: Integer): TMateriales;
     function TraerManoObra(const AId: Integer): TManoObra;
     function TraerMaquina(const AId: Integer): TMaquinas;
     function TraerTipoTrabajo(const AId: Integer): TTiposTrabajo;
+    function TraerUnidadMedida(const AId: Integer): TUnidadesMedida;
+    function NombreUnidadMedida(const AId: Integer): string;
+    procedure ValidarUnidadActiva(const AId: Integer);
+    procedure ValidarUnidadMedida(const ADto: TUnidadMedidaNuevaDTO;
+      const AExcluirId: Integer);
   public
     [MVCInject]
     constructor Create(AMateriales: IMaterialRepository;
@@ -42,7 +48,8 @@ type
       AMaquinasPrecios: IMaquinaPrecioRepository;
       ATiposTrabajo: ITipoTrabajoRepository;
       AProgramados: IPrecioProgramadoRepository;
-      ATodos: ICatalogoTodosRepository); reintroduce;
+      ATodos: ICatalogoTodosRepository;
+      AUnidades: IUnidadMedidaRepository); reintroduce;
 
     function BuscarTodos(const ATexto: string;
       const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
@@ -89,18 +96,26 @@ type
     function HistorialCostoMaquina(const AId: Integer)
       : TObjectList<TPrecioDTO>;
 
-    function TiposTrabajo(const AIncluirInactivos: Boolean)
-      : TObjectList<TTipoTrabajoDTO>;
+    function TiposTrabajo(const AIncluirInactivos: Boolean;
+      const ATexto: string = ''): TObjectList<TTipoTrabajoDTO>;
     function CrearTipoTrabajo(const ADto: TTipoTrabajoNuevoDTO): Integer;
     procedure ActualizarTipoTrabajo(const AId: Integer;
       const ADto: TTipoTrabajoNuevoDTO);
     procedure InactivarTipoTrabajo(const AId: Integer);
+
+    function UnidadesMedida(const AIncluirInactivas: Boolean;
+      const ATexto: string = ''): TObjectList<TUnidadMedidaDTO>;
+    function CrearUnidadMedida(const ADto: TUnidadMedidaNuevaDTO): Integer;
+    procedure ActualizarUnidadMedida(const AId: Integer;
+      const ADto: TUnidadMedidaNuevaDTO);
+    procedure InactivarUnidadMedida(const AId: Integer);
   end;
 
 implementation
 
 uses
   System.SysUtils,
+  System.StrUtils,
   MVCFramework.Repository,
   Anovo.Auditoria.Contexto,
   Anovo.Textos,
@@ -116,7 +131,7 @@ constructor TCatalogoService.Create(AMateriales: IMaterialRepository;
   AMaquinasPrecios: IMaquinaPrecioRepository;
   ATiposTrabajo: ITipoTrabajoRepository;
   AProgramados: IPrecioProgramadoRepository;
-  ATodos: ICatalogoTodosRepository);
+  ATodos: ICatalogoTodosRepository; AUnidades: IUnidadMedidaRepository);
 begin
   inherited Create;
   fMateriales := AMateriales;
@@ -129,6 +144,7 @@ begin
   fTiposTrabajo := ATiposTrabajo;
   fProgramados := AProgramados;
   fTodos := ATodos;
+  fUnidades := AUnidades;
 end;
 
 const
@@ -159,28 +175,76 @@ function TCatalogoService.TraerMaterial(const AId: Integer): TMateriales;
 begin
   Result := fMateriales.GetByPK(AId, False);
   if Result = nil then
-    raise ERecursoNoEncontrado.Create('el material', AId);
+    raise ERecursoNoEncontrado.Create(SRecursoMaterial, AId);
 end;
 
 function TCatalogoService.TraerManoObra(const AId: Integer): TManoObra;
 begin
   Result := fManoObra.GetByPK(AId, False);
   if Result = nil then
-    raise ERecursoNoEncontrado.Create('la mano de obra', AId);
+    raise ERecursoNoEncontrado.Create(SRecursoManoObra, AId);
 end;
 
 function TCatalogoService.TraerMaquina(const AId: Integer): TMaquinas;
 begin
   Result := fMaquinas.GetByPK(AId, False);
   if Result = nil then
-    raise ERecursoNoEncontrado.Create('la maquina', AId);
+    raise ERecursoNoEncontrado.Create(SRecursoMaquina, AId);
 end;
 
 function TCatalogoService.TraerTipoTrabajo(const AId: Integer): TTiposTrabajo;
 begin
   Result := fTiposTrabajo.GetByPK(AId, False);
   if Result = nil then
-    raise ERecursoNoEncontrado.Create('el tipo de trabajo', AId);
+    raise ERecursoNoEncontrado.Create(SRecursoTipoTrabajo, AId);
+end;
+
+function TCatalogoService.TraerUnidadMedida(const AId: Integer)
+  : TUnidadesMedida;
+begin
+  Result := fUnidades.GetByPK(AId, False);
+  if Result = nil then
+    raise ERecursoNoEncontrado.Create(SRecursoUnidadMedida, AId);
+end;
+
+function TCatalogoService.NombreUnidadMedida(const AId: Integer): string;
+var
+  lUnidad: TUnidadesMedida;
+begin
+  lUnidad := TraerUnidadMedida(AId);
+  try
+    Result := lUnidad.Nombre;
+  finally
+    lUnidad.Free;
+  end;
+end;
+
+
+procedure TCatalogoService.ValidarUnidadActiva(const AId: Integer);
+var
+  lUnidad: TUnidadesMedida;
+begin
+  lUnidad := TraerUnidadMedida(AId);
+  try
+    if not lUnidad.Activo.ValueOrDefault then
+      raise EDatoInvalido.Create(SUnidadMedidaInactiva);
+  finally
+    lUnidad.Free;
+  end;
+end;
+
+
+procedure TCatalogoService.ValidarUnidadMedida(const ADto: TUnidadMedidaNuevaDTO;
+  const AExcluirId: Integer);
+begin
+  if not MatchStr(ADto.Magnitud, [MAGNITUD_TIEMPO, MAGNITUD_PESO,
+    MAGNITUD_LONGITUD, MAGNITUD_AREA, MAGNITUD_VOLUMEN, MAGNITUD_UNIDADES]) then
+    raise EDatoInvalido.Create(SMagnitudInvalida);
+  if fUnidades.ExisteNombre(ADto.Nombre, AExcluirId) then
+    if AExcluirId = 0 then
+      raise EDatoInvalido.Create(SNombreDuplicadoUnidadMedida)
+    else
+      raise EDatoInvalido.Create(SNombreDuplicadoOtraUnidadMedida);
 end;
 
 function TCatalogoService.BuscarTodos(const ATexto: string;
@@ -223,6 +287,7 @@ begin
   lMaterial := TraerMaterial(AId);
   try
     Result := TMapeo.ADto<TMaterialDTO>(lMaterial);
+    Result.UnidadMedida := NombreUnidadMedida(lMaterial.UnidadMedidaId);
   finally
     lMaterial.Free;
   end;
@@ -245,6 +310,7 @@ begin
   var
   lTx := TMVCRepository.UseTransactionContext;
 
+  ValidarUnidadActiva(ADto.UnidadMedidaId);
   if fMateriales.ExisteNombre(ADto.Nombre) then
     raise EDatoInvalido.Create
       (SNombreDuplicadoMaterial);
@@ -253,7 +319,7 @@ begin
   try
     TMapeo.Copiar(ADto, lMaterial);
     lMaterial.Activo := True;
-    FijarDetalle('Registro del material ' + ADto.Nombre);
+    FijarDetalle(Format(SDetalleRegistroMaterial, [ADto.Nombre]));
     fMateriales.Insert(lMaterial);
     Result := lMaterial.ID.ValueOrDefault;
   finally
@@ -274,9 +340,11 @@ begin
     if fMateriales.ExisteNombre(ADto.Nombre, AId) then
       raise EDatoInvalido.Create
         (SNombreDuplicadoOtroMaterial);
+    if ADto.UnidadMedidaId <> lMaterial.UnidadMedidaId then
+      ValidarUnidadActiva(ADto.UnidadMedidaId);
 
     TMapeo.Copiar(ADto, lMaterial);
-    FijarDetalle('Cambio en el material ' + ADto.Nombre);
+    FijarDetalle(Format(SDetalleCambioMaterial, [ADto.Nombre]));
     fMateriales.Update(lMaterial);
   finally
     lMaterial.Free;
@@ -293,7 +361,7 @@ begin
   lMaterial := TraerMaterial(AId);
   try
     lMaterial.Activo := False;
-    FijarDetalle('Inactivacion del material ' + lMaterial.Nombre);
+    FijarDetalle(Format(SDetalleInactivacionMaterial, [lMaterial.Nombre]));
     fMateriales.Update(lMaterial);
   finally
     lMaterial.Free;
@@ -407,6 +475,7 @@ begin
   lItem := TraerManoObra(AId);
   try
     Result := TMapeo.ADto<TManoObraDTO>(lItem);
+    Result.UnidadMedida := NombreUnidadMedida(lItem.UnidadMedidaId);
   finally
     lItem.Free;
   end;
@@ -428,6 +497,7 @@ begin
   var
   lTx := TMVCRepository.UseTransactionContext;
 
+  ValidarUnidadActiva(ADto.UnidadMedidaId);
   if fManoObra.ExisteNombre(ADto.Nombre) then
     raise EDatoInvalido.Create(SNombreDuplicadoManoObra);
 
@@ -435,7 +505,7 @@ begin
   try
     TMapeo.Copiar(ADto, lItem);
     lItem.Activo := True;
-    FijarDetalle('Registro de mano de obra ' + ADto.Nombre);
+    FijarDetalle(Format(SDetalleRegistroManoObra, [ADto.Nombre]));
     fManoObra.Insert(lItem);
     Result := lItem.ID.ValueOrDefault;
   finally
@@ -456,9 +526,11 @@ begin
     if fManoObra.ExisteNombre(ADto.Nombre, AId) then
       raise EDatoInvalido.Create
         (SNombreDuplicadoOtraManoObra);
+    if ADto.UnidadMedidaId <> lItem.UnidadMedidaId then
+      ValidarUnidadActiva(ADto.UnidadMedidaId);
 
     TMapeo.Copiar(ADto, lItem);
-    FijarDetalle('Cambio en la mano de obra ' + ADto.Nombre);
+    FijarDetalle(Format(SDetalleCambioManoObra, [ADto.Nombre]));
     fManoObra.Update(lItem);
   finally
     lItem.Free;
@@ -475,7 +547,7 @@ begin
   lItem := TraerManoObra(AId);
   try
     lItem.Activo := False;
-    FijarDetalle('Inactivacion de la mano de obra ' + lItem.Nombre);
+    FijarDetalle(Format(SDetalleInactivacionManoObra, [lItem.Nombre]));
     fManoObra.Update(lItem);
   finally
     lItem.Free;
@@ -627,7 +699,7 @@ begin
   try
     TMapeo.Copiar(ADto, lMaquina);
     lMaquina.Activo := True;
-    FijarDetalle('Registro de la maquina ' + ADto.Nombre);
+    FijarDetalle(Format(SDetalleRegistroMaquina, [ADto.Nombre]));
     fMaquinas.Insert(lMaquina);
     Result := lMaquina.ID.ValueOrDefault;
   finally
@@ -649,7 +721,7 @@ begin
       raise EDatoInvalido.Create(SNombreDuplicadoOtraMaquina);
 
     TMapeo.Copiar(ADto, lMaquina);
-    FijarDetalle('Cambio en la maquina ' + ADto.Nombre);
+    FijarDetalle(Format(SDetalleCambioMaquina, [ADto.Nombre]));
     fMaquinas.Update(lMaquina);
   finally
     lMaquina.Free;
@@ -666,7 +738,7 @@ begin
   lMaquina := TraerMaquina(AId);
   try
     lMaquina.Activo := False;
-    FijarDetalle('Inactivacion de la maquina ' + lMaquina.Nombre);
+    FijarDetalle(Format(SDetalleInactivacionMaquina, [lMaquina.Nombre]));
     fMaquinas.Update(lMaquina);
   finally
     lMaquina.Free;
@@ -754,12 +826,12 @@ begin
   end;
 end;
 
-function TCatalogoService.TiposTrabajo(const AIncluirInactivos: Boolean)
-  : TObjectList<TTipoTrabajoDTO>;
+function TCatalogoService.TiposTrabajo(const AIncluirInactivos: Boolean;
+  const ATexto: string): TObjectList<TTipoTrabajoDTO>;
 var
   lFilas: TObjectList<TTiposTrabajo>;
 begin
-  lFilas := fTiposTrabajo.Todos(AIncluirInactivos);
+  lFilas := fTiposTrabajo.Todos(AIncluirInactivos, ATexto.Trim);
   try
     Result := TMapeo.AListaDto<TTiposTrabajo, TTipoTrabajoDTO>(lFilas);
   finally
@@ -782,7 +854,7 @@ begin
   try
     TMapeo.Copiar(ADto, lTipo);
     lTipo.Activo := True;
-    FijarDetalle('Registro del tipo de trabajo ' + ADto.Nombre);
+    FijarDetalle(Format(SDetalleRegistroTipoTrabajo, [ADto.Nombre]));
     fTiposTrabajo.Insert(lTipo);
     Result := lTipo.ID.ValueOrDefault;
   finally
@@ -805,7 +877,7 @@ begin
         (SNombreDuplicadoOtroTipoTrabajo);
 
     TMapeo.Copiar(ADto, lTipo);
-    FijarDetalle('Cambio en el tipo de trabajo ' + ADto.Nombre);
+    FijarDetalle(Format(SDetalleCambioTipoTrabajo, [ADto.Nombre]));
     fTiposTrabajo.Update(lTipo);
   finally
     lTipo.Free;
@@ -822,10 +894,82 @@ begin
   lTipo := TraerTipoTrabajo(AId);
   try
     lTipo.Activo := False;
-    FijarDetalle('Inactivacion del tipo de trabajo ' + lTipo.Nombre);
+    FijarDetalle(Format(SDetalleInactivacionTipoTrabajo, [lTipo.Nombre]));
     fTiposTrabajo.Update(lTipo);
   finally
     lTipo.Free;
+  end;
+end;
+
+function TCatalogoService.UnidadesMedida(const AIncluirInactivas: Boolean;
+  const ATexto: string): TObjectList<TUnidadMedidaDTO>;
+var
+  lFilas: TObjectList<TUnidadesMedida>;
+begin
+  lFilas := fUnidades.Todas(AIncluirInactivas, ATexto.Trim);
+  try
+    Result := TMapeo.AListaDto<TUnidadesMedida, TUnidadMedidaDTO>(lFilas);
+  finally
+    lFilas.Free;
+  end;
+end;
+
+function TCatalogoService.CrearUnidadMedida(const ADto: TUnidadMedidaNuevaDTO)
+  : Integer;
+var
+  lUnidad: TUnidadesMedida;
+begin
+  var
+  lTx := TMVCRepository.UseTransactionContext;
+
+  ValidarUnidadMedida(ADto, 0);
+
+  lUnidad := TUnidadesMedida.Create;
+  try
+    TMapeo.Copiar(ADto, lUnidad);
+    lUnidad.Activo := True;
+    FijarDetalle(Format(SDetalleRegistroUnidadMedida, [ADto.Nombre]));
+    fUnidades.Insert(lUnidad);
+    Result := lUnidad.ID.ValueOrDefault;
+  finally
+    lUnidad.Free;
+  end;
+end;
+
+procedure TCatalogoService.ActualizarUnidadMedida(const AId: Integer;
+  const ADto: TUnidadMedidaNuevaDTO);
+var
+  lUnidad: TUnidadesMedida;
+begin
+  var
+  lTx := TMVCRepository.UseTransactionContext;
+
+  lUnidad := TraerUnidadMedida(AId);
+  try
+    ValidarUnidadMedida(ADto, AId);
+    TMapeo.Copiar(ADto, lUnidad);
+    FijarDetalle(Format(SDetalleCambioUnidadMedida, [ADto.Nombre]));
+    fUnidades.Update(lUnidad);
+  finally
+    lUnidad.Free;
+  end;
+end;
+
+
+procedure TCatalogoService.InactivarUnidadMedida(const AId: Integer);
+var
+  lUnidad: TUnidadesMedida;
+begin
+  var
+  lTx := TMVCRepository.UseTransactionContext;
+
+  lUnidad := TraerUnidadMedida(AId);
+  try
+    lUnidad.Activo := False;
+    FijarDetalle(Format(SDetalleInactivacionUnidadMedida, [lUnidad.Nombre]));
+    fUnidades.Update(lUnidad);
+  finally
+    lUnidad.Free;
   end;
 end;
 

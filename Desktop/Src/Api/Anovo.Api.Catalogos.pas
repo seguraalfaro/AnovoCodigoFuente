@@ -17,7 +17,8 @@ type
       const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
       const ACategoriaId: Integer; out ATotal: Int64): TObjectList<T>;
     function ListaDe<T: class, constructor>(const ARuta: string;
-      const AIncluirInactivos: Boolean = False): TObjectList<T>;
+      const AIncluirInactivos: Boolean = False;
+      const ATexto: string = ''): TObjectList<T>;
     procedure CambiarPrecio(const ARuta: string; const AId: Integer;
       const ADto: TPrecioNuevoDTO);
     procedure Inactivar(const ARuta: string; const AId: Integer);
@@ -66,12 +67,19 @@ type
     function HistorialCostoMaquina(const AId: Integer)
       : TObjectList<TPrecioDTO>;
 
-    function TiposTrabajo(const AIncluirInactivos: Boolean)
-      : TObjectList<TTipoTrabajoDTO>;
+    function TiposTrabajo(const AIncluirInactivos: Boolean;
+      const ATexto: string = ''): TObjectList<TTipoTrabajoDTO>;
     function CrearTipoTrabajo(const ADto: TTipoTrabajoNuevoDTO): Integer;
     procedure ActualizarTipoTrabajo(const AId: Integer;
       const ADto: TTipoTrabajoNuevoDTO);
     procedure InactivarTipoTrabajo(const AId: Integer);
+
+    function UnidadesMedida(const AIncluirInactivas: Boolean;
+      const ATexto: string = ''): TObjectList<TUnidadMedidaDTO>;
+    function CrearUnidadMedida(const ADto: TUnidadMedidaNuevaDTO): Integer;
+    procedure ActualizarUnidadMedida(const AId: Integer;
+      const ADto: TUnidadMedidaNuevaDTO);
+    procedure InactivarUnidadMedida(const AId: Integer);
   end;
 
 implementation
@@ -88,6 +96,7 @@ const
   RUTA_MANO_OBRA = '/api/catalogos/mano-obra';
   RUTA_MAQUINAS = '/api/catalogos/maquinas';
   RUTA_TIPOS_TRABAJO = '/api/catalogos/tipos-trabajo';
+  RUTA_UNIDADES_MEDIDA = '/api/catalogos/unidades-medida';
   RUTA_CATEGORIAS = '/api/catalogos/mano-obra/categorias';
 
   SUB_PRECIOS = '%s/%d/precios';
@@ -135,7 +144,7 @@ begin
 end;
 
 function TApiCatalogos.ListaDe<T>(const ARuta: string;
-  const AIncluirInactivos: Boolean): TObjectList<T>;
+  const AIncluirInactivos: Boolean; const ATexto: string): TObjectList<T>;
 var
   lRespuesta: IMVCRESTResponse;
 begin
@@ -147,6 +156,8 @@ begin
       lCliente := NuevoCliente;
       if AIncluirInactivos then
         lCliente.AddQueryStringParam('incluir_inactivos', 'true');
+      if ATexto <> '' then
+        lCliente.AddQueryStringParam('q', ATexto);
       Result := lCliente.Get(ARuta);
     end);
 
@@ -385,10 +396,11 @@ begin
   Result := ListaDe<TPrecioDTO>(Format(SUB_PRECIOS, [RUTA_MAQUINAS, AId]));
 end;
 
-function TApiCatalogos.TiposTrabajo(const AIncluirInactivos: Boolean)
-  : TObjectList<TTipoTrabajoDTO>;
+function TApiCatalogos.TiposTrabajo(const AIncluirInactivos: Boolean;
+  const ATexto: string): TObjectList<TTipoTrabajoDTO>;
 begin
-  Result := ListaDe<TTipoTrabajoDTO>(RUTA_TIPOS_TRABAJO, AIncluirInactivos);
+  Result := ListaDe<TTipoTrabajoDTO>(RUTA_TIPOS_TRABAJO, AIncluirInactivos,
+    ATexto);
 end;
 
 function TApiCatalogos.CrearTipoTrabajo(const ADto: TTipoTrabajoNuevoDTO)
@@ -415,6 +427,39 @@ end;
 procedure TApiCatalogos.InactivarTipoTrabajo(const AId: Integer);
 begin
   Inactivar(RUTA_TIPOS_TRABAJO, AId);
+end;
+
+function TApiCatalogos.UnidadesMedida(const AIncluirInactivas: Boolean;
+  const ATexto: string): TObjectList<TUnidadMedidaDTO>;
+begin
+  Result := ListaDe<TUnidadMedidaDTO>(RUTA_UNIDADES_MEDIDA,
+    AIncluirInactivas, ATexto);
+end;
+
+function TApiCatalogos.CrearUnidadMedida(const ADto: TUnidadMedidaNuevaDTO)
+  : Integer;
+begin
+  Result := IdDeLocation(Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.AddBody(ADto, False).Post(RUTA_UNIDADES_MEDIDA);
+    end));
+end;
+
+procedure TApiCatalogos.ActualizarUnidadMedida(const AId: Integer;
+  const ADto: TUnidadMedidaNuevaDTO);
+begin
+  Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.AddBody(ADto, False)
+        .Put(Format(SUB_ID, [RUTA_UNIDADES_MEDIDA, AId]));
+    end);
+end;
+
+procedure TApiCatalogos.InactivarUnidadMedida(const AId: Integer);
+begin
+  Inactivar(RUTA_UNIDADES_MEDIDA, AId);
 end;
 
 end.

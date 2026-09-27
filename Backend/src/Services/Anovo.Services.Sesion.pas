@@ -60,7 +60,7 @@ var
 begin
   lUsuario := fUsuarios.GetByPK(AUsuarioId, False);
   if lUsuario = nil then
-    raise ERecursoNoEncontrado.Create('el usuario', AUsuarioId);
+    raise ERecursoNoEncontrado.Create(SRecursoUsuario, AUsuarioId);
   try
     Result := TCuentaDTO.Create;
     Result.Nombre := lUsuario.Nombre;
@@ -114,7 +114,7 @@ begin
 
   lUsuario := fUsuarios.GetByPK(AUsuarioId, False);
   if lUsuario = nil then
-    raise ERecursoNoEncontrado.Create('el usuario', AUsuarioId);
+    raise ERecursoNoEncontrado.Create(SRecursoUsuario, AUsuarioId);
   try
     lVigente := fClaves.ClaveActivaDe(AUsuarioId);
     try

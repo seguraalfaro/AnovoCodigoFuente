@@ -28,6 +28,8 @@ type
     procedure CargarMaquinas;
     procedure CargarTodos;
     procedure CargarTiposTrabajo;
+    procedure CargarUnidadesMedida;
+    procedure CargarUnidadesActivas;
     procedure CargarCategorias;
     procedure PublicarAcciones;
     function CatalogoDeFila: TCatalogo;
@@ -102,6 +104,7 @@ begin
   FVista.MostrarCatalogo(FCatalogo);
   PublicarAcciones;
   FVista.MostrarBusqueda('', False);
+  CargarUnidadesActivas;
   Cargar;
 end;
 
@@ -110,7 +113,7 @@ var
   lAcciones: TAccionesCatalogo;
 begin
   lAcciones := AccionesPermitidas;
-  if FCatalogo = ctTiposTrabajo then
+  if FCatalogo in [ctTiposTrabajo, ctUnidadesMedida] then
     lAcciones := lAcciones - [acPrecio, acHistorial];
   FVista.MostrarAcciones(lAcciones, PuedeEditar and (FCatalogo <> ctTodos));
 end;
@@ -138,6 +141,8 @@ begin
       CargarMaquinas;
     ctTiposTrabajo:
       CargarTiposTrabajo;
+    ctUnidadesMedida:
+      CargarUnidadesMedida;
   end;
 end;
 
@@ -391,11 +396,13 @@ var
   lCancelacion: ICancelacion;
   lApi: IApiCatalogos;
   lNumero: Integer;
+  lTexto: string;
 begin
   Inc(FSolicitud);
   lNumero := FSolicitud;
   lCancelacion := FCancelacion;
   lApi := FApi;
+  lTexto := FTexto;
 
   FVista.MostrarCargando(True);
 
@@ -408,7 +415,7 @@ begin
       lLista := nil;
       lError := '';
       try
-        lLista := lApi.TiposTrabajo(False);
+        lLista := lApi.TiposTrabajo(False, lTexto);
       except
         on E: EAnovoCliente do
           lError := E.Message;
@@ -469,6 +476,98 @@ begin
             if lCancelacion.Cancelada then
               Exit;
             FVista.MostrarCategorias(lLista);
+          finally
+            lLista.Free;
+          end;
+        end);
+    end);
+end;
+
+procedure TPresentadorCatalogos.CargarUnidadesMedida;
+var
+  lCancelacion: ICancelacion;
+  lApi: IApiCatalogos;
+  lNumero: Integer;
+  lTexto: string;
+begin
+  CargarUnidadesActivas;
+  Inc(FSolicitud);
+  lNumero := FSolicitud;
+  lCancelacion := FCancelacion;
+  lApi := FApi;
+  lTexto := FTexto;
+
+  FVista.MostrarCargando(True);
+
+  TTask.Run(
+    procedure
+    var
+      lLista: TObjectList<TUnidadMedidaDTO>;
+      lError: string;
+    begin
+      lLista := nil;
+      lError := '';
+      try
+        lLista := lApi.UnidadesMedida(False, lTexto);
+      except
+        on E: EAnovoCliente do
+          lError := E.Message;
+        on E: Exception do
+          lError := MensajeInesperado;
+      end;
+
+      TThread.Queue(nil,
+        procedure
+        begin
+          try
+            if lCancelacion.Cancelada or (lNumero <> FSolicitud) then
+              Exit;
+
+            FVista.MostrarCargando(False);
+            if not lError.IsEmpty then
+            begin
+              FVista.MostrarError(lError);
+              Exit;
+            end;
+
+            FTotalPaginas := 0;
+            FVista.MostrarUnidadesMedida(lLista);
+            FVista.MostrarPaginacion(1, 0, lLista.Count);
+          finally
+            lLista.Free;
+          end;
+        end);
+    end);
+end;
+
+procedure TPresentadorCatalogos.CargarUnidadesActivas;
+var
+  lCancelacion: ICancelacion;
+  lApi: IApiCatalogos;
+begin
+  lCancelacion := FCancelacion;
+  lApi := FApi;
+
+  TTask.Run(
+    procedure
+    var
+      lLista: TObjectList<TUnidadMedidaDTO>;
+    begin
+      lLista := nil;
+      try
+        lLista := lApi.UnidadesMedida(False);
+      except
+        on E: Exception do
+          Exit;
+      end;
+
+      TThread.Queue(nil,
+        procedure
+        begin
+          try
+            if lCancelacion.Cancelada then
+              Exit;
+            FVista.MostrarUnidadesActivas(lLista);
           finally
             lLista.Free;
           end;
@@ -563,7 +662,7 @@ procedure TPresentadorCatalogos.CambiarPrecio(const AId: Integer);
 begin
   if not PuedeEditar then
     Exit;
-  if CatalogoDeFila = ctTiposTrabajo then
+  if CatalogoDeFila in [ctTiposTrabajo, ctUnidadesMedida] then
     Exit;
   FVista.MostrarFormularioPrecio(CatalogoDeFila, AId);
 end;
@@ -575,7 +674,7 @@ var
   lCatalogo: TCatalogo;
 begin
   lCatalogo := CatalogoDeFila;
-  if lCatalogo = ctTiposTrabajo then
+  if lCatalogo in [ctTiposTrabajo, ctUnidadesMedida] then
     Exit;
 
   lCancelacion := FCancelacion;
@@ -658,6 +757,8 @@ begin
             lApi.InactivarMaquina(AId);
           ctTiposTrabajo:
             lApi.InactivarTipoTrabajo(AId);
+          ctUnidadesMedida:
+            lApi.InactivarUnidadMedida(AId);
         else
           lApi.InactivarMaterial(AId);
         end;

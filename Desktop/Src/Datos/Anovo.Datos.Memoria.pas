@@ -141,6 +141,7 @@ type
     mtMaterialesCODIGO: TStringField;
     mtMaterialesNOMBRE: TStringField;
     mtMaterialesDESCRIPCION: TStringField;
+    mtMaterialesUNIDAD_MEDIDA_ID: TIntegerField;
     mtMaterialesUNIDAD_MEDIDA: TStringField;
     mtMaterialesCOSTO_UNITARIO: TCurrencyField;
     mtMaterialesPRECIO_UNITARIO: TCurrencyField;
@@ -156,6 +157,7 @@ type
     mtManoObraCATEGORIA_NOMBRE: TStringField;
     mtManoObraNOMBRE: TStringField;
     mtManoObraDESCRIPCION: TStringField;
+    mtManoObraUNIDAD_MEDIDA_ID: TIntegerField;
     mtManoObraUNIDAD_MEDIDA: TStringField;
     mtManoObraCOSTO_UNITARIO: TCurrencyField;
     mtManoObraFECHA_VIGENCIA: TDateField;
@@ -180,6 +182,7 @@ type
     mtTodosCODIGO: TStringField;
     mtTodosNOMBRE: TStringField;
     mtTodosDESCRIPCION: TStringField;
+    mtTodosUNIDAD_MEDIDA_ID: TIntegerField;
     mtTodosUNIDAD_MEDIDA: TStringField;
     mtTodosCATEGORIA_ID: TIntegerField;
     mtTodosCOSTO_UNITARIO: TCurrencyField;
@@ -262,7 +265,9 @@ type
     mtItemCatalogoCODIGO: TStringField;
     mtItemCatalogoNOMBRE: TStringField;
     mtItemCatalogoDESCRIPCION: TStringField;
-    mtItemCatalogoUNIDAD_MEDIDA: TStringField;
+    mtItemCatalogoUNIDAD_MEDIDA_ID: TIntegerField;
+    mtItemCatalogoABREVIATURA: TStringField;
+    mtItemCatalogoMAGNITUD: TStringField;
     mtPrecioCatalogo: TFDMemTable;
     mtPrecioCatalogoCOSTO_UNITARIO: TCurrencyField;
     mtPrecioCatalogoPRECIO_UNITARIO: TCurrencyField;
@@ -277,7 +282,16 @@ type
     mtHistorialPrecioESTADO: TStringField;
     dsCatalogo: TDataSource;
     mtUnidadesMedida: TFDMemTable;
+    mtUnidadesMedidaID: TIntegerField;
     mtUnidadesMedidaNOMBRE: TStringField;
+    mtUnidadesLista: TFDMemTable;
+    mtUnidadesListaID: TIntegerField;
+    mtUnidadesListaNOMBRE: TStringField;
+    mtUnidadesListaABREVIATURA: TStringField;
+    mtUnidadesListaMAGNITUD: TStringField;
+    mtUnidadesListaACTIVO: TBooleanField;
+    mtUnidadesListaESTADO: TStringField;
+    mtUnidadesListaACCIONES: TStringField;
     dsUnidadesMedida: TDataSource;
     dsItemCatalogo: TDataSource;
     dsPrecioCatalogo: TDataSource;
@@ -331,10 +345,11 @@ type
       DisplayText: Boolean);
     procedure TipoGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
+    procedure MagnitudGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
   private
     procedure CargarTiposIdentificacion;
   public
-    procedure CargarUnidadesMedida;
     procedure PrepararItemCatalogo;
     procedure PrepararPrecioCatalogo;
     procedure PrepararClienteNuevo;
@@ -361,10 +376,6 @@ const
   ESTADO_INACTIVO = 'inactivo';
   ESTADO_PROGRAMADO = 'programado';
 
-  UNIDADES_MEDIDA: array [0 .. 9] of string = ('unidad', 'metro',
-    'metro cuadrado', 'kilogramo', 'tonelada', 'litro', 'hora', 'pulgada',
-    'lamina', 'tubo');
-
 function NuevoUuid: string;
 begin
   Result := LowerCase(TGUID.NewGuid.ToString.Trim(['{', '}']));
@@ -373,7 +384,6 @@ end;
 procedure TdmMemoria.DataModuleCreate(Sender: TObject);
 begin
   CargarTiposIdentificacion;
-  CargarUnidadesMedida;
 end;
 
 procedure TdmMemoria.CargarTiposIdentificacion;
@@ -415,6 +425,12 @@ begin
   Text := TFormato.Estado(Sender.AsString);
 end;
 
+procedure TdmMemoria.MagnitudGetText(Sender: TField; var Text: string;
+  DisplayText: Boolean);
+begin
+  Text := TFormato.Magnitud(Sender.AsString);
+end;
+
 procedure TdmMemoria.TipoGetText(Sender: TField; var Text: string;
   DisplayText: Boolean);
 begin
@@ -424,17 +440,6 @@ begin
     Text := STipoMaquina
   else
     Text := STipoMaterial;
-end;
-
-procedure TdmMemoria.CargarUnidadesMedida;
-var
-  lUnidad: string;
-begin
-  mtUnidadesMedida.Close;
-  mtUnidadesMedida.CreateDataSet;
-  for lUnidad in UNIDADES_MEDIDA do
-    mtUnidadesMedida.AppendRecord([lUnidad]);
-  mtUnidadesMedida.First;
 end;
 
 procedure TdmMemoria.PrepararItemCatalogo;

@@ -113,7 +113,7 @@ function TSolicitudService.TraerVigente(const AId: Integer): TSolicitudes;
 begin
   Result := fRepo.GetByPK(AId, False);
   if Result = nil then
-    raise ERecursoNoEncontrado.Create('la solicitud', AId);
+    raise ERecursoNoEncontrado.Create(SRecursoSolicitud, AId);
 end;
 
 function TSolicitudService.TraerMedida(const AId, AMedidaId: Integer)
@@ -121,7 +121,7 @@ function TSolicitudService.TraerMedida(const AId, AMedidaId: Integer)
 begin
   Result := fMedidas.MedidaDe(AId, AMedidaId);
   if Result = nil then
-    raise ERecursoNoEncontrado.Create('la medida', AMedidaId);
+    raise ERecursoNoEncontrado.Create(SRecursoMedida, AMedidaId);
 end;
 
 function TSolicitudService.TraerAdjunto(const AId, AAdjuntoId: Integer)
@@ -129,7 +129,7 @@ function TSolicitudService.TraerAdjunto(const AId, AAdjuntoId: Integer)
 begin
   Result := fAdjuntos.AdjuntoDe(AId, AAdjuntoId);
   if Result = nil then
-    raise ERecursoNoEncontrado.Create('el adjunto', AAdjuntoId);
+    raise ERecursoNoEncontrado.Create(SRecursoAdjunto, AAdjuntoId);
 end;
 
 function TSolicitudService.ADto(const ASolicitud: TSolicitudes): TSolicitudDTO;
@@ -240,7 +240,7 @@ begin
       lSolicitud.FechaCaptura := Now;
     lSolicitud.Estado := ESTADO_RECIBIDA;
     lSolicitud.FechaRecepcion := Now;
-    FijarDetalle('Registro de la solicitud ' + ADto.Descripcion);
+    FijarDetalle(Format(SDetalleRegistroSolicitud, [ADto.Descripcion]));
     fRepo.Insert(lSolicitud);
     Result := lSolicitud.ID.ValueOrDefault;
   finally
@@ -270,7 +270,7 @@ begin
       raise EVersionVencida.Create('la solicitud', AId);
 
     TMapeo.Copiar(ADto, lSolicitud);
-    FijarDetalle('Cambio en la solicitud ' + AId.ToString);
+    FijarDetalle(Format(SDetalleCambioSolicitud, [AId]));
     fRepo.Update(lSolicitud);
   finally
     lSolicitud.Free;
@@ -312,7 +312,7 @@ begin
       lSolicitud.Estado := ESTADO_RECIBIDA;
     if not lSolicitud.FechaRecepcion.HasValue then
       lSolicitud.FechaRecepcion := Now;
-    FijarDetalle('Recepcion de la solicitud ' + AId.ToString);
+    FijarDetalle(Format(SDetalleRecepcionSolicitud, [AId]));
     fRepo.Update(lSolicitud);
   finally
     lSolicitud.Free;
@@ -339,8 +339,7 @@ begin
     if ADto.Observacion.HasValue then
       lSolicitud.Observaciones := ADto.Observacion;
 
-    FijarDetalle(Format('Cambio de estado de la solicitud %d a %s',
-      [AId, ADto.Estado]));
+    FijarDetalle(Format(SDetalleCambioEstadoSolicitud, [AId, ADto.Estado]));
     fRepo.Update(lSolicitud);
   finally
     lSolicitud.Free;
@@ -412,7 +411,7 @@ begin
 
   lSolicitud := TraerVigente(AId);
   try
-    FijarDetalle('Medida agregada a la solicitud ' + AId.ToString);
+    FijarDetalle(Format(SDetalleMedidaAgregada, [AId]));
     Result := InsertarMedida(AId, ADto);
   finally
     lSolicitud.Free;
@@ -431,7 +430,7 @@ begin
   try
     TMapeo.Copiar(ADto, lMedida);
     lMedida.SolicitudId := AId;
-    FijarDetalle('Cambio en una medida de la solicitud ' + AId.ToString);
+    FijarDetalle(Format(SDetalleCambioMedida, [AId]));
     fMedidas.Update(lMedida);
   finally
     lMedida.Free;
@@ -447,7 +446,7 @@ begin
 
   lMedida := TraerMedida(AId, AMedidaId);
   try
-    FijarDetalle('Medida eliminada de la solicitud ' + AId.ToString);
+    FijarDetalle(Format(SDetalleMedidaEliminada, [AId]));
     fMedidas.Delete(lMedida);
   finally
     lMedida.Free;
@@ -558,7 +557,7 @@ begin
 
   lSolicitud := TraerVigente(AId);
   try
-    FijarDetalle('Adjunto agregado a la solicitud ' + AId.ToString);
+    FijarDetalle(Format(SDetalleAdjuntoAgregado, [AId]));
     Result := InsertarAdjunto(AId, ADto);
   finally
     lSolicitud.Free;
@@ -575,7 +574,7 @@ begin
   lAdjunto := TraerAdjunto(AId, AAdjuntoId);
   try
     lAdjunto.Activo := False;
-    FijarDetalle('Adjunto inactivado en la solicitud ' + AId.ToString);
+    FijarDetalle(Format(SDetalleAdjuntoInactivado, [AId]));
     fAdjuntos.Update(lAdjunto);
   finally
     lAdjunto.Free;

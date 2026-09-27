@@ -85,7 +85,7 @@ function TClienteService.TraerVigente(const AId: Integer): TClientes;
 begin
   Result := fRepo.GetByPK(AId, False);
   if Result = nil then
-    raise ERecursoNoEncontrado.Create('el cliente', AId);
+    raise ERecursoNoEncontrado.Create(SRecursoCliente, AId);
 end;
 
 function TClienteService.TraerContacto(const AId, AContactoId: Integer)
@@ -93,7 +93,7 @@ function TClienteService.TraerContacto(const AId, AContactoId: Integer)
 begin
   Result := fContactos.ContactoDe(AId, AContactoId);
   if Result = nil then
-    raise ERecursoNoEncontrado.Create('el contacto', AContactoId);
+    raise ERecursoNoEncontrado.Create(SRecursoContacto, AContactoId);
 end;
 
 function TClienteService.ValidarUuidLocal(const AUuid: NullableString): Integer;
@@ -159,7 +159,7 @@ begin
   lCliente := TClientes.Create;
   try
     TMapeo.Copiar(ADto, lCliente);
-    FijarDetalle('Registro del cliente ' + ADto.Nombre);
+    FijarDetalle(Format(SDetalleRegistroCliente, [ADto.Nombre]));
     fRepo.Insert(lCliente);
     Result := lCliente.ID.ValueOrDefault;
   finally
@@ -190,7 +190,7 @@ begin
       raise EVersionVencida.Create('el cliente', AId);
 
     TMapeo.Copiar(ADto, lCliente);
-    FijarDetalle('Edicion de los datos del cliente');
+    FijarDetalle(SDetalleEdicionCliente);
     try
       fRepo.Update(lCliente);
     except
@@ -215,7 +215,7 @@ begin
       Exit;
 
     lCliente.Activo := False;
-    FijarDetalle('Inactivacion del cliente');
+    FijarDetalle(SDetalleInactivacionCliente);
     fRepo.Update(lCliente);
   finally
     lCliente.Free;
@@ -259,7 +259,7 @@ begin
     try
       lCliente := TClientes.Create;
       TMapeo.Copiar(ADto.Cliente, lCliente);
-      FijarDetalle('Registro con los datos completos desde el movil');
+      FijarDetalle(SDetalleRegistroCompletoMovil);
       fRepo.Insert(lCliente);
       lId := lCliente.ID.Value;
 
@@ -319,7 +319,7 @@ begin
   try
     TMapeo.Copiar(ADto, lContacto);
     lContacto.ClienteId := AId;
-    FijarDetalle('Contacto nuevo del cliente ' + AId.ToString);
+    FijarDetalle(Format(SDetalleContactoNuevo, [AId]));
     fContactos.Insert(lContacto);
     Result := lContacto.ID.Value;
   finally
@@ -346,7 +346,7 @@ begin
 
     TMapeo.Copiar(ADto, lContacto);
     lContacto.ClienteId := AId;
-    FijarDetalle('Edicion del contacto ' + AContactoId.ToString);
+    FijarDetalle(Format(SDetalleEdicionContacto, [AContactoId]));
     try
       fContactos.Update(lContacto);
     except
@@ -371,7 +371,7 @@ begin
       Exit;
 
     lContacto.Activo := False;
-    FijarDetalle('Inactivacion del contacto ' + AContactoId.ToString);
+    FijarDetalle(Format(SDetalleInactivacionContacto, [AContactoId]));
     fContactos.Update(lContacto);
   finally
     lContacto.Free;
@@ -423,8 +423,8 @@ begin
     lFirma.Accion := ACCION_REVOCADO;
     lFirma.VersionTexto := lCliente.ConsentimientoVersion.ValueOrDefault;
     lFirma.Fecha := lFecha;
-    FijarDetalle('Revocacion del consentimiento pedida por ' +
-      ADto.FirmanteNombre);
+    FijarDetalle(Format(SDetalleRevocacionConsentimiento,
+      [ADto.FirmanteNombre]));
     fConsentimientos.Insert(lFirma);
 
     lCliente.ConsentimientoEstado := CONSENTIMIENTO_REVOCADO;

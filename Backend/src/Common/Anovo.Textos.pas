@@ -23,6 +23,19 @@ resourcestring
     'nombre.';
   SNombreDuplicadoOtroTipoTrabajo = 'Ya existe otro tipo de trabajo con ese ' +
     'nombre.';
+  SNombreDuplicadoUnidadMedida = 'Ya existe una unidad de medida con ese ' +
+    'nombre.';
+  SNombreDuplicadoOtraUnidadMedida = 'Ya existe otra unidad de medida con ' +
+    'ese nombre.';
+  SMagnitudInvalida = 'La magnitud debe ser tiempo, peso, longitud, área, ' +
+    'volumen o unidades.';
+  SUnidadMedidaInactiva = 'La unidad de medida está inactiva. Escoja otra.';
+  SMagnitudTiempo = 'Tiempo';
+  SMagnitudPeso = 'Peso';
+  SMagnitudLongitud = 'Longitud';
+  SMagnitudArea = 'Área';
+  SMagnitudVolumen = 'Volumen';
+  SMagnitudUnidades = 'Unidades';
 
   SClienteNoExiste = 'El cliente indicado no existe.';
   SRegistroSinContacto = 'El registro debe traer al menos un contacto.';
@@ -51,6 +64,19 @@ resourcestring
 
   SRecursoNoExiste = 'No existe %s con el número %d.';
   SRecursoNoExisteGenerico = 'El recurso solicitado no existe.';
+  SRecursoMaterial = 'el material';
+  SRecursoManoObra = 'la mano de obra';
+  SRecursoMaquina = 'la máquina';
+  SRecursoTipoTrabajo = 'el tipo de trabajo';
+  SRecursoUnidadMedida = 'la unidad de medida';
+  SRecursoCliente = 'el cliente';
+  SRecursoContacto = 'el contacto';
+  SRecursoCotizacion = 'la cotización';
+  SRecursoLinea = 'la línea de cotización';
+  SRecursoUsuario = 'el usuario';
+  SRecursoSolicitud = 'la solicitud';
+  SRecursoMedida = 'la medida';
+  SRecursoAdjunto = 'el adjunto';
   SRutaNoExiste = 'La dirección solicitada no existe.';
 
   SSinPermiso = 'Su perfil no tiene permitido %s.';
@@ -93,6 +119,7 @@ resourcestring
   SCatalogoManoObra = 'Mano de obra';
   SCatalogoMaquinas = 'Máquinas';
   SCatalogoTiposTrabajo = 'Tipos de trabajo';
+  SCatalogoUnidadesMedida = 'Unidades de medida';
 
   STipoMaterial = 'Material';
   STipoManoObra = 'Mano de obra';
@@ -102,14 +129,17 @@ resourcestring
   SItemManoObra = 'mano de obra';
   SItemMaquina = 'máquina';
   SItemTipoTrabajo = 'tipo de trabajo';
+  SItemUnidadMedida = 'unidad de medida';
 
   STituloNuevoItem = 'Nuevo %s';
   STituloEditarItem = 'Editar %s';
+  STituloNuevaUnidadMedida = 'Nueva unidad de medida';
 
   SNuevoMaterial = '+ Nuevo material';
   SNuevaManoObra = '+ Nueva mano de obra';
   SNuevaMaquina = '+ Nueva máquina';
   SNuevoTipoTrabajo = '+ Nuevo tipo de trabajo';
+  SNuevaUnidadMedida = '+ Nueva unidad de medida';
 
   SPistaBusquedaItem = 'Código, nombre o descripción';
   SPistaBusquedaNombre = 'Nombre';
@@ -117,6 +147,7 @@ resourcestring
   SCompleteCodigo = 'Complete el código después de %s';
   SNombreObligatorio = 'El nombre es obligatorio.';
   SEscojaUnidadMedida = 'Escoja la unidad de medida.';
+  SEscojaMagnitud = 'Escoja la magnitud.';
   SEscojaCategoria = 'Escoja una categoría.';
   SFaltaPrecioVenta = 'Falta el precio de venta.';
 
@@ -238,6 +269,52 @@ resourcestring
   SDetallePrecioProgramadoMaquina = 'Precio programado por hora de la ' +
     'máquina %s';
   SDetalleRelevoAplicado = 'Cambio de precio programado aplicado';
+  SDetalleRegistroMaterial = 'Registro del material %s';
+  SDetalleCambioMaterial = 'Cambio en el material %s';
+  SDetalleInactivacionMaterial = 'Inactivación del material %s';
+  SDetalleRegistroManoObra = 'Registro de la mano de obra %s';
+  SDetalleCambioManoObra = 'Cambio en la mano de obra %s';
+  SDetalleInactivacionManoObra = 'Inactivación de la mano de obra %s';
+  SDetalleRegistroMaquina = 'Registro de la máquina %s';
+  SDetalleCambioMaquina = 'Cambio en la máquina %s';
+  SDetalleInactivacionMaquina = 'Inactivación de la máquina %s';
+  SDetalleRegistroTipoTrabajo = 'Registro del tipo de trabajo %s';
+  SDetalleCambioTipoTrabajo = 'Cambio en el tipo de trabajo %s';
+  SDetalleInactivacionTipoTrabajo = 'Inactivación del tipo de trabajo %s';
+  SDetalleRegistroUnidadMedida = 'Registro de la unidad de medida %s';
+  SDetalleCambioUnidadMedida = 'Cambio en la unidad de medida %s';
+  SDetalleInactivacionUnidadMedida = 'Inactivación de la unidad de medida %s';
+  SDetalleRegistroCliente = 'Registro del cliente %s';
+  SDetalleEdicionCliente = 'Edición de los datos del cliente';
+  SDetalleInactivacionCliente = 'Inactivación del cliente';
+  SDetalleRegistroCompletoMovil = 'Registro con los datos completos desde el ' +
+    'móvil';
+  SDetalleContactoNuevo = 'Contacto nuevo del cliente %d';
+  SDetalleEdicionContacto = 'Edición del contacto %d';
+  SDetalleInactivacionContacto = 'Inactivación del contacto %d';
+  SDetalleRevocacionConsentimiento = 'Revocación del consentimiento pedida ' +
+    'por %s';
+  SDetalleCotizacionDesdeSolicitud = 'Cotización %d desde la solicitud %d';
+  SDetalleCambioCotizacion = 'Cambio en la cotización %d';
+  SDetalleLineaAgregada = 'Línea agregada a la cotización %d';
+  SDetalleCambioLinea = 'Cambio en una línea de la cotización %d';
+  SDetalleLineaEliminada = 'Línea eliminada de la cotización %d';
+  SDetalleRecalculoCotizacion = 'Recálculo de totales de la cotización %d';
+  SDetalleAjusteCotizacion = 'Ajuste de %s%% en la cotización %d';
+  SDetalleCotizacionPresentada = 'Cotización %d presentada a revisión';
+  SDetalleAprobacionCotizacion = 'Aprobación de la cotización %d';
+  SDetalleRechazoCotizacion = 'Rechazo de la cotización %d';
+  SDetalleDevolucionCotizacion = 'Devolución de la cotización %d';
+  SDetalleEnvioCotizacion = 'Envío al cliente de la cotización %d';
+  SDetalleRegistroSolicitud = 'Registro de la solicitud %s';
+  SDetalleCambioSolicitud = 'Cambio en la solicitud %d';
+  SDetalleRecepcionSolicitud = 'Recepción de la solicitud %d';
+  SDetalleCambioEstadoSolicitud = 'Cambio de estado de la solicitud %d a %s';
+  SDetalleMedidaAgregada = 'Medida agregada a la solicitud %d';
+  SDetalleCambioMedida = 'Cambio en una medida de la solicitud %d';
+  SDetalleMedidaEliminada = 'Medida eliminada de la solicitud %d';
+  SDetalleAdjuntoAgregado = 'Adjunto agregado a la solicitud %d';
+  SDetalleAdjuntoInactivado = 'Adjunto inactivado en la solicitud %d';
 
 implementation
 

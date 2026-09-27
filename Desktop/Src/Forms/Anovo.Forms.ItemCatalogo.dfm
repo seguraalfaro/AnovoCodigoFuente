@@ -172,10 +172,10 @@ inherited frmItemCatalogo: TfrmItemCatalogo
         Top = 25
         Width = 180
         Height = 23
-        DataField = 'UNIDAD_MEDIDA'
+        DataField = 'UNIDAD_MEDIDA_ID'
         DataSource = dmMemoria.dsItemCatalogo
         DropDownRows = 10
-        KeyField = 'NOMBRE'
+        KeyField = 'ID'
         ListField = 'NOMBRE'
         ListSource = dmMemoria.dsUnidadesMedida
         TabOrder = 1
@@ -253,10 +253,10 @@ inherited frmItemCatalogo: TfrmItemCatalogo
         Top = 25
         Width = 180
         Height = 23
-        DataField = 'UNIDAD_MEDIDA'
+        DataField = 'UNIDAD_MEDIDA_ID'
         DataSource = dmMemoria.dsItemCatalogo
         DropDownRows = 10
-        KeyField = 'NOMBRE'
+        KeyField = 'ID'
         ListField = 'NOMBRE'
         ListSource = dmMemoria.dsUnidadesMedida
         TabOrder = 1
@@ -383,6 +383,60 @@ inherited frmItemCatalogo: TfrmItemCatalogo
         DBEditLabel.Margins.Top = 5
         DBEditLabel.OwnCaption = 'Nombre'
         DBEditLabel.ShowRequiredBold = True
+      end
+    end
+    object CarUnidadMedida: TCard
+      Left = 0
+      Top = 0
+      Width = 527
+      Height = 283
+      Caption = 'Unidad de medida'
+      CardIndex = 4
+      TabOrder = 4
+      object lblMagnitudUni: TLabel
+        Tag = 13
+        Left = 20
+        Top = 72
+        Width = 55
+        Height = 15
+        Caption = 'Magnitud'
+      end
+      object edNombreUni: TrDBEdit
+        Left = 20
+        Top = 25
+        Width = 300
+        Height = 23
+        DataField = 'NOMBRE'
+        DataSource = dmMemoria.dsItemCatalogo
+        TabOrder = 0
+        StyleElements = []
+        ReadOnlyColor = 15987699
+        DBEditLabel.AlignWithMargins = True
+        DBEditLabel.Margins.Top = 5
+        DBEditLabel.OwnCaption = 'Nombre'
+        DBEditLabel.ShowRequiredBold = True
+      end
+      object edAbreviaturaUni: TrDBEdit
+        Left = 340
+        Top = 25
+        Width = 160
+        Height = 23
+        DataField = 'ABREVIATURA'
+        DataSource = dmMemoria.dsItemCatalogo
+        TabOrder = 1
+        StyleElements = []
+        ReadOnlyColor = 15987699
+        DBEditLabel.AlignWithMargins = True
+        DBEditLabel.Margins.Top = 5
+        DBEditLabel.OwnCaption = 'Abreviatura'
+      end
+      object cbMagnitudUni: TComboBox
+        Left = 20
+        Top = 92
+        Width = 300
+        Height = 23
+        Style = csDropDownList
+        TabOrder = 2
       end
     end
   end

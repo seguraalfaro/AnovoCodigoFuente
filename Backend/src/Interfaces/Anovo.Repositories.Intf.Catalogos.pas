@@ -106,8 +106,18 @@ type
   ITipoTrabajoRepository = interface(IMVCRepository<TTiposTrabajo>)
     ['{9F40A5E2-6C87-43B1-8D2A-17E95B0C4D68}']
 
-    function Todos(const AIncluirInactivos: Boolean = False)
-      : TObjectList<TTiposTrabajo>;
+    function Todos(const AIncluirInactivos: Boolean = False;
+      const ATexto: string = ''): TObjectList<TTiposTrabajo>;
+
+    function ExisteNombre(const ANombre: string;
+      const AExcluirId: Integer = 0): Boolean;
+  end;
+
+  IUnidadMedidaRepository = interface(IMVCRepository<TUnidadesMedida>)
+    ['{9E801450-401D-40E7-9417-C11223CD9A02}']
+
+    function Todas(const AIncluirInactivas: Boolean = False;
+      const ATexto: string = ''): TObjectList<TUnidadesMedida>;
 
     function ExisteNombre(const ANombre: string;
       const AExcluirId: Integer = 0): Boolean;

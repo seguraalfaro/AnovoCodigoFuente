@@ -83,7 +83,8 @@ inherited fraCatalogos: TfraCatalogos
       'Materiales'
       'Mano de obra'
       'M'#225'quinas'
-      'Tipos de trabajo')
+      'Tipos de trabajo'
+      'Unidades de medida')
     Style = pesPastilla
     Indent = 20
     BackColor = 16447477

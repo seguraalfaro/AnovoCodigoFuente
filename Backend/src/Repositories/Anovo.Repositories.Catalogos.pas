@@ -124,11 +124,20 @@ type
       : TObjectList<TMaquinasPrecios>;
   end;
 
+  TUnidadMedidaRepository = class(TAnovoRepository<TUnidadesMedida>,
+    IUnidadMedidaRepository)
+  public
+    function Todas(const AIncluirInactivas: Boolean = False;
+      const ATexto: string = ''): TObjectList<TUnidadesMedida>;
+    function ExisteNombre(const ANombre: string;
+      const AExcluirId: Integer = 0): Boolean;
+  end;
+
   TTipoTrabajoRepository = class(TAnovoRepository<TTiposTrabajo>,
     ITipoTrabajoRepository)
   public
-    function Todos(const AIncluirInactivos: Boolean = False)
-      : TObjectList<TTiposTrabajo>;
+    function Todos(const AIncluirInactivos: Boolean = False;
+      const ATexto: string = ''): TObjectList<TTiposTrabajo>;
     function ExisteNombre(const ANombre: string;
       const AExcluirId: Integer = 0): Boolean;
   end;
@@ -416,19 +425,34 @@ begin
   Result := GetWhere(MAQUINA_PRECIOS_HISTORIAL, [AMaquinaId]);
 end;
 
-function TTipoTrabajoRepository.Todos(const AIncluirInactivos: Boolean)
-  : TObjectList<TTiposTrabajo>;
+function TTipoTrabajoRepository.Todos(const AIncluirInactivos: Boolean;
+  const ATexto: string): TObjectList<TTiposTrabajo>;
 begin
   if AIncluirInactivos then
-    Result := GetWhere(TIPOS_TRABAJO_TODOS, [])
+    Result := GetWhere(TIPOS_TRABAJO_TODOS, [ATexto])
   else
-    Result := GetWhere(TIPOS_TRABAJO_ACTIVOS, []);
+    Result := GetWhere(TIPOS_TRABAJO_ACTIVOS, [ATexto]);
 end;
 
 function TTipoTrabajoRepository.ExisteNombre(const ANombre: string;
   const AExcluirId: Integer): Boolean;
 begin
   Result := HayOtroCon(TIPOS_TRABAJO_NOMBRE_DUPLICADO, ANombre, AExcluirId);
+end;
+
+function TUnidadMedidaRepository.Todas(const AIncluirInactivas: Boolean;
+  const ATexto: string): TObjectList<TUnidadesMedida>;
+begin
+  if AIncluirInactivas then
+    Result := GetWhere(UNIDADES_MEDIDA_TODAS, [ATexto, ATexto])
+  else
+    Result := GetWhere(UNIDADES_MEDIDA_ACTIVAS, [ATexto, ATexto]);
+end;
+
+function TUnidadMedidaRepository.ExisteNombre(const ANombre: string;
+  const AExcluirId: Integer): Boolean;
+begin
+  Result := HayOtroCon(UNIDADES_MEDIDA_NOMBRE_DUPLICADO, ANombre, AExcluirId);
 end;
 
 end.

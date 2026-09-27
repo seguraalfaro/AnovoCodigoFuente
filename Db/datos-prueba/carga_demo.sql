@@ -90,12 +90,13 @@ BEGIN
       UNIDAD = 'lamina'; COSTO = 21400 + (I * 510);
     END ELSE BEGIN
       NOMBRE = 'Electrodo 6013 de ' || (1 + MOD(I, 3)) || '/8';
-      UNIDAD = 'kilo'; COSTO = 4100 + (I * 65);
+      UNIDAD = 'kilogramo'; COSTO = 4100 + (I * 65);
     END
 
-    INSERT INTO MATERIALES (CODIGO, NOMBRE, DESCRIPCION, UNIDAD_MEDIDA, ACTIVO)
+    INSERT INTO MATERIALES (CODIGO, NOMBRE, DESCRIPCION, UNIDAD_MEDIDA_ID, ACTIVO)
       VALUES ('DEMO-MAT-' || LPAD(:I, 3, '0'), :NOMBRE,
-              'Material de prueba para el catalogo', :UNIDAD, TRUE)
+              'Material de prueba para el catalogo',
+              (SELECT ID FROM UNIDADES_MEDIDA WHERE NOMBRE = :UNIDAD), TRUE)
       RETURNING ID INTO :ID_MAT;
 
     /* El anterior, vigente hasta hace tres meses. */
@@ -133,10 +134,11 @@ BEGIN
     COSTO = 4200 + (I * 180);
 
     INSERT INTO MANO_OBRA (CODIGO, CATEGORIA_ID, NOMBRE, DESCRIPCION,
-      UNIDAD_MEDIDA, ACTIVO)
+      UNIDAD_MEDIDA_ID, ACTIVO)
       VALUES ('DEMO-MO-' || LPAD(:I, 3, '0'), :CAT,
               :DESCR,
-              :DESCR || ' (nivel ' || (1 + MOD(:I, 3)) || ')', 'hora', TRUE)
+              :DESCR || ' (nivel ' || (1 + MOD(:I, 3)) || ')',
+              (SELECT ID FROM UNIDADES_MEDIDA WHERE NOMBRE = 'hora'), TRUE)
       RETURNING ID INTO :ID_MO;
 
     INSERT INTO MANO_OBRA_PRECIOS (MANO_OBRA_ID, COSTO_UNITARIO, ACTIVO,
@@ -490,9 +492,11 @@ BEGIN
         CANT = 2 + MOD(I + J, 9);
         INSERT INTO COTIZACION_DETALLE (COTIZACION_ID, TIPO, MATERIAL_ID,
           DESCRIPCION, UNIDAD_MEDIDA, CANTIDAD, PRECIO_UNITARIO, SUBTOTAL, ORDEN)
-          SELECT :ID_COT, 'material', M.ID, M.NOMBRE, M.UNIDAD_MEDIDA, :CANT,
+          SELECT :ID_COT, 'material', M.ID, M.NOMBRE, U.NOMBRE, :CANT,
                  :PRECIO, :CANT * :PRECIO, :J
-            FROM MATERIALES M WHERE M.ID = :ID_REF;
+            FROM MATERIALES M
+            JOIN UNIDADES_MEDIDA U ON U.ID = M.UNIDAD_MEDIDA_ID
+           WHERE M.ID = :ID_REF;
         SUB_MAT = SUB_MAT + (CANT * PRECIO);
       END
       ELSE IF (MOD(J, 3) = 2) THEN
@@ -507,9 +511,11 @@ BEGIN
         CANT = 1 + MOD(I + J, 6);
         INSERT INTO COTIZACION_DETALLE (COTIZACION_ID, TIPO, MANO_OBRA_ID,
           DESCRIPCION, UNIDAD_MEDIDA, CANTIDAD, PRECIO_UNITARIO, SUBTOTAL, ORDEN)
-          SELECT :ID_COT, 'mano_obra', O.ID, O.DESCRIPCION, O.UNIDAD_MEDIDA,
+          SELECT :ID_COT, 'mano_obra', O.ID, O.DESCRIPCION, U.NOMBRE,
                  :CANT, :PRECIO, :CANT * :PRECIO, :J
-            FROM MANO_OBRA O WHERE O.ID = :ID_REF;
+            FROM MANO_OBRA O
+            JOIN UNIDADES_MEDIDA U ON U.ID = O.UNIDAD_MEDIDA_ID
+           WHERE O.ID = :ID_REF;
         SUB_MO = SUB_MO + (CANT * PRECIO);
       END
       ELSE

@@ -120,7 +120,7 @@ function TCotizacionService.TraerVigente(const AId: Integer): TCotizaciones;
 begin
   Result := fRepo.GetByPK(AId, False);
   if Result = nil then
-    raise ERecursoNoEncontrado.Create('la cotizacion', AId);
+    raise ERecursoNoEncontrado.Create(SRecursoCotizacion, AId);
 end;
 
 function TCotizacionService.TraerLinea(const AId, ALineaId: Integer)
@@ -128,7 +128,7 @@ function TCotizacionService.TraerLinea(const AId, ALineaId: Integer)
 begin
   Result := fDetalle.LineaDe(AId, ALineaId);
   if Result = nil then
-    raise ERecursoNoEncontrado.Create('la linea', ALineaId);
+    raise ERecursoNoEncontrado.Create(SRecursoLinea, ALineaId);
 end;
 
 function TCotizacionService.ADto(const ACotizacion: TCotizaciones)
@@ -304,7 +304,7 @@ var
 begin
   lCotizacion := fRepo.ObtenerPorNumero(ANumero);
   if lCotizacion = nil then
-    raise ERecursoNoEncontrado.Create('la cotizacion numero', ANumero);
+    raise ERecursoNoEncontrado.Create(SRecursoCotizacion, ANumero);
   try
     Result := ADto(lCotizacion);
   finally
@@ -350,7 +350,7 @@ begin
       lCotizacion.PorcentajeAjuste := 0;
       lCotizacion.FechaElaboracion := Now;
 
-      FijarDetalle(Format('Cotizacion %d desde la solicitud %d',
+      FijarDetalle(Format(SDetalleCotizacionDesdeSolicitud,
         [lCotizacion.Numero, lSolicitud.ID.ValueOrDefault]));
       fRepo.Insert(lCotizacion);
       Result := lCotizacion.ID.ValueOrDefault;
@@ -390,7 +390,7 @@ begin
     lCotizacion.TipoTrabajoId := ADto.TipoTrabajoId;
     lCotizacion.DescripcionTrabajo := ADto.DescripcionTrabajo;
     lCotizacion.PorcentajeIva := ADto.PorcentajeIva;
-    FijarDetalle('Cambio en la cotizacion ' + lCotizacion.Numero.ToString);
+    FijarDetalle(Format(SDetalleCambioCotizacion, [lCotizacion.Numero]));
     fRepo.Update(lCotizacion);
   finally
     lCotizacion.Free;
@@ -430,8 +430,7 @@ begin
       lLinea.CotizacionId := AId;
       LlenarLinea(lLinea, ADto);
       lLinea.Orden := fDetalle.SiguienteOrden(AId);
-      FijarDetalle('Linea agregada a la cotizacion ' +
-        lCotizacion.Numero.ToString);
+      FijarDetalle(Format(SDetalleLineaAgregada, [lCotizacion.Numero]));
       fDetalle.Insert(lLinea);
       Result := lLinea.ID.ValueOrDefault;
     finally
@@ -460,8 +459,7 @@ begin
     lLinea := TraerLinea(AId, ALineaId);
     try
       LlenarLinea(lLinea, ADto);
-      FijarDetalle('Cambio en una linea de la cotizacion ' +
-        lCotizacion.Numero.ToString);
+      FijarDetalle(Format(SDetalleCambioLinea, [lCotizacion.Numero]));
       fDetalle.Update(lLinea);
     finally
       lLinea.Free;
@@ -487,8 +485,7 @@ begin
 
     lLinea := TraerLinea(AId, ALineaId);
     try
-      FijarDetalle('Linea eliminada de la cotizacion ' +
-        lCotizacion.Numero.ToString);
+      FijarDetalle(Format(SDetalleLineaEliminada, [lCotizacion.Numero]));
       fDetalle.Delete(lLinea);
     finally
       lLinea.Free;
@@ -526,8 +523,7 @@ begin
     lCotizacion.MontoImpuesto := lImpuesto;
     lCotizacion.MontoTotal := lAjustado + lImpuesto;
 
-    FijarDetalle('Recalculo de totales de la cotizacion ' +
-      lCotizacion.Numero.ToString);
+    FijarDetalle(Format(SDetalleRecalculoCotizacion, [lCotizacion.Numero]));
     fRepo.Update(lCotizacion);
   finally
     lCotizacion.Free;
@@ -557,7 +553,7 @@ begin
     else
       lCotizacion.MotivoAjuste := ADto.MotivoAjuste;
 
-    FijarDetalle(Format('Ajuste de %s%% en la cotizacion %d',
+    FijarDetalle(Format(SDetalleAjusteCotizacion,
       [CurrToStr(ADto.PorcentajeAjuste), lCotizacion.Numero]));
     fRepo.Update(lCotizacion);
   finally
@@ -591,8 +587,7 @@ begin
         'La cotizacion no tiene lineas: no hay nada que revisar.');
 
     lCotizacion.Estado := ESTADO_PENDIENTE;
-    FijarDetalle('Cotizacion ' + lCotizacion.Numero.ToString +
-      ' presentada a revision');
+    FijarDetalle(Format(SDetalleCotizacionPresentada, [lCotizacion.Numero]));
     fRepo.Update(lCotizacion);
   finally
     lCotizacion.Free;
@@ -616,8 +611,7 @@ begin
     lCotizacion.Estado := ESTADO_APROBADA;
     lCotizacion.AprobadaPor := UsuarioActual;
     lCotizacion.FechaAprobacion := Now;
-    FijarDetalle('Aprobacion de la cotizacion ' +
-      lCotizacion.Numero.ToString);
+    FijarDetalle(Format(SDetalleAprobacionCotizacion, [lCotizacion.Numero]));
     fRepo.Update(lCotizacion);
   finally
     lCotizacion.Free;
@@ -644,7 +638,7 @@ begin
 
     lCotizacion.Estado := ESTADO_RECHAZADA;
     lCotizacion.MotivoRechazo := ADto.Motivo;
-    FijarDetalle('Rechazo de la cotizacion ' + lCotizacion.Numero.ToString);
+    FijarDetalle(Format(SDetalleRechazoCotizacion, [lCotizacion.Numero]));
     fRepo.Update(lCotizacion);
   finally
     lCotizacion.Free;
@@ -671,8 +665,7 @@ begin
 
     lCotizacion.Estado := ESTADO_BORRADOR;
     lCotizacion.MotivoRechazo := ADto.Motivo;
-    FijarDetalle('Devolucion de la cotizacion ' +
-      lCotizacion.Numero.ToString);
+    FijarDetalle(Format(SDetalleDevolucionCotizacion, [lCotizacion.Numero]));
     fRepo.Update(lCotizacion);
   finally
     lCotizacion.Free;
@@ -695,8 +688,7 @@ begin
 
     lCotizacion.Estado := ESTADO_ENVIADA;
     lCotizacion.FechaEnvio := Now;
-    FijarDetalle('Envio al cliente de la cotizacion ' +
-      lCotizacion.Numero.ToString);
+    FijarDetalle(Format(SDetalleEnvioCotizacion, [lCotizacion.Numero]));
     fRepo.Update(lCotizacion);
   finally
     lCotizacion.Free;

@@ -9,7 +9,8 @@ uses
   Anovo.DTOs.Catalogos;
 
 type
-  TCatalogo = (ctTodos, ctMateriales, ctManoObra, ctMaquinas, ctTiposTrabajo);
+  TCatalogo = (ctTodos, ctMateriales, ctManoObra, ctMaquinas, ctTiposTrabajo,
+    ctUnidadesMedida);
 
   TAccionCatalogo = (acEditar, acHistorial, acPrecio, acInactivar);
   TAccionesCatalogo = set of TAccionCatalogo;
@@ -28,6 +29,8 @@ type
     procedure MostrarManoObra(const AFilas: TObjectList<TManoObraDTO>);
     procedure MostrarMaquinas(const AFilas: TObjectList<TMaquinaDTO>);
     procedure MostrarTiposTrabajo(const AFilas: TObjectList<TTipoTrabajoDTO>);
+    procedure MostrarUnidadesMedida(const AFilas: TObjectList<TUnidadMedidaDTO>);
+    procedure MostrarUnidadesActivas(const AFilas: TObjectList<TUnidadMedidaDTO>);
     procedure MostrarTodos(const AFilas: TObjectList<TCatalogoItemDTO>);
 
     function CatalogoDeLaFila: TCatalogo;

@@ -40,6 +40,11 @@ type
     meDescripcionMaq: TrDBMemo;
     CarTipoTrabajo: TCard;
     edNombreTipo: TrDBEdit;
+    CarUnidadMedida: TCard;
+    lblMagnitudUni: TLabel;
+    edNombreUni: TrDBEdit;
+    edAbreviaturaUni: TrDBEdit;
+    cbMagnitudUni: TComboBox;
     pnlPrecio: TPanel;
     lblPrecio: TLabel;
     edCosto: TrDBEdit;
@@ -70,6 +75,7 @@ type
     function ValidarCampos: Boolean;
     function DtoEscrito: TObject;
     function CategoriaEscogida: Integer;
+    function MagnitudEscogida: string;
     function LlevaPrecio: Boolean;
     function PrecioCambio: Boolean;
     procedure Guardado(const AId: Integer);
@@ -86,12 +92,17 @@ implementation
 
 uses
   Anovo.Api.Catalogos,
+  System.StrUtils,
+  Anovo.Formato,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
   Anovo.Textos;
 
 const
-  PREFIJO: array [TCatalogo] of string = ('', 'MAT-', 'MO-', 'MAQ-', '');
+  PREFIJO: array [TCatalogo] of string = ('', 'MAT-', 'MO-', 'MAQ-', '', '');
+
+  MAGNITUDES: array [0 .. 5] of string = (MAGNITUD_TIEMPO, MAGNITUD_PESO,
+    MAGNITUD_LONGITUD, MAGNITUD_AREA, MAGNITUD_VOLUMEN, MAGNITUD_UNIDADES);
 
 function ItemDe(const ACatalogo: TCatalogo): string;
 begin
@@ -102,6 +113,8 @@ begin
       Result := SItemMaquina;
     ctTiposTrabajo:
       Result := SItemTipoTrabajo;
+    ctUnidadesMedida:
+      Result := SItemUnidadMedida;
   else
     Result := SItemMaterial;
   end;
@@ -150,8 +163,12 @@ begin
 end;
 
 procedure TfrmItemCatalogo.PrepararCampos;
+var
+  lMagnitud: string;
 begin
-  if FId = 0 then
+  if (FId = 0) and (FCatalogo = ctUnidadesMedida) then
+    lblTitulo.Caption := STituloNuevaUnidadMedida
+  else if FId = 0 then
     lblTitulo.Caption := Format(STituloNuevoItem, [ItemDe(FCatalogo)])
   else
     lblTitulo.Caption := Format(STituloEditarItem, [ItemDe(FCatalogo)]);
@@ -163,9 +180,15 @@ begin
       cpCatalogo.ActiveCard := CarMaquina;
     ctTiposTrabajo:
       cpCatalogo.ActiveCard := CarTipoTrabajo;
+    ctUnidadesMedida:
+      cpCatalogo.ActiveCard := CarUnidadMedida;
   else
     cpCatalogo.ActiveCard := CarMaterial;
   end;
+
+  cbMagnitudUni.Items.Clear;
+  for lMagnitud in MAGNITUDES do
+    cbMagnitudUni.Items.Add(TFormato.Magnitud(lMagnitud));
 
   pnlPrecio.Visible := LlevaPrecio;
   edCosto.Visible := FCatalogo in [ctMateriales, ctManoObra];
@@ -197,6 +220,8 @@ begin
     Exit;
 
   dmMemoria.mtItemCatalogo.CopyRecord(lOrigen);
+  cbMagnitudUni.ItemIndex := IndexStr(dmMemoria.mtItemCatalogoMAGNITUD.AsString,
+    MAGNITUDES);
   if FCatalogo = ctManoObra then
     cbCategoriaMo.ItemIndex := cbCategoriaMo.Items.IndexOfObject
       (TObject(lOrigen.FieldByName('CATEGORIA_ID').AsInteger));
@@ -249,7 +274,7 @@ end;
 
 function TfrmItemCatalogo.LlevaPrecio: Boolean;
 begin
-  Result := FCatalogo <> ctTiposTrabajo;
+  Result := not (FCatalogo in [ctTiposTrabajo, ctUnidadesMedida]);
 end;
 
 function TfrmItemCatalogo.CategoriaEscogida: Integer;
@@ -257,6 +282,13 @@ begin
   if cbCategoriaMo.ItemIndex < 0 then
     Exit(0);
   Result := Integer(cbCategoriaMo.Items.Objects[cbCategoriaMo.ItemIndex]);
+end;
+
+function TfrmItemCatalogo.MagnitudEscogida: string;
+begin
+  if cbMagnitudUni.ItemIndex < 0 then
+    Exit('');
+  Result := MAGNITUDES[cbMagnitudUni.ItemIndex];
 end;
 
 function TfrmItemCatalogo.PrecioCambio: Boolean;
@@ -275,7 +307,7 @@ var
 begin
   Result := False;
 
-  if (FCatalogo <> ctTiposTrabajo) and
+  if not (FCatalogo in [ctTiposTrabajo, ctUnidadesMedida]) and
     (dmMemoria.mtItemCatalogoCODIGO.AsString.Trim.IsEmpty or
     SameText(dmMemoria.mtItemCatalogoCODIGO.AsString.Trim,
     PREFIJO[FCatalogo])) then
@@ -291,9 +323,15 @@ begin
   end;
 
   if (FCatalogo in [ctMateriales, ctManoObra]) and
-    dmMemoria.mtItemCatalogoUNIDAD_MEDIDA.AsString.Trim.IsEmpty then
+    (dmMemoria.mtItemCatalogoUNIDAD_MEDIDA_ID.AsInteger = 0) then
   begin
     MostrarError(SEscojaUnidadMedida);
+    Exit;
+  end;
+
+  if (FCatalogo = ctUnidadesMedida) and MagnitudEscogida.IsEmpty then
+  begin
+    MostrarError(SEscojaMagnitud);
     Exit;
   end;
 
@@ -326,6 +364,7 @@ function TfrmItemCatalogo.DtoEscrito: TObject;
 var
   lManoObraNueva: TManoObraNuevaDTO;
   lManoObraEdicion: TManoObraEdicionDTO;
+  lUnidad: TUnidadMedidaNuevaDTO;
 begin
   case FCatalogo of
     ctManoObra:
@@ -352,6 +391,13 @@ begin
     ctTiposTrabajo:
       Result := TMapeoDatos.ADto<TTipoTrabajoNuevoDTO>
         (dmMemoria.mtItemCatalogo);
+    ctUnidadesMedida:
+      begin
+        lUnidad := TMapeoDatos.ADto<TUnidadMedidaNuevaDTO>
+          (dmMemoria.mtItemCatalogo);
+        lUnidad.Magnitud := MagnitudEscogida;
+        Result := lUnidad;
+      end;
   else
     if FId = 0 then
       Result := TMapeoDatos.ADto<TMaterialNuevoDTO>(dmMemoria.mtItemCatalogo)

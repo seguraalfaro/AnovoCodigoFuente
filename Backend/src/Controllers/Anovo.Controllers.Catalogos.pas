@@ -302,10 +302,12 @@ type
       'listarTiposTrabajo')]
     [MVCSwagParam(plQuery, 'incluir_inactivos', 'Incluir los inactivos',
       ptBoolean, False)]
+    [MVCSwagParam(plQuery, 'q', 'Texto a buscar en el nombre', ptString, False)]
     [MVCSwagResponses(200, 'Los tipos de trabajo')]
     function ListarTiposTrabajo([MVCInject] AServicio: ICatalogoService;
       const [MVCFromQueryString('incluir_inactivos', False)] AIncluirInactivos
-      : Boolean): IMVCResponse;
+      : Boolean; const [MVCFromQueryString('q', '')] ABusqueda: string)
+      : IMVCResponse;
 
     [MVCPath('/tipos-trabajo')]
     [MVCHTTPMethods([httpPOST])]
@@ -334,6 +336,50 @@ type
       'inactivarTipoTrabajo')]
     [MVCSwagResponses(204, 'Inactivado')]
     function InactivarTipoTrabajo([MVCInject] AServicio: ICatalogoService;
+      const AId: Integer): IMVCResponse;
+
+    [MVCPath('/unidades-medida')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCSwagSummary('Catalogos', 'Unidades de medida. Lista corta, sin paginar',
+      'listarUnidadesMedida')]
+    [MVCSwagParam(plQuery, 'incluir_inactivos', 'Incluir las inactivas',
+      ptBoolean, False)]
+    [MVCSwagParam(plQuery, 'q', 'Texto a buscar en nombre o abreviatura',
+      ptString, False)]
+    [MVCSwagResponses(200, 'Las unidades, por magnitud y nombre')]
+    function ListarUnidadesMedida([MVCInject] AServicio: ICatalogoService;
+      const [MVCFromQueryString('incluir_inactivos', False)] AIncluirInactivas
+      : Boolean; const [MVCFromQueryString('q', '')] ABusqueda: string)
+      : IMVCResponse;
+
+    [MVCPath('/unidades-medida')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCSwagSummary('Catalogos', 'Registra una unidad de medida',
+      'crearUnidadMedida')]
+    [MVCSwagResponses(201, 'Creada')]
+    [MVCSwagResponses(422, 'Nombre repetido o magnitud invalida')]
+    function CrearUnidadMedida([MVCInject] AServicio: ICatalogoService;
+      const [MVCFromBody] ADto: TUnidadMedidaNuevaDTO): IMVCResponse;
+
+    [MVCPath('/unidades-medida/($AId)')]
+    [MVCHTTPMethods([httpPUT])]
+    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCSwagSummary('Catalogos', 'Actualiza una unidad de medida',
+      'actualizarUnidadMedida')]
+    [MVCSwagResponses(204, 'Actualizada')]
+    [MVCSwagResponses(422, 'Nombre repetido o magnitud invalida')]
+    function ActualizarUnidadMedida([MVCInject] AServicio: ICatalogoService;
+      const AId: Integer;
+      const [MVCFromBody] ADto: TUnidadMedidaNuevaDTO): IMVCResponse;
+
+    [MVCPath('/unidades-medida/($AId)/inactivacion')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCSwagSummary('Catalogos', 'Inactiva una unidad de medida',
+      'inactivarUnidadMedida')]
+    [MVCSwagResponses(204, 'Inactivada')]
+    function InactivarUnidadMedida([MVCInject] AServicio: ICatalogoService;
       const AId: Integer): IMVCResponse;
   end;
 
@@ -540,9 +586,9 @@ begin
 end;
 
 function TCatalogosController.ListarTiposTrabajo(AServicio: ICatalogoService;
-  const AIncluirInactivos: Boolean): IMVCResponse;
+  const AIncluirInactivos: Boolean; const ABusqueda: string): IMVCResponse;
 begin
-  Result := OKResponse(AServicio.TiposTrabajo(AIncluirInactivos));
+  Result := OKResponse(AServicio.TiposTrabajo(AIncluirInactivos, ABusqueda));
 end;
 
 function TCatalogosController.CrearTipoTrabajo(AServicio: ICatalogoService;
@@ -563,6 +609,33 @@ function TCatalogosController.InactivarTipoTrabajo(AServicio: ICatalogoService;
   const AId: Integer): IMVCResponse;
 begin
   AServicio.InactivarTipoTrabajo(AId);
+  Result := NoContentResponse;
+end;
+
+function TCatalogosController.ListarUnidadesMedida(AServicio: ICatalogoService;
+  const AIncluirInactivas: Boolean; const ABusqueda: string): IMVCResponse;
+begin
+  Result := OKResponse(AServicio.UnidadesMedida(AIncluirInactivas, ABusqueda));
+end;
+
+function TCatalogosController.CrearUnidadMedida(AServicio: ICatalogoService;
+  const ADto: TUnidadMedidaNuevaDTO): IMVCResponse;
+begin
+  Result := CreatedResponse('/api/catalogos/unidades-medida/' +
+    AServicio.CrearUnidadMedida(ADto).ToString);
+end;
+
+function TCatalogosController.ActualizarUnidadMedida(AServicio: ICatalogoService;
+  const AId: Integer; const ADto: TUnidadMedidaNuevaDTO): IMVCResponse;
+begin
+  AServicio.ActualizarUnidadMedida(AId, ADto);
+  Result := NoContentResponse;
+end;
+
+function TCatalogosController.InactivarUnidadMedida(AServicio: ICatalogoService;
+  const AId: Integer): IMVCResponse;
+begin
+  AServicio.InactivarUnidadMedida(AId);
   Result := NoContentResponse;
 end;
 

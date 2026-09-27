@@ -20,6 +20,7 @@ type
     class function Correo(const ATexto: string): string; static;
 
     class function Estado(const AValor: string): string; static;
+    class function Magnitud(const AValor: string): string; static;
     class function MesAnio(const AFecha: TDateTime): string; static;
     class function Colones(const AMonto: Currency): string; static;
     class function FechaHora(const AFecha: TDateTime): string; static;
@@ -36,7 +37,24 @@ uses
   System.Character,
   System.Math,
   System.DateUtils,
+  System.StrUtils,
+  Anovo.DTOs.Catalogos,
   Anovo.Textos;
+
+class function TFormato.Magnitud(const AValor: string): string;
+begin
+  case IndexStr(AValor, [MAGNITUD_TIEMPO, MAGNITUD_PESO, MAGNITUD_LONGITUD,
+    MAGNITUD_AREA, MAGNITUD_VOLUMEN, MAGNITUD_UNIDADES]) of
+    0: Result := SMagnitudTiempo;
+    1: Result := SMagnitudPeso;
+    2: Result := SMagnitudLongitud;
+    3: Result := SMagnitudArea;
+    4: Result := SMagnitudVolumen;
+    5: Result := SMagnitudUnidades;
+  else
+    Result := AValor;
+  end;
+end;
 
 class function TFormato.Estado(const AValor: string): string;
 var

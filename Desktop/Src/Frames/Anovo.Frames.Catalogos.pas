@@ -44,6 +44,8 @@ type
     procedure MostrarManoObra(const AFilas: TObjectList<TManoObraDTO>);
     procedure MostrarMaquinas(const AFilas: TObjectList<TMaquinaDTO>);
     procedure MostrarTiposTrabajo(const AFilas: TObjectList<TTipoTrabajoDTO>);
+    procedure MostrarUnidadesMedida(const AFilas: TObjectList<TUnidadMedidaDTO>);
+    procedure MostrarUnidadesActivas(const AFilas: TObjectList<TUnidadMedidaDTO>);
     procedure MostrarTodos(const AFilas: TObjectList<TCatalogoItemDTO>);
     function CatalogoDeLaFila: TCatalogo;
     procedure MostrarCategorias(const ACategorias: TObjectList<TCategoriaDTO>);
@@ -103,6 +105,8 @@ begin
       Result := SCatalogoMaquinas;
     ctTiposTrabajo:
       Result := SCatalogoTiposTrabajo;
+    ctUnidadesMedida:
+      Result := SCatalogoUnidadesMedida;
   else
     Result := SCatalogoMateriales;
   end;
@@ -117,6 +121,8 @@ begin
       Result := SNuevaMaquina;
     ctTiposTrabajo:
       Result := SNuevoTipoTrabajo;
+    ctUnidadesMedida:
+      Result := SNuevaUnidadMedida;
   else
     Result := SNuevoMaterial;
   end;
@@ -134,7 +140,7 @@ end;
 
 function PistaBusquedaDe(const ACatalogo: TCatalogo): string;
 begin
-  if ACatalogo = ctTiposTrabajo then
+  if ACatalogo in [ctTiposTrabajo, ctUnidadesMedida] then
     Result := SPistaBusquedaNombre
   else
     Result := SPistaBusquedaItem;
@@ -220,8 +226,6 @@ begin
 
   cbCategoria.Visible := ACatalogo = ctManoObra;
 
-  sbBuscar.Visible := ACatalogo <> ctTiposTrabajo;
-
   case ACatalogo of
     ctTodos:
       dmMemoria.dsCatalogo.DataSet := dmMemoria.mtTodos;
@@ -231,6 +235,8 @@ begin
       dmMemoria.dsCatalogo.DataSet := dmMemoria.mtMaquinas;
     ctTiposTrabajo:
       dmMemoria.dsCatalogo.DataSet := dmMemoria.mtTiposTrabajo;
+    ctUnidadesMedida:
+      dmMemoria.dsCatalogo.DataSet := dmMemoria.mtUnidadesLista;
   else
     dmMemoria.dsCatalogo.DataSet := dmMemoria.mtMateriales;
   end;
@@ -327,6 +333,18 @@ procedure TfraCatalogos.MostrarTiposTrabajo(const AFilas
   : TObjectList<TTipoTrabajoDTO>);
 begin
   Cargar<TTipoTrabajoDTO>(AFilas, dmMemoria.mtTiposTrabajo);
+end;
+
+procedure TfraCatalogos.MostrarUnidadesMedida(const AFilas
+  : TObjectList<TUnidadMedidaDTO>);
+begin
+  Cargar<TUnidadMedidaDTO>(AFilas, dmMemoria.mtUnidadesLista);
+end;
+
+procedure TfraCatalogos.MostrarUnidadesActivas(const AFilas
+  : TObjectList<TUnidadMedidaDTO>);
+begin
+  TMapeoDatos.AListaTabla<TUnidadMedidaDTO>(AFilas, dmMemoria.mtUnidadesMedida);
 end;
 
 procedure TfraCatalogos.MostrarCategorias(const ACategorias

@@ -21,12 +21,14 @@ const
 
   MATERIALES_CON_PRECIO =
     'select MATERIALES.ID, MATERIALES.CODIGO, MATERIALES.NOMBRE, ' +
-    ' MATERIALES.DESCRIPCION, MATERIALES.UNIDAD_MEDIDA, MATERIALES.ACTIVO, ' +
+    ' MATERIALES.DESCRIPCION, MATERIALES.UNIDAD_MEDIDA_ID, ' +
+    ' u.NOMBRE as UNIDAD_MEDIDA, MATERIALES.ACTIVO, ' +
     ' p.COSTO_UNITARIO, p.PRECIO_UNITARIO, p.FECHA_VIGENCIA, ' +
     ' (select min(pp.FECHA_VIGENCIA) from PRECIOS_PROGRAMADOS pp ' +
     '   where pp.MATERIAL_ID = MATERIALES.ID and pp.ESTADO = ''pendiente'') ' +
     '   as PROGRAMADO_FECHA ' +
     'from MATERIALES ' +
+    'join UNIDADES_MEDIDA u on u.ID = MATERIALES.UNIDAD_MEDIDA_ID ' +
     'left join MATERIALES_PRECIOS p ' +
     ' on p.MATERIAL_ID = MATERIALES.ID and p.ACTIVO = TRUE ' +
     'where ';
@@ -60,13 +62,15 @@ const
     'select MANO_OBRA.ID, MANO_OBRA.CODIGO, MANO_OBRA.CATEGORIA_ID, ' +
     ' c.NOMBRE as CATEGORIA_NOMBRE, MANO_OBRA.NOMBRE, ' +
     ' MANO_OBRA.DESCRIPCION, ' +
-    ' MANO_OBRA.UNIDAD_MEDIDA, MANO_OBRA.ACTIVO, ' +
+    ' MANO_OBRA.UNIDAD_MEDIDA_ID, u.NOMBRE as UNIDAD_MEDIDA, ' +
+    ' MANO_OBRA.ACTIVO, ' +
     ' p.COSTO_UNITARIO, p.FECHA_VIGENCIA, ' +
     ' (select min(pp.FECHA_VIGENCIA) from PRECIOS_PROGRAMADOS pp ' +
     '   where pp.MANO_OBRA_ID = MANO_OBRA.ID and pp.ESTADO = ''pendiente'') ' +
     '   as PROGRAMADO_FECHA ' +
     'from MANO_OBRA ' +
     'join MANO_OBRA_CATEGORIA c on c.ID = MANO_OBRA.CATEGORIA_ID ' +
+    'join UNIDADES_MEDIDA u on u.ID = MANO_OBRA.UNIDAD_MEDIDA_ID ' +
     'left join MANO_OBRA_PRECIOS p ' +
     ' on p.MANO_OBRA_ID = MANO_OBRA.ID and p.ACTIVO = TRUE ' +
     'where ';
@@ -134,7 +138,8 @@ const
 
   CATALOGOS_UNION =
     '(select cast(''' + TIPO_MATERIAL + ''' as varchar(10)) as TIPO, ' +
-    '   m.ID, m.CODIGO, m.NOMBRE, m.DESCRIPCION, m.UNIDAD_MEDIDA, ' +
+    '   m.ID, m.CODIGO, m.NOMBRE, m.DESCRIPCION, ' +
+    '   m.UNIDAD_MEDIDA_ID, u.NOMBRE as UNIDAD_MEDIDA, ' +
     '   cast(null as integer) as CATEGORIA_ID, ' +
     '   p.COSTO_UNITARIO, p.PRECIO_UNITARIO, ' +
     '   cast(null as numeric(15,2)) as COSTO_HORA, ' +
@@ -143,11 +148,13 @@ const
     '     where pp.MATERIAL_ID = m.ID and pp.ESTADO = ''pendiente'') ' +
     '     as PROGRAMADO_FECHA ' +
     '  from MATERIALES m ' +
+    '  join UNIDADES_MEDIDA u on u.ID = m.UNIDAD_MEDIDA_ID ' +
     '  left join MATERIALES_PRECIOS p ' +
     '    on p.MATERIAL_ID = m.ID and p.ACTIVO = TRUE ' +
     ' union all ' +
     ' select cast(''' + TIPO_MANO_OBRA + ''' as varchar(10)), ' +
-    '   mo.ID, mo.CODIGO, mo.NOMBRE, mo.DESCRIPCION, mo.UNIDAD_MEDIDA, ' +
+    '   mo.ID, mo.CODIGO, mo.NOMBRE, mo.DESCRIPCION, ' +
+    '   mo.UNIDAD_MEDIDA_ID, u.NOMBRE, ' +
     '   mo.CATEGORIA_ID, ' +
     '   p.COSTO_UNITARIO, cast(null as numeric(15,2)), ' +
     '   cast(null as numeric(15,2)), ' +
@@ -155,12 +162,14 @@ const
     '   (select min(pp.FECHA_VIGENCIA) from PRECIOS_PROGRAMADOS pp ' +
     '     where pp.MANO_OBRA_ID = mo.ID and pp.ESTADO = ''pendiente'') ' +
     '  from MANO_OBRA mo ' +
+    '  join UNIDADES_MEDIDA u on u.ID = mo.UNIDAD_MEDIDA_ID ' +
     '  left join MANO_OBRA_PRECIOS p ' +
     '    on p.MANO_OBRA_ID = mo.ID and p.ACTIVO = TRUE ' +
     ' union all ' +
     ' select cast(''' + TIPO_MAQUINA + ''' as varchar(10)), ' +
     '   q.ID, q.CODIGO, q.NOMBRE, q.DESCRIPCION, ' +
-    '   cast(''hora'' as varchar(20)), cast(null as integer), ' +
+    '   cast(null as integer), cast(''hora'' as varchar(20)), ' +
+    '   cast(null as integer), ' +
     '   cast(null as numeric(15,2)), cast(null as numeric(15,2)), ' +
     '   p.COSTO_HORA, ' +
     '   p.COSTO_HORA, p.FECHA_VIGENCIA, q.ACTIVO, ' +
@@ -182,11 +191,23 @@ const
   CATALOGOS_TODOS_ORDEN_Y_PAGINA =
     ' ORDER BY t.NOMBRE, t.TIPO, t.ID ROWS ? TO ?';
 
-  TIPOS_TRABAJO_TODOS = 'ID > 0 ORDER BY NOMBRE';
-  TIPOS_TRABAJO_ACTIVOS = 'ACTIVO = TRUE ORDER BY NOMBRE';
+  TIPOS_TRABAJO_TODOS = 'ID > 0 AND NOMBRE CONTAINING ? ORDER BY NOMBRE';
+  TIPOS_TRABAJO_ACTIVOS =
+    'ACTIVO = TRUE AND NOMBRE CONTAINING ? ORDER BY NOMBRE';
 
   TIPOS_TRABAJO_NOMBRE_DUPLICADO =
     'select first 1 ID from TIPOS_TRABAJO ' +
+    'where UPPER(NOMBRE) = UPPER(?) and ID <> ?';
+
+  UNIDADES_MEDIDA_TODAS =
+    'ID > 0 AND (NOMBRE CONTAINING ? OR ABREVIATURA CONTAINING ?) ' +
+    'ORDER BY MAGNITUD, NOMBRE';
+  UNIDADES_MEDIDA_ACTIVAS =
+    'ACTIVO = TRUE AND (NOMBRE CONTAINING ? OR ABREVIATURA CONTAINING ?) ' +
+    'ORDER BY MAGNITUD, NOMBRE';
+
+  UNIDADES_MEDIDA_NOMBRE_DUPLICADO =
+    'select first 1 ID from UNIDADES_MEDIDA ' +
     'where UPPER(NOMBRE) = UPPER(?) and ID <> ?';
 
 implementation

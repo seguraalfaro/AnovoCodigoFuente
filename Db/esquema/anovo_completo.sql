@@ -3,8 +3,9 @@
    Firebird 4.0 - base ANOVO
 
    La base entera desde cero, en el estado que dejo la ultima migracion. Es la
-   suma de migraciones\01 a 11 en orden de aplicacion; cada tramo conserva la
-   cabecera de su script para saber de donde salio.
+   suma de migraciones\01 a 15 en orden de aplicacion; cada tramo conserva la
+   cabecera de su script para saber de donde salio. La 12 no tiene tramo
+   propio: su cambio ya esta en la tabla MANO_OBRA del tramo 01.
 
    Al agregar una migracion nueva, sumarla tambien aqui al final.
 
@@ -1737,5 +1738,363 @@ GRANT USAGE ON EXCEPTION E_AUDITORIA_SIN_USUARIO TO TRIGGER TR_MANO_OBRA_CATEGOR
 
 /* Sin DELETE: aqui nada se borra, una categoria en desuso se inactiva. */
 GRANT INSERT, UPDATE ON MANO_OBRA_CATEGORIA TO ROL_BACKEND;
+
+COMMIT;
+
+
+/* ############################################################################
+   TRAMO 13_usuario_sistema.sql
+   ############################################################################ */
+
+/* ============================================================================
+   Anovo - Migracion 13: usuario Sistema, para lo que escribe el servidor solo
+   ----------------------------------------------------------------------------
+   Los disparadores de auditoria exigen usuario en contexto y tumban la
+   escritura con E_AUDITORIA_SIN_USUARIO si no lo hay. Eso funciona porque toda
+   escritura venia de una peticion con token.
+
+   La rutina de vigencia de precios rompe ese supuesto: corre en el servidor,
+   al arrancar y cada hora, sin nadie que la haya pedido. Necesita un usuario
+   que ponerse, y no puede ser uno real: la auditoria diria que una persona
+   cambio el precio cuando no lo hizo.
+
+   Este usuario existe solo para aparecer en AUDITORIA. No puede entrar:
+
+     - ACTIVO = FALSE, que el login rechaza antes de mirar la clave;
+     - sin fila en USUARIOS_CLAVES, que el login vuelve a rechazar.
+
+   Son dos barreras independientes. Si alguien lo reactivara por error, sigue
+   sin clave con la cual entrar.
+
+   El rol es el de administrador porque la columna es obligatoria y hay que
+   poner alguno. No le concede nada: los permisos se revisan por peticion y
+   este usuario no tiene peticiones.
+
+   No lleva ID fijo. El servidor lo busca por correo al arrancar, asi que la
+   identidad puede asignarlo como a cualquier otro.
+
+   USUARIOS esta auditada, asi que el script se identifica como el primer
+   administrador activo de la base, que es quien la esta migrando.
+   ============================================================================ */
+
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID',
+  (SELECT MIN(ID) FROM USUARIOS WHERE ROL_ID = 5 AND ACTIVO = TRUE))
+  FROM RDB$DATABASE;
+
+INSERT INTO USUARIOS (CORREO, NOMBRE, ROL_ID, ACTIVO, DEBE_CAMBIAR_CLAVE)
+  SELECT 'sistema@anovo.local', 'Sistema', 5, FALSE, FALSE
+    FROM RDB$DATABASE
+   WHERE NOT EXISTS (SELECT 1 FROM USUARIOS
+                      WHERE CORREO = 'sistema@anovo.local');
+
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID', NULL) FROM RDB$DATABASE;
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   COMPROBACION
+
+     SELECT U.ID, U.CORREO, U.ACTIVO,
+            (SELECT COUNT(*) FROM USUARIOS_CLAVES C WHERE C.USUARIO_ID = U.ID)
+       FROM USUARIOS U
+      WHERE U.CORREO = 'sistema@anovo.local';
+
+   Tiene que salir ACTIVO en <false> y la cuenta de claves en 0.
+   ---------------------------------------------------------------------------- */
+
+
+/* ############################################################################
+   TRAMO 14_precios_programados.sql
+   ############################################################################ */
+
+/* ============================================================================
+   Anovo - Migracion 14: cola de cambios de precio programados
+   ----------------------------------------------------------------------------
+   Un cambio con fecha futura no es un precio: es la intencion de cambiarlo.
+   Guardarlo en MATERIALES_PRECIOS como fila inactiva mezclaba dos cosas en la
+   misma tabla y obligaba a distinguir lo historico de lo pendiente comparando
+   fechas, que es de donde salia el fallo del antefechado.
+
+   Aqui viven aparte. Las tablas de precios vuelven a guardar solo precios que
+   rigieron o rigen, y la auditoria queda con dos hechos distintos: la persona
+   programo el cambio, y Sistema lo aplico cuando llego la fecha.
+
+   Una sola tabla para los tres catalogos y no tres tablas: el cambio tiene la
+   misma forma en los tres, el servidor lee una sola cola, y el escritorio ya
+   los trata como uno solo en mtPrecioCatalogo. La integridad no se pierde
+   porque cada catalogo lleva su propia llave foranea y un CHECK obliga a que
+   venga exactamente una.
+
+   Al aplicarse queda PRECIO_ID con la fila que se creo en la tabla de precios
+   que corresponda. Esa es la traza que une la intencion con el hecho.
+   ============================================================================ */
+
+CREATE TABLE PRECIOS_PROGRAMADOS (
+  ID               INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+
+  /* Exactamente una, segun el catalogo. */
+  MATERIAL_ID      INTEGER REFERENCES MATERIALES(ID),
+  MANO_OBRA_ID     INTEGER REFERENCES MANO_OBRA(ID),
+  MAQUINA_ID       INTEGER REFERENCES MAQUINAS(ID),
+
+  /* Tambien segun el catalogo: materiales llevan costo y precio de venta,
+     mano de obra solo costo, maquinas costo por hora. */
+  COSTO_UNITARIO   NUMERIC(15,2),
+  PRECIO_UNITARIO  NUMERIC(15,2),
+  COSTO_HORA       NUMERIC(15,2),
+
+  /* Sin el DEFAULT de D_TIMESTAMP a proposito: por omision seria ahora, que
+     significa "de una vez", justo lo contrario de programar. */
+  FECHA_VIGENCIA   TIMESTAMP NOT NULL,
+
+  ESTADO           D_ESTADO DEFAULT 'pendiente' NOT NULL,
+  PRECIO_ID        INTEGER,
+  FECHA_APLICACION TIMESTAMP,
+
+  CREADO_POR       INTEGER REFERENCES USUARIOS(ID),
+  FECHA_CREACION   D_TIMESTAMP,
+
+  CONSTRAINT CK_PRECIOPROG_ITEM CHECK (
+    (CASE WHEN MATERIAL_ID  IS NULL THEN 0 ELSE 1 END +
+     CASE WHEN MANO_OBRA_ID IS NULL THEN 0 ELSE 1 END +
+     CASE WHEN MAQUINA_ID   IS NULL THEN 0 ELSE 1 END) = 1),
+  CONSTRAINT CK_PRECIOPROG_ESTADO CHECK (
+    ESTADO IN ('pendiente','aplicado','cancelado')),
+  CONSTRAINT CK_PRECIOPROG_APLICADO CHECK (
+    ESTADO <> 'aplicado' OR PRECIO_ID IS NOT NULL)
+);
+
+/* Es la consulta que el servidor corre cada hora: lo pendiente que ya vencio. */
+CREATE INDEX IDX_PRECIOPROG_PENDIENTE
+  ON PRECIOS_PROGRAMADOS (ESTADO, FECHA_VIGENCIA);
+
+/* Para listar lo pendiente de un item en la ventana del catalogo. */
+CREATE INDEX IDX_PRECIOPROG_MATERIAL  ON PRECIOS_PROGRAMADOS (MATERIAL_ID);
+CREATE INDEX IDX_PRECIOPROG_MANO_OBRA ON PRECIOS_PROGRAMADOS (MANO_OBRA_ID);
+CREATE INDEX IDX_PRECIOPROG_MAQUINA   ON PRECIOS_PROGRAMADOS (MAQUINA_ID);
+
+COMMIT;
+
+SET TERM ^ ;
+
+CREATE TRIGGER TR_PRECIOS_PROGRAMADOS_AUD FOR PRECIOS_PROGRAMADOS
+ACTIVE AFTER INSERT OR UPDATE OR DELETE POSITION 10
+AS
+  DECLARE VARIABLE V_USUARIO INTEGER;
+  DECLARE VARIABLE V_ACCION  VARCHAR(50);
+  DECLARE VARIABLE V_ID      INTEGER;
+  DECLARE VARIABLE V_DETALLE VARCHAR(500);
+BEGIN
+  V_USUARIO = CAST(RDB$GET_CONTEXT('USER_SESSION', 'USUARIO_ID') AS INTEGER);
+  IF (V_USUARIO IS NULL) THEN EXCEPTION E_AUDITORIA_SIN_USUARIO;
+  V_DETALLE = RDB$GET_CONTEXT('USER_SESSION', 'DETALLE');
+  IF (INSERTING) THEN BEGIN V_ACCION = 'insertar';   V_ID = NEW.ID; END
+  ELSE IF (UPDATING) THEN BEGIN V_ACCION = 'actualizar'; V_ID = NEW.ID; END
+  ELSE BEGIN V_ACCION = 'borrar'; V_ID = OLD.ID; END
+  INSERT INTO AUDITORIA (USUARIO_ID, ACCION, ENTIDAD, ENTIDAD_ID, DETALLE)
+  VALUES (:V_USUARIO, :V_ACCION, 'PRECIOS_PROGRAMADOS', :V_ID,
+          COALESCE(:V_DETALLE, 'cambio de precio programado'));
+END^
+
+SET TERM ; ^
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   PERMISOS
+
+   ROL_BACKEND solo puede lo que necesita. No lleva DELETE: un cambio que ya no
+   va se cancela, no se borra, o se perderia el rastro de que alguien lo
+   programo. El disparador necesita los suyos aparte porque corre con SQL
+   SECURITY INVOKER y al rol se le retiro todo sobre AUDITORIA.
+   ---------------------------------------------------------------------------- */
+
+GRANT SELECT, INSERT, UPDATE ON PRECIOS_PROGRAMADOS TO ROL_BACKEND;
+
+GRANT INSERT ON AUDITORIA TO TRIGGER TR_PRECIOS_PROGRAMADOS_AUD;
+GRANT USAGE ON EXCEPTION E_AUDITORIA_SIN_USUARIO
+  TO TRIGGER TR_PRECIOS_PROGRAMADOS_AUD;
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   COMPROBACION
+
+     SELECT RDB$CONSTRAINT_NAME FROM RDB$RELATION_CONSTRAINTS
+      WHERE RDB$RELATION_NAME = 'PRECIOS_PROGRAMADOS';
+
+   Tienen que salir los tres CK_PRECIOPROG_*, la llave primaria y las tres
+   foraneas.
+   ---------------------------------------------------------------------------- */
+
+
+/* ############################################################################
+   TRAMO 15_unidades_medida.sql
+   ############################################################################ */
+
+/* ============================================================================
+   Anovo - Migracion 15: unidades de medida administrables
+   ----------------------------------------------------------------------------
+   Las unidades de materiales y mano de obra eran texto libre, escogido de una
+   lista fija en el escritorio. El patrocinador pidio poder administrarlas
+   (minuta 09/2026): pasan a un catalogo propio, clasificado por magnitud, y
+   MATERIALES y MANO_OBRA lo referencian por clave foranea.
+
+   COTIZACION_DETALLE no cambia: guarda el nombre de la unidad como texto
+   porque es la foto de lo que se cotizo. SOLICITUD_MEDIDAS tampoco: sus
+   unidades (cm, mm, grados) son las del croquis, otro asunto.
+
+   Todo en ASCII, como el resto de los scripts: 'lamina' sin tilde y 'm2' en
+   vez del superindice. Una tilde en el script depende del juego de caracteres
+   de la conexion con que se aplique, y puede quedar danada en la base.
+   ============================================================================ */
+
+/* ----------------------------------------------------------------------------
+   1. La tabla. NOMBRE tiene 20 porque COTIZACION_DETALLE.UNIDAD_MEDIDA es
+   VARCHAR(20) y copia el nombre al armar la cotizacion. La magnitud es una
+   palabra fija, como los estados de la cotizacion; el texto que ve el usuario
+   sale de Anovo.Textos. Sin UUID_LOCAL: los catalogos no bajan al movil.
+   ---------------------------------------------------------------------------- */
+CREATE TABLE UNIDADES_MEDIDA (
+  ID                 INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+  NOMBRE             VARCHAR(20) NOT NULL,
+  ABREVIATURA        VARCHAR(10),
+  MAGNITUD           VARCHAR(10) NOT NULL,
+  ACTIVO             D_BOOLEANO,
+  FECHA_CREACION     D_TIMESTAMP,
+  FECHA_MODIFICACION D_TIMESTAMP,
+  CONSTRAINT CK_UNIDADES_MEDIDA_MAGNITUD
+    CHECK (MAGNITUD IN ('tiempo', 'peso', 'longitud', 'area', 'volumen', 'unidades'))
+);
+
+/* Unico sin distinguir mayusculas: no puede haber 'Metro' y 'metro'. */
+CREATE UNIQUE INDEX UQ_UNIDADES_MEDIDA_NOMBRE
+  ON UNIDADES_MEDIDA COMPUTED BY (UPPER(NOMBRE));
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   2. La siembra. Va antes del disparador de auditoria: es la carga inicial, no
+   una operacion de usuario, y asi no depende de que exista un administrador.
+   Las abreviaturas son una propuesta; se corrigen desde la pestana.
+   ---------------------------------------------------------------------------- */
+INSERT INTO UNIDADES_MEDIDA (NOMBRE, ABREVIATURA, MAGNITUD) VALUES ('hora',           'h',    'tiempo');
+INSERT INTO UNIDADES_MEDIDA (NOMBRE, ABREVIATURA, MAGNITUD) VALUES ('kilogramo',      'kg',   'peso');
+INSERT INTO UNIDADES_MEDIDA (NOMBRE, ABREVIATURA, MAGNITUD) VALUES ('tonelada',       't',    'peso');
+INSERT INTO UNIDADES_MEDIDA (NOMBRE, ABREVIATURA, MAGNITUD) VALUES ('metro',          'm',    'longitud');
+INSERT INTO UNIDADES_MEDIDA (NOMBRE, ABREVIATURA, MAGNITUD) VALUES ('pulgada',        'pulg', 'longitud');
+INSERT INTO UNIDADES_MEDIDA (NOMBRE, ABREVIATURA, MAGNITUD) VALUES ('metro cuadrado', 'm2',   'area');
+INSERT INTO UNIDADES_MEDIDA (NOMBRE, ABREVIATURA, MAGNITUD) VALUES ('litro',          'L',    'volumen');
+INSERT INTO UNIDADES_MEDIDA (NOMBRE, ABREVIATURA, MAGNITUD) VALUES ('unidad',         'und',  'unidades');
+INSERT INTO UNIDADES_MEDIDA (NOMBRE, ABREVIATURA, MAGNITUD) VALUES ('lamina',         'lam',  'unidades');
+INSERT INTO UNIDADES_MEDIDA (NOMBRE, ABREVIATURA, MAGNITUD) VALUES ('tubo',           'tubo', 'unidades');
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   3. Textos en uso con otra forma. 'kilo' viene de la carga de prueba. Estas
+   tablas no se auditan (03_auditoria.sql: lo sensible es el precio), asi que
+   no hace falta usuario en la sesion.
+   ---------------------------------------------------------------------------- */
+UPDATE MATERIALES SET UNIDAD_MEDIDA = 'kilogramo' WHERE UNIDAD_MEDIDA = 'kilo';
+UPDATE MANO_OBRA  SET UNIDAD_MEDIDA = 'kilogramo' WHERE UNIDAD_MEDIDA = 'kilo';
+
+/* Cualquier otro texto que no este en la siembra entra al catalogo tal cual,
+   como 'unidades', para no perder el dato. Queda para revisarlo desde la
+   pestana de unidades. */
+INSERT INTO UNIDADES_MEDIDA (NOMBRE, MAGNITUD)
+  SELECT DISTINCT TRIM(X.U), 'unidades'
+    FROM (SELECT UNIDAD_MEDIDA AS U FROM MATERIALES
+          UNION SELECT UNIDAD_MEDIDA FROM MANO_OBRA) X
+   WHERE NOT EXISTS (SELECT 1 FROM UNIDADES_MEDIDA M
+                      WHERE UPPER(M.NOMBRE) = UPPER(TRIM(X.U)));
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   4. De texto a clave foranea: MATERIALES. El COMMIT despues del ADD es
+   necesario: Firebird no deja usar en la misma transaccion una columna recien
+   agregada por DDL.
+   ---------------------------------------------------------------------------- */
+ALTER TABLE MATERIALES ADD UNIDAD_MEDIDA_ID INTEGER;
+COMMIT;
+
+UPDATE MATERIALES T SET UNIDAD_MEDIDA_ID =
+  (SELECT M.ID FROM UNIDADES_MEDIDA M
+    WHERE UPPER(M.NOMBRE) = UPPER(TRIM(T.UNIDAD_MEDIDA)));
+COMMIT;
+
+ALTER TABLE MATERIALES ALTER UNIDAD_MEDIDA_ID SET NOT NULL;
+ALTER TABLE MATERIALES ADD CONSTRAINT FK_MATERIALES_UNIDAD
+  FOREIGN KEY (UNIDAD_MEDIDA_ID) REFERENCES UNIDADES_MEDIDA (ID);
+CREATE INDEX IDX_MATERIALES_UNIDAD ON MATERIALES (UNIDAD_MEDIDA_ID);
+ALTER TABLE MATERIALES DROP UNIDAD_MEDIDA;
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   5. Lo mismo para MANO_OBRA.
+   ---------------------------------------------------------------------------- */
+ALTER TABLE MANO_OBRA ADD UNIDAD_MEDIDA_ID INTEGER;
+COMMIT;
+
+UPDATE MANO_OBRA T SET UNIDAD_MEDIDA_ID =
+  (SELECT M.ID FROM UNIDADES_MEDIDA M
+    WHERE UPPER(M.NOMBRE) = UPPER(TRIM(T.UNIDAD_MEDIDA)));
+COMMIT;
+
+ALTER TABLE MANO_OBRA ALTER UNIDAD_MEDIDA_ID SET NOT NULL;
+ALTER TABLE MANO_OBRA ADD CONSTRAINT FK_MANO_OBRA_UNIDAD
+  FOREIGN KEY (UNIDAD_MEDIDA_ID) REFERENCES UNIDADES_MEDIDA (ID);
+CREATE INDEX IDX_MANO_OBRA_UNIDAD ON MANO_OBRA (UNIDAD_MEDIDA_ID);
+ALTER TABLE MANO_OBRA DROP UNIDAD_MEDIDA;
+COMMIT;
+
+SET TERM ^ ;
+
+/* ----------------------------------------------------------------------------
+   6. Fecha de modificacion, como en los demas catalogos.
+   ---------------------------------------------------------------------------- */
+CREATE TRIGGER TR_UNIDADES_MEDIDA_BU FOR UNIDADES_MEDIDA
+ACTIVE BEFORE UPDATE POSITION 0
+AS
+BEGIN
+  NEW.FECHA_MODIFICACION = CURRENT_TIMESTAMP;
+END^
+
+/* ----------------------------------------------------------------------------
+   7. Auditoria, igual que MANO_OBRA_CATEGORIA (migracion 11): el catalogo lo
+   edita la empresa, asi que queda quien lo cambio. Sin usuario en la sesion la
+   escritura falla en vez de registrarse como anonima.
+   ---------------------------------------------------------------------------- */
+CREATE TRIGGER TR_UNIDADES_MEDIDA_AUD FOR UNIDADES_MEDIDA
+ACTIVE AFTER INSERT OR UPDATE OR DELETE POSITION 10
+AS
+  DECLARE VARIABLE V_USUARIO INTEGER;
+  DECLARE VARIABLE V_ACCION  VARCHAR(50);
+  DECLARE VARIABLE V_ID      INTEGER;
+  DECLARE VARIABLE V_DETALLE VARCHAR(500);
+BEGIN
+  V_USUARIO = CAST(RDB$GET_CONTEXT('USER_SESSION', 'USUARIO_ID') AS INTEGER);
+  IF (V_USUARIO IS NULL) THEN EXCEPTION E_AUDITORIA_SIN_USUARIO;
+  V_DETALLE = RDB$GET_CONTEXT('USER_SESSION', 'DETALLE');
+  IF (INSERTING) THEN BEGIN V_ACCION = 'insertar';   V_ID = NEW.ID; END
+  ELSE IF (UPDATING) THEN BEGIN V_ACCION = 'actualizar'; V_ID = NEW.ID; END
+  ELSE BEGIN V_ACCION = 'borrar'; V_ID = OLD.ID; END
+  INSERT INTO AUDITORIA (USUARIO_ID, ACCION, ENTIDAD, ENTIDAD_ID, DETALLE)
+  VALUES (:V_USUARIO, :V_ACCION, 'UNIDADES_MEDIDA', :V_ID, :V_DETALLE);
+END^
+
+SET TERM ; ^
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   8. Permisos. El disparador corre como el invocador (Firebird 4), que es
+   ANOVO_BACKEND, sin acceso directo a AUDITORIA. Sin DELETE para el backend:
+   una unidad que ya no se usa se inactiva.
+   ---------------------------------------------------------------------------- */
+GRANT INSERT ON AUDITORIA TO TRIGGER TR_UNIDADES_MEDIDA_AUD;
+GRANT USAGE ON EXCEPTION E_AUDITORIA_SIN_USUARIO TO TRIGGER TR_UNIDADES_MEDIDA_AUD;
+GRANT SELECT, INSERT, UPDATE ON UNIDADES_MEDIDA TO ROL_BACKEND;
 
 COMMIT;

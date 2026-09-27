@@ -15,6 +15,13 @@ const
   TIPO_MANO_OBRA = 'mano_obra';
   TIPO_MAQUINA = 'maquina';
 
+  MAGNITUD_TIEMPO = 'tiempo';
+  MAGNITUD_PESO = 'peso';
+  MAGNITUD_LONGITUD = 'longitud';
+  MAGNITUD_AREA = 'area';
+  MAGNITUD_VOLUMEN = 'volumen';
+  MAGNITUD_UNIDADES = 'unidades';
+
 type
 
   [MVCNameCase(ncSnakeCase)]
@@ -25,6 +32,7 @@ type
     fNombre: string;
     fDescripcion: NullableString;
     fUnidadMedida: string;
+    fUnidadMedidaId: Integer;
     fActivo: Boolean;
     fCostoUnitario: NullableCurrency;
     fPrecioUnitario: NullableCurrency;
@@ -36,6 +44,7 @@ type
     property Nombre: string read fNombre write fNombre;
     property Descripcion: NullableString read fDescripcion write fDescripcion;
     property UnidadMedida: string read fUnidadMedida write fUnidadMedida;
+    property UnidadMedidaId: Integer read fUnidadMedidaId write fUnidadMedidaId;
     property Activo: Boolean read fActivo write fActivo;
     property CostoUnitario: NullableCurrency read fCostoUnitario
       write fCostoUnitario;
@@ -53,12 +62,12 @@ type
     fCodigo: string;
     fNombre: string;
     fDescripcion: NullableString;
-    fUnidadMedida: string;
+    fUnidadMedidaId: Integer;
   public
     property Codigo: string read fCodigo write fCodigo;
     property Nombre: string read fNombre write fNombre;
     property Descripcion: NullableString read fDescripcion write fDescripcion;
-    property UnidadMedida: string read fUnidadMedida write fUnidadMedida;
+    property UnidadMedidaId: Integer read fUnidadMedidaId write fUnidadMedidaId;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -67,12 +76,12 @@ type
     fCodigo: string;
     fNombre: string;
     fDescripcion: NullableString;
-    fUnidadMedida: string;
+    fUnidadMedidaId: Integer;
   public
     property Codigo: string read fCodigo write fCodigo;
     property Nombre: string read fNombre write fNombre;
     property Descripcion: NullableString read fDescripcion write fDescripcion;
-    property UnidadMedida: string read fUnidadMedida write fUnidadMedida;
+    property UnidadMedidaId: Integer read fUnidadMedidaId write fUnidadMedidaId;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -85,6 +94,7 @@ type
     fNombre: string;
     fDescripcion: NullableString;
     fUnidadMedida: string;
+    fUnidadMedidaId: Integer;
     fActivo: Boolean;
     fCostoUnitario: NullableCurrency;
     fFechaVigencia: NullableTDateTime;
@@ -98,6 +108,7 @@ type
     property Nombre: string read fNombre write fNombre;
     property Descripcion: NullableString read fDescripcion write fDescripcion;
     property UnidadMedida: string read fUnidadMedida write fUnidadMedida;
+    property UnidadMedidaId: Integer read fUnidadMedidaId write fUnidadMedidaId;
     property Activo: Boolean read fActivo write fActivo;
     property CostoUnitario: NullableCurrency read fCostoUnitario
       write fCostoUnitario;
@@ -114,13 +125,13 @@ type
     fCategoriaId: Integer;
     fNombre: string;
     fDescripcion: NullableString;
-    fUnidadMedida: string;
+    fUnidadMedidaId: Integer;
   public
     property Codigo: string read fCodigo write fCodigo;
     property CategoriaId: Integer read fCategoriaId write fCategoriaId;
     property Nombre: string read fNombre write fNombre;
     property Descripcion: NullableString read fDescripcion write fDescripcion;
-    property UnidadMedida: string read fUnidadMedida write fUnidadMedida;
+    property UnidadMedidaId: Integer read fUnidadMedidaId write fUnidadMedidaId;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -130,13 +141,13 @@ type
     fCategoriaId: Integer;
     fNombre: string;
     fDescripcion: NullableString;
-    fUnidadMedida: string;
+    fUnidadMedidaId: Integer;
   public
     property Codigo: string read fCodigo write fCodigo;
     property CategoriaId: Integer read fCategoriaId write fCategoriaId;
     property Nombre: string read fNombre write fNombre;
     property Descripcion: NullableString read fDescripcion write fDescripcion;
-    property UnidadMedida: string read fUnidadMedida write fUnidadMedida;
+    property UnidadMedidaId: Integer read fUnidadMedidaId write fUnidadMedidaId;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -217,6 +228,34 @@ type
     fNombre: string;
   public
     property Nombre: string read fNombre write fNombre;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TUnidadMedidaDTO = class
+  private
+    fID: Integer;
+    fNombre: string;
+    fAbreviatura: NullableString;
+    fMagnitud: string;
+    fActivo: Boolean;
+  public
+    property ID: Integer read fID write fID;
+    property Nombre: string read fNombre write fNombre;
+    property Abreviatura: NullableString read fAbreviatura write fAbreviatura;
+    property Magnitud: string read fMagnitud write fMagnitud;
+    property Activo: Boolean read fActivo write fActivo;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TUnidadMedidaNuevaDTO = class
+  private
+    fNombre: string;
+    fAbreviatura: NullableString;
+    fMagnitud: string;
+  public
+    property Nombre: string read fNombre write fNombre;
+    property Abreviatura: NullableString read fAbreviatura write fAbreviatura;
+    property Magnitud: string read fMagnitud write fMagnitud;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -320,6 +359,7 @@ type
     fNombre: string;
     fDescripcion: NullableString;
     fUnidadMedida: string;
+    fUnidadMedidaId: NullableInt32;
     fCategoriaId: NullableInt32;
     fCostoUnitario: NullableCurrency;
     fPrecioUnitario: NullableCurrency;
@@ -335,6 +375,8 @@ type
     property Nombre: string read fNombre write fNombre;
     property Descripcion: NullableString read fDescripcion write fDescripcion;
     property UnidadMedida: string read fUnidadMedida write fUnidadMedida;
+    property UnidadMedidaId: NullableInt32 read fUnidadMedidaId
+      write fUnidadMedidaId;
     property CategoriaId: NullableInt32 read fCategoriaId write fCategoriaId;
     property CostoUnitario: NullableCurrency read fCostoUnitario
       write fCostoUnitario;
