@@ -12,6 +12,7 @@ object fraCatalogos: TfraCatalogos
   ParentFont = False
   TabOrder = 0
   object pnlBarra: TPanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 71
@@ -85,6 +86,7 @@ object fraCatalogos: TfraCatalogos
     end
   end
   object pnlTitulo: TPanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 3
@@ -147,6 +149,7 @@ object fraCatalogos: TfraCatalogos
     ParentFont = False
   end
   object pnclient: TRelativePanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 175
@@ -165,7 +168,6 @@ object fraCatalogos: TfraCatalogos
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 4
-    ExplicitHeight = 321
     object grDatos: TrDBGrid
       AlignWithMargins = True
       Left = 20
@@ -189,6 +191,7 @@ object fraCatalogos: TfraCatalogos
     end
   end
   object pnlPie: TPanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 573

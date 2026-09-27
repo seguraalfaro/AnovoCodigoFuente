@@ -81,7 +81,7 @@ object frmPrincipal: TfrmPrincipal
     TabOrder = 2
     StyleElements = [seFont, seBorder]
     object pnlUsuario: TRelativePanel
-      Tag = 1
+      Tag = 5
       Left = 0
       Top = 0
       Width = 200
@@ -124,7 +124,7 @@ object frmPrincipal: TfrmPrincipal
         200
         41)
       object lblRol: TLabel
-        Tag = 1
+        Tag = 23
         Left = 50
         Top = 26
         Width = 150
@@ -141,7 +141,7 @@ object frmPrincipal: TfrmPrincipal
         Transparent = True
       end
       object lblUsuario: TLabel
-        Tag = 1
+        Tag = 24
         Left = 50
         Top = 12
         Width = 150
@@ -158,7 +158,7 @@ object frmPrincipal: TfrmPrincipal
         Transparent = True
       end
       object pnlAvatar: TPanel
-        Tag = 14
+        Tag = 1
         Left = 5
         Top = 5
         Width = 36

@@ -5,6 +5,7 @@ object fraClienteDatos: TfraClienteDatos
   Height = 620
   TabOrder = 0
   object rpTitulo: TRelativePanel
+    Tag = 2
     Left = 0
     Top = 0
     Width = 960
@@ -70,6 +71,7 @@ object fraClienteDatos: TfraClienteDatos
     ParentFont = False
   end
   object pnbottom: TRelativePanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 544
@@ -97,6 +99,7 @@ object fraClienteDatos: TfraClienteDatos
     TabOrder = 2
   end
   object CardPanel1: TCardPanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 111
@@ -108,6 +111,7 @@ object fraClienteDatos: TfraClienteDatos
     Caption = 'CardPanel1'
     TabOrder = 3
     object CarDatos: TCard
+      Tag = 2
       Left = 0
       Top = 0
       Width = 954
@@ -116,6 +120,7 @@ object fraClienteDatos: TfraClienteDatos
       CardIndex = 0
       TabOrder = 1
       object RelativePanel1: TRelativePanel
+        Tag = 2
         Left = 0
         Top = 0
         Width = 954
@@ -180,6 +185,7 @@ object fraClienteDatos: TfraClienteDatos
           954
           427)
         object tjIdentificacion: TPlanoTarjeta
+          Tag = 3
           AlignWithMargins = True
           Left = 20
           Top = 3
@@ -292,6 +298,7 @@ object fraClienteDatos: TfraClienteDatos
           end
         end
         object tjUbicacion: TPlanoTarjeta
+          Tag = 3
           AlignWithMargins = True
           Left = 476
           Top = 3
@@ -311,6 +318,7 @@ object fraClienteDatos: TfraClienteDatos
             DataSource = dmMemoria.dsClienteDetalle
           end
           object Label1: TLabel
+            Tag = 13
             Left = 32
             Top = 350
             Width = 92
@@ -472,6 +480,7 @@ object fraClienteDatos: TfraClienteDatos
       end
     end
     object CarContactos: TCard
+      Tag = 2
       Left = 0
       Top = 0
       Width = 954
@@ -480,6 +489,7 @@ object fraClienteDatos: TfraClienteDatos
       CardIndex = 1
       TabOrder = 2
       object pnlBarra: TPanel
+        Tag = 2
         AlignWithMargins = True
         Left = 3
         Top = 3
@@ -515,6 +525,7 @@ object fraClienteDatos: TfraClienteDatos
         end
       end
       object pnclient: TRelativePanel
+        Tag = 2
         AlignWithMargins = True
         Left = 3
         Top = 61
@@ -534,7 +545,6 @@ object fraClienteDatos: TfraClienteDatos
         BevelOuter = bvNone
         TabOrder = 1
         object grContactos: TrDBGrid
-          Tag = -1
           Left = 0
           Top = 0
           Width = 948
@@ -598,6 +608,7 @@ object fraClienteDatos: TfraClienteDatos
       end
     end
     object CarConsentimiento: TCard
+      Tag = 2
       Left = 0
       Top = 0
       Width = 954
@@ -606,6 +617,7 @@ object fraClienteDatos: TfraClienteDatos
       CardIndex = 2
       TabOrder = 3
       object rpClient: TRelativePanel
+        Tag = 2
         Left = 0
         Top = 0
         Width = 954
@@ -638,6 +650,7 @@ object fraClienteDatos: TfraClienteDatos
           954
           427)
         object tjVigente: TPlanoTarjeta
+          Tag = 3
           AlignWithMargins = True
           Left = 20
           Top = 3
@@ -658,6 +671,7 @@ object fraClienteDatos: TfraClienteDatos
             Caption = 'Versi'#243'n del texto'
           end
           object valVersion: TLabel
+            Tag = 25
             Left = 156
             Top = 57
             Width = 130
@@ -681,6 +695,7 @@ object fraClienteDatos: TfraClienteDatos
             Caption = 'Otorgado el'
           end
           object valOtorgado: TLabel
+            Tag = 25
             Left = 302
             Top = 57
             Width = 190
@@ -704,6 +719,7 @@ object fraClienteDatos: TfraClienteDatos
             Caption = 'Recogido por'
           end
           object valRecogido: TLabel
+            Tag = 25
             Left = 508
             Top = 57
             Width = 260
@@ -744,6 +760,7 @@ object fraClienteDatos: TfraClienteDatos
           end
         end
         object tjHistorial: TPlanoTarjeta
+          Tag = 3
           AlignWithMargins = True
           Left = 20
           Top = 130
@@ -821,6 +838,7 @@ object fraClienteDatos: TfraClienteDatos
       end
     end
     object CarCotizaciones: TCard
+      Tag = 2
       Left = 0
       Top = 0
       Width = 954
@@ -830,6 +848,7 @@ object fraClienteDatos: TfraClienteDatos
       StyleElements = [seFont]
       TabOrder = 0
       object RelativePanel2: TRelativePanel
+        Tag = 2
         Left = 0
         Top = 0
         Width = 954
@@ -868,6 +887,7 @@ object fraClienteDatos: TfraClienteDatos
         BevelOuter = bvNone
         TabOrder = 0
         object Panel1: TPanel
+          Tag = 2
           AlignWithMargins = True
           Left = 3
           Top = 3
@@ -930,6 +950,7 @@ object fraClienteDatos: TfraClienteDatos
           ParentFont = False
         end
         object rpdatos: TRelativePanel
+          Tag = 2
           AlignWithMargins = True
           Left = 3
           Top = 101

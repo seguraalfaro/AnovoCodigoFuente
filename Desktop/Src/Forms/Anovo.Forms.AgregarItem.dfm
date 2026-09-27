@@ -175,6 +175,7 @@ object frmAgregarItem: TfrmAgregarItem
           StyleElements = [seFont, seBorder]
         end
         object rpTop: TRelativePanel
+          Tag = 4
           Left = 0
           Top = 0
           Width = 651
@@ -320,6 +321,7 @@ object frmAgregarItem: TfrmAgregarItem
           617
           329)
         object RelativePanel1: TRelativePanel
+          Tag = 4
           Left = 0
           Top = 0
           Width = 617

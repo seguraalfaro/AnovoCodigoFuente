@@ -15,6 +15,7 @@ object fraAuditoria: TfraAuditoria
   ParentFont = False
   TabOrder = 0
   object pnlTitulo: TPanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 3
@@ -49,6 +50,7 @@ object fraAuditoria: TfraAuditoria
     end
   end
   object pnlBarra: TPanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 71
@@ -124,6 +126,7 @@ object fraAuditoria: TfraAuditoria
     end
   end
   object pnclient: TRelativePanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 175
@@ -202,6 +205,7 @@ object fraAuditoria: TfraAuditoria
     end
   end
   object pnlPie: TPanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 573

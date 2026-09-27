@@ -11,6 +11,7 @@ object fraUsuarios: TfraUsuarios
   ParentFont = False
   TabOrder = 0
   object pnlBarra: TPanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 71
@@ -63,6 +64,7 @@ object fraUsuarios: TfraUsuarios
     end
   end
   object pnlTitulo: TPanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 3
@@ -119,6 +121,7 @@ object fraUsuarios: TfraUsuarios
     ExplicitTop = 114
   end
   object pnbottom: TRelativePanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 552
@@ -146,6 +149,7 @@ object fraUsuarios: TfraUsuarios
     TabOrder = 3
   end
   object rpCliente: TRelativePanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 169

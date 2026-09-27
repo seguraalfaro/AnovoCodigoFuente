@@ -11,6 +11,7 @@ object fraDashboard: TfraDashboard
   ParentFont = False
   TabOrder = 0
   object pnlTitulo: TPanel
+    Tag = 2
     Left = 0
     Top = 0
     Width = 960
@@ -42,6 +43,7 @@ object fraDashboard: TfraDashboard
     end
   end
   object pnlKpi: TPanel
+    Tag = 2
     Left = 0
     Top = 62
     Width = 960
@@ -50,6 +52,7 @@ object fraDashboard: TfraDashboard
     BevelOuter = bvNone
     TabOrder = 1
     object tjBorradores: TPlanoTarjeta
+      Tag = 8
       Left = 20
       Top = 8
       Width = 221
@@ -59,7 +62,7 @@ object fraDashboard: TfraDashboard
       Caption = 'Borradores'
       TabOrder = 0
       object lblBorradores: TLabel
-        Tag = 7
+        Tag = 16
         Left = 16
         Top = 32
         Width = 189
@@ -75,6 +78,7 @@ object fraDashboard: TfraDashboard
       end
     end
     object tjPendientes: TPlanoTarjeta
+      Tag = 7
       Left = 253
       Top = 8
       Width = 221
@@ -84,7 +88,7 @@ object fraDashboard: TfraDashboard
       Caption = 'Pendientes de aprobar'
       TabOrder = 1
       object lblPendientes: TLabel
-        Tag = 8
+        Tag = 16
         Left = 16
         Top = 32
         Width = 189
@@ -100,6 +104,7 @@ object fraDashboard: TfraDashboard
       end
     end
     object tjAprobadas: TPlanoTarjeta
+      Tag = 9
       Left = 486
       Top = 8
       Width = 221
@@ -109,7 +114,7 @@ object fraDashboard: TfraDashboard
       Caption = 'Aprobadas este mes'
       TabOrder = 2
       object lblAprobadas: TLabel
-        Tag = 9
+        Tag = 16
         Left = 16
         Top = 32
         Width = 189
@@ -125,6 +130,7 @@ object fraDashboard: TfraDashboard
       end
     end
     object tjMontoMes: TPlanoTarjeta
+      Tag = 10
       Left = 719
       Top = 8
       Width = 221
@@ -134,7 +140,7 @@ object fraDashboard: TfraDashboard
       Caption = 'Monto aprobado'
       TabOrder = 3
       object lblMontoMes: TLabel
-        Tag = 10
+        Tag = 16
         Left = 16
         Top = 32
         Width = 189
@@ -151,6 +157,7 @@ object fraDashboard: TfraDashboard
     end
   end
   object PlanoTarjeta1: TPlanoTarjeta
+    Tag = 3
     AlignWithMargins = True
     Left = 20
     Top = 178

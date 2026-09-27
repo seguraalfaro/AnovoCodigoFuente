@@ -674,6 +674,7 @@ object frmLogin: TfrmLogin
       Transparent = True
     end
     object lblOlvido: TLabel
+      Tag = 15
       Left = 244
       Top = 274
       Width = 180

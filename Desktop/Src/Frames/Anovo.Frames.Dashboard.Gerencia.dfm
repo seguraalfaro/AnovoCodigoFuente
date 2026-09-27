@@ -11,6 +11,7 @@ object fraDashboardGerencia: TfraDashboardGerencia
   ParentFont = False
   TabOrder = 0
   object pnlTitulo: TPanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 3
@@ -43,6 +44,7 @@ object fraDashboardGerencia: TfraDashboardGerencia
     end
   end
   object RelativePanel1: TRelativePanel
+    Tag = 2
     Left = 0
     Top = 68
     Width = 960
@@ -104,6 +106,7 @@ object fraDashboardGerencia: TfraDashboardGerencia
       960
       125)
     object Panel1: TPanel
+      Tag = 2
       Left = -767
       Top = -21
       Width = 960
@@ -135,6 +138,7 @@ object fraDashboardGerencia: TfraDashboardGerencia
       end
     end
     object tjBorradores: TPlanoTarjeta
+      Tag = 8
       AlignWithMargins = True
       Left = 20
       Top = 16
@@ -153,7 +157,7 @@ object fraDashboardGerencia: TfraDashboardGerencia
       ParentFont = False
       TabOrder = 1
       object lblBorradores: TLabel
-        Tag = 7
+        Tag = 16
         Left = 16
         Top = 32
         Width = 189
@@ -170,6 +174,7 @@ object fraDashboardGerencia: TfraDashboardGerencia
       end
     end
     object tjPendientes: TPlanoTarjeta
+      Tag = 7
       AlignWithMargins = True
       Left = 247
       Top = 16
@@ -181,7 +186,7 @@ object fraDashboardGerencia: TfraDashboardGerencia
       Anchors = []
       TabOrder = 2
       object lblPendientes: TLabel
-        Tag = 8
+        Tag = 16
         Left = 16
         Top = 32
         Width = 189
@@ -198,6 +203,7 @@ object fraDashboardGerencia: TfraDashboardGerencia
       end
     end
     object tjAprobadas: TPlanoTarjeta
+      Tag = 9
       AlignWithMargins = True
       Left = 474
       Top = 16
@@ -209,7 +215,7 @@ object fraDashboardGerencia: TfraDashboardGerencia
       Anchors = []
       TabOrder = 3
       object lblAprobadas: TLabel
-        Tag = 9
+        Tag = 16
         Left = 16
         Top = 32
         Width = 189
@@ -226,6 +232,7 @@ object fraDashboardGerencia: TfraDashboardGerencia
       end
     end
     object tjMontoMes: TPlanoTarjeta
+      Tag = 10
       AlignWithMargins = True
       Left = 701
       Top = 16
@@ -238,7 +245,7 @@ object fraDashboardGerencia: TfraDashboardGerencia
       Anchors = []
       TabOrder = 4
       object lblMontoMes: TLabel
-        Tag = 10
+        Tag = 16
         Left = 16
         Top = 32
         Width = 189
@@ -256,6 +263,7 @@ object fraDashboardGerencia: TfraDashboardGerencia
     end
   end
   object RelativePanel2: TRelativePanel
+    Tag = 2
     Left = 0
     Top = 193
     Width = 960
@@ -284,6 +292,7 @@ object fraDashboardGerencia: TfraDashboardGerencia
     BevelOuter = bvNone
     TabOrder = 2
     object PlanoTarjeta1: TPlanoTarjeta
+      Tag = 3
       AlignWithMargins = True
       Left = 20
       Top = 3
@@ -376,6 +385,7 @@ object fraDashboardGerencia: TfraDashboardGerencia
       end
     end
     object PlanoTarjeta2: TPlanoTarjeta
+      Tag = 3
       AlignWithMargins = True
       Left = 20
       Top = 209

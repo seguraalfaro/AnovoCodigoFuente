@@ -132,6 +132,7 @@ object frmItemCatalogo: TfrmItemCatalogo
       Caption = 'Precio inicial (opcional, se puede cargar despu'#233's)'
     end
     object lblNotaVigencia: TLabel
+      Tag = 13
       Left = 20
       Top = 105
       Width = 130

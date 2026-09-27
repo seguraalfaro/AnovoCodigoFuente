@@ -84,6 +84,7 @@ object frmPrecioCatalogo: TfrmPrecioCatalogo
     BevelOuter = bvNone
     TabOrder = 2
     object lblNotaVigencia: TLabel
+      Tag = 13
       Left = 20
       Top = 62
       Width = 130

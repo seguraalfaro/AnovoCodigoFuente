@@ -31,7 +31,7 @@ object frmClienteNuevo: TfrmClienteNuevo
   GlassFrame.Top = 26
   OldCreateOrder = True
   Position = poOwnerFormCenter
-  StyleElements = []
+  StyleElements = [seBorder]
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   PixelsPerInch = 96
@@ -46,7 +46,6 @@ object frmClienteNuevo: TfrmClienteNuevo
     Color = 16447477
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 518
     object lblTitulo: TLabel
       Tag = 11
       Left = 20
@@ -82,8 +81,6 @@ object frmClienteNuevo: TfrmClienteNuevo
     Color = 16447477
     ParentBackground = False
     TabOrder = 1
-    ExplicitWidth = 518
-    ExplicitHeight = 407
     object cbTipoIdentificacion: TrDBLookupComboBox
       Left = 20
       Top = 76
@@ -302,8 +299,6 @@ object frmClienteNuevo: TfrmClienteNuevo
     Color = 16447477
     ParentBackground = False
     TabOrder = 2
-    ExplicitTop = 494
-    ExplicitWidth = 518
     object btnGuardar: TPlanoBotonWin
       Left = 380
       Top = 18
@@ -340,9 +335,6 @@ object frmClienteNuevo: TfrmClienteNuevo
         Width = 32
         Visible = True
       end>
-    ExplicitWidth = 518
-    DesignSize = (
-      527
-      25)
+    ExplicitWidth = 314
   end
 end

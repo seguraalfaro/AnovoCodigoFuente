@@ -11,6 +11,7 @@ object fraGeneracionCotizacion: TfraGeneracionCotizacion
   ParentFont = False
   TabOrder = 0
   object rpTop: TRelativePanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 629
@@ -70,6 +71,7 @@ object fraGeneracionCotizacion: TfraGeneracionCotizacion
     end
   end
   object tjCabecera: TPlanoTarjeta
+    Tag = 3
     AlignWithMargins = True
     Left = 3
     Top = 3
@@ -163,6 +165,7 @@ object fraGeneracionCotizacion: TfraGeneracionCotizacion
     end
   end
   object Panel1: TPanel
+    Tag = 2
     Left = 0
     Top = 111
     Width = 425
@@ -174,6 +177,7 @@ object fraGeneracionCotizacion: TfraGeneracionCotizacion
     ExplicitLeft = -3
     ExplicitTop = 108
     object PlanoTarjeta1: TPlanoTarjeta
+      Tag = 3
       AlignWithMargins = True
       Left = 3
       Top = 331
@@ -194,6 +198,7 @@ object fraGeneracionCotizacion: TfraGeneracionCotizacion
       ExplicitHeight = 158
     end
     object PlanoTarjeta2: TPlanoTarjeta
+      Tag = 3
       AlignWithMargins = True
       Left = 3
       Top = 3
@@ -213,6 +218,7 @@ object fraGeneracionCotizacion: TfraGeneracionCotizacion
       ExplicitWidth = 484
     end
     object PlanoTarjeta3: TPlanoTarjeta
+      Tag = 3
       AlignWithMargins = True
       Left = 3
       Top = 167
@@ -232,6 +238,7 @@ object fraGeneracionCotizacion: TfraGeneracionCotizacion
     end
   end
   object PlanoTarjeta4: TPlanoTarjeta
+    Tag = 3
     AlignWithMargins = True
     Left = 428
     Top = 114
@@ -549,6 +556,7 @@ object fraGeneracionCotizacion: TfraGeneracionCotizacion
         Caption = 'IVA 13 %'
       end
       object lblTotalRot: TLabel
+        Tag = 12
         Left = 325
         Top = 73
         Width = 64

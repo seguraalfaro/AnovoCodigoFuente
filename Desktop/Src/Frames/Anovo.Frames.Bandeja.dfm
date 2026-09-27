@@ -11,6 +11,7 @@ object fraBandeja: TfraBandeja
   ParentFont = False
   TabOrder = 0
   object pnbottom: TRelativePanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 552
@@ -38,6 +39,7 @@ object fraBandeja: TfraBandeja
     TabOrder = 0
   end
   object pnlTitulo: TPanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 3
@@ -72,6 +74,7 @@ object fraBandeja: TfraBandeja
     end
   end
   object pnlBarra: TPanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 176
@@ -109,6 +112,7 @@ object fraBandeja: TfraBandeja
     end
   end
   object pnclient: TRelativePanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 234
@@ -202,6 +206,7 @@ object fraBandeja: TfraBandeja
     end
   end
   object RelativePanel1: TRelativePanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 71
@@ -240,6 +245,7 @@ object fraBandeja: TfraBandeja
       954
       99)
     object tpPendiente: TPlanoTarjeta
+      Tag = 3
       AlignWithMargins = True
       Left = 20
       Top = 0

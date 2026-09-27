@@ -14,6 +14,7 @@ object fraCotizaciones: TfraCotizaciones
   ParentFont = False
   TabOrder = 0
   object pnlBarra: TPanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 71
@@ -61,6 +62,7 @@ object fraCotizaciones: TfraCotizaciones
     end
   end
   object pnlTitulo: TPanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 3
@@ -122,6 +124,7 @@ object fraCotizaciones: TfraCotizaciones
     ParentFont = False
   end
   object pnbottom: TRelativePanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 552
@@ -149,6 +152,7 @@ object fraCotizaciones: TfraCotizaciones
     TabOrder = 3
   end
   object pnclient: TRelativePanel
+    Tag = 2
     AlignWithMargins = True
     Left = 3
     Top = 169

@@ -852,6 +852,104 @@ object dmMemoria: TdmMemoria
       Size = 1
     end
   end
+  object mtDashboardAsesor: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 360
+    Top = 504
+    object mtDashboardAsesorID: TIntegerField
+      FieldName = 'ID'
+      Visible = False
+    end
+    object mtDashboardAsesorCOTIZACION_ID: TIntegerField
+      FieldName = 'COTIZACION_ID'
+      Visible = False
+    end
+    object mtDashboardAsesorFECHA_CAPTURA: TDateTimeField
+      DisplayLabel = 'Fecha'
+      FieldName = 'FECHA_CAPTURA'
+      DisplayFormat = 'dd/mm/yyyy'
+    end
+    object mtDashboardAsesorCLIENTE_NOMBRE: TStringField
+      DisplayLabel = 'Cliente'
+      FieldName = 'CLIENTE_NOMBRE'
+      Size = 120
+    end
+    object mtDashboardAsesorDESCRIPCION: TStringField
+      DisplayLabel = 'Descripci'#243'n'
+      FieldName = 'DESCRIPCION'
+      Size = 500
+    end
+    object mtDashboardAsesorESTADO: TStringField
+      DisplayLabel = 'Estado'
+      FieldName = 'ESTADO'
+    end
+    object mtDashboardAsesorMONTO_APROBADO: TCurrencyField
+      DisplayLabel = 'Monto aprobado'
+      FieldName = 'MONTO_APROBADO'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+  end
+  object dsDashboardAsesor: TDataSource
+    DataSet = mtDashboardAsesor
+    Left = 464
+    Top = 504
+  end
+  object mtSeguimiento: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 360
+    Top = 568
+    object mtSeguimientoID: TIntegerField
+      FieldName = 'ID'
+      Visible = False
+    end
+    object mtSeguimientoCOTIZACION_ID: TIntegerField
+      FieldName = 'COTIZACION_ID'
+      Visible = False
+    end
+    object mtSeguimientoFECHA_CAPTURA: TDateTimeField
+      DisplayLabel = 'Fecha'
+      FieldName = 'FECHA_CAPTURA'
+      DisplayFormat = 'dd/mm/yyyy'
+    end
+    object mtSeguimientoCLIENTE_NOMBRE: TStringField
+      DisplayLabel = 'Cliente'
+      FieldName = 'CLIENTE_NOMBRE'
+      Size = 120
+    end
+    object mtSeguimientoDESCRIPCION: TStringField
+      DisplayLabel = 'Descripci'#243'n'
+      FieldName = 'DESCRIPCION'
+      Size = 500
+    end
+    object mtSeguimientoESTADO: TStringField
+      DisplayLabel = 'Estado'
+      FieldName = 'ESTADO'
+    end
+    object mtSeguimientoMONTO_APROBADO: TCurrencyField
+      DisplayLabel = 'Monto aprobado'
+      FieldName = 'MONTO_APROBADO'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+  end
+  object dsSeguimiento: TDataSource
+    DataSet = mtSeguimiento
+    Left = 464
+    Top = 568
+  end
   object mtTiposTrabajo: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll
