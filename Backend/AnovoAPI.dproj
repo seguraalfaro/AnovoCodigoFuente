@@ -240,6 +240,7 @@
         <DCCReference Include="src\Services\Anovo.Services.Vigencias.pas"/>
         <DCCReference Include="src\SQL\Anovo.SQL.Dashboard.pas"/>
         <DCCReference Include="src\Entities\Anovo.Entities.Vistas.Dashboard.pas"/>
+        <DCCReference Include="src\Entities\Anovo.Entities.Vistas.Permisos.pas"/>
         <DCCReference Include="src\DTOs\Anovo.DTOs.Dashboard.pas"/>
         <DCCReference Include="src\Interfaces\Anovo.Repositories.Intf.Dashboard.pas"/>
         <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Dashboard.pas"/>

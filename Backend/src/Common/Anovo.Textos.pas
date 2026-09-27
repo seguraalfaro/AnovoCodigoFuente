@@ -220,6 +220,8 @@ resourcestring
   SMesDiciembre = 'Diciembre';
   SMesAnio = '%s %d';
   SColones = '₡ %s';
+  SDiaUno = '1 día';
+  SDias = '%d días';
 
   SCargandoCatalogo = 'Cargando %s...';
   SCargandoClientes = 'Cargando clientes...';

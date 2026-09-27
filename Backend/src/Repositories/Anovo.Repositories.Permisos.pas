@@ -5,12 +5,13 @@ unit Anovo.Repositories.Permisos;
 interface
 
 uses
-  MVCFramework.Repository,
+  Anovo.Repositories.Base,
   Anovo.Repositories.Intf.Permisos,
   Anovo.Entities.Permisos;
 
 type
-  TPermisoRepository = class(TMVCRepository<TRolesPermisos>, IPermisoRepository)
+  TPermisoRepository = class(TAnovoRepository<TRolesPermisos>,
+    IPermisoRepository)
   public
     function Matriz: TArray<TRolPermiso>;
   end;
@@ -19,33 +20,24 @@ implementation
 
 uses
   System.Generics.Collections,
-  Data.DB,
-  MVCFramework.ActiveRecord,
+  Anovo.Entities.Vistas.Permisos,
   Anovo.SQL.Permisos;
 
 function TPermisoRepository.Matriz: TArray<TRolPermiso>;
 var
-  lDatos: TDataSet;
-  lLista: TList<TRolPermiso>;
-  lPar: TRolPermiso;
+  lFilas: TObjectList<TRolPermisoVista>;
+  I: Integer;
 begin
-  lDatos := TMVCActiveRecord.SelectDataSet(PERMISOS_MATRIZ, []);
+  lFilas := SelectVista<TRolPermisoVista>(PERMISOS_MATRIZ, []);
   try
-    lLista := TList<TRolPermiso>.Create;
-    try
-      while not lDatos.Eof do
-      begin
-        lPar.Rol := lDatos.FieldByName('ROL').AsString;
-        lPar.Permiso := lDatos.FieldByName('PERMISO').AsString;
-        lLista.Add(lPar);
-        lDatos.Next;
-      end;
-      Result := lLista.ToArray;
-    finally
-      lLista.Free;
+    SetLength(Result, lFilas.Count);
+    for I := 0 to lFilas.Count - 1 do
+    begin
+      Result[I].Rol := lFilas[I].Rol;
+      Result[I].Permiso := lFilas[I].Permiso;
     end;
   finally
-    lDatos.Free;
+    lFilas.Free;
   end;
 end;
 

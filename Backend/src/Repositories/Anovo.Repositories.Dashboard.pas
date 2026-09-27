@@ -16,43 +16,63 @@ type
     IDashboardRepository)
   public
     function CifrasAsesor(const AAsesorId: Integer;
-      const ADesde, AHasta: TDateTime): TCifrasAsesor;
+      const ADesde, AHasta: TDateTime): TCifrasAsesorVista;
     function RecientesAsesor(const AAsesorId: Integer;
       const ADesde, AHasta: TDateTime): TObjectList<TSolicitudAsesorVista>;
+    function CifrasAsistente(const AUsuarioId: Integer): TCifrasAsistenteVista;
+    function ColaPorCotizar: TObjectList<TSolicitudPorCotizarVista>;
+    function CifrasSupervisor(const AUsuarioId: Integer;
+      const ADesde, AHasta: TDateTime): TCifrasSupervisorVista;
+    function ColaPorAprobar(const AUsuarioId: Integer)
+      : TObjectList<TCotizacionPorAprobarVista>;
   end;
 
 implementation
 
 uses
-  Data.DB,
-  MVCFramework.ActiveRecord,
   Anovo.SQL.Dashboard;
 
 function TDashboardRepository.CifrasAsesor(const AAsesorId: Integer;
-  const ADesde, AHasta: TDateTime): TCifrasAsesor;
-var
-  lDatos: TDataSet;
+  const ADesde, AHasta: TDateTime): TCifrasAsesorVista;
 begin
-  lDatos := TMVCActiveRecord.SelectDataSet(DASHBOARD_ASESOR_CIFRAS,
+  Result := SelectUnaVista<TCifrasAsesorVista>(DASHBOARD_ASESOR_CIFRAS,
     [AAsesorId, ADesde, AHasta, AAsesorId, AAsesorId, ADesde, AHasta,
     AAsesorId, ADesde, AHasta]);
-  try
-    Result.SolicitudesMes := lDatos.FieldByName('SOLICITUDES_MES').AsInteger;
-    Result.EsperandoCotizacion :=
-      lDatos.FieldByName('ESPERANDO_COTIZACION').AsInteger;
-    Result.AprobadasMes := lDatos.FieldByName('APROBADAS_MES').AsInteger;
-    Result.MontoAprobadoMes :=
-      lDatos.FieldByName('MONTO_APROBADO_MES').AsCurrency;
-  finally
-    lDatos.Free;
-  end;
 end;
 
 function TDashboardRepository.RecientesAsesor(const AAsesorId: Integer;
   const ADesde, AHasta: TDateTime): TObjectList<TSolicitudAsesorVista>;
 begin
-  Result := TMVCActiveRecord.Select<TSolicitudAsesorVista>
+  Result := SelectVista<TSolicitudAsesorVista>
     (DASHBOARD_ASESOR_RECIENTES, [AAsesorId, ADesde, AHasta]);
+end;
+
+function TDashboardRepository.CifrasAsistente(const AUsuarioId: Integer)
+  : TCifrasAsistenteVista;
+begin
+  Result := SelectUnaVista<TCifrasAsistenteVista>(DASHBOARD_ASISTENTE_CIFRAS,
+    [AUsuarioId, AUsuarioId, AUsuarioId]);
+end;
+
+function TDashboardRepository.ColaPorCotizar
+  : TObjectList<TSolicitudPorCotizarVista>;
+begin
+  Result := SelectVista<TSolicitudPorCotizarVista>
+    (DASHBOARD_ASISTENTE_COLA, []);
+end;
+
+function TDashboardRepository.CifrasSupervisor(const AUsuarioId: Integer;
+  const ADesde, AHasta: TDateTime): TCifrasSupervisorVista;
+begin
+  Result := SelectUnaVista<TCifrasSupervisorVista>(DASHBOARD_SUPERVISOR_CIFRAS,
+    [AUsuarioId, AUsuarioId, ADesde, AHasta, ADesde, AHasta, ADesde, AHasta]);
+end;
+
+function TDashboardRepository.ColaPorAprobar(const AUsuarioId: Integer)
+  : TObjectList<TCotizacionPorAprobarVista>;
+begin
+  Result := SelectVista<TCotizacionPorAprobarVista>
+    (DASHBOARD_SUPERVISOR_COLA, [AUsuarioId]);
 end;
 
 end.

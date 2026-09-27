@@ -18,6 +18,9 @@ type
     [MVCInject]
     constructor Create(ARepo: IDashboardRepository); reintroduce;
     function DelAsesor(const AAsesorId: Integer): TDashboardAsesorDTO;
+    function DelAsistente(const AUsuarioId: Integer): TDashboardAsistenteDTO;
+    function DelSupervisor(const AUsuarioId: Integer)
+      : TDashboardSupervisorDTO;
   end;
 
 implementation
@@ -38,7 +41,7 @@ end;
 function TDashboardService.DelAsesor(const AAsesorId: Integer)
   : TDashboardAsesorDTO;
 var
-  lCifras: TCifrasAsesor;
+  lCifras: TCifrasAsesorVista;
   lFilas: TObjectList<TSolicitudAsesorVista>;
 begin
   Result := TDashboardAsesorDTO.Create;
@@ -47,10 +50,11 @@ begin
     Result.Hasta := IncMonth(Result.Desde, 1);
 
     lCifras := fRepo.CifrasAsesor(AAsesorId, Result.Desde, Result.Hasta);
-    Result.SolicitudesMes := lCifras.SolicitudesMes;
-    Result.EsperandoCotizacion := lCifras.EsperandoCotizacion;
-    Result.AprobadasMes := lCifras.AprobadasMes;
-    Result.MontoAprobadoMes := lCifras.MontoAprobadoMes;
+    try
+      TMapeo.Copiar(lCifras, Result);
+    finally
+      lCifras.Free;
+    end;
 
     lFilas := fRepo.RecientesAsesor(AAsesorId, StartOfTheWeek(Date),
       IncDay(StartOfTheWeek(Date), 7));
@@ -58,6 +62,67 @@ begin
       Result.Recientes.Free;
       Result.Recientes := TMapeo.AListaDto<TSolicitudAsesorVista,
         TSolicitudAsesorDTO>(lFilas);
+    finally
+      lFilas.Free;
+    end;
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
+function TDashboardService.DelAsistente(const AUsuarioId: Integer)
+  : TDashboardAsistenteDTO;
+var
+  lCifras: TCifrasAsistenteVista;
+  lFilas: TObjectList<TSolicitudPorCotizarVista>;
+begin
+  Result := TDashboardAsistenteDTO.Create;
+  try
+    lCifras := fRepo.CifrasAsistente(AUsuarioId);
+    try
+      TMapeo.Copiar(lCifras, Result);
+    finally
+      lCifras.Free;
+    end;
+
+    lFilas := fRepo.ColaPorCotizar;
+    try
+      Result.Cola.Free;
+      Result.Cola := TMapeo.AListaDto<TSolicitudPorCotizarVista,
+        TSolicitudPorCotizarDTO>(lFilas);
+    finally
+      lFilas.Free;
+    end;
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
+function TDashboardService.DelSupervisor(const AUsuarioId: Integer)
+  : TDashboardSupervisorDTO;
+var
+  lCifras: TCifrasSupervisorVista;
+  lFilas: TObjectList<TCotizacionPorAprobarVista>;
+begin
+  Result := TDashboardSupervisorDTO.Create;
+  try
+    Result.Desde := StartOfTheMonth(Date);
+    Result.Hasta := IncMonth(Result.Desde, 1);
+
+    lCifras := fRepo.CifrasSupervisor(AUsuarioId, Result.Desde, Result.Hasta);
+    try
+      TMapeo.Copiar(lCifras, Result);
+    finally
+      lCifras.Free;
+    end;
+
+    lFilas := fRepo.ColaPorAprobar(AUsuarioId);
+    try
+      Result.Cola.Free;
+      Result.Cola := TMapeo.AListaDto<TCotizacionPorAprobarVista,
+        TCotizacionPorAprobarDTO>(lFilas);
     finally
       lFilas.Free;
     end;

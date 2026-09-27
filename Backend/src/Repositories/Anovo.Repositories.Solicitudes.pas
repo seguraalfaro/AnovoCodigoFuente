@@ -217,7 +217,7 @@ begin
   FiltroSeguimiento(AAsesorId, ATexto, ADesde, AHasta, lFiltro, lParams);
   lParams := lParams + [((APagina - 1) * APorPagina) + 1,
     APagina * APorPagina];
-  Result := TMVCActiveRecord.Select<TSolicitudAsesorVista>(SEGUIMIENTO_ASESOR +
+  Result := SelectVista<TSolicitudAsesorVista>(SEGUIMIENTO_ASESOR +
     lFiltro + SEGUIMIENTO_ORDEN + SEGUIMIENTO_PAGINA, lParams);
 end;
 

@@ -146,8 +146,6 @@ implementation
 
 uses
   System.SysUtils,
-  System.Variants,
-  MVCFramework.ActiveRecord,
   Anovo.SQL.Catalogos;
 
 procedure Extremos(const APagina, APorPagina: Integer;
@@ -155,16 +153,6 @@ procedure Extremos(const APagina, APorPagina: Integer;
 begin
   ADesde := ((APagina - 1) * APorPagina) + 1;
   AHasta := APagina * APorPagina;
-end;
-
-function HayOtroCon(const ASQL, AValor: string;
-  const AExcluirId: Integer): Boolean;
-var
-  lId: Variant;
-begin
-  lId := TMVCActiveRecord.CurrentConnection.ExecSQLScalar(ASQL,
-    [AValor, AExcluirId]);
-  Result := not VarIsNull(lId);
 end;
 
 function TMaterialRepository.Filtro(const AIncluirInactivos: Boolean): string;
@@ -204,7 +192,7 @@ var
   lDesde, lHasta: Integer;
 begin
   Extremos(APagina, APorPagina, lDesde, lHasta);
-  Result := TMVCActiveRecord.Select<TMaterialConPrecio>
+  Result := SelectVista<TMaterialConPrecio>
     (MATERIALES_CON_PRECIO + Filtro(AIncluirInactivos) +
     MATERIALES_ORDEN_Y_PAGINA,
     Parametros(ATexto) + [Variant(lDesde), Variant(lHasta)]);
@@ -237,7 +225,7 @@ var
   lDesde, lHasta: Integer;
 begin
   Extremos(APagina, APorPagina, lDesde, lHasta);
-  Result := TMVCActiveRecord.Select<TCatalogoItemConPrecio>
+  Result := SelectVista<TCatalogoItemConPrecio>
     (CATALOGOS_TODOS + Filtro(AIncluirInactivos) +
     CATALOGOS_TODOS_ORDEN_Y_PAGINA,
     [ATexto, ATexto, ATexto, lDesde, lHasta]);
@@ -325,7 +313,7 @@ var
   lDesde, lHasta: Integer;
 begin
   Extremos(APagina, APorPagina, lDesde, lHasta);
-  Result := TMVCActiveRecord.Select<TManoObraConPrecio>
+  Result := SelectVista<TManoObraConPrecio>
     (MANO_OBRA_CON_PRECIO + Filtro(AIncluirInactivos, ACategoriaId) +
     MANO_OBRA_ORDEN_Y_PAGINA, Parametros(ATexto, ACategoriaId) +
     [Variant(lDesde), Variant(lHasta)]);
@@ -396,7 +384,7 @@ var
   lDesde, lHasta: Integer;
 begin
   Extremos(APagina, APorPagina, lDesde, lHasta);
-  Result := TMVCActiveRecord.Select<TMaquinaConPrecio>
+  Result := SelectVista<TMaquinaConPrecio>
     (MAQUINAS_CON_PRECIO + Filtro(AIncluirInactivos) +
     MAQUINAS_ORDEN_Y_PAGINA,
     Parametros(ATexto) + [Variant(lDesde), Variant(lHasta)]);

@@ -91,6 +91,7 @@ uses
   Anovo.Services.Vigencias in 'src\Services\Anovo.Services.Vigencias.pas',
   Anovo.SQL.Dashboard in 'src\SQL\Anovo.SQL.Dashboard.pas',
   Anovo.Entities.Vistas.Dashboard in 'src\Entities\Anovo.Entities.Vistas.Dashboard.pas',
+  Anovo.Entities.Vistas.Permisos in 'src\Entities\Anovo.Entities.Vistas.Permisos.pas',
   Anovo.DTOs.Dashboard in 'src\DTOs\Anovo.DTOs.Dashboard.pas',
   Anovo.Repositories.Intf.Dashboard in 'src\Interfaces\Anovo.Repositories.Intf.Dashboard.pas',
   Anovo.Services.Intf.Dashboard in 'src\Interfaces\Anovo.Services.Intf.Dashboard.pas',
