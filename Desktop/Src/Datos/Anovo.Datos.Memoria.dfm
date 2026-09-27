@@ -553,6 +553,7 @@ object dmMemoria: TdmMemoria
     end
   end
   object mtMateriales: TFDMemTable
+    OnCalcFields = CatalogoCalcFields
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll
     ResourceOptions.AssignedValues = [rvSilentMode]
@@ -585,7 +586,6 @@ object dmMemoria: TdmMemoria
     object mtMaterialesUNIDAD_MEDIDA: TStringField
       DisplayLabel = 'Unidad'
       FieldName = 'UNIDAD_MEDIDA'
-      Size = 20
     end
     object mtMaterialesCOSTO_UNITARIO: TCurrencyField
       DisplayLabel = 'Costo'
@@ -616,8 +616,10 @@ object dmMemoria: TdmMemoria
     end
     object mtMaterialesESTADO: TStringField
       DisplayLabel = 'Estado'
+      FieldKind = fkCalculated
       FieldName = 'ESTADO'
       Size = 15
+      Calculated = True
     end
     object mtMaterialesACCIONES: TStringField
       FieldName = 'ACCIONES'
@@ -625,6 +627,7 @@ object dmMemoria: TdmMemoria
     end
   end
   object mtManoObra: TFDMemTable
+    OnCalcFields = CatalogoCalcFields
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll
     ResourceOptions.AssignedValues = [rvSilentMode]
@@ -666,7 +669,6 @@ object dmMemoria: TdmMemoria
     object mtManoObraUNIDAD_MEDIDA: TStringField
       DisplayLabel = 'Unidad'
       FieldName = 'UNIDAD_MEDIDA'
-      Size = 20
     end
     object mtManoObraCOSTO_UNITARIO: TCurrencyField
       DisplayLabel = 'Costo'
@@ -691,8 +693,10 @@ object dmMemoria: TdmMemoria
     end
     object mtManoObraESTADO: TStringField
       DisplayLabel = 'Estado'
+      FieldKind = fkCalculated
       FieldName = 'ESTADO'
       Size = 15
+      Calculated = True
     end
     object mtManoObraACCIONES: TStringField
       FieldName = 'ACCIONES'
@@ -700,6 +704,7 @@ object dmMemoria: TdmMemoria
     end
   end
   object mtMaquinas: TFDMemTable
+    OnCalcFields = CatalogoCalcFields
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll
     ResourceOptions.AssignedValues = [rvSilentMode]
@@ -751,8 +756,10 @@ object dmMemoria: TdmMemoria
     end
     object mtMaquinasESTADO: TStringField
       DisplayLabel = 'Estado'
+      FieldKind = fkCalculated
       FieldName = 'ESTADO'
       Size = 15
+      Calculated = True
     end
     object mtMaquinasACCIONES: TStringField
       FieldName = 'ACCIONES'
@@ -760,6 +767,7 @@ object dmMemoria: TdmMemoria
     end
   end
   object mtTodos: TFDMemTable
+    OnCalcFields = CatalogoCalcFields
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll
     ResourceOptions.AssignedValues = [rvSilentMode]
@@ -844,8 +852,10 @@ object dmMemoria: TdmMemoria
     end
     object mtTodosESTADO: TStringField
       DisplayLabel = 'Estado'
+      FieldKind = fkCalculated
       FieldName = 'ESTADO'
       Size = 15
+      Calculated = True
     end
     object mtTodosACCIONES: TStringField
       FieldName = 'ACCIONES'
@@ -951,6 +961,7 @@ object dmMemoria: TdmMemoria
     Top = 568
   end
   object mtTiposTrabajo: TFDMemTable
+    OnCalcFields = CatalogoCalcFields
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll
     ResourceOptions.AssignedValues = [rvSilentMode]
@@ -975,8 +986,10 @@ object dmMemoria: TdmMemoria
     end
     object mtTiposTrabajoESTADO: TStringField
       DisplayLabel = 'Estado'
+      FieldKind = fkCalculated
       FieldName = 'ESTADO'
       Size = 15
+      Calculated = True
     end
     object mtTiposTrabajoACCIONES: TStringField
       FieldName = 'ACCIONES'
@@ -1170,7 +1183,7 @@ object dmMemoria: TdmMemoria
       Size = 120
     end
     object mtAuditoriaACCION: TStringField
-      DisplayLabel = 'Acción'
+      DisplayLabel = 'Acci'#243'n'
       FieldName = 'ACCION'
       Size = 50
     end
@@ -1180,7 +1193,7 @@ object dmMemoria: TdmMemoria
       Size = 50
     end
     object mtAuditoriaENTIDAD_ID: TIntegerField
-      DisplayLabel = 'Nº'
+      DisplayLabel = 'N'#186
       FieldName = 'ENTIDAD_ID'
     end
     object mtAuditoriaDETALLE: TStringField
@@ -1220,8 +1233,8 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 568
-    Top = 376
+    Left = 768
+    Top = 200
     object mtItemCatalogoCODIGO: TStringField
       FieldName = 'CODIGO'
       Size = 30
@@ -1236,7 +1249,6 @@ object dmMemoria: TdmMemoria
     end
     object mtItemCatalogoUNIDAD_MEDIDA: TStringField
       FieldName = 'UNIDAD_MEDIDA'
-      Size = 20
     end
   end
   object mtPrecioCatalogo: TFDMemTable
@@ -1270,6 +1282,7 @@ object dmMemoria: TdmMemoria
     end
   end
   object mtHistorialPrecio: TFDMemTable
+    OnCalcFields = CatalogoCalcFields
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll
     ResourceOptions.AssignedValues = [rvSilentMode]
@@ -1280,25 +1293,25 @@ object dmMemoria: TdmMemoria
     Left = 672
     Top = 376
     object mtHistorialPrecioFECHA_VIGENCIA: TDateField
-      FieldName = 'FECHA_VIGENCIA'
       DisplayLabel = 'Vigente desde'
+      FieldName = 'FECHA_VIGENCIA'
       DisplayFormat = 'dd/mm/yyyy'
     end
     object mtHistorialPrecioCOSTO_UNITARIO: TCurrencyField
-      FieldName = 'COSTO_UNITARIO'
       DisplayLabel = 'Costo'
+      FieldName = 'COSTO_UNITARIO'
       DisplayFormat = '#,##0.00'
       currency = False
     end
     object mtHistorialPrecioPRECIO_UNITARIO: TCurrencyField
-      FieldName = 'PRECIO_UNITARIO'
       DisplayLabel = 'Precio'
+      FieldName = 'PRECIO_UNITARIO'
       DisplayFormat = '#,##0.00'
       currency = False
     end
     object mtHistorialPrecioCOSTO_HORA: TCurrencyField
-      FieldName = 'COSTO_HORA'
       DisplayLabel = 'Costo por hora'
+      FieldName = 'COSTO_HORA'
       DisplayFormat = '#,##0.00'
       currency = False
     end
@@ -1307,9 +1320,11 @@ object dmMemoria: TdmMemoria
       Visible = False
     end
     object mtHistorialPrecioESTADO: TStringField
-      FieldName = 'ESTADO'
       DisplayLabel = 'Estado'
+      FieldKind = fkCalculated
+      FieldName = 'ESTADO'
       Size = 15
+      Calculated = True
     end
   end
   object mtUnidadesMedida: TFDMemTable
@@ -1324,7 +1339,6 @@ object dmMemoria: TdmMemoria
     Top = 376
     object mtUnidadesMedidaNOMBRE: TStringField
       FieldName = 'NOMBRE'
-      Size = 20
     end
   end
   object dsUnidadesMedida: TDataSource
@@ -1548,8 +1562,8 @@ object dmMemoria: TdmMemoria
   object dsAuditoria: TDataSource
     AutoEdit = False
     DataSet = mtAuditoria
-    Left = 512
-    Top = 384
+    Left = 536
+    Top = 376
   end
   object dsContactoNuevo: TDataSource
     DataSet = mtContactoNuevo

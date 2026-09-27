@@ -326,6 +326,7 @@ type
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     procedure DataModuleCreate(Sender: TObject);
     procedure mtContactoNuevoBeforePost(DataSet: TDataSet);
+    procedure CatalogoCalcFields(DataSet: TDataSet);
   private
     procedure CargarTiposIdentificacion;
   public
@@ -345,6 +346,10 @@ implementation
 
 const
   CONSENTIMIENTO_PENDIENTE = 'pendiente';
+
+  ESTADO_ACTIVO = 'activo';
+  ESTADO_INACTIVO = 'inactivo';
+  ESTADO_PROGRAMADO = 'programado';
 
   UNIDADES_MEDIDA: array [0 .. 9] of string = ('unidad', 'metro',
     'metro cuadrado', 'kilogramo', 'tonelada', 'litro', 'hora', 'pulgada',
@@ -377,6 +382,21 @@ procedure TdmMemoria.mtContactoNuevoBeforePost(DataSet: TDataSet);
 begin
   mtContactoNuevoTELEFONO.AsString :=
     TFormato.TelefonoExt(mtContactoNuevoTELEFONO.AsString);
+end;
+
+procedure TdmMemoria.CatalogoCalcFields(DataSet: TDataSet);
+var
+  lProgramado, lEstado: TField;
+begin
+  lProgramado := DataSet.FindField('PROGRAMADO_FECHA');
+  lEstado := DataSet.FieldByName('ESTADO');
+
+  if not DataSet.FieldByName('ACTIVO').AsBoolean then
+    lEstado.AsString := ESTADO_INACTIVO
+  else if (lProgramado <> nil) and not lProgramado.IsNull then
+    lEstado.AsString := ESTADO_PROGRAMADO
+  else
+    lEstado.AsString := ESTADO_ACTIVO;
 end;
 
 procedure TdmMemoria.CargarUnidadesMedida;

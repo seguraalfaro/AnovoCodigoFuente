@@ -12,7 +12,7 @@ uses
   System.Classes, System.Types, System.Generics.Collections,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.WinXCtrls, Vcl.WinXPanels,
-  Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
+  Data.DB, FireDAC.Comp.Client, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   FlatVcl.BotonWin, VclPlano.Pestanas, VclPlano.BotonWin,
   Anovo.DTOs.Catalogos,
   Anovo.Vistas.Intf.Catalogos,
@@ -51,8 +51,8 @@ type
     procedure Accion(Sender: TObject; const AClave: string);
     function IdDeLaFila: Integer;
     function NombreDeLaFila: string;
-    procedure MarcarEstados(const ATabla: TDataSet);
-    procedure AjustarColumnas;
+    procedure Cargar<T: class>(const AFilas: TObjectList<T>;
+      const ATabla: TFDMemTable);
     procedure TipoGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
     procedure MostrarCatalogo(const ACatalogo: TCatalogo);
@@ -105,17 +105,12 @@ type
 const
   CAMPO_ACCIONES = 'ACCIONES';
   CAMPO_ESTADO = 'ESTADO';
-  CAMPO_PROGRAMADO = 'PROGRAMADO_FECHA';
 
   ACCIONES: array [TAccionCatalogo] of TAccionRejilla =
     ((Clave: 'editar'; Rotulo: 'Editar'),
     (Clave: 'historial'; Rotulo: 'Historial'),
     (Clave: 'precio'; Rotulo: 'Precio'),
     (Clave: 'inactivar'; Rotulo: 'Inactivar'));
-
-  ESTADO_ACTIVO = 'activo';
-  ESTADO_INACTIVO = 'inactivo';
-  ESTADO_PROGRAMADO = 'programado';
 
 function TituloDe(const ACatalogo: TCatalogo): string;
 begin
@@ -166,10 +161,18 @@ begin
 end;
 
 constructor TfraCatalogos.Create(AOwner: TComponent);
+var
+  lRejilla: TDBGridExtend;
 begin
   inherited Create(AOwner);
   AplicarTemaGrid(grDatos);
   dmMemoria.mtTodosTIPO.OnGetText := TipoGetText;
+
+  lRejilla := TDBGridExtend.De(grDatos);
+  lRejilla.ColumnaEstado(CAMPO_ESTADO);
+  lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
+  lRejilla.OnAccion := Accion;
+
   FPresentador := TPresentadorCatalogos.Create(Self, TApiCatalogos.Create);
   FPresentador.Iniciar;
 end;
@@ -188,33 +191,6 @@ begin
     dmMemoria.dsCatalogo.DataSet.IsEmpty then
     Exit;
   Result := dmMemoria.dsCatalogo.DataSet.FieldByName('ID').AsInteger;
-end;
-
-procedure TfraCatalogos.MarcarEstados(const ATabla: TDataSet);
-var
-  lProgramado: TField;
-begin
-  lProgramado := ATabla.FindField(CAMPO_PROGRAMADO);
-
-  ATabla.DisableControls;
-  try
-    ATabla.First;
-    while not ATabla.Eof do
-    begin
-      ATabla.Edit;
-      if not ATabla.FieldByName('ACTIVO').AsBoolean then
-        ATabla.FieldByName(CAMPO_ESTADO).AsString := ESTADO_INACTIVO
-      else if (lProgramado <> nil) and not lProgramado.IsNull then
-        ATabla.FieldByName(CAMPO_ESTADO).AsString := ESTADO_PROGRAMADO
-      else
-        ATabla.FieldByName(CAMPO_ESTADO).AsString := ESTADO_ACTIVO;
-      ATabla.Post;
-      ATabla.Next;
-    end;
-    ATabla.First;
-  finally
-    ATabla.EnableControls;
-  end;
 end;
 
 function TfraCatalogos.NombreDeLaFila: string;
@@ -286,29 +262,16 @@ begin
 
   lRejilla := TDBGridExtend.De(grDatos);
   lRejilla.Limpiar;
-  lRejilla.ColumnaEstado(CAMPO_ESTADO);
-  lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
   for lAccion in AAcciones do
     lRejilla.Agregar(ACCIONES[lAccion].Clave, ACCIONES[lAccion].Rotulo);
-  lRejilla.OnAccion := Accion;
-
-  AjustarColumnas;
+  lRejilla.AjustarColumnas;
 end;
 
-procedure TfraCatalogos.AjustarColumnas;
-var
-  lRejilla: TDBGridExtend;
-  I: Integer;
+procedure TfraCatalogos.Cargar<T>(const AFilas: TObjectList<T>;
+  const ATabla: TFDMemTable);
 begin
-  lRejilla := TDBGridExtend.De(grDatos);
-  for I := 0 to grDatos.Columns.Count - 1 do
-    if SameText(grDatos.Columns[I].FieldName, CAMPO_ACCIONES) then
-    begin
-      grDatos.Columns[I].Visible := lRejilla.AnchoAcciones > 0;
-      grDatos.Columns[I].Width := lRejilla.AnchoAcciones;
-    end;
-
-  Anovo.UI.DBGridExtend.AjustarColumnas(grDatos);
+  TMapeoDatos.AListaTabla<T>(AFilas, ATabla);
+  TDBGridExtend.De(grDatos).AjustarColumnas;
 end;
 
 procedure TfraCatalogos.Resize;
@@ -343,25 +306,19 @@ end;
 procedure TfraCatalogos.MostrarMateriales(const AFilas
   : TObjectList<TMaterialDTO>);
 begin
-  TMapeoDatos.AListaTabla<TMaterialDTO>(AFilas, dmMemoria.mtMateriales);
-  MarcarEstados(dmMemoria.mtMateriales);
-  AjustarColumnas;
+  Cargar<TMaterialDTO>(AFilas, dmMemoria.mtMateriales);
 end;
 
 procedure TfraCatalogos.MostrarManoObra(const AFilas
   : TObjectList<TManoObraDTO>);
 begin
-  TMapeoDatos.AListaTabla<TManoObraDTO>(AFilas, dmMemoria.mtManoObra);
-  MarcarEstados(dmMemoria.mtManoObra);
-  AjustarColumnas;
+  Cargar<TManoObraDTO>(AFilas, dmMemoria.mtManoObra);
 end;
 
 procedure TfraCatalogos.MostrarTodos(const AFilas
   : TObjectList<TCatalogoItemDTO>);
 begin
-  TMapeoDatos.AListaTabla<TCatalogoItemDTO>(AFilas, dmMemoria.mtTodos);
-  MarcarEstados(dmMemoria.mtTodos);
-  AjustarColumnas;
+  Cargar<TCatalogoItemDTO>(AFilas, dmMemoria.mtTodos);
 end;
 
 function TfraCatalogos.CatalogoDeLaFila: TCatalogo;
@@ -387,17 +344,13 @@ end;
 procedure TfraCatalogos.MostrarMaquinas(const AFilas
   : TObjectList<TMaquinaDTO>);
 begin
-  TMapeoDatos.AListaTabla<TMaquinaDTO>(AFilas, dmMemoria.mtMaquinas);
-  MarcarEstados(dmMemoria.mtMaquinas);
-  AjustarColumnas;
+  Cargar<TMaquinaDTO>(AFilas, dmMemoria.mtMaquinas);
 end;
 
 procedure TfraCatalogos.MostrarTiposTrabajo(const AFilas
   : TObjectList<TTipoTrabajoDTO>);
 begin
-  TMapeoDatos.AListaTabla<TTipoTrabajoDTO>(AFilas, dmMemoria.mtTiposTrabajo);
-  MarcarEstados(dmMemoria.mtTiposTrabajo);
-  AjustarColumnas;
+  Cargar<TTipoTrabajoDTO>(AFilas, dmMemoria.mtTiposTrabajo);
 end;
 
 procedure TfraCatalogos.MostrarCategorias(const ACategorias
@@ -458,7 +411,6 @@ procedure TfraCatalogos.MostrarHistorial(const AFilas
   : TObjectList<TPrecioDTO>);
 begin
   TMapeoDatos.AListaTabla<TPrecioDTO>(AFilas, dmMemoria.mtHistorialPrecio);
-  MarcarEstados(dmMemoria.mtHistorialPrecio);
   if FCatalogo = ctTodos then
     TfrmPrecioCatalogo.Mostrar(Self, CatalogoDeLaFila, 0, NombreDeLaFila,
       mpHistorial)

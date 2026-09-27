@@ -71,6 +71,7 @@ type
     procedure Agregar(const AClave, ARotulo: string);
     procedure Limpiar;
     function AnchoAcciones: Integer;
+    procedure AjustarColumnas;
 
     property OnAccion: TEventoAccion read FOnAccion write FOnAccion;
   end;
@@ -206,6 +207,27 @@ begin
   finally
     lAux.Free;
   end;
+end;
+
+procedure TDBGridExtend.AjustarColumnas;
+var
+  lAncho, I: Integer;
+begin
+  if FCampoAcciones <> '' then
+  begin
+    if FGrid.FieldsFixedColumnWidth.IndexOf(FCampoAcciones) < 0 then
+      FGrid.FieldsFixedColumnWidth.Add(FCampoAcciones);
+
+    lAncho := AnchoAcciones;
+    for I := 0 to FGrid.Columns.Count - 1 do
+      if SameText(FGrid.Columns[I].FieldName, FCampoAcciones) then
+      begin
+        FGrid.Columns[I].Visible := lAncho > 0;
+        FGrid.Columns[I].Width := lAncho;
+      end;
+  end;
+
+  Anovo.UI.DBGridExtend.AjustarColumnas(FGrid);
 end;
 
 function TDBGridExtend.FondoDeCelda(const ARect: TRect; AColumn: TColumn): TColor;
