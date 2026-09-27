@@ -72,6 +72,7 @@ implementation
 {$R *.dfm}
 
 uses
+  Anovo.UI.Vista,
   Anovo.UI.Iconos,
   Anovo.UI.Tema,
   Anovo.Api.Autenticacion,
@@ -188,7 +189,7 @@ end;
 
 procedure TfrmLogin.MostrarError(const AMensaje: string);
 begin
-  MessageDlg(AMensaje, mtWarning, [mbOK], 0);
+  AvisarError(AMensaje);
   edtClave.Clear;
   edtClave.SetFocus;
 end;

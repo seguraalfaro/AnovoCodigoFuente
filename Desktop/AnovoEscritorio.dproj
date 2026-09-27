@@ -153,6 +153,11 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Src\Frames\Anovo.Frames.Listado.pas">
+            <Form>fraListado</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <DCCReference Include="Src\Frames\Anovo.Frames.Auditoria.pas">
             <Form>fraAuditoria</Form>
             <FormType>dfm</FormType>
@@ -217,6 +222,7 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Src\Recursos\Anovo.UI.Vigencia.pas"/>
+        <DCCReference Include="Src\Recursos\Anovo.UI.Vista.pas"/>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Catalogos.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Auditoria.pas"/>
         <DCCReference Include="Src\Api\Anovo.Api.Auditoria.pas"/>
@@ -254,6 +260,9 @@
         <DCCReference Include="Src\Frames\Anovo.Frames.Configuracion.pas">
             <Form>fraConfiguracion</Form>
             <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Src\Forms\Anovo.Forms.Edicion.pas">
+            <Form>frmEdicion</Form>
         </DCCReference>
         <DCCReference Include="Src\Forms\Anovo.Forms.CambioClave.pas">
             <Form>frmCambioClave</Form>

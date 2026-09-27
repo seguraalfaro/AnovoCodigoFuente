@@ -96,9 +96,10 @@ type
     procedure MostrarModoEdicion(const AActivo: Boolean);
     procedure AccionContacto(Sender: TObject; const AClave: string);
     procedure AccionCotizacion(Sender: TObject; const AClave: string);
-    procedure PrepararAcciones(const AGrid: TrDBGrid;
-      const AAcciones: array of TAccionRejilla; const AActiva: Boolean;
+    procedure PrepararRejilla(const AGrid: TrDBGrid;
       const AManejador: TEventoAccion);
+    procedure PrepararAcciones(const AGrid: TrDBGrid;
+      const AAcciones: array of TAccionRejilla; const AActiva: Boolean);
   public
 
     constructor Crear(AOwner: TComponent; const AClienteId: Integer);
@@ -111,6 +112,7 @@ implementation
 {$R *.dfm}
 
 uses
+  Anovo.UI.Vista,
   Anovo.Api.Clientes,
   Anovo.Forms.ContactoNuevo,
   Anovo.Mapeo.Datos,
@@ -135,6 +137,8 @@ begin
   AplicarTemaGrid(grContactos);
   AplicarTemaGrid(grCotizaciones);
   AplicarTemaGrid(grHistorial);
+  PrepararRejilla(grContactos, AccionContacto);
+  PrepararRejilla(grCotizaciones, AccionCotizacion);
   FClienteId := AClienteId;
   FPresentador := TPresentadorClienteDatos.Create(Self, TApiClientes.Create,
     AClienteId);
@@ -143,10 +147,8 @@ end;
 
 destructor TfraClienteDatos.Destroy;
 begin
-
   FPresentador.Free;
-
-  Screen.Cursor := crDefault;
+  CursorOcupado(False);
   inherited;
 end;
 
@@ -178,38 +180,36 @@ end;
 
 procedure TfraClienteDatos.MostrarCargando(const AActivo: Boolean);
 begin
-  if AActivo then
-    Screen.Cursor := crAppStart
-  else
-    Screen.Cursor := crDefault;
+  CursorOcupado(AActivo);
 end;
 
 procedure TfraClienteDatos.MostrarError(const AMensaje: string);
 begin
-  MessageDlg(AMensaje, mtWarning, [mbOK], 0);
+  AvisarError(AMensaje);
 end;
 
-procedure TfraClienteDatos.PrepararAcciones(const AGrid: TrDBGrid;
-  const AAcciones: array of TAccionRejilla; const AActiva: Boolean;
+procedure TfraClienteDatos.PrepararRejilla(const AGrid: TrDBGrid;
   const AManejador: TEventoAccion);
 var
   lRejilla: TDBGridExtend;
-  lAccion: TAccionRejilla;
-  I: Integer;
 begin
   lRejilla := TDBGridExtend.De(AGrid);
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
+  lRejilla.OnAccion := AManejador;
+end;
+
+procedure TfraClienteDatos.PrepararAcciones(const AGrid: TrDBGrid;
+  const AAcciones: array of TAccionRejilla; const AActiva: Boolean);
+var
+  lRejilla: TDBGridExtend;
+  lAccion: TAccionRejilla;
+begin
+  lRejilla := TDBGridExtend.De(AGrid);
+  lRejilla.Limpiar;
   if AActiva then
     for lAccion in AAcciones do
       lRejilla.Agregar(lAccion.Clave, lAccion.Rotulo);
-  lRejilla.OnAccion := AManejador;
-
-  for I := 0 to AGrid.Columns.Count - 1 do
-    if SameText(AGrid.Columns[I].FieldName, CAMPO_ACCIONES) then
-    begin
-      AGrid.Columns[I].Visible := AActiva;
-      AGrid.Columns[I].Width := lRejilla.AnchoAcciones;
-    end;
+  lRejilla.AjustarAcciones;
 end;
 
 procedure TfraClienteDatos.BotonesDeEdicion(const AEdicion: Boolean);
@@ -257,8 +257,7 @@ procedure TfraClienteDatos.btnGuardarClienteClick(Sender: TObject);
 begin
   if not dmMemoria.mtClienteDetalle.Active then
     Exit;
-  if dmMemoria.mtClienteDetalle.State in dsEditModes then
-    dmMemoria.mtClienteDetalle.Post;
+  dmMemoria.Confirmar(dmMemoria.mtClienteDetalle);
   FPresentador.Guardar(ClienteEditado);
 end;
 
@@ -272,10 +271,8 @@ begin
   btnRevocar.Visible := APuedeRevocar;
   btnExportar.Visible := APuedeVerCotizaciones;
 
-  PrepararAcciones(grContactos, ACCIONES_CONTACTO, APuedeEditar,
-    AccionContacto);
-  PrepararAcciones(grCotizaciones, ACCIONES_COTIZACION, APuedeVerCotizaciones,
-    AccionCotizacion);
+  PrepararAcciones(grContactos, ACCIONES_CONTACTO, APuedeEditar);
+  PrepararAcciones(grCotizaciones, ACCIONES_COTIZACION, APuedeVerCotizaciones);
 end;
 
 procedure TfraClienteDatos.AccionContacto(Sender: TObject;

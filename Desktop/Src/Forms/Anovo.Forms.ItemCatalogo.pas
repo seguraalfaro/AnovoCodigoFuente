@@ -12,7 +12,7 @@ uses
   Data.DB,
   rDBComponents,
   VclPlano.BotonWin,
-  Anovo.UI.Tema,
+  Anovo.Forms.Edicion,
   Anovo.DTOs.Catalogos,
   Anovo.Vistas.Intf.Catalogos,
   Anovo.Vistas.Intf.Registro,
@@ -20,11 +20,7 @@ uses
   Anovo.UI.Vigencia;
 
 type
-  TfrmItemCatalogo = class(TForm, IVistaRegistro)
-    TitleBarPanel1: TTitleBarPanel;
-    pnlTitulo: TPanel;
-    lblTitulo: TLabel;
-    lblSubtitulo: TLabel;
+  TfrmItemCatalogo = class(TfrmEdicion, IVistaRegistro)
     cpCatalogo: TCardPanel;
     CarMaterial: TCard;
     edCodigoMat: TrDBEdit;
@@ -51,14 +47,10 @@ type
     edCostoHora: TrDBEdit;
     chkProgramado: TCheckBox;
     lblNotaVigencia: TLabel;
-    pnlPie: TPanel;
-    btnGuardar: TPlanoBotonWin;
-    btnCancelar: TPlanoBotonWin;
     edVigencia: TrDBEditDate;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnGuardarClick(Sender: TObject);
-    procedure btnCancelarClick(Sender: TObject);
   private
     FPresentador: TPresentadorItemCatalogo;
     FPresentadorPrecio: TPresentadorPrecioCatalogo;
@@ -80,9 +72,9 @@ type
     function CategoriaEscogida: Integer;
     function LlevaPrecio: Boolean;
     function PrecioCambio: Boolean;
-    procedure MostrarGuardando(const AActivo: Boolean);
-    procedure MostrarError(const AMensaje: string);
     procedure Guardado(const AId: Integer);
+  protected
+    function ControlesEdicion: TArray<TControl>; override;
   public
     class function Mostrar(AOwner: TComponent; const ACatalogo: TCatalogo;
       const AId: Integer; const ACategorias: TStrings): Boolean;
@@ -142,8 +134,6 @@ end;
 
 procedure TfrmItemCatalogo.FormCreate(Sender: TObject);
 begin
-  AplicarTema(Self);
-  AplicarTemaBarraTitulo(Self, TitleBarPanel1);
   FPresentador := nil;
   FPresentadorPrecio := nil;
   FGuardado := False;
@@ -188,16 +178,6 @@ begin
     lblPrecio.Caption := SPrecioVigente;
 end;
 
-procedure CopiarCampo(const AOrigen: TDataSet; const ACampo: string;
-  const ADestino: TField);
-var
-  lCampo: TField;
-begin
-  lCampo := AOrigen.FindField(ACampo);
-  if lCampo <> nil then
-    ADestino.AsString := lCampo.AsString;
-end;
-
 procedure TfrmItemCatalogo.PrepararTabla;
 var
   lOrigen: TDataSet;
@@ -212,14 +192,11 @@ begin
     Exit;
   end;
 
-  lOrigen := dmMemoria.dsCatalogo.DataSet;
-  if (lOrigen = nil) or lOrigen.IsEmpty then
+  lOrigen := dmMemoria.FilaCatalogo;
+  if lOrigen = nil then
     Exit;
 
-  CopiarCampo(lOrigen, 'CODIGO', dmMemoria.mtItemCatalogoCODIGO);
-  CopiarCampo(lOrigen, 'NOMBRE', dmMemoria.mtItemCatalogoNOMBRE);
-  CopiarCampo(lOrigen, 'DESCRIPCION', dmMemoria.mtItemCatalogoDESCRIPCION);
-  CopiarCampo(lOrigen, 'UNIDAD_MEDIDA', dmMemoria.mtItemCatalogoUNIDAD_MEDIDA);
+  dmMemoria.mtItemCatalogo.CopyRecord(lOrigen);
   if FCatalogo = ctManoObra then
     cbCategoriaMo.ItemIndex := cbCategoriaMo.Items.IndexOfObject
       (TObject(lOrigen.FieldByName('CATEGORIA_ID').AsInteger));
@@ -242,8 +219,8 @@ begin
   if FId = 0 then
     Exit;
 
-  lOrigen := dmMemoria.dsCatalogo.DataSet;
-  if (lOrigen = nil) or lOrigen.IsEmpty then
+  lOrigen := dmMemoria.FilaCatalogo;
+  if lOrigen = nil then
     Exit;
 
   if FCatalogo = ctMaquinas then
@@ -386,11 +363,8 @@ end;
 
 procedure TfrmItemCatalogo.btnGuardarClick(Sender: TObject);
 begin
-  if dmMemoria.mtItemCatalogo.State in dsEditModes then
-    dmMemoria.mtItemCatalogo.Post;
-  if pnlPrecio.Visible and (dmMemoria.mtPrecioCatalogo.State in dsEditModes)
-  then
-    dmMemoria.mtPrecioCatalogo.Post;
+  dmMemoria.Confirmar(dmMemoria.mtItemCatalogo);
+  dmMemoria.Confirmar(dmMemoria.mtPrecioCatalogo);
 
   if not ValidarCampos then
     Exit;
@@ -402,26 +376,9 @@ begin
   FPresentador.Guardar(DtoEscrito);
 end;
 
-procedure TfrmItemCatalogo.btnCancelarClick(Sender: TObject);
+function TfrmItemCatalogo.ControlesEdicion: TArray<TControl>;
 begin
-  ModalResult := mrCancel;
-end;
-
-procedure TfrmItemCatalogo.MostrarGuardando(const AActivo: Boolean);
-begin
-  btnGuardar.Enabled := not AActivo;
-  btnCancelar.Enabled := not AActivo;
-  cpCatalogo.Enabled := not AActivo;
-  pnlPrecio.Enabled := not AActivo;
-  if AActivo then
-    Screen.Cursor := crAppStart
-  else
-    Screen.Cursor := crDefault;
-end;
-
-procedure TfrmItemCatalogo.MostrarError(const AMensaje: string);
-begin
-  MessageDlg(AMensaje, mtError, [mbOK], 0);
+  Result := [cpCatalogo, pnlPrecio];
 end;
 
 procedure TfrmItemCatalogo.Guardado(const AId: Integer);

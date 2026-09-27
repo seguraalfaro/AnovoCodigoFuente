@@ -1,73 +1,32 @@
-object frmContactoNuevo: TfrmContactoNuevo
-  Left = 0
-  Top = 0
-  BorderStyle = bsDialog
+inherited frmContactoNuevo: TfrmContactoNuevo
   Caption = 'Contacto nuevo'
   ClientHeight = 365
   ClientWidth = 514
-  Color = 16447477
-  CustomTitleBar.CaptionAlignment = taCenter
-  CustomTitleBar.Control = TitleBarPanel1
-  CustomTitleBar.Enabled = True
-  CustomTitleBar.Height = 26
-  CustomTitleBar.BackgroundColor = clWhite
-  CustomTitleBar.ForegroundColor = 65793
-  CustomTitleBar.InactiveBackgroundColor = clWhite
-  CustomTitleBar.InactiveForegroundColor = 10066329
-  CustomTitleBar.ButtonForegroundColor = 65793
-  CustomTitleBar.ButtonBackgroundColor = clWhite
-  CustomTitleBar.ButtonHoverForegroundColor = 65793
-  CustomTitleBar.ButtonHoverBackgroundColor = 16053492
-  CustomTitleBar.ButtonPressedForegroundColor = 65793
-  CustomTitleBar.ButtonPressedBackgroundColor = 15395562
-  CustomTitleBar.ButtonInactiveForegroundColor = 10066329
-  CustomTitleBar.ButtonInactiveBackgroundColor = clWhite
-  Font.Charset = ANSI_CHARSET
-  Font.Color = 1973276
-  Font.Height = -12
-  Font.Name = 'Segoe UI'
-  Font.Style = []
-  GlassFrame.Enabled = True
-  GlassFrame.Top = 26
-  OldCreateOrder = True
-  Position = poOwnerFormCenter
-  StyleElements = []
   OnDestroy = FormDestroy
-  PixelsPerInch = 96
-  TextHeight = 15
-  object pnlTitulo: TPanel
-    Left = 0
-    Top = 25
+  inherited TitleBarPanel1: TTitleBarPanel
     Width = 514
-    Height = 62
-    Align = alTop
-    BevelOuter = bvNone
-    Color = 16447477
-    ParentBackground = False
-    TabOrder = 0
-    ExplicitTop = 0
-    ExplicitWidth = 520
-    object lblTitulo: TLabel
-      Tag = 11
-      Left = 20
-      Top = 12
-      Width = 126
-      Height = 25
+    CustomButtons = <
+      item
+        ButtonType = sbCustom
+        Enabled = True
+        Width = 32
+        Visible = True
+      end>
+  end
+  inherited pnlTitulo: TPanel
+    Width = 514
+    inherited lblTitulo: TLabel
       Caption = 'Contacto nuevo'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -18
-      Font.Name = 'Segoe UI'
-      Font.Style = []
-      ParentFont = False
     end
-    object lblSubtitulo: TLabel
-      Tag = 13
-      Left = 20
+    inherited lblSubtitulo: TLabel
       Top = 40
-      Width = 262
-      Height = 15
       Caption = 'Un solo contacto puede ser el principal del cliente'
+    end
+  end
+  inherited pnlPie: TRelativePanel
+    TabOrder = 2
+    inherited btnGuardar: TPlanoBotonWin
+      OnClick = btnGuardarClick
     end
   end
   object pnlCampos: TPanel
@@ -225,59 +184,5 @@ object frmContactoNuevo: TfrmContactoNuevo
       ReadOnlyColor = 15987699
       ShowFieldCaption = False
     end
-  end
-  object pnlPie: TPanel
-    Left = 0
-    Top = 299
-    Width = 514
-    Height = 66
-    Align = alBottom
-    BevelOuter = bvNone
-    Color = 16447477
-    ParentBackground = False
-    TabOrder = 2
-    ExplicitTop = 300
-    ExplicitWidth = 520
-    object btnGuardar: TPlanoBotonWin
-      Left = 380
-      Top = 18
-      Width = 120
-      Height = 30
-      Cursor = crHandPoint
-      Caption = 'Guardar'
-      TabOrder = 0
-      StyleElements = []
-      OnClick = btnGuardarClick
-    end
-    object btnCancelar: TPlanoBotonWin
-      Left = 250
-      Top = 18
-      Width = 120
-      Height = 30
-      Cursor = crHandPoint
-      Caption = 'Cancelar'
-      TabOrder = 1
-      StyleElements = []
-      OnClick = btnCancelarClick
-      Kind = fkSecondary
-    end
-  end
-  object TitleBarPanel1: TTitleBarPanel
-    Left = 0
-    Top = 0
-    Width = 514
-    Height = 25
-    CustomButtons = <
-      item
-        ButtonType = sbCustom
-        Enabled = True
-        Width = 32
-        Visible = True
-      end>
-    ExplicitLeft = -8
-    ExplicitTop = -19
-    DesignSize = (
-      514
-      25)
   end
 end

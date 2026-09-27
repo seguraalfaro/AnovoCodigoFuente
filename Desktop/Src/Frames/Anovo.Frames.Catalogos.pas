@@ -5,7 +5,6 @@ unit Anovo.Frames.Catalogos;
 interface
 
 uses
-  Anovo.UI.Tema,
   Anovo.UI.DBGridExtend,
   System.UITypes,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
@@ -14,53 +13,33 @@ uses
   Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.WinXCtrls, Vcl.WinXPanels,
   Data.DB, FireDAC.Comp.Client, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   FlatVcl.BotonWin, VclPlano.Pestanas, VclPlano.BotonWin,
+  Anovo.Frames.Listado,
   Anovo.DTOs.Catalogos,
   Anovo.Vistas.Intf.Catalogos,
   Anovo.Presentadores.Catalogos;
 
 type
-  TfraCatalogos = class(TFrame, IVistaCatalogos)
-    pnlBarra: TPanel;
-    sbBuscar: TSearchBox;
+  TfraCatalogos = class(TfraListado, IVistaCatalogos)
     btnExportar: TPlanoBotonWin;
     btnNuevo: TPlanoBotonWin;
-    btnLimpiar: TPlanoBotonWin;
     cbCategoria: TComboBox;
-    pnlTitulo: TPanel;
-    lblTitulo: TLabel;
-    lblSubtitulo: TLabel;
     pstCatalogo: TPlanoPestanas;
-    pnclient: TRelativePanel;
-    grDatos: TrDBGrid;
-    pnlPie: TPanel;
-    lblPaginacion: TLabel;
-    btnAnterior: TPlanoBotonWin;
-    btnSiguiente: TPlanoBotonWin;
-    procedure sbBuscarInvokeSearch(Sender: TObject);
-    procedure btnLimpiarClick(Sender: TObject);
     procedure pstCatalogoChange(Sender: TObject);
     procedure cbCategoriaChange(Sender: TObject);
-    procedure btnAnteriorClick(Sender: TObject);
-    procedure btnSiguienteClick(Sender: TObject);
     procedure btnNuevoClick(Sender: TObject);
     procedure btnExportarClick(Sender: TObject);
-
   private
     FPresentador: TPresentadorCatalogos;
     FCatalogo: TCatalogo;
     procedure Accion(Sender: TObject; const AClave: string);
+    function TablaActual: TDataSet;
     function IdDeLaFila: Integer;
     function NombreDeLaFila: string;
     procedure Cargar<T: class>(const AFilas: TObjectList<T>;
       const ATabla: TFDMemTable);
-    procedure TipoGetText(Sender: TField; var Text: string;
-      DisplayText: Boolean);
     procedure MostrarCatalogo(const ACatalogo: TCatalogo);
     procedure MostrarAcciones(const AAcciones: TAccionesCatalogo;
       const APuedeCrear: Boolean);
-    procedure MostrarCargando(const AActivo: Boolean);
-    procedure MostrarBusqueda(const ATexto: string;
-      const APuedeLimpiar: Boolean);
     procedure MostrarMateriales(const AFilas: TObjectList<TMaterialDTO>);
     procedure MostrarManoObra(const AFilas: TObjectList<TManoObraDTO>);
     procedure MostrarMaquinas(const AFilas: TObjectList<TMaquinaDTO>);
@@ -68,15 +47,17 @@ type
     procedure MostrarTodos(const AFilas: TObjectList<TCatalogoItemDTO>);
     function CatalogoDeLaFila: TCatalogo;
     procedure MostrarCategorias(const ACategorias: TObjectList<TCategoriaDTO>);
-    procedure MostrarPaginacion(const APagina, ATotalPaginas: Integer;
-      const ATotal: Int64);
-    procedure MostrarError(const AMensaje: string);
     procedure MostrarFormularioItem(const ACatalogo: TCatalogo;
       const AId: Integer);
     procedure MostrarFormularioPrecio(const ACatalogo: TCatalogo;
       const AId: Integer);
     procedure MostrarHistorial(const AFilas: TObjectList<TPrecioDTO>);
   protected
+    procedure Buscar(const ATexto: string); override;
+    procedure Limpiar; override;
+    procedure PaginaAnterior; override;
+    procedure PaginaSiguiente; override;
+    procedure MostrarCargando(const AActivo: Boolean); override;
     procedure Resize; override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -106,11 +87,10 @@ const
   CAMPO_ACCIONES = 'ACCIONES';
   CAMPO_ESTADO = 'ESTADO';
 
-  ACCIONES: array [TAccionCatalogo] of TAccionRejilla =
-    ((Clave: 'editar'; Rotulo: 'Editar'),
-    (Clave: 'historial'; Rotulo: 'Historial'),
-    (Clave: 'precio'; Rotulo: 'Precio'),
-    (Clave: 'inactivar'; Rotulo: 'Inactivar'));
+  ACCIONES: array [TAccionCatalogo] of TAccionRejilla = ((Clave: 'editar';
+    Rotulo: 'Editar'), (Clave: 'historial'; Rotulo: 'Historial'),
+    (Clave: 'precio'; Rotulo: 'Precio'), (Clave: 'inactivar';
+    Rotulo: 'Inactivar'));
 
 function TituloDe(const ACatalogo: TCatalogo): string;
 begin
@@ -165,8 +145,9 @@ var
   lRejilla: TDBGridExtend;
 begin
   inherited Create(AOwner);
-  AplicarTemaGrid(grDatos);
-  dmMemoria.mtTodosTIPO.OnGetText := TipoGetText;
+  FTextoSinRegistros := SSinRegistros;
+  FTextoPaginacion := SPaginacionRegistros;
+  FTextoSoloTotal := SRegistrosTotal;
 
   lRejilla := TDBGridExtend.De(grDatos);
   lRejilla.ColumnaEstado(CAMPO_ESTADO);
@@ -179,28 +160,33 @@ end;
 
 destructor TfraCatalogos.Destroy;
 begin
-  dmMemoria.mtTodosTIPO.OnGetText := nil;
   FPresentador.Free;
   inherited;
 end;
 
-function TfraCatalogos.IdDeLaFila: Integer;
+function TfraCatalogos.TablaActual: TDataSet;
 begin
-  Result := 0;
-  if (dmMemoria.dsCatalogo.DataSet = nil) or
-    dmMemoria.dsCatalogo.DataSet.IsEmpty then
-    Exit;
-  Result := dmMemoria.dsCatalogo.DataSet.FieldByName('ID').AsInteger;
+  Result := dmMemoria.dsCatalogo.DataSet;
+end;
+
+function TfraCatalogos.IdDeLaFila: Integer;
+var
+  lTabla: TDataSet;
+begin
+  lTabla := TablaActual;
+  if lTabla.IsEmpty then
+    Exit(0);
+  Result := lTabla.FieldByName('ID').AsInteger;
 end;
 
 function TfraCatalogos.NombreDeLaFila: string;
 var
   lTabla: TDataSet;
 begin
-  Result := '';
-  lTabla := dmMemoria.dsCatalogo.DataSet;
-  if (lTabla = nil) or lTabla.IsEmpty then
-    Exit;
+  lTabla := TablaActual;
+
+  if lTabla.IsEmpty then
+    Exit('');
   Result := lTabla.FieldByName('NOMBRE').AsString;
 end;
 
@@ -219,8 +205,8 @@ begin
   else if SameText(AClave, ACCIONES[acPrecio].Clave) then
     FPresentador.CambiarPrecio(lId)
   else if SameText(AClave, ACCIONES[acInactivar].Clave) then
-    if MessageDlg(SConfirmarInactivar, mtConfirmation, [mbYes, mbNo], 0)
-      = mrYes then
+    if MessageDlg(SConfirmarInactivar, mtConfirmation, [mbYes, mbNo], 0) = mrYes
+    then
       FPresentador.Inactivar(lId);
 end;
 
@@ -277,30 +263,34 @@ end;
 procedure TfraCatalogos.Resize;
 begin
   inherited;
-  OcultarScrollVertical(grDatos);
   Anovo.UI.DBGridExtend.AjustarColumnas(grDatos);
+end;
+
+procedure TfraCatalogos.Buscar(const ATexto: string);
+begin
+  FPresentador.Buscar(ATexto);
+end;
+
+procedure TfraCatalogos.Limpiar;
+begin
+  FPresentador.Limpiar;
+end;
+
+procedure TfraCatalogos.PaginaAnterior;
+begin
+  FPresentador.PaginaAnterior;
+end;
+
+procedure TfraCatalogos.PaginaSiguiente;
+begin
+  FPresentador.PaginaSiguiente;
 end;
 
 procedure TfraCatalogos.MostrarCargando(const AActivo: Boolean);
 begin
-  if AActivo then
-  begin
-    lblPaginacion.Caption := Format(SCargandoCatalogo,
-      [LowerCase(TituloDe(FCatalogo))]);
-    Screen.Cursor := crAppStart;
-  end
-  else
-    Screen.Cursor := crDefault;
-  sbBuscar.Enabled := not AActivo;
+  FTextoCargando := Format(SCargandoCatalogo, [LowerCase(TituloDe(FCatalogo))]);
+  inherited;
   pstCatalogo.Enabled := not AActivo;
-end;
-
-procedure TfraCatalogos.MostrarBusqueda(const ATexto: string;
-  const APuedeLimpiar: Boolean);
-begin
-  if sbBuscar.Text <> ATexto then
-    sbBuscar.Text := ATexto;
-  btnLimpiar.Visible := APuedeLimpiar;
 end;
 
 procedure TfraCatalogos.MostrarMateriales(const AFilas
@@ -328,21 +318,7 @@ begin
   Result := CatalogoDeTipo(dmMemoria.mtTodosTIPO.AsString);
 end;
 
-procedure TfraCatalogos.TipoGetText(Sender: TField; var Text: string;
-  DisplayText: Boolean);
-begin
-  case CatalogoDeTipo(Sender.AsString) of
-    ctManoObra:
-      Text := STipoManoObra;
-    ctMaquinas:
-      Text := STipoMaquina;
-  else
-    Text := STipoMaterial;
-  end;
-end;
-
-procedure TfraCatalogos.MostrarMaquinas(const AFilas
-  : TObjectList<TMaquinaDTO>);
+procedure TfraCatalogos.MostrarMaquinas(const AFilas: TObjectList<TMaquinaDTO>);
 begin
   Cargar<TMaquinaDTO>(AFilas, dmMemoria.mtMaquinas);
 end;
@@ -361,35 +337,13 @@ begin
   cbCategoria.Items.BeginUpdate;
   try
     cbCategoria.Items.Clear;
-    cbCategoria.Items.AddObject(STodasLasCategorias,
-      TObject(0));
+    cbCategoria.Items.AddObject(STodasLasCategorias, TObject(0));
     for lCategoria in ACategorias do
-      cbCategoria.Items.AddObject(lCategoria.Nombre,
-        TObject(lCategoria.ID));
+      cbCategoria.Items.AddObject(lCategoria.Nombre, TObject(lCategoria.ID));
     cbCategoria.ItemIndex := 0;
   finally
     cbCategoria.Items.EndUpdate;
   end;
-end;
-
-procedure TfraCatalogos.MostrarPaginacion(const APagina,
-  ATotalPaginas: Integer; const ATotal: Int64);
-begin
-  if ATotal = 0 then
-    lblPaginacion.Caption := SSinRegistros
-  else if ATotalPaginas = 0 then
-    lblPaginacion.Caption := Format(SRegistrosTotal, [ATotal])
-  else
-    lblPaginacion.Caption := Format(SPaginacionRegistros,
-      [ATotal, APagina, ATotalPaginas]);
-
-  btnAnterior.Enabled := APagina > 1;
-  btnSiguiente.Enabled := APagina < ATotalPaginas;
-end;
-
-procedure TfraCatalogos.MostrarError(const AMensaje: string);
-begin
-  MessageDlg(AMensaje, mtError, [mbOK], 0);
 end;
 
 procedure TfraCatalogos.MostrarFormularioItem(const ACatalogo: TCatalogo;
@@ -402,31 +356,19 @@ end;
 procedure TfraCatalogos.MostrarFormularioPrecio(const ACatalogo: TCatalogo;
   const AId: Integer);
 begin
-  if TfrmPrecioCatalogo.Mostrar(Self, ACatalogo, AId, NombreDeLaFila,
-    mpCambiar) then
+  if TfrmPrecioCatalogo.Mostrar(Self, ACatalogo, AId, NombreDeLaFila, mpCambiar)
+  then
     FPresentador.Recargar;
 end;
 
-procedure TfraCatalogos.MostrarHistorial(const AFilas
-  : TObjectList<TPrecioDTO>);
+procedure TfraCatalogos.MostrarHistorial(const AFilas: TObjectList<TPrecioDTO>);
 begin
   TMapeoDatos.AListaTabla<TPrecioDTO>(AFilas, dmMemoria.mtHistorialPrecio);
   if FCatalogo = ctTodos then
     TfrmPrecioCatalogo.Mostrar(Self, CatalogoDeLaFila, 0, NombreDeLaFila,
       mpHistorial)
   else
-    TfrmPrecioCatalogo.Mostrar(Self, FCatalogo, 0, NombreDeLaFila,
-      mpHistorial);
-end;
-
-procedure TfraCatalogos.sbBuscarInvokeSearch(Sender: TObject);
-begin
-  FPresentador.Buscar(sbBuscar.Text);
-end;
-
-procedure TfraCatalogos.btnLimpiarClick(Sender: TObject);
-begin
-  FPresentador.Limpiar;
+    TfrmPrecioCatalogo.Mostrar(Self, FCatalogo, 0, NombreDeLaFila, mpHistorial);
 end;
 
 procedure TfraCatalogos.pstCatalogoChange(Sender: TObject);
@@ -444,16 +386,6 @@ begin
     Exit;
   FPresentador.FiltrarCategoria
     (Integer(cbCategoria.Items.Objects[cbCategoria.ItemIndex]));
-end;
-
-procedure TfraCatalogos.btnAnteriorClick(Sender: TObject);
-begin
-  FPresentador.PaginaAnterior;
-end;
-
-procedure TfraCatalogos.btnSiguienteClick(Sender: TObject);
-begin
-  FPresentador.PaginaSiguiente;
 end;
 
 procedure TfraCatalogos.btnNuevoClick(Sender: TObject);

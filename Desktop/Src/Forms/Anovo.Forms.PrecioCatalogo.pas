@@ -14,6 +14,7 @@ uses
   VclPlano.BotonWin,
   Anovo.UI.Tema,
   Anovo.UI.DBGridExtend,
+  Anovo.Forms.Edicion,
   Anovo.DTOs.Catalogos,
   Anovo.Vistas.Intf.Catalogos,
   Anovo.Vistas.Intf.Registro,
@@ -23,11 +24,7 @@ uses
 type
   TModoPrecio = (mpCambiar, mpHistorial);
 
-  TfrmPrecioCatalogo = class(TForm, IVistaRegistro)
-    TitleBarPanel1: TTitleBarPanel;
-    pnlTitulo: TPanel;
-    lblTitulo: TLabel;
-    lblSubtitulo: TLabel;
+  TfrmPrecioCatalogo = class(TfrmEdicion, IVistaRegistro)
     pnlCampos: TPanel;
     edCosto: TrDBEdit;
     edPrecio: TrDBEdit;
@@ -35,16 +32,12 @@ type
     pnlHistorial: TPanel;
     lblHistorial: TLabel;
     grHistorial: TrDBGrid;
-    pnlPie: TPanel;
-    btnGuardar: TPlanoBotonWin;
-    btnCancelar: TPlanoBotonWin;
     edVigencia: TrDBEditDate;
     chkProgramado: TCheckBox;
     lblNotaVigencia: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnGuardarClick(Sender: TObject);
-    procedure btnCancelarClick(Sender: TObject);
   private
     FPresentador: TPresentadorPrecioCatalogo;
     FCatalogo: TCatalogo;
@@ -55,9 +48,9 @@ type
     procedure PrepararCampos;
     function ValidarCampos: Boolean;
     function DtoEscrito: TPrecioNuevoDTO;
-    procedure MostrarGuardando(const AActivo: Boolean);
-    procedure MostrarError(const AMensaje: string);
     procedure Guardado(const AId: Integer);
+  protected
+    function ControlesEdicion: TArray<TControl>; override;
   public
     class function Mostrar(AOwner: TComponent; const ACatalogo: TCatalogo;
       const AId: Integer; const ANombre: string;
@@ -69,10 +62,26 @@ implementation
 {$R *.dfm}
 
 uses
+  Anovo.UI.Vista,
   Anovo.Api.Catalogos,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
   Anovo.Textos;
+
+const
+  ALTO_HISTORIAL = 533;
+  ALTO_CAMBIO = 244;
+
+function Positivo(AControl: TWinControl; ACampo: TField;
+  const AMensaje: string): Boolean;
+begin
+  Result := not AControl.Visible or (ACampo.AsCurrency > 0);
+  if not Result then
+  begin
+    AvisarError(AMensaje);
+    AControl.SetFocus;
+  end;
+end;
 
 class function TfrmPrecioCatalogo.Mostrar(AOwner: TComponent;
   const ACatalogo: TCatalogo; const AId: Integer; const ANombre: string;
@@ -96,8 +105,6 @@ end;
 
 procedure TfrmPrecioCatalogo.FormCreate(Sender: TObject);
 begin
-  AplicarTema(Self);
-  AplicarTemaBarraTitulo(Self, TitleBarPanel1);
   AplicarTemaGrid(grHistorial);
   FPresentador := nil;
   FVigencia := nil;
@@ -119,7 +126,7 @@ begin
 
   if FModo = mpHistorial then
   begin
-   self.Height:=533;
+    Height := ScaleValue(ALTO_HISTORIAL);
     lblTitulo.Caption := STituloHistorialPrecios;
     pnlCampos.Visible := False;
     btnGuardar.Visible := False;
@@ -129,11 +136,11 @@ begin
 
   lblTitulo.Caption := STituloCambiarPrecio;
   pnlHistorial.Visible := False;
-  self.Height:=244;
+  Height := ScaleValue(ALTO_CAMBIO);
   dmMemoria.PrepararPrecioCatalogo;
 
   FVigencia := TVigenciaPrecio.Create(chkProgramado, edVigencia,
-    lblNotaVigencia, ProgramadoDeLaFila(dmMemoria.dsCatalogo.DataSet));
+    lblNotaVigencia, ProgramadoDeLaFila(dmMemoria.FilaCatalogo));
   FVigencia.MostrarNota;
 end;
 
@@ -141,41 +148,21 @@ function TfrmPrecioCatalogo.ValidarCampos: Boolean;
 var
   lError: string;
 begin
-  Result := False;
-
-  if edPrecio.Visible and (dmMemoria.mtPrecioCatalogoPRECIO_UNITARIO
-    .AsCurrency <= 0) then
-  begin
-    MostrarError(SPrecioUnitarioMayorCero);
-    edPrecio.SetFocus;
+  Result := Positivo(edPrecio, dmMemoria.mtPrecioCatalogoPRECIO_UNITARIO,
+    SPrecioUnitarioMayorCero) and Positivo(edCosto,
+    dmMemoria.mtPrecioCatalogoCOSTO_UNITARIO, SCostoUnitarioMayorCero) and
+    Positivo(edCostoHora, dmMemoria.mtPrecioCatalogoCOSTO_HORA,
+    SCostoHoraMayorCero);
+  if not Result then
     Exit;
-  end;
-
-  if edCosto.Visible and (dmMemoria.mtPrecioCatalogoCOSTO_UNITARIO
-    .AsCurrency <= 0) then
-  begin
-    MostrarError(SCostoUnitarioMayorCero);
-    edCosto.SetFocus;
-    Exit;
-  end;
-
-  if edCostoHora.Visible and (dmMemoria.mtPrecioCatalogoCOSTO_HORA
-    .AsCurrency <= 0) then
-  begin
-    MostrarError(SCostoHoraMayorCero);
-    edCostoHora.SetFocus;
-    Exit;
-  end;
 
   lError := FVigencia.Error;
-  if not lError.IsEmpty then
+  Result := lError.IsEmpty;
+  if not Result then
   begin
     MostrarError(lError);
     edVigencia.SetFocus;
-    Exit;
   end;
-
-  Result := True;
 end;
 
 function TfrmPrecioCatalogo.DtoEscrito: TPrecioNuevoDTO;
@@ -185,8 +172,7 @@ end;
 
 procedure TfrmPrecioCatalogo.btnGuardarClick(Sender: TObject);
 begin
-  if dmMemoria.mtPrecioCatalogo.State in dsEditModes then
-    dmMemoria.mtPrecioCatalogo.Post;
+  dmMemoria.Confirmar(dmMemoria.mtPrecioCatalogo);
 
   if not ValidarCampos then
     Exit;
@@ -198,25 +184,9 @@ begin
   FPresentador.Guardar(DtoEscrito);
 end;
 
-procedure TfrmPrecioCatalogo.btnCancelarClick(Sender: TObject);
+function TfrmPrecioCatalogo.ControlesEdicion: TArray<TControl>;
 begin
-  ModalResult := mrCancel;
-end;
-
-procedure TfrmPrecioCatalogo.MostrarGuardando(const AActivo: Boolean);
-begin
-  btnGuardar.Enabled := not AActivo;
-  btnCancelar.Enabled := not AActivo;
-  pnlCampos.Enabled := not AActivo;
-  if AActivo then
-    Screen.Cursor := crAppStart
-  else
-    Screen.Cursor := crDefault;
-end;
-
-procedure TfrmPrecioCatalogo.MostrarError(const AMensaje: string);
-begin
-  MessageDlg(AMensaje, mtError, [mbOK], 0);
+  Result := [pnlCampos];
 end;
 
 procedure TfrmPrecioCatalogo.Guardado(const AId: Integer);

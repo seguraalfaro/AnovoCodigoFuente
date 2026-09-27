@@ -1,63 +1,18 @@
-object frmItemCatalogo: TfrmItemCatalogo
-  Left = 0
-  Top = 0
-  BorderStyle = bsDialog
+inherited frmItemCatalogo: TfrmItemCatalogo
   Caption = 'Cat'#225'logo'
   ClientHeight = 560
   ClientWidth = 527
-  Color = 16447477
-  CustomTitleBar.CaptionAlignment = taCenter
-  CustomTitleBar.Control = TitleBarPanel1
-  CustomTitleBar.Enabled = True
-  CustomTitleBar.Height = 26
-  CustomTitleBar.BackgroundColor = clWhite
-  CustomTitleBar.ForegroundColor = 65793
-  CustomTitleBar.InactiveBackgroundColor = clWhite
-  CustomTitleBar.InactiveForegroundColor = 10066329
-  CustomTitleBar.ButtonForegroundColor = 65793
-  CustomTitleBar.ButtonBackgroundColor = clWhite
-  CustomTitleBar.ButtonHoverForegroundColor = 65793
-  CustomTitleBar.ButtonHoverBackgroundColor = 16053492
-  CustomTitleBar.ButtonPressedForegroundColor = 65793
-  CustomTitleBar.ButtonPressedBackgroundColor = 15395562
-  CustomTitleBar.ButtonInactiveForegroundColor = 10066329
-  CustomTitleBar.ButtonInactiveBackgroundColor = clWhite
-  Font.Charset = ANSI_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -12
-  Font.Name = 'Segoe UI'
-  Font.Style = []
-  GlassFrame.Enabled = True
-  GlassFrame.Top = 26
-  OldCreateOrder = True
-  Position = poOwnerFormCenter
   StyleElements = []
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  PixelsPerInch = 96
-  TextHeight = 15
-  object TitleBarPanel1: TTitleBarPanel
-    Left = 0
-    Top = 0
+  inherited TitleBarPanel1: TTitleBarPanel
     Width = 527
-    Height = 25
-    CustomButtons = <>
-    ExplicitWidth = 314
   end
-  object pnlTitulo: TPanel
-    Left = 0
-    Top = 25
+  inherited pnlTitulo: TPanel
     Width = 527
-    Height = 62
-    Align = alTop
-    BevelOuter = bvNone
     Color = clWhite
     ParentBackground = False
-    TabOrder = 1
-    object lblTitulo: TLabel
-      Tag = 11
-      Left = 20
-      Top = 12
+    inherited lblTitulo: TLabel
       Width = 111
       Height = 21
       Caption = 'Nuevo material'
@@ -68,51 +23,16 @@ object frmItemCatalogo: TfrmItemCatalogo
       Font.Style = []
       ParentFont = False
     end
-    object lblSubtitulo: TLabel
-      Tag = 13
-      Left = 20
-      Top = 37
+    inherited lblSubtitulo: TLabel
       Width = 3
-      Height = 15
+      Caption = ''
     end
   end
-  object pnlPie: TPanel
-    Left = 0
+  inherited pnlPie: TRelativePanel
     Top = 500
-    Width = 527
-    Height = 60
-    Align = alBottom
-    BevelOuter = bvNone
-    Color = 16447477
-    ParentBackground = False
     TabOrder = 4
-    DesignSize = (
-      527
-      60)
-    object btnGuardar: TPlanoBotonWin
-      Left = 387
-      Top = 14
-      Width = 120
-      Height = 32
-      Cursor = crHandPoint
-      Anchors = [akTop, akRight]
-      Caption = 'Guardar'
-      TabOrder = 0
-      StyleElements = []
+    inherited btnGuardar: TPlanoBotonWin
       OnClick = btnGuardarClick
-    end
-    object btnCancelar: TPlanoBotonWin
-      Left = 257
-      Top = 14
-      Width = 120
-      Height = 32
-      Cursor = crHandPoint
-      Anchors = [akTop, akRight]
-      Caption = 'Cancelar'
-      TabOrder = 1
-      StyleElements = []
-      OnClick = btnCancelarClick
-      Kind = fkSecondary
     end
   end
   object pnlPrecio: TPanel

@@ -34,8 +34,6 @@ type
     grSolicitudes: TrDBGrid;
   private
     FPresentador: TPresentadorDashboardAsesor;
-    procedure EstadoGetText(Sender: TField; var Text: string;
-      DisplayText: Boolean);
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarDashboard(const ADatos: TDashboardAsesorDTO);
     procedure MostrarError(const AMensaje: string);
@@ -51,6 +49,7 @@ implementation
 {$R *.dfm}
 
 uses
+  Anovo.UI.Vista,
   Anovo.UI.Tema,
   Anovo.UI.DBGridExtend,
   Anovo.Api.Dashboard,
@@ -68,8 +67,6 @@ begin
   AplicarTemaGrid(grSolicitudes);
   TDBGridExtend.De(grSolicitudes).ColumnaEstado(CAMPO_ESTADO);
 
-  dmMemoria.mtDashboardAsesorESTADO.OnGetText := EstadoGetText;
-
   FPresentador := TPresentadorDashboardAsesor.Create(Self,
     TApiDashboard.Create);
   FPresentador.Iniciar;
@@ -77,7 +74,6 @@ end;
 
 destructor TfraDashboardAsesor.Destroy;
 begin
-  dmMemoria.mtDashboardAsesorESTADO.OnGetText := nil;
   FPresentador.Free;
   inherited;
 end;
@@ -88,18 +84,9 @@ begin
   Anovo.UI.DBGridExtend.AjustarColumnas(grSolicitudes);
 end;
 
-procedure TfraDashboardAsesor.EstadoGetText(Sender: TField; var Text: string;
-  DisplayText: Boolean);
-begin
-  Text := TFormato.Estado(Sender.AsString);
-end;
-
 procedure TfraDashboardAsesor.MostrarCargando(const AActivo: Boolean);
 begin
-  if AActivo then
-    Screen.Cursor := crAppStart
-  else
-    Screen.Cursor := crDefault;
+  CursorOcupado(AActivo);
 end;
 
 procedure TfraDashboardAsesor.MostrarDashboard(const ADatos
@@ -118,7 +105,7 @@ end;
 
 procedure TfraDashboardAsesor.MostrarError(const AMensaje: string);
 begin
-  MessageDlg(AMensaje, mtWarning, [mbOK], 0);
+  AvisarError(AMensaje);
 end;
 
 end.

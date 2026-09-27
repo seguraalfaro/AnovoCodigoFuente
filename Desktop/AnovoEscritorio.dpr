@@ -29,6 +29,7 @@ uses
   Anovo.Vistas.Intf.Principal in 'Src\Interfaces\Anovo.Vistas.Intf.Principal.pas',
   Anovo.Presentadores.Principal in 'Src\Presentadores\Anovo.Presentadores.Principal.pas',
   Anovo.Frames.Usuarios in 'Src\Frames\Anovo.Frames.Usuarios.pas' {fraUsuarios: TFrame},
+  Anovo.Frames.Listado in 'Src\Frames\Anovo.Frames.Listado.pas' {fraListado: TFrame},
   Anovo.Frames.Auditoria in 'Src\Frames\Anovo.Frames.Auditoria.pas' {fraAuditoria: TFrame},
   Anovo.Frames.Bandeja in 'Src\Frames\Anovo.Frames.Bandeja.pas' {fraBandeja: TFrame},
   Anovo.Cancelacion in 'Src\Common\Anovo.Cancelacion.pas',
@@ -57,6 +58,7 @@ uses
   Anovo.Presentadores.Solicitudes in 'Src\Presentadores\Anovo.Presentadores.Solicitudes.pas',
   Anovo.Frames.Solicitudes in 'Src\Frames\Anovo.Frames.Solicitudes.pas' {fraSolicitudes: TFrame},
   Anovo.UI.Vigencia in 'Src\Recursos\Anovo.UI.Vigencia.pas',
+  Anovo.UI.Vista in 'Src\Recursos\Anovo.UI.Vista.pas',
   Anovo.DTOs.Catalogos in '..\Backend\src\DTOs\Anovo.DTOs.Catalogos.pas',
   Anovo.Api.Intf.Auditoria in 'Src\Interfaces\Anovo.Api.Intf.Auditoria.pas',
   Anovo.Api.Auditoria in 'Src\Api\Anovo.Api.Auditoria.pas',
@@ -83,6 +85,7 @@ uses
   Anovo.Vistas.Intf.Configuracion in 'Src\Interfaces\Anovo.Vistas.Intf.Configuracion.pas',
   Anovo.Presentadores.Configuracion in 'Src\Presentadores\Anovo.Presentadores.Configuracion.pas',
   Anovo.Frames.Configuracion in 'Src\Frames\Anovo.Frames.Configuracion.pas' {fraConfiguracion: TFrame},
+  Anovo.Forms.Edicion in 'Src\Forms\Anovo.Forms.Edicion.pas' {frmEdicion},
   Anovo.Forms.CambioClave in 'Src\Forms\Anovo.Forms.CambioClave.pas' {frmCambioClave},
   Anovo.Forms.Conexion in 'Src\Forms\Anovo.Forms.Conexion.pas' {frmConexion};
 

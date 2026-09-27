@@ -71,6 +71,7 @@ type
     procedure Agregar(const AClave, ARotulo: string);
     procedure Limpiar;
     function AnchoAcciones: Integer;
+    procedure AjustarAcciones;
     procedure AjustarColumnas;
 
     property OnAccion: TEventoAccion read FOnAccion write FOnAccion;
@@ -209,24 +210,27 @@ begin
   end;
 end;
 
-procedure TDBGridExtend.AjustarColumnas;
+procedure TDBGridExtend.AjustarAcciones;
 var
-  lAncho, I: Integer;
+  I: Integer;
 begin
-  if FCampoAcciones <> '' then
-  begin
-    if FGrid.FieldsFixedColumnWidth.IndexOf(FCampoAcciones) < 0 then
-      FGrid.FieldsFixedColumnWidth.Add(FCampoAcciones);
+  if FCampoAcciones = '' then
+    Exit;
 
-    lAncho := AnchoAcciones;
-    for I := 0 to FGrid.Columns.Count - 1 do
-      if SameText(FGrid.Columns[I].FieldName, FCampoAcciones) then
-      begin
-        FGrid.Columns[I].Visible := lAncho > 0;
-        FGrid.Columns[I].Width := lAncho;
-      end;
-  end;
+  if FGrid.FieldsFixedColumnWidth.IndexOf(FCampoAcciones) < 0 then
+    FGrid.FieldsFixedColumnWidth.Add(FCampoAcciones);
 
+  for I := 0 to FGrid.Columns.Count - 1 do
+    if SameText(FGrid.Columns[I].FieldName, FCampoAcciones) then
+    begin
+      FGrid.Columns[I].Visible := Length(FAcciones) > 0;
+      FGrid.Columns[I].Width := AnchoAcciones;
+    end;
+end;
+
+procedure TDBGridExtend.AjustarColumnas;
+begin
+  AjustarAcciones;
   Anovo.UI.DBGridExtend.AjustarColumnas(FGrid);
 end;
 

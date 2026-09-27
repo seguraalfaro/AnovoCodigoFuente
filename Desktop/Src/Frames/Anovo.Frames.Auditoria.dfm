@@ -1,66 +1,24 @@
-object fraAuditoria: TfraAuditoria
-  AlignWithMargins = True
-  Left = 0
-  Top = 0
-  Width = 960
-  Height = 620
-  Color = 16447477
-  Font.Charset = ANSI_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -12
-  Font.Name = 'Segoe UI'
-  Font.Style = []
-  ParentBackground = False
-  ParentColor = False
-  ParentFont = False
-  TabOrder = 0
-  object pnlTitulo: TPanel
-    Tag = 2
-    AlignWithMargins = True
-    Left = 3
-    Top = 3
-    Width = 954
-    Height = 62
-    Align = alTop
-    BevelOuter = bvNone
-    Color = 16447477
-    ParentBackground = False
-    TabOrder = 0
-    object lblTitulo: TLabel
-      Tag = 11
-      Left = 20
-      Top = 10
+inherited fraAuditoria: TfraAuditoria
+  inherited pnlTitulo: TPanel
+    inherited lblTitulo: TLabel
       Width = 85
-      Height = 30
       Caption = 'Auditor'#237'a'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -21
-      Font.Name = 'Segoe UI'
-      Font.Style = []
-      ParentFont = False
     end
-    object lblSubtitulo: TLabel
-      Tag = 13
-      Left = 20
-      Top = 40
+    inherited lblSubtitulo: TLabel
       Width = 153
-      Height = 15
       Caption = 'Qui'#233'n cambi'#243' qu'#233' y cu'#225'ndo.'
     end
   end
-  object pnlBarra: TPanel
-    Tag = 2
-    AlignWithMargins = True
-    Left = 3
-    Top = 71
-    Width = 954
-    Height = 52
-    Align = alTop
-    BevelOuter = bvNone
-    Color = 16447477
-    ParentBackground = False
-    TabOrder = 1
+  inherited pnlBarra: TPanel
+    inherited sbBuscar: TSearchBox
+      Left = 335
+      TabOrder = 2
+      TextHint = 'Texto del detalle'
+    end
+    inherited btnLimpiar: TPlanoBotonWin
+      Left = 643
+      TabOrder = 3
+    end
     object lblDesde: TLabel
       Tag = 13
       Left = 20
@@ -99,71 +57,13 @@ object fraAuditoria: TfraAuditoria
       TabOrder = 1
       OnChange = PeriodoChange
     end
-    object sbBuscar: TSearchBox
-      Left = 335
-      Top = 14
-      Width = 300
-      Height = 23
-      BevelInner = bvNone
-      BevelOuter = bvNone
-      TabOrder = 2
-      TextHint = 'Texto del detalle'
-      StyleElements = [seFont]
-      OnInvokeSearch = sbBuscarInvokeSearch
-    end
-    object btnLimpiar: TPlanoBotonWin
-      Left = 643
-      Top = 12
-      Width = 90
-      Height = 28
-      Cursor = crHandPoint
-      Caption = 'Limpiar'
-      Enabled = False
-      TabOrder = 3
-      StyleElements = []
-      OnClick = btnLimpiarClick
-      Kind = fkSecondary
-    end
   end
-  object pnclient: TRelativePanel
-    Tag = 2
-    AlignWithMargins = True
-    Left = 3
+  inherited pnclient: TRelativePanel
     Top = 175
-    Width = 954
     Height = 392
-    ControlCollection = <
-      item
-        Control = grAuditoria
-        AlignBottomWithPanel = True
-        AlignHorizontalCenterWithPanel = False
-        AlignLeftWithPanel = True
-        AlignRightWithPanel = True
-        AlignTopWithPanel = True
-        AlignVerticalCenterWithPanel = False
-      end>
-    Align = alClient
-    BevelOuter = bvNone
-    TabOrder = 2
-    object grAuditoria: TrDBGrid
-      AlignWithMargins = True
-      Left = 20
-      Top = 3
-      Width = 931
+    inherited grDatos: TrDBGrid
       Height = 386
-      Margins.Left = 20
-      Align = alClient
-      BorderStyle = bsNone
       DataSource = dmMemoria.dsAuditoria
-      DefaultDrawing = False
-      Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
-      TabOrder = 0
-      TitleFont.Charset = ANSI_CHARSET
-      TitleFont.Color = clWindowText
-      TitleFont.Height = -12
-      TitleFont.Name = 'Segoe UI'
-      TitleFont.Style = []
-      StyleElements = [seFont]
       Columns = <
         item
           Expanded = False
@@ -202,57 +102,6 @@ object fraAuditoria: TfraAuditoria
           Width = 300
           Visible = True
         end>
-    end
-  end
-  object pnlPie: TPanel
-    Tag = 2
-    AlignWithMargins = True
-    Left = 3
-    Top = 573
-    Width = 954
-    Height = 44
-    Align = alBottom
-    BevelOuter = bvNone
-    Color = 16447477
-    ParentBackground = False
-    TabOrder = 3
-    DesignSize = (
-      954
-      44)
-    object lblPaginacion: TLabel
-      Tag = 13
-      Left = 20
-      Top = 14
-      Width = 3
-      Height = 15
-    end
-    object btnAnterior: TPlanoBotonWin
-      Left = 700
-      Top = 8
-      Width = 110
-      Height = 28
-      Cursor = crHandPoint
-      Anchors = [akTop, akRight]
-      Caption = 'Anterior'
-      Enabled = False
-      TabOrder = 0
-      StyleElements = []
-      OnClick = btnAnteriorClick
-      Kind = fkSecondary
-    end
-    object btnSiguiente: TPlanoBotonWin
-      Left = 824
-      Top = 8
-      Width = 110
-      Height = 28
-      Cursor = crHandPoint
-      Anchors = [akTop, akRight]
-      Caption = 'Siguiente'
-      Enabled = False
-      TabOrder = 1
-      StyleElements = []
-      OnClick = btnSiguienteClick
-      Kind = fkSecondary
     end
   end
   object pstFiltros: TPlanoPestanas

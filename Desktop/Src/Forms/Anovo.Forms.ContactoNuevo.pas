@@ -11,17 +11,14 @@ uses
   Vcl.ExtCtrls, Vcl.Mask, Vcl.DBCtrls, Data.DB,
   rDBComponents,
   VclPlano.BotonWin,
-  Anovo.UI.Tema,
+  Anovo.Forms.Edicion,
   Anovo.Validacion,
   Anovo.DTOs.Clientes,
   Anovo.Vistas.Intf.Registro,
   Anovo.Presentadores.Registro, Vcl.TitleBarCtrls;
 
 type
-  TfrmContactoNuevo = class(TForm, IVistaRegistro)
-    pnlTitulo: TPanel;
-    lblTitulo: TLabel;
-    lblSubtitulo: TLabel;
+  TfrmContactoNuevo = class(TfrmEdicion, IVistaRegistro)
     pnlCampos: TPanel;
     edNombre: TrDBEdit;
     edArea: TrDBEdit;
@@ -29,23 +26,17 @@ type
     edCelular: TrDBEdit;
     edCorreo: TrDBEdit;
     chkPrincipal: TrDBCheckBox;
-    pnlPie: TPanel;
-    btnGuardar: TPlanoBotonWin;
-    btnCancelar: TPlanoBotonWin;
-    TitleBarPanel1: TTitleBarPanel;
     procedure FormDestroy(Sender: TObject);
     procedure btnGuardarClick(Sender: TObject);
-    procedure btnCancelarClick(Sender: TObject);
   private
     FPresentador: TPresentadorContactoNuevo;
     FContactoId: Integer;
     function ContactoEscrito: TContactoNuevoDTO;
     function ValidarCampos: Boolean;
-    procedure MostrarGuardando(const AActivo: Boolean);
-    procedure MostrarError(const AMensaje: string);
     procedure Guardado(const AId: Integer);
+  protected
+    function ControlesEdicion: TArray<TControl>; override;
   public
-
     constructor Crear(AOwner: TComponent; const AClienteId: Integer);
     property ContactoId: Integer read FContactoId;
   end;
@@ -63,8 +54,6 @@ constructor TfrmContactoNuevo.Crear(AOwner: TComponent;
   const AClienteId: Integer);
 begin
   inherited Create(AOwner);
-  AplicarTema(Self);
-
   dmMemoria.PrepararContactoNuevo(AClienteId);
   FPresentador := TPresentadorContactoNuevo.Create(Self,
     TApiClientes.Create, AClienteId);
@@ -75,19 +64,20 @@ begin
   FPresentador.Free;
 end;
 
+function TfrmContactoNuevo.ControlesEdicion: TArray<TControl>;
+begin
+  Result := [pnlCampos];
+end;
+
 function TfrmContactoNuevo.ContactoEscrito: TContactoNuevoDTO;
 begin
-
   Result := TMapeoDatos.ADto<TContactoNuevoDTO>(dmMemoria.mtContactoNuevo);
 end;
 
 function TfrmContactoNuevo.ValidarCampos: Boolean;
 var
   lReparos: TStringList;
-  lMensaje: string;
-  I: Integer;
 begin
-
   lReparos := TStringList.Create;
   try
     with dmMemoria do
@@ -109,20 +99,8 @@ begin
         lReparos.Add('El celular debe tener ocho digitos.');
     end;
 
-    Result := lReparos.Count = 0;
-    if Result then
-      Exit;
-
-    if lReparos.Count = 1 then
-      lMensaje := lReparos[0]
-    else
-    begin
-      lMensaje := 'No se puede guardar el contacto. Corrija lo siguiente:' +
-        sLineBreak;
-      for I := 0 to lReparos.Count - 1 do
-        lMensaje := lMensaje + sLineBreak + '   ' + #$2022 + '  ' + lReparos[I];
-    end;
-    MostrarError(lMensaje);
+    Result := MostrarReparos(lReparos,
+      'No se puede guardar el contacto. Corrija lo siguiente:');
   finally
     lReparos.Free;
   end;
@@ -130,35 +108,12 @@ end;
 
 procedure TfrmContactoNuevo.btnGuardarClick(Sender: TObject);
 begin
-
-  if dmMemoria.mtContactoNuevo.State in dsEditModes then
-    dmMemoria.mtContactoNuevo.Post;
+  dmMemoria.Confirmar(dmMemoria.mtContactoNuevo);
 
   if not ValidarCampos then
     Exit;
 
   FPresentador.Guardar(ContactoEscrito);
-end;
-
-procedure TfrmContactoNuevo.btnCancelarClick(Sender: TObject);
-begin
-  ModalResult := mrCancel;
-end;
-
-procedure TfrmContactoNuevo.MostrarGuardando(const AActivo: Boolean);
-begin
-  pnlCampos.Enabled := not AActivo;
-  btnGuardar.Enabled := not AActivo;
-  btnCancelar.Enabled := not AActivo;
-  if AActivo then
-    Screen.Cursor := crAppStart
-  else
-    Screen.Cursor := crDefault;
-end;
-
-procedure TfrmContactoNuevo.MostrarError(const AMensaje: string);
-begin
-  MessageDlg(AMensaje, mtWarning, [mbOK], 0);
 end;
 
 procedure TfrmContactoNuevo.Guardado(const AId: Integer);

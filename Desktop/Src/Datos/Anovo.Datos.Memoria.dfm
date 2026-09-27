@@ -780,6 +780,7 @@ object dmMemoria: TdmMemoria
     object mtTodosTIPO: TStringField
       DisplayLabel = 'Tipo'
       FieldName = 'TIPO'
+      OnGetText = TipoGetText
       Size = 10
     end
     object mtTodosID: TIntegerField
@@ -898,6 +899,7 @@ object dmMemoria: TdmMemoria
     object mtDashboardAsesorESTADO: TStringField
       DisplayLabel = 'Estado'
       FieldName = 'ESTADO'
+      OnGetText = EstadoGetText
     end
     object mtDashboardAsesorMONTO_APROBADO: TCurrencyField
       DisplayLabel = 'Monto aprobado'
@@ -947,6 +949,7 @@ object dmMemoria: TdmMemoria
     object mtSeguimientoESTADO: TStringField
       DisplayLabel = 'Estado'
       FieldName = 'ESTADO'
+      OnGetText = EstadoGetText
     end
     object mtSeguimientoMONTO_APROBADO: TCurrencyField
       DisplayLabel = 'Monto aprobado'

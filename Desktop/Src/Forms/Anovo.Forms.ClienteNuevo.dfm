@@ -1,74 +1,35 @@
-object frmClienteNuevo: TfrmClienteNuevo
-  Left = 0
-  Top = 0
-  BorderStyle = bsDialog
+inherited frmClienteNuevo: TfrmClienteNuevo
   Caption = 'Cliente nuevo'
   ClientHeight = 592
   ClientWidth = 527
-  Color = 16447477
-  CustomTitleBar.CaptionAlignment = taCenter
-  CustomTitleBar.Control = TitleBarPanel1
-  CustomTitleBar.Enabled = True
-  CustomTitleBar.Height = 26
-  CustomTitleBar.BackgroundColor = clWhite
-  CustomTitleBar.ForegroundColor = 65793
-  CustomTitleBar.InactiveBackgroundColor = clWhite
-  CustomTitleBar.InactiveForegroundColor = 10066329
-  CustomTitleBar.ButtonForegroundColor = 65793
-  CustomTitleBar.ButtonBackgroundColor = clWhite
-  CustomTitleBar.ButtonHoverForegroundColor = 65793
-  CustomTitleBar.ButtonHoverBackgroundColor = 16053492
-  CustomTitleBar.ButtonPressedForegroundColor = 65793
-  CustomTitleBar.ButtonPressedBackgroundColor = 15395562
-  CustomTitleBar.ButtonInactiveForegroundColor = 10066329
-  CustomTitleBar.ButtonInactiveBackgroundColor = clWhite
-  Font.Charset = ANSI_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -12
-  Font.Name = 'Segoe UI'
-  Font.Style = []
-  GlassFrame.Enabled = True
-  GlassFrame.Top = 26
-  OldCreateOrder = True
-  Position = poOwnerFormCenter
-  StyleElements = [seBorder]
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  PixelsPerInch = 96
-  TextHeight = 15
-  object pnlTitulo: TPanel
-    Left = 0
-    Top = 25
+  inherited TitleBarPanel1: TTitleBarPanel
     Width = 527
-    Height = 62
-    Align = alTop
-    BevelOuter = bvNone
-    Color = 16447477
-    ParentBackground = False
-    TabOrder = 0
-    object lblTitulo: TLabel
-      Tag = 11
-      Left = 20
-      Top = 12
-      Width = 107
-      Height = 25
+    CustomButtons = <
+      item
+        ButtonType = sbCustom
+        Enabled = True
+        Width = 32
+        Visible = True
+      end>
+  end
+  inherited pnlTitulo: TPanel
+    Width = 527
+    inherited lblTitulo: TLabel
       Caption = 'Cliente nuevo'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -18
-      Font.Name = 'Segoe UI'
-      Font.Style = []
-      ParentFont = False
     end
-    object lblSubtitulo: TLabel
-      Tag = 13
-      Left = 20
+    inherited lblSubtitulo: TLabel
       Top = 40
-      Width = 371
-      Height = 15
       Caption = 
         'El consentimiento se otorga en el m'#243'vil, con la firma del repres' +
         'entante'
+    end
+  end
+  inherited pnlPie: TRelativePanel
+    TabOrder = 2
+    inherited btnGuardar: TPlanoBotonWin
+      OnClick = btnGuardarClick
     end
   end
   object pnlCampos: TPanel
@@ -288,53 +249,5 @@ object frmClienteNuevo: TfrmClienteNuevo
       DBEditLabel.Font.Style = []
       DBEditLabel.ParentFont = False
     end
-  end
-  object pnlPie: TPanel
-    Left = 0
-    Top = 534
-    Width = 527
-    Height = 58
-    Align = alBottom
-    BevelOuter = bvNone
-    Color = 16447477
-    ParentBackground = False
-    TabOrder = 2
-    object btnGuardar: TPlanoBotonWin
-      Left = 380
-      Top = 18
-      Width = 120
-      Height = 30
-      Cursor = crHandPoint
-      Caption = 'Guardar'
-      TabOrder = 0
-      StyleElements = []
-      OnClick = btnGuardarClick
-    end
-    object btnCancelar: TPlanoBotonWin
-      Left = 250
-      Top = 18
-      Width = 120
-      Height = 30
-      Cursor = crHandPoint
-      Caption = 'Cancelar'
-      TabOrder = 1
-      StyleElements = []
-      OnClick = btnCancelarClick
-      Kind = fkSecondary
-    end
-  end
-  object TitleBarPanel1: TTitleBarPanel
-    Left = 0
-    Top = 0
-    Width = 527
-    Height = 25
-    CustomButtons = <
-      item
-        ButtonType = sbCustom
-        Enabled = True
-        Width = 32
-        Visible = True
-      end>
-    ExplicitWidth = 314
   end
 end

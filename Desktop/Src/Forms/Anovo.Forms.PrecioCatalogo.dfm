@@ -1,78 +1,46 @@
-object frmPrecioCatalogo: TfrmPrecioCatalogo
-  Left = 0
-  Top = 0
-  BorderStyle = bsDialog
+inherited frmPrecioCatalogo: TfrmPrecioCatalogo
   Caption = 'Precio'
   ClientHeight = 524
   ClientWidth = 560
-  Color = 16447477
-  CustomTitleBar.CaptionAlignment = taCenter
-  CustomTitleBar.Control = TitleBarPanel1
-  CustomTitleBar.Enabled = True
-  CustomTitleBar.Height = 26
-  CustomTitleBar.BackgroundColor = clWhite
-  CustomTitleBar.ForegroundColor = 65793
-  CustomTitleBar.InactiveBackgroundColor = clWhite
-  CustomTitleBar.InactiveForegroundColor = 10066329
-  CustomTitleBar.ButtonForegroundColor = 65793
-  CustomTitleBar.ButtonBackgroundColor = clWhite
-  CustomTitleBar.ButtonHoverForegroundColor = 65793
-  CustomTitleBar.ButtonHoverBackgroundColor = 16053492
-  CustomTitleBar.ButtonPressedForegroundColor = 65793
-  CustomTitleBar.ButtonPressedBackgroundColor = 15395562
-  CustomTitleBar.ButtonInactiveForegroundColor = 10066329
-  CustomTitleBar.ButtonInactiveBackgroundColor = clWhite
-  Font.Charset = ANSI_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -12
-  Font.Name = 'Segoe UI'
-  Font.Style = []
-  GlassFrame.Enabled = True
-  GlassFrame.Top = 26
-  OldCreateOrder = True
-  Position = poOwnerFormCenter
   StyleElements = []
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  ExplicitWidth = 566
+  ExplicitHeight = 553
   PixelsPerInch = 96
   TextHeight = 15
-  object TitleBarPanel1: TTitleBarPanel
-    Left = 0
-    Top = 0
+  inherited TitleBarPanel1: TTitleBarPanel
     Width = 560
-    Height = 25
-    CustomButtons = <>
+    ExplicitWidth = 560
   end
-  object pnlTitulo: TPanel
-    Left = 0
-    Top = 25
+  inherited pnlTitulo: TPanel
     Width = 560
-    Height = 62
-    Align = alTop
-    BevelOuter = bvNone
     Color = clWhite
     ParentBackground = False
-    TabOrder = 1
-    object lblTitulo: TLabel
-      Tag = 11
-      Left = 20
-      Top = 12
+    ExplicitWidth = 560
+    inherited lblTitulo: TLabel
       Width = 111
       Height = 21
       Caption = 'Cambiar precio'
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
       Font.Height = -16
       Font.Name = 'Segoe UI Semibold'
-      Font.Style = []
       ParentFont = False
+      ExplicitWidth = 111
+      ExplicitHeight = 21
     end
-    object lblSubtitulo: TLabel
-      Tag = 13
-      Left = 20
-      Top = 37
+    inherited lblSubtitulo: TLabel
       Width = 3
-      Height = 15
+      Caption = ''
+      ExplicitWidth = 3
+    end
+  end
+  inherited pnlPie: TPanel
+    Top = 464
+    Width = 560
+    TabOrder = 4
+    ExplicitTop = 464
+    inherited btnGuardar: TPlanoBotonWin
+      OnClick = btnGuardarClick
     end
   end
   object pnlCampos: TPanel
@@ -82,7 +50,7 @@ object frmPrecioCatalogo: TfrmPrecioCatalogo
     Height = 90
     Align = alTop
     BevelOuter = bvNone
-    TabOrder = 2
+    TabOrder = 1
     object lblNotaVigencia: TLabel
       Tag = 13
       Left = 20
@@ -175,7 +143,7 @@ object frmPrecioCatalogo: TfrmPrecioCatalogo
     Height = 287
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 3
+    TabOrder = 2
     object lblHistorial: TLabel
       Tag = 13
       AlignWithMargins = True
@@ -206,45 +174,6 @@ object frmPrecioCatalogo: TfrmPrecioCatalogo
       TitleFont.Height = -12
       TitleFont.Name = 'Segoe UI'
       TitleFont.Style = []
-    end
-  end
-  object pnlPie: TPanel
-    Left = 0
-    Top = 464
-    Width = 560
-    Height = 60
-    Align = alBottom
-    BevelOuter = bvNone
-    Color = 16447477
-    ParentBackground = False
-    TabOrder = 4
-    DesignSize = (
-      560
-      60)
-    object btnGuardar: TPlanoBotonWin
-      Left = 420
-      Top = 14
-      Width = 120
-      Height = 32
-      Cursor = crHandPoint
-      Anchors = [akTop, akRight]
-      Caption = 'Guardar'
-      TabOrder = 0
-      StyleElements = []
-      OnClick = btnGuardarClick
-    end
-    object btnCancelar: TPlanoBotonWin
-      Left = 290
-      Top = 14
-      Width = 120
-      Height = 32
-      Cursor = crHandPoint
-      Anchors = [akTop, akRight]
-      Caption = 'Cancelar'
-      TabOrder = 1
-      StyleElements = []
-      OnClick = btnCancelarClick
-      Kind = fkSecondary
     end
   end
 end

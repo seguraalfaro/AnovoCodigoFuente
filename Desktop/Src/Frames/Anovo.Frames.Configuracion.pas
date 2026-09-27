@@ -66,6 +66,7 @@ implementation
 {$R *.dfm}
 
 uses
+  Anovo.UI.Vista,
   System.Net.URLClient,
   Anovo.UI.Tema,
   Anovo.Api.Configuracion,
@@ -124,10 +125,7 @@ end;
 
 procedure TfraConfiguracion.MostrarCargando(const AActivo: Boolean);
 begin
-  if AActivo then
-    Screen.Cursor := crAppStart
-  else
-    Screen.Cursor := crDefault;
+  CursorOcupado(AActivo);
 end;
 
 procedure TfraConfiguracion.MostrarCuenta(const ADatos: TCuentaDTO);
@@ -143,7 +141,7 @@ end;
 
 procedure TfraConfiguracion.MostrarError(const AMensaje: string);
 begin
-  MessageDlg(AMensaje, mtWarning, [mbOK], 0);
+  AvisarError(AMensaje);
 end;
 
 procedure TfraConfiguracion.MostrarProbando;

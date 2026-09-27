@@ -14,6 +14,7 @@ uses
   Vcl.ExtCtrls,
   VclPlano.BotonWin, Vcl.WinXCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.Pestanas,
+  Anovo.Frames.Listado,
   Anovo.DTOs.Clientes,
   Anovo.Forms.ClienteNuevo,
   Anovo.Frames.ClienteDatos,
@@ -21,30 +22,13 @@ uses
   Anovo.Presentadores.Clientes;
 
 type
-  TfraClientes = class(TFrame, IVistaClientes)
-    pnlTitulo: TPanel;
-    lblTitulo: TLabel;
-    lblSubtitulo: TLabel;
-    pnlBarra: TPanel;
-    sbBuscar: TSearchBox;
-    btnLimpiar: TPlanoBotonWin;
+  TfraClientes = class(TfraListado, IVistaClientes)
     btnExportar: TPlanoBotonWin;
     btnNuevo: TPlanoBotonWin;
-    pnclient: TRelativePanel;
     pstFiltros: TPlanoPestanas;
-    grClientes: TrDBGrid;
-    pnlPie: TPanel;
-    lblPaginacion: TLabel;
-    btnAnterior: TPlanoBotonWin;
-    btnSiguiente: TPlanoBotonWin;
-    procedure sbBuscarInvokeSearch(Sender: TObject);
-    procedure btnLimpiarClick(Sender: TObject);
     procedure pstFiltrosChange(Sender: TObject);
-    procedure btnAnteriorClick(Sender: TObject);
-    procedure btnSiguienteClick(Sender: TObject);
     procedure btnNuevoClick(Sender: TObject);
     procedure btnExportarClick(Sender: TObject);
-
   private
     FPresentador: TPresentadorClientes;
     FDetalle: TfraClienteDatos;
@@ -52,19 +36,16 @@ type
     procedure Accion(Sender: TObject; const AClave: string);
     procedure MostrarAcciones(const AAcciones: TAccionesCliente;
       const APuedeCrear: Boolean);
-    procedure MostrarCargando(const AActivo: Boolean);
-    procedure MostrarBusqueda(const ATexto: string;
-      const APuedeLimpiar: Boolean);
     procedure MostrarClientes(const AClientes: TObjectList<TClienteDTO>);
-    procedure MostrarPaginacion(const APagina, ATotalPaginas: Integer;
-      const ATotal: Int64);
-    procedure MostrarError(const AMensaje: string);
     procedure MostrarDetalle(const AId: Integer);
     procedure MostrarListado;
   protected
-    procedure Resize; override;
+    procedure Buscar(const ATexto: string); override;
+    procedure Limpiar; override;
+    procedure PaginaAnterior; override;
+    procedure PaginaSiguiente; override;
+    procedure MostrarCargando(const AActivo: Boolean); override;
   public
-
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
   end;
@@ -88,26 +69,47 @@ const
     Rotulo: 'Detalles'));
 
 constructor TfraClientes.Create(AOwner: TComponent);
+var
+  lRejilla: TDBGridExtend;
 begin
   inherited Create(AOwner);
-  AplicarTemaGrid(grClientes);
+  FTextoCargando := SCargandoClientes;
+  FTextoSinRegistros := SSinClientes;
+  FTextoPaginacion := SPaginacionClientes;
+
+  lRejilla := TDBGridExtend.De(grDatos);
+  lRejilla.ColumnaEstado(CAMPO_CONSENTIMIENTO);
+  lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
+  lRejilla.OnAccion := Accion;
+
   FPresentador := TPresentadorClientes.Create(Self, TApiClientes.Create);
   FPresentador.Iniciar;
 end;
 
 destructor TfraClientes.Destroy;
 begin
-
   FPresentador.Free;
-  Screen.Cursor := crDefault;
   inherited;
 end;
 
-procedure TfraClientes.Resize;
+procedure TfraClientes.Buscar(const ATexto: string);
 begin
-  inherited;
-  OcultarScrollVertical(grClientes);
+  FPresentador.Buscar(ATexto);
+end;
 
+procedure TfraClientes.Limpiar;
+begin
+  FPresentador.Limpiar;
+end;
+
+procedure TfraClientes.PaginaAnterior;
+begin
+  FPresentador.PaginaAnterior;
+end;
+
+procedure TfraClientes.PaginaSiguiente;
+begin
+  FPresentador.PaginaSiguiente;
 end;
 
 procedure TfraClientes.MostrarAcciones(const AAcciones: TAccionesCliente;
@@ -115,67 +117,26 @@ procedure TfraClientes.MostrarAcciones(const AAcciones: TAccionesCliente;
 var
   lAccion: TAccionCliente;
   lRejilla: TDBGridExtend;
-  I: Integer;
 begin
   btnNuevo.Visible := APuedeCrear;
 
-  lRejilla := TDBGridExtend.De(grClientes);
-  lRejilla.ColumnaEstado(CAMPO_CONSENTIMIENTO);
-  lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
+  lRejilla := TDBGridExtend.De(grDatos);
+  lRejilla.Limpiar;
   for lAccion in AAcciones do
     lRejilla.Agregar(ACCIONES[lAccion].Clave, ACCIONES[lAccion].Rotulo);
-  lRejilla.OnAccion := Accion;
-
-  for I := 0 to grClientes.Columns.Count - 1 do
-    if SameText(grClientes.Columns[I].FieldName, CAMPO_ACCIONES) then
-    begin
-      grClientes.Columns[I].Visible := AAcciones <> [];
-      grClientes.Columns[I].Width := lRejilla.AnchoAcciones;
-    end;
+  lRejilla.AjustarAcciones;
 end;
 
 procedure TfraClientes.MostrarCargando(const AActivo: Boolean);
 begin
-  if AActivo then
-  begin
-    lblPaginacion.Caption := SCargandoClientes;
-    Screen.Cursor := crAppStart;
-  end
-  else
-    Screen.Cursor := crDefault;
-  sbBuscar.Enabled := not AActivo;
+  inherited;
   pstFiltros.Enabled := not AActivo;
-end;
-
-procedure TfraClientes.MostrarBusqueda(const ATexto: string;
-  const APuedeLimpiar: Boolean);
-begin
-  sbBuscar.Text := ATexto;
-  btnLimpiar.Enabled := APuedeLimpiar;
 end;
 
 procedure TfraClientes.MostrarClientes(const AClientes
   : TObjectList<TClienteDTO>);
 begin
   TMapeoDatos.AListaTabla<TClienteDTO>(AClientes, dmMemoria.mtClientes);
-end;
-
-procedure TfraClientes.MostrarPaginacion(const APagina, ATotalPaginas: Integer;
-  const ATotal: Int64);
-begin
-  if ATotal = 0 then
-    lblPaginacion.Caption := SSinClientes
-  else
-    lblPaginacion.Caption := Format(SPaginacionClientes,
-      [ATotal, APagina, ATotalPaginas]);
-  btnAnterior.Enabled := APagina > 1;
-  btnSiguiente.Enabled := APagina < ATotalPaginas;
-end;
-
-procedure TfraClientes.MostrarError(const AMensaje: string);
-begin
-  lblPaginacion.Caption := '';
-  MessageDlg(AMensaje, mtWarning, [mbOK], 0);
 end;
 
 procedure TfraClientes.Accion(Sender: TObject; const AClave: string);
@@ -209,16 +170,6 @@ begin
     FDetalle.Visible := False;
 end;
 
-procedure TfraClientes.sbBuscarInvokeSearch(Sender: TObject);
-begin
-  FPresentador.Buscar(sbBuscar.Text);
-end;
-
-procedure TfraClientes.btnLimpiarClick(Sender: TObject);
-begin
-  FPresentador.Limpiar;
-end;
-
 procedure TfraClientes.pstFiltrosChange(Sender: TObject);
 begin
   if FPresentador = nil then
@@ -226,20 +177,9 @@ begin
   FPresentador.Filtrar(TFiltroConsentimiento(pstFiltros.ItemIndex));
 end;
 
-procedure TfraClientes.btnAnteriorClick(Sender: TObject);
-begin
-  FPresentador.PaginaAnterior;
-end;
-
 procedure TfraClientes.btnExportarClick(Sender: TObject);
 begin
-  rDBExport.DBExport(grClientes, true, true);
-
-end;
-
-procedure TfraClientes.btnSiguienteClick(Sender: TObject);
-begin
-  FPresentador.PaginaSiguiente;
+  rDBExport.DBExport(grDatos, True, True);
 end;
 
 procedure TfraClientes.btnNuevoClick(Sender: TObject);

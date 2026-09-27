@@ -327,6 +327,10 @@ type
     procedure DataModuleCreate(Sender: TObject);
     procedure mtContactoNuevoBeforePost(DataSet: TDataSet);
     procedure CatalogoCalcFields(DataSet: TDataSet);
+    procedure EstadoGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
+    procedure TipoGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
   private
     procedure CargarTiposIdentificacion;
   public
@@ -335,6 +339,8 @@ type
     procedure PrepararPrecioCatalogo;
     procedure PrepararClienteNuevo;
     procedure PrepararContactoNuevo(const AClienteId: Integer);
+    procedure Confirmar(const ATabla: TDataSet);
+    function FilaCatalogo: TDataSet;
   end;
 
 var
@@ -343,6 +349,10 @@ var
 implementation
 
 {$R *.dfm}
+
+uses
+  Anovo.DTOs.Catalogos,
+  Anovo.Textos;
 
 const
   CONSENTIMIENTO_PENDIENTE = 'pendiente';
@@ -399,6 +409,23 @@ begin
     lEstado.AsString := ESTADO_ACTIVO;
 end;
 
+procedure TdmMemoria.EstadoGetText(Sender: TField; var Text: string;
+  DisplayText: Boolean);
+begin
+  Text := TFormato.Estado(Sender.AsString);
+end;
+
+procedure TdmMemoria.TipoGetText(Sender: TField; var Text: string;
+  DisplayText: Boolean);
+begin
+  if SameText(Sender.AsString, TIPO_MANO_OBRA) then
+    Text := STipoManoObra
+  else if SameText(Sender.AsString, TIPO_MAQUINA) then
+    Text := STipoMaquina
+  else
+    Text := STipoMaterial;
+end;
+
 procedure TdmMemoria.CargarUnidadesMedida;
 var
   lUnidad: string;
@@ -435,6 +462,19 @@ begin
   mtClienteNuevoANONIMIZADO.AsBoolean := False;
   mtClienteNuevoEXONERADO.AsBoolean := False;
   mtClienteNuevoCONSENTIMIENTO_ESTADO.AsString := CONSENTIMIENTO_PENDIENTE;
+end;
+
+procedure TdmMemoria.Confirmar(const ATabla: TDataSet);
+begin
+  if ATabla.State in dsEditModes then
+    ATabla.Post;
+end;
+
+function TdmMemoria.FilaCatalogo: TDataSet;
+begin
+  Result := dsCatalogo.DataSet;
+  if (Result <> nil) and Result.IsEmpty then
+    Result := nil;
 end;
 
 procedure TdmMemoria.PrepararContactoNuevo(const AClienteId: Integer);

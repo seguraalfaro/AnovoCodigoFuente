@@ -1,40 +1,28 @@
-object fraCatalogos: TfraCatalogos
-  AlignWithMargins = True
-  Left = 0
-  Top = 0
-  Width = 960
-  Height = 620
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = 1973276
-  Font.Height = -11
-  Font.Name = 'Segoe UI'
-  Font.Style = []
-  ParentFont = False
-  TabOrder = 0
-  object pnlBarra: TPanel
-    Tag = 2
-    AlignWithMargins = True
-    Left = 3
-    Top = 71
-    Width = 954
-    Height = 52
-    Align = alTop
-    BevelOuter = bvNone
-    TabOrder = 0
+inherited fraCatalogos: TfraCatalogos
+  inherited pnlTitulo: TPanel
+    inherited lblTitulo: TLabel
+      Width = 177
+      Caption = 'Cat'#225'logos de costo'
+      ExplicitWidth = 177
+    end
+    inherited lblSubtitulo: TLabel
+      Width = 498
+      Caption = 
+        'Precios y tarifas con que se calculan las cotizaciones '#183' la coti' +
+        'zaci'#243'n guarda el vigente al armarla'
+      ExplicitWidth = 498
+    end
+  end
+  inherited pnlBarra: TPanel
     DesignSize = (
       954
       52)
-    object sbBuscar: TSearchBox
-      Left = 20
-      Top = 14
-      Width = 300
-      Height = 21
-      BevelInner = bvNone
-      BevelOuter = bvNone
-      TabOrder = 0
+    inherited sbBuscar: TSearchBox
       TextHint = 'C'#243'digo o descripci'#243'n'
-      StyleElements = [seFont]
-      OnInvokeSearch = sbBuscarInvokeSearch
+    end
+    inherited btnLimpiar: TPlanoBotonWin
+      Left = 330
+      ExplicitLeft = 330
     end
     object btnExportar: TPlanoBotonWin
       Left = 634
@@ -44,7 +32,7 @@ object fraCatalogos: TfraCatalogos
       Cursor = crHandPoint
       Anchors = [akTop, akRight]
       Caption = 'Exportar listado'
-      TabOrder = 1
+      TabOrder = 3
       StyleElements = []
       OnClick = btnExportarClick
       Kind = fkSecondary
@@ -57,67 +45,31 @@ object fraCatalogos: TfraCatalogos
       Cursor = crHandPoint
       Anchors = [akTop, akRight]
       Caption = '+ Nuevo material'
-      TabOrder = 2
+      TabOrder = 4
       StyleElements = []
       OnClick = btnNuevoClick
-    end
-    object btnLimpiar: TPlanoBotonWin
-      Left = 330
-      Top = 12
-      Width = 90
-      Height = 28
-      Cursor = crHandPoint
-      Caption = 'Limpiar'
-      TabOrder = 3
-      Visible = False
-      StyleElements = []
-      OnClick = btnLimpiarClick
-      Kind = fkSecondary
     end
     object cbCategoria: TComboBox
       Left = 430
       Top = 13
       Width = 180
-      Height = 21
+      Height = 23
       Style = csDropDownList
-      TabOrder = 4
+      TabOrder = 2
       Visible = False
       OnChange = cbCategoriaChange
     end
   end
-  object pnlTitulo: TPanel
-    Tag = 2
-    AlignWithMargins = True
-    Left = 3
-    Top = 3
-    Width = 954
-    Height = 62
-    Align = alTop
-    BevelOuter = bvNone
-    TabOrder = 1
-    object lblTitulo: TLabel
-      Tag = 11
-      Left = 20
-      Top = 10
-      Width = 177
-      Height = 30
-      Caption = 'Cat'#225'logos de costo'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -21
-      Font.Name = 'Segoe UI'
-      Font.Style = []
-      ParentFont = False
-    end
-    object lblSubtitulo: TLabel
-      Tag = 13
-      Left = 20
-      Top = 40
-      Width = 485
-      Height = 13
-      Caption = 
-        'Precios y tarifas con que se calculan las cotizaciones '#183' la coti' +
-        'zaci'#243'n guarda el vigente al armarla'
+  inherited pnclient: TRelativePanel
+    Top = 175
+    Height = 392
+    ExplicitTop = 175
+    ExplicitHeight = 392
+    inherited grDatos: TrDBGrid
+      Width = 914
+      Height = 386
+      Margins.Right = 20
+      ColumnWidth = cwAutoWidth
     end
   end
   object pstCatalogo: TPlanoPestanas
@@ -147,98 +99,5 @@ object fraCatalogos: TfraCatalogos
     ActiveFont.Style = []
     OnChange = pstCatalogoChange
     ParentFont = False
-  end
-  object pnclient: TRelativePanel
-    Tag = 2
-    AlignWithMargins = True
-    Left = 3
-    Top = 175
-    Width = 954
-    Height = 392
-    ControlCollection = <
-      item
-        Control = grDatos
-        AlignBottomWithPanel = True
-        AlignHorizontalCenterWithPanel = False
-        AlignLeftWithPanel = True
-        AlignRightWithPanel = True
-        AlignTopWithPanel = True
-        AlignVerticalCenterWithPanel = False
-      end>
-    Align = alClient
-    BevelOuter = bvNone
-    TabOrder = 4
-    object grDatos: TrDBGrid
-      AlignWithMargins = True
-      Left = 20
-      Top = 3
-      Width = 914
-      Height = 386
-      Margins.Left = 20
-      Margins.Right = 20
-      Align = alClient
-      BorderStyle = bsNone
-      DefaultDrawing = False
-      Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
-      TabOrder = 0
-      TitleFont.Charset = DEFAULT_CHARSET
-      TitleFont.Color = 1973276
-      TitleFont.Height = -11
-      TitleFont.Name = 'Segoe UI'
-      TitleFont.Style = []
-      StyleElements = [seFont]
-      ColumnWidth = cwAutoWidth
-    end
-  end
-  object pnlPie: TPanel
-    Tag = 2
-    AlignWithMargins = True
-    Left = 3
-    Top = 573
-    Width = 954
-    Height = 44
-    Align = alBottom
-    BevelOuter = bvNone
-    Color = 16447477
-    ParentBackground = False
-    TabOrder = 3
-    DesignSize = (
-      954
-      44)
-    object lblPaginacion: TLabel
-      Tag = 13
-      Left = 20
-      Top = 14
-      Width = 3
-      Height = 13
-    end
-    object btnAnterior: TPlanoBotonWin
-      Left = 700
-      Top = 8
-      Width = 110
-      Height = 28
-      Cursor = crHandPoint
-      Anchors = [akTop, akRight]
-      Caption = 'Anterior'
-      Enabled = False
-      TabOrder = 0
-      StyleElements = []
-      OnClick = btnAnteriorClick
-      Kind = fkSecondary
-    end
-    object btnSiguiente: TPlanoBotonWin
-      Left = 824
-      Top = 8
-      Width = 110
-      Height = 28
-      Cursor = crHandPoint
-      Anchors = [akTop, akRight]
-      Caption = 'Siguiente'
-      Enabled = False
-      TabOrder = 1
-      StyleElements = []
-      OnClick = btnSiguienteClick
-      Kind = fkSecondary
-    end
   end
 end

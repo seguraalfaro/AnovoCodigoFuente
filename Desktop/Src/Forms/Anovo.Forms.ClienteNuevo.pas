@@ -10,7 +10,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, Data.DB, Vcl.WinXPanels,
   VclPlano.BotonWin,
-  Anovo.UI.Tema,
+  Anovo.Forms.Edicion,
   Anovo.Validacion,
   Anovo.DTOs.Clientes,
   Anovo.Vistas.Intf.Registro,
@@ -18,15 +18,8 @@ uses
   Vcl.Mask;
 
 type
-  TfrmClienteNuevo = class(TForm, IVistaRegistro)
-    pnlTitulo: TPanel;
-    lblTitulo: TLabel;
-    lblSubtitulo: TLabel;
+  TfrmClienteNuevo = class(TfrmEdicion, IVistaRegistro)
     pnlCampos: TPanel;
-    pnlPie: TPanel;
-    btnGuardar: TPlanoBotonWin;
-    btnCancelar: TPlanoBotonWin;
-    TitleBarPanel1: TTitleBarPanel;
     cbTipoIdentificacion: TrDBLookupComboBox;
     rDBEdit1: TrDBEdit;
     rDBEdit2: TrDBEdit;
@@ -39,22 +32,16 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnGuardarClick(Sender: TObject);
-    procedure btnCancelarClick(Sender: TObject);
     procedure chkExoneradoClick(Sender: TObject);
-
   private
     FPresentador: TPresentadorClienteNuevo;
     FClienteId: Integer;
     function ClienteEscrito: TClienteNuevoDTO;
-
     function ValidarCampos: Boolean;
-
-    procedure MostrarGuardando(const AActivo: Boolean);
-    procedure MostrarError(const AMensaje: string);
     procedure Guardado(const AId: Integer);
-
+  protected
+    function ControlesEdicion: TArray<TControl>; override;
   public
-
     property ClienteId: Integer read FClienteId;
   end;
 
@@ -67,13 +54,8 @@ uses
   Anovo.Mapeo.Datos,
   Anovo.Api.Clientes;
 
-const
-  CONSENTIMIENTO_PENDIENTE = 'pendiente';
-
 procedure TfrmClienteNuevo.FormCreate(Sender: TObject);
 begin
-  AplicarTema(Self);
-  AplicarTemaBarraTitulo(Self, TitleBarPanel1);
   dmMemoria.PrepararClienteNuevo;
   FPresentador := TPresentadorClienteNuevo.Create(Self, TApiClientes.Create);
   chkExoneradoClick(nil);
@@ -84,9 +66,13 @@ begin
   FPresentador.Free;
 end;
 
+function TfrmClienteNuevo.ControlesEdicion: TArray<TControl>;
+begin
+  Result := [pnlCampos];
+end;
+
 procedure TfrmClienteNuevo.chkExoneradoClick(Sender: TObject);
 begin
-
   leCodigoExoneracion.Enabled := chkExonerado.Checked;
   if not chkExonerado.Checked then
     leCodigoExoneracion.Clear;
@@ -94,15 +80,12 @@ end;
 
 function TfrmClienteNuevo.ClienteEscrito: TClienteNuevoDTO;
 begin
-
   Result := TMapeoDatos.ADto<TClienteNuevoDTO>(dmMemoria.mtClienteNuevo);
 end;
 
 function TfrmClienteNuevo.ValidarCampos: Boolean;
 var
   lReparos: TStringList;
-  lMensaje: string;
-  I: Integer;
 begin
   lReparos := TStringList.Create;
   try
@@ -136,20 +119,8 @@ begin
         lReparos.Add('Un cliente exonerado necesita su codigo de exoneracion.');
     end;
 
-    Result := lReparos.Count = 0;
-    if Result then
-      Exit;
-
-    if lReparos.Count = 1 then
-      lMensaje := lReparos[0]
-    else
-    begin
-      lMensaje := 'No se puede guardar el cliente. Corrija lo siguiente:' +
-        sLineBreak;
-      for I := 0 to lReparos.Count - 1 do
-        lMensaje := lMensaje + sLineBreak + '   ' + #$2022 + '  ' + lReparos[I];
-    end;
-    MostrarError(lMensaje);
+    Result := MostrarReparos(lReparos,
+      'No se puede guardar el cliente. Corrija lo siguiente:');
   finally
     lReparos.Free;
   end;
@@ -157,33 +128,11 @@ end;
 
 procedure TfrmClienteNuevo.btnGuardarClick(Sender: TObject);
 begin
-  if dmMemoria.mtClienteNuevo.State in dsEditModes then
-    dmMemoria.mtClienteNuevo.Post;
+  dmMemoria.Confirmar(dmMemoria.mtClienteNuevo);
 
   if not ValidarCampos then
     Exit;
   FPresentador.Guardar(ClienteEscrito);
-end;
-
-procedure TfrmClienteNuevo.btnCancelarClick(Sender: TObject);
-begin
-  ModalResult := mrCancel;
-end;
-
-procedure TfrmClienteNuevo.MostrarGuardando(const AActivo: Boolean);
-begin
-  pnlCampos.Enabled := not AActivo;
-  btnGuardar.Enabled := not AActivo;
-  btnCancelar.Enabled := not AActivo;
-  if AActivo then
-    Screen.Cursor := crAppStart
-  else
-    Screen.Cursor := crDefault;
-end;
-
-procedure TfrmClienteNuevo.MostrarError(const AMensaje: string);
-begin
-  MessageDlg(AMensaje, mtWarning, [mbOK], 0);
 end;
 
 procedure TfrmClienteNuevo.Guardado(const AId: Integer);

@@ -5,8 +5,6 @@ unit Anovo.Frames.Auditoria;
 interface
 
 uses
-  Anovo.UI.Tema,
-  Anovo.UI.DBGridExtend,
   System.UITypes,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, System.Types, System.Generics.Collections,
@@ -14,50 +12,32 @@ uses
   Vcl.ExtCtrls, Vcl.ComCtrls,
   VclPlano.BotonWin, Vcl.WinXCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.Pestanas,
+  Anovo.Frames.Listado,
   Anovo.DTOs.Auditoria,
   Anovo.Vistas.Intf.Auditoria,
   Anovo.Presentadores.Auditoria;
 
 type
-  TfraAuditoria = class(TFrame, IVistaAuditoria)
-    pnlTitulo: TPanel;
-    lblTitulo: TLabel;
-    lblSubtitulo: TLabel;
-    pnlBarra: TPanel;
+  TfraAuditoria = class(TfraListado, IVistaAuditoria)
     lblDesde: TLabel;
     lblHasta: TLabel;
     dtpDesde: TDateTimePicker;
     dtpHasta: TDateTimePicker;
-    sbBuscar: TSearchBox;
-    btnLimpiar: TPlanoBotonWin;
-    pnclient: TRelativePanel;
-    grAuditoria: TrDBGrid;
-    pnlPie: TPanel;
-    lblPaginacion: TLabel;
-    btnAnterior: TPlanoBotonWin;
-    btnSiguiente: TPlanoBotonWin;
     pstFiltros: TPlanoPestanas;
-    procedure sbBuscarInvokeSearch(Sender: TObject);
-    procedure btnLimpiarClick(Sender: TObject);
     procedure pstFiltrosChange(Sender: TObject);
     procedure PeriodoChange(Sender: TObject);
-    procedure btnAnteriorClick(Sender: TObject);
-    procedure btnSiguienteClick(Sender: TObject);
   private
     FPresentador: TPresentadorAuditoria;
-
     FPoniendoPeriodo: Boolean;
     procedure MostrarAlcance(const APuedeVerTodo: Boolean);
-    procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarPeriodo(const ADesde, AHasta: TDateTime);
-    procedure MostrarBusqueda(const ATexto: string;
-      const APuedeLimpiar: Boolean);
     procedure MostrarAuditoria(const AFilas: TObjectList<TAuditoriaDTO>);
-    procedure MostrarPaginacion(const APagina, ATotalPaginas: Integer;
-      const ATotal: Int64);
-    procedure MostrarError(const AMensaje: string);
   protected
-    procedure Resize; override;
+    procedure Buscar(const ATexto: string); override;
+    procedure Limpiar; override;
+    procedure PaginaAnterior; override;
+    procedure PaginaSiguiente; override;
+    procedure MostrarCargando(const AActivo: Boolean); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -76,7 +56,9 @@ uses
 constructor TfraAuditoria.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  AplicarTemaGrid(grAuditoria);
+  FTextoCargando := SCargandoBitacora;
+  FTextoSinRegistros := SSinMovimientos;
+  FTextoPaginacion := SPaginacionMovimientos;
   FPresentador := TPresentadorAuditoria.Create(Self, TApiAuditoria.Create);
   FPresentador.Iniciar;
 end;
@@ -84,14 +66,27 @@ end;
 destructor TfraAuditoria.Destroy;
 begin
   FPresentador.Free;
-  Screen.Cursor := crDefault;
   inherited;
 end;
 
-procedure TfraAuditoria.Resize;
+procedure TfraAuditoria.Buscar(const ATexto: string);
 begin
-  inherited;
-  OcultarScrollVertical(grAuditoria);
+  FPresentador.Buscar(ATexto);
+end;
+
+procedure TfraAuditoria.Limpiar;
+begin
+  FPresentador.Limpiar;
+end;
+
+procedure TfraAuditoria.PaginaAnterior;
+begin
+  FPresentador.PaginaAnterior;
+end;
+
+procedure TfraAuditoria.PaginaSiguiente;
+begin
+  FPresentador.PaginaSiguiente;
 end;
 
 procedure TfraAuditoria.MostrarAlcance(const APuedeVerTodo: Boolean);
@@ -101,14 +96,7 @@ end;
 
 procedure TfraAuditoria.MostrarCargando(const AActivo: Boolean);
 begin
-  if AActivo then
-  begin
-    lblPaginacion.Caption := SCargandoBitacora;
-    Screen.Cursor := crAppStart;
-  end
-  else
-    Screen.Cursor := crDefault;
-  sbBuscar.Enabled := not AActivo;
+  inherited;
   pstFiltros.Enabled := not AActivo;
   dtpDesde.Enabled := not AActivo;
   dtpHasta.Enabled := not AActivo;
@@ -125,46 +113,10 @@ begin
   end;
 end;
 
-procedure TfraAuditoria.MostrarBusqueda(const ATexto: string;
-  const APuedeLimpiar: Boolean);
-begin
-  sbBuscar.Text := ATexto;
-  btnLimpiar.Enabled := APuedeLimpiar;
-end;
-
 procedure TfraAuditoria.MostrarAuditoria(const AFilas
   : TObjectList<TAuditoriaDTO>);
 begin
   TMapeoDatos.AListaTabla<TAuditoriaDTO>(AFilas, dmMemoria.mtAuditoria);
-end;
-
-procedure TfraAuditoria.MostrarPaginacion(const APagina, ATotalPaginas: Integer;
-  const ATotal: Int64);
-begin
-  if ATotal = 0 then
-    lblPaginacion.Caption := SSinMovimientos
-  else
-    lblPaginacion.Caption :=
-      Format(SPaginacionMovimientos,
-      [ATotal, APagina, ATotalPaginas]);
-  btnAnterior.Enabled := APagina > 1;
-  btnSiguiente.Enabled := APagina < ATotalPaginas;
-end;
-
-procedure TfraAuditoria.MostrarError(const AMensaje: string);
-begin
-  lblPaginacion.Caption := '';
-  MessageDlg(AMensaje, mtWarning, [mbOK], 0);
-end;
-
-procedure TfraAuditoria.sbBuscarInvokeSearch(Sender: TObject);
-begin
-  FPresentador.Buscar(sbBuscar.Text);
-end;
-
-procedure TfraAuditoria.btnLimpiarClick(Sender: TObject);
-begin
-  FPresentador.Limpiar;
 end;
 
 procedure TfraAuditoria.pstFiltrosChange(Sender: TObject);
@@ -180,16 +132,6 @@ begin
   if FPoniendoPeriodo then
     Exit;
   FPresentador.CambiarPeriodo(dtpDesde.Date, dtpHasta.Date);
-end;
-
-procedure TfraAuditoria.btnAnteriorClick(Sender: TObject);
-begin
-  FPresentador.PaginaAnterior;
-end;
-
-procedure TfraAuditoria.btnSiguienteClick(Sender: TObject);
-begin
-  FPresentador.PaginaSiguiente;
 end;
 
 end.
