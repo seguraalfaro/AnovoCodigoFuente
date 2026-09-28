@@ -9,7 +9,8 @@ uses
   MVCFramework.Repository,
   Anovo.Repositories.Base,
   Anovo.Repositories.Intf.Clientes,
-  Anovo.Entities.Clientes;
+  Anovo.Entities.Clientes,
+  Anovo.Entities.Consultas;
 
 type
   TClienteRepository = class(TAnovoRepository<TClientes>, IClienteRepository)
@@ -43,7 +44,7 @@ type
     IConsentimientoRepository)
   public
     function HistorialDe(const AClienteId: Integer)
-      : TObjectList<TClienteConsentimientoHistorial>;
+      : TObjectList<TConsentimientosDeCliente>;
   end;
 
 implementation
@@ -72,20 +73,22 @@ end;
 function TClienteRepository.ContarBusqueda(const ATexto: string;
   const AIncluirInactivos: Boolean; const AConsentimiento: string): Int64;
 begin
-  Result := GetConnection.ExecSQLScalar(CLIENTES_CONTAR +
-    FiltroSegun(AIncluirInactivos, AConsentimiento),
+  Result := ContarPorFiltro(FiltroSegun(AIncluirInactivos, AConsentimiento),
     ParametrosSegun(ATexto, AConsentimiento));
 end;
 
 function TClienteRepository.ExitsUuidLocal(const AUuid: string): Integer;
 var
-  lId: Variant;
+  lCliente: TClientes;
 begin
-  lId := GetConnection.ExecSQLScalar(CLIENTES_ID_POR_UUID_LOCAL, [AUuid]);
-  if VarIsNull(lId) then
-    Result := 0
-  else
-    Result := lId;
+  lCliente := ObtenerPorUuidLocal(AUuid);
+  try
+    Result := 0;
+    if Assigned(lCliente) then
+      Result := lCliente.ID.ValueOrDefault;
+  finally
+    lCliente.Free;
+  end;
 end;
 
 function TClienteRepository.FiltroSegun(const AIncluirInactivos: Boolean;
@@ -125,10 +128,10 @@ begin
 end;
 
 function TConsentimientoRepository.HistorialDe(const AClienteId: Integer)
-  : TObjectList<TClienteConsentimientoHistorial>;
+  : TObjectList<TConsentimientosDeCliente>;
 begin
-  Result := SelectConOpciones(CONSENTIMIENTOS_DE_CLIENTE, [AClienteId],
-    [loIgnoreNotExistentFields]);;
+  Result := ListarConsulta<TConsentimientosDeCliente>(CONSULTA_DE_CLIENTE,
+    [AClienteId], SIN_LIMITE);
 end;
 
 end.

@@ -8,7 +8,8 @@ interface
 uses
   System.Generics.Collections,
   MVCFramework.Repository,
-  Anovo.Entities.Clientes;
+  Anovo.Entities.Clientes,
+  Anovo.Entities.Consultas;
 
 type
   IClienteRepository = interface(IMVCRepository<TClientes>)
@@ -39,7 +40,7 @@ type
     ['{A3119DD7-FEC7-467F-859F-4D0A6EE69C8B}']
 
     function HistorialDe(const AClienteId: Integer)
-      : TObjectList<TClienteConsentimientoHistorial>;
+      : TObjectList<TConsentimientosDeCliente>;
   end;
 
 implementation

@@ -119,7 +119,8 @@ uses
   MVCFramework.Repository,
   Anovo.Auditoria.Contexto,
   Anovo.Textos,
-  Anovo.Entities.Vistas.Catalogos,
+  Anovo.Entities.Vistas.Lectura,
+  Anovo.Entities.Consultas,
   Anovo.Errors,
   Anovo.Mapeo;
 
@@ -251,12 +252,12 @@ function TCatalogoService.BuscarTodos(const ATexto: string;
   const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
   out ATotal: Int64): TObjectList<TCatalogoItemDTO>;
 var
-  lFilas: TObjectList<TCatalogoItemConPrecio>;
+  lFilas: TObjectList<TCatalogoTodos>;
 begin
   ATotal := fTodos.ContarBusqueda(ATexto, AIncluirInactivos);
   lFilas := fTodos.Buscar(ATexto, APagina, APorPagina, AIncluirInactivos);
   try
-    Result := TMapeo.AListaDto<TCatalogoItemConPrecio, TCatalogoItemDTO>
+    Result := TMapeo.AListaDto<TCatalogoTodos, TCatalogoItemDTO>
       (lFilas);
   finally
     lFilas.Free;
@@ -267,13 +268,13 @@ function TCatalogoService.BuscarMateriales(const ATexto: string;
   const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
   out ATotal: Int64): TObjectList<TMaterialDTO>;
 var
-  lFilas: TObjectList<TMaterialConPrecio>;
+  lFilas: TObjectList<TMaterialesConPrecio>;
 begin
   ATotal := fMateriales.ContarBusqueda(ATexto, AIncluirInactivos);
   lFilas := fMateriales.BuscarConPrecio(ATexto, APagina, APorPagina,
     AIncluirInactivos);
   try
-    Result := TMapeo.AListaDto<TMaterialConPrecio, TMaterialDTO>(lFilas);
+    Result := TMapeo.AListaDto<TMaterialesConPrecio, TMaterialDTO>(lFilas);
   finally
     lFilas.Free;
   end;
@@ -651,13 +652,13 @@ function TCatalogoService.BuscarMaquinas(const ATexto: string;
   const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
   out ATotal: Int64): TObjectList<TMaquinaDTO>;
 var
-  lFilas: TObjectList<TMaquinaConPrecio>;
+  lFilas: TObjectList<TMaquinasConPrecio>;
 begin
   ATotal := fMaquinas.ContarBusqueda(ATexto, AIncluirInactivos);
   lFilas := fMaquinas.BuscarConPrecio(ATexto, APagina, APorPagina,
     AIncluirInactivos);
   try
-    Result := TMapeo.AListaDto<TMaquinaConPrecio, TMaquinaDTO>(lFilas);
+    Result := TMapeo.AListaDto<TMaquinasConPrecio, TMaquinaDTO>(lFilas);
   finally
     lFilas.Free;
   end;

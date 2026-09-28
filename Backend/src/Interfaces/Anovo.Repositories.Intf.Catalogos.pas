@@ -9,14 +9,12 @@ uses
   System.Generics.Collections,
   MVCFramework.Repository,
   Anovo.Entities.Catalogos,
-  Anovo.Entities.Vistas.Catalogos;
+  Anovo.Entities.Vistas.Lectura,
+  Anovo.Entities.Consultas;
 
 type
   IMaterialRepository = interface(IMVCRepository<TMateriales>)
     ['{2F7A9C14-5B60-4E83-9D27-A1C4E8F05B36}']
-
-    function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
-      const AIncluirInactivos: Boolean = False): TObjectList<TMateriales>;
 
     function ContarBusqueda(const ATexto: string;
       const AIncluirInactivos: Boolean = False): Int64;
@@ -24,7 +22,7 @@ type
     function BuscarConPrecio(const ATexto: string;
       const APagina, APorPagina: Integer;
       const AIncluirInactivos: Boolean = False)
-      : TObjectList<TMaterialConPrecio>;
+      : TObjectList<TMaterialesConPrecio>;
 
     function ObtenerPorCodigo(const ACodigo: string): TMateriales;
 
@@ -42,10 +40,6 @@ type
 
   IManoObraRepository = interface(IMVCRepository<TManoObra>)
     ['{8E51C7D0-3F26-4B94-A0D8-5C73B9E1F248}']
-
-    function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
-      const AIncluirInactivos: Boolean = False;
-      const ACategoriaId: Integer = 0): TObjectList<TManoObra>;
 
     function ContarBusqueda(const ATexto: string;
       const AIncluirInactivos: Boolean = False;
@@ -78,16 +72,13 @@ type
   IMaquinaRepository = interface(IMVCRepository<TMaquinas>)
     ['{7B26D0F9-4E58-41A3-92C7-6D19B5E08A34}']
 
-    function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
-      const AIncluirInactivos: Boolean = False): TObjectList<TMaquinas>;
-
     function ContarBusqueda(const ATexto: string;
       const AIncluirInactivos: Boolean = False): Int64;
 
     function BuscarConPrecio(const ATexto: string;
       const APagina, APorPagina: Integer;
       const AIncluirInactivos: Boolean = False)
-      : TObjectList<TMaquinaConPrecio>;
+      : TObjectList<TMaquinasConPrecio>;
 
     function ObtenerPorCodigo(const ACodigo: string): TMaquinas;
 
@@ -127,7 +118,7 @@ type
     ['{BC32AB29-783D-4B48-9AAA-EFFF014686AB}']
     function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
       const AIncluirInactivos: Boolean = False)
-      : TObjectList<TCatalogoItemConPrecio>;
+      : TObjectList<TCatalogoTodos>;
     function ContarBusqueda(const ATexto: string;
       const AIncluirInactivos: Boolean = False): Int64;
   end;
@@ -142,6 +133,7 @@ type
       : TObjectList<TPreciosProgramados>;
     function PendientesDeMaquina(const AMaquinaId: Integer)
       : TObjectList<TPreciosProgramados>;
+    function PorAplicar: TObjectList<TPreciosProgramados>;
   end;
 
 implementation

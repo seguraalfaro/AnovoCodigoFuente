@@ -9,23 +9,19 @@ uses
   Anovo.Repositories.Base,
   Anovo.Repositories.Intf.Catalogos,
   Anovo.Entities.Catalogos,
-  Anovo.Entities.Vistas.Catalogos;
+  Anovo.Entities.Vistas.Lectura,
+  Anovo.Entities.Consultas;
 
 type
   TMaterialRepository = class(TAnovoRepository<TMateriales>,
     IMaterialRepository)
-  private
-    function Filtro(const AIncluirInactivos: Boolean): string;
-    function Parametros(const ATexto: string): TArray<Variant>;
   public
-    function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
-      const AIncluirInactivos: Boolean = False): TObjectList<TMateriales>;
     function ContarBusqueda(const ATexto: string;
       const AIncluirInactivos: Boolean = False): Int64;
     function BuscarConPrecio(const ATexto: string;
       const APagina, APorPagina: Integer;
       const AIncluirInactivos: Boolean = False)
-      : TObjectList<TMaterialConPrecio>;
+      : TObjectList<TMaterialesConPrecio>;
     function ObtenerPorCodigo(const ACodigo: string): TMateriales;
     function ExisteNombre(const ANombre: string;
       const AExcluirId: Integer = 0): Boolean;
@@ -33,12 +29,10 @@ type
 
   TCatalogoTodosRepository = class(TAnovoRepository<TMateriales>,
     ICatalogoTodosRepository)
-  private
-    function Filtro(const AIncluirInactivos: Boolean): string;
   public
     function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
       const AIncluirInactivos: Boolean = False)
-      : TObjectList<TCatalogoItemConPrecio>;
+      : TObjectList<TCatalogoTodos>;
     function ContarBusqueda(const ATexto: string;
       const AIncluirInactivos: Boolean = False): Int64;
   end;
@@ -52,6 +46,7 @@ type
       : TObjectList<TPreciosProgramados>;
     function PendientesDeMaquina(const AMaquinaId: Integer)
       : TObjectList<TPreciosProgramados>;
+    function PorAplicar: TObjectList<TPreciosProgramados>;
   end;
 
   TMaterialPrecioRepository = class(TAnovoRepository<TMaterialesPrecios>,
@@ -63,15 +58,7 @@ type
   end;
 
   TManoObraRepository = class(TAnovoRepository<TManoObra>, IManoObraRepository)
-  private
-    function Filtro(const AIncluirInactivos: Boolean;
-      const ACategoriaId: Integer): string;
-    function Parametros(const ATexto: string;
-      const ACategoriaId: Integer): TArray<Variant>;
   public
-    function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
-      const AIncluirInactivos: Boolean = False;
-      const ACategoriaId: Integer = 0): TObjectList<TManoObra>;
     function ContarBusqueda(const ATexto: string;
       const AIncluirInactivos: Boolean = False;
       const ACategoriaId: Integer = 0): Int64;
@@ -99,18 +86,13 @@ type
   end;
 
   TMaquinaRepository = class(TAnovoRepository<TMaquinas>, IMaquinaRepository)
-  private
-    function Filtro(const AIncluirInactivos: Boolean): string;
-    function Parametros(const ATexto: string): TArray<Variant>;
   public
-    function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
-      const AIncluirInactivos: Boolean = False): TObjectList<TMaquinas>;
     function ContarBusqueda(const ATexto: string;
       const AIncluirInactivos: Boolean = False): Int64;
     function BuscarConPrecio(const ATexto: string;
       const APagina, APorPagina: Integer;
       const AIncluirInactivos: Boolean = False)
-      : TObjectList<TMaquinaConPrecio>;
+      : TObjectList<TMaquinasConPrecio>;
     function ObtenerPorCodigo(const ACodigo: string): TMaquinas;
     function ExisteNombre(const ANombre: string;
       const AExcluirId: Integer = 0): Boolean;
@@ -148,54 +130,41 @@ uses
   System.SysUtils,
   Anovo.SQL.Catalogos;
 
-procedure Extremos(const APagina, APorPagina: Integer;
-  out ADesde, AHasta: Integer);
+function NombreBusqueda(const AIncluirInactivos: Boolean): string;
 begin
-  ADesde := ((APagina - 1) * APorPagina) + 1;
-  AHasta := APagina * APorPagina;
+  if AIncluirInactivos then
+    Result := CONSULTA_BUSCAR
+  else
+    Result := CONSULTA_BUSCAR_ACTIVOS;
 end;
 
-function TMaterialRepository.Filtro(const AIncluirInactivos: Boolean): string;
+function NombreBusquedaDeCategoria(const AIncluirInactivos: Boolean): string;
 begin
-  Result := MATERIALES_FILTRO_BUSQUEDA;
-  if not AIncluirInactivos then
-    Result := Result + MATERIALES_SOLO_ACTIVOS;
-end;
-
-function TMaterialRepository.Parametros(const ATexto: string): TArray<Variant>;
-begin
-  Result := [ATexto, ATexto, ATexto];
-end;
-
-function TMaterialRepository.Buscar(const ATexto: string;
-  const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean)
-  : TObjectList<TMateriales>;
-var
-  lDesde, lHasta: Integer;
-begin
-  Extremos(APagina, APorPagina, lDesde, lHasta);
-  Result := GetWhere(Filtro(AIncluirInactivos) + MATERIALES_ORDEN_Y_PAGINA,
-    Parametros(ATexto) + [Variant(lDesde), Variant(lHasta)]);
+  if AIncluirInactivos then
+    Result := CONSULTA_BUSCAR_DE_CATEGORIA
+  else
+    Result := CONSULTA_BUSCAR_ACTIVOS_DE_CATEGORIA;
 end;
 
 function TMaterialRepository.ContarBusqueda(const ATexto: string;
   const AIncluirInactivos: Boolean): Int64;
+var
+  lTexto: string;
 begin
-  Result := GetConnection.ExecSQLScalar(MATERIALES_CONTAR +
-    Filtro(AIncluirInactivos), Parametros(ATexto));
+  lTexto := TextoParaRQL(ATexto);
+  Result := ContarConsulta<TMaterialesConPrecio>(NombreBusqueda(AIncluirInactivos),
+    [lTexto, lTexto, lTexto, 0, 0]);
 end;
 
 function TMaterialRepository.BuscarConPrecio(const ATexto: string;
   const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean)
-  : TObjectList<TMaterialConPrecio>;
+  : TObjectList<TMaterialesConPrecio>;
 var
-  lDesde, lHasta: Integer;
+  lTexto: string;
 begin
-  Extremos(APagina, APorPagina, lDesde, lHasta);
-  Result := SelectVista<TMaterialConPrecio>
-    (MATERIALES_CON_PRECIO + Filtro(AIncluirInactivos) +
-    MATERIALES_ORDEN_Y_PAGINA,
-    Parametros(ATexto) + [Variant(lDesde), Variant(lHasta)]);
+  lTexto := TextoParaRQL(ATexto);
+  Result := ListarConsulta<TMaterialesConPrecio>(NombreBusqueda(AIncluirInactivos),
+    [lTexto, lTexto, lTexto, (APagina - 1) * APorPagina, APorPagina]);
 end;
 
 function TMaterialRepository.ObtenerPorCodigo(const ACodigo: string)
@@ -207,35 +176,28 @@ end;
 function TMaterialRepository.ExisteNombre(const ANombre: string;
   const AExcluirId: Integer): Boolean;
 begin
-  Result := HayOtroCon(MATERIALES_NOMBRE_DUPLICADO, ANombre, AExcluirId);
-end;
-
-function TCatalogoTodosRepository.Filtro(const AIncluirInactivos
-  : Boolean): string;
-begin
-  Result := CATALOGOS_TODOS_FILTRO;
-  if not AIncluirInactivos then
-    Result := Result + CATALOGOS_TODOS_SOLO_ACTIVOS;
+  Result := NombreDuplicado(ANombre, AExcluirId);
 end;
 
 function TCatalogoTodosRepository.Buscar(const ATexto: string;
   const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean)
-  : TObjectList<TCatalogoItemConPrecio>;
+  : TObjectList<TCatalogoTodos>;
 var
-  lDesde, lHasta: Integer;
+  lTexto: string;
 begin
-  Extremos(APagina, APorPagina, lDesde, lHasta);
-  Result := SelectVista<TCatalogoItemConPrecio>
-    (CATALOGOS_TODOS + Filtro(AIncluirInactivos) +
-    CATALOGOS_TODOS_ORDEN_Y_PAGINA,
-    [ATexto, ATexto, ATexto, lDesde, lHasta]);
+  lTexto := TextoParaRQL(ATexto);
+  Result := ListarConsulta<TCatalogoTodos>(NombreBusqueda(AIncluirInactivos),
+    [lTexto, lTexto, lTexto, (APagina - 1) * APorPagina, APorPagina]);
 end;
 
 function TCatalogoTodosRepository.ContarBusqueda(const ATexto: string;
   const AIncluirInactivos: Boolean): Int64;
+var
+  lTexto: string;
 begin
-  Result := GetConnection.ExecSQLScalar(CATALOGOS_TODOS_CONTAR +
-    Filtro(AIncluirInactivos), [ATexto, ATexto, ATexto]);
+  lTexto := TextoParaRQL(ATexto);
+  Result := ContarConsulta<TCatalogoTodos>(NombreBusqueda(AIncluirInactivos),
+    [lTexto, lTexto, lTexto, 0, 0]);
 end;
 
 function TPrecioProgramadoRepository.PendientesDeMaterial
@@ -256,6 +218,12 @@ begin
   Result := GetWhere(PROGRAMADOS_DE_MAQUINA, [AMaquinaId]);
 end;
 
+function TPrecioProgramadoRepository.PorAplicar
+  : TObjectList<TPreciosProgramados>;
+begin
+  Result := GetWhere(PROGRAMADOS_POR_APLICAR, []);
+end;
+
 function TMaterialPrecioRepository.PrecioVigenteDe(const AMaterialId: Integer)
   : TMaterialesPrecios;
 begin
@@ -268,55 +236,38 @@ begin
   Result := GetWhere(MATERIAL_PRECIOS_HISTORIAL, [AMaterialId]);
 end;
 
-function TManoObraRepository.Filtro(const AIncluirInactivos: Boolean;
-  const ACategoriaId: Integer): string;
-begin
-  Result := MANO_OBRA_FILTRO_BUSQUEDA;
-  if not AIncluirInactivos then
-    Result := Result + MANO_OBRA_SOLO_ACTIVOS;
-  if ACategoriaId > 0 then
-    Result := Result + MANO_OBRA_POR_CATEGORIA;
-end;
-
-function TManoObraRepository.Parametros(const ATexto: string;
-  const ACategoriaId: Integer): TArray<Variant>;
-begin
-  Result := [ATexto, ATexto, ATexto];
-  if ACategoriaId > 0 then
-    Result := Result + [Variant(ACategoriaId)];
-end;
-
-function TManoObraRepository.Buscar(const ATexto: string;
-  const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
-  const ACategoriaId: Integer): TObjectList<TManoObra>;
-var
-  lDesde, lHasta: Integer;
-begin
-  Extremos(APagina, APorPagina, lDesde, lHasta);
-  Result := GetWhere(Filtro(AIncluirInactivos, ACategoriaId) +
-    MANO_OBRA_ORDEN_Y_PAGINA, Parametros(ATexto, ACategoriaId) +
-    [Variant(lDesde), Variant(lHasta)]);
-end;
-
 function TManoObraRepository.ContarBusqueda(const ATexto: string;
   const AIncluirInactivos: Boolean; const ACategoriaId: Integer): Int64;
+var
+  lTexto: string;
 begin
-  Result := GetConnection.ExecSQLScalar(MANO_OBRA_CONTAR +
-    Filtro(AIncluirInactivos, ACategoriaId),
-    Parametros(ATexto, ACategoriaId));
+  lTexto := TextoParaRQL(ATexto);
+  if ACategoriaId > 0 then
+    Result := ContarConsulta<TManoObraConPrecio>
+      (NombreBusquedaDeCategoria(AIncluirInactivos),
+      [ACategoriaId, lTexto, lTexto, lTexto, 0, 0])
+  else
+    Result := ContarConsulta<TManoObraConPrecio>
+      (NombreBusqueda(AIncluirInactivos), [lTexto, lTexto, lTexto, 0, 0]);
 end;
 
 function TManoObraRepository.BuscarConPrecio(const ATexto: string;
   const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
   const ACategoriaId: Integer): TObjectList<TManoObraConPrecio>;
 var
-  lDesde, lHasta: Integer;
+  lTexto: string;
+  lInicio: Integer;
 begin
-  Extremos(APagina, APorPagina, lDesde, lHasta);
-  Result := SelectVista<TManoObraConPrecio>
-    (MANO_OBRA_CON_PRECIO + Filtro(AIncluirInactivos, ACategoriaId) +
-    MANO_OBRA_ORDEN_Y_PAGINA, Parametros(ATexto, ACategoriaId) +
-    [Variant(lDesde), Variant(lHasta)]);
+  lTexto := TextoParaRQL(ATexto);
+  lInicio := (APagina - 1) * APorPagina;
+  if ACategoriaId > 0 then
+    Result := ListarConsulta<TManoObraConPrecio>
+      (NombreBusquedaDeCategoria(AIncluirInactivos),
+      [ACategoriaId, lTexto, lTexto, lTexto, lInicio, APorPagina])
+  else
+    Result := ListarConsulta<TManoObraConPrecio>
+      (NombreBusqueda(AIncluirInactivos),
+      [lTexto, lTexto, lTexto, lInicio, APorPagina]);
 end;
 
 function TManoObraRepository.ObtenerPorCodigo(const ACodigo: string): TManoObra;
@@ -327,7 +278,7 @@ end;
 function TManoObraRepository.ExisteNombre(const ANombre: string;
   const AExcluirId: Integer): Boolean;
 begin
-  Result := HayOtroCon(MANO_OBRA_NOMBRE_DUPLICADO, ANombre, AExcluirId);
+  Result := NombreDuplicado(ANombre, AExcluirId);
 end;
 
 function TManoObraPrecioRepository.PrecioVigenteDe(const AManoObraId: Integer)
@@ -347,47 +298,25 @@ begin
   Result := GetWhere(MANO_OBRA_CATEGORIAS, []);
 end;
 
-function TMaquinaRepository.Filtro(const AIncluirInactivos: Boolean): string;
-begin
-  Result := MAQUINAS_FILTRO_BUSQUEDA;
-  if not AIncluirInactivos then
-    Result := Result + MAQUINAS_SOLO_ACTIVAS;
-end;
-
-function TMaquinaRepository.Parametros(const ATexto: string): TArray<Variant>;
-begin
-  Result := [ATexto, ATexto, ATexto];
-end;
-
-function TMaquinaRepository.Buscar(const ATexto: string;
-  const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean)
-  : TObjectList<TMaquinas>;
-var
-  lDesde, lHasta: Integer;
-begin
-  Extremos(APagina, APorPagina, lDesde, lHasta);
-  Result := GetWhere(Filtro(AIncluirInactivos) + MAQUINAS_ORDEN_Y_PAGINA,
-    Parametros(ATexto) + [Variant(lDesde), Variant(lHasta)]);
-end;
-
 function TMaquinaRepository.ContarBusqueda(const ATexto: string;
   const AIncluirInactivos: Boolean): Int64;
+var
+  lTexto: string;
 begin
-  Result := GetConnection.ExecSQLScalar(MAQUINAS_CONTAR +
-    Filtro(AIncluirInactivos), Parametros(ATexto));
+  lTexto := TextoParaRQL(ATexto);
+  Result := ContarConsulta<TMaquinasConPrecio>(NombreBusqueda(AIncluirInactivos),
+    [lTexto, lTexto, lTexto, 0, 0]);
 end;
 
 function TMaquinaRepository.BuscarConPrecio(const ATexto: string;
   const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean)
-  : TObjectList<TMaquinaConPrecio>;
+  : TObjectList<TMaquinasConPrecio>;
 var
-  lDesde, lHasta: Integer;
+  lTexto: string;
 begin
-  Extremos(APagina, APorPagina, lDesde, lHasta);
-  Result := SelectVista<TMaquinaConPrecio>
-    (MAQUINAS_CON_PRECIO + Filtro(AIncluirInactivos) +
-    MAQUINAS_ORDEN_Y_PAGINA,
-    Parametros(ATexto) + [Variant(lDesde), Variant(lHasta)]);
+  lTexto := TextoParaRQL(ATexto);
+  Result := ListarConsulta<TMaquinasConPrecio>(NombreBusqueda(AIncluirInactivos),
+    [lTexto, lTexto, lTexto, (APagina - 1) * APorPagina, APorPagina]);
 end;
 
 function TMaquinaRepository.ObtenerPorCodigo(const ACodigo: string): TMaquinas;
@@ -398,7 +327,7 @@ end;
 function TMaquinaRepository.ExisteNombre(const ANombre: string;
   const AExcluirId: Integer): Boolean;
 begin
-  Result := HayOtroCon(MAQUINAS_NOMBRE_DUPLICADO, ANombre, AExcluirId);
+  Result := NombreDuplicado(ANombre, AExcluirId);
 end;
 
 function TMaquinaPrecioRepository.PrecioVigenteDe(const AMaquinaId: Integer)
@@ -425,7 +354,7 @@ end;
 function TTipoTrabajoRepository.ExisteNombre(const ANombre: string;
   const AExcluirId: Integer): Boolean;
 begin
-  Result := HayOtroCon(TIPOS_TRABAJO_NOMBRE_DUPLICADO, ANombre, AExcluirId);
+  Result := NombreDuplicado(ANombre, AExcluirId);
 end;
 
 function TUnidadMedidaRepository.Todas(const AIncluirInactivas: Boolean;
@@ -440,7 +369,7 @@ end;
 function TUnidadMedidaRepository.ExisteNombre(const ANombre: string;
   const AExcluirId: Integer): Boolean;
 begin
-  Result := HayOtroCon(UNIDADES_MEDIDA_NOMBRE_DUPLICADO, ANombre, AExcluirId);
+  Result := NombreDuplicado(ANombre, AExcluirId);
 end;
 
 end.

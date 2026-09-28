@@ -17,6 +17,8 @@ type
       const AUsuarioId, APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TCotizacionDTO>;
 
+    function Bandeja(const AUsuarioId: Integer; const ATexto: string;
+      const APagina, APorPagina: Integer): TBandejaPaginaDTO;
     function Obtener(const AId: Integer): TCotizacionDTO;
     function ObtenerPorNumero(const ANumero: Integer): TCotizacionDTO;
 

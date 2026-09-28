@@ -1,6 +1,6 @@
 unit Anovo.Repositories.Permisos;
 
-// Repositorio de permisos: la matriz rol-permiso.
+// Repositorio de permisos: la matriz rol-permiso, de V_PERMISOS_ROLES.
 
 interface
 
@@ -20,21 +20,21 @@ implementation
 
 uses
   System.Generics.Collections,
-  Anovo.Entities.Vistas.Permisos,
-  Anovo.SQL.Permisos;
+  Anovo.Entities.Consultas;
 
 function TPermisoRepository.Matriz: TArray<TRolPermiso>;
 var
-  lFilas: TObjectList<TRolPermisoVista>;
+  lFilas: TObjectList<TPermisosDeRoles>;
   I: Integer;
 begin
-  lFilas := SelectVista<TRolPermisoVista>(PERMISOS_MATRIZ, []);
+  lFilas := ListarConsulta<TPermisosDeRoles>(CONSULTA_ORDENADAS, [],
+    SIN_LIMITE);
   try
     SetLength(Result, lFilas.Count);
     for I := 0 to lFilas.Count - 1 do
     begin
-      Result[I].Rol := lFilas[I].Rol;
-      Result[I].Permiso := lFilas[I].Permiso;
+      Result[I].Rol := lFilas[I].Rol.ValueOrDefault;
+      Result[I].Permiso := lFilas[I].Permiso.ValueOrDefault;
     end;
   finally
     lFilas.Free;

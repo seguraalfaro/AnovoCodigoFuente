@@ -23,6 +23,9 @@ const
   CONSULTA_ORDENADAS = 'Ordenadas';
   CONSULTA_RECIENTES = 'Recientes';
   CONSULTA_ENTRE = 'Entre';
+  CONSULTA_POR_ID = 'PorId';
+  CONSULTA_DE_SOLICITUD = 'DeSolicitud';
+  CONSULTA_DE_CLIENTE = 'DeCliente';
 
   RQL_PAGINA = ';limit(%d,%d)';
   RQL_TEXTO_COTIZACION =
@@ -171,6 +174,38 @@ type
   [MVCNamedRQLQuery(CONSULTA_ENTRE,
     'and(ge(Fecha,"%s"),lt(Fecha,"%s"))')]
   TCotizacionesDia = class(TVCotizacionesDia)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_COTIZACIONES')]
+  [MVCNamedRQLQuery(CONSULTA_POR_ID,
+    'eq(ID,%d)')]
+  TCotizacionConNombres = class(TVCotizaciones)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_SOLICITUD_ADJUNTOS')]
+  [MVCNamedRQLQuery(CONSULTA_DE_SOLICITUD,
+    'and(eq(SolicitudId,%d),eq(Activo,true));sort(+Tipo,+FechaCreacion,+ID)')]
+  TAdjuntosDeSolicitud = class(TVSolicitudAdjuntos)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_CONSENTIMIENTOS')]
+  [MVCNamedRQLQuery(CONSULTA_DE_CLIENTE,
+    'eq(ClienteId,%d);sort(-Fecha,-ID)')]
+  TConsentimientosDeCliente = class(TVConsentimientos)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_PERMISOS_ROLES')]
+  [MVCNamedRQLQuery(CONSULTA_ORDENADAS,
+    'sort(+Rol,+Permiso)')]
+  TPermisosDeRoles = class(TVPermisosRoles)
   end;
 
 implementation

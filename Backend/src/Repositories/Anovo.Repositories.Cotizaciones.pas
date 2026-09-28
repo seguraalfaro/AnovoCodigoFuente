@@ -8,7 +8,9 @@ uses
   System.Generics.Collections,
   Anovo.Repositories.Base,
   Anovo.Repositories.Intf.Cotizaciones,
-  Anovo.Entities.Cotizaciones;
+  Anovo.Entities.Cotizaciones,
+  Anovo.Entities.Vistas.Lectura,
+  Anovo.Entities.Consultas;
 
 type
   TCotizacionRepository = class(TAnovoRepository<TCotizaciones>,
@@ -34,6 +36,15 @@ type
       : TObjectList<TCotizaciones>;
     function EnviadasSinRespuesta(const ADias: Integer)
       : TObjectList<TCotizaciones>;
+    function Bandeja(const AUsuarioId: Integer; const ATexto: string;
+      const APagina, APorPagina: Integer)
+      : TObjectList<TBandejaCotizaciones>;
+    function ContarBandeja(const AUsuarioId: Integer;
+      const ATexto: string): Int64;
+    function ResumenBandeja(const AUsuarioId: Integer)
+      : TTrabajoUsuario;
+    function TieneEnCurso(const ASolicitudId: Integer): Boolean;
+    function VistaDe(const AId: Integer): TCotizacionConNombres;
   end;
 
   TCotizacionDetalleRepository = class(TAnovoRepository<TCotizacionDetalle>,
@@ -109,9 +120,43 @@ function TCotizacionRepository.ContarBusqueda(const ATexto, AEstado: string;
   const AClienteId, AElaboradaPor: Integer;
   const ADesde, AHasta: TDateTime): Int64;
 begin
-  Result := GetConnection.ExecSQLScalar(COTIZACIONES_CONTAR +
-    Filtro(AEstado, AClienteId, AElaboradaPor, ADesde, AHasta),
+  Result := ContarPorFiltro(Filtro(AEstado, AClienteId, AElaboradaPor, ADesde, AHasta),
     Parametros(ATexto, AEstado, AClienteId, AElaboradaPor, ADesde, AHasta));
+end;
+
+function TCotizacionRepository.Bandeja(const AUsuarioId: Integer;
+  const ATexto: string; const APagina, APorPagina: Integer)
+  : TObjectList<TBandejaCotizaciones>;
+begin
+  Result := ListarConsulta<TBandejaCotizaciones>(CONSULTA_DE_OTROS,
+    [AUsuarioId, TextoParaRQL(ATexto), TextoParaRQL(ATexto), (APagina - 1) * APorPagina,
+    APorPagina]);
+end;
+
+function TCotizacionRepository.ContarBandeja(const AUsuarioId: Integer;
+  const ATexto: string): Int64;
+begin
+  Result := ContarConsulta<TBandejaCotizaciones>(CONSULTA_DE_OTROS,
+    [AUsuarioId, TextoParaRQL(ATexto), TextoParaRQL(ATexto), 0, 0]);
+end;
+
+function TCotizacionRepository.ResumenBandeja(const AUsuarioId: Integer)
+  : TTrabajoUsuario;
+begin
+  Result := PrimeraFilaDeConsulta<TTrabajoUsuario>(CONSULTA_DE_USUARIO, [AUsuarioId]);
+end;
+
+function TCotizacionRepository.TieneEnCurso(const ASolicitudId: Integer)
+  : Boolean;
+begin
+  Result := ContarPorFiltro(COTIZACIONES_EN_CURSO_DE_SOLICITUD,
+    [ASolicitudId]) > 0;
+end;
+
+function TCotizacionRepository.VistaDe(const AId: Integer)
+  : TCotizacionConNombres;
+begin
+  Result := PrimeraFilaDeConsulta<TCotizacionConNombres>(CONSULTA_POR_ID, [AId]);
 end;
 
 function TCotizacionRepository.ObtenerPorNumero(const ANumero: Integer)

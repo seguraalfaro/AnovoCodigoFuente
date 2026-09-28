@@ -62,6 +62,7 @@ uses
   MVCFramework.ActiveRecord,
   MVCFramework.Repository,
   Anovo.Auditoria.Contexto,
+  Anovo.Entities.Consultas,
   Anovo.Errors,
   Anovo.Textos;
 
@@ -381,11 +382,11 @@ end;
 function TClienteService.Consentimientos(const AId: Integer)
   : TObjectList<TConsentimientoDTO>;
 var
-  lEntidades: TObjectList<TClienteConsentimientoHistorial>;
+  lEntidades: TObjectList<TConsentimientosDeCliente>;
 begin
   lEntidades := fConsentimientos.HistorialDe(AId);
   try
-    Result := TMapeo.AListaDto<TClienteConsentimientoHistorial,
+    Result := TMapeo.AListaDto<TConsentimientosDeCliente,
       TConsentimientoDTO>(lEntidades);
   finally
     lEntidades.Free;

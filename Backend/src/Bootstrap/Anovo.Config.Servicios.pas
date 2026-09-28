@@ -45,6 +45,10 @@ uses
   Anovo.Services.Dashboard,
   Anovo.Repositories.Intf.Dashboard,
   Anovo.Services.Intf.Dashboard,
+  Anovo.Repositories.Intf.Reportes,
+  Anovo.Repositories.Reportes,
+  Anovo.Services.Intf.Reportes,
+  Anovo.Services.Reportes,
   Anovo.Services.Intf.Sesion,
   Anovo.Services.Sesion;
 
@@ -96,6 +100,10 @@ begin
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TDashboardService, IDashboardService,
     TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TReporteRepository, IReporteRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TReporteService, IReporteService,
+    TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TCatalogoService, ICatalogoService,
     TRegistrationType.SingletonPerRequest);
 
@@ -116,6 +124,8 @@ begin
     TRegistrationType.SingletonPerRequest);
 
   Container.RegisterType(TUsuarioClaveRepository, IUsuarioClaveRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TRolRepository, IRolRepository,
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TSesionService, ISesionService,
     TRegistrationType.SingletonPerRequest);

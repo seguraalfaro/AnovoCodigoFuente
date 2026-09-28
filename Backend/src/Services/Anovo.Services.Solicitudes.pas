@@ -61,13 +61,16 @@ type
     procedure Actualizar(const AId: Integer; const ADto: TSolicitudEdicionDTO);
     function RegistrarCompleta(const ADto: TSolicitudCompletaDTO): Integer;
     procedure MarcarRecibida(const AId: Integer);
-    procedure CambiarEstado(const AId: Integer; const ADto: TCambioEstadoDTO);
-    function PendientesDeCotizar: TObjectList<TSolicitudDTO>;
-    function Seguimiento(const AAsesorId: Integer; const ATexto: string;
+    procedure CambiarEstado(const AId: Integer; const ADto: TCambioEstadoDTO);    function Seguimiento(const AAsesorId: Integer; const ATexto: string;
       const ASoloMes: Boolean; const APagina, APorPagina: Integer;
       out ADesde, AHasta: TDateTime; out ATotal: Int64)
       : TObjectList<TSolicitudAsesorDTO>;
 
+    function Cola(const ATexto: string; const APagina, APorPagina: Integer;
+      out ATotal: Int64): TObjectList<TSolicitudPorCotizarDTO>;
+    function EnTrabajo(const AUsuarioId: Integer; const ATexto: string;
+      const APagina, APorPagina: Integer; out ATotal: Int64)
+      : TObjectList<TSolicitudEnTrabajoDTO>;
     function Medidas(const AId: Integer): TObjectList<TMedidaDTO>;
     function AgregarMedida(const AId: Integer;
       const ADto: TMedidaNuevaDTO): Integer;
@@ -96,7 +99,8 @@ uses
   Anovo.Mapeo,
   Anovo.Textos,
   System.DateUtils,
-  Anovo.Entities.Vistas.Dashboard;
+  Anovo.Entities.Vistas.Lectura,
+  Anovo.Entities.Consultas;
 
 constructor TSolicitudService.Create(ARepo: ISolicitudRepository;
   AMedidas: ISolicitudMedidaRepository;
@@ -346,21 +350,6 @@ begin
   end;
 end;
 
-function TSolicitudService.PendientesDeCotizar: TObjectList<TSolicitudDTO>;
-var
-  lFilas: TObjectList<TSolicitudes>;
-  lFila: TSolicitudes;
-begin
-  lFilas := fRepo.PendientesDeCotizar(ESTADO_RECIBIDA);
-  try
-    Result := TObjectList<TSolicitudDTO>.Create(True);
-    for lFila in lFilas do
-      Result.Add(ADto(lFila));
-  finally
-    lFilas.Free;
-  end;
-end;
-
 function TSolicitudService.Medidas(const AId: Integer): TObjectList<TMedidaDTO>;
 var
   lFilas: TObjectList<TSolicitudMedidas>;
@@ -456,11 +445,11 @@ end;
 function TSolicitudService.Adjuntos(const AId: Integer)
   : TObjectList<TAdjuntoDTO>;
 var
-  lFilas: TObjectList<TSolicitudAdjuntos>;
+  lFilas: TObjectList<TAdjuntosDeSolicitud>;
 begin
   lFilas := fAdjuntos.AdjuntosDe(AId);
   try
-    Result := TMapeo.AListaDto<TSolicitudAdjuntos, TAdjuntoDTO>(lFilas);
+    Result := TMapeo.AListaDto<TAdjuntosDeSolicitud, TAdjuntoDTO>(lFilas);
   finally
     lFilas.Free;
   end;
@@ -581,12 +570,44 @@ begin
   end;
 end;
 
+function TSolicitudService.Cola(const ATexto: string;
+  const APagina, APorPagina: Integer; out ATotal: Int64)
+  : TObjectList<TSolicitudPorCotizarDTO>;
+var
+  lFilas: TObjectList<TColaSolicitudes>;
+begin
+  ATotal := fRepo.ContarCola(ATexto);
+  lFilas := fRepo.Cola(ATexto, APagina, APorPagina);
+  try
+    Result := TMapeo.AListaDto<TColaSolicitudes,
+      TSolicitudPorCotizarDTO>(lFilas);
+  finally
+    lFilas.Free;
+  end;
+end;
+
+function TSolicitudService.EnTrabajo(const AUsuarioId: Integer;
+  const ATexto: string; const APagina, APorPagina: Integer;
+  out ATotal: Int64): TObjectList<TSolicitudEnTrabajoDTO>;
+var
+  lFilas: TObjectList<TCotizacionesEnTrabajo>;
+begin
+  ATotal := fRepo.ContarEnTrabajo(AUsuarioId, ATexto);
+  lFilas := fRepo.EnTrabajo(AUsuarioId, ATexto, APagina, APorPagina);
+  try
+    Result := TMapeo.AListaDto<TCotizacionesEnTrabajo,
+      TSolicitudEnTrabajoDTO>(lFilas);
+  finally
+    lFilas.Free;
+  end;
+end;
+
 function TSolicitudService.Seguimiento(const AAsesorId: Integer;
   const ATexto: string; const ASoloMes: Boolean;
   const APagina, APorPagina: Integer; out ADesde, AHasta: TDateTime;
   out ATotal: Int64): TObjectList<TSolicitudAsesorDTO>;
 var
-  lFilas: TObjectList<TSolicitudAsesorVista>;
+  lFilas: TObjectList<TSeguimientoAsesor>;
 begin
   ADesde := 0;
   AHasta := 0;
@@ -600,7 +621,7 @@ begin
   lFilas := fRepo.Seguimiento(AAsesorId, ATexto, ADesde, AHasta, APagina,
     APorPagina);
   try
-    Result := TMapeo.AListaDto<TSolicitudAsesorVista,
+    Result := TMapeo.AListaDto<TSeguimientoAsesor,
       TSolicitudAsesorDTO>(lFilas);
   finally
     lFilas.Free;

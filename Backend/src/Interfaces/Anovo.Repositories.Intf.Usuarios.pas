@@ -1,6 +1,6 @@
 unit Anovo.Repositories.Intf.Usuarios;
 
-// Contratos de los repositorios de usuarios y claves.
+// Contratos de los repositorios de usuarios, claves y roles.
 
 interface
 
@@ -15,11 +15,17 @@ type
 
     function NombresDe(const AIds: TArray<Integer>)
       : TDictionary<Integer, string>;
+    function IdSistema: Integer;
+    function PorCorreo(const ACorreo: string): TUsuarios;
   end;
 
   IUsuarioClaveRepository = interface(IMVCRepository<TUsuariosClaves>)
     ['{C4E81A27-9D3B-4F65-B2A0-5E7C1D93F648}']
     function ClaveActivaDe(const AUsuarioId: Integer): TUsuariosClaves;
+  end;
+
+  IRolRepository = interface(IMVCRepository<TRoles>)
+    ['{D2183598-13C0-459A-89E3-6542505C6F44}']
   end;
 
 implementation

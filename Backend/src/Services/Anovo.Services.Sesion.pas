@@ -1,7 +1,7 @@
 unit Anovo.Services.Sesion;
 
-// Servicio de la cuenta propia: datos, cambio de clave con
-// historial en USUARIOS_CLAVES y versiones.
+// Servicio de la cuenta propia: autenticacion, datos, cambio de clave
+// con historial en USUARIOS_CLAVES y versiones.
 
 interface
 
@@ -17,16 +17,19 @@ type
   private
     fUsuarios: IUsuarioRepository;
     fClaves: IUsuarioClaveRepository;
+    fRoles: IRolRepository;
     fClave: IClaveService;
     procedure ValidarClaveNueva(const AClave: string);
   public
     [MVCInject]
     constructor Create(AUsuarios: IUsuarioRepository;
-      AClaves: IUsuarioClaveRepository; AClave: IClaveService); reintroduce;
+      AClaves: IUsuarioClaveRepository; ARoles: IRolRepository;
+      AClave: IClaveService); reintroduce;
     function Cuenta(const AUsuarioId: Integer; const ARol: string): TCuentaDTO;
     procedure CambiarClave(const AUsuarioId: Integer;
       const ADto: TCambioClaveDTO);
     function Versiones: TVersionDTO;
+    function Autenticar(const ACorreo, AClave: string): TAutenticacion;
   end;
 
 implementation
@@ -36,6 +39,8 @@ uses
   System.Character,
   MVCFramework.Commons,
   MVCFramework.Repository,
+  MVCFramework.Logger,
+  Anovo.Auditoria.Contexto,
   Anovo.Entities.Usuarios,
   Anovo.Errors,
   Anovo.Textos;
@@ -44,12 +49,98 @@ const
   CLAVE_MINIMA = 10;
 
 constructor TSesionService.Create(AUsuarios: IUsuarioRepository;
-  AClaves: IUsuarioClaveRepository; AClave: IClaveService);
+  AClaves: IUsuarioClaveRepository; ARoles: IRolRepository;
+  AClave: IClaveService);
 begin
   inherited Create;
   fUsuarios := AUsuarios;
   fClaves := AClaves;
+  fRoles := ARoles;
   fClave := AClave;
+end;
+
+function TSesionService.Autenticar(const ACorreo, AClave: string)
+  : TAutenticacion;
+var
+  lUsuario: TUsuarios;
+  lFila: TUsuariosClaves;
+  lRol: TRoles;
+begin
+  Result := Default(TAutenticacion);
+
+  lUsuario := fUsuarios.PorCorreo(ACorreo.Trim.ToLower);
+  if lUsuario = nil then
+  begin
+    fClave.Hashear(AClave);
+    LogW('Login fallido: correo no registrado');
+    Exit;
+  end;
+
+  try
+    if not lUsuario.Activo.ValueOrDefault then
+    begin
+      fClave.Hashear(AClave);
+      LogW(Format('Login fallido: usuario %d inactivo', [lUsuario.ID.Value]));
+      Exit;
+    end;
+
+    lFila := fClaves.ClaveActivaDe(lUsuario.ID.Value);
+    if lFila = nil then
+    begin
+      fClave.Hashear(AClave);
+      LogW(Format('Login fallido: usuario %d sin clave activa',
+        [lUsuario.ID.Value]));
+      Exit;
+    end;
+
+    try
+      if not fClave.Verificar(AClave, lFila.ClaveHash) then
+      begin
+        LogW(Format('Login fallido: clave incorrecta, usuario %d',
+          [lUsuario.ID.Value]));
+        Exit;
+      end;
+
+      if fClave.RequiereRehash(lFila.ClaveHash) then
+      begin
+        FijarUsuario(lUsuario.ID.Value);
+        try
+          lFila.ClaveHash := fClave.Hashear(AClave);
+          fClaves.Update(lFila);
+        finally
+          LimpiarUsuario;
+        end;
+        LogI(Format('Clave rehasheada al costo vigente, usuario %d',
+          [lUsuario.ID.Value]));
+      end;
+    finally
+      lFila.Free;
+    end;
+
+    lRol := fRoles.GetByPK(lUsuario.RolID, False);
+    if lRol = nil then
+    begin
+      LogE(Format('Usuario %d con ROL_ID %d inexistente', [lUsuario.ID.Value,
+        lUsuario.RolID]));
+      Exit;
+    end;
+
+    try
+      Result.Rol := lRol.Codigo;
+    finally
+      lRol.Free;
+    end;
+
+    if lUsuario.DebeCambiarClave then
+      Result.Rol := ROL_CLAVE_VENCIDA;
+    Result.UsuarioId := lUsuario.ID.Value;
+    Result.Nombre := lUsuario.Nombre;
+    Result.DebeCambiarClave := lUsuario.DebeCambiarClave;
+    Result.Valido := True;
+    LogI(Format('Login correcto, usuario %d', [lUsuario.ID.Value]));
+  finally
+    lUsuario.Free;
+  end;
 end;
 
 function TSesionService.Cuenta(const AUsuarioId: Integer;

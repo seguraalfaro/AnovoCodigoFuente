@@ -20,6 +20,7 @@ uses
   Anovo.Controllers.Solicitudes,
   Anovo.Controllers.Cotizaciones,
   Anovo.Controllers.Dashboard,
+  Anovo.Controllers.Reportes,
   Anovo.Controllers.Clientes,
   Anovo.Controllers.Sesion,
   Anovo.Controllers.Version,
@@ -59,6 +60,7 @@ begin
   AEngine.AddController(TSolicitudesController);
   AEngine.AddController(TCotizacionesController);
   AEngine.AddController(TDashboardController);
+  AEngine.AddController(TReportesController);
   AEngine.AddController(TVersionController);
 
   AEngine.SetExceptionHandler(ManejadorDeErrores());

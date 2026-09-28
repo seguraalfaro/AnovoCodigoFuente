@@ -11,12 +11,15 @@ uses
   MVCFramework.Swagger.Commons,
   Anovo.Auth.Permisos,
   Anovo.DTOs.Dashboard,
-  Anovo.Services.Intf.Dashboard;
+  Anovo.Services.Intf.Dashboard,
+  Anovo.Services.Intf.Permisos;
 
 const
   PERMISO_DASHBOARD_ASESOR = 'cotizaciones.ver_aprobadas_propias';
   PERMISO_DASHBOARD_ASISTENTE = 'cotizaciones.elaborar';
   PERMISO_DASHBOARD_SUPERVISOR = 'cotizaciones.aprobar';
+  PERMISO_DASHBOARD_GERENCIA = 'reportes.ver';
+  PERMISO_DASHBOARD_CUENTAS = 'usuarios.administrar';
 
 type
 
@@ -24,6 +27,8 @@ type
   TDashboardController = class(TMVCController)
   private
     function UsuarioId: Integer;
+    function Tiene(const APermisos: IPermisoService;
+      const APermiso: string): Boolean;
   public
     [MVCPath('/asesor')]
     [MVCHTTPMethods([httpGET])]
@@ -56,6 +61,36 @@ type
     [MVCSwagResponses(403, 'El rol no tiene el permiso para esta operacion')]
     function Supervisor([MVCInject] AServicio: IDashboardService)
       : IMVCResponse;
+
+    [MVCPath('/gerencia')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCRequiresPermiso(PERMISO_DASHBOARD_GERENCIA)]
+    [MVCSwagSummary('Dashboard', 'Cifras del mes, productividad por asesor ' +
+      'y cotizaciones por estado', 'dashboardGerencia')]
+    [MVCSwagResponses(200, 'Dashboard de gerencia', TDashboardGerenciaDTO)]
+    [MVCSwagResponses(401, 'Sin token o token vencido')]
+    [MVCSwagResponses(403, 'El rol no tiene el permiso para esta operacion')]
+    function Gerencia([MVCInject] AServicio: IDashboardService): IMVCResponse;
+
+    [MVCPath('/cuentas')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCRequiresPermiso(PERMISO_DASHBOARD_CUENTAS)]
+    [MVCSwagSummary('Dashboard', 'Cifras de las cuentas de usuario y ' +
+      'cambios recientes', 'dashboardCuentas')]
+    [MVCSwagResponses(200, 'Dashboard del administrador', TDashboardCuentasDTO)]
+    [MVCSwagResponses(401, 'Sin token o token vencido')]
+    [MVCSwagResponses(403, 'El rol no tiene el permiso para esta operacion')]
+    function Cuentas([MVCInject] AServicio: IDashboardService): IMVCResponse;
+
+    [MVCPath('/avisos')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCRequiresAuthentication]
+    [MVCSwagSummary('Dashboard', 'Contadores del menu segun los permisos ' +
+      'del usuario del token', 'dashboardAvisos')]
+    [MVCSwagResponses(200, 'Contadores', TAvisosDTO)]
+    [MVCSwagResponses(401, 'Sin token o token vencido')]
+    function Avisos([MVCInject] AServicio: IDashboardService;
+      [MVCInject] APermisos: IPermisoService): IMVCResponse;
   end;
 
 implementation
@@ -74,6 +109,17 @@ begin
     Result := 0;
 end;
 
+function TDashboardController.Tiene(const APermisos: IPermisoService;
+  const APermiso: string): Boolean;
+var
+  lRol: string;
+begin
+  for lRol in Context.LoggedUser.Roles do
+    if APermisos.Tiene(lRol, APermiso) then
+      Exit(True);
+  Result := False;
+end;
+
 function TDashboardController.Asesor(AServicio: IDashboardService)
   : IMVCResponse;
 begin
@@ -90,6 +136,26 @@ function TDashboardController.Supervisor(AServicio: IDashboardService)
   : IMVCResponse;
 begin
   Result := OKResponse(AServicio.DelSupervisor(UsuarioId));
+end;
+
+function TDashboardController.Gerencia(AServicio: IDashboardService)
+  : IMVCResponse;
+begin
+  Result := OKResponse(AServicio.DelGerencia);
+end;
+
+function TDashboardController.Cuentas(AServicio: IDashboardService)
+  : IMVCResponse;
+begin
+  Result := OKResponse(AServicio.DelCuentas);
+end;
+
+function TDashboardController.Avisos(AServicio: IDashboardService;
+  APermisos: IPermisoService): IMVCResponse;
+begin
+  Result := OKResponse(AServicio.DelAvisos(UsuarioId,
+    Tiene(APermisos, PERMISO_DASHBOARD_SUPERVISOR),
+    Tiene(APermisos, PERMISO_DASHBOARD_ASISTENTE)));
 end;
 
 end.

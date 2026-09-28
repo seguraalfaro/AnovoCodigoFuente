@@ -9,7 +9,8 @@ uses
   Anovo.Repositories.Base,
   Anovo.Repositories.Intf.Solicitudes,
   Anovo.Entities.Solicitudes,
-  Anovo.Entities.Vistas.Dashboard;
+  Anovo.Entities.Vistas.Lectura,
+  Anovo.Entities.Consultas;
 
 type
   TSolicitudRepository = class(TAnovoRepository<TSolicitudes>,
@@ -29,14 +30,19 @@ type
       const AAsesorId: Integer = 0; const AEstado: string = '';
       const ADesde: TDateTime = 0; const AHasta: TDateTime = 0): Int64;
     function ObtenerPorUuidLocal(const AUuid: string): TSolicitudes;
-    function ExisteUuidLocal(const AUuid: string): Integer;
-    function PendientesDeCotizar(const AEstado: string)
-      : TObjectList<TSolicitudes>;
-    function Seguimiento(const AAsesorId: Integer; const ATexto: string;
+    function ExisteUuidLocal(const AUuid: string): Integer;    function Seguimiento(const AAsesorId: Integer; const ATexto: string;
       const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer)
-      : TObjectList<TSolicitudAsesorVista>;
+      : TObjectList<TSeguimientoAsesor>;
     function ContarSeguimiento(const AAsesorId: Integer; const ATexto: string;
       const ADesde, AHasta: TDateTime): Int64;
+    function Cola(const ATexto: string; const APagina, APorPagina: Integer)
+      : TObjectList<TColaSolicitudes>;
+    function ContarCola(const ATexto: string): Int64;
+    function EnTrabajo(const AUsuarioId: Integer; const ATexto: string;
+      const APagina, APorPagina: Integer)
+      : TObjectList<TCotizacionesEnTrabajo>;
+    function ContarEnTrabajo(const AUsuarioId: Integer;
+      const ATexto: string): Int64;
   end;
 
   TSolicitudMedidaRepository = class(TAnovoRepository<TSolicitudMedidas>,
@@ -55,7 +61,7 @@ type
     ISolicitudAdjuntoRepository)
   public
     function AdjuntosDe(const ASolicitudId: Integer)
-      : TObjectList<TSolicitudAdjuntos>;
+      : TObjectList<TAdjuntosDeSolicitud>;
     function AdjuntoDe(const ASolicitudId, AAdjuntoId: Integer)
       : TSolicitudAdjuntos;
     function CroquisDe(const ASolicitudId: Integer)
@@ -115,8 +121,7 @@ function TSolicitudRepository.ContarBusqueda(const ATexto: string;
   const AAsesorId: Integer; const AEstado: string;
   const ADesde, AHasta: TDateTime): Int64;
 begin
-  Result := GetConnection.ExecSQLScalar(SOLICITUDES_CONTAR +
-    Filtro(AAsesorId, AEstado, ADesde, AHasta),
+  Result := ContarPorFiltro(Filtro(AAsesorId, AEstado, ADesde, AHasta),
     Parametros(ATexto, AAsesorId, AEstado, ADesde, AHasta));
 end;
 
@@ -128,19 +133,16 @@ end;
 
 function TSolicitudRepository.ExisteUuidLocal(const AUuid: string): Integer;
 var
-  lId: Variant;
+  lSolicitud: TSolicitudes;
 begin
-  lId := GetConnection.ExecSQLScalar(SOLICITUDES_ID_POR_UUID_LOCAL, [AUuid]);
-  if VarIsNull(lId) then
-    Result := 0
-  else
-    Result := lId;
-end;
-
-function TSolicitudRepository.PendientesDeCotizar(const AEstado: string)
-  : TObjectList<TSolicitudes>;
-begin
-  Result := GetWhere(SOLICITUDES_PENDIENTES_DE_COTIZAR, [AEstado]);
+  lSolicitud := ObtenerPorUuidLocal(AUuid);
+  try
+    Result := 0;
+    if Assigned(lSolicitud) then
+      Result := lSolicitud.ID.ValueOrDefault;
+  finally
+    lSolicitud.Free;
+  end;
 end;
 
 function TSolicitudMedidaRepository.MedidasDe(const ASolicitudId: Integer)
@@ -169,10 +171,10 @@ begin
 end;
 
 function TSolicitudAdjuntoRepository.AdjuntosDe(const ASolicitudId: Integer)
-  : TObjectList<TSolicitudAdjuntos>;
+  : TObjectList<TAdjuntosDeSolicitud>;
 begin
-  Result := SelectConOpciones(ADJUNTOS_DE_SOLICITUD, [ASolicitudId],
-    [loIgnoreNotExistentFields]);
+  Result := ListarConsulta<TAdjuntosDeSolicitud>(CONSULTA_DE_SOLICITUD,
+    [ASolicitudId], SIN_LIMITE);
 end;
 
 function TSolicitudAdjuntoRepository.AdjuntoDe(const ASolicitudId,
@@ -194,41 +196,59 @@ begin
   Result := GetOneByWhere(ADJUNTOS_POR_UUID_LOCAL, [AUuid], False);
 end;
 
-procedure FiltroSeguimiento(const AAsesorId: Integer; const ATexto: string;
-  const ADesde, AHasta: TDateTime; out AFiltro: string;
-  out AParams: TArray<Variant>);
-begin
-  AFiltro := SEGUIMIENTO_FILTRO_TEXTO;
-  AParams := [AAsesorId, ATexto, ATexto];
-  if (ADesde > 0) and (AHasta > 0) then
-  begin
-    AFiltro := AFiltro + SEGUIMIENTO_ENTRE_FECHAS;
-    AParams := AParams + [ADesde, AHasta];
-  end;
-end;
-
 function TSolicitudRepository.Seguimiento(const AAsesorId: Integer;
   const ATexto: string; const ADesde, AHasta: TDateTime;
-  const APagina, APorPagina: Integer): TObjectList<TSolicitudAsesorVista>;
-var
-  lFiltro: string;
-  lParams: TArray<Variant>;
+  const APagina, APorPagina: Integer): TObjectList<TSeguimientoAsesor>;
 begin
-  FiltroSeguimiento(AAsesorId, ATexto, ADesde, AHasta, lFiltro, lParams);
-  lParams := lParams + [((APagina - 1) * APorPagina) + 1,
-    APagina * APorPagina];
-  Result := SelectVista<TSolicitudAsesorVista>(SEGUIMIENTO_ASESOR +
-    lFiltro + SEGUIMIENTO_ORDEN + SEGUIMIENTO_PAGINA, lParams);
+  if (ADesde > 0) and (AHasta > 0) then
+    Result := ListarConsulta<TSeguimientoAsesor>(CONSULTA_DE_ASESOR_ENTRE,
+      [AAsesorId, FechaParaRQL(ADesde), FechaParaRQL(AHasta), TextoParaRQL(ATexto),
+      TextoParaRQL(ATexto), (APagina - 1) * APorPagina, APorPagina])
+  else
+    Result := ListarConsulta<TSeguimientoAsesor>(CONSULTA_DE_ASESOR,
+      [AAsesorId, TextoParaRQL(ATexto), TextoParaRQL(ATexto),
+      (APagina - 1) * APorPagina, APorPagina]);
 end;
 
 function TSolicitudRepository.ContarSeguimiento(const AAsesorId: Integer;
   const ATexto: string; const ADesde, AHasta: TDateTime): Int64;
-var
-  lFiltro: string;
-  lParams: TArray<Variant>;
 begin
-  FiltroSeguimiento(AAsesorId, ATexto, ADesde, AHasta, lFiltro, lParams);
-  Result := GetConnection.ExecSQLScalar(SEGUIMIENTO_CONTAR + lFiltro, lParams);
+  if (ADesde > 0) and (AHasta > 0) then
+    Result := ContarConsulta<TSeguimientoAsesor>(CONSULTA_DE_ASESOR_ENTRE,
+      [AAsesorId, FechaParaRQL(ADesde), FechaParaRQL(AHasta), TextoParaRQL(ATexto),
+      TextoParaRQL(ATexto), 0, 0])
+  else
+    Result := ContarConsulta<TSeguimientoAsesor>(CONSULTA_DE_ASESOR,
+      [AAsesorId, TextoParaRQL(ATexto), TextoParaRQL(ATexto), 0, 0]);
+end;
+
+function TSolicitudRepository.Cola(const ATexto: string;
+  const APagina, APorPagina: Integer): TObjectList<TColaSolicitudes>;
+begin
+  Result := ListarConsulta<TColaSolicitudes>(CONSULTA_BUSCAR,
+    [TextoParaRQL(ATexto), TextoParaRQL(ATexto), (APagina - 1) * APorPagina, APorPagina]);
+end;
+
+function TSolicitudRepository.ContarCola(const ATexto: string): Int64;
+begin
+  Result := ContarConsulta<TColaSolicitudes>(CONSULTA_BUSCAR,
+    [TextoParaRQL(ATexto), TextoParaRQL(ATexto), 0, 0]);
+end;
+
+function TSolicitudRepository.EnTrabajo(const AUsuarioId: Integer;
+  const ATexto: string; const APagina, APorPagina: Integer)
+  : TObjectList<TCotizacionesEnTrabajo>;
+begin
+  Result := ListarConsulta<TCotizacionesEnTrabajo>(CONSULTA_DE_USUARIO,
+    [AUsuarioId, TextoParaRQL(ATexto), TextoParaRQL(ATexto), (APagina - 1) * APorPagina,
+    APorPagina]);
+end;
+
+function TSolicitudRepository.ContarEnTrabajo(const AUsuarioId: Integer;
+  const ATexto: string): Int64;
+begin
+  Result := ContarConsulta<TCotizacionesEnTrabajo>(CONSULTA_DE_USUARIO,
+    [AUsuarioId, TextoParaRQL(ATexto), TextoParaRQL(ATexto), 0, 0]);
 end;
 
 end.

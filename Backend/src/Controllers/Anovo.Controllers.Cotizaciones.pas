@@ -67,6 +67,27 @@ type
       const [MVCFromQueryString('por_pagina', POR_PAGINA_POR_DEFECTO)
       ] APorPagina: Integer): TCotizacionesPaginaDTO;
 
+    [MVCPath('/bandeja')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCRequiresPermiso(PERMISO_APROBAR)]
+    [MVCSwagSummary('Cotizaciones', 'Pendientes que el usuario del token ' +
+      'puede revisar, la mas antigua primero, con el resumen de la bandeja',
+      'bandejaCotizaciones')]
+    [MVCSwagParam(plQuery, 'q', 'Texto a buscar en el cliente o la ' +
+      'descripcion', ptString, False)]
+    [MVCSwagParam(plQuery, 'pagina', 'Numero de pagina, desde 1',
+      ptInteger, False)]
+    [MVCSwagParam(plQuery, 'por_pagina', 'Cuantos por pagina. Maximo 200',
+      ptInteger, False)]
+    [MVCSwagResponses(200, 'Pagina de la bandeja', TBandejaPaginaDTO)]
+    [MVCSwagResponses(401, 'Sin token o token vencido')]
+    [MVCSwagResponses(403, 'El rol no tiene el permiso para esta operacion')]
+    function Bandeja([MVCInject] AServicio: ICotizacionService;
+      const [MVCFromQueryString('q', '')] ABusqueda: string;
+      const [MVCFromQueryString('pagina', 1)] APagina: Integer;
+      const [MVCFromQueryString('por_pagina', POR_PAGINA_POR_DEFECTO)
+      ] APorPagina: Integer): TBandejaPaginaDTO;
+
     [MVCPath('/sin-respuesta')]
     [MVCHTTPMethods([httpGET])]
     [MVCSwagSummary('Cotizaciones', 'Enviadas hace mas de siete dias y sin ' +
@@ -279,6 +300,14 @@ begin
     lPagina, lPorPagina, lTotal);
 
   Result := TCotizacionesPaginaDTO.Create(lDatos, lTotal, lPagina, lPorPagina);
+end;
+
+function TCotizacionesController.Bandeja(AServicio: ICotizacionService;
+  const ABusqueda: string; const APagina, APorPagina: Integer)
+  : TBandejaPaginaDTO;
+begin
+  Result := AServicio.Bandeja(UsuarioId, ABusqueda, Max(APagina, 1),
+    EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO));
 end;
 
 function TCotizacionesController.SinRespuesta(AServicio: ICotizacionService)

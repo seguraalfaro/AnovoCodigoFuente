@@ -1,89 +1,79 @@
 unit Anovo.Repositories.Base;
 
 // Base de los repositorios: TMVCRepository<T> mas vistas, consultas con
-// nombre y duplicados; solo aqui se llama a TMVCActiveRecord.
+// nombre, conteos y duplicados; solo aqui se llama a TMVCActiveRecord.
 
 interface
 
 uses
+  System.SysUtils,
   System.Generics.Collections,
-  System.Variants,
   MVCFramework.ActiveRecord,
   MVCFramework.Repository;
 
 const
   MAXIMO_FILAS = 1000;
+  SIN_LIMITE = -1;
+  CONTAR_POR_FILTRO = 'select count(*) from %s where %s';
+  FILTRO_NOMBRE_DUPLICADO = 'UPPER(NOMBRE) = UPPER(?) AND ID <> ?';
 
 type
   TAnovoRepository<T: TMVCActiveRecord, constructor> = class(TMVCRepository<T>)
 
   protected
-    function SelectConOpciones(const SQL: string;
-      const Params: array of Variant;
-      const Options: TMVCActiveRecordLoadOptions): TObjectList<T>;
-    function SelectVista<V: TMVCActiveRecord, constructor>(const SQL: string;
-      const Params: array of Variant): TObjectList<V>;
-    function SelectUnaVista<V: TMVCActiveRecord, constructor>(
-      const SQL: string; const Params: array of Variant): V;
-    function HayOtroCon(const SQL, AValor: string;
+    function ContarPorFiltro(const AFiltro: string;
+      const AParams: array of Variant): Int64;
+    function NombreDuplicado(const ANombre: string;
       const AExcluirId: Integer): Boolean;
-    function SelectNombrada<V: TMVCActiveRecord, constructor>(
+    function ListarConsulta<V: TMVCActiveRecord, constructor>(
       const ANombre: string; const AValores: array of const;
       const AMaximo: Integer = MAXIMO_FILAS): TObjectList<V>;
-    function ContarNombrada<V: TMVCActiveRecord, constructor>(
+    function ContarConsulta<V: TMVCActiveRecord, constructor>(
       const ANombre: string; const AValores: array of const): Int64;
-    function UnaNombrada<V: TMVCActiveRecord, constructor>(
+    function PrimeraFilaDeConsulta<V: TMVCActiveRecord, constructor>(
       const ANombre: string; const AValores: array of const): V;
-    function LeerUna<V: TMVCActiveRecord, constructor>: V;
+    function LeerVistaUnica<V: TMVCActiveRecord, constructor>: V;
   public
-    class function Buscado(const ATexto: string): string; static;
+    class function TextoParaRQL(const ATexto: string): string; static;
+    class function FechaParaRQL(const AFecha: TDateTime): string; static;
   end;
 
 implementation
 
-function TAnovoRepository<T>.SelectConOpciones(const SQL: string;
-  const Params: array of Variant; const Options: TMVCActiveRecordLoadOptions)
-  : TObjectList<T>;
-begin
-  Result := TMVCActiveRecord.Select<T>(SQL, Params, Options);
-end;
-
-function TAnovoRepository<T>.SelectVista<V>(const SQL: string;
-  const Params: array of Variant): TObjectList<V>;
-begin
-  Result := TMVCActiveRecord.Select<V>(SQL, Params);
-end;
-
-function TAnovoRepository<T>.SelectUnaVista<V>(const SQL: string;
-  const Params: array of Variant): V;
-begin
-  Result := TMVCActiveRecord.SelectOne<V>(SQL, Params, True);
-end;
-
-function TAnovoRepository<T>.HayOtroCon(const SQL, AValor: string;
-  const AExcluirId: Integer): Boolean;
+function TAnovoRepository<T>.ContarPorFiltro(const AFiltro: string;
+  const AParams: array of Variant): Int64;
 var
-  lId: Variant;
+  lEntidad: T;
 begin
-  lId := TMVCActiveRecord.CurrentConnection.ExecSQLScalar(SQL,
-    [AValor, AExcluirId]);
-  Result := not VarIsNull(lId);
+  lEntidad := T.Create;
+  try
+    Result := TMVCActiveRecord.CurrentConnection.ExecSQLScalar
+      (Format(CONTAR_POR_FILTRO, [lEntidad.TableName, AFiltro]), AParams);
+  finally
+    lEntidad.Free;
+  end;
 end;
 
-function TAnovoRepository<T>.SelectNombrada<V>(const ANombre: string;
+function TAnovoRepository<T>.NombreDuplicado(const ANombre: string;
+  const AExcluirId: Integer): Boolean;
+begin
+  Result := ContarPorFiltro(FILTRO_NOMBRE_DUPLICADO, [ANombre, AExcluirId]) > 0;
+end;
+
+function TAnovoRepository<T>.ListarConsulta<V>(const ANombre: string;
   const AValores: array of const; const AMaximo: Integer): TObjectList<V>;
 begin
   Result := TMVCActiveRecord.SelectRQLByNamedQuery<V>(ANombre, AValores,
     AMaximo);
 end;
 
-function TAnovoRepository<T>.ContarNombrada<V>(const ANombre: string;
+function TAnovoRepository<T>.ContarConsulta<V>(const ANombre: string;
   const AValores: array of const): Int64;
 begin
   Result := TMVCActiveRecord.CountRQLByNamedQuery<V>(ANombre, AValores);
 end;
 
-function TAnovoRepository<T>.UnaNombrada<V>(const ANombre: string;
+function TAnovoRepository<T>.PrimeraFilaDeConsulta<V>(const ANombre: string;
   const AValores: array of const): V;
 var
   lLista: TObjectList<V>;
@@ -98,12 +88,17 @@ begin
   end;
 end;
 
-function TAnovoRepository<T>.LeerUna<V>: V;
+function TAnovoRepository<T>.LeerVistaUnica<V>: V;
 begin
   Result := TMVCActiveRecord.SelectOneByRQL<V>('', True);
 end;
 
-class function TAnovoRepository<T>.Buscado(const ATexto: string): string;
+class function TAnovoRepository<T>.FechaParaRQL(const AFecha: TDateTime): string;
+begin
+  Result := FormatDateTime('yyyy-mm-dd', AFecha);
+end;
+
+class function TAnovoRepository<T>.TextoParaRQL(const ATexto: string): string;
 begin
   Result := ATexto.Trim;
   while Result.EndsWith('\') do

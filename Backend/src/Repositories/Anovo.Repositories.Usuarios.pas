@@ -1,6 +1,6 @@
 unit Anovo.Repositories.Usuarios;
 
-// Repositorios de usuarios y de sus claves.
+// Repositorios de usuarios, de sus claves y de los roles.
 
 interface
 
@@ -16,6 +16,8 @@ type
   public
     function NombresDe(const AIds: TArray<Integer>)
       : TDictionary<Integer, string>;
+    function IdSistema: Integer;
+    function PorCorreo(const ACorreo: string): TUsuarios;
   end;
 
   TUsuarioClaveRepository = class(TAnovoRepository<TUsuariosClaves>,
@@ -24,10 +26,14 @@ type
     function ClaveActivaDe(const AUsuarioId: Integer): TUsuariosClaves;
   end;
 
+  TRolRepository = class(TAnovoRepository<TRoles>, IRolRepository)
+  end;
+
 implementation
 
 uses
   System.SysUtils,
+  System.Variants,
   Anovo.SQL.Usuarios;
 
 function TUsuarioRepository.NombresDe(const AIds: TArray<Integer>)
@@ -68,6 +74,25 @@ function TUsuarioClaveRepository.ClaveActivaDe(const AUsuarioId: Integer)
   : TUsuariosClaves;
 begin
   Result := GetOneByWhere(USUARIO_CLAVE_ACTIVA, [AUsuarioId], False);
+end;
+
+function TUsuarioRepository.PorCorreo(const ACorreo: string): TUsuarios;
+begin
+  Result := GetOneByWhere(USUARIO_POR_CORREO, [ACorreo], False);
+end;
+
+function TUsuarioRepository.IdSistema: Integer;
+var
+  lSistema: TUsuarios;
+begin
+  lSistema := GetOneByWhere(USUARIO_SISTEMA, [], False);
+  try
+    Result := 0;
+    if Assigned(lSistema) then
+      Result := lSistema.ID.ValueOrDefault;
+  finally
+    lSistema.Free;
+  end;
 end;
 
 end.

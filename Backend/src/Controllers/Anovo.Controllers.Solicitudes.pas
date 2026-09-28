@@ -23,6 +23,7 @@ const
   PERMISO_EDITAR_TODAS = 'solicitudes.editar_todas';
   PERMISO_ADJUNTOS_VER = 'adjuntos.ver';
   PERMISO_ADJUNTOS_CREAR = 'adjuntos.crear';
+  PERMISO_TOMAR = 'cotizaciones.elaborar';
 
   PERMISO_VER = PERMISO_VER_PROPIAS + ';' + PERMISO_VER_TODAS;
   PERMISO_EDITAR = PERMISO_EDITAR_PROPIAS + ';' + PERMISO_EDITAR_TODAS;
@@ -70,14 +71,42 @@ type
       const [MVCFromQueryString('por_pagina', POR_PAGINA_POR_DEFECTO)
       ] APorPagina: Integer): TSolicitudesPaginaDTO;
 
-    [MVCPath('/pendientes-de-cotizar')]
+    [MVCPath('/cola')]
     [MVCHTTPMethods([httpGET])]
-    [MVCSwagSummary('Solicitudes', 'Las recibidas que todavia no tienen ' +
-      'cotizacion. Es la bandeja del asistente',
-      'solicitudesPendientesDeCotizar')]
-    [MVCSwagResponses(200, 'Las pendientes, la mas antigua primero')]
-    function PendientesDeCotizar([MVCInject] AServicio: ISolicitudService)
-      : IMVCResponse;
+    [MVCRequiresPermiso(PERMISO_TOMAR)]
+    [MVCSwagSummary('Solicitudes', 'Cola comun: recibidas sin cotizacion, ' +
+      'la mas antigua primero, paginada', 'colaSolicitudes')]
+    [MVCSwagParam(plQuery, 'q', 'Texto a buscar en el cliente o la ' +
+      'descripcion', ptString, False)]
+    [MVCSwagParam(plQuery, 'pagina', 'Numero de pagina, desde 1',
+      ptInteger, False)]
+    [MVCSwagParam(plQuery, 'por_pagina', 'Cuantos por pagina. Maximo 200',
+      ptInteger, False)]
+    [MVCSwagResponses(200, 'Pagina de la cola', TColaPaginaDTO)]
+    function Cola([MVCInject] AServicio: ISolicitudService;
+      const [MVCFromQueryString('q', '')] ABusqueda: string;
+      const [MVCFromQueryString('pagina', 1)] APagina: Integer;
+      const [MVCFromQueryString('por_pagina', POR_PAGINA_POR_DEFECTO)
+      ] APorPagina: Integer): TColaPaginaDTO;
+
+    [MVCPath('/en-trabajo')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCRequiresPermiso(PERMISO_TOMAR)]
+    [MVCSwagSummary('Solicitudes', 'Las que el usuario del token tomo y ' +
+      'siguen en curso: borrador, pendiente o aprobada sin enviar',
+      'solicitudesEnTrabajo')]
+    [MVCSwagParam(plQuery, 'q', 'Texto a buscar en el cliente o la ' +
+      'descripcion', ptString, False)]
+    [MVCSwagParam(plQuery, 'pagina', 'Numero de pagina, desde 1',
+      ptInteger, False)]
+    [MVCSwagParam(plQuery, 'por_pagina', 'Cuantos por pagina. Maximo 200',
+      ptInteger, False)]
+    [MVCSwagResponses(200, 'Pagina de las propias', TEnTrabajoPaginaDTO)]
+    function EnTrabajo([MVCInject] AServicio: ISolicitudService;
+      const [MVCFromQueryString('q', '')] ABusqueda: string;
+      const [MVCFromQueryString('pagina', 1)] APagina: Integer;
+      const [MVCFromQueryString('por_pagina', POR_PAGINA_POR_DEFECTO)
+      ] APorPagina: Integer): TEnTrabajoPaginaDTO;
 
     [MVCPath('/seguimiento')]
     [MVCHTTPMethods([httpGET])]
@@ -304,12 +333,6 @@ begin
   Result := TSolicitudesPaginaDTO.Create(lDatos, lTotal, lPagina, lPorPagina);
 end;
 
-function TSolicitudesController.PendientesDeCotizar
-  (AServicio: ISolicitudService): IMVCResponse;
-begin
-  Result := OKResponse(AServicio.PendientesDeCotizar);
-end;
-
 function TSolicitudesController.Obtener(AServicio: ISolicitudService;
   const AId: Integer): IMVCResponse;
 begin
@@ -402,6 +425,35 @@ function TSolicitudesController.InactivarAdjunto(AServicio: ISolicitudService;
 begin
   AServicio.InactivarAdjunto(AId, AAdjuntoId);
   Result := NoContentResponse;
+end;
+
+function TSolicitudesController.Cola(AServicio: ISolicitudService;
+  const ABusqueda: string; const APagina, APorPagina: Integer)
+  : TColaPaginaDTO;
+var
+  lTotal: Int64;
+  lPagina, lPorPagina: Integer;
+  lDatos: TObjectList<TSolicitudPorCotizarDTO>;
+begin
+  lPagina := Max(APagina, 1);
+  lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
+  lDatos := AServicio.Cola(ABusqueda, lPagina, lPorPagina, lTotal);
+  Result := TColaPaginaDTO.Create(lDatos, lTotal, lPagina, lPorPagina);
+end;
+
+function TSolicitudesController.EnTrabajo(AServicio: ISolicitudService;
+  const ABusqueda: string; const APagina, APorPagina: Integer)
+  : TEnTrabajoPaginaDTO;
+var
+  lTotal: Int64;
+  lPagina, lPorPagina: Integer;
+  lDatos: TObjectList<TSolicitudEnTrabajoDTO>;
+begin
+  lPagina := Max(APagina, 1);
+  lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
+  lDatos := AServicio.EnTrabajo(UsuarioId, ABusqueda, lPagina, lPorPagina,
+    lTotal);
+  Result := TEnTrabajoPaginaDTO.Create(lDatos, lTotal, lPagina, lPorPagina);
 end;
 
 function TSolicitudesController.Seguimiento(AServicio: ISolicitudService;

@@ -1,6 +1,7 @@
 unit Anovo.Repositories.Dashboard;
 
-// Repositorio de dashboards: cifras y listas por rol.
+// Repositorio de dashboards: lee las vistas de totales con sus consultas
+// con nombre; el mes en curso lo decide la base (V_PERIODO_ACTUAL).
 
 interface
 
@@ -9,70 +10,96 @@ uses
   Anovo.Repositories.Base,
   Anovo.Repositories.Intf.Dashboard,
   Anovo.Entities.Solicitudes,
-  Anovo.Entities.Vistas.Dashboard;
+  Anovo.Entities.Vistas.Lectura,
+  Anovo.Entities.Consultas;
 
 type
   TDashboardRepository = class(TAnovoRepository<TSolicitudes>,
     IDashboardRepository)
   public
-    function CifrasAsesor(const AAsesorId: Integer;
-      const ADesde, AHasta: TDateTime): TCifrasAsesorVista;
+    function Periodo: TVPeriodoActual;
+    function ResumenMes: TVResumenMes;
+    function TrabajoDe(const AUsuarioId: Integer): TTrabajoUsuario;
+    function AsesorMes(const AAsesorId: Integer): TAsesoresMes;
+    function Productividad: TObjectList<TAsesoresMes>;
     function RecientesAsesor(const AAsesorId: Integer;
-      const ADesde, AHasta: TDateTime): TObjectList<TSolicitudAsesorVista>;
-    function CifrasAsistente(const AUsuarioId: Integer): TCifrasAsistenteVista;
-    function ColaPorCotizar: TObjectList<TSolicitudPorCotizarVista>;
-    function CifrasSupervisor(const AUsuarioId: Integer;
-      const ADesde, AHasta: TDateTime): TCifrasSupervisorVista;
+      const ADesde, AHasta: TDateTime): TObjectList<TSeguimientoAsesor>;
+    function ColaPorCotizar: TObjectList<TColaSolicitudes>;
     function ColaPorAprobar(const AUsuarioId: Integer)
-      : TObjectList<TCotizacionPorAprobarVista>;
+      : TObjectList<TBandejaCotizaciones>;
+    function CotizacionesPorEstado: TObjectList<TCotizacionesPorEstado>;
+    function CuentasResumen: TVCuentasResumen;
+    function CambiosCuentas: TObjectList<TCambiosDeCuentas>;
   end;
 
 implementation
 
-uses
-  Anovo.SQL.Dashboard;
+const
+  FILAS_COLA = 50;
+  FILAS_RECIENTES = 1000;
 
-function TDashboardRepository.CifrasAsesor(const AAsesorId: Integer;
-  const ADesde, AHasta: TDateTime): TCifrasAsesorVista;
+function TDashboardRepository.Periodo: TVPeriodoActual;
 begin
-  Result := SelectUnaVista<TCifrasAsesorVista>(DASHBOARD_ASESOR_CIFRAS,
-    [AAsesorId, ADesde, AHasta, AAsesorId, AAsesorId, ADesde, AHasta,
-    AAsesorId, ADesde, AHasta]);
+  Result := LeerVistaUnica<TVPeriodoActual>;
+end;
+
+function TDashboardRepository.ResumenMes: TVResumenMes;
+begin
+  Result := LeerVistaUnica<TVResumenMes>;
+end;
+
+function TDashboardRepository.TrabajoDe(const AUsuarioId: Integer)
+  : TTrabajoUsuario;
+begin
+  Result := PrimeraFilaDeConsulta<TTrabajoUsuario>(CONSULTA_DE_USUARIO, [AUsuarioId]);
+end;
+
+function TDashboardRepository.AsesorMes(const AAsesorId: Integer)
+  : TAsesoresMes;
+begin
+  Result := PrimeraFilaDeConsulta<TAsesoresMes>(CONSULTA_DE_ASESOR, [AAsesorId]);
+end;
+
+function TDashboardRepository.Productividad: TObjectList<TAsesoresMes>;
+begin
+  Result := ListarConsulta<TAsesoresMes>(CONSULTA_PRODUCTIVIDAD, []);
 end;
 
 function TDashboardRepository.RecientesAsesor(const AAsesorId: Integer;
-  const ADesde, AHasta: TDateTime): TObjectList<TSolicitudAsesorVista>;
+  const ADesde, AHasta: TDateTime): TObjectList<TSeguimientoAsesor>;
 begin
-  Result := SelectVista<TSolicitudAsesorVista>
-    (DASHBOARD_ASESOR_RECIENTES, [AAsesorId, ADesde, AHasta]);
+  Result := ListarConsulta<TSeguimientoAsesor>(CONSULTA_DE_ASESOR_ENTRE,
+    [AAsesorId, FechaParaRQL(ADesde), FechaParaRQL(AHasta), '', '', 0,
+    FILAS_RECIENTES]);
 end;
 
-function TDashboardRepository.CifrasAsistente(const AUsuarioId: Integer)
-  : TCifrasAsistenteVista;
+function TDashboardRepository.ColaPorCotizar: TObjectList<TColaSolicitudes>;
 begin
-  Result := SelectUnaVista<TCifrasAsistenteVista>(DASHBOARD_ASISTENTE_CIFRAS,
-    [AUsuarioId, AUsuarioId, AUsuarioId]);
-end;
-
-function TDashboardRepository.ColaPorCotizar
-  : TObjectList<TSolicitudPorCotizarVista>;
-begin
-  Result := SelectVista<TSolicitudPorCotizarVista>
-    (DASHBOARD_ASISTENTE_COLA, []);
-end;
-
-function TDashboardRepository.CifrasSupervisor(const AUsuarioId: Integer;
-  const ADesde, AHasta: TDateTime): TCifrasSupervisorVista;
-begin
-  Result := SelectUnaVista<TCifrasSupervisorVista>(DASHBOARD_SUPERVISOR_CIFRAS,
-    [AUsuarioId, AUsuarioId, ADesde, AHasta, ADesde, AHasta, ADesde, AHasta]);
+  Result := ListarConsulta<TColaSolicitudes>(CONSULTA_BUSCAR,
+    ['', '', 0, FILAS_COLA]);
 end;
 
 function TDashboardRepository.ColaPorAprobar(const AUsuarioId: Integer)
-  : TObjectList<TCotizacionPorAprobarVista>;
+  : TObjectList<TBandejaCotizaciones>;
 begin
-  Result := SelectVista<TCotizacionPorAprobarVista>
-    (DASHBOARD_SUPERVISOR_COLA, [AUsuarioId]);
+  Result := ListarConsulta<TBandejaCotizaciones>(CONSULTA_DE_OTROS,
+    [AUsuarioId, '', '', 0, FILAS_COLA]);
+end;
+
+function TDashboardRepository.CotizacionesPorEstado
+  : TObjectList<TCotizacionesPorEstado>;
+begin
+  Result := ListarConsulta<TCotizacionesPorEstado>(CONSULTA_ORDENADAS, []);
+end;
+
+function TDashboardRepository.CuentasResumen: TVCuentasResumen;
+begin
+  Result := LeerVistaUnica<TVCuentasResumen>;
+end;
+
+function TDashboardRepository.CambiosCuentas: TObjectList<TCambiosDeCuentas>;
+begin
+  Result := ListarConsulta<TCambiosDeCuentas>(CONSULTA_RECIENTES, []);
 end;
 
 end.

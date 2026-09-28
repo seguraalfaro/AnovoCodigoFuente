@@ -230,6 +230,68 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
+  TSolicitudEnTrabajoDTO = class
+  private
+    fID: Integer;
+    fSolicitudId: Integer;
+    fNumero: Integer;
+    fClienteNombre: string;
+    fAsesorNombre: string;
+    fDescripcionTrabajo: string;
+    fEstado: string;
+    fDevuelta: Boolean;
+    fMotivoRechazo: string;
+    fFechaModificacion: NullableTDateTime;
+  public
+    property ID: Integer read fID write fID;
+    property SolicitudId: Integer read fSolicitudId write fSolicitudId;
+    property Numero: Integer read fNumero write fNumero;
+    property ClienteNombre: string read fClienteNombre write fClienteNombre;
+    property AsesorNombre: string read fAsesorNombre write fAsesorNombre;
+    property DescripcionTrabajo: string read fDescripcionTrabajo
+      write fDescripcionTrabajo;
+    property Estado: string read fEstado write fEstado;
+    property Devuelta: Boolean read fDevuelta write fDevuelta;
+    property MotivoRechazo: string read fMotivoRechazo write fMotivoRechazo;
+    property FechaModificacion: NullableTDateTime read fFechaModificacion
+      write fFechaModificacion;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TColaPaginaDTO = class
+  private
+    fData: TObjectList<TSolicitudPorCotizarDTO>;
+    fTotal: Int64;
+    fPagina: Integer;
+    fPorPagina: Integer;
+  public
+    constructor Create(const AData: TObjectList<TSolicitudPorCotizarDTO>;
+      const ATotal: Int64; const APagina, APorPagina: Integer); reintroduce;
+    destructor Destroy; override;
+    property Data: TObjectList<TSolicitudPorCotizarDTO> read fData write fData;
+    property Total: Int64 read fTotal write fTotal;
+    property Pagina: Integer read fPagina write fPagina;
+    property PorPagina: Integer read fPorPagina write fPorPagina;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TEnTrabajoPaginaDTO = class
+  private
+    fData: TObjectList<TSolicitudEnTrabajoDTO>;
+    fTotal: Int64;
+    fPagina: Integer;
+    fPorPagina: Integer;
+  public
+    constructor Create(const AData: TObjectList<TSolicitudEnTrabajoDTO>;
+      const ATotal: Int64; const APagina, APorPagina: Integer); reintroduce;
+    destructor Destroy; override;
+    property Data: TObjectList<TSolicitudEnTrabajoDTO> read fData write fData;
+    property Total: Int64 read fTotal write fTotal;
+    property Pagina: Integer read fPagina write fPagina;
+    property PorPagina: Integer read fPorPagina write fPorPagina;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
   TSeguimientoPaginaDTO = class
   private
     fData: TObjectList<TSolicitudAsesorDTO>;
@@ -297,6 +359,38 @@ begin
 end;
 
 destructor TSeguimientoPaginaDTO.Destroy;
+begin
+  fData.Free;
+  inherited;
+end;
+
+constructor TColaPaginaDTO.Create(const AData: TObjectList<TSolicitudPorCotizarDTO>;
+  const ATotal: Int64; const APagina, APorPagina: Integer);
+begin
+  inherited Create;
+  fData := AData;
+  fTotal := ATotal;
+  fPagina := APagina;
+  fPorPagina := APorPagina;
+end;
+
+destructor TColaPaginaDTO.Destroy;
+begin
+  fData.Free;
+  inherited;
+end;
+
+constructor TEnTrabajoPaginaDTO.Create(const AData: TObjectList<TSolicitudEnTrabajoDTO>;
+  const ATotal: Int64; const APagina, APorPagina: Integer);
+begin
+  inherited Create;
+  fData := AData;
+  fTotal := ATotal;
+  fPagina := APagina;
+  fPorPagina := APorPagina;
+end;
+
+destructor TEnTrabajoPaginaDTO.Destroy;
 begin
   fData.Free;
   inherited;

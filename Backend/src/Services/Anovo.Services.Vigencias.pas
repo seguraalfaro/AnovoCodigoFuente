@@ -17,39 +17,59 @@ implementation
 
 uses
   System.SysUtils,
-  System.Variants,
   System.Generics.Collections,
   MVCFramework.ActiveRecord,
+  MVCFramework.Repository,
   MVCFramework.Commons,
   MVCFramework.Logger,
   Anovo.Auditoria.Contexto,
   Anovo.Textos,
   Anovo.Entities.Catalogos,
-  Anovo.SQL.Catalogos,
-  Anovo.SQL.Usuarios;
+  Anovo.Repositories.Intf.Catalogos,
+  Anovo.Repositories.Catalogos,
+  Anovo.Repositories.Intf.Usuarios,
+  Anovo.Repositories.Usuarios;
 
-function UsuarioSistema: Integer;
-var
-  lValor: Variant;
+type
+  TAplicadorVigencias = class
+  private
+    fProgramados: IPrecioProgramadoRepository;
+    fMateriales: IMaterialPrecioRepository;
+    fManoObra: IManoObraPrecioRepository;
+    fMaquinas: IMaquinaPrecioRepository;
+    fUsuario: Integer;
+    function AplicarAMaterial(const AProg: TPreciosProgramados): Integer;
+    function AplicarAManoObra(const AProg: TPreciosProgramados): Integer;
+    function AplicarAMaquina(const AProg: TPreciosProgramados): Integer;
+    function Aplicar(const AProg: TPreciosProgramados): Integer;
+    procedure AplicarUno(const AProg: TPreciosProgramados);
+  public
+    constructor Create(const AUsuario: Integer);
+    function AplicarPendientes: TResumenVigencias;
+  end;
+
+constructor TAplicadorVigencias.Create(const AUsuario: Integer);
 begin
-  lValor := TMVCActiveRecord.CurrentConnection.ExecSQLScalar(USUARIO_SISTEMA);
-  if VarIsNull(lValor) or not TryStrToInt(VarToStr(lValor), Result) then
-    Result := 0;
+  inherited Create;
+  fUsuario := AUsuario;
+  fProgramados := TPrecioProgramadoRepository.Create;
+  fMateriales := TMaterialPrecioRepository.Create;
+  fManoObra := TManoObraPrecioRepository.Create;
+  fMaquinas := TMaquinaPrecioRepository.Create;
 end;
 
-function AplicarAMaterial(const AProg: TPreciosProgramados;
-  const AUsuario: Integer): Integer;
+function TAplicadorVigencias.AplicarAMaterial(const AProg
+  : TPreciosProgramados): Integer;
 var
   lVigente: TMaterialesPrecios;
   lNuevo: TMaterialesPrecios;
 begin
-  lVigente := TMVCActiveRecord.GetOneByWhere<TMaterialesPrecios>
-    (MATERIAL_PRECIO_VIGENTE, [AProg.MaterialId.Value], False);
+  lVigente := fMateriales.PrecioVigenteDe(AProg.MaterialId.Value);
   if lVigente <> nil then
     try
       lVigente.Activo := False;
-      lVigente.ModificadoPor := AUsuario;
-      lVigente.Update;
+      lVigente.ModificadoPor := fUsuario;
+      fMateriales.Update(lVigente);
     finally
       lVigente.Free;
     end;
@@ -61,27 +81,26 @@ begin
     lNuevo.PrecioUnitario := AProg.PrecioUnitario;
     lNuevo.Activo := True;
     lNuevo.FechaVigencia := AProg.FechaVigencia;
-    lNuevo.ModificadoPor := AUsuario;
-    lNuevo.Insert;
+    lNuevo.ModificadoPor := fUsuario;
+    fMateriales.Insert(lNuevo);
     Result := lNuevo.ID.ValueOrDefault;
   finally
     lNuevo.Free;
   end;
 end;
 
-function AplicarAManoObra(const AProg: TPreciosProgramados;
-  const AUsuario: Integer): Integer;
+function TAplicadorVigencias.AplicarAManoObra(const AProg
+  : TPreciosProgramados): Integer;
 var
   lVigente: TManoObraPrecios;
   lNuevo: TManoObraPrecios;
 begin
-  lVigente := TMVCActiveRecord.GetOneByWhere<TManoObraPrecios>
-    (MANO_OBRA_PRECIO_VIGENTE, [AProg.ManoObraId.Value], False);
+  lVigente := fManoObra.PrecioVigenteDe(AProg.ManoObraId.Value);
   if lVigente <> nil then
     try
       lVigente.Activo := False;
-      lVigente.ModificadoPor := AUsuario;
-      lVigente.Update;
+      lVigente.ModificadoPor := fUsuario;
+      fManoObra.Update(lVigente);
     finally
       lVigente.Free;
     end;
@@ -92,27 +111,26 @@ begin
     lNuevo.CostoUnitario := AProg.CostoUnitario;
     lNuevo.Activo := True;
     lNuevo.FechaVigencia := AProg.FechaVigencia;
-    lNuevo.ModificadoPor := AUsuario;
-    lNuevo.Insert;
+    lNuevo.ModificadoPor := fUsuario;
+    fManoObra.Insert(lNuevo);
     Result := lNuevo.ID.ValueOrDefault;
   finally
     lNuevo.Free;
   end;
 end;
 
-function AplicarAMaquina(const AProg: TPreciosProgramados;
-  const AUsuario: Integer): Integer;
+function TAplicadorVigencias.AplicarAMaquina(const AProg
+  : TPreciosProgramados): Integer;
 var
   lVigente: TMaquinasPrecios;
   lNuevo: TMaquinasPrecios;
 begin
-  lVigente := TMVCActiveRecord.GetOneByWhere<TMaquinasPrecios>
-    (MAQUINA_PRECIO_VIGENTE, [AProg.MaquinaId.Value], False);
+  lVigente := fMaquinas.PrecioVigenteDe(AProg.MaquinaId.Value);
   if lVigente <> nil then
     try
       lVigente.Activo := False;
-      lVigente.ModificadoPor := AUsuario;
-      lVigente.Update;
+      lVigente.ModificadoPor := fUsuario;
+      fMaquinas.Update(lVigente);
     finally
       lVigente.Free;
     end;
@@ -123,33 +141,84 @@ begin
     lNuevo.CostoHora := AProg.CostoHora;
     lNuevo.Activo := True;
     lNuevo.FechaVigencia := AProg.FechaVigencia;
-    lNuevo.ModificadoPor := AUsuario;
-    lNuevo.Insert;
+    lNuevo.ModificadoPor := fUsuario;
+    fMaquinas.Insert(lNuevo);
     Result := lNuevo.ID.ValueOrDefault;
   finally
     lNuevo.Free;
   end;
 end;
 
-function Aplicar(const AProg: TPreciosProgramados;
-  const AUsuario: Integer): Integer;
+function TAplicadorVigencias.Aplicar(const AProg: TPreciosProgramados)
+  : Integer;
 begin
   if AProg.MaterialId.HasValue then
-    Result := AplicarAMaterial(AProg, AUsuario)
+    Result := AplicarAMaterial(AProg)
   else if AProg.ManoObraId.HasValue then
-    Result := AplicarAManoObra(AProg, AUsuario)
+    Result := AplicarAManoObra(AProg)
   else if AProg.MaquinaId.HasValue then
-    Result := AplicarAMaquina(AProg, AUsuario)
+    Result := AplicarAMaquina(AProg)
   else
     Result := 0;
+end;
+
+procedure TAplicadorVigencias.AplicarUno(const AProg: TPreciosProgramados);
+var
+  lPrecioId: Integer;
+begin
+  var
+  lTx := TMVCRepository.UseTransactionContext;
+
+  FijarDetalle(SDetalleRelevoAplicado);
+
+  lPrecioId := Aplicar(AProg);
+  if lPrecioId = 0 then
+    raise Exception.Create
+      ('El pendiente no apunta a ningun item del catalogo.');
+
+  AProg.Estado := 'aplicado';
+  AProg.PrecioId := lPrecioId;
+  AProg.FechaAplicacion := Now;
+  fProgramados.Update(AProg);
+end;
+
+function TAplicadorVigencias.AplicarPendientes: TResumenVigencias;
+var
+  lPendientes: TObjectList<TPreciosProgramados>;
+  lProg: TPreciosProgramados;
+begin
+  Result := Default (TResumenVigencias);
+  lPendientes := fProgramados.PorAplicar;
+  try
+    for lProg in lPendientes do
+      try
+        AplicarUno(lProg);
+        Inc(Result.Aplicados);
+      except
+        on E: Exception do
+        begin
+          Inc(Result.Fallidos);
+          LogE(Format('No se pudo aplicar el precio programado %d: %s: %s',
+            [lProg.ID.ValueOrDefault, E.ClassName, E.Message]));
+        end;
+      end;
+  finally
+    lPendientes.Free;
+  end;
+end;
+
+function UsuarioSistema: Integer;
+var
+  lUsuarios: IUsuarioRepository;
+begin
+  lUsuarios := TUsuarioRepository.Create;
+  Result := lUsuarios.IdSistema;
 end;
 
 function AplicarVigencias: TResumenVigencias;
 var
   lUsuario: Integer;
-  lPendientes: TObjectList<TPreciosProgramados>;
-  lProg: TPreciosProgramados;
-  lPrecioId: Integer;
+  lAplicador: TAplicadorVigencias;
 begin
   Result := Default (TResumenVigencias);
 
@@ -166,39 +235,11 @@ begin
 
     FijarUsuario(lUsuario);
     try
-      lPendientes := TMVCActiveRecord.Where<TPreciosProgramados>
-        (PROGRAMADOS_POR_APLICAR, []);
+      lAplicador := TAplicadorVigencias.Create(lUsuario);
       try
-        for lProg in lPendientes do
-        begin
-          TMVCActiveRecord.CurrentConnection.StartTransaction;
-          try
-            FijarDetalle(SDetalleRelevoAplicado);
-
-            lPrecioId := Aplicar(lProg, lUsuario);
-            if lPrecioId = 0 then
-              raise Exception.Create
-                ('El pendiente no apunta a ningun item del catalogo.');
-
-            lProg.Estado := 'aplicado';
-            lProg.PrecioId := lPrecioId;
-            lProg.FechaAplicacion := Now;
-            lProg.Update;
-
-            TMVCActiveRecord.CurrentConnection.Commit;
-            Inc(Result.Aplicados);
-          except
-            on E: Exception do
-            begin
-              TMVCActiveRecord.CurrentConnection.Rollback;
-              Inc(Result.Fallidos);
-              LogE(Format('No se pudo aplicar el precio programado %d: %s: %s',
-                [lProg.ID.ValueOrDefault, E.ClassName, E.Message]));
-            end;
-          end;
-        end;
+        Result := lAplicador.AplicarPendientes;
       finally
-        lPendientes.Free;
+        lAplicador.Free;
       end;
     finally
       LimpiarDetalle;

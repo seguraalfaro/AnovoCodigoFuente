@@ -14,6 +14,10 @@ type
     function DelAsistente(const AUsuarioId: Integer): TDashboardAsistenteDTO;
     function DelSupervisor(const AUsuarioId: Integer)
       : TDashboardSupervisorDTO;
+    function DelGerencia: TDashboardGerenciaDTO;
+    function DelCuentas: TDashboardCuentasDTO;
+    function DelAvisos(const AUsuarioId: Integer;
+      const APuedeAprobar, APuedeElaborar: Boolean): TAvisosDTO;
   end;
 
 implementation

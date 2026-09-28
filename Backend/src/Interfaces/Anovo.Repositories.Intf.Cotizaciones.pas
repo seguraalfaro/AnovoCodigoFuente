@@ -8,7 +8,9 @@ interface
 uses
   System.Generics.Collections,
   MVCFramework.Repository,
-  Anovo.Entities.Cotizaciones;
+  Anovo.Entities.Cotizaciones,
+  Anovo.Entities.Vistas.Lectura,
+  Anovo.Entities.Consultas;
 
 type
   ICotizacionRepository = interface(IMVCRepository<TCotizaciones>)
@@ -32,6 +34,15 @@ type
 
     function EnviadasSinRespuesta(const ADias: Integer)
       : TObjectList<TCotizaciones>;
+    function Bandeja(const AUsuarioId: Integer; const ATexto: string;
+      const APagina, APorPagina: Integer)
+      : TObjectList<TBandejaCotizaciones>;
+    function ContarBandeja(const AUsuarioId: Integer;
+      const ATexto: string): Int64;
+    function ResumenBandeja(const AUsuarioId: Integer)
+      : TTrabajoUsuario;
+    function TieneEnCurso(const ASolicitudId: Integer): Boolean;
+    function VistaDe(const AId: Integer): TCotizacionConNombres;
   end;
 
   ICotizacionDetalleRepository = interface(IMVCRepository<TCotizacionDetalle>)

@@ -9,7 +9,8 @@ uses
   System.Generics.Collections,
   MVCFramework.Repository,
   Anovo.Entities.Solicitudes,
-  Anovo.Entities.Vistas.Dashboard;
+  Anovo.Entities.Vistas.Lectura,
+  Anovo.Entities.Consultas;
 
 type
   ISolicitudRepository = interface(IMVCRepository<TSolicitudes>)
@@ -27,14 +28,19 @@ type
     function ObtenerPorUuidLocal(const AUuid: string): TSolicitudes;
     function ExisteUuidLocal(const AUuid: string): Integer;
 
-    function PendientesDeCotizar(const AEstado: string)
-      : TObjectList<TSolicitudes>;
-
     function Seguimiento(const AAsesorId: Integer; const ATexto: string;
       const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer)
-      : TObjectList<TSolicitudAsesorVista>;
+      : TObjectList<TSeguimientoAsesor>;
     function ContarSeguimiento(const AAsesorId: Integer; const ATexto: string;
       const ADesde, AHasta: TDateTime): Int64;
+    function Cola(const ATexto: string; const APagina, APorPagina: Integer)
+      : TObjectList<TColaSolicitudes>;
+    function ContarCola(const ATexto: string): Int64;
+    function EnTrabajo(const AUsuarioId: Integer; const ATexto: string;
+      const APagina, APorPagina: Integer)
+      : TObjectList<TCotizacionesEnTrabajo>;
+    function ContarEnTrabajo(const AUsuarioId: Integer;
+      const ATexto: string): Int64;
   end;
 
   ISolicitudMedidaRepository = interface(IMVCRepository<TSolicitudMedidas>)
@@ -53,7 +59,7 @@ type
     ['{6C05B9E1-7D43-42A8-95F0-8B1467A3D29C}']
 
     function AdjuntosDe(const ASolicitudId: Integer)
-      : TObjectList<TSolicitudAdjuntos>;
+      : TObjectList<TAdjuntosDeSolicitud>;
 
     function AdjuntoDe(const ASolicitudId, AAdjuntoId: Integer)
       : TSolicitudAdjuntos;

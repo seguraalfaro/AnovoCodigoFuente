@@ -103,21 +103,21 @@ type
   private
     fID: Integer;
     fNumero: Integer;
-    fFechaPresentada: NullableTDateTime;
+    fFechaModificacion: NullableTDateTime;
     fClienteNombre: string;
     fElaboradaPorNombre: string;
     fMontoTotal: NullableCurrency;
-    fDiasEspera: NullableInt32;
+    fDiasEnEstado: NullableInt32;
   public
     property ID: Integer read fID write fID;
     property Numero: Integer read fNumero write fNumero;
-    property FechaPresentada: NullableTDateTime read fFechaPresentada
-      write fFechaPresentada;
+    property FechaModificacion: NullableTDateTime read fFechaModificacion
+      write fFechaModificacion;
     property ClienteNombre: string read fClienteNombre write fClienteNombre;
     property ElaboradaPorNombre: string read fElaboradaPorNombre
       write fElaboradaPorNombre;
     property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
-    property DiasEspera: NullableInt32 read fDiasEspera write fDiasEspera;
+    property DiasEnEstado: NullableInt32 read fDiasEnEstado write fDiasEnEstado;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -145,6 +145,116 @@ type
     property RechazadasMes: Integer read fRechazadasMes write fRechazadasMes;
     property Cola: TObjectList<TCotizacionPorAprobarDTO> read fCola
       write fCola;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TProductividadAsesorDTO = class
+  private
+    fAsesorId: Integer;
+    fAsesorNombre: string;
+    fSolicitudesMes: Integer;
+    fAprobadasMes: Integer;
+    fMontoAprobadoMes: NullableCurrency;
+  public
+    property AsesorId: Integer read fAsesorId write fAsesorId;
+    property AsesorNombre: string read fAsesorNombre write fAsesorNombre;
+    property SolicitudesMes: Integer read fSolicitudesMes write fSolicitudesMes;
+    property AprobadasMes: Integer read fAprobadasMes write fAprobadasMes;
+    property MontoAprobadoMes: NullableCurrency read fMontoAprobadoMes
+      write fMontoAprobadoMes;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TCotizacionesPorEstadoDTO = class
+  private
+    fEstado: string;
+    fCantidad: Integer;
+    fMonto: NullableCurrency;
+  public
+    property Estado: string read fEstado write fEstado;
+    property Cantidad: Integer read fCantidad write fCantidad;
+    property Monto: NullableCurrency read fMonto write fMonto;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TDashboardGerenciaDTO = class
+  private
+    fDesde: TDateTime;
+    fHasta: TDateTime;
+    fCotizadoMes: Currency;
+    fAprobadasMes: Integer;
+    fRechazadasMes: Integer;
+    fTasaAprobacion: Integer;
+    fRespuestaMedia: Integer;
+    fAsesoresActivos: Integer;
+    fProductividad: TObjectList<TProductividadAsesorDTO>;
+    fEstados: TObjectList<TCotizacionesPorEstadoDTO>;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property Desde: TDateTime read fDesde write fDesde;
+    property Hasta: TDateTime read fHasta write fHasta;
+    property CotizadoMes: Currency read fCotizadoMes write fCotizadoMes;
+    property AprobadasMes: Integer read fAprobadasMes write fAprobadasMes;
+    property RechazadasMes: Integer read fRechazadasMes write fRechazadasMes;
+    property TasaAprobacion: Integer read fTasaAprobacion write fTasaAprobacion;
+    property RespuestaMedia: Integer read fRespuestaMedia write fRespuestaMedia;
+    property AsesoresActivos: Integer read fAsesoresActivos write fAsesoresActivos;
+    property Productividad: TObjectList<TProductividadAsesorDTO> read fProductividad
+      write fProductividad;
+    property Estados: TObjectList<TCotizacionesPorEstadoDTO> read fEstados
+      write fEstados;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TCambioCuentaDTO = class
+  private
+    fID: Integer;
+    fFecha: NullableTDateTime;
+    fUsuarioNombre: string;
+    fAccion: string;
+    fDetalle: string;
+  public
+    property ID: Integer read fID write fID;
+    property Fecha: NullableTDateTime read fFecha write fFecha;
+    property UsuarioNombre: string read fUsuarioNombre write fUsuarioNombre;
+    property Accion: string read fAccion write fAccion;
+    property Detalle: string read fDetalle write fDetalle;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TDashboardCuentasDTO = class
+  private
+    fDesde: TDateTime;
+    fHasta: TDateTime;
+    fUsuariosActivos: Integer;
+    fUsuariosInactivos: Integer;
+    fClavePendiente: Integer;
+    fCambiosMes: Integer;
+    fCambios: TObjectList<TCambioCuentaDTO>;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property Desde: TDateTime read fDesde write fDesde;
+    property Hasta: TDateTime read fHasta write fHasta;
+    property UsuariosActivos: Integer read fUsuariosActivos write fUsuariosActivos;
+    property UsuariosInactivos: Integer read fUsuariosInactivos write fUsuariosInactivos;
+    property ClavePendiente: Integer read fClavePendiente write fClavePendiente;
+    property CambiosMes: Integer read fCambiosMes write fCambiosMes;
+    property Cambios: TObjectList<TCambioCuentaDTO> read fCambios
+      write fCambios;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TAvisosDTO = class
+  private
+    fPorAprobar: Integer;
+    fPorCotizar: Integer;
+    fMisBorradores: Integer;
+  public
+    property PorAprobar: Integer read fPorAprobar write fPorAprobar;
+    property PorCotizar: Integer read fPorCotizar write fPorCotizar;
+    property MisBorradores: Integer read fMisBorradores write fMisBorradores;
   end;
 
 implementation
@@ -182,6 +292,32 @@ end;
 destructor TDashboardSupervisorDTO.Destroy;
 begin
   fCola.Free;
+  inherited;
+end;
+
+constructor TDashboardGerenciaDTO.Create;
+begin
+  inherited Create;
+  fProductividad := TObjectList<TProductividadAsesorDTO>.Create(True);
+  fEstados := TObjectList<TCotizacionesPorEstadoDTO>.Create(True);
+end;
+
+destructor TDashboardGerenciaDTO.Destroy;
+begin
+  fEstados.Free;
+  fProductividad.Free;
+  inherited;
+end;
+
+constructor TDashboardCuentasDTO.Create;
+begin
+  inherited Create;
+  fCambios := TObjectList<TCambioCuentaDTO>.Create(True);
+end;
+
+destructor TDashboardCuentasDTO.Destroy;
+begin
+  fCambios.Free;
   inherited;
 end;
 

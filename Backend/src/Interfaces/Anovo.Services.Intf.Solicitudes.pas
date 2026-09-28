@@ -30,12 +30,16 @@ type
 
     procedure CambiarEstado(const AId: Integer; const ADto: TCambioEstadoDTO);
 
-    function PendientesDeCotizar: TObjectList<TSolicitudDTO>;
-
     function Seguimiento(const AAsesorId: Integer; const ATexto: string;
       const ASoloMes: Boolean; const APagina, APorPagina: Integer;
       out ADesde, AHasta: TDateTime; out ATotal: Int64)
       : TObjectList<TSolicitudAsesorDTO>;
+
+    function Cola(const ATexto: string; const APagina, APorPagina: Integer;
+      out ATotal: Int64): TObjectList<TSolicitudPorCotizarDTO>;
+    function EnTrabajo(const AUsuarioId: Integer; const ATexto: string;
+      const APagina, APorPagina: Integer; out ATotal: Int64)
+      : TObjectList<TSolicitudEnTrabajoDTO>;
 
     function Medidas(const AId: Integer): TObjectList<TMedidaDTO>;
     function AgregarMedida(const AId: Integer;

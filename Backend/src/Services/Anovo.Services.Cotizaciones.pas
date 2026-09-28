@@ -62,6 +62,8 @@ type
       const ADesde, AHasta: TDateTime; const ASoloPropias: Boolean;
       const AUsuarioId, APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TCotizacionDTO>;
+    function Bandeja(const AUsuarioId: Integer; const ATexto: string;
+      const APagina, APorPagina: Integer): TBandejaPaginaDTO;
     function Obtener(const AId: Integer): TCotizacionDTO;
     function ObtenerPorNumero(const ANumero: Integer): TCotizacionDTO;
     function CrearDesdeSolicitud(const ADto: TCotizacionNuevaDTO): Integer;
@@ -97,6 +99,8 @@ uses
   Anovo.Entities.Catalogos,
   Anovo.Entities.Clientes,
   Anovo.Entities.Solicitudes,
+  Anovo.Entities.Vistas.Lectura,
+  Anovo.Entities.Consultas,
   Anovo.Errors,
   Anovo.Mapeo,
   Anovo.Textos;
@@ -285,15 +289,64 @@ begin
   end;
 end;
 
+function TCotizacionService.Bandeja(const AUsuarioId: Integer;
+  const ATexto: string; const APagina, APorPagina: Integer)
+  : TBandejaPaginaDTO;
+var
+  lResumen: TTrabajoUsuario;
+  lFilas: TObjectList<TBandejaCotizaciones>;
+begin
+  Result := TBandejaPaginaDTO.Create;
+  try
+    Result.Pagina := APagina;
+    Result.PorPagina := APorPagina;
+    Result.Total := fRepo.ContarBandeja(AUsuarioId, ATexto);
+
+    lResumen := fRepo.ResumenBandeja(AUsuarioId);
+    if lResumen <> nil then
+      try
+        TMapeo.Copiar(lResumen, Result);
+      finally
+        lResumen.Free;
+      end;
+
+    lFilas := fRepo.Bandeja(AUsuarioId, ATexto, APagina, APorPagina);
+    try
+      Result.Data.Free;
+      Result.Data := TMapeo.AListaDto<TBandejaCotizaciones,
+        TCotizacionBandejaDTO>(lFilas);
+    finally
+      lFilas.Free;
+    end;
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
 function TCotizacionService.Obtener(const AId: Integer): TCotizacionDTO;
 var
   lCotizacion: TCotizaciones;
+  lVista: TCotizacionConNombres;
 begin
   lCotizacion := TraerVigente(AId);
   try
     Result := ADto(lCotizacion);
   finally
     lCotizacion.Free;
+  end;
+
+  try
+    lVista := fRepo.VistaDe(AId);
+    if lVista <> nil then
+      try
+        TMapeo.Copiar(lVista, Result);
+      finally
+        lVista.Free;
+      end;
+  except
+    Result.Free;
+    raise;
   end;
 end;
 
@@ -332,6 +385,9 @@ begin
         Format('Una solicitud en estado %s no se puede cotizar.',
         [lSolicitud.Estado]));
 
+    if fRepo.TieneEnCurso(lSolicitud.ID.ValueOrDefault) then
+      raise EConflictoDeEstado.Create('SOLICITUD_TOMADA', SSolicitudTomada);
+
     lCotizacion := TCotizaciones.Create;
     try
       lCotizacion.SolicitudId := lSolicitud.ID.ValueOrDefault;
@@ -355,11 +411,8 @@ begin
       fRepo.Insert(lCotizacion);
       Result := lCotizacion.ID.ValueOrDefault;
 
-      if lSolicitud.Estado = SOLICITUD_RECIBIDA then
-      begin
-        lSolicitud.Estado := SOLICITUD_EN_COTIZACION;
-        fSolicitudes.Update(lSolicitud);
-      end;
+      lSolicitud.Estado := SOLICITUD_EN_COTIZACION;
+      fSolicitudes.Update(lSolicitud);
     finally
       lCotizacion.Free;
     end;
@@ -608,6 +661,9 @@ begin
         Format('Una cotizacion en estado %s no se puede aprobar.',
         [lCotizacion.Estado]));
 
+    if lCotizacion.ElaboradaPor = UsuarioActual then
+      raise EConflictoDeEstado.Create('COTIZACION_PROPIA', SRevisarPropia);
+
     lCotizacion.Estado := ESTADO_APROBADA;
     lCotizacion.AprobadaPor := UsuarioActual;
     lCotizacion.FechaAprobacion := Now;
@@ -636,6 +692,9 @@ begin
         Format('Una cotizacion en estado %s no se puede rechazar.',
         [lCotizacion.Estado]));
 
+    if lCotizacion.ElaboradaPor = UsuarioActual then
+      raise EConflictoDeEstado.Create('COTIZACION_PROPIA', SRevisarPropia);
+
     lCotizacion.Estado := ESTADO_RECHAZADA;
     lCotizacion.MotivoRechazo := ADto.Motivo;
     FijarDetalle(Format(SDetalleRechazoCotizacion, [lCotizacion.Numero]));
@@ -662,6 +721,9 @@ begin
       raise EConflictoDeEstado.Create('TRANSICION_INVALIDA',
         Format('Una cotizacion en estado %s no se puede devolver.',
         [lCotizacion.Estado]));
+
+    if lCotizacion.ElaboradaPor = UsuarioActual then
+      raise EConflictoDeEstado.Create('COTIZACION_PROPIA', SRevisarPropia);
 
     lCotizacion.Estado := ESTADO_BORRADOR;
     lCotizacion.MotivoRechazo := ADto.Motivo;

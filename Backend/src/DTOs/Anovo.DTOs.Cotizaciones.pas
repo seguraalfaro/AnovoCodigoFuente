@@ -40,6 +40,10 @@ type
     fFechaEnvio: NullableTDateTime;
     fFechaModificacion: NullableTDateTime;
     fObjVersion: Integer;
+    fAsesorNombre: string;
+    fElaboradaPorNombre: string;
+    fAprobadaPorNombre: string;
+    fTipoTrabajoNombre: string;
   public
     property ID: Integer read fID write fID;
     property Numero: Integer read fNumero write fNumero;
@@ -79,6 +83,13 @@ type
       write fFechaModificacion;
     [MVCNameAs('objversion')]
     property ObjVersion: Integer read fObjVersion write fObjVersion;
+    property AsesorNombre: string read fAsesorNombre write fAsesorNombre;
+    property ElaboradaPorNombre: string read fElaboradaPorNombre
+      write fElaboradaPorNombre;
+    property AprobadaPorNombre: string read fAprobadaPorNombre
+      write fAprobadaPorNombre;
+    property TipoTrabajoNombre: string read fTipoTrabajoNombre
+      write fTipoTrabajoNombre;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -191,6 +202,58 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
+  TCotizacionBandejaDTO = class
+  private
+    fID: Integer;
+    fNumero: Integer;
+    fClienteNombre: string;
+    fAsesorNombre: string;
+    fElaboradaPorNombre: string;
+    fDescripcionTrabajo: string;
+    fFechaModificacion: NullableTDateTime;
+    fDiasEnEstado: NullableInt32;
+    fMontoTotal: NullableCurrency;
+  public
+    property ID: Integer read fID write fID;
+    property Numero: Integer read fNumero write fNumero;
+    property ClienteNombre: string read fClienteNombre write fClienteNombre;
+    property AsesorNombre: string read fAsesorNombre write fAsesorNombre;
+    property ElaboradaPorNombre: string read fElaboradaPorNombre
+      write fElaboradaPorNombre;
+    property DescripcionTrabajo: string read fDescripcionTrabajo
+      write fDescripcionTrabajo;
+    property FechaModificacion: NullableTDateTime read fFechaModificacion
+      write fFechaModificacion;
+    property DiasEnEstado: NullableInt32 read fDiasEnEstado
+      write fDiasEnEstado;
+    property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TBandejaPaginaDTO = class
+  private
+    fData: TObjectList<TCotizacionBandejaDTO>;
+    fTotal: Int64;
+    fPagina: Integer;
+    fPorPagina: Integer;
+    fPorAprobar: Integer;
+    fDiasMasAntigua: Integer;
+    fMontoPorAprobar: Currency;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property Data: TObjectList<TCotizacionBandejaDTO> read fData write fData;
+    property Total: Int64 read fTotal write fTotal;
+    property Pagina: Integer read fPagina write fPagina;
+    property PorPagina: Integer read fPorPagina write fPorPagina;
+    property PorAprobar: Integer read fPorAprobar write fPorAprobar;
+    property DiasMasAntigua: Integer read fDiasMasAntigua
+      write fDiasMasAntigua;
+    property MontoPorAprobar: Currency read fMontoPorAprobar
+      write fMontoPorAprobar;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
   TCotizacionesPaginaDTO = class
   private
     fData: TObjectList<TCotizacionDTO>;
@@ -221,6 +284,18 @@ begin
 end;
 
 destructor TCotizacionesPaginaDTO.Destroy;
+begin
+  fData.Free;
+  inherited;
+end;
+
+constructor TBandejaPaginaDTO.Create;
+begin
+  inherited Create;
+  fData := TObjectList<TCotizacionBandejaDTO>.Create(True);
+end;
+
+destructor TBandejaPaginaDTO.Destroy;
 begin
   fData.Free;
   inherited;

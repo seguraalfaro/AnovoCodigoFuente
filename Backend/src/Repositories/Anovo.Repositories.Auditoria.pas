@@ -57,8 +57,7 @@ end;
 function TAuditoriaRepository.ContarBusqueda(const ADesde, AHasta: TDateTime;
   const AUsuarioId: Integer; const AEntidad, AAccion, ATexto: string): Int64;
 begin
-  Result := GetConnection.ExecSQLScalar(AUDITORIA_CONTAR +
-    FiltroSegun(AUsuarioId, AEntidad, AAccion, ATexto),
+  Result := ContarPorFiltro(FiltroSegun(AUsuarioId, AEntidad, AAccion, ATexto),
     ParametrosSegun(ADesde, AHasta, AUsuarioId, AEntidad, AAccion, ATexto));
 end;
 

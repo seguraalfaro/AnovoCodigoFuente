@@ -53,6 +53,11 @@ resourcestring
   SDescartarSinMotivo = 'Descartar una solicitud exige indicar el motivo.';
   SDevolverSinObservacion = 'Devolver exige una observación.';
   SRechazarSinMotivo = 'Rechazar exige indicar el motivo.';
+  SRevisarPropia = 'Una cotización no la puede revisar quien la elaboró.';
+  SSolicitudTomada = 'Esta solicitud ya la tomó otro usuario.';
+  SFechaInvalida = 'La fecha %s no tiene la forma aaaa-mm-dd.';
+  SReporteRangoInvalido = 'La fecha inicial no puede ser posterior a la final.';
+  SSinTipoTrabajo = 'Sin tipo de trabajo';
 
   SPeriodoInvertido = 'La fecha de inicio es posterior a la del fin.';
 
@@ -106,10 +111,30 @@ resourcestring
   SAccionIngresar = 'ingresar';
   SAccionCargarCatalogo = 'cargar el catálogo';
   SAccionCargarClientes = 'cargar los clientes';
+  SAccionCargarBandeja = 'cargar la bandeja';
+  SAccionCargarCotizacion = 'cargar la cotización';
+  SAccionRevisarCotizacion = 'registrar la revisión';
+  SCotizacionNumero = 'Cotización Nº %d';
+  SRevisionSubtitulo = '%s · Asesor: %s · Elaboró: %s';
+  SConfirmarAprobar = '¿Aprobar la cotización Nº %d?';
+  SDevolverTitulo = 'Devolver la cotización Nº %d';
+  SDevolverAyuda = 'Vuelve a borrador para que se corrija. Indique qué hay que corregir.';
+  SRechazarTitulo = 'Rechazar la cotización Nº %d';
+  SRechazarAyuda = 'La cotización queda cerrada. Indique el motivo del rechazo.';
+  SBotonDevolver = 'Devolver';
+  SBotonRechazar = 'Rechazar';
+  SMotivoFalta = 'Escriba el motivo.';
+  SAjustePorcentaje = 'Ajuste %s %%';
+  SIvaPorcentaje = 'IVA %s %%';
+  SAccionRevisar = 'Revisar';
   SAccionCargarFichaCliente = 'cargar la ficha del cliente';
   SAccionCargarBitacora = 'cargar la bitácora';
   SAccionCargarDashboard = 'cargar el dashboard';
   SAccionCargarSolicitudes = 'cargar las solicitudes';
+  SAccionTomarSolicitud = 'tomar la solicitud';
+  SAccionTomar = 'Tomar';
+  SConfirmarTomar = '¿Tomar la solicitud de %s? Se crea su cotización en ' +
+    'borrador a su nombre y sale de la cola.';
   SAccionCargarCuenta = 'cargar su cuenta';
   SAccionProbarConexion = 'probar la conexión';
   SAccionCambiarClave = 'cambiar la clave';
@@ -222,17 +247,24 @@ resourcestring
   SColones = '₡ %s';
   SDiaUno = '1 día';
   SDias = '%d días';
+  SPorcentaje = '%d %%';
+  SDecididasMes = '%d de %d decididas';
 
   SCargandoCatalogo = 'Cargando %s...';
   SCargandoClientes = 'Cargando clientes...';
+  SCargandoBandeja = 'Cargando la bandeja...';
   SCargandoSolicitudes = 'Cargando solicitudes...';
   SCargandoBitacora = 'Cargando la bitácora...';
   SSinClientes = 'No hay clientes que coincidan';
+  SSinBandeja = 'No hay cotizaciones esperando revisión';
   SSinSolicitudes = 'No hay solicitudes que coincidan';
+  SSinCola = 'No hay solicitudes sin procesar';
+  SSinEnTrabajo = 'No tiene solicitudes en curso';
   SSinRegistros = 'No hay registros que coincidan';
 
   SPaginacionRegistros = '%d registros · página %d de %d';
   SPaginacionClientes = '%d clientes · página %d de %d';
+  SPaginacionBandeja = '%d cotizaciones · página %d de %d';
   SPaginacionSolicitudes = '%d solicitudes · página %d de %d';
   SPaginacionMovimientos = '%d movimientos · página %d de %d';
   SRegistrosTotal = '%d registros';
