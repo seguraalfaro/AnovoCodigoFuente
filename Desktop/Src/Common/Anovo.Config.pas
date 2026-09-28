@@ -1,7 +1,7 @@
 unit Anovo.Config;
 
-// Configuracion local del escritorio: la URL del servidor en el .ini
-// junto al ejecutable y la version del programa.
+// Configuracion local del escritorio: la URL del servidor y el intervalo
+// de los avisos en el .ini junto al ejecutable, y la version del programa.
 
 interface
 
@@ -16,6 +16,7 @@ type
     class function UrlGuardada: string;
 
     class procedure GuardarUrl(const AUrl: string);
+    class function MinutosAvisos: Integer;
     class function VersionEscritorio: string;
   end;
 
@@ -24,10 +25,14 @@ implementation
 uses
   System.SysUtils,
   System.IniFiles,
+  System.Math,
   Anovo.Textos;
 
 const
   URL_POR_DEFECTO = 'https://localhost:443';
+  MINUTOS_AVISOS_POR_DEFECTO = 5;
+  MINUTOS_AVISOS_MINIMO = 1;
+  MINUTOS_AVISOS_MAXIMO = 60;
 
 class function TConfig.RutaIni: string;
 begin
@@ -71,6 +76,20 @@ begin
     lIni.Free;
   end;
   FUrl := AUrl;
+end;
+
+class function TConfig.MinutosAvisos: Integer;
+var
+  lIni: TIniFile;
+begin
+  lIni := TIniFile.Create(RutaIni);
+  try
+    Result := lIni.ReadInteger('Avisos', 'Minutos',
+      MINUTOS_AVISOS_POR_DEFECTO);
+  finally
+    lIni.Free;
+  end;
+  Result := EnsureRange(Result, MINUTOS_AVISOS_MINIMO, MINUTOS_AVISOS_MAXIMO);
 end;
 
 class function TConfig.VersionEscritorio: string;

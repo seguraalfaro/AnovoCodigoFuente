@@ -6,7 +6,8 @@ interface
 
 uses
   System.Generics.Collections,
-  Anovo.DTOs.Dashboard;
+  Anovo.DTOs.Dashboard,
+  Anovo.DTOs.Solicitudes;
 
 type
   IApiSolicitudes = interface
@@ -14,6 +15,11 @@ type
     function Seguimiento(const ATexto: string; const AHistorial: Boolean;
       const APagina, APorPagina: Integer; out ATotal: Int64;
       out ADesde: TDateTime): TObjectList<TSolicitudAsesorDTO>;
+    function Cola(const ATexto: string; const APagina, APorPagina: Integer;
+      out ATotal: Int64): TObjectList<TSolicitudPorCotizarDTO>;
+    function EnTrabajo(const ATexto: string;
+      const APagina, APorPagina: Integer; out ATotal: Int64)
+      : TObjectList<TSolicitudEnTrabajoDTO>;
   end;
 
 implementation

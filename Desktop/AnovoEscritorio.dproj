@@ -169,6 +169,7 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Src\Common\Anovo.Cancelacion.pas"/>
+        <DCCReference Include="Src\Common\Anovo.Mensajes.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.ClienteDatos.pas"/>
         <DCCReference Include="Src\Presentadores\Anovo.Presentadores.ClienteDatos.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Registro.pas"/>
@@ -191,11 +192,23 @@
         </DCCReference>
         <DCCReference Include="Src\Frames\Anovo.Frames.Dashboard.pas">
             <Form>fraDashboard</Form>
-            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Src\Frames\Anovo.Frames.Dashboard.Supervisor.pas">
+            <Form>fraDashboardSupervisor</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Src\Frames\Anovo.Frames.Dashboard.Cuentas.pas">
+            <Form>fraDashboardCuentas</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Src\Frames\Anovo.Frames.Dashboard.Asesor.pas">
             <Form>fraDashboardAsesor</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Src\Frames\Anovo.Frames.Dashboard.Asistente.pas">
+            <Form>fraDashboardAsistente</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -205,6 +218,19 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Clientes.pas"/>
+        <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Cotizaciones.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Cotizaciones.pas"/>
+        <DCCReference Include="Src\Api\Anovo.Api.Cotizaciones.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Bandeja.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Bandeja.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Revision.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Revision.pas"/>
+        <DCCReference Include="Src\Forms\Anovo.Forms.Revision.pas">
+            <Form>frmRevision</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Forms\Anovo.Forms.Motivo.pas">
+            <Form>frmMotivo</Form>
+        </DCCReference>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Auditoria.pas"/>
         <DCCReference Include="..\Backend\src\Common\Anovo.Textos.pas"/>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Dashboard.pas"/>
@@ -212,6 +238,14 @@
         <DCCReference Include="Src\Api\Anovo.Api.Dashboard.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.DashboardAsesor.pas"/>
         <DCCReference Include="Src\Presentadores\Anovo.Presentadores.DashboardAsesor.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.DashboardAsistente.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.DashboardAsistente.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.DashboardSupervisor.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.DashboardSupervisor.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.DashboardGerencia.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.DashboardGerencia.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.DashboardCuentas.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.DashboardCuentas.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Solicitudes.pas"/>
         <DCCReference Include="Src\Api\Anovo.Api.Solicitudes.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Solicitudes.pas"/>
@@ -221,6 +255,14 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Src\Frames\Anovo.Frames.SolicitudesAsistente.pas">
+            <Form>fraSolicitudesAsistente</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Solicitudes.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.SolicitudesAsistente.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.SolicitudesAsistente.pas"/>
         <DCCReference Include="Src\Recursos\Anovo.UI.Vigencia.pas"/>
         <DCCReference Include="Src\Recursos\Anovo.UI.Vista.pas"/>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Catalogos.pas"/>

@@ -287,4 +287,10 @@ object frmPrincipal: TfrmPrincipal
       OnExecute = AcSalirExecute
     end
   end
+  object tmrAvisos: TTimer
+    Enabled = False
+    OnTimer = tmrAvisosTimer
+    Left = 824
+    Top = 430
+  end
 end

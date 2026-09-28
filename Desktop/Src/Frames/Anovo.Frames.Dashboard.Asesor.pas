@@ -7,38 +7,19 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
-  System.UITypes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.Tarjeta,
+  Anovo.Frames.Dashboard,
   Anovo.DTOs.Dashboard,
   Anovo.Vistas.Intf.DashboardAsesor,
   Anovo.Presentadores.DashboardAsesor;
 
 type
-  TfraDashboardAsesor = class(TFrame, IVistaDashboardAsesor)
-    pnlTitulo: TPanel;
-    lblTitulo: TLabel;
-    lblSubtitulo: TLabel;
-    lblPeriodo: TLabel;
-    pnlKpi: TPanel;
-    tjSolicitudes: TPlanoTarjeta;
-    lblSolicitudes: TLabel;
-    tjEsperando: TPlanoTarjeta;
-    lblEsperando: TLabel;
-    tjAprobadas: TPlanoTarjeta;
-    lblAprobadas: TLabel;
-    tjMonto: TPlanoTarjeta;
-    lblMonto: TLabel;
-    tjRecientes: TPlanoTarjeta;
-    grSolicitudes: TrDBGrid;
+  TfraDashboardAsesor = class(TfraDashboard, IVistaDashboardAsesor)
   private
     FPresentador: TPresentadorDashboardAsesor;
-    procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarDashboard(const ADatos: TDashboardAsesorDTO);
-    procedure MostrarError(const AMensaje: string);
-  protected
-    procedure Resize; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -49,11 +30,8 @@ implementation
 {$R *.dfm}
 
 uses
-  Anovo.UI.Vista,
-  Anovo.UI.Tema,
   Anovo.UI.DBGridExtend,
   Anovo.Api.Dashboard,
-  Anovo.Mapeo.Datos,
   Anovo.Formato,
   Anovo.Datos.Memoria;
 
@@ -63,9 +41,7 @@ const
 constructor TfraDashboardAsesor.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-
-  AplicarTemaGrid(grSolicitudes);
-  TDBGridExtend.De(grSolicitudes).ColumnaEstado(CAMPO_ESTADO);
+  TDBGridExtend.De(grLista).ColumnaEstado(CAMPO_ESTADO);
 
   FPresentador := TPresentadorDashboardAsesor.Create(Self,
     TApiDashboard.Create);
@@ -78,34 +54,16 @@ begin
   inherited;
 end;
 
-procedure TfraDashboardAsesor.Resize;
-begin
-  inherited;
-  Anovo.UI.DBGridExtend.AjustarColumnas(grSolicitudes);
-end;
-
-procedure TfraDashboardAsesor.MostrarCargando(const AActivo: Boolean);
-begin
-  CursorOcupado(AActivo);
-end;
-
 procedure TfraDashboardAsesor.MostrarDashboard(const ADatos
   : TDashboardAsesorDTO);
 begin
   lblPeriodo.Caption := TFormato.MesAnio(ADatos.Desde);
-  lblSolicitudes.Caption := ADatos.SolicitudesMes.ToString;
-  lblEsperando.Caption := ADatos.EsperandoCotizacion.ToString;
-  lblAprobadas.Caption := ADatos.AprobadasMes.ToString;
-  lblMonto.Caption := TFormato.Colones(ADatos.MontoAprobadoMes);
-
-  TMapeoDatos.AListaTabla<TSolicitudAsesorDTO>(ADatos.Recientes,
+  lblCifra1.Caption := ADatos.SolicitudesMes.ToString;
+  lblCifra2.Caption := ADatos.EsperandoCotizacion.ToString;
+  lblCifra3.Caption := ADatos.AprobadasMes.ToString;
+  lblCifra4.Caption := TFormato.Colones(ADatos.MontoAprobadoMes);
+  MostrarLista<TSolicitudAsesorDTO>(ADatos.Recientes,
     dmMemoria.mtDashboardAsesor);
-  Anovo.UI.DBGridExtend.AjustarColumnas(grSolicitudes);
-end;
-
-procedure TfraDashboardAsesor.MostrarError(const AMensaje: string);
-begin
-  AvisarError(AMensaje);
 end;
 
 end.

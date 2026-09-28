@@ -1,7 +1,7 @@
 object dmMemoria: TdmMemoria
   OldCreateOrder = True
   OnCreate = DataModuleCreate
-  Height = 518
+  Height = 809
   Width = 1033
   object mtClientes: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -924,6 +924,400 @@ object dmMemoria: TdmMemoria
     DataSet = mtDashboardAsesor
     Left = 464
     Top = 504
+  end
+  object mtDashboardAsistente: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 360
+    Top = 632
+    object mtDashboardAsistenteID: TIntegerField
+      FieldName = 'ID'
+      Visible = False
+    end
+    object mtDashboardAsistenteFECHA_RECEPCION: TDateTimeField
+      DisplayLabel = 'Recibida'
+      FieldName = 'FECHA_RECEPCION'
+      DisplayFormat = 'dd/mm/yyyy'
+    end
+    object mtDashboardAsistenteCLIENTE_NOMBRE: TStringField
+      DisplayLabel = 'Cliente'
+      FieldName = 'CLIENTE_NOMBRE'
+      Size = 120
+    end
+    object mtDashboardAsistenteASESOR_NOMBRE: TStringField
+      DisplayLabel = 'Asesor'
+      FieldName = 'ASESOR_NOMBRE'
+      Size = 120
+    end
+    object mtDashboardAsistenteDESCRIPCION: TStringField
+      DisplayLabel = 'Descripci'#243'n'
+      FieldName = 'DESCRIPCION'
+      Size = 500
+    end
+    object mtDashboardAsistenteDIAS_ESPERA: TIntegerField
+      DisplayLabel = 'D'#237'as de espera'
+      FieldName = 'DIAS_ESPERA'
+    end
+  end
+  object dsDashboardAsistente: TDataSource
+    DataSet = mtDashboardAsistente
+    Left = 464
+    Top = 632
+  end
+  object mtDashboardSupervisor: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 360
+    Top = 696
+    object mtDashboardSupervisorID: TIntegerField
+      FieldName = 'ID'
+      Visible = False
+    end
+    object mtDashboardSupervisorNUMERO: TIntegerField
+      DisplayLabel = 'N'#250'mero'
+      FieldName = 'NUMERO'
+    end
+    object mtDashboardSupervisorFECHA_MODIFICACION: TDateTimeField
+      DisplayLabel = 'Presentada'
+      FieldName = 'FECHA_MODIFICACION'
+      DisplayFormat = 'dd/mm/yyyy'
+    end
+    object mtDashboardSupervisorCLIENTE_NOMBRE: TStringField
+      DisplayLabel = 'Cliente'
+      FieldName = 'CLIENTE_NOMBRE'
+      Size = 120
+    end
+    object mtDashboardSupervisorELABORADA_POR_NOMBRE: TStringField
+      DisplayLabel = 'Elaborada por'
+      FieldName = 'ELABORADA_POR_NOMBRE'
+      Size = 120
+    end
+    object mtDashboardSupervisorMONTO_TOTAL: TCurrencyField
+      DisplayLabel = 'Monto'
+      FieldName = 'MONTO_TOTAL'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtDashboardSupervisorDIAS_EN_ESTADO: TIntegerField
+      DisplayLabel = 'D'#237'as de espera'
+      FieldName = 'DIAS_EN_ESTADO'
+    end
+  end
+  object dsDashboardSupervisor: TDataSource
+    DataSet = mtDashboardSupervisor
+    Left = 464
+    Top = 696
+  end
+  object mtDashboardGerencia: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 360
+    Top = 760
+    object mtDashboardGerenciaASESOR_ID: TIntegerField
+      FieldName = 'ASESOR_ID'
+      Visible = False
+    end
+    object mtDashboardGerenciaASESOR_NOMBRE: TStringField
+      DisplayLabel = 'Asesor'
+      FieldName = 'ASESOR_NOMBRE'
+      Size = 120
+    end
+    object mtDashboardGerenciaSOLICITUDES_MES: TIntegerField
+      DisplayLabel = 'Solicitudes'
+      FieldName = 'SOLICITUDES_MES'
+    end
+    object mtDashboardGerenciaAPROBADAS_MES: TIntegerField
+      DisplayLabel = 'Aprobadas'
+      FieldName = 'APROBADAS_MES'
+    end
+    object mtDashboardGerenciaMONTO_APROBADO_MES: TCurrencyField
+      DisplayLabel = 'Monto aprobado'
+      FieldName = 'MONTO_APROBADO_MES'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+  end
+  object dsDashboardGerencia: TDataSource
+    DataSet = mtDashboardGerencia
+    Left = 464
+    Top = 760
+  end
+  object mtDashboardEstados: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 360
+    Top = 824
+    object mtDashboardEstadosESTADO: TStringField
+      DisplayLabel = 'Estado'
+      FieldName = 'ESTADO'
+      OnGetText = EstadoGetText
+    end
+    object mtDashboardEstadosCANTIDAD: TIntegerField
+      DisplayLabel = 'Cantidad'
+      FieldName = 'CANTIDAD'
+    end
+    object mtDashboardEstadosMONTO: TCurrencyField
+      DisplayLabel = 'Monto'
+      FieldName = 'MONTO'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+  end
+  object dsDashboardEstados: TDataSource
+    DataSet = mtDashboardEstados
+    Left = 464
+    Top = 824
+  end
+  object mtDashboardCuentas: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 360
+    Top = 888
+    object mtDashboardCuentasID: TIntegerField
+      FieldName = 'ID'
+      Visible = False
+    end
+    object mtDashboardCuentasFECHA: TDateTimeField
+      DisplayLabel = 'Fecha'
+      FieldName = 'FECHA'
+      DisplayFormat = 'dd/mm/yyyy hh:nn'
+    end
+    object mtDashboardCuentasUSUARIO_NOMBRE: TStringField
+      DisplayLabel = 'Hecho por'
+      FieldName = 'USUARIO_NOMBRE'
+      Size = 120
+    end
+    object mtDashboardCuentasACCION: TStringField
+      DisplayLabel = 'Acci'#243'n'
+      FieldName = 'ACCION'
+      Size = 50
+    end
+    object mtDashboardCuentasDETALLE: TStringField
+      DisplayLabel = 'Detalle'
+      FieldName = 'DETALLE'
+      Size = 500
+    end
+  end
+  object dsDashboardCuentas: TDataSource
+    DataSet = mtDashboardCuentas
+    Left = 464
+    Top = 888
+  end
+  object mtBandeja: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 360
+    Top = 952
+    object mtBandejaID: TIntegerField
+      FieldName = 'ID'
+      Visible = False
+    end
+    object mtBandejaNUMERO: TIntegerField
+      DisplayLabel = 'N'#250'mero'
+      FieldName = 'NUMERO'
+    end
+    object mtBandejaCLIENTE_NOMBRE: TStringField
+      DisplayLabel = 'Cliente'
+      FieldName = 'CLIENTE_NOMBRE'
+      Size = 120
+    end
+    object mtBandejaASESOR_NOMBRE: TStringField
+      DisplayLabel = 'Asesor'
+      FieldName = 'ASESOR_NOMBRE'
+      Size = 120
+    end
+    object mtBandejaELABORADA_POR_NOMBRE: TStringField
+      DisplayLabel = 'Elabor'#243
+      FieldName = 'ELABORADA_POR_NOMBRE'
+      Size = 120
+    end
+    object mtBandejaDESCRIPCION_TRABAJO: TStringField
+      DisplayLabel = 'Descripci'#243'n'
+      FieldName = 'DESCRIPCION_TRABAJO'
+      Size = 500
+    end
+    object mtBandejaFECHA_MODIFICACION: TDateTimeField
+      DisplayLabel = 'Enviada'
+      FieldName = 'FECHA_MODIFICACION'
+      DisplayFormat = 'dd/mm/yyyy'
+    end
+    object mtBandejaDIAS_EN_ESTADO: TIntegerField
+      DisplayLabel = 'D'#237'as'
+      FieldName = 'DIAS_EN_ESTADO'
+    end
+    object mtBandejaMONTO_TOTAL: TCurrencyField
+      DisplayLabel = 'Monto'
+      FieldName = 'MONTO_TOTAL'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtBandejaACCIONES: TStringField
+      DisplayLabel = 'Acciones'
+      FieldName = 'ACCIONES'
+    end
+  end
+  object dsBandeja: TDataSource
+    DataSet = mtBandeja
+    Left = 464
+    Top = 952
+  end
+  object mtRevisionLineas: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 360
+    Top = 1016
+    object mtRevisionLineasID: TIntegerField
+      FieldName = 'ID'
+      Visible = False
+    end
+    object mtRevisionLineasTIPO: TStringField
+      DisplayLabel = 'Tipo'
+      FieldName = 'TIPO'
+      OnGetText = TipoGetText
+    end
+    object mtRevisionLineasDESCRIPCION: TStringField
+      DisplayLabel = 'Descripci'#243'n'
+      FieldName = 'DESCRIPCION'
+      Size = 500
+    end
+    object mtRevisionLineasUNIDAD_MEDIDA: TStringField
+      DisplayLabel = 'Unidad'
+      FieldName = 'UNIDAD_MEDIDA'
+    end
+    object mtRevisionLineasCANTIDAD: TCurrencyField
+      DisplayLabel = 'Cantidad'
+      FieldName = 'CANTIDAD'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtRevisionLineasPRECIO_UNITARIO: TCurrencyField
+      DisplayLabel = 'Precio'
+      FieldName = 'PRECIO_UNITARIO'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtRevisionLineasSUBTOTAL: TCurrencyField
+      DisplayLabel = 'Subtotal'
+      FieldName = 'SUBTOTAL'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+  end
+  object dsRevisionLineas: TDataSource
+    DataSet = mtRevisionLineas
+    Left = 464
+    Top = 1016
+  end
+  object mtSolicitudesAsistente: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 360
+    Top = 1080
+    object mtSolicitudesAsistenteID: TIntegerField
+      FieldName = 'ID'
+      Visible = False
+    end
+    object mtSolicitudesAsistenteSOLICITUD_ID: TIntegerField
+      FieldName = 'SOLICITUD_ID'
+      Visible = False
+    end
+    object mtSolicitudesAsistenteNUMERO: TIntegerField
+      DisplayLabel = 'N'#250'mero'
+      FieldName = 'NUMERO'
+    end
+    object mtSolicitudesAsistenteFECHA_RECEPCION: TDateTimeField
+      DisplayLabel = 'Recibida'
+      FieldName = 'FECHA_RECEPCION'
+      DisplayFormat = 'dd/mm/yyyy'
+    end
+    object mtSolicitudesAsistenteFECHA_MODIFICACION: TDateTimeField
+      DisplayLabel = 'Actualizada'
+      FieldName = 'FECHA_MODIFICACION'
+      DisplayFormat = 'dd/mm/yyyy'
+    end
+    object mtSolicitudesAsistenteCLIENTE_NOMBRE: TStringField
+      DisplayLabel = 'Cliente'
+      FieldName = 'CLIENTE_NOMBRE'
+      Size = 120
+    end
+    object mtSolicitudesAsistenteASESOR_NOMBRE: TStringField
+      DisplayLabel = 'Asesor'
+      FieldName = 'ASESOR_NOMBRE'
+      Size = 120
+    end
+    object mtSolicitudesAsistenteDESCRIPCION: TStringField
+      DisplayLabel = 'Descripci'#243'n'
+      FieldName = 'DESCRIPCION'
+      Size = 500
+    end
+    object mtSolicitudesAsistenteDESCRIPCION_TRABAJO: TStringField
+      DisplayLabel = 'Trabajo'
+      FieldName = 'DESCRIPCION_TRABAJO'
+      Size = 500
+    end
+    object mtSolicitudesAsistenteDIAS_ESPERA: TIntegerField
+      DisplayLabel = 'D'#237'as'
+      FieldName = 'DIAS_ESPERA'
+    end
+    object mtSolicitudesAsistenteESTADO: TStringField
+      DisplayLabel = 'Estado'
+      FieldName = 'ESTADO'
+      OnGetText = EstadoGetText
+    end
+    object mtSolicitudesAsistenteMOTIVO_RECHAZO: TStringField
+      DisplayLabel = 'Observaci'#243'n'
+      FieldName = 'MOTIVO_RECHAZO'
+      Size = 500
+    end
+    object mtSolicitudesAsistenteACCIONES: TStringField
+      DisplayLabel = 'Acciones'
+      FieldName = 'ACCIONES'
+    end
+  end
+  object dsSolicitudesAsistente: TDataSource
+    DataSet = mtSolicitudesAsistente
+    Left = 464
+    Top = 1080
   end
   object mtSeguimiento: TFDMemTable
     FetchOptions.AssignedValues = [evMode]

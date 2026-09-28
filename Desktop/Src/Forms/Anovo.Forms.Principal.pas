@@ -8,9 +8,12 @@ uses
   Anovo.Frames.Dashboard.Gerencia,
   Anovo.Frames.Catalogos,
   Anovo.Frames.Clientes,
-  Anovo.Frames.Dashboard,
+  Anovo.Frames.Dashboard.Supervisor,
+  Anovo.Frames.Dashboard.Cuentas,
   Anovo.Frames.Dashboard.Asesor,
+  Anovo.Frames.Dashboard.Asistente,
   Anovo.Frames.Solicitudes,
+  Anovo.Frames.SolicitudesAsistente,
   Anovo.Frames.GeneracionCotizacion,
   Anovo.Frames.Bandeja,
   Anovo.Frames.Cotizaciones,
@@ -23,6 +26,7 @@ uses
   Vcl.ExtCtrls, Anovo.UI.Tema,
   Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.ToolWin, Vcl.VirtualImage,
   Vcl.WinXCtrls, Vcl.CategoryButtons, Vcl.Buttons, FlatVcl.NavItem,
+  VclPlano.NavItem,
   System.Actions, Vcl.ActnList, PestanasPlanas, Vcl.WinXPanels,
   Anovo.Vistas.Intf.Principal,
   Anovo.Presentadores.Principal;
@@ -45,15 +49,17 @@ type
     pnlsepBottom: TRelativePanel;
     FlatNavItem1: TFlatNavItem;
     AcSalir: TAction;
+    tmrAvisos: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure VirtualImage1Click(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure AcSalirExecute(Sender: TObject);
+    procedure tmrAvisosTimer(Sender: TObject);
   private
     FPresentador: TPresentadorPrincipal;
     FFrameTemp: TFrame;
-    FItems: TArray<TFlatNavItem>;
+    FItems: TArray<TPlanoNavItem>;
     function ObtenerFrame(ASeccion: TSeccion): TFrame;
     procedure LimpiarMenu;
 
@@ -62,6 +68,9 @@ type
     procedure MostrarUsuario(const ANombre, ARol, AIniciales: string);
     procedure MostrarSecciones(const ASecciones: TArray<TSeccion>);
     procedure AbrirSeccion(const ASeccion: TSeccion);
+    procedure ProgramarAvisos(const AMinutos: Integer);
+    procedure MostrarAviso(const ASeccion: TSeccion;
+      const ACantidad: Integer);
   public
   end;
 
@@ -74,12 +83,15 @@ implementation
 
 uses
   Anovo.UI.Iconos,
+  Anovo.Sesion,
+  Anovo.Api.Dashboard,
   Anovo.Textos;
 
 const
   ALTO_ITEM = 40;
 
   ICONOS_MENU: array [TSeccion] of string = (
+     'Blanco\06-dashboard-blanco',
      'Blanco\06-dashboard-blanco',
      'Blanco\06-dashboard-blanco',
      'Blanco\06-dashboard-blanco',
@@ -100,7 +112,8 @@ const
 function TituloSeccion(const ASeccion: TSeccion): string;
 begin
   case ASeccion of
-    secDashboard, secDashboardCuentas, secDashboardAsesor:
+    secDashboardSupervisor, secDashboardCuentas, secDashboardAsesor,
+    secDashboardAsistente:
       Result := SMenuDashboard;
     secSolicitudes:
       Result := SMenuSolicitudes;
@@ -137,12 +150,13 @@ procedure TfrmPrincipal.FormCreate(Sender: TObject);
 begin
   AplicarTemaBarraTitulo(Self, TitleBarPanel1, 55);
   AplicarTema(Self);
-  FPresentador := TPresentadorPrincipal.Create(Self);
+  FPresentador := TPresentadorPrincipal.Create(Self, TApiDashboard.Create);
   FPresentador.Iniciar;
 end;
 
 procedure TfrmPrincipal.FormDestroy(Sender: TObject);
 begin
+  tmrAvisos.Enabled := False;
   FPresentador.Free;
 end;
 
@@ -180,9 +194,9 @@ end;
 
 procedure TfrmPrincipal.AgregarItem(const ASeccion: TSeccion);
 var
-  lItem: TFlatNavItem;
+  lItem: TPlanoNavItem;
 begin
-  lItem := TFlatNavItem.Create(Self);
+  lItem := TPlanoNavItem.Create(Self);
   lItem.Top := MaxInt div 2;
   lItem.Parent := pnlMenu;
   lItem.Align := alTop;
@@ -211,12 +225,12 @@ end;
 
 procedure TfrmPrincipal.ItemMenuClick(Sender: TObject);
 begin
-  FPresentador.Navegar(TSeccion((Sender as TFlatNavItem).Tag));
+  FPresentador.Navegar(TSeccion((Sender as TPlanoNavItem).Tag));
 end;
 
 procedure TfrmPrincipal.AbrirSeccion(const ASeccion: TSeccion);
 var
-  lItem: TFlatNavItem;
+  lItem: TPlanoNavItem;
 begin
   for lItem in FItems do
     lItem.Selected := lItem.Tag = Ord(ASeccion);
@@ -233,15 +247,43 @@ begin
   AplicarTemaFrame(FFrameTemp);
 end;
 
+procedure TfrmPrincipal.ProgramarAvisos(const AMinutos: Integer);
+begin
+  tmrAvisos.Interval := AMinutos * MSecsPerSec * SecsPerMin;
+  tmrAvisos.Enabled := True;
+end;
+
+procedure TfrmPrincipal.MostrarAviso(const ASeccion: TSeccion;
+  const ACantidad: Integer);
+var
+  lItem: TPlanoNavItem;
+begin
+  for lItem in FItems do
+    if lItem.Tag = Ord(ASeccion) then
+      lItem.Badge := ACantidad;
+end;
+
+procedure TfrmPrincipal.tmrAvisosTimer(Sender: TObject);
+begin
+  FPresentador.RefrescarAvisos;
+end;
+
 function TfrmPrincipal.ObtenerFrame(ASeccion: TSeccion): TFrame;
 begin
   case ASeccion of
-    secDashboard:
-      Result := TfraDashboard.Create(Self);
+    secDashboardSupervisor:
+      Result := TfraDashboardSupervisor.Create(Self);
+    secDashboardCuentas:
+      Result := TfraDashboardCuentas.Create(Self);
     secDashboardAsesor:
       Result := TfraDashboardAsesor.Create(Self);
+    secDashboardAsistente:
+      Result := TfraDashboardAsistente.Create(Self);
     secSolicitudes:
-      Result := TfraSolicitudes.Create(Self);
+      if TSesion.Tiene('solicitudes.ver_propias') then
+        Result := TfraSolicitudes.Create(Self)
+      else
+        Result := TfraSolicitudesAsistente.Create(Self);
     secBandeja:
       Result := TfraBandeja.Create(Self);
     secCotizaciones:

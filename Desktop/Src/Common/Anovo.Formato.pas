@@ -23,6 +23,7 @@ type
     class function Magnitud(const AValor: string): string; static;
     class function MesAnio(const AFecha: TDateTime): string; static;
     class function Colones(const AMonto: Currency): string; static;
+    class function Dias(const ADias: Integer): string; static;
     class function FechaHora(const AFecha: TDateTime): string; static;
   end;
 
@@ -111,6 +112,14 @@ end;
 class function TFormato.Colones(const AMonto: Currency): string;
 begin
   Result := Format(SColones, [FormatFloat('#,##0.00', AMonto)]);
+end;
+
+class function TFormato.Dias(const ADias: Integer): string;
+begin
+  if ADias = 1 then
+    Result := SDiaUno
+  else
+    Result := Format(SDias, [ADias]);
 end;
 
 class function TFormato.FechaHora(const AFecha: TDateTime): string;

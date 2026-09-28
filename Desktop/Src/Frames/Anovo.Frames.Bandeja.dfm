@@ -1,283 +1,173 @@
-object fraBandeja: TfraBandeja
-  Left = 0
-  Top = 0
-  Width = 960
-  Height = 620
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = 1973276
-  Font.Height = -11
-  Font.Name = 'Segoe UI'
-  Font.Style = []
-  ParentFont = False
-  TabOrder = 0
-  object pnbottom: TRelativePanel
-    Tag = 2
-    AlignWithMargins = True
-    Left = 3
-    Top = 552
-    Width = 954
-    Height = 65
-    ControlCollection = <
-      item
-        AlignBottomWithPanel = False
-        AlignHorizontalCenterWithPanel = False
-        AlignLeftWithPanel = False
-        AlignRightWithPanel = False
-        AlignTopWithPanel = True
-        AlignVerticalCenterWithPanel = False
-      end
-      item
-        AlignBottomWithPanel = False
-        AlignHorizontalCenterWithPanel = False
-        AlignLeftWithPanel = False
-        AlignRightWithPanel = True
-        AlignTopWithPanel = True
-        AlignVerticalCenterWithPanel = False
-      end>
-    Align = alBottom
-    BevelOuter = bvNone
-    TabOrder = 0
-  end
-  object pnlTitulo: TPanel
-    Tag = 2
-    AlignWithMargins = True
-    Left = 3
-    Top = 3
-    Width = 954
-    Height = 62
-    Align = alTop
-    BevelOuter = bvNone
-    TabOrder = 1
-    object lblTitulo: TLabel
-      Tag = 11
-      Left = 20
-      Top = 10
-      Width = 213
-      Height = 30
+inherited fraBandeja: TfraBandeja
+  inherited pnlTitulo: TPanel
+    inherited lblTitulo: TLabel
       Caption = 'Bandeja de aprobaci'#243'n'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -21
-      Font.Name = 'Segoe UI'
-      Font.Style = []
-      ParentFont = False
     end
-    object lblSubtitulo: TLabel
-      Tag = 13
-      Left = 20
-      Top = 40
-      Width = 348
-      Height = 13
-      Caption = 
-        'Cotizaciones a la espera de revisi'#243'n '#183' aprobar o devolver con mo' +
-        'tivo'
+    inherited lblSubtitulo: TLabel
+      Caption = 'Cotizaciones a la espera de revisi'#243'n '#183' aprobar, devolver o rechazar'
     end
   end
-  object pnlBarra: TPanel
+  object pnlKpi: TPanel
     Tag = 2
     AlignWithMargins = True
     Left = 3
-    Top = 176
+    Top = 71
     Width = 954
-    Height = 52
+    Height = 108
     Align = alTop
     BevelOuter = bvNone
-    TabOrder = 2
-    ExplicitTop = 71
-    DesignSize = (
-      954
-      52)
-    object sbBuscar: TSearchBox
+    TabOrder = 4
+    object tjPendientes: TPlanoTarjeta
+      Tag = 8
       Left = 20
-      Top = 14
-      Width = 300
-      Height = 21
-      BevelInner = bvNone
-      BevelOuter = bvNone
+      Top = 8
+      Width = 221
+      Height = 92
+      TitleHeight = 28
+      CardColor = 761589
+      Caption = 'Pendientes'
       TabOrder = 0
-      TextHint = 'Buscar'
-      StyleElements = [seFont]
+      object lblPendientes: TLabel
+        Tag = 16
+        Left = 16
+        Top = 32
+        Width = 189
+        Height = 34
+        AutoSize = False
+        Caption = '0'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -27
+        Font.Name = 'Segoe UI Semibold'
+        Font.Style = []
+        ParentFont = False
+      end
     end
-    object btnExportar: TPlanoBotonWin
-      Left = 804
-      Top = 12
-      Width = 130
-      Height = 28
-      Cursor = crHandPoint
-      Anchors = [akTop, akRight]
-      Caption = 'Exportar listado'
+    object tjAntigua: TPlanoTarjeta
+      Tag = 7
+      Left = 253
+      Top = 8
+      Width = 221
+      Height = 92
+      TitleHeight = 28
+      CardColor = 10510377
+      Caption = 'M'#225's antigua'
       TabOrder = 1
-      StyleElements = []
-      Kind = fkSecondary
+      object lblAntigua: TLabel
+        Tag = 16
+        Left = 16
+        Top = 32
+        Width = 189
+        Height = 34
+        AutoSize = False
+        Caption = '0'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -27
+        Font.Name = 'Segoe UI Semibold'
+        Font.Style = []
+        ParentFont = False
+      end
+    end
+    object tjEspera: TPlanoTarjeta
+      Tag = 10
+      Left = 486
+      Top = 8
+      Width = 221
+      Height = 92
+      TitleHeight = 28
+      CardColor = 6044186
+      Caption = 'Monto en espera'
+      TabOrder = 2
+      object lblEspera: TLabel
+        Tag = 16
+        Left = 16
+        Top = 32
+        Width = 189
+        Height = 34
+        AutoSize = False
+        Caption = '0'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -27
+        Font.Name = 'Segoe UI Semibold'
+        Font.Style = []
+        ParentFont = False
+      end
     end
   end
-  object pnclient: TRelativePanel
-    Tag = 2
-    AlignWithMargins = True
-    Left = 3
-    Top = 234
-    Width = 954
-    Height = 312
-    ControlCollection = <
-      item
-        Control = grDatos
-        AlignBottomWithPanel = True
-        AlignHorizontalCenterWithPanel = False
-        AlignLeftWithPanel = True
-        AlignRightWithPanel = True
-        AlignTopWithPanel = True
-        AlignVerticalCenterWithPanel = False
-      end>
-    Align = alClient
-    BevelOuter = bvNone
-    TabOrder = 3
-    ExplicitTop = 169
-    ExplicitHeight = 377
-    object grDatos: TrDBGrid
-      Left = 0
-      Top = 0
-      Width = 954
-      Height = 312
-      Align = alClient
-      BorderStyle = bsNone
-      DefaultDrawing = False
-      Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
-      TabOrder = 0
-      TitleFont.Charset = DEFAULT_CHARSET
-      TitleFont.Color = 1973276
-      TitleFont.Height = -11
-      TitleFont.Name = 'Segoe UI'
-      TitleFont.Style = []
-      StyleElements = [seFont]
+  inherited pnlBarra: TPanel
+    Top = 185
+    inherited sbBuscar: TSearchBox
+      TextHint = 'Cliente o descripci'#243'n'
+    end
+  end
+  inherited pnclient: TRelativePanel
+    Top = 243
+    Height = 324
+    inherited grDatos: TrDBGrid
+      DataSource = dmMemoria.dsBandeja
+      OnDblClick = grDatosDblClick
       Columns = <
         item
           Expanded = False
-          Title.Caption = '#'
+          FieldName = 'NUMERO'
+          Title.Alignment = taRightJustify
+          Title.Caption = 'N'#250'mero'
+          Width = 70
           Visible = True
         end
         item
           Expanded = False
-          FieldName = 'CLIENTE'
+          FieldName = 'CLIENTE_NOMBRE'
+          Title.Caption = 'Cliente'
+          Width = 220
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'ASESOR_NOMBRE'
           Title.Caption = 'Asesor'
-          Width = 166
+          Width = 130
           Visible = True
         end
         item
           Expanded = False
-          FieldName = 'FECHA'
+          FieldName = 'ELABORADA_POR_NOMBRE'
+          Title.Caption = 'Elabor'#243
+          Width = 130
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'FECHA_MODIFICACION'
           Title.Caption = 'Enviada'
-          Width = 72
+          Width = 90
           Visible = True
         end
         item
           Expanded = False
-          FieldName = 'ASESOR'
-          Title.Caption = 'Arm'#243
-          Width = 101
+          FieldName = 'DIAS_EN_ESTADO'
+          Title.Alignment = taRightJustify
+          Title.Caption = 'D'#237'as'
+          Width = 60
           Visible = True
         end
         item
-          Alignment = taRightJustify
           Expanded = False
-          FieldName = 'MONTO'
+          FieldName = 'MONTO_TOTAL'
           Title.Alignment = taRightJustify
           Title.Caption = 'Monto'
-          Width = 79
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'ESTADO'
-          Title.Caption = 'Estado'
-          Width = 86
+          Width = 120
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'ACCIONES'
           Title.Caption = 'Acciones'
-          Width = 300
-          Visible = True
-        end
-        item
-          Expanded = False
+          Width = 120
           Visible = True
         end>
-    end
-  end
-  object RelativePanel1: TRelativePanel
-    Tag = 2
-    AlignWithMargins = True
-    Left = 3
-    Top = 71
-    Width = 954
-    Height = 99
-    ControlCollection = <
-      item
-        Control = tpPendiente
-        AlignBottomWithPanel = False
-        AlignHorizontalCenterWithPanel = False
-        AlignLeftWithPanel = True
-        AlignRightWithPanel = False
-        AlignTopWithPanel = False
-        AlignVerticalCenterWithPanel = True
-      end
-      item
-        AlignBottomWithPanel = False
-        AlignHorizontalCenterWithPanel = True
-        AlignLeftWithPanel = False
-        AlignRightWithPanel = False
-        AlignTopWithPanel = False
-        AlignVerticalCenterWithPanel = True
-      end
-      item
-        AlignBottomWithPanel = False
-        AlignHorizontalCenterWithPanel = False
-        AlignLeftWithPanel = False
-        AlignRightWithPanel = True
-        AlignTopWithPanel = False
-        AlignVerticalCenterWithPanel = True
-      end>
-    Align = alTop
-    BevelOuter = bvNone
-    TabOrder = 4
-    DesignSize = (
-      954
-      99)
-    object tpPendiente: TPlanoTarjeta
-      Tag = 3
-      AlignWithMargins = True
-      Left = 20
-      Top = 0
-      Width = 289
-      Height = 100
-      Margins.Left = 20
-      Margins.Right = 20
-      Anchors = []
-      StyleElements = [seFont, seBorder]
-      TabOrder = 0
-    end
-    object TPlanoTarjeta
-      AlignWithMargins = True
-      Left = 332
-      Top = 0
-      Width = 289
-      Height = 100
-      Margins.Left = 20
-      Margins.Right = 20
-      Anchors = []
-      TabOrder = 1
-    end
-    object TPlanoTarjeta
-      AlignWithMargins = True
-      Left = 645
-      Top = 0
-      Width = 289
-      Height = 100
-      Margins.Left = 20
-      Margins.Right = 20
-      Anchors = []
-      TabOrder = 2
     end
   end
 end

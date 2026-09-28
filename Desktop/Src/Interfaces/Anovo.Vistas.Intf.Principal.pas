@@ -5,7 +5,8 @@ unit Anovo.Vistas.Intf.Principal;
 interface
 
 type
-  TSeccion = (secDashboard, secDashboardCuentas, secDashboardAsesor,
+  TSeccion = (secDashboardSupervisor, secDashboardCuentas, secDashboardAsesor,
+    secDashboardAsistente,
     secSolicitudes, secBandeja,
     secCotizaciones, secGeneracion, secDetalle, secClientes, secMateriales,
     secReportes, secGerencia, secUsuarios, secRoles, secAuditoria,
@@ -17,6 +18,9 @@ type
     procedure MostrarUsuario(const ANombre, ARol, AIniciales: string);
     procedure MostrarSecciones(const ASecciones: TArray<TSeccion>);
     procedure AbrirSeccion(const ASeccion: TSeccion);
+    procedure ProgramarAvisos(const AMinutos: Integer);
+    procedure MostrarAviso(const ASeccion: TSeccion;
+      const ACantidad: Integer);
   end;
 
 implementation

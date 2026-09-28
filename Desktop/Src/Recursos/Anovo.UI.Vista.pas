@@ -11,6 +11,8 @@ procedure CursorOcupado(const AActivo: Boolean);
 
 procedure AvisarError(const AMensaje: string);
 
+function Confirmar(const AMensaje: string): Boolean;
+
 procedure BloquearEdicion(const AControles: array of TControl;
   const AActivo: Boolean);
 
@@ -37,6 +39,11 @@ end;
 procedure AvisarError(const AMensaje: string);
 begin
   MessageDlg(AMensaje, mtError, [mbOK], 0);
+end;
+
+function Confirmar(const AMensaje: string): Boolean;
+begin
+  Result := MessageDlg(AMensaje, mtConfirmation, [mbYes, mbNo], 0) = mrYes;
 end;
 
 procedure BloquearEdicion(const AControles: array of TControl;
