@@ -451,8 +451,6 @@ type
     [MVCTableField('CUENTA_BANCARIA')]
     [MVCMaxLength(60)]
     fCuentaBancaria: NullableString;
-    [MVCTableField('MODIFICADO_POR')]
-    fModificadoPor: NullableInt32;
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
     fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
   public
@@ -465,7 +463,6 @@ type
     property Correo: NullableString read fCorreo write fCorreo;
     property RepresentanteLegal: NullableString read fRepresentanteLegal write fRepresentanteLegal;
     property CuentaBancaria: NullableString read fCuentaBancaria write fCuentaBancaria;
-    property ModificadoPor: NullableInt32 read fModificadoPor write fModificadoPor;
     property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
   end;
 

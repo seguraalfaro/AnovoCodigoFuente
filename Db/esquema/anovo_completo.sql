@@ -2770,3 +2770,92 @@ COMMIT;
      SELECT COUNT(*) FROM V_CONSENTIMIENTOS;      -- igual que la tabla
      SELECT COUNT(*) FROM V_PERMISOS_ROLES;       -- igual que ROLES_PERMISOS
    ---------------------------------------------------------------------------- */
+
+/* ============================================================================
+   Anovo - Migracion 23: EMPRESA sin relacion con USUARIOS
+   ----------------------------------------------------------------------------
+   EMPRESA guarda los datos de Anovo para el encabezado de la cotizacion y no
+   se relaciona con las cuentas de usuario. MODIFICADO_POR no lo leia ni lo
+   escribia nadie: quien cambia los datos de la empresa queda en AUDITORIA por
+   TR_EMPRESA_AUD, que toma el usuario del contexto de la sesion.
+
+   La clave foranea se creo sin nombre (INTEG_nn), por eso se busca antes de
+   quitar la columna; Firebird no deja borrar una columna con una restriccion.
+
+   Todo en ASCII.
+   ============================================================================ */
+
+SET TERM ^ ;
+
+EXECUTE BLOCK AS
+  DECLARE VARIABLE V_FK VARCHAR(63);
+BEGIN
+  SELECT TRIM(RC.RDB$CONSTRAINT_NAME)
+    FROM RDB$RELATION_CONSTRAINTS RC
+    JOIN RDB$INDEX_SEGMENTS S ON S.RDB$INDEX_NAME = RC.RDB$INDEX_NAME
+   WHERE RC.RDB$RELATION_NAME = 'EMPRESA'
+     AND RC.RDB$CONSTRAINT_TYPE = 'FOREIGN KEY'
+     AND S.RDB$FIELD_NAME = 'MODIFICADO_POR'
+    INTO :V_FK;
+  IF (V_FK IS NOT NULL) THEN
+    EXECUTE STATEMENT 'ALTER TABLE EMPRESA DROP CONSTRAINT ' || V_FK;
+END^
+
+SET TERM ; ^
+
+COMMIT;
+
+ALTER TABLE EMPRESA DROP MODIFICADO_POR;
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   Verificacion:
+     SELECT RDB$FIELD_NAME FROM RDB$RELATION_FIELDS
+      WHERE RDB$RELATION_NAME = 'EMPRESA';          -- sin MODIFICADO_POR
+     SELECT * FROM EMPRESA;                         -- la fila ID = 1 intacta
+   ---------------------------------------------------------------------------- */
+
+/* ============================================================================
+   Anovo - Migracion 24: quitar indices duplicados
+   ----------------------------------------------------------------------------
+   Firebird crea un indice por cada PRIMARY KEY, FOREIGN KEY y UNIQUE. Estos
+   indices repetian el de una clave foranea: trece con las mismas columnas y
+   IDX_ROLPERM_PERMISO con la primera columna de FK_ROLPERM_PERMISO
+   (PERMISO_ID, AMBITO), que el optimizador usa tambien para buscar solo por
+   PERMISO_ID. No aceleraban ninguna consulta y si cada escritura.
+
+   Se quedan los que combinan columnas o atienden estado y fecha:
+   *_MOD, *_PRECIO_ACTIVO, IDX_PRECIOPROG_PENDIENTE, IDX_CLAVES_USUARIO_ACTIVO,
+   IDX_COTIZ_ESTADO, IDX_COTIZ_FECHA, IDX_AUDITORIA_* y
+   UQ_UNIDADES_MEDIDA_NOMBRE.
+
+   Todo en ASCII.
+   ============================================================================ */
+
+DROP INDEX IDX_CONTACTOS_CLIENTE;
+DROP INDEX IDX_CONSHIST_CLIENTE;
+DROP INDEX IDX_SOLICITUDES_ASESOR;
+DROP INDEX IDX_SOLICITUDES_CLIENTE;
+DROP INDEX IDX_ADJUNTOS_SOLICITUD;
+DROP INDEX IDX_MEDIDAS_SOLICITUD;
+DROP INDEX IDX_MANO_OBRA_CATEGORIA;
+DROP INDEX IDX_MATERIALES_UNIDAD;
+DROP INDEX IDX_MANO_OBRA_UNIDAD;
+DROP INDEX IDX_PRECIOPROG_MATERIAL;
+DROP INDEX IDX_PRECIOPROG_MANO_OBRA;
+DROP INDEX IDX_PRECIOPROG_MAQUINA;
+DROP INDEX IDX_DETALLE_COTIZ;
+DROP INDEX IDX_ROLPERM_PERMISO;
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   Verificacion:
+     SELECT RDB$INDEX_NAME FROM RDB$INDICES I
+      WHERE COALESCE(I.RDB$SYSTEM_FLAG, 0) = 0
+        AND NOT EXISTS (SELECT 1 FROM RDB$RELATION_CONSTRAINTS C
+                         WHERE C.RDB$INDEX_NAME = I.RDB$INDEX_NAME);
+     -- quedan 14: los 13 que combinan columnas o atienden estado y fecha,
+     -- y UQ_UNIDADES_MEDIDA_NOMBRE
+   ---------------------------------------------------------------------------- */

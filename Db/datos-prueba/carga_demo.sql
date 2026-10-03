@@ -344,7 +344,9 @@ BEGIN
       WHEN 2 THEN 'recibida'
       WHEN 3 THEN 'recibida'
       ELSE 'en_cotizacion' END;
-    CAPTURA = DATEADD(-(180 - (I * 4)) DAY TO CURRENT_TIMESTAMP);
+    CAPTURA = CASE WHEN I <= 32
+      THEN DATEADD(-(170 - (I * 5)) DAY TO CURRENT_TIMESTAMP)
+      ELSE DATEADD(-(41 - I) DAY TO CURRENT_TIMESTAMP) END;
     DESCR = CASE MOD(I, 6)
       WHEN 0 THEN 'Fabricacion de mesa de trabajo en acero inoxidable'
       WHEN 1 THEN 'Estructura para techo de bodega'
@@ -357,7 +359,7 @@ BEGIN
       OBSERVACIONES, FECHA_CAPTURA, FECHA_RECEPCION, ESTADO)
       VALUES ('demo-sol-' || LPAD(:I, 3, '0'), :ID_CLI, :ASESOR, :DESCR,
               'Medidas tomadas en sitio. Cliente pide entrega en dos semanas.',
-              :CAPTURA, DATEADD(6 HOUR TO :CAPTURA), :ESTADO)
+              :CAPTURA, MINVALUE(DATEADD(6 HOUR TO :CAPTURA), CURRENT_TIMESTAMP), :ESTADO)
       RETURNING ID INTO :ID_SOL;
 
     /* Un croquis con sus trazos, y en la mitad de los casos una foto. El
@@ -468,10 +470,10 @@ BEGIN
               13.00, 0, 0,
               CASE WHEN :ESTADO = 'rechazada' THEN
                 'El cliente pidio bajar el alcance del trabajo' ELSE NULL END,
-              DATEADD(2 DAY TO :FECHA),
+              MINVALUE(DATEADD((1 + MOD(:I, 3)) DAY TO :FECHA), CURRENT_TIMESTAMP),
               CASE WHEN :APRUEBA IS NULL THEN NULL
-                ELSE DATEADD(4 DAY TO :FECHA) END,
-              CASE WHEN :ESTADO = 'enviada' THEN DATEADD(5 DAY TO :FECHA)
+                ELSE MINVALUE(DATEADD((3 + MOD(:I, 3)) DAY TO :FECHA), CURRENT_TIMESTAMP) END,
+              CASE WHEN :ESTADO = 'enviada' THEN MINVALUE(DATEADD((4 + MOD(:I, 3)) DAY TO :FECHA), CURRENT_TIMESTAMP)
                 ELSE NULL END)
       RETURNING ID INTO :ID_COT;
 
@@ -562,6 +564,17 @@ END^
 
 SET TERM ; ^
 
+COMMIT;
+
+ALTER TRIGGER TR_COTIZACIONES_BU INACTIVE;
+COMMIT;
+
+UPDATE COTIZACIONES
+  SET FECHA_MODIFICACION = COALESCE(FECHA_ENVIO, FECHA_APROBACION, FECHA_ELABORACION)
+  WHERE SOLICITUD_ID IN (SELECT ID FROM SOLICITUDES WHERE UUID_LOCAL STARTING WITH 'demo-');
+COMMIT;
+
+ALTER TRIGGER TR_COTIZACIONES_BU ACTIVE;
 COMMIT;
 
 /* ====================  RESUMEN  ==================== */
