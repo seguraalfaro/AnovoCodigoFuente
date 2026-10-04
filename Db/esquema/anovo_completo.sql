@@ -3,7 +3,7 @@
    Firebird 4.0 - base ANOVO
 
    La base entera desde cero, en el estado que dejo la ultima migracion. Es la
-   suma de migraciones\01 a 26 en orden de aplicacion; cada tramo conserva la
+   suma de migraciones\01 a 27 en orden de aplicacion; cada tramo conserva la
    cabecera de su script para saber de donde salio. La 12 no tiene tramo
    propio: su cambio ya esta en la tabla MANO_OBRA del tramo 01.
 
@@ -3011,5 +3011,30 @@ SELECT (SELECT CAST(COUNT(*) AS INTEGER) FROM USUARIOS U
            AND A.FECHA >= P.MES_DESDE AND A.FECHA < P.MES_HASTA)
          AS CAMBIOS_MES
   FROM V_PERIODO_ACTUAL P;
+
+COMMIT;
+
+/* ############################################################################
+   TRAMO 27_montos_no_nulos.sql
+   ############################################################################ */
+
+/* Anovo - Migracion 27: NOT NULL en la columna de los montos D_MONTO.
+   El dominio ya lo exige, pero MVCEntGen solo mira la columna y generaba
+   NullableCurrency; con NULL explicito el DEFAULT 0 no actuaba. Todo en ASCII. */
+
+ALTER TABLE COTIZACIONES ALTER COLUMN SUBTOTAL_MATERIALES SET NOT NULL;
+ALTER TABLE COTIZACIONES ALTER COLUMN SUBTOTAL_MANO_OBRA SET NOT NULL;
+ALTER TABLE COTIZACIONES ALTER COLUMN SUBTOTAL_MAQUINA SET NOT NULL;
+ALTER TABLE COTIZACIONES ALTER COLUMN COSTO_TOTAL SET NOT NULL;
+ALTER TABLE COTIZACIONES ALTER COLUMN MONTO_IMPUESTO SET NOT NULL;
+ALTER TABLE COTIZACIONES ALTER COLUMN MONTO_TOTAL SET NOT NULL;
+
+ALTER TABLE COTIZACION_DETALLE ALTER COLUMN PRECIO_UNITARIO SET NOT NULL;
+ALTER TABLE COTIZACION_DETALLE ALTER COLUMN SUBTOTAL SET NOT NULL;
+
+ALTER TABLE MATERIALES_PRECIOS ALTER COLUMN COSTO_UNITARIO SET NOT NULL;
+ALTER TABLE MATERIALES_PRECIOS ALTER COLUMN PRECIO_UNITARIO SET NOT NULL;
+ALTER TABLE MANO_OBRA_PRECIOS ALTER COLUMN COSTO_UNITARIO SET NOT NULL;
+ALTER TABLE MAQUINAS_PRECIOS ALTER COLUMN COSTO_HORA SET NOT NULL;
 
 COMMIT;

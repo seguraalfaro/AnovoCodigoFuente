@@ -44,13 +44,17 @@ type
     [MVCMaxLength(20)]
     fEstado: String;
     [MVCTableField('SUBTOTAL_MATERIALES')]
-    fSubtotalMateriales: NullableCurrency;
+    [MVCRequired]
+    fSubtotalMateriales: Currency;
     [MVCTableField('SUBTOTAL_MANO_OBRA')]
-    fSubtotalManoObra: NullableCurrency;
+    [MVCRequired]
+    fSubtotalManoObra: Currency;
     [MVCTableField('SUBTOTAL_MAQUINA')]
-    fSubtotalMaquina: NullableCurrency;
+    [MVCRequired]
+    fSubtotalMaquina: Currency;
     [MVCTableField('COSTO_TOTAL')]
-    fCostoTotal: NullableCurrency;
+    [MVCRequired]
+    fCostoTotal: Currency;
     [MVCTableField('PORCENTAJE_AJUSTE')]
     [MVCRequired]
     fPorcentajeAjuste: Currency;
@@ -61,9 +65,11 @@ type
     [MVCRequired]
     fPorcentajeIva: Currency;
     [MVCTableField('MONTO_IMPUESTO')]
-    fMontoImpuesto: NullableCurrency;
+    [MVCRequired]
+    fMontoImpuesto: Currency;
     [MVCTableField('MONTO_TOTAL')]
-    fMontoTotal: NullableCurrency;
+    [MVCRequired]
+    fMontoTotal: Currency;
     [MVCTableField('MOTIVO_RECHAZO')]
     [MVCMaxLength(500)]
     fMotivoRechazo: NullableString;
@@ -88,15 +94,15 @@ type
     property ElaboradaPor: Int32 read fElaboradaPor write fElaboradaPor;
     property AprobadaPor: NullableInt32 read fAprobadaPor write fAprobadaPor;
     property Estado: String read fEstado write fEstado;
-    property SubtotalMateriales: NullableCurrency read fSubtotalMateriales write fSubtotalMateriales;
-    property SubtotalManoObra: NullableCurrency read fSubtotalManoObra write fSubtotalManoObra;
-    property SubtotalMaquina: NullableCurrency read fSubtotalMaquina write fSubtotalMaquina;
-    property CostoTotal: NullableCurrency read fCostoTotal write fCostoTotal;
+    property SubtotalMateriales: Currency read fSubtotalMateriales write fSubtotalMateriales;
+    property SubtotalManoObra: Currency read fSubtotalManoObra write fSubtotalManoObra;
+    property SubtotalMaquina: Currency read fSubtotalMaquina write fSubtotalMaquina;
+    property CostoTotal: Currency read fCostoTotal write fCostoTotal;
     property PorcentajeAjuste: Currency read fPorcentajeAjuste write fPorcentajeAjuste;
     property MotivoAjuste: NullableString read fMotivoAjuste write fMotivoAjuste;
     property PorcentajeIva: Currency read fPorcentajeIva write fPorcentajeIva;
-    property MontoImpuesto: NullableCurrency read fMontoImpuesto write fMontoImpuesto;
-    property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
+    property MontoImpuesto: Currency read fMontoImpuesto write fMontoImpuesto;
+    property MontoTotal: Currency read fMontoTotal write fMontoTotal;
     property MotivoRechazo: NullableString read fMotivoRechazo write fMotivoRechazo;
     property FechaElaboracion: NullableTDateTime  read fFechaElaboracion write fFechaElaboracion;
     property FechaAprobacion: NullableTDateTime  read fFechaAprobacion write fFechaAprobacion;
@@ -134,9 +140,11 @@ type
     [MVCTableField('CANTIDAD')]
     fCantidad: NullableCurrency;
     [MVCTableField('PRECIO_UNITARIO')]
-    fPrecioUnitario: NullableCurrency;
+    [MVCRequired]
+    fPrecioUnitario: Currency;
     [MVCTableField('SUBTOTAL')]
-    fSubtotal: NullableCurrency;
+    [MVCRequired]
+    fSubtotal: Currency;
     [MVCTableField('ORDEN')]
     [MVCRequired]
     fOrden: Int16;
@@ -151,8 +159,8 @@ type
     property Descripcion: String read fDescripcion write fDescripcion;
     property UnidadMedida: NullableString read fUnidadMedida write fUnidadMedida;
     property Cantidad: NullableCurrency read fCantidad write fCantidad;
-    property PrecioUnitario: NullableCurrency read fPrecioUnitario write fPrecioUnitario;
-    property Subtotal: NullableCurrency read fSubtotal write fSubtotal;
+    property PrecioUnitario: Currency read fPrecioUnitario write fPrecioUnitario;
+    property Subtotal: Currency read fSubtotal write fSubtotal;
     property Orden: Int16 read fOrden write fOrden;
   end;
 

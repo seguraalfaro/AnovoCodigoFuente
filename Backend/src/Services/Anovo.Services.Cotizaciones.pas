@@ -172,7 +172,7 @@ begin
     lMaterial := fMateriales.PrecioVigenteDe(ADto.MaterialId.Value);
     if lMaterial <> nil then
       try
-        Result := lMaterial.PrecioUnitario.ValueOrDefault;
+        Result := lMaterial.PrecioUnitario;
       finally
         lMaterial.Free;
       end;
@@ -182,7 +182,7 @@ begin
     lManoObra := fManoObra.PrecioVigenteDe(ADto.ManoObraId.Value);
     if lManoObra <> nil then
       try
-        Result := lManoObra.CostoUnitario.ValueOrDefault;
+        Result := lManoObra.CostoUnitario;
       finally
         lManoObra.Free;
       end;
@@ -192,7 +192,7 @@ begin
     lMaquina := fMaquinas.PrecioVigenteDe(ADto.MaquinaId.Value);
     if lMaquina <> nil then
       try
-        Result := lMaquina.CostoHora.ValueOrDefault;
+        Result := lMaquina.CostoHora;
       finally
         lMaquina.Free;
       end;

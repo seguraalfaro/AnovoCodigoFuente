@@ -64,9 +64,11 @@ type
     [MVCRequired]
     fMaterialId: Int32;
     [MVCTableField('COSTO_UNITARIO')]
-    fCostoUnitario: NullableCurrency;
+    [MVCRequired]
+    fCostoUnitario: Currency;
     [MVCTableField('PRECIO_UNITARIO')]
-    fPrecioUnitario: NullableCurrency;
+    [MVCRequired]
+    fPrecioUnitario: Currency;
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
     [MVCTableField('FECHA_VIGENCIA')]
@@ -77,9 +79,9 @@ type
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
     property MaterialId: Int32 read fMaterialId write fMaterialId;
-    property CostoUnitario: NullableCurrency read fCostoUnitario
+    property CostoUnitario: Currency read fCostoUnitario
       write fCostoUnitario;
-    property PrecioUnitario: NullableCurrency read fPrecioUnitario
+    property PrecioUnitario: Currency read fPrecioUnitario
       write fPrecioUnitario;
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaVigencia: NullableTDateTime
@@ -163,7 +165,8 @@ type
     [MVCRequired]
     fManoObraId: Int32;
     [MVCTableField('COSTO_UNITARIO')]
-    fCostoUnitario: NullableCurrency;
+    [MVCRequired]
+    fCostoUnitario: Currency;
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
     [MVCTableField('FECHA_VIGENCIA')]
@@ -174,7 +177,7 @@ type
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
     property ManoObraId: Int32 read fManoObraId write fManoObraId;
-    property CostoUnitario: NullableCurrency read fCostoUnitario
+    property CostoUnitario: Currency read fCostoUnitario
       write fCostoUnitario;
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaVigencia: NullableTDateTime
@@ -229,7 +232,8 @@ type
     [MVCRequired]
     fMaquinaId: Int32;
     [MVCTableField('COSTO_HORA')]
-    fCostoHora: NullableCurrency;
+    [MVCRequired]
+    fCostoHora: Currency;
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
     [MVCTableField('FECHA_VIGENCIA')]
@@ -240,7 +244,7 @@ type
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
     property MaquinaId: Int32 read fMaquinaId write fMaquinaId;
-    property CostoHora: NullableCurrency read fCostoHora write fCostoHora;
+    property CostoHora: Currency read fCostoHora write fCostoHora;
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaVigencia: NullableTDateTime
       read fFechaVigencia write fFechaVigencia;
