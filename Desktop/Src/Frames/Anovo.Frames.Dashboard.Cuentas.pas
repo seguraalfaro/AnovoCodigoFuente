@@ -12,13 +12,13 @@ uses
   VclPlano.Tarjeta,
   Anovo.Frames.Dashboard,
   Anovo.DTOs.Dashboard,
-  Anovo.Vistas.Intf.DashboardCuentas,
-  Anovo.Presentadores.DashboardCuentas;
+  Anovo.Vistas.Intf.Dashboard,
+  Anovo.Presentadores.Dashboard;
 
 type
-  TfraDashboardCuentas = class(TfraDashboard, IVistaDashboardCuentas)
+  TfraDashboardCuentas = class(TfraDashboard, IVistaDashboard<TDashboardCuentasDTO>)
   private
-    FPresentador: TPresentadorDashboardCuentas;
+    FPresentador: TPresentadorDashboard<TDashboardCuentasDTO>;
     procedure MostrarDashboard(const ADatos: TDashboardCuentasDTO);
   public
     constructor Create(AOwner: TComponent); override;
@@ -30,6 +30,7 @@ implementation
 {$R *.dfm}
 
 uses
+  Anovo.Api.Intf.Dashboard,
   Anovo.Api.Dashboard,
   Anovo.Formato,
   Anovo.Datos.Memoria;
@@ -38,8 +39,12 @@ constructor TfraDashboardCuentas.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
-  FPresentador := TPresentadorDashboardCuentas.Create(Self,
-    TApiDashboard.Create);
+  FPresentador := TPresentadorDashboard<TDashboardCuentasDTO>.Create(Self,
+    TApiDashboard.Create,
+    function(AApi: IApiDashboard): TDashboardCuentasDTO
+    begin
+      Result := AApi.Cuentas;
+    end);
   FPresentador.Iniciar;
 end;
 

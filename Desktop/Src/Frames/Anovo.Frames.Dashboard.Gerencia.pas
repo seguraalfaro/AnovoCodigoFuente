@@ -12,16 +12,16 @@ uses
   VclPlano.Tarjeta,
   Anovo.Frames.Dashboard,
   Anovo.DTOs.Dashboard,
-  Anovo.Vistas.Intf.DashboardGerencia,
-  Anovo.Presentadores.DashboardGerencia;
+  Anovo.Vistas.Intf.Dashboard,
+  Anovo.Presentadores.Dashboard;
 
 type
-  TfraDashboardGerencia = class(TfraDashboard, IVistaDashboardGerencia)
+  TfraDashboardGerencia = class(TfraDashboard, IVistaDashboard<TDashboardGerenciaDTO>)
     lblDecididas: TLabel;
     tjEstados: TPlanoTarjeta;
     grEstados: TrDBGrid;
   private
-    FPresentador: TPresentadorDashboardGerencia;
+    FPresentador: TPresentadorDashboard<TDashboardGerenciaDTO>;
     procedure MostrarDashboard(const ADatos: TDashboardGerenciaDTO);
   protected
     procedure Resize; override;
@@ -38,6 +38,7 @@ uses
   Anovo.UI.Tema,
   Anovo.UI.DBGridExtend,
   Anovo.Mapeo.Datos,
+  Anovo.Api.Intf.Dashboard,
   Anovo.Api.Dashboard,
   Anovo.Formato,
   Anovo.Textos,
@@ -52,8 +53,12 @@ begin
   AplicarTemaGrid(grEstados);
   TDBGridExtend.De(grEstados).ColumnaEstado(CAMPO_ESTADO);
 
-  FPresentador := TPresentadorDashboardGerencia.Create(Self,
-    TApiDashboard.Create);
+  FPresentador := TPresentadorDashboard<TDashboardGerenciaDTO>.Create(Self,
+    TApiDashboard.Create,
+    function(AApi: IApiDashboard): TDashboardGerenciaDTO
+    begin
+      Result := AApi.Gerencia;
+    end);
   FPresentador.Iniciar;
 end;
 

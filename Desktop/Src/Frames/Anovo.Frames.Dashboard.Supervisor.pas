@@ -12,15 +12,15 @@ uses
   VclPlano.Tarjeta,
   Anovo.Frames.Dashboard,
   Anovo.DTOs.Dashboard,
-  Anovo.Vistas.Intf.DashboardSupervisor,
-  Anovo.Presentadores.DashboardSupervisor;
+  Anovo.Vistas.Intf.Dashboard,
+  Anovo.Presentadores.Dashboard;
 
 type
-  TfraDashboardSupervisor = class(TfraDashboard, IVistaDashboardSupervisor)
+  TfraDashboardSupervisor = class(TfraDashboard, IVistaDashboard<TDashboardSupervisorDTO>)
     lblMontoAprobado: TLabel;
     procedure grListaDblClick(Sender: TObject);
   private
-    FPresentador: TPresentadorDashboardSupervisor;
+    FPresentador: TPresentadorDashboard<TDashboardSupervisorDTO>;
     procedure MostrarDashboard(const ADatos: TDashboardSupervisorDTO);
   public
     constructor Create(AOwner: TComponent); override;
@@ -34,6 +34,7 @@ implementation
 uses
   Anovo.Vistas.Intf.Principal,
   Anovo.Mensajes,
+  Anovo.Api.Intf.Dashboard,
   Anovo.Api.Dashboard,
   Anovo.Formato,
   Anovo.Datos.Memoria;
@@ -42,8 +43,12 @@ constructor TfraDashboardSupervisor.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
-  FPresentador := TPresentadorDashboardSupervisor.Create(Self,
-    TApiDashboard.Create);
+  FPresentador := TPresentadorDashboard<TDashboardSupervisorDTO>.Create(Self,
+    TApiDashboard.Create,
+    function(AApi: IApiDashboard): TDashboardSupervisorDTO
+    begin
+      Result := AApi.Supervisor;
+    end);
   FPresentador.Iniciar;
 end;
 
