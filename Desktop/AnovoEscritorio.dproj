@@ -234,6 +234,7 @@
         </DCCReference>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Auditoria.pas"/>
         <DCCReference Include="..\Backend\src\Common\Anovo.Textos.pas"/>
+        <DCCReference Include="..\Backend\src\Common\Anovo.Permisos.pas"/>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Dashboard.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Dashboard.pas"/>
         <DCCReference Include="Src\Api\Anovo.Api.Dashboard.pas"/>

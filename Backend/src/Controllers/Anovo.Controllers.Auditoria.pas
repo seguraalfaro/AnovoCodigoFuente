@@ -11,11 +11,10 @@ uses
   MVCFramework.Swagger.Commons,
   Anovo.Auth.Permisos,
   Anovo.DTOs.Auditoria,
-  Anovo.Services.Intf.Auditoria;
+  Anovo.Services.Intf.Auditoria,
+  Anovo.Permisos;
 
 const
-  PERMISO_VER_TODA = 'auditoria.ver_toda';
-  PERMISO_VER_CUENTAS = 'auditoria.ver_cuentas';
 
   POR_PAGINA_POR_DEFECTO = 50;
   POR_PAGINA_MAXIMO = 200;
@@ -25,7 +24,7 @@ const
 type
 
   [MVCPath('/api/auditoria')]
-  [MVCRequiresPermiso(PERMISO_VER_TODA + ';' + PERMISO_VER_CUENTAS)]
+  [MVCRequiresPermiso(PERMISO_AUDITORIA_VER_TODA + ';' + PERMISO_AUDITORIA_VER_CUENTAS)]
   TAuditoriaController = class(TMVCController)
   private
     function Consultar(const AServicio: IAuditoriaService;
@@ -35,7 +34,7 @@ type
   public
     [MVCPath]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_VER_TODA)]
+    [MVCRequiresPermiso(PERMISO_AUDITORIA_VER_TODA)]
     [MVCSwagSummary('Auditoria', 'Consulta la bitacora, paginada',
       'listarAuditoria')]
     [MVCSwagParam(plQuery, 'desde',
@@ -74,7 +73,7 @@ type
 
     [MVCPath('/cuentas')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_VER_CUENTAS)]
+    [MVCRequiresPermiso(PERMISO_AUDITORIA_VER_CUENTAS)]
     [MVCSwagSummary('Auditoria',
       'Consulta la bitacora de cuentas de usuario, paginada',
       'listarAuditoriaCuentas')]
@@ -116,7 +115,7 @@ type
 
     [MVCPath('/($AEntidad)/($AEntidadId)')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_VER_TODA)]
+    [MVCRequiresPermiso(PERMISO_AUDITORIA_VER_TODA)]
     [MVCSwagSummary('Auditoria', 'La bitacora de una fila',
       'auditoriaDeEntidad')]
     [MVCSwagParam(plPath, 'AEntidad', 'Tabla, por ejemplo CLIENTES',

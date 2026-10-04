@@ -12,14 +12,10 @@ uses
   MVCFramework.Swagger.Commons,
   Anovo.Auth.Permisos,
   Anovo.DTOs.Clientes,
-  Anovo.Services.Intf.Clientes;
+  Anovo.Services.Intf.Clientes,
+  Anovo.Permisos;
 
 const
-  PERMISO_VER = 'clientes.ver';
-  PERMISO_CREAR = 'clientes.crear';
-  PERMISO_EDITAR = 'clientes.editar';
-  PERMISO_INACTIVAR = 'clientes.inactivar';
-  PERMISO_CONSENTIMIENTO = 'clientes.consentimiento';
 
   POR_PAGINA_POR_DEFECTO = 50;
   POR_PAGINA_MAXIMO = 200;
@@ -27,7 +23,7 @@ const
 type
 
   [MVCPath('/api/clientes')]
-  [MVCRequiresPermiso(PERMISO_VER)]
+  [MVCRequiresPermiso(PERMISO_CLIENTES_VER)]
   TClientesController = class(TMVCController)
   public
     [MVCPath]
@@ -74,7 +70,7 @@ type
 
     [MVCPath]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_CREAR)]
+    [MVCRequiresPermiso(PERMISO_CLIENTES_CREAR)]
     [MVCSwagSummary('Clientes', 'Registra un cliente nuevo', 'crearCliente')]
     [MVCSwagParam(plBody, 'Cliente', 'Datos del cliente nuevo',
       TClienteNuevoDTO)]
@@ -87,7 +83,7 @@ type
 
     [MVCPath('/($AId)')]
     [MVCHTTPMethods([httpPUT])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CLIENTES_EDITAR)]
     [MVCSwagSummary('Clientes', 'Modifica un cliente existente',
       'actualizarCliente')]
     [MVCSwagParam(plPath, 'AId', 'Numero del cliente', ptInteger, True)]
@@ -105,7 +101,7 @@ type
 
     [MVCPath('/($AId)/inactivacion')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_INACTIVAR)]
+    [MVCRequiresPermiso(PERMISO_CLIENTES_INACTIVAR)]
     [MVCSwagSummary('Clientes', 'Inactiva un cliente. Baja logica',
       'inactivarCliente')]
     [MVCSwagParam(plPath, 'AId', 'Numero del cliente', ptInteger, True)]
@@ -118,8 +114,8 @@ type
 
     [MVCPath('/registro-completo')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_CREAR)]
-    [MVCRequiresPermiso(PERMISO_CONSENTIMIENTO)]
+    [MVCRequiresPermiso(PERMISO_CLIENTES_CREAR)]
+    [MVCRequiresPermiso(PERMISO_CLIENTES_CONSENTIMIENTO)]
     [MVCSwagSummary('Clientes',
       'Registra un cliente con sus contactos y la firma, todo o nada',
       'registrarClienteCompleto')]
@@ -146,7 +142,7 @@ type
 
     [MVCPath('/($AId)/contactos')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CLIENTES_EDITAR)]
     [MVCSwagSummary('Clientes', 'Agrega un contacto al cliente',
       'crearContacto')]
     [MVCSwagParam(plPath, 'AId', 'Numero del cliente', ptInteger, True)]
@@ -161,7 +157,7 @@ type
 
     [MVCPath('/($AId)/contactos/($AContactoId)')]
     [MVCHTTPMethods([httpPUT])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CLIENTES_EDITAR)]
     [MVCSwagSummary('Clientes', 'Modifica un contacto del cliente',
       'actualizarContacto')]
     [MVCSwagParam(plPath, 'AId', 'Numero del cliente', ptInteger, True)]
@@ -181,7 +177,7 @@ type
 
     [MVCPath('/($AId)/contactos/($AContactoId)/inactivacion')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CLIENTES_EDITAR)]
     [MVCSwagSummary('Clientes', 'Inactiva un contacto. Baja logica',
       'inactivarContacto')]
     [MVCSwagParam(plPath, 'AId', 'Numero del cliente', ptInteger, True)]
@@ -209,7 +205,7 @@ type
 
     [MVCPath('/($AId)/consentimientos/revocacion')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_CONSENTIMIENTO)]
+    [MVCRequiresPermiso(PERMISO_CLIENTES_CONSENTIMIENTO)]
     [MVCSwagSummary('Clientes', 'Registra la revocacion del consentimiento',
       'revocarConsentimiento')]
     [MVCSwagParam(plPath, 'AId', 'Numero del cliente', ptInteger, True)]

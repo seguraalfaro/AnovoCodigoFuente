@@ -9,7 +9,8 @@ uses
   System.SysUtils,
   Anovo.Api.Intf.Usuarios,
   Anovo.Cancelacion,
-  Anovo.Vistas.Intf.Usuarios;
+  Anovo.Vistas.Intf.Usuarios,
+  Anovo.Permisos;
 
 type
   TPresentadorUsuarios = class
@@ -58,7 +59,6 @@ uses
   Anovo.Textos;
 
 const
-  PERMISO_ADMINISTRAR = 'usuarios.administrar';
 
   ESTADO_API: array [TFiltroUsuarios] of string = ('', 'activos', 'inactivos',
     'clave_pendiente', 'con_adicionales');
@@ -91,7 +91,7 @@ end;
 
 class function TPresentadorUsuarios.PuedeCrear: Boolean;
 begin
-  Result := TSesion.Tiene(PERMISO_ADMINISTRAR);
+  Result := TSesion.Tiene(PERMISO_USUARIOS_ADMINISTRAR);
 end;
 
 procedure TPresentadorUsuarios.Iniciar;

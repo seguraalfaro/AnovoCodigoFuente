@@ -11,11 +11,10 @@ uses
   MVCFramework.Swagger.Commons,
   Anovo.Auth.Permisos,
   Anovo.DTOs.Catalogos,
-  Anovo.Services.Intf.Catalogos;
+  Anovo.Services.Intf.Catalogos,
+  Anovo.Permisos;
 
 const
-  PERMISO_VER = 'catalogos.ver';
-  PERMISO_EDITAR = 'catalogos.editar';
 
   POR_PAGINA_POR_DEFECTO = 50;
   POR_PAGINA_MAXIMO = 200;
@@ -23,7 +22,7 @@ const
 type
 
   [MVCPath('/api/catalogos')]
-  [MVCRequiresPermiso(PERMISO_VER)]
+  [MVCRequiresPermiso(PERMISO_CATALOGOS_VER)]
   TCatalogosController = class(TMVCController)
   public
 
@@ -85,7 +84,7 @@ type
 
     [MVCPath('/materiales')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
     [MVCSwagSummary('Catalogos', 'Registra un material', 'crearMaterial')]
     [MVCSwagResponses(201, 'Creado. Location apunta al material')]
     [MVCSwagResponses(422, 'Ya existe un material con ese nombre')]
@@ -94,7 +93,7 @@ type
 
     [MVCPath('/materiales/($AId)')]
     [MVCHTTPMethods([httpPUT])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
     [MVCSwagSummary('Catalogos', 'Actualiza un material',
       'actualizarMaterial')]
     [MVCSwagResponses(204, 'Actualizado')]
@@ -106,7 +105,7 @@ type
 
     [MVCPath('/materiales/($AId)/inactivacion')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
     [MVCSwagSummary('Catalogos', 'Inactiva un material. No se borra: las ' +
       'cotizaciones anteriores lo siguen nombrando', 'inactivarMaterial')]
     [MVCSwagResponses(204, 'Inactivado')]
@@ -123,7 +122,7 @@ type
 
     [MVCPath('/materiales/($AId)/precios')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
     [MVCSwagSummary('Catalogos', 'Cambia el precio vigente del material. ' +
       'El anterior queda en el historial', 'cambiarPrecioMaterial')]
     [MVCSwagResponses(204, 'Precio cambiado')]
@@ -175,7 +174,7 @@ type
 
     [MVCPath('/mano-obra')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
     [MVCSwagSummary('Catalogos', 'Registra una mano de obra',
       'crearManoObra')]
     [MVCSwagResponses(201, 'Creada. Location apunta al registro')]
@@ -185,7 +184,7 @@ type
 
     [MVCPath('/mano-obra/($AId)')]
     [MVCHTTPMethods([httpPUT])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
     [MVCSwagSummary('Catalogos', 'Actualiza una mano de obra',
       'actualizarManoObra')]
     [MVCSwagResponses(204, 'Actualizada')]
@@ -195,7 +194,7 @@ type
 
     [MVCPath('/mano-obra/($AId)/inactivacion')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
     [MVCSwagSummary('Catalogos', 'Inactiva una mano de obra',
       'inactivarManoObra')]
     [MVCSwagResponses(204, 'Inactivada')]
@@ -212,7 +211,7 @@ type
 
     [MVCPath('/mano-obra/($AId)/precios')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
     [MVCSwagSummary('Catalogos', 'Cambia el costo vigente de la mano de obra',
       'cambiarPrecioManoObra')]
     [MVCSwagResponses(204, 'Costo cambiado')]
@@ -253,7 +252,7 @@ type
 
     [MVCPath('/maquinas')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
     [MVCSwagSummary('Catalogos', 'Registra una maquina', 'crearMaquina')]
     [MVCSwagResponses(201, 'Creada. Location apunta a la maquina')]
     function CrearMaquina([MVCInject] AServicio: ICatalogoService;
@@ -261,7 +260,7 @@ type
 
     [MVCPath('/maquinas/($AId)')]
     [MVCHTTPMethods([httpPUT])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
     [MVCSwagSummary('Catalogos', 'Actualiza una maquina',
       'actualizarMaquina')]
     [MVCSwagResponses(204, 'Actualizada')]
@@ -271,7 +270,7 @@ type
 
     [MVCPath('/maquinas/($AId)/inactivacion')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
     [MVCSwagSummary('Catalogos', 'Inactiva una maquina', 'inactivarMaquina')]
     [MVCSwagResponses(204, 'Inactivada')]
     function InactivarMaquina([MVCInject] AServicio: ICatalogoService;
@@ -287,7 +286,7 @@ type
 
     [MVCPath('/maquinas/($AId)/precios')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
     [MVCSwagSummary('Catalogos', 'Cambia el costo por hora vigente',
       'cambiarCostoMaquina')]
     [MVCSwagResponses(204, 'Costo cambiado')]
@@ -311,7 +310,7 @@ type
 
     [MVCPath('/tipos-trabajo')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
     [MVCSwagSummary('Catalogos', 'Registra un tipo de trabajo',
       'crearTipoTrabajo')]
     [MVCSwagResponses(201, 'Creado')]
@@ -321,7 +320,7 @@ type
 
     [MVCPath('/tipos-trabajo/($AId)')]
     [MVCHTTPMethods([httpPUT])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
     [MVCSwagSummary('Catalogos', 'Actualiza un tipo de trabajo',
       'actualizarTipoTrabajo')]
     [MVCSwagResponses(204, 'Actualizado')]
@@ -331,7 +330,7 @@ type
 
     [MVCPath('/tipos-trabajo/($AId)/inactivacion')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
     [MVCSwagSummary('Catalogos', 'Inactiva un tipo de trabajo',
       'inactivarTipoTrabajo')]
     [MVCSwagResponses(204, 'Inactivado')]
@@ -354,7 +353,7 @@ type
 
     [MVCPath('/unidades-medida')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
     [MVCSwagSummary('Catalogos', 'Registra una unidad de medida',
       'crearUnidadMedida')]
     [MVCSwagResponses(201, 'Creada')]
@@ -364,7 +363,7 @@ type
 
     [MVCPath('/unidades-medida/($AId)')]
     [MVCHTTPMethods([httpPUT])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
     [MVCSwagSummary('Catalogos', 'Actualiza una unidad de medida',
       'actualizarUnidadMedida')]
     [MVCSwagResponses(204, 'Actualizada')]
@@ -375,7 +374,7 @@ type
 
     [MVCPath('/unidades-medida/($AId)/inactivacion')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_EDITAR)]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
     [MVCSwagSummary('Catalogos', 'Inactiva una unidad de medida',
       'inactivarUnidadMedida')]
     [MVCSwagResponses(204, 'Inactivada')]

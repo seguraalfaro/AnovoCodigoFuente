@@ -11,11 +11,10 @@ uses
   MVCFramework.Swagger.Commons,
   Anovo.Auth.Permisos,
   Anovo.DTOs.Usuarios,
-  Anovo.Services.Intf.Usuarios;
+  Anovo.Services.Intf.Usuarios,
+  Anovo.Permisos;
 
 const
-  PERMISO_ADMINISTRAR_USUARIOS = 'usuarios.administrar';
-  PERMISO_EDITAR_PERMISOS_USUARIO = 'permisos.editar';
 
   POR_PAGINA_POR_DEFECTO = 50;
   POR_PAGINA_MAXIMO = 200;
@@ -23,7 +22,7 @@ const
 type
 
   [MVCPath('/api/usuarios')]
-  [MVCRequiresPermiso(PERMISO_ADMINISTRAR_USUARIOS)]
+  [MVCRequiresPermiso(PERMISO_USUARIOS_ADMINISTRAR)]
   TUsuariosController = class(TMVCController)
   public
 
@@ -144,7 +143,7 @@ type
 
     [MVCPath('/($AId)/permisos')]
     [MVCHTTPMethods([httpPUT])]
-    [MVCRequiresPermiso(PERMISO_EDITAR_PERMISOS_USUARIO)]
+    [MVCRequiresPermiso(PERMISO_PERMISOS_EDITAR)]
     [MVCSwagSummary('Usuarios', 'Otorga o quita permisos a la persona sobre ' +
       'los de su rol; tipo vacio borra la excepcion. Rige en la siguiente ' +
       'peticion', 'cambiarExcepciones')]

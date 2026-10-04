@@ -10,7 +10,8 @@ uses
   Anovo.Api.Intf.Roles,
   Anovo.Cancelacion,
   Anovo.DTOs.Roles,
-  Anovo.Vistas.Intf.Roles;
+  Anovo.Vistas.Intf.Roles,
+  Anovo.Permisos;
 
 type
   TPresentadorRoles = class
@@ -35,6 +36,7 @@ type
     function PermisoCambiado(const APermisoId: Integer): Boolean;
     procedure Guardar(const AMotivo: string);
     class function PuedeEditar: Boolean;
+    class function CampoRolPropio: string;
   end;
 
 implementation
@@ -51,7 +53,6 @@ uses
   Anovo.Textos;
 
 const
-  PERMISO_EDITAR = 'permisos.editar';
   ROL_ASESOR = 'asesor';
   ROL_ASISTENTE = 'asistente';
   ROL_SUPERVISOR = 'supervisor';
@@ -108,7 +109,7 @@ end;
 
 class function TPresentadorRoles.PuedeEditar: Boolean;
 begin
-  Result := TSesion.Tiene(PERMISO_EDITAR);
+  Result := TSesion.Tiene(PERMISO_PERMISOS_EDITAR);
 end;
 
 procedure TPresentadorRoles.TomarMatriz(const AMatriz: TMatrizPermisosDTO);
@@ -230,6 +231,11 @@ begin
           end;
         end);
     end);
+end;
+
+class function TPresentadorRoles.CampoRolPropio: string;
+begin
+  Result := UpperCase(CodigoDeRol(TSesion.Rol));
 end;
 
 function TPresentadorRoles.PuedeMarcar(const ARol: string): Boolean;

@@ -16,7 +16,8 @@ uses
   Anovo.DTOs.Usuarios,
   Anovo.DTOs.Roles,
   Anovo.Vistas.Intf.Usuario,
-  Anovo.Presentadores.Usuario, Vcl.Mask, Vcl.WinXCtrls;
+  Anovo.Presentadores.Usuario, Vcl.Mask, Vcl.WinXCtrls,
+  Anovo.Permisos;
 
 type
   TfrmUsuario = class(TfrmEdicion, IVistaUsuario)
@@ -109,7 +110,6 @@ uses
 
 const
   CAMPO_ORIGEN = 'ORIGEN';
-  PERMISO_EDITAR_PERMISOS = 'permisos.editar';
 
 class function TfrmUsuario.Mostrar(AOwner: TComponent;
   const AId: Integer): Boolean;
@@ -119,7 +119,7 @@ begin
   lForma := TfrmUsuario.Create(AOwner);
   try
     lForma.FId := AId;
-    lForma.FPropia := AId = TSesion.UsuarioId;
+    lForma.FPropia := TPresentadorUsuario.EsCuentaPropia(AId);
     if AId = 0 then
     begin
       lForma.lblTitulo.Caption := SNuevoUsuarioTitulo;
@@ -216,7 +216,7 @@ begin
     FFechaClave := TFormato.FechaHora(AUsuario.FechaClave.Value);
 
   pstSecciones.Visible := not FPropia and
-    TSesion.Tiene(PERMISO_EDITAR_PERMISOS);
+    TPresentadorUsuario.PuedeEditarPermisos;
 
   MostrarPaquete;
   MostrarClave;

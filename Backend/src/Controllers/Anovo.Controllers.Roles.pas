@@ -11,16 +11,13 @@ uses
   MVCFramework.Swagger.Commons,
   Anovo.Auth.Permisos,
   Anovo.DTOs.Roles,
-  Anovo.Services.Intf.Roles;
-
-const
-  PERMISO_VER_PERMISOS = 'permisos.ver';
-  PERMISO_EDITAR_PERMISOS = 'permisos.editar';
+  Anovo.Services.Intf.Roles,
+  Anovo.Permisos;
 
 type
 
   [MVCPath('/api/roles')]
-  [MVCRequiresPermiso(PERMISO_VER_PERMISOS)]
+  [MVCRequiresPermiso(PERMISO_PERMISOS_VER)]
   TRolesController = class(TMVCController)
   public
 
@@ -36,7 +33,7 @@ type
 
     [MVCPath('/matriz')]
     [MVCHTTPMethods([httpPUT])]
-    [MVCRequiresPermiso(PERMISO_EDITAR_PERMISOS)]
+    [MVCRequiresPermiso(PERMISO_PERMISOS_EDITAR)]
     [MVCSwagSummary('Roles', 'Otorga o quita permisos a los roles. Rige en ' +
       'la siguiente peticion de cada usuario', 'cambiarMatriz')]
     [MVCSwagResponses(204, 'Cambios aplicados')]

@@ -186,6 +186,7 @@
         <DCCReference Include="src\Entities\Anovo.Entities.Solicitudes.pas"/>
         <DCCReference Include="src\Entities\Anovo.Entities.Usuarios.pas"/>
         <DCCReference Include="src\Common\Anovo.Textos.pas"/>
+        <DCCReference Include="src\Common\Anovo.Permisos.pas"/>
         <DCCReference Include="src\Common\Anovo.Errors.pas"/>
         <DCCReference Include="src\Interfaces\Anovo.Repositories.Intf.Clientes.pas"/>
         <DCCReference Include="src\Repositories\Anovo.Repositories.Clientes.pas"/>

@@ -9,7 +9,8 @@ uses
   Anovo.Api.Intf.Clientes,
   Anovo.Cancelacion,
   Anovo.DTOs.Clientes,
-  Anovo.Vistas.Intf.ClienteDatos;
+  Anovo.Vistas.Intf.ClienteDatos,
+  Anovo.Permisos;
 
 type
   TPresentadorClienteDatos = class
@@ -72,19 +73,19 @@ end;
 
 class function TPresentadorClienteDatos.PuedeEditar: Boolean;
 begin
-  Result := TSesion.Tiene('clientes.editar');
+  Result := TSesion.Tiene(PERMISO_CLIENTES_EDITAR);
 end;
 
 class function TPresentadorClienteDatos.PuedeRevocar: Boolean;
 begin
-  Result := TSesion.Tiene('clientes.consentimiento');
+  Result := TSesion.Tiene(PERMISO_CLIENTES_CONSENTIMIENTO);
 end;
 
 class function TPresentadorClienteDatos.PuedeVerCotizaciones: Boolean;
 begin
 
-  Result := TSesion.TieneAlguno(['cotizaciones.ver_todas',
-    'cotizaciones.ver_aprobadas_propias']);
+  Result := TSesion.TieneAlguno([PERMISO_COTIZACIONES_VER_TODAS,
+    PERMISO_COTIZACIONES_VER_APROBADAS_PROPIAS]);
 end;
 
 procedure TPresentadorClienteDatos.Iniciar;

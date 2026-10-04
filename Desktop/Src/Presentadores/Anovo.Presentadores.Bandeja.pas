@@ -7,7 +7,8 @@ interface
 uses
   Anovo.Api.Intf.Cotizaciones,
   Anovo.Cancelacion,
-  Anovo.Vistas.Intf.Bandeja;
+  Anovo.Vistas.Intf.Bandeja,
+  Anovo.Permisos;
 
 type
   TPresentadorBandeja = class
@@ -48,9 +49,6 @@ uses
   Anovo.Sesion,
   Anovo.Textos;
 
-const
-  PERMISO_APROBAR = 'cotizaciones.aprobar';
-
 function MensajeInesperado: string;
 begin
   Result := Format(SErrorInesperado, [SAccionCargarBandeja]);
@@ -75,7 +73,7 @@ end;
 class function TPresentadorBandeja.AccionesPermitidas: TAccionesBandeja;
 begin
   Result := [];
-  if TSesion.Tiene(PERMISO_APROBAR) then
+  if TSesion.Tiene(PERMISO_COTIZACIONES_APROBAR) then
     Include(Result, abRevisar);
 end;
 

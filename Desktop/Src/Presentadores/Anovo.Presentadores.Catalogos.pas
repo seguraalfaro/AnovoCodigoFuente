@@ -7,7 +7,8 @@ interface
 uses
   Anovo.Api.Intf.Catalogos,
   Anovo.Cancelacion,
-  Anovo.Vistas.Intf.Catalogos;
+  Anovo.Vistas.Intf.Catalogos,
+  Anovo.Permisos;
 
 type
   TPresentadorCatalogos = class
@@ -71,11 +72,6 @@ uses
   Anovo.DTOs.Catalogos,
   Anovo.Sesion,
   Anovo.Textos;
-
-const
-
-  PERMISO_VER = 'catalogos.ver';
-  PERMISO_EDITAR = 'catalogos.editar';
 
 function MensajeInesperado: string;
 begin
@@ -790,15 +786,15 @@ end;
 class function TPresentadorCatalogos.AccionesPermitidas: TAccionesCatalogo;
 begin
   Result := [];
-  if TSesion.Tiene(PERMISO_VER) then
+  if TSesion.Tiene(PERMISO_CATALOGOS_VER) then
     Include(Result, acHistorial);
-  if TSesion.Tiene(PERMISO_EDITAR) then
+  if TSesion.Tiene(PERMISO_CATALOGOS_EDITAR) then
     Result := Result + [acEditar, acPrecio, acInactivar];
 end;
 
 class function TPresentadorCatalogos.PuedeEditar: Boolean;
 begin
-  Result := TSesion.Tiene(PERMISO_EDITAR);
+  Result := TSesion.Tiene(PERMISO_CATALOGOS_EDITAR);
 end;
 
 end.

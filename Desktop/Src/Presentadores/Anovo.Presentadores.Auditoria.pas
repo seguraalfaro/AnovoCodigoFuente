@@ -7,7 +7,8 @@ interface
 uses
   Anovo.Api.Intf.Auditoria,
   Anovo.Cancelacion,
-  Anovo.Vistas.Intf.Auditoria;
+  Anovo.Vistas.Intf.Auditoria,
+  Anovo.Permisos;
 
 type
   TPresentadorAuditoria = class
@@ -62,8 +63,6 @@ uses
 
 const
 
-  PERMISO_VER_TODA = 'auditoria.ver_toda';
-  PERMISO_VER_CUENTAS = 'auditoria.ver_cuentas';
 
   ENTIDAD_API: array [TFiltroEntidad] of string = ('', 'CLIENTES',
     'COTIZACIONES', 'CUENTAS', 'USUARIOS', 'USUARIOS_CLAVES', 'ROLES_PERMISOS',
@@ -103,12 +102,12 @@ end;
 
 class function TPresentadorAuditoria.PuedeVerTodo: Boolean;
 begin
-  Result := TSesion.Tiene(PERMISO_VER_TODA);
+  Result := TSesion.Tiene(PERMISO_AUDITORIA_VER_TODA);
 end;
 
 class function TPresentadorAuditoria.PuedeVerCuentas: Boolean;
 begin
-  Result := TSesion.Tiene(PERMISO_VER_CUENTAS);
+  Result := TSesion.Tiene(PERMISO_AUDITORIA_VER_CUENTAS);
 end;
 
 function TPresentadorAuditoria.Rotulos: TArray<string>;

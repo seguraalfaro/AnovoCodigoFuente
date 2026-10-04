@@ -10,10 +10,8 @@ uses
   MVCFramework.Swagger.Commons,
   Anovo.Auth.Permisos,
   Anovo.DTOs.Reportes,
-  Anovo.Services.Intf.Reportes;
-
-const
-  PERMISO_REPORTES = 'reportes.ver';
+  Anovo.Services.Intf.Reportes,
+  Anovo.Permisos;
 
 type
 
@@ -22,7 +20,7 @@ type
   public
     [MVCPath('/cotizaciones')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_REPORTES)]
+    [MVCRequiresPermiso(PERMISO_REPORTES_VER)]
     [MVCSwagSummary('Reportes', 'Cotizaciones elaboradas en el periodo, con ' +
       'su estado actual: resumen, por estado, por asesor, por tipo de ' +
       'trabajo y por mes', 'reporteCotizaciones')]

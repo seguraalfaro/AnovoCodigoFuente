@@ -13,20 +13,13 @@ uses
   Anovo.DTOs.Solicitudes,
   Anovo.Services.Intf.Permisos,
   Anovo.Services.Intf.Solicitudes,
-  Anovo.DTOs.Dashboard;
+  Anovo.DTOs.Dashboard,
+  Anovo.Permisos;
 
 const
-  PERMISO_VER_PROPIAS = 'solicitudes.ver_propias';
-  PERMISO_VER_TODAS = 'solicitudes.ver_todas';
-  PERMISO_CREAR = 'solicitudes.crear';
-  PERMISO_EDITAR_PROPIAS = 'solicitudes.editar_propias';
-  PERMISO_EDITAR_TODAS = 'solicitudes.editar_todas';
-  PERMISO_ADJUNTOS_VER = 'adjuntos.ver';
-  PERMISO_ADJUNTOS_CREAR = 'adjuntos.crear';
-  PERMISO_TOMAR = 'cotizaciones.elaborar';
 
-  PERMISO_VER = PERMISO_VER_PROPIAS + ';' + PERMISO_VER_TODAS;
-  PERMISO_EDITAR = PERMISO_EDITAR_PROPIAS + ';' + PERMISO_EDITAR_TODAS;
+  PERMISO_VER = PERMISO_SOLICITUDES_VER_PROPIAS + ';' + PERMISO_SOLICITUDES_VER_TODAS;
+  PERMISO_EDITAR = PERMISO_SOLICITUDES_EDITAR_PROPIAS + ';' + PERMISO_SOLICITUDES_EDITAR_TODAS;
 
   POR_PAGINA_POR_DEFECTO = 50;
   POR_PAGINA_MAXIMO = 200;
@@ -73,7 +66,7 @@ type
 
     [MVCPath('/cola')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_TOMAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
     [MVCSwagSummary('Solicitudes', 'Cola comun: recibidas sin cotizacion, ' +
       'la mas antigua primero, paginada', 'colaSolicitudes')]
     [MVCSwagParam(plQuery, 'q', 'Texto a buscar en el cliente o la ' +
@@ -91,7 +84,7 @@ type
 
     [MVCPath('/en-trabajo')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_TOMAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
     [MVCSwagSummary('Solicitudes', 'Las que el usuario del token tomo y ' +
       'siguen en curso: borrador, pendiente o aprobada sin enviar',
       'solicitudesEnTrabajo')]
@@ -110,7 +103,7 @@ type
 
     [MVCPath('/seguimiento')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_VER_PROPIAS)]
+    [MVCRequiresPermiso(PERMISO_SOLICITUDES_VER_PROPIAS)]
     [MVCSwagSummary('Solicitudes', 'Las del asesor que consulta, con el ' +
       'estado como lo ve el: el de la cotizacion si esta aprobada o enviada ' +
       'al cliente, el de la solicitud si no (HU-03)', 'seguimientoSolicitudes')]
@@ -143,7 +136,7 @@ type
 
     [MVCPath]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_CREAR)]
+    [MVCRequiresPermiso(PERMISO_SOLICITUDES_CREAR)]
     [MVCSwagSummary('Solicitudes', 'Registra una solicitud. Idempotente por ' +
       'uuid_local', 'crearSolicitud')]
     [MVCSwagResponses(201, 'Creada. Location apunta a la solicitud')]
@@ -153,7 +146,7 @@ type
 
     [MVCPath('/completa')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_CREAR)]
+    [MVCRequiresPermiso(PERMISO_SOLICITUDES_CREAR)]
     [MVCRequiresPermiso(PERMISO_ADJUNTOS_CREAR)]
     [MVCSwagSummary('Solicitudes', 'El envio del movil: solicitud, medidas y ' +
       'adjuntos en una transaccion', 'registrarSolicitudCompleta')]
@@ -293,7 +286,7 @@ var
   lRol: string;
 begin
   for lRol in Context.LoggedUser.Roles do
-    if APermisos.Tiene(UsuarioId, lRol, PERMISO_VER_TODAS) then
+    if APermisos.Tiene(UsuarioId, lRol, PERMISO_SOLICITUDES_VER_TODAS) then
       Exit(False);
   Result := True;
 end;

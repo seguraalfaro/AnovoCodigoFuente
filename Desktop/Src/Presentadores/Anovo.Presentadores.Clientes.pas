@@ -7,7 +7,8 @@ interface
 uses
   Anovo.Api.Intf.Clientes,
   Anovo.Cancelacion,
-  Anovo.Vistas.Intf.Clientes;
+  Anovo.Vistas.Intf.Clientes,
+  Anovo.Permisos;
 
 type
   TPresentadorClientes = class
@@ -59,7 +60,7 @@ const
   CONSENTIMIENTO_API: array [TFiltroConsentimiento] of string = ('',
     'firmado', 'pendiente');
 
-  PERMISOS_ACCION: array [TAccionCliente] of string = ('clientes.ver');
+  PERMISOS_ACCION: array [TAccionCliente] of string = (PERMISO_CLIENTES_VER);
 
 function MensajeInesperado: string;
 begin
@@ -94,7 +95,7 @@ end;
 
 class function TPresentadorClientes.PuedeCrear: Boolean;
 begin
-  Result := TSesion.Tiene('clientes.crear');
+  Result := TSesion.Tiene(PERMISO_CLIENTES_CREAR);
 end;
 
 procedure TPresentadorClientes.Iniciar;

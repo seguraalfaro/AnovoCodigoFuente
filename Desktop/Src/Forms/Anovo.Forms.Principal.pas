@@ -31,7 +31,8 @@ uses
   VclPlano.NavItem,
   System.Actions, Vcl.ActnList, PestanasPlanas, Vcl.WinXPanels,
   Anovo.Vistas.Intf.Principal,
-  Anovo.Presentadores.Principal;
+  Anovo.Presentadores.Principal,
+  Anovo.Permisos;
 
 type
   TfrmPrincipal = class(TForm, IVistaPrincipal)
@@ -346,7 +347,7 @@ begin
     secDashboardAsistente:
       Result := TfraDashboardAsistente.Create(Self);
     secSolicitudes:
-      if TSesion.Tiene('solicitudes.ver_propias') then
+      if TPresentadorPrincipal.SolicitudesDelAsesor then
         Result := TfraSolicitudesAsesor.Create(Self)
       else
         Result := TfraSolicitudesAsistente.Create(Self);

@@ -12,14 +12,8 @@ uses
   Anovo.Auth.Permisos,
   Anovo.DTOs.Dashboard,
   Anovo.Services.Intf.Dashboard,
-  Anovo.Services.Intf.Permisos;
-
-const
-  PERMISO_DASHBOARD_ASESOR = 'cotizaciones.ver_aprobadas_propias';
-  PERMISO_DASHBOARD_ASISTENTE = 'cotizaciones.elaborar';
-  PERMISO_DASHBOARD_SUPERVISOR = 'cotizaciones.aprobar';
-  PERMISO_DASHBOARD_GERENCIA = 'reportes.ver';
-  PERMISO_DASHBOARD_CUENTAS = 'usuarios.administrar';
+  Anovo.Services.Intf.Permisos,
+  Anovo.Permisos;
 
 type
 
@@ -32,7 +26,7 @@ type
   public
     [MVCPath('/asesor')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_DASHBOARD_ASESOR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_VER_APROBADAS_PROPIAS)]
     [MVCSwagSummary('Dashboard', 'Cifras del mes y ultimas solicitudes del ' +
       'asesor que consulta', 'dashboardAsesor')]
     [MVCSwagResponses(200, 'Dashboard del asesor', TDashboardAsesorDTO)]
@@ -42,7 +36,7 @@ type
 
     [MVCPath('/asistente')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_DASHBOARD_ASISTENTE)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
     [MVCSwagSummary('Dashboard', 'Trabajo pendiente del asistente que ' +
       'consulta y cola de solicitudes por cotizar', 'dashboardAsistente')]
     [MVCSwagResponses(200, 'Dashboard del asistente', TDashboardAsistenteDTO)]
@@ -53,7 +47,7 @@ type
 
     [MVCPath('/supervisor')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_DASHBOARD_SUPERVISOR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_APROBAR)]
     [MVCSwagSummary('Dashboard', 'Cifras del mes y cola de cotizaciones ' +
       'que el supervisor que consulta puede aprobar', 'dashboardSupervisor')]
     [MVCSwagResponses(200, 'Dashboard del supervisor', TDashboardSupervisorDTO)]
@@ -64,7 +58,7 @@ type
 
     [MVCPath('/gerencia')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_DASHBOARD_GERENCIA)]
+    [MVCRequiresPermiso(PERMISO_REPORTES_VER)]
     [MVCSwagSummary('Dashboard', 'Cifras del mes, productividad por asesor ' +
       'y cotizaciones por estado', 'dashboardGerencia')]
     [MVCSwagResponses(200, 'Dashboard de gerencia', TDashboardGerenciaDTO)]
@@ -74,7 +68,7 @@ type
 
     [MVCPath('/cuentas')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_DASHBOARD_CUENTAS)]
+    [MVCRequiresPermiso(PERMISO_USUARIOS_ADMINISTRAR)]
     [MVCSwagSummary('Dashboard', 'Cifras de las cuentas de usuario y ' +
       'cambios recientes', 'dashboardCuentas')]
     [MVCSwagResponses(200, 'Dashboard del administrador', TDashboardCuentasDTO)]
@@ -154,8 +148,8 @@ function TDashboardController.Avisos(AServicio: IDashboardService;
   APermisos: IPermisoService): IMVCResponse;
 begin
   Result := OKResponse(AServicio.DelAvisos(UsuarioId,
-    Tiene(APermisos, PERMISO_DASHBOARD_SUPERVISOR),
-    Tiene(APermisos, PERMISO_DASHBOARD_ASISTENTE)));
+    Tiene(APermisos, PERMISO_COTIZACIONES_APROBAR),
+    Tiene(APermisos, PERMISO_COTIZACIONES_ELABORAR)));
 end;
 
 end.

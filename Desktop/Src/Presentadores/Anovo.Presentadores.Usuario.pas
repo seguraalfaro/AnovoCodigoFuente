@@ -49,6 +49,8 @@ type
     function CambioDatos(const ADatos: TUsuarioEdicionDTO): Boolean;
     function GuardaPermisos(const ARolId: Integer): Boolean;
     function PuedeRestablecer: Boolean;
+    class function EsCuentaPropia(const AId: Integer): Boolean;
+    class function PuedeEditarPermisos: Boolean;
     function HayCambios(const ADatos: TUsuarioEdicionDTO;
       const AConPermisos: Boolean): Boolean;
     procedure PedirCambio(const APedir: Boolean);
@@ -69,6 +71,7 @@ uses
   System.Generics.Defaults,
   Anovo.Api.Base,
   Anovo.Sesion,
+  Anovo.Permisos,
   Anovo.Textos;
 
 const
@@ -237,6 +240,16 @@ end;
 function TPresentadorUsuario.GuardaPermisos(const ARolId: Integer): Boolean;
 begin
   Result := (FId > 0) and not CambioRol(ARolId) and HayCambiosDePermisos;
+end;
+
+class function TPresentadorUsuario.EsCuentaPropia(const AId: Integer): Boolean;
+begin
+  Result := AId = TSesion.UsuarioId;
+end;
+
+class function TPresentadorUsuario.PuedeEditarPermisos: Boolean;
+begin
+  Result := TSesion.Tiene(PERMISO_PERMISOS_EDITAR);
 end;
 
 function TPresentadorUsuario.PuedeRestablecer: Boolean;

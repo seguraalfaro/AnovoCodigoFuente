@@ -94,7 +94,7 @@ var
   I: Integer;
   lCampo: string;
 begin
-  lCampo := UpperCase(CodigoDeRol(TSesion.Rol));
+  lCampo := TPresentadorRoles.CampoRolPropio;
   for I := 0 to grMatriz.Columns.Count - 1 do
     if SameText(grMatriz.Columns[I].FieldName, lCampo) then
     begin

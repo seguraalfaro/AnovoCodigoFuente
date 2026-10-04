@@ -8,7 +8,8 @@ interface
 uses
   Anovo.Api.Intf.Dashboard,
   Anovo.Cancelacion,
-  Anovo.Vistas.Intf.Principal;
+  Anovo.Vistas.Intf.Principal,
+  Anovo.Permisos;
 
 type
   TPresentadorPrincipal = class
@@ -30,6 +31,7 @@ type
     procedure CerrarSesion;
     procedure RefrescarAvisos;
     class function SeccionesPermitidas: TSecciones;
+    class function SolicitudesDelAsesor: Boolean;
     class function MenuOrdenado(const APermitidas: TSecciones)
       : TArray<TSeccion>;
   end;
@@ -49,25 +51,25 @@ uses
 const
   SIEMPRE = '*';
 
-  PERMISOS_AVISOS: array [0 .. 1] of string = ('cotizaciones.aprobar',
-    'cotizaciones.elaborar');
+  PERMISOS_AVISOS: array [0 .. 1] of string = (PERMISO_COTIZACIONES_APROBAR,
+    PERMISO_COTIZACIONES_ELABORAR);
 
   PERMISOS_SECCION: array [TSeccion] of string = (
-     'cotizaciones.aprobar',
-     'usuarios.administrar',
-     'cotizaciones.ver_aprobadas_propias',
-     'cotizaciones.elaborar',
+     PERMISO_COTIZACIONES_APROBAR,
+     PERMISO_USUARIOS_ADMINISTRAR,
+     PERMISO_COTIZACIONES_VER_APROBADAS_PROPIAS,
+     PERMISO_COTIZACIONES_ELABORAR,
      'solicitudes.ver_propias;cotizaciones.elaborar',
-     'cotizaciones.aprobar',
-     'cotizaciones.ver_todas',
-     'cotizaciones.elaborar',
+     PERMISO_COTIZACIONES_APROBAR,
+     PERMISO_COTIZACIONES_VER_TODAS,
+     PERMISO_COTIZACIONES_ELABORAR,
      'cotizaciones.ver_todas;cotizaciones.ver_aprobadas_propias',
-     'clientes.ver',
+     PERMISO_CLIENTES_VER,
      'cotizaciones.elaborar;catalogos.editar',
-     'reportes.ver',
-     'reportes.ver',
-     'usuarios.administrar',
-     'permisos.ver',
+     PERMISO_REPORTES_VER,
+     PERMISO_REPORTES_VER,
+     PERMISO_USUARIOS_ADMINISTRAR,
+     PERMISO_PERMISOS_VER,
      'auditoria.ver_toda;auditoria.ver_cuentas',
      SIEMPRE);
 
@@ -153,6 +155,11 @@ begin
   for lSeccion in ORDEN_MENU do
     if lSeccion in APermitidas then
       Result := Result + [lSeccion];
+end;
+
+class function TPresentadorPrincipal.SolicitudesDelAsesor: Boolean;
+begin
+  Result := TSesion.Tiene(PERMISO_SOLICITUDES_VER_PROPIAS);
 end;
 
 procedure TPresentadorPrincipal.Iniciar;

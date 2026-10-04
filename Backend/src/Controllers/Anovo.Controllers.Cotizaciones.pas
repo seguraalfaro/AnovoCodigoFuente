@@ -12,15 +12,12 @@ uses
   Anovo.Auth.Permisos,
   Anovo.DTOs.Cotizaciones,
   Anovo.Services.Intf.Cotizaciones,
-  Anovo.Services.Intf.Permisos;
+  Anovo.Services.Intf.Permisos,
+  Anovo.Permisos;
 
 const
-  PERMISO_VER_TODAS = 'cotizaciones.ver_todas';
-  PERMISO_VER_PROPIAS = 'cotizaciones.ver_aprobadas_propias';
-  PERMISO_ELABORAR = 'cotizaciones.elaborar';
-  PERMISO_APROBAR = 'cotizaciones.aprobar';
 
-  PERMISO_VER = PERMISO_VER_PROPIAS + ';' + PERMISO_VER_TODAS;
+  PERMISO_VER = PERMISO_COTIZACIONES_VER_APROBADAS_PROPIAS + ';' + PERMISO_COTIZACIONES_VER_TODAS;
 
   POR_PAGINA_POR_DEFECTO = 50;
   POR_PAGINA_MAXIMO = 200;
@@ -69,7 +66,7 @@ type
 
     [MVCPath('/bandeja')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_APROBAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_APROBAR)]
     [MVCSwagSummary('Cotizaciones', 'Pendientes que el usuario del token ' +
       'puede revisar, la mas antigua primero, con el resumen de la bandeja',
       'bandejaCotizaciones')]
@@ -115,7 +112,7 @@ type
 
     [MVCPath]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
     [MVCSwagSummary('Cotizaciones', 'Crea una cotizacion desde una solicitud. ' +
       'Nace en borrador con su consecutivo', 'crearCotizacion')]
     [MVCSwagResponses(201, 'Creada. Location apunta a la cotizacion')]
@@ -125,7 +122,7 @@ type
 
     [MVCPath('/($AId)')]
     [MVCHTTPMethods([httpPUT])]
-    [MVCRequiresPermiso(PERMISO_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
     [MVCSwagSummary('Cotizaciones', 'Actualiza la cabecera y recalcula',
       'actualizarCotizacion')]
     [MVCSwagResponses(204, 'Actualizada')]
@@ -144,7 +141,7 @@ type
 
     [MVCPath('/($AId)/detalle')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
     [MVCSwagSummary('Cotizaciones', 'Agrega una linea. El precio se copia ' +
       'del catalogo si no viene en el cuerpo', 'agregarLinea')]
     [MVCSwagResponses(201, 'Creada')]
@@ -155,7 +152,7 @@ type
 
     [MVCPath('/($AId)/detalle/($ALineaId)')]
     [MVCHTTPMethods([httpPUT])]
-    [MVCRequiresPermiso(PERMISO_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
     [MVCSwagSummary('Cotizaciones', 'Actualiza una linea y recalcula',
       'actualizarLinea')]
     [MVCSwagResponses(204, 'Actualizada')]
@@ -165,7 +162,7 @@ type
 
     [MVCPath('/($AId)/detalle/($ALineaId)')]
     [MVCHTTPMethods([httpDELETE])]
-    [MVCRequiresPermiso(PERMISO_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
     [MVCSwagSummary('Cotizaciones', 'Elimina una linea y recalcula',
       'eliminarLinea')]
     [MVCSwagResponses(204, 'Eliminada')]
@@ -174,7 +171,7 @@ type
 
     [MVCPath('/($AId)/ajuste')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
     [MVCSwagSummary('Cotizaciones', 'Aplica el ajuste comercial. Con ' +
       'porcentaje distinto de cero el motivo es obligatorio', 'aplicarAjuste')]
     [MVCSwagResponses(204, 'Ajuste aplicado')]
@@ -185,7 +182,7 @@ type
 
     [MVCPath('/($AId)/presentacion')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
     [MVCSwagSummary('Cotizaciones', 'Presenta la cotizacion a revision. ' +
       'Desde aqui ya no se modifica', 'presentarCotizacion')]
     [MVCSwagResponses(204, 'Pendiente de aprobacion')]
@@ -195,7 +192,7 @@ type
 
     [MVCPath('/($AId)/envio')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
     [MVCSwagSummary('Cotizaciones', 'Registra que la cotizacion aprobada se ' +
       'envio al cliente', 'enviarCotizacion')]
     [MVCSwagResponses(204, 'Enviada al cliente')]
@@ -205,7 +202,7 @@ type
 
     [MVCPath('/($AId)/aprobacion')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_APROBAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_APROBAR)]
     [MVCSwagSummary('Cotizaciones', 'Aprueba la cotizacion',
       'aprobarCotizacion')]
     [MVCSwagResponses(204, 'Aprobada')]
@@ -215,7 +212,7 @@ type
 
     [MVCPath('/($AId)/rechazo')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_APROBAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_APROBAR)]
     [MVCSwagSummary('Cotizaciones', 'Rechaza la cotizacion. El motivo es ' +
       'obligatorio', 'rechazarCotizacion')]
     [MVCSwagResponses(204, 'Rechazada')]
@@ -226,7 +223,7 @@ type
 
     [MVCPath('/($AId)/devolucion')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_APROBAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_APROBAR)]
     [MVCSwagSummary('Cotizaciones', 'Devuelve la cotizacion al asistente con ' +
       'observaciones. Vuelve a ser editable', 'devolverCotizacion')]
     [MVCSwagResponses(204, 'Devuelta')]
@@ -260,7 +257,7 @@ var
   lRol: string;
 begin
   for lRol in Context.LoggedUser.Roles do
-    if APermisos.Tiene(UsuarioId, lRol, PERMISO_VER_TODAS) then
+    if APermisos.Tiene(UsuarioId, lRol, PERMISO_COTIZACIONES_VER_TODAS) then
       Exit(False);
   Result := True;
 end;

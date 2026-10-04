@@ -9,7 +9,8 @@ uses
   Anovo.Api.Intf.Solicitudes,
   Anovo.Api.Intf.Cotizaciones,
   Anovo.Cancelacion,
-  Anovo.Vistas.Intf.SolicitudesAsistente;
+  Anovo.Vistas.Intf.SolicitudesAsistente,
+  Anovo.Permisos;
 
 type
   TPresentadorSolicitudesAsistente = class
@@ -56,9 +57,6 @@ uses
   Anovo.Sesion,
   Anovo.Textos;
 
-const
-  PERMISO_ELABORAR = 'cotizaciones.elaborar';
-
 constructor TPresentadorSolicitudesAsistente.Create(const AVista
   : IVistaSolicitudesAsistente; const AApi: IApiSolicitudes;
   const ACotizaciones: IApiCotizaciones);
@@ -81,7 +79,7 @@ class function TPresentadorSolicitudesAsistente.AccionesPermitidas
   : TAccionesCola;
 begin
   Result := [];
-  if TSesion.Tiene(PERMISO_ELABORAR) then
+  if TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR) then
     Include(Result, acTomar);
 end;
 
