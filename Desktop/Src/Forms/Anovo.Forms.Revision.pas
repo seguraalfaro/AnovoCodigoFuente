@@ -103,7 +103,7 @@ end;
 
 procedure TfrmRevision.FormDestroy(Sender: TObject);
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
 end;
 
 function TfrmRevision.ControlesEdicion: TArray<TControl>;

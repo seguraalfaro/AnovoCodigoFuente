@@ -54,7 +54,7 @@ end;
 
 destructor TfraDashboardSupervisor.Destroy;
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
   inherited;
 end;
 

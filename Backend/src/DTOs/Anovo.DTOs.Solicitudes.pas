@@ -28,6 +28,7 @@ type
     fEstado: string;
     fFechaModificacion: NullableTDateTime;
     fObjVersion: Integer;
+    fTipoTrabajoId: NullableInt32;
   public
     property ID: Integer read fID write fID;
     property UuidLocal: string read fUuidLocal write fUuidLocal;
@@ -45,6 +46,8 @@ type
       write fFechaModificacion;
     [MVCNameAs('objversion')]
     property ObjVersion: Integer read fObjVersion write fObjVersion;
+    property TipoTrabajoId: NullableInt32 read fTipoTrabajoId
+      write fTipoTrabajoId;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -56,6 +59,7 @@ type
     fDescripcion: string;
     fObservaciones: NullableString;
     fFechaCaptura: NullableTDateTime;
+    fTipoTrabajoId: NullableInt32;
   public
     property UuidLocal: string read fUuidLocal write fUuidLocal;
     property ClienteId: Integer read fClienteId write fClienteId;
@@ -65,6 +69,8 @@ type
       write fObservaciones;
     property FechaCaptura: NullableTDateTime read fFechaCaptura
       write fFechaCaptura;
+    property TipoTrabajoId: NullableInt32 read fTipoTrabajoId
+      write fTipoTrabajoId;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -73,10 +79,13 @@ type
     fDescripcion: string;
     fObservaciones: NullableString;
     fObjVersion: NullableInt32;
+    fTipoTrabajoId: NullableInt32;
   public
     property Descripcion: string read fDescripcion write fDescripcion;
     property Observaciones: NullableString read fObservaciones
       write fObservaciones;
+    property TipoTrabajoId: NullableInt32 read fTipoTrabajoId
+      write fTipoTrabajoId;
     [MVCNameAs('objversion')]
     property ObjVersion: NullableInt32 read fObjVersion write fObjVersion;
   end;

@@ -78,7 +78,7 @@ end;
 
 procedure TfrmConexion.FormDestroy(Sender: TObject);
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
 end;
 
 procedure TfrmConexion.btnProbarClick(Sender: TObject);

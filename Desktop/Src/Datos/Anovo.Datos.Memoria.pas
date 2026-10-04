@@ -482,8 +482,9 @@ type
     dsTiposTrabajoLista: TDataSource;
     mtMedidas: TFDMemTable;
     mtMedidasETIQUETA: TStringField;
-    mtMedidasVALOR: TCurrencyField;
+    mtMedidasTIPO_MEDIDA: TStringField;
     mtMedidasUNIDAD_MEDIDA: TStringField;
+    mtMedidasVALOR: TCurrencyField;
     dsMedidas: TDataSource;
     mtItemsLinea: TFDMemTable;
     mtItemsLineaID: TIntegerField;
@@ -513,6 +514,8 @@ type
     procedure ClaveGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
     procedure MagnitudGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
+    procedure MayusculaInicialGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
     procedure UsuariosCalcFields(DataSet: TDataSet);
     procedure UsuarioEstadoGetText(Sender: TField; var Text: string;
@@ -734,6 +737,14 @@ procedure TdmMemoria.MagnitudGetText(Sender: TField; var Text: string;
   DisplayText: Boolean);
 begin
   Text := TFormato.Magnitud(Sender.AsString);
+end;
+
+procedure TdmMemoria.MayusculaInicialGetText(Sender: TField; var Text: string;
+  DisplayText: Boolean);
+begin
+  Text := Sender.AsString;
+  if not Text.IsEmpty then
+    Text := UpperCase(Text[1]) + Copy(Text, 2, MaxInt);
 end;
 
 procedure TdmMemoria.TipoGetText(Sender: TField; var Text: string;

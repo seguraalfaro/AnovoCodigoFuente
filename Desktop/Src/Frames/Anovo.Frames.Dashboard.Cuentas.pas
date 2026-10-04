@@ -50,7 +50,7 @@ end;
 
 destructor TfraDashboardCuentas.Destroy;
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
   inherited;
 end;
 

@@ -85,7 +85,7 @@ end;
 
 destructor TfraSolicitudesAsistente.Destroy;
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
   inherited;
 end;
 

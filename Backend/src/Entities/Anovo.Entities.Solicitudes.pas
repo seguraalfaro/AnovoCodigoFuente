@@ -50,6 +50,8 @@ type
     fFechaModificacion: NullableTDateTime ;
     [MVCTableField('OBJVERSION')]
     fObjversion: NullableInt32;
+    [MVCTableField('TIPO_TRABAJO_ID')]
+    fTipoTrabajoId: NullableInt32;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -63,6 +65,7 @@ type
     property Estado: String read fEstado write fEstado;
     property FechaModificacion: NullableTDateTime  read fFechaModificacion write fFechaModificacion;
     property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property TipoTrabajoId: NullableInt32 read fTipoTrabajoId write fTipoTrabajoId;
   end;
 
   [MVCNameCase(ncSnakeCase)]

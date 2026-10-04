@@ -77,7 +77,7 @@ end;
 
 procedure TfrmCambioClave.FormDestroy(Sender: TObject);
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
 end;
 
 function TfrmCambioClave.ControlesEdicion: TArray<TControl>;

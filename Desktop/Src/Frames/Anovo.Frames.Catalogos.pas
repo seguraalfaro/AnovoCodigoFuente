@@ -163,7 +163,7 @@ end;
 
 destructor TfraCatalogos.Destroy;
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
   dmMemoria.mtCategorias.Close;
   inherited;
 end;

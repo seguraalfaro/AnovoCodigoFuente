@@ -2453,20 +2453,26 @@ object dmMemoria: TdmMemoria
     Left = 1056
     Top = 248
     object mtMedidasETIQUETA: TStringField
-      DisplayLabel = 'Medida'
-      Size = 120
+      DisplayLabel = 'Etiqueta'
       FieldName = 'ETIQUETA'
+      Size = 120
     end
-    object mtMedidasVALOR: TCurrencyField
-      DisplayLabel = 'Valor'
-      DisplayFormat = '#,##0.##'
-      currency = False
-      FieldName = 'VALOR'
+    object mtMedidasTIPO_MEDIDA: TStringField
+      DisplayLabel = 'Tipo de medida'
+      FieldName = 'TIPO_MEDIDA'
+      OnGetText = MayusculaInicialGetText
+      Size = 30
     end
     object mtMedidasUNIDAD_MEDIDA: TStringField
       DisplayLabel = 'Unidad'
-      Size = 30
       FieldName = 'UNIDAD_MEDIDA'
+      Size = 30
+    end
+    object mtMedidasVALOR: TCurrencyField
+      DisplayLabel = 'Valor'
+      FieldName = 'VALOR'
+      DisplayFormat = '#,##0.##'
+      currency = False
     end
   end
   object dsMedidas: TDataSource

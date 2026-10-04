@@ -89,7 +89,7 @@ end;
 
 destructor TfraUsuarios.Destroy;
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
   inherited;
 end;
 

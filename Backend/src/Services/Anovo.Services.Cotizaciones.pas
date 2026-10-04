@@ -460,7 +460,10 @@ begin
       ValidarTipoTrabajo(ADto.TipoTrabajoId, nil);
       lCotizacion.SolicitudId := lSolicitud.ID.ValueOrDefault;
       lCotizacion.ClienteId := lSolicitud.ClienteId;
-      lCotizacion.TipoTrabajoId := ADto.TipoTrabajoId;
+      if ADto.TipoTrabajoId.HasValue then
+        lCotizacion.TipoTrabajoId := ADto.TipoTrabajoId
+      else
+        lCotizacion.TipoTrabajoId := lSolicitud.TipoTrabajoId;
 
       if ADto.DescripcionTrabajo.IsEmpty then
         lCotizacion.DescripcionTrabajo := lSolicitud.Descripcion

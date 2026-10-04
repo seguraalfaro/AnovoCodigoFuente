@@ -3,24 +3,25 @@ object fraCotizacion: TfraCotizacion
   Top = 0
   Width = 1180
   Height = 720
+  Align = alTop
   TabOrder = 0
   object pnlEncabezado: TPanel
     Tag = 2
     Left = 0
     Top = 0
     Width = 1180
-    Height = 74
+    Height = 65
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
     DesignSize = (
       1180
-      74)
+      65)
     object lblTitulo: TLabel
       Tag = 11
       Left = 20
       Top = 8
-      Width = 4
+      Width = 6
       Height = 30
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -33,20 +34,8 @@ object fraCotizacion: TfraCotizacion
       Tag = 13
       Left = 20
       Top = 46
-      Width = 4
-      Height = 15
-    end
-    object pstEstado: TPlanoPastilla
-      Left = 300
-      Top = 13
-      Width = 60
-      Height = 22
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Segoe UI Semibold'
-      Font.Style = []
-      ParentFont = False
+      Width = 3
+      Height = 13
     end
     object btnVolver: TPlanoBotonWin
       Left = 690
@@ -106,7 +95,7 @@ object fraCotizacion: TfraCotizacion
     Tag = 1
     AlignWithMargins = True
     Left = 20
-    Top = 77
+    Top = 68
     Width = 1140
     Height = 34
     Margins.Left = 20
@@ -141,9 +130,9 @@ object fraCotizacion: TfraCotizacion
   object pnlCuerpo: TPanel
     Tag = 2
     Left = 0
-    Top = 114
+    Top = 105
     Width = 1180
-    Height = 606
+    Height = 615
     Align = alClient
     BevelOuter = bvNone
     Padding.Left = 20
@@ -156,7 +145,7 @@ object fraCotizacion: TfraCotizacion
       Left = 20
       Top = 6
       Width = 330
-      Height = 586
+      Height = 595
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
@@ -166,8 +155,8 @@ object fraCotizacion: TfraCotizacion
         Top = 0
         Width = 330
         Height = 230
-        Align = alTop
         Caption = 'Croquis'
+        Align = alTop
         Padding.Left = 12
         Padding.Top = 40
         Padding.Right = 12
@@ -175,25 +164,29 @@ object fraCotizacion: TfraCotizacion
         TabOrder = 0
         object pbCroquis: TPaintBox
           Left = 12
-          Top = 40
+          Top = 76
           Width = 306
-          Height = 178
+          Height = 142
           Cursor = crHandPoint
           Align = alClient
           OnClick = imgFotoClick
           OnPaint = pbCroquisPaint
+          ExplicitTop = 40
+          ExplicitHeight = 178
         end
         object lblSinCroquis: TLabel
           Tag = 13
           Left = 12
-          Top = 40
+          Top = 76
           Width = 306
-          Height = 178
+          Height = 142
           Align = alClient
           Alignment = taCenter
           AutoSize = False
           Layout = tlCenter
           Visible = False
+          ExplicitTop = 40
+          ExplicitHeight = 178
         end
       end
       object tjFotos: TPlanoTarjeta
@@ -207,140 +200,130 @@ object fraCotizacion: TfraCotizacion
         Margins.Top = 10
         Margins.Right = 0
         Margins.Bottom = 0
-        Align = alTop
         Caption = 'Fotograf'#237'as'
+        Align = alTop
         Padding.Left = 12
         Padding.Top = 40
         Padding.Right = 12
         Padding.Bottom = 12
         TabOrder = 1
-        object pnlFoto1: TPanel
-          Tag = 1
-          Left = 12
-          Top = 42
-          Width = 70
-          Height = 70
-          BevelOuter = bvNone
-          BevelKind = bkFlat
-          Color = 15854566
-          ParentBackground = False
-          TabOrder = 0
-          object imgFoto1: TImage
-            AlignWithMargins = True
-            Left = 2
-            Top = 2
-            Width = 62
-            Height = 62
-            Cursor = crHandPoint
-            Margins.Left = 2
-            Margins.Top = 2
-            Margins.Right = 2
-            Margins.Bottom = 2
-            Align = alClient
-            Center = True
-            Proportional = True
-            Stretch = True
-            OnClick = imgFotoClick
-          end
-        end
-        object pnlFoto2: TPanel
-          Tag = 1
-          Left = 88
-          Top = 42
-          Width = 70
-          Height = 70
-          BevelOuter = bvNone
-          BevelKind = bkFlat
-          Color = 15854566
-          ParentBackground = False
-          TabOrder = 1
-          object imgFoto2: TImage
-            AlignWithMargins = True
-            Left = 2
-            Top = 2
-            Width = 62
-            Height = 62
-            Cursor = crHandPoint
-            Margins.Left = 2
-            Margins.Top = 2
-            Margins.Right = 2
-            Margins.Bottom = 2
-            Align = alClient
-            Center = True
-            Proportional = True
-            Stretch = True
-            OnClick = imgFotoClick
-          end
-        end
-        object pnlFoto3: TPanel
-          Tag = 1
-          Left = 164
-          Top = 42
-          Width = 70
-          Height = 70
-          BevelOuter = bvNone
-          BevelKind = bkFlat
-          Color = 15854566
-          ParentBackground = False
-          TabOrder = 2
-          object imgFoto3: TImage
-            AlignWithMargins = True
-            Left = 2
-            Top = 2
-            Width = 62
-            Height = 62
-            Cursor = crHandPoint
-            Margins.Left = 2
-            Margins.Top = 2
-            Margins.Right = 2
-            Margins.Bottom = 2
-            Align = alClient
-            Center = True
-            Proportional = True
-            Stretch = True
-            OnClick = imgFotoClick
-          end
-        end
-        object pnlFoto4: TPanel
-          Tag = 1
-          Left = 240
-          Top = 42
-          Width = 70
-          Height = 70
-          BevelOuter = bvNone
-          BevelKind = bkFlat
-          Color = 15854566
-          ParentBackground = False
-          TabOrder = 3
-          object imgFoto4: TImage
-            AlignWithMargins = True
-            Left = 2
-            Top = 2
-            Width = 62
-            Height = 62
-            Cursor = crHandPoint
-            Margins.Left = 2
-            Margins.Top = 2
-            Margins.Right = 2
-            Margins.Bottom = 2
-            Align = alClient
-            Center = True
-            Proportional = True
-            Stretch = True
-            OnClick = imgFotoClick
-          end
-        end
         object lblSinFotos: TLabel
           Tag = 13
           Left = 12
-          Top = 40
+          Top = 76
           Width = 306
-          Height = 72
+          Height = 36
           Align = alClient
           Alignment = taCenter
           AutoSize = False
           Layout = tlCenter
           Visible = False
+          ExplicitTop = 40
+          ExplicitHeight = 72
+        end
+        object imgFoto1: TrImageZoom
+          Tag = 1
+          Left = 12
+          Top = 42
+          Width = 70
+          Height = 70
+          Cursor = crHandPoint
+          OnClick = imgFotoClick
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = 8421504
+          Font.Height = -11
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          ParentColor = False
+          ParentBackground = False
+          DragAndMove = False
+          BorderColor = 12632256
+          BackgroundColor = 15854566
+          BackgroundText = 'Sin foto'
+          ShowEditor = ieNone
+          ShowPopupMenu = False
+          ReduceToFit = True
+          EnlargeToFit = True
+          ReadOnly = True
+        end
+        object imgFoto2: TrImageZoom
+          Tag = 1
+          Left = 88
+          Top = 42
+          Width = 70
+          Height = 70
+          Cursor = crHandPoint
+          OnClick = imgFotoClick
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = 8421504
+          Font.Height = -11
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          ParentColor = False
+          ParentBackground = False
+          DragAndMove = False
+          BorderColor = 12632256
+          BackgroundColor = 15854566
+          BackgroundText = 'Sin foto'
+          ShowEditor = ieNone
+          ShowPopupMenu = False
+          ReduceToFit = True
+          EnlargeToFit = True
+          ReadOnly = True
+        end
+        object imgFoto3: TrImageZoom
+          Tag = 1
+          Left = 164
+          Top = 42
+          Width = 70
+          Height = 70
+          Cursor = crHandPoint
+          OnClick = imgFotoClick
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = 8421504
+          Font.Height = -11
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          ParentColor = False
+          ParentBackground = False
+          DragAndMove = False
+          BorderColor = 12632256
+          BackgroundColor = 15854566
+          BackgroundText = 'Sin foto'
+          ShowEditor = ieNone
+          ShowPopupMenu = False
+          ReduceToFit = True
+          EnlargeToFit = True
+          ReadOnly = True
+        end
+        object imgFoto4: TrImageZoom
+          Tag = 1
+          Left = 240
+          Top = 42
+          Width = 70
+          Height = 70
+          Cursor = crHandPoint
+          OnClick = imgFotoClick
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = 8421504
+          Font.Height = -11
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          ParentColor = False
+          ParentBackground = False
+          DragAndMove = False
+          BorderColor = 12632256
+          BackgroundColor = 15854566
+          BackgroundText = 'Sin foto'
+          ShowEditor = ieNone
+          ShowPopupMenu = False
+          ReduceToFit = True
+          EnlargeToFit = True
+          ReadOnly = True
         end
       end
       object tjMedidas: TPlanoTarjeta
@@ -349,13 +332,13 @@ object fraCotizacion: TfraCotizacion
         Left = 0
         Top = 374
         Width = 330
-        Height = 212
+        Height = 221
         Margins.Left = 0
         Margins.Top = 10
         Margins.Right = 0
         Margins.Bottom = 0
-        Align = alClient
         Caption = 'Medidas tomadas en sitio'
+        Align = alClient
         Padding.Left = 12
         Padding.Top = 40
         Padding.Right = 12
@@ -363,9 +346,9 @@ object fraCotizacion: TfraCotizacion
         TabOrder = 2
         object grMedidas: TrDBGrid
           Left = 12
-          Top = 40
+          Top = 76
           Width = 306
-          Height = 160
+          Height = 133
           Align = alClient
           BorderStyle = bsNone
           DataSource = dmMemoria.dsMedidas
@@ -373,11 +356,11 @@ object fraCotizacion: TfraCotizacion
           Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect]
           ReadOnly = True
           TabOrder = 0
-          TitleFont.Charset = ANSI_CHARSET
-          TitleFont.Color = 1973276
-          TitleFont.Height = -13
-          TitleFont.Name = 'Segoe UI Semibold'
-          TitleFont.Style = [fsBold]
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -11
+          TitleFont.Name = 'Tahoma'
+          TitleFont.Style = []
           StyleElements = [seFont]
         end
       end
@@ -388,7 +371,7 @@ object fraCotizacion: TfraCotizacion
       Left = 364
       Top = 6
       Width = 796
-      Height = 586
+      Height = 595
       Margins.Left = 14
       Margins.Top = 0
       Margins.Right = 0
@@ -403,68 +386,179 @@ object fraCotizacion: TfraCotizacion
         Width = 796
         Height = 104
         Align = alTop
-        Caption = 'Qu'#233' se cotiza'
         TabOrder = 0
-        DesignSize = (
-          796
-          104)
-        object cbTipoTrabajo: TrDBLookupComboBox
-          Left = 16
-          Top = 66
-          Width = 226
-          Height = 23
-          DataField = 'TIPO_TRABAJO_ID'
-          DataSource = dmMemoria.dsCotizacionEdicion
-          DropDownRows = 10
-          KeyField = 'ID'
-          ListField = 'NOMBRE'
-          ListSource = dmMemoria.dsTiposTrabajoLista
+        object RelativePanel1: TRelativePanel
+          AlignWithMargins = True
+          Left = 3
+          Top = 3
+          Width = 790
+          Height = 98
+          ControlCollection = <
+            item
+              Control = lblQueSeCotiza
+              AlignBottomWithPanel = False
+              AlignHorizontalCenterWithPanel = False
+              AlignLeftWithPanel = False
+              AlignRightWithPanel = False
+              AlignTopWithPanel = False
+              AlignVerticalCenterWithPanel = False
+            end
+            item
+              Control = cbTipoTrabajo
+              AlignBottomWithPanel = False
+              AlignHorizontalCenterWithPanel = False
+              AlignLeftWithPanel = False
+              AlignRightWithPanel = False
+              AlignTopWithPanel = False
+              AlignVerticalCenterWithPanel = False
+            end
+            item
+              AlignBottomWithPanel = False
+              AlignHorizontalCenterWithPanel = False
+              AlignLeftWithPanel = False
+              AlignRightWithPanel = False
+              AlignTopWithPanel = False
+              AlignVerticalCenterWithPanel = False
+            end
+            item
+              AlignBottomWithPanel = False
+              AlignHorizontalCenterWithPanel = False
+              AlignLeftWithPanel = False
+              AlignRightWithPanel = False
+              AlignTopWithPanel = False
+              AlignVerticalCenterWithPanel = False
+            end
+            item
+              Control = edDescripcion
+              AlignBottomWithPanel = False
+              AlignHorizontalCenterWithPanel = False
+              AlignLeftWithPanel = False
+              AlignRightWithPanel = False
+              AlignTopWithPanel = False
+              AlignVerticalCenterWithPanel = False
+            end
+            item
+              AlignBottomWithPanel = False
+              AlignHorizontalCenterWithPanel = False
+              AlignLeftWithPanel = False
+              AlignRightWithPanel = False
+              AlignTopWithPanel = False
+              AlignVerticalCenterWithPanel = False
+            end
+            item
+              Control = btnNuevoTipo
+              AlignBottomWithPanel = False
+              AlignHorizontalCenterWithPanel = False
+              AlignLeftWithPanel = False
+              AlignRightWithPanel = False
+              AlignTopWithPanel = False
+              AlignVerticalCenterWithPanel = False
+            end
+            item
+              Control = pstEstado
+              AlignBottomWithPanel = False
+              AlignHorizontalCenterWithPanel = False
+              AlignLeftWithPanel = False
+              AlignRightWithPanel = True
+              AlignTopWithPanel = False
+              AlignVerticalCenterWithPanel = False
+            end>
+          Align = alClient
+          BevelOuter = bvNone
           TabOrder = 0
-          ReadOnlyColor = 15987699
-          DBEditLabel.OwnCaption = 'Tipo de trabajo'
-          BoundLabel.Position = lpTopRight
-          EmptyDisplayValue = 'Sin especificar'
-          AllowLookupFilter = True
-          AutoDropDown = True
-        end
-        object btnNuevoTipo: TPlanoBotonWin
-          Left = 246
-          Top = 63
-          Width = 30
-          Height = 28
-          Cursor = crHandPoint
-          Hint = 'Agregar un tipo de trabajo al cat'#225'logo'
-          Caption = '+'
-          ParentShowHint = False
-          ShowHint = True
-          TabOrder = 2
-          Visible = False
-          StyleElements = []
-          OnClick = btnNuevoTipoClick
-          Kind = fkSecondary
-        end
-        object edDescripcion: TrDBEdit
-          Left = 292
-          Top = 66
-          Width = 488
-          Height = 23
-          Anchors = [akLeft, akTop, akRight]
-          DataField = 'DESCRIPCION_TRABAJO'
-          DataSource = dmMemoria.dsCotizacionEdicion
-          TabOrder = 1
-          StyleElements = []
-          ReadOnlyColor = 15987699
-          DBEditLabel.AlignWithMargins = True
-          DBEditLabel.Margins.Top = 5
-          DBEditLabel.OwnCaption = 'Descripci'#243'n que ver'#225' el cliente'
-          DBEditLabel.ShowRequiredBold = True
+          ExplicitLeft = 0
+          ExplicitTop = 36
+          ExplicitWidth = 796
+          ExplicitHeight = 68
+          DesignSize = (
+            790
+            98)
+          object lblQueSeCotiza: TLabel
+            Tag = 12
+            Left = 13
+            Top = 6
+            Width = 4
+            Height = 20
+            Caption = 'Qu'#233' se cotiza'
+          end
+          object cbTipoTrabajo: TrDBLookupComboBox
+            Left = 16
+            Top = 31
+            Width = 226
+            Height = 21
+            Anchors = []
+            DataField = 'TIPO_TRABAJO_ID'
+            DataSource = dmMemoria.dsCotizacionEdicion
+            DropDownRows = 10
+            KeyField = 'ID'
+            ListField = 'NOMBRE'
+            ListSource = dmMemoria.dsTiposTrabajoLista
+            TabOrder = 0
+            ReadOnlyColor = 15987699
+            DBEditLabel.OwnCaption = 'Tipo de trabajo'
+            BoundLabel.Anchors = []
+            BoundLabel.Position = lpTopRight
+            BoundLabel.ExplicitLeft = 102
+            BoundLabel.ExplicitTop = -14
+            EmptyDisplayValue = 'Sin especificar'
+            AllowLookupFilter = True
+            AutoDropDown = True
+          end
+          object edDescripcion: TrDBEdit
+            Left = 292
+            Top = 31
+            Width = 488
+            Height = 21
+            Anchors = [akLeft, akTop, akRight]
+            DataField = 'DESCRIPCION_TRABAJO'
+            DataSource = dmMemoria.dsCotizacionEdicion
+            TabOrder = 1
+            StyleElements = []
+            ReadOnlyColor = 15987699
+            DBEditLabel.AlignWithMargins = True
+            DBEditLabel.Margins.Top = 5
+            DBEditLabel.OwnCaption = 'Descripci'#243'n que ver'#225' el cliente'
+            DBEditLabel.ShowRequiredBold = True
+          end
+          object btnNuevoTipo: TPlanoBotonWin
+            Left = 246
+            Top = 24
+            Width = 30
+            Height = 28
+            Cursor = crHandPoint
+            Hint = 'Agregar un tipo de trabajo al cat'#225'logo'
+            Anchors = []
+            Caption = '+'
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 2
+            Visible = False
+            StyleElements = []
+            OnClick = btnNuevoTipoClick
+            Kind = fkSecondary
+          end
+          object pstEstado: TPlanoPastilla
+            AlignWithMargins = True
+            Left = 750
+            Top = 3
+            Width = 20
+            Height = 22
+            Margins.Right = 20
+            Anchors = [akTop, akRight]
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Segoe UI Semibold'
+            Font.Style = []
+            ParentFont = False
+          end
         end
       end
       object pnlPie: TPanel
         Tag = 2
         AlignWithMargins = True
         Left = 0
-        Top = 380
+        Top = 389
         Width = 796
         Height = 206
         Margins.Left = 0
@@ -480,63 +574,63 @@ object fraCotizacion: TfraCotizacion
           Top = 0
           Width = 310
           Height = 206
-          Align = alRight
           Caption = 'Totales'
+          Align = alRight
           TabOrder = 1
           object lblMaterialesRot: TLabel
             Tag = 13
             Left = 16
             Top = 40
-            Width = 4
-            Height = 15
+            Width = 49
+            Height = 13
             Caption = 'Materiales'
           end
           object lblManoObraRot: TLabel
             Tag = 13
             Left = 16
             Top = 59
-            Width = 4
-            Height = 15
+            Width = 66
+            Height = 13
             Caption = 'Mano de obra'
           end
           object lblMaquinaRot: TLabel
             Tag = 13
             Left = 16
             Top = 78
-            Width = 4
-            Height = 15
+            Width = 45
+            Height = 13
             Caption = 'M'#225'quinas'
           end
           object lblCostoRot: TLabel
             Tag = 13
             Left = 16
             Top = 97
-            Width = 4
-            Height = 15
+            Width = 28
+            Height = 13
             Caption = 'Costo'
           end
           object lblAjusteRot: TLabel
             Tag = 13
             Left = 16
             Top = 116
-            Width = 4
-            Height = 15
+            Width = 31
+            Height = 13
             Caption = 'Ajuste'
           end
           object lblIvaRot: TLabel
             Tag = 13
             Left = 16
             Top = 135
-            Width = 4
-            Height = 15
+            Width = 17
+            Height = 13
             Caption = 'IVA'
           end
           object lblTotalRot: TLabel
             Tag = 11
             Left = 16
             Top = 160
-            Width = 4
-            Height = 28
+            Width = 24
+            Height = 13
             Caption = 'Total'
           end
           object lblMateriales: TLabel
@@ -609,23 +703,23 @@ object fraCotizacion: TfraCotizacion
           Left = 0
           Top = 0
           Width = 476
-          Height = 190
+          Height = 206
           Margins.Left = 0
           Margins.Top = 0
           Margins.Right = 10
           Margins.Bottom = 0
-          Align = alClient
           Caption = 'Ajuste'
+          Align = alClient
           TabOrder = 0
           DesignSize = (
             476
-            190)
+            206)
           object lblAjustePorcentaje: TLabel
             Tag = 25
             Left = 16
             Top = 46
-            Width = 4
-            Height = 15
+            Width = 3
+            Height = 13
           end
           object lblAjusteMotivo: TLabel
             Tag = 13
@@ -645,14 +739,14 @@ object fraCotizacion: TfraCotizacion
             Cursor = crHandPoint
             Anchors = [akTop, akRight]
             Caption = 'Cambiar ajuste'
-            TabOrder = 0
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -12
+            Font.Name = 'Segoe UI'
+            Font.Style = []
             ParentFont = False
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -12
-          Font.Name = 'Segoe UI'
-          Font.Style = []
-          StyleElements = []
+            TabOrder = 0
+            StyleElements = []
             OnClick = btnAjusteClick
             Kind = fkSecondary
           end
@@ -664,13 +758,13 @@ object fraCotizacion: TfraCotizacion
         Left = 0
         Top = 114
         Width = 796
-        Height = 272
+        Height = 265
         Margins.Left = 0
         Margins.Top = 10
         Margins.Right = 0
         Margins.Bottom = 0
-        Align = alClient
         Caption = 'L'#237'neas de la cotizaci'#243'n'
+        Align = alClient
         Padding.Left = 12
         Padding.Top = 44
         Padding.Right = 12
@@ -678,7 +772,7 @@ object fraCotizacion: TfraCotizacion
         TabOrder = 1
         DesignSize = (
           796
-          272)
+          265)
         object btnMaterial: TPlanoBotonWin
           Left = 366
           Top = 6
@@ -687,13 +781,13 @@ object fraCotizacion: TfraCotizacion
           Cursor = crHandPoint
           Anchors = [akTop, akRight]
           Caption = '+ Material'
-          TabOrder = 0
-          ParentFont = False
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -12
           Font.Name = 'Segoe UI'
           Font.Style = []
+          ParentFont = False
+          TabOrder = 0
           StyleElements = []
           OnClick = btnMaterialClick
           Kind = fkSecondary
@@ -706,13 +800,13 @@ object fraCotizacion: TfraCotizacion
           Cursor = crHandPoint
           Anchors = [akTop, akRight]
           Caption = '+ Mano de obra'
-          TabOrder = 1
-          ParentFont = False
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -12
           Font.Name = 'Segoe UI'
           Font.Style = []
+          ParentFont = False
+          TabOrder = 1
           StyleElements = []
           OnClick = btnManoObraClick
           Kind = fkSecondary
@@ -725,13 +819,13 @@ object fraCotizacion: TfraCotizacion
           Cursor = crHandPoint
           Anchors = [akTop, akRight]
           Caption = '+ M'#225'quina'
-          TabOrder = 2
-          ParentFont = False
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -12
           Font.Name = 'Segoe UI'
           Font.Style = []
+          ParentFont = False
+          TabOrder = 2
           StyleElements = []
           OnClick = btnMaquinaClick
           Kind = fkSecondary
@@ -744,22 +838,22 @@ object fraCotizacion: TfraCotizacion
           Cursor = crHandPoint
           Anchors = [akTop, akRight]
           Caption = '+ Nota'
-          TabOrder = 3
-          ParentFont = False
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -12
           Font.Name = 'Segoe UI'
           Font.Style = []
+          ParentFont = False
+          TabOrder = 3
           StyleElements = []
           OnClick = btnNotaClick
           Kind = fkSecondary
         end
         object grLineas: TrDBGrid
           Left = 12
-          Top = 44
+          Top = 80
           Width = 772
-          Height = 216
+          Height = 173
           Align = alClient
           BorderStyle = bsNone
           DataSource = dmMemoria.dsLineasCotizacion
@@ -767,11 +861,11 @@ object fraCotizacion: TfraCotizacion
           Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect]
           ReadOnly = True
           TabOrder = 4
-          TitleFont.Charset = ANSI_CHARSET
-          TitleFont.Color = 1973276
-          TitleFont.Height = -13
-          TitleFont.Name = 'Segoe UI Semibold'
-          TitleFont.Style = [fsBold]
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -11
+          TitleFont.Name = 'Tahoma'
+          TitleFont.Style = []
           StyleElements = [seFont]
         end
       end

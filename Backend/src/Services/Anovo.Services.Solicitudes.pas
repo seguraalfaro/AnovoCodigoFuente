@@ -8,8 +8,10 @@ interface
 uses
   System.Generics.Collections,
   MVCFramework,
+  MVCFramework.Nullables,
   Anovo.DTOs.Solicitudes,
   Anovo.Entities.Solicitudes,
+  Anovo.Repositories.Intf.Catalogos,
   Anovo.Repositories.Intf.Clientes,
   Anovo.Repositories.Intf.Solicitudes,
   Anovo.Services.Intf.Solicitudes,
@@ -34,6 +36,7 @@ type
     fMedidas: ISolicitudMedidaRepository;
     fAdjuntos: ISolicitudAdjuntoRepository;
     fClientes: IClienteRepository;
+    fTipos: ITipoTrabajoRepository;
     fPermisos: IPermisoService;
 
     function TraerVigente(const AId: Integer): TSolicitudes;
@@ -43,6 +46,7 @@ type
     function ADto(const ASolicitud: TSolicitudes): TSolicitudDTO;
     procedure ValidarTransicion(const ADesde, AHacia: string);
     procedure ValidarCliente(const AClienteId: Integer);
+    procedure ValidarTipoTrabajo(const ATipoId, AActual: NullableInt32);
     function InsertarMedida(const ASolicitudId: Integer;
       const ADto: TMedidaNuevaDTO): Integer;
     function InsertarAdjunto(const ASolicitudId: Integer;
@@ -52,8 +56,8 @@ type
     constructor Create(ARepo: ISolicitudRepository;
       AMedidas: ISolicitudMedidaRepository;
       AAdjuntos: ISolicitudAdjuntoRepository;
-      AClientes: IClienteRepository; APermisos: IPermisoService);
-      reintroduce;
+      AClientes: IClienteRepository; ATipos: ITipoTrabajoRepository;
+      APermisos: IPermisoService); reintroduce;
 
     function Buscar(const ATexto, AEstado: string;
       const ADesde, AHasta: TDateTime; const ARoles: TArray<string>;
@@ -97,6 +101,7 @@ uses
   System.SysUtils,
   MVCFramework.Repository,
   Anovo.Auditoria.Contexto,
+  Anovo.Entities.Catalogos,
   Anovo.Entities.Clientes,
   Anovo.Errors,
   Anovo.Mapeo,
@@ -109,14 +114,34 @@ uses
 constructor TSolicitudService.Create(ARepo: ISolicitudRepository;
   AMedidas: ISolicitudMedidaRepository;
   AAdjuntos: ISolicitudAdjuntoRepository; AClientes: IClienteRepository;
-  APermisos: IPermisoService);
+  ATipos: ITipoTrabajoRepository; APermisos: IPermisoService);
 begin
   inherited Create;
   fRepo := ARepo;
   fMedidas := AMedidas;
   fAdjuntos := AAdjuntos;
   fClientes := AClientes;
+  fTipos := ATipos;
   fPermisos := APermisos;
+end;
+
+procedure TSolicitudService.ValidarTipoTrabajo(const ATipoId,
+  AActual: NullableInt32);
+var
+  lTipo: TTiposTrabajo;
+begin
+  if not ATipoId.HasValue then
+    Exit;
+  if AActual.HasValue and (AActual.Value = ATipoId.Value) then
+    Exit;
+
+  lTipo := fTipos.GetByPK(ATipoId.Value, False);
+  try
+    if (lTipo = nil) or not lTipo.Activo.ValueOrDefault then
+      raise EDatoInvalido.Create(STipoTrabajoNoDisponible);
+  finally
+    lTipo.Free;
+  end;
 end;
 
 function TSolicitudService.TraerVigente(const AId: Integer): TSolicitudes;
@@ -241,6 +266,7 @@ begin
     Exit;
 
   ValidarCliente(ADto.ClienteId);
+  ValidarTipoTrabajo(ADto.TipoTrabajoId, nil);
 
   lSolicitud := TSolicitudes.Create;
   try
@@ -279,6 +305,7 @@ begin
     if lSolicitud.Objversion.ValueOrDefault <> ADto.ObjVersion.Value then
       raise EVersionVencida.Create(SRecursoSolicitud, AId);
 
+    ValidarTipoTrabajo(ADto.TipoTrabajoId, lSolicitud.TipoTrabajoId);
     TMapeo.Copiar(ADto, lSolicitud);
     FijarDetalle(Format(SDetalleCambioSolicitud, [AId]));
     fRepo.Update(lSolicitud);

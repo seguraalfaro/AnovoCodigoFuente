@@ -3,7 +3,7 @@
    Firebird 4.0 - base ANOVO
 
    La base entera desde cero, en el estado que dejo la ultima migracion. Es la
-   suma de migraciones\01 a 29 en orden de aplicacion; cada tramo conserva la
+   suma de migraciones\01 a 30 en orden de aplicacion; cada tramo conserva la
    cabecera de su script para saber de donde salio. La 12 no tiene tramo
    propio: su cambio ya esta en la tabla MANO_OBRA del tramo 01.
 
@@ -3211,5 +3211,23 @@ COMMIT;
 
 ALTER TABLE EMPRESA ADD CONSTRAINT CK_EMPRESA_IVA
   CHECK (PORCENTAJE_IVA BETWEEN 0 AND 100);
+
+COMMIT;
+
+/* ############################################################################
+   TRAMO 30_tipo_trabajo_en_solicitud.sql
+   ############################################################################ */
+
+/* Anovo - Migracion 30: tipo de trabajo en la solicitud.
+   Opcional. Lo indica el asesor al registrar la solicitud y la cotizacion
+   lo copia al tomarla, igual que la descripcion. Pendiente de aprobacion
+   en la minuta 13/2026; si se rechaza, la columna queda sin uso. Todo en ASCII. */
+
+ALTER TABLE SOLICITUDES ADD TIPO_TRABAJO_ID INTEGER;
+
+COMMIT;
+
+ALTER TABLE SOLICITUDES ADD CONSTRAINT FK_SOLICITUDES_TIPO_TRABAJO
+  FOREIGN KEY (TIPO_TRABAJO_ID) REFERENCES TIPOS_TRABAJO (ID);
 
 COMMIT;

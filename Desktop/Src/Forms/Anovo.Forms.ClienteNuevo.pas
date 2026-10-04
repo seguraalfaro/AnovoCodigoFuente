@@ -64,7 +64,7 @@ end;
 
 procedure TfrmClienteNuevo.FormDestroy(Sender: TObject);
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
 end;
 
 function TfrmClienteNuevo.ControlesEdicion: TArray<TControl>;

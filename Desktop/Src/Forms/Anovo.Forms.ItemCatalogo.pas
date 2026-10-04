@@ -139,7 +139,7 @@ end;
 procedure TfrmItemCatalogo.FormDestroy(Sender: TObject);
 begin
   FVigencia.Free;
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
   dmMemoria.SinTodasLasCategorias(False);
   dmMemoria.mtItemCatalogo.Close;
   dmMemoria.mtPrecioCatalogo.Close;

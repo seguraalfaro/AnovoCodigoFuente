@@ -79,7 +79,7 @@ end;
 
 destructor TfraBandeja.Destroy;
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
   inherited;
 end;
 

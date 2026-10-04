@@ -62,7 +62,7 @@ end;
 
 procedure TfrmContactoNuevo.FormDestroy(Sender: TObject);
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
 end;
 
 function TfrmContactoNuevo.ControlesEdicion: TArray<TControl>;

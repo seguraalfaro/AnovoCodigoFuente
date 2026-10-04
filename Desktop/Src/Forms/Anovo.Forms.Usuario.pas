@@ -162,7 +162,7 @@ end;
 
 procedure TfrmUsuario.FormDestroy(Sender: TObject);
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
   dmMemoria.SoloExcepciones(False);
   dmMemoria.mtUsuario.Close;
   dmMemoria.mtRoles.Close;

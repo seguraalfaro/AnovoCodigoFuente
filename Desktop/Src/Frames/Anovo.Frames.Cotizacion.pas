@@ -10,20 +10,19 @@ uses
   System.Generics.Collections,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.Mask, Vcl.DBCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
-  rDBComponents,
+  rDBComponents, rImageZoom,
   VclPlano.Tarjeta, VclPlano.BotonWin, VclPlano.Pastilla,
   Anovo.DTOs.Catalogos,
   Anovo.DTOs.Cotizaciones,
   Anovo.DTOs.Solicitudes,
   Anovo.Vistas.Intf.Cotizacion,
-  Anovo.Presentadores.Cotizacion;
+  Anovo.Presentadores.Cotizacion, Vcl.WinXCtrls;
 
 type
   TfraCotizacion = class(TFrame, IVistaCotizacion)
     pnlEncabezado: TPanel;
     lblTitulo: TLabel;
     lblSubtitulo: TLabel;
-    pstEstado: TPlanoPastilla;
     btnVolver: TPlanoBotonWin;
     btnGuardar: TPlanoBotonWin;
     btnPresentar: TPlanoBotonWin;
@@ -36,22 +35,15 @@ type
     pbCroquis: TPaintBox;
     lblSinCroquis: TLabel;
     tjFotos: TPlanoTarjeta;
-    pnlFoto1: TPanel;
-    imgFoto1: TImage;
-    pnlFoto2: TPanel;
-    imgFoto2: TImage;
-    pnlFoto3: TPanel;
-    imgFoto3: TImage;
-    pnlFoto4: TPanel;
-    imgFoto4: TImage;
+    imgFoto1: TrImageZoom;
+    imgFoto2: TrImageZoom;
+    imgFoto3: TrImageZoom;
+    imgFoto4: TrImageZoom;
     lblSinFotos: TLabel;
     tjMedidas: TPlanoTarjeta;
     grMedidas: TrDBGrid;
     pnlDerecha: TPanel;
     tjQueSeCotiza: TPlanoTarjeta;
-    cbTipoTrabajo: TrDBLookupComboBox;
-    btnNuevoTipo: TPlanoBotonWin;
-    edDescripcion: TrDBEdit;
     pnlPie: TPanel;
     tjTotales: TPlanoTarjeta;
     lblMaterialesRot: TLabel;
@@ -78,6 +70,12 @@ type
     btnMaquina: TPlanoBotonWin;
     btnNota: TPlanoBotonWin;
     grLineas: TrDBGrid;
+    RelativePanel1: TRelativePanel;
+    lblQueSeCotiza: TLabel;
+    cbTipoTrabajo: TrDBLookupComboBox;
+    edDescripcion: TrDBEdit;
+    btnNuevoTipo: TPlanoBotonWin;
+    pstEstado: TPlanoPastilla;
     procedure pbCroquisPaint(Sender: TObject);
     procedure imgFotoClick(Sender: TObject);
     procedure btnVolverClick(Sender: TObject);
@@ -94,7 +92,7 @@ type
     FPresentador: TPresentadorCotizacion;
     FOnRegresar: TNotifyEvent;
     FCroquis: string;
-    FFotos: array [0 .. 3] of TImage;
+    FFotos: array [0 .. 3] of TrImageZoom;
     procedure Accion(Sender: TObject; const AClave: string);
     procedure AbrirLinea(const AModo: TModoLinea; const ALinea: TLineaDTO);
     function DatosEscritos: TCotizacionEdicionDTO;
@@ -145,7 +143,6 @@ const
   CAMPO_ACCIONES = 'ACCIONES';
   ACCIONES: array [TAccionLinea] of TAccionRejilla = ((Clave: 'editar';
     Rotulo: SAccionEditar), (Clave: 'quitar'; Rotulo: SAccionQuitar));
-  SEPARACION_PASTILLA = 12;
   ANCHO_CROQUIS = 1000;
   ALTO_CROQUIS = 700;
 
@@ -174,7 +171,7 @@ end;
 
 destructor TfraCotizacion.Destroy;
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
   CursorOcupado(False);
   dmMemoria.mtLineasCotizacion.Close;
   dmMemoria.mtCotizacionEdicion.Close;
@@ -209,7 +206,6 @@ begin
     ACotizacion.ElaboradaPorNombre]);
   pstEstado.Caption := TFormato.Estado(ACotizacion.Estado);
   pstEstado.Status := EstadoPlano(ACotizacion.Estado);
-  pstEstado.Left := lblTitulo.Left + lblTitulo.Width + SEPARACION_PASTILLA;
 
   lblMateriales.Caption :=
     TFormato.Colones(ACotizacion.SubtotalMateriales.ValueOrDefault);
@@ -350,8 +346,10 @@ begin
       lMapa.Free;
     end;
   end
-  else if (Sender is TImage) and (TImage(Sender).Picture.Graphic <> nil) then
-    MostrarAmpliada(Self, TImage(Sender).Picture.Graphic, tjFotos.Caption);
+  else if (Sender is TrImageZoom) and
+    (TrImageZoom(Sender).Picture.Graphic <> nil) then
+    MostrarAmpliada(Self, TrImageZoom(Sender).Picture.Graphic,
+      tjFotos.Caption);
 end;
 
 function TfraCotizacion.DatosEscritos: TCotizacionEdicionDTO;

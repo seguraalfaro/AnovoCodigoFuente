@@ -65,7 +65,7 @@ end;
 
 destructor TfraAuditoria.Destroy;
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
   inherited;
 end;
 

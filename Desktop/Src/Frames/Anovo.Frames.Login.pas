@@ -93,7 +93,7 @@ end;
 
 destructor TfraLogin.Destroy;
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
   inherited;
 end;
 

@@ -110,7 +110,7 @@ end;
 
 procedure TfrmLineaCotizacion.FormDestroy(Sender: TObject);
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
   dmMemoria.mtLineaNueva.Close;
   dmMemoria.mtItemsLinea.Close;
 end;

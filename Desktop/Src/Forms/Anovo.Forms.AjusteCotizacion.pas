@@ -101,7 +101,7 @@ end;
 
 procedure TfrmAjusteCotizacion.FormDestroy(Sender: TObject);
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
   dmMemoria.mtAjuste.Close;
 end;
 

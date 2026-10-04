@@ -214,7 +214,7 @@ end;
 procedure TfrmPrincipal.FormDestroy(Sender: TObject);
 begin
   tmrAvisos.Enabled := False;
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
 end;
 
 procedure TfrmPrincipal.FormCloseQuery(Sender: TObject; var CanClose: Boolean);

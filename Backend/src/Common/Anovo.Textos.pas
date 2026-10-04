@@ -589,6 +589,7 @@ resourcestring
   SFotografias = 'Fotografías · %d';
   SSinCroquis = 'La solicitud no tiene croquis';
   SSinFotos = 'Sin fotografías';
+  SAbrirEnVisor = 'Abrir en el visor de Windows';
   SConfirmarQuitarLinea = '¿Quitar la línea «%s»?';
   SConfirmarPresentar = '¿Presentar la cotización Nº %d a aprobación? ' +
     'Mientras la revisan no se puede editar.';

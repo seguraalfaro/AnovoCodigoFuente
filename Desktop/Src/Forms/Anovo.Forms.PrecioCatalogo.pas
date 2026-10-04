@@ -115,7 +115,7 @@ end;
 procedure TfrmPrecioCatalogo.FormDestroy(Sender: TObject);
 begin
   FVigencia.Free;
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
   dmMemoria.mtPrecioCatalogo.Close;
 end;
 

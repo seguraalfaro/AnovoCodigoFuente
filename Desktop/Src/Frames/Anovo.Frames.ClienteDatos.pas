@@ -148,7 +148,7 @@ end;
 
 destructor TfraClienteDatos.Destroy;
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
   CursorOcupado(False);
   inherited;
 end;
