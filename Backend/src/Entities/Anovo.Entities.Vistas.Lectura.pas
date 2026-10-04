@@ -281,6 +281,8 @@ type
     [MVCTableField('TIPO_TRABAJO_NOMBRE')]
     [MVCMaxLength(120)]
     fTipoTrabajoNombre: NullableString;
+    [MVCTableField('ELABORADA_POR')]
+    fElaboradaPor: NullableInt32;
     [MVCTableField('CANTIDAD')]
     fCantidad: NullableInt32;
     [MVCTableField('MONTO_TOTAL')]
@@ -304,6 +306,7 @@ type
     property AsesorNombre: NullableString read fAsesorNombre write fAsesorNombre;
     property TipoTrabajoId: NullableInt32 read fTipoTrabajoId write fTipoTrabajoId;
     property TipoTrabajoNombre: NullableString read fTipoTrabajoNombre write fTipoTrabajoNombre;
+    property ElaboradaPor: NullableInt32 read fElaboradaPor write fElaboradaPor;
     property Cantidad: NullableInt32 read fCantidad write fCantidad;
     property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
     property Aprobadas: NullableInt32 read fAprobadas write fAprobadas;

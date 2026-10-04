@@ -1,7 +1,8 @@
 unit Anovo.Services.Reportes;
 
 // Servicio de reportes: suma por estado, asesor, tipo y mes las filas por
-// dia del periodo y calcula las tasas de aprobacion.
+// dia del periodo y calcula las tasas de aprobacion. Sin reportes.ver, solo
+// cuenta lo propio: sus solicitudes y lo que elaboro.
 
 interface
 
@@ -9,16 +10,20 @@ uses
   MVCFramework,
   Anovo.DTOs.Reportes,
   Anovo.Repositories.Intf.Reportes,
+  Anovo.Services.Intf.Permisos,
   Anovo.Services.Intf.Reportes;
 
 type
   TReporteService = class(TInterfacedObject, IReporteService)
   private
     fRepo: IReporteRepository;
+    fPermisos: IPermisoService;
   public
     [MVCInject]
-    constructor Create(ARepo: IReporteRepository); reintroduce;
-    function Cotizaciones(const ADesde, AHasta: TDateTime)
+    constructor Create(ARepo: IReporteRepository;
+      APermisos: IPermisoService); reintroduce;
+    function Cotizaciones(const ADesde, AHasta: TDateTime;
+      const AUsuarioId: Integer; const ARoles: TArray<string>)
       : TReporteCotizacionesDTO;
   end;
 
@@ -32,6 +37,7 @@ uses
   Anovo.DTOs.Dashboard,
   Anovo.Entities.Consultas,
   Anovo.Errors,
+  Anovo.Permisos,
   Anovo.Services.Cotizaciones,
   Anovo.Textos;
 
@@ -218,28 +224,37 @@ begin
     end));
 end;
 
-constructor TReporteService.Create(ARepo: IReporteRepository);
+constructor TReporteService.Create(ARepo: IReporteRepository;
+  APermisos: IPermisoService);
 begin
   inherited Create;
   fRepo := ARepo;
+  fPermisos := APermisos;
 end;
 
-function TReporteService.Cotizaciones(const ADesde, AHasta: TDateTime)
+function TReporteService.Cotizaciones(const ADesde, AHasta: TDateTime;
+  const AUsuarioId: Integer; const ARoles: TArray<string>)
   : TReporteCotizacionesDTO;
 var
   lFilas: TObjectList<TCotizacionesDia>;
   lFila: TCotizacionesDia;
-  lSumaDias, lConRespuesta: Integer;
+  lSumaDias, lConRespuesta, lFiltroUsuario: Integer;
 begin
   if DateOf(ADesde) > DateOf(AHasta) then
     raise EDatoInvalido.Create(SReporteRangoInvalido);
+
+  if fPermisos.TieneAlguno(AUsuarioId, ARoles, [PERMISO_REPORTES_VER]) then
+    lFiltroUsuario := 0
+  else
+    lFiltroUsuario := AUsuarioId;
 
   Result := TReporteCotizacionesDTO.Create;
   try
     Result.Desde := DateOf(ADesde);
     Result.Hasta := DateOf(AHasta);
 
-    lFilas := fRepo.DiasEntre(Result.Desde, IncDay(Result.Hasta, 1));
+    lFilas := fRepo.DiasEntre(Result.Desde, IncDay(Result.Hasta, 1),
+      lFiltroUsuario);
     try
       lSumaDias := 0;
       lConRespuesta := 0;

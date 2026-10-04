@@ -24,6 +24,7 @@ const
   CONSULTA_ORDENADAS = 'Ordenadas';
   CONSULTA_RECIENTES = 'Recientes';
   CONSULTA_ENTRE = 'Entre';
+  CONSULTA_ENTRE_PROPIAS = 'EntrePropias';
   CONSULTA_POR_ID = 'PorId';
   CONSULTA_DE_SOLICITUD = 'DeSolicitud';
   CONSULTA_DE_CLIENTE = 'DeCliente';
@@ -181,6 +182,8 @@ type
   [MVCTable('V_COTIZACIONES_DIA')]
   [MVCNamedRQLQuery(CONSULTA_ENTRE,
     'and(ge(Fecha,"%s"),lt(Fecha,"%s"))')]
+  [MVCNamedRQLQuery(CONSULTA_ENTRE_PROPIAS,
+    'and(ge(Fecha,"%s"),lt(Fecha,"%s"),or(eq(AsesorId,%d),eq(ElaboradaPor,%d)))')]
   TCotizacionesDia = class(TVCotizacionesDia)
   end;
 

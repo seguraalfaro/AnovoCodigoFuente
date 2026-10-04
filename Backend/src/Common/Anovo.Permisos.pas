@@ -24,6 +24,7 @@ const
   PERMISO_PERMISOS_EDITAR = 'permisos.editar';
   PERMISO_PERMISOS_VER = 'permisos.ver';
   PERMISO_REPORTES_VER = 'reportes.ver';
+  PERMISO_REPORTES_VER_PROPIOS = 'reportes.ver_propios';
   PERMISO_SOLICITUDES_CREAR = 'solicitudes.crear';
   PERMISO_SOLICITUDES_EDITAR_PROPIAS = 'solicitudes.editar_propias';
   PERMISO_SOLICITUDES_EDITAR_TODAS = 'solicitudes.editar_todas';

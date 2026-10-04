@@ -21,10 +21,12 @@ type
   public
     [MVCPath('/cotizaciones')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_REPORTES_VER)]
+    [MVCRequiresPermiso(PERMISO_REPORTES_VER + SEPARADOR_PERMISOS +
+      PERMISO_REPORTES_VER_PROPIOS)]
     [MVCSwagSummary('Reportes', 'Cotizaciones elaboradas en el periodo, con ' +
       'su estado actual: resumen, por estado, por asesor, por tipo de ' +
-      'trabajo y por mes', 'reporteCotizaciones')]
+      'trabajo y por mes. Con reportes.ver_propios, solo las de sus ' +
+      'solicitudes o las que elaboro', 'reporteCotizaciones')]
     [MVCSwagParam(plQuery, 'desde', 'Fecha inicial, aaaa-mm-dd. Por omision, ' +
       'el primer dia del mes de hasta', ptString, False)]
     [MVCSwagParam(plQuery, 'hasta', 'Fecha final incluida, aaaa-mm-dd. Por ' +
@@ -51,7 +53,7 @@ var
 begin
   lHasta := ComoFecha(AHasta, Date);
   Result := OKResponse(AServicio.Cotizaciones(ComoFecha(ADesde,
-    StartOfTheMonth(lHasta)), lHasta));
+    StartOfTheMonth(lHasta)), lHasta, UsuarioId, Roles));
 end;
 
 end.
