@@ -48,6 +48,7 @@ type
     pstSinGuardar: TPlanoPastilla;
     chkSoloExcepciones: TCheckBox;
     lblResumen: TLabel;
+    lblSinPermisos: TLabel;
     grPermisos: TrDBGrid;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -72,6 +73,7 @@ type
     procedure PonerClaveNueva;
     procedure MostrarClave;
     procedure MostrarPaquete;
+    procedure MostrarSiHayPermisos;
     function RolEscogido: Integer;
     function CambioRol: Boolean;
     function ValidarCampos: Boolean;
@@ -152,6 +154,7 @@ begin
   lblAviso.Visible := False;
   lblPaquete.Visible := False;
   lblResumen.Visible := False;
+  lblSinPermisos.Visible := False;
   chkSoloExcepciones.Caption := SSoloExcepciones;
   FPresentador := TPresentadorUsuario.Create(Self, TApiUsuarios.Create,
     TApiRoles.Create);
@@ -311,7 +314,23 @@ end;
 procedure TfrmUsuario.MostrarPermisos(const AFilas: TObjectList<TFilaPermiso>);
 begin
   TMapeoDatos.AListaTabla<TFilaPermiso>(AFilas, dmMemoria.mtPermisosUsuario);
+  MostrarSiHayPermisos;
   MostrarResumen;
+end;
+
+procedure TfrmUsuario.MostrarSiHayPermisos;
+var
+  lVacia: Boolean;
+begin
+  lVacia := dmMemoria.mtPermisosUsuario.IsEmpty;
+  grPermisos.Visible := not lVacia;
+  lblSinPermisos.Visible := lVacia;
+  if not lVacia then
+    Exit;
+  if chkSoloExcepciones.Checked then
+    lblSinPermisos.Caption := SSinExcepciones
+  else
+    lblSinPermisos.Caption := SSinPermisosParaMostrar;
 end;
 
 procedure TfrmUsuario.MostrarResumen;
@@ -353,6 +372,7 @@ end;
 procedure TfrmUsuario.chkSoloExcepcionesClick(Sender: TObject);
 begin
   dmMemoria.SoloExcepciones(chkSoloExcepciones.Checked);
+  MostrarSiHayPermisos;
   MostrarResumen;
 end;
 
@@ -369,7 +389,7 @@ procedure TfrmUsuario.grPermisosCanEdit(Sender: TObject; Field: TField;
   Column: TColumn; var CanEdit: Boolean);
 begin
   CanEdit := CanEdit and (Field = dmMemoria.mtPermisosUsuarioTIENE) and
-    not CambioRol;
+    not dmMemoria.mtPermisosUsuario.IsEmpty and not CambioRol;
 end;
 
 procedure TfrmUsuario.grPermisosBoolClick(Sender: TObject; DataSet: TDataSet;

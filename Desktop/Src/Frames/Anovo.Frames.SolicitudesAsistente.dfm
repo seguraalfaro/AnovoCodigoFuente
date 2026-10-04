@@ -25,78 +25,7 @@ inherited fraSolicitudesAsistente: TfraSolicitudesAsistente
     ExplicitHeight = 392
     inherited grDatos: TrDBGrid
       Height = 386
-      DataSource = dmMemoria.dsSolicitudesAsistente
-      Columns = <
-        item
-          Expanded = False
-          FieldName = 'NUMERO'
-          Title.Alignment = taRightJustify
-          Width = 70
-          Visible = True
-        end
-        item
-          ButtonStyle = cbsEllipsis
-          Expanded = False
-          FieldName = 'FECHA_RECEPCION'
-          Width = 90
-          Visible = True
-        end
-        item
-          ButtonStyle = cbsEllipsis
-          Expanded = False
-          FieldName = 'FECHA_MODIFICACION'
-          Width = 90
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'CLIENTE_NOMBRE'
-          Width = 200
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'ASESOR_NOMBRE'
-          Width = 130
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'DESCRIPCION'
-          Width = 260
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'DESCRIPCION_TRABAJO'
-          Width = 260
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'DIAS_ESPERA'
-          Title.Alignment = taRightJustify
-          Width = 60
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'ESTADO'
-          Width = 110
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'MOTIVO_RECHAZO'
-          Width = 220
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'ACCIONES'
-          Width = 110
-          Visible = True
-        end>
+      DataSource = dmMemoria.dsSolicitudesCola
     end
   end
   object pstModo: TPlanoPestanas

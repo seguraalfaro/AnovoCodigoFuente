@@ -390,6 +390,9 @@ resourcestring
   SVariosQuitados = '%d quitados';
   SSinGuardarCantidad = '%d sin guardar';
   SSoloExcepciones = 'Solo adicionales y quitados';
+  SSinResultados = 'Sin resultados';
+  SSinExcepciones = 'Esta persona no tiene permisos adicionales ni quitados.';
+  SSinPermisosParaMostrar = 'No hay permisos para mostrar.';
   SPestanaPermisos = 'Permisos';
   SPestanaPermisosCon = 'Permisos · %s';
   SPaqueteBasico = 'Paquete básico del rol: %d permisos. Los adicionales se ' +

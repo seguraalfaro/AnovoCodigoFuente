@@ -438,11 +438,7 @@ procedure TDBGridExtend.DibujarCelda(Sender: TObject; const ARect: TRect;
   ADataCol: Integer; AColumn: TColumn; AState: TGridDrawState);
 begin
   if (AColumn <> nil) and SinFilas then
-  begin
-    if SameText(AColumn.FieldName, FCampoAcciones) or
-      EsColumnaEstado(AColumn.FieldName) then
-      RellenarFondo(ARect, AColumn);
-  end
+    RellenarFondo(ARect, AColumn)
   else if AColumn <> nil then
   begin
     if (FCampoAcciones <> '') and (Length(FAcciones) > 0) and
@@ -652,6 +648,7 @@ begin
   AGrid.Options := AGrid.Options - [dgRowSelect] + [dgEditing];
   AGrid.ReadOnly := False;
   AGrid.OptionsEx2.Editors.BoolOneClickChange := True;
+  TDBGridExtend.De(AGrid);
 end;
 
 procedure TemarTitulos(AGrid: TrDBGrid);

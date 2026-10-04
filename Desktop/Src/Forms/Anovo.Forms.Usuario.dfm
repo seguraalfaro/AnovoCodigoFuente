@@ -275,7 +275,7 @@ inherited frmUsuario: TfrmUsuario
           Left = 16
           Top = 82
           Width = 436
-          Height = 31
+          Height = 28
           DataField = 'CLAVE_TEMPORAL'
           DataSource = dmMemoria.dsUsuario
           Font.Charset = ANSI_CHARSET
@@ -323,8 +323,26 @@ inherited frmUsuario: TfrmUsuario
         Margins.Top = 8
         Margins.Right = 20
         Align = alTop
-        ExplicitTop = 40
         ExplicitWidth = 3
+      end
+      object lblSinPermisos: TLabel
+        Tag = 13
+        AlignWithMargins = True
+        Left = 20
+        Top = 63
+        Width = 600
+        Height = 296
+        Margins.Left = 20
+        Margins.Right = 20
+        Margins.Bottom = 8
+        Align = alClient
+        Alignment = taCenter
+        AutoSize = False
+        Layout = tlCenter
+        Visible = False
+        WordWrap = True
+        ExplicitTop = 60
+        ExplicitHeight = 299
       end
       object pnlResumen: TPanel
         Tag = 1

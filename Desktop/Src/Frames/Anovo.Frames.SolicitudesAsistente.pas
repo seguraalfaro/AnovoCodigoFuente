@@ -24,7 +24,6 @@ type
   private
     FPresentador: TPresentadorSolicitudesAsistente;
     procedure Accion(Sender: TObject; const AClave: string);
-    procedure VerColumnas(const ACampos: array of string);
     procedure MostrarModo(const AModo: TModoSolicitudes);
     procedure MostrarCola(const AFilas: TObjectList<TSolicitudPorCotizarDTO>);
     procedure MostrarEnTrabajo(const AFilas
@@ -58,12 +57,6 @@ const
   CAMPO_ESTADO = 'ESTADO';
   ACCION_TOMAR = 'tomar';
 
-  COLUMNAS_COLA: array [0 .. 5] of string = ('FECHA_RECEPCION',
-    'CLIENTE_NOMBRE', 'ASESOR_NOMBRE', 'DESCRIPCION', 'DIAS_ESPERA',
-    'ACCIONES');
-  COLUMNAS_EN_TRABAJO: array [0 .. 5] of string = ('NUMERO',
-    'FECHA_MODIFICACION', 'CLIENTE_NOMBRE', 'DESCRIPCION_TRABAJO', 'ESTADO',
-    'MOTIVO_RECHAZO');
 
 constructor TfraSolicitudesAsistente.Create(AOwner: TComponent);
 var
@@ -117,62 +110,48 @@ begin
   pstModo.Enabled := not AActivo;
 end;
 
-procedure TfraSolicitudesAsistente.VerColumnas(const ACampos: array of string);
-var
-  I: Integer;
-  lCampo: string;
-  lVisible: Boolean;
-begin
-  for I := 0 to grDatos.Columns.Count - 1 do
-  begin
-    lVisible := False;
-    for lCampo in ACampos do
-      if SameText(grDatos.Columns[I].FieldName, lCampo) then
-        lVisible := True;
-    grDatos.Columns[I].Visible := lVisible;
-  end;
-  Anovo.UI.DBGridExtend.AjustarColumnas(grDatos);
-end;
-
 procedure TfraSolicitudesAsistente.MostrarModo(const AModo: TModoSolicitudes);
 begin
   pstModo.ItemIndex := Ord(AModo);
   if AModo = msCola then
   begin
     FTextoSinRegistros := SSinCola;
-    VerColumnas(COLUMNAS_COLA);
+    grDatos.DataSource := dmMemoria.dsSolicitudesCola;
   end
   else
   begin
     FTextoSinRegistros := SSinEnTrabajo;
-    VerColumnas(COLUMNAS_EN_TRABAJO);
+    grDatos.DataSource := dmMemoria.dsSolicitudesEnTrabajo;
   end;
+  TDBGridExtend.De(grDatos).AjustarColumnas;
 end;
 
 procedure TfraSolicitudesAsistente.MostrarCola(const AFilas
   : TObjectList<TSolicitudPorCotizarDTO>);
 begin
   TMapeoDatos.AListaTabla<TSolicitudPorCotizarDTO>(AFilas,
-    dmMemoria.mtSolicitudesAsistente);
+    dmMemoria.mtSolicitudesCola);
+  TDBGridExtend.De(grDatos).AjustarColumnas;
 end;
 
 procedure TfraSolicitudesAsistente.MostrarEnTrabajo(const AFilas
   : TObjectList<TSolicitudEnTrabajoDTO>);
 begin
   TMapeoDatos.AListaTabla<TSolicitudEnTrabajoDTO>(AFilas,
-    dmMemoria.mtSolicitudesAsistente);
+    dmMemoria.mtSolicitudesEnTrabajo);
+  TDBGridExtend.De(grDatos).AjustarColumnas;
 end;
 
 procedure TfraSolicitudesAsistente.Accion(Sender: TObject;
   const AClave: string);
 begin
-  if dmMemoria.mtSolicitudesAsistente.IsEmpty or
+  if dmMemoria.mtSolicitudesCola.IsEmpty or
     (pstModo.ItemIndex <> Ord(msCola)) then
     Exit;
   if SameText(AClave, ACCION_TOMAR) and
     Confirmar(Format(SConfirmarTomar,
-    [dmMemoria.mtSolicitudesAsistenteCLIENTE_NOMBRE.AsString])) then
-    FPresentador.Tomar(dmMemoria.mtSolicitudesAsistenteID.AsInteger);
+    [dmMemoria.mtSolicitudesColaCLIENTE_NOMBRE.AsString])) then
+    FPresentador.Tomar(dmMemoria.mtSolicitudesColaID.AsInteger);
 end;
 
 procedure TfraSolicitudesAsistente.pstModoChange(Sender: TObject);

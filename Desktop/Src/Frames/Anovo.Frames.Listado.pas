@@ -7,7 +7,7 @@ interface
 uses
   System.SysUtils, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.WinXCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
+  Vcl.WinXCtrls, Vcl.VirtualImage, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.BotonWin;
 
 type
@@ -20,6 +20,12 @@ type
     btnLimpiar: TPlanoBotonWin;
     pnclient: TRelativePanel;
     grDatos: TrDBGrid;
+    pnlSinRegistros: TPanel;
+    pnlVacio: TPanel;
+    shpVacio: TShape;
+    imgVacio: TVirtualImage;
+    lblVacioTitulo: TLabel;
+    lblSinRegistros: TLabel;
     pnlPie: TPanel;
     lblPaginacion: TLabel;
     btnAnterior: TPlanoBotonWin;
@@ -58,12 +64,14 @@ implementation
 uses
   Anovo.UI.Tema,
   Anovo.UI.DBGridExtend,
-  Anovo.UI.Vista;
+  Anovo.UI.Vista,
+  Anovo.Textos;
 
 constructor TfraListado.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   AplicarTemaGrid(grDatos);
+  lblVacioTitulo.Caption := SSinResultados;
 end;
 
 destructor TfraListado.Destroy;
@@ -104,6 +112,9 @@ begin
   PintarPaginacion(lblPaginacion, btnAnterior, btnSiguiente, APagina,
     ATotalPaginas, ATotal, FTextoSinRegistros, FTextoPaginacion,
     FTextoSoloTotal);
+  pnclient.Visible := ATotal > 0;
+  pnlSinRegistros.Visible := ATotal = 0;
+  lblSinRegistros.Caption := FTextoSinRegistros;
 end;
 
 procedure TfraListado.MostrarError(const AMensaje: string);

@@ -126,6 +126,72 @@ object fraListado: TfraListado
       StyleElements = [seFont]
     end
   end
+  object pnlSinRegistros: TPanel
+    Tag = 1
+    Left = 3
+    Top = 129
+    Width = 954
+    Height = 438
+    Align = alClient
+    BevelOuter = bvNone
+    ParentBackground = True
+    ParentColor = True
+    TabOrder = 4
+    Visible = False
+    object pnlVacio: TPanel
+      Tag = 1
+      Left = 267
+      Top = 109
+      Width = 420
+      Height = 200
+      Anchors = []
+      BevelOuter = bvNone
+      ParentBackground = True
+      ParentColor = True
+      TabOrder = 0
+      object shpVacio: TShape
+        Tag = 1
+        Left = 166
+        Top = 0
+        Width = 88
+        Height = 88
+        Brush.Color = 16114902
+        Pen.Style = psClear
+        Shape = stCircle
+      end
+      object imgVacio: TVirtualImage
+        Tag = 1
+        Left = 182
+        Top = 16
+        Width = 56
+        Height = 56
+        ImageCollection = dmIconos.IcAnovo
+        ImageWidth = 0
+        ImageHeight = 0
+        ImageIndex = 112
+        ImageName = 'Marca\12-buscar-marca'
+      end
+      object lblVacioTitulo: TLabel
+        Tag = 11
+        Left = 0
+        Top = 104
+        Width = 420
+        Height = 25
+        Alignment = taCenter
+        AutoSize = False
+      end
+      object lblSinRegistros: TLabel
+        Tag = 13
+        Left = 0
+        Top = 136
+        Width = 420
+        Height = 40
+        Alignment = taCenter
+        AutoSize = False
+        WordWrap = True
+      end
+    end
+  end
   object pnlPie: TPanel
     Tag = 2
     AlignWithMargins = True

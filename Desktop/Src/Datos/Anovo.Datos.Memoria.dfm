@@ -1244,7 +1244,7 @@ object dmMemoria: TdmMemoria
     Left = 464
     Top = 1016
   end
-  object mtSolicitudesAsistente: TFDMemTable
+  object mtSolicitudesCola: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll
     ResourceOptions.AssignedValues = [rvSilentMode]
@@ -1254,71 +1254,98 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AutoCommitUpdates = True
     Left = 360
     Top = 1080
-    object mtSolicitudesAsistenteID: TIntegerField
+    object mtSolicitudesColaID: TIntegerField
       FieldName = 'ID'
       Visible = False
     end
-    object mtSolicitudesAsistenteSOLICITUD_ID: TIntegerField
-      FieldName = 'SOLICITUD_ID'
-      Visible = False
-    end
-    object mtSolicitudesAsistenteNUMERO: TIntegerField
-      DisplayLabel = 'N'#250'mero'
-      FieldName = 'NUMERO'
-    end
-    object mtSolicitudesAsistenteFECHA_RECEPCION: TDateTimeField
+    object mtSolicitudesColaFECHA_RECEPCION: TDateTimeField
       DisplayLabel = 'Recibida'
       FieldName = 'FECHA_RECEPCION'
       DisplayFormat = 'dd/mm/yyyy'
     end
-    object mtSolicitudesAsistenteFECHA_MODIFICACION: TDateTimeField
-      DisplayLabel = 'Actualizada'
-      FieldName = 'FECHA_MODIFICACION'
-      DisplayFormat = 'dd/mm/yyyy'
-    end
-    object mtSolicitudesAsistenteCLIENTE_NOMBRE: TStringField
+    object mtSolicitudesColaCLIENTE_NOMBRE: TStringField
       DisplayLabel = 'Cliente'
       FieldName = 'CLIENTE_NOMBRE'
       Size = 120
     end
-    object mtSolicitudesAsistenteASESOR_NOMBRE: TStringField
+    object mtSolicitudesColaASESOR_NOMBRE: TStringField
       DisplayLabel = 'Asesor'
       FieldName = 'ASESOR_NOMBRE'
       Size = 120
     end
-    object mtSolicitudesAsistenteDESCRIPCION: TStringField
+    object mtSolicitudesColaDESCRIPCION: TStringField
       DisplayLabel = 'Descripci'#243'n'
       FieldName = 'DESCRIPCION'
       Size = 500
     end
-    object mtSolicitudesAsistenteDESCRIPCION_TRABAJO: TStringField
-      DisplayLabel = 'Trabajo'
-      FieldName = 'DESCRIPCION_TRABAJO'
-      Size = 500
-    end
-    object mtSolicitudesAsistenteDIAS_ESPERA: TIntegerField
+    object mtSolicitudesColaDIAS_ESPERA: TIntegerField
       DisplayLabel = 'D'#237'as'
       FieldName = 'DIAS_ESPERA'
     end
-    object mtSolicitudesAsistenteESTADO: TStringField
-      DisplayLabel = 'Estado'
-      FieldName = 'ESTADO'
-      OnGetText = EstadoGetText
-    end
-    object mtSolicitudesAsistenteMOTIVO_RECHAZO: TStringField
-      DisplayLabel = 'Observaci'#243'n'
-      FieldName = 'MOTIVO_RECHAZO'
-      Size = 500
-    end
-    object mtSolicitudesAsistenteACCIONES: TStringField
+    object mtSolicitudesColaACCIONES: TStringField
       DisplayLabel = 'Acciones'
       FieldName = 'ACCIONES'
     end
   end
-  object dsSolicitudesAsistente: TDataSource
-    DataSet = mtSolicitudesAsistente
+  object dsSolicitudesCola: TDataSource
+    AutoEdit = False
+    DataSet = mtSolicitudesCola
+    Left = 360
+    Top = 1136
+  end
+  object mtSolicitudesEnTrabajo: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
     Left = 464
     Top = 1080
+    object mtSolicitudesEnTrabajoID: TIntegerField
+      FieldName = 'ID'
+      Visible = False
+    end
+    object mtSolicitudesEnTrabajoSOLICITUD_ID: TIntegerField
+      FieldName = 'SOLICITUD_ID'
+      Visible = False
+    end
+    object mtSolicitudesEnTrabajoNUMERO: TIntegerField
+      DisplayLabel = 'N'#250'mero'
+      FieldName = 'NUMERO'
+    end
+    object mtSolicitudesEnTrabajoFECHA_MODIFICACION: TDateTimeField
+      DisplayLabel = 'Actualizada'
+      FieldName = 'FECHA_MODIFICACION'
+      DisplayFormat = 'dd/mm/yyyy'
+    end
+    object mtSolicitudesEnTrabajoCLIENTE_NOMBRE: TStringField
+      DisplayLabel = 'Cliente'
+      FieldName = 'CLIENTE_NOMBRE'
+      Size = 120
+    end
+    object mtSolicitudesEnTrabajoDESCRIPCION_TRABAJO: TStringField
+      DisplayLabel = 'Trabajo'
+      FieldName = 'DESCRIPCION_TRABAJO'
+      Size = 500
+    end
+    object mtSolicitudesEnTrabajoESTADO: TStringField
+      DisplayLabel = 'Estado'
+      FieldName = 'ESTADO'
+      OnGetText = EstadoGetText
+    end
+    object mtSolicitudesEnTrabajoMOTIVO_RECHAZO: TStringField
+      DisplayLabel = 'Observaci'#243'n'
+      FieldName = 'MOTIVO_RECHAZO'
+      Size = 500
+    end
+  end
+  object dsSolicitudesEnTrabajo: TDataSource
+    AutoEdit = False
+    DataSet = mtSolicitudesEnTrabajo
+    Left = 464
+    Top = 1136
   end
   object mtSeguimiento: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
