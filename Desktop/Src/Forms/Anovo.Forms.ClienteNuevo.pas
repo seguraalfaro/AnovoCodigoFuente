@@ -52,7 +52,8 @@ implementation
 uses
   Anovo.Datos.Memoria,
   Anovo.Mapeo.Datos,
-  Anovo.Api.Clientes;
+  Anovo.Api.Clientes,
+  Anovo.Textos;
 
 procedure TfrmClienteNuevo.FormCreate(Sender: TObject);
 begin
@@ -92,35 +93,30 @@ begin
     with dmMemoria do
     begin
       if not TValidacion.Texto(mtClienteNuevoNOMBRE.AsString) then
-        lReparos.Add
-          ('El nombre o razon social debe tener al menos tres letras.');
+        lReparos.Add(SValNombreCliente);
       if not TValidacion.Texto(mtClienteNuevoCONTACTO.AsString) then
-        lReparos.Add
-          ('El nombre o razon social debe tener al menos tres letras.');
+        lReparos.Add(SValNombreContacto);
 
       if (mtClienteNuevoIDENTIFICACION.AsString <> '') and
         not TValidacion.Identificacion
         (TTipoIdentificacion(mtClienteNuevoTIPO_IDENTIFICACION.AsInteger),
         mtClienteNuevoIDENTIFICACION.AsString) then
-        lReparos.Add('La identificacion no tiene el largo que corresponde al ' +
-          'tipo seleccionado.');
+        lReparos.Add(SValIdentificacion);
 
       if (mtClienteNuevoTELEFONO.AsString <> '') and
         not TValidacion.Telefono(mtClienteNuevoTELEFONO.AsString) then
-        lReparos.Add('El telefono debe tener ocho digitos.');
+        lReparos.Add(SValTelefono);
 
       if (mtClienteNuevoCORREO.AsString <> '') and
         not TValidacion.Correo(mtClienteNuevoCORREO.AsString) then
-        lReparos.Add('El correo no tiene una forma valida, por ejemplo ' +
-          'nombre@dominio.cr');
+        lReparos.Add(SValCorreo);
 
       if mtClienteNuevoEXONERADO.AsBoolean and
         (Trim(mtClienteNuevoCODIGO_EXONERACION.AsString) = '') then
-        lReparos.Add('Un cliente exonerado necesita su codigo de exoneracion.');
+        lReparos.Add(SValCodigoExoneracion);
     end;
 
-    Result := MostrarReparos(lReparos,
-      'No se puede guardar el cliente. Corrija lo siguiente:');
+    Result := MostrarReparos(lReparos, SReparosCliente);
   finally
     lReparos.Free;
   end;

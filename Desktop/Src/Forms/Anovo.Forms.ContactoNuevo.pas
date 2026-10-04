@@ -48,7 +48,8 @@ implementation
 uses
   Anovo.Api.Clientes,
   Anovo.Mapeo.Datos,
-  Anovo.Datos.Memoria;
+  Anovo.Datos.Memoria,
+  Anovo.Textos;
 
 constructor TfrmContactoNuevo.Crear(AOwner: TComponent;
   const AClienteId: Integer);
@@ -83,24 +84,21 @@ begin
     with dmMemoria do
     begin
       if not TValidacion.Texto(mtContactoNuevoNOMBRE.AsString) then
-        lReparos.Add('El nombre del contacto debe tener al menos tres letras.');
+        lReparos.Add(SValNombreContacto);
 
       if not TValidacion.Correo(mtContactoNuevoCORREO.AsString) then
-        lReparos.Add('El correo no tiene una forma valida, por ejemplo ' +
-          'nombre@dominio.cr');
+        lReparos.Add(SValCorreo);
 
       if (mtContactoNuevoTELEFONO.AsString <> '') and
         not TValidacion.TelefonoExt(mtContactoNuevoTELEFONO.AsString) then
-        lReparos.Add('El telefono debe tener ocho digitos, con extension o ' +
-          'sin ella.');
+        lReparos.Add(SValTelefonoExt);
 
       if (mtContactoNuevoCELULAR.AsString <> '') and
         not TValidacion.Telefono(mtContactoNuevoCELULAR.AsString) then
-        lReparos.Add('El celular debe tener ocho digitos.');
+        lReparos.Add(SValCelular);
     end;
 
-    Result := MostrarReparos(lReparos,
-      'No se puede guardar el contacto. Corrija lo siguiente:');
+    Result := MostrarReparos(lReparos, SReparosContacto);
   finally
     lReparos.Free;
   end;
