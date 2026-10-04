@@ -7,6 +7,7 @@ interface
 
 uses
   Anovo.Frames.Dashboard.Gerencia,
+  Anovo.Frames.Reportes,
   Anovo.Frames.Catalogos,
   Anovo.Frames.Clientes,
   Anovo.Frames.Dashboard.Supervisor,
@@ -358,6 +359,8 @@ begin
       Result := TfraClientes.Create(Self);
     secMateriales:
       Result := TfraCatalogos.Create(Self);
+    secReportes:
+      Result := TfraReportes.Create(Self);
     secGerencia:
       Result := TfraDashboardGerencia.Create(Self);
     secUsuarios:

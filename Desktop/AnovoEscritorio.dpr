@@ -41,6 +41,7 @@ uses
   Anovo.Forms.ContactoNuevo in 'Src\Forms\Anovo.Forms.ContactoNuevo.pas' {frmContactoNuevo},
   Anovo.Frames.ClienteDatos in 'Src\Frames\Anovo.Frames.ClienteDatos.pas' {TfraClienteDatos: TFrame},
   Anovo.Frames.Dashboard.Gerencia in 'Src\Frames\Anovo.Frames.Dashboard.Gerencia.pas' {fraDashboardGerencia: TFrame},
+  Anovo.Frames.Reportes in 'Src\Frames\Anovo.Frames.Reportes.pas' {fraReportes: TFrame},
   Anovo.Frames.Dashboard in 'Src\Frames\Anovo.Frames.Dashboard.pas' {fraDashboard: TFrame},
   Anovo.Frames.Dashboard.Supervisor in 'Src\Frames\Anovo.Frames.Dashboard.Supervisor.pas' {fraDashboardSupervisor: TFrame},
   Anovo.Frames.Dashboard.Cuentas in 'Src\Frames\Anovo.Frames.Dashboard.Cuentas.pas' {fraDashboardCuentas: TFrame},
