@@ -250,6 +250,8 @@
         <DCCReference Include="src\Interfaces\Anovo.Repositories.Intf.Reportes.pas"/>
         <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Reportes.pas"/>
         <DCCReference Include="src\Repositories\Anovo.Repositories.Reportes.pas"/>
+        <DCCReference Include="src\Interfaces\Anovo.Repositories.Intf.Empresa.pas"/>
+        <DCCReference Include="src\Repositories\Anovo.Repositories.Empresa.pas"/>
         <DCCReference Include="src\Services\Anovo.Services.Reportes.pas"/>
         <DCCReference Include="src\Controllers\Anovo.Controllers.Reportes.pas"/>
         <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Sesion.pas"/>

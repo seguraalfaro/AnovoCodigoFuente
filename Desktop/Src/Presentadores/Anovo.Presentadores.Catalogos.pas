@@ -466,7 +466,7 @@ var
   lApi: IApiCatalogos;
   lCatalogo: TCatalogo;
 begin
-  if not PuedeEditar then
+  if not PuedeEditar or not FVista.Confirmar(SConfirmarInactivar) then
     Exit;
   lApi := FApi;
   lCatalogo := CatalogoDeFila;

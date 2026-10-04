@@ -47,6 +47,8 @@ uses
   Anovo.Services.Intf.Dashboard,
   Anovo.Repositories.Intf.Reportes,
   Anovo.Repositories.Reportes,
+  Anovo.Repositories.Intf.Empresa,
+  Anovo.Repositories.Empresa,
   Anovo.Services.Intf.Reportes,
   Anovo.Services.Reportes,
   Anovo.Services.Intf.Sesion,
@@ -124,6 +126,8 @@ begin
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TCotizacionDetalleRepository,
     ICotizacionDetalleRepository, TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TEmpresaRepository, IEmpresaRepository,
+    TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TCotizacionService, ICotizacionService,
     TRegistrationType.SingletonPerRequest);
 

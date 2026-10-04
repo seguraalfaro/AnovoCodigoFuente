@@ -94,6 +94,7 @@ begin
     lForma.FCatalogo := ACatalogo;
     lForma.FId := AId;
     lForma.FModo := AModo;
+    lForma.FPresentador.Iniciar(ACatalogo, AId);
     lForma.lblSubtitulo.Caption := ANombre;
     lForma.PrepararCampos;
     lForma.ShowModal;
@@ -106,7 +107,7 @@ end;
 procedure TfrmPrecioCatalogo.FormCreate(Sender: TObject);
 begin
   AplicarTemaGrid(grHistorial);
-  FPresentador := nil;
+  FPresentador := TPresentadorPrecioCatalogo.Create(Self, TApiCatalogos.Create);
   FVigencia := nil;
   FGuardado := False;
 end;
@@ -176,10 +177,6 @@ begin
 
   if not ValidarCampos then
     Exit;
-
-  if FPresentador = nil then
-    FPresentador := TPresentadorPrecioCatalogo.Create(Self,
-      TApiCatalogos.Create, FCatalogo, FId);
 
   FPresentador.Guardar(DtoEscrito);
 end;

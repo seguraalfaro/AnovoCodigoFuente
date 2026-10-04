@@ -48,6 +48,9 @@ type
     fCuentaBancaria: NullableString;
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
     fFechaModificacion: NullableTDateTime ;
+    [MVCTableField('PORCENTAJE_IVA')]
+    [MVCRequired]
+    fPorcentajeIva: Currency;
   public
     property ID: Int32 read fID write fID;
     property RazonSocial: String read fRazonSocial write fRazonSocial;
@@ -59,6 +62,7 @@ type
     property RepresentanteLegal: NullableString read fRepresentanteLegal write fRepresentanteLegal;
     property CuentaBancaria: NullableString read fCuentaBancaria write fCuentaBancaria;
     property FechaModificacion: NullableTDateTime  read fFechaModificacion write fFechaModificacion;
+    property PorcentajeIva: Currency read fPorcentajeIva write fPorcentajeIva;
   end;
 
 implementation

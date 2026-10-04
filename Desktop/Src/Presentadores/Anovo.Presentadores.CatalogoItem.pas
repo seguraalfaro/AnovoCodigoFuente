@@ -42,8 +42,8 @@ type
     FId: Integer;
   public
     constructor Create(const AVista: IVistaRegistro;
-      const AApi: IApiCatalogos; const ACatalogo: TCatalogo;
-      const AId: Integer);
+      const AApi: IApiCatalogos);
+    procedure Iniciar(const ACatalogo: TCatalogo; const AId: Integer);
     procedure Guardar(const ADto: TPrecioNuevoDTO);
   end;
 
@@ -197,11 +197,16 @@ begin
 end;
 
 constructor TPresentadorPrecioCatalogo.Create(const AVista: IVistaRegistro;
-  const AApi: IApiCatalogos; const ACatalogo: TCatalogo; const AId: Integer);
+  const AApi: IApiCatalogos);
 begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
+end;
+
+procedure TPresentadorPrecioCatalogo.Iniciar(const ACatalogo: TCatalogo;
+  const AId: Integer);
+begin
   FCatalogo := ACatalogo;
   FId := AId;
 end;

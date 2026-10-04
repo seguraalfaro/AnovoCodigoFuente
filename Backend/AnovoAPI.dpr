@@ -101,6 +101,8 @@ uses
   Anovo.Repositories.Intf.Reportes in 'src\Interfaces\Anovo.Repositories.Intf.Reportes.pas',
   Anovo.Services.Intf.Reportes in 'src\Interfaces\Anovo.Services.Intf.Reportes.pas',
   Anovo.Repositories.Reportes in 'src\Repositories\Anovo.Repositories.Reportes.pas',
+  Anovo.Repositories.Intf.Empresa in 'src\Interfaces\Anovo.Repositories.Intf.Empresa.pas',
+  Anovo.Repositories.Empresa in 'src\Repositories\Anovo.Repositories.Empresa.pas',
   Anovo.Services.Reportes in 'src\Services\Anovo.Services.Reportes.pas',
   Anovo.Controllers.Reportes in 'src\Controllers\Anovo.Controllers.Reportes.pas',
   Anovo.Services.Intf.Sesion in 'src\Interfaces\Anovo.Services.Intf.Sesion.pas',

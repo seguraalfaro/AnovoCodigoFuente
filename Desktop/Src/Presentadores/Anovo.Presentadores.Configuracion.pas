@@ -32,11 +32,13 @@ type
 
   TPresentadorConexion = class(TPresentadorPrueba)
   private
-    FVista: IVistaPruebaConexion;
+    FVista: IVistaConexion;
+    function UrlValida(const AUrl: string): Boolean;
   public
-    constructor Create(const AVista: IVistaPruebaConexion;
+    constructor Create(const AVista: IVistaConexion;
       const AApi: IApiConfiguracion);
     procedure Probar(const AUrl: string);
+    procedure Guardar(const AUrl: string);
   end;
 
   TPresentadorCambioClave = class(TPresentadorBase)
@@ -54,8 +56,12 @@ implementation
 uses
   System.SysUtils,
   System.Diagnostics,
+  Anovo.Config,
   Anovo.DTOs.Sesion,
   Anovo.Textos;
+
+const
+  PREFIJO_HTTPS = 'https://';
 
 procedure TPresentadorPrueba.LanzarPrueba(const AVista: IVistaPruebaConexion;
   const AUrl: string);
@@ -141,7 +147,7 @@ begin
     end);
 end;
 
-constructor TPresentadorConexion.Create(const AVista: IVistaPruebaConexion;
+constructor TPresentadorConexion.Create(const AVista: IVistaConexion;
   const AApi: IApiConfiguracion);
 begin
   inherited Create;
@@ -149,9 +155,29 @@ begin
   FApi := AApi;
 end;
 
+function TPresentadorConexion.UrlValida(const AUrl: string): Boolean;
+begin
+  Result := False;
+  if AUrl.Trim.IsEmpty then
+    FVista.MostrarUrlInvalida(SUrlVacia)
+  else if not AUrl.Trim.StartsWith(PREFIJO_HTTPS, True) then
+    FVista.MostrarUrlInvalida(SUrlSinHttps)
+  else
+    Result := True;
+end;
+
 procedure TPresentadorConexion.Probar(const AUrl: string);
 begin
-  LanzarPrueba(FVista, AUrl);
+  if UrlValida(AUrl) then
+    LanzarPrueba(FVista, AUrl.Trim);
+end;
+
+procedure TPresentadorConexion.Guardar(const AUrl: string);
+begin
+  if not UrlValida(AUrl) then
+    Exit;
+  TConfig.GuardarUrl(AUrl.Trim);
+  FVista.UrlGuardada;
 end;
 
 constructor TPresentadorCambioClave.Create(const AVista: IVistaRegistro;

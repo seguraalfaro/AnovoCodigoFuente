@@ -81,6 +81,7 @@ implementation
 
 uses
   Anovo.Api.Catalogos,
+  Anovo.Formato,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
   Anovo.Textos;
@@ -216,7 +217,7 @@ begin
   lVigencia := dmMemoria.mtPrecioCatalogoFECHA_VIGENCIA.AsDateTime;
   if lVigencia > 0 then
     lblPrecio.Caption := Format(SPrecioVigenteDesde,
-      [FormatDateTime('dd/mm/yyyy', lVigencia)]);
+      [TFormato.Fecha(lVigencia)]);
 
   FPresentador.RecordarPrecio(TMapeoDatos.ADto<TPrecioNuevoDTO>
     (dmMemoria.mtPrecioCatalogo));

@@ -92,14 +92,13 @@ type
     procedure MostrarConsentimientos(const AConsentimientos
       : TObjectList<TConsentimientoDTO>);
     procedure MostrarAcciones(const APuedeEditar, APuedeRevocar,
-      APuedeVerCotizaciones: Boolean);
+      APuedeVerCotizaciones: Boolean; const AContacto: TAccionesContacto;
+      const ACotizacion: TAccionesCotizacionCliente);
     procedure MostrarModoEdicion(const AActivo: Boolean);
     procedure AccionContacto(Sender: TObject; const AClave: string);
     procedure AccionCotizacion(Sender: TObject; const AClave: string);
     procedure PrepararRejilla(const AGrid: TrDBGrid;
       const AManejador: TEventoAccion);
-    procedure PrepararAcciones(const AGrid: TrDBGrid;
-      const AAcciones: array of TAccionRejilla; const AActiva: Boolean);
   public
 
     constructor Crear(AOwner: TComponent; const AClienteId: Integer);
@@ -113,6 +112,7 @@ implementation
 
 uses
   Anovo.UI.Vista,
+  Anovo.Formato,
   Anovo.Api.Clientes,
   Anovo.Forms.ContactoNuevo,
   Anovo.Mapeo.Datos,
@@ -124,11 +124,12 @@ const
 
   CAMPO_ACCIONES = 'ACCIONES';
 
-  ACCIONES_CONTACTO: array [0 .. 1] of TAccionRejilla = ((Clave: 'editar';
-    Rotulo: SAccionEditar), (Clave: 'quitar'; Rotulo: SAccionQuitar));
+  ACCIONES_CONTACTO: array [TAccionContacto] of TAccionRejilla =
+    ((Clave: 'editar'; Rotulo: SAccionEditar), (Clave: 'quitar';
+    Rotulo: SAccionQuitar));
 
-  ACCIONES_COTIZACION: array [0 .. 0] of TAccionRejilla = ((Clave: 'ver';
-    Rotulo: SAccionVer));
+  ACCIONES_COTIZACION: array [TAccionCotizacionCliente] of TAccionRejilla =
+    ((Clave: 'ver'; Rotulo: SAccionVer));
 
 constructor TfraClienteDatos.Crear(AOwner: TComponent;
   const AClienteId: Integer);
@@ -198,15 +199,6 @@ begin
   lRejilla.OnAccion := AManejador;
 end;
 
-procedure TfraClienteDatos.PrepararAcciones(const AGrid: TrDBGrid;
-  const AAcciones: array of TAccionRejilla; const AActiva: Boolean);
-begin
-  if AActiva then
-    TDBGridExtend.De(AGrid).PonerLista(AAcciones)
-  else
-    TDBGridExtend.De(AGrid).PonerLista([]);
-end;
-
 procedure TfraClienteDatos.BotonesDeEdicion(const AEdicion: Boolean);
 begin
 
@@ -257,7 +249,8 @@ begin
 end;
 
 procedure TfraClienteDatos.MostrarAcciones(const APuedeEditar, APuedeRevocar,
-  APuedeVerCotizaciones: Boolean);
+  APuedeVerCotizaciones: Boolean; const AContacto: TAccionesContacto;
+  const ACotizacion: TAccionesCotizacionCliente);
 begin
   FPuedeEditar := APuedeEditar;
 
@@ -266,8 +259,10 @@ begin
   btnRevocar.Visible := APuedeRevocar;
   btnExportar.Visible := APuedeVerCotizaciones;
 
-  PrepararAcciones(grContactos, ACCIONES_CONTACTO, APuedeEditar);
-  PrepararAcciones(grCotizaciones, ACCIONES_COTIZACION, APuedeVerCotizaciones);
+  TDBGridExtend.De(grContactos).PonerAcciones<TAccionesContacto>
+    (ACCIONES_CONTACTO, AContacto);
+  TDBGridExtend.De(grCotizaciones).PonerAcciones<TAccionesCotizacionCliente>
+    (ACCIONES_COTIZACION, ACotizacion);
 end;
 
 procedure TfraClienteDatos.AccionContacto(Sender: TObject;
@@ -275,7 +270,7 @@ procedure TfraClienteDatos.AccionContacto(Sender: TObject;
 begin
   if dmMemoria.mtContactos.IsEmpty then
     Exit;
-  MessageDlg(SOpcionPendiente, mtInformation, [mbOK], 0);
+  Informar(SOpcionPendiente);
 end;
 
 procedure TfraClienteDatos.AccionCotizacion(Sender: TObject;
@@ -283,7 +278,7 @@ procedure TfraClienteDatos.AccionCotizacion(Sender: TObject;
 begin
   if dmMemoria.mtClienteCotizaciones.IsEmpty then
     Exit;
-  MessageDlg(SOpcionPendiente, mtInformation, [mbOK], 0);
+  Informar(SOpcionPendiente);
 end;
 
 procedure TfraClienteDatos.MostrarCliente(const ACliente: TClienteDTO);
@@ -294,8 +289,7 @@ begin
   pstEstado.Caption := ACliente.ConsentimientoEstado;
   valVersion.Caption := ACliente.ConsentimientoVersion.ValueOrElse(SIN_DATO);
   if ACliente.ConsentimientoFecha.HasValue then
-    valOtorgado.Caption := FormatDateTime('dd/mm/yyyy hh:nn',
-      ACliente.ConsentimientoFecha.Value)
+    valOtorgado.Caption := TFormato.FechaHora(ACliente.ConsentimientoFecha.Value)
   else
     valOtorgado.Caption := SIN_DATO;
 end;

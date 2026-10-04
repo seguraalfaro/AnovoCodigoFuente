@@ -38,6 +38,7 @@ uses
   System.SysUtils,
   System.UITypes,
   Vcl.Graphics,
+  Anovo.Formato,
   Anovo.Textos;
 
 function ProgramadoDeLaFila(const AFila: TDataSet): TDateTime;
@@ -121,7 +122,7 @@ begin
     begin
       FNota.Font.Style := [fsBold];
       FNota.Caption := Format(SProgramadoExistente,
-        [FormatDateTime('dd/mm/yyyy', FProgramadoExistente)]);
+        [TFormato.Fecha(FProgramadoExistente)]);
     end
     else
       FNota.Caption := SRigeDeUnaVez;
@@ -142,7 +143,7 @@ begin
   end;
 
   FNota.Caption := Format(SProgramadoAviso,
-    [FormatDateTime('dd/mm/yyyy', lFecha)]);
+    [TFormato.Fecha(lFecha)]);
 end;
 
 function TVigenciaPrecio.Error: string;

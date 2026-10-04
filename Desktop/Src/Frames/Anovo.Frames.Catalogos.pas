@@ -55,6 +55,7 @@ type
     procedure MostrarFormularioPrecio(const ACatalogo: TCatalogo;
       const AId: Integer);
     procedure MostrarHistorial(const AFilas: TObjectList<TPrecioDTO>);
+    function Confirmar(const AMensaje: string): Boolean;
   protected
     procedure Buscar(const ATexto: string); override;
     procedure Limpiar; override;
@@ -78,6 +79,7 @@ uses
   Anovo.Forms.PrecioCatalogo,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
+  Anovo.UI.Vista,
   Anovo.Textos;
 
 const
@@ -207,9 +209,12 @@ begin
   else if SameText(AClave, ACCIONES[acPrecio].Clave) then
     FPresentador.CambiarPrecio(lId)
   else if SameText(AClave, ACCIONES[acInactivar].Clave) then
-    if MessageDlg(SConfirmarInactivar, mtConfirmation, [mbYes, mbNo], 0) = mrYes
-    then
-      FPresentador.Inactivar(lId);
+    FPresentador.Inactivar(lId);
+end;
+
+function TfraCatalogos.Confirmar(const AMensaje: string): Boolean;
+begin
+  Result := Anovo.UI.Vista.Confirmar(AMensaje);
 end;
 
 procedure TfraCatalogos.MostrarCatalogo(const ACatalogo: TCatalogo);

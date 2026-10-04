@@ -139,10 +139,10 @@ begin
     TFormato.Colones(ACotizacion.SubtotalMaquina.ValueOrDefault);
   lblCosto.Caption := TFormato.Colones(ACotizacion.CostoTotal.ValueOrDefault);
   lblAjusteRot.Caption := Format(SAjustePorcentaje,
-    [FormatFloat('0.##', ACotizacion.PorcentajeAjuste)]);
+    [TFormato.Porcentaje(ACotizacion.PorcentajeAjuste)]);
   lblAjuste.Caption := ACotizacion.MotivoAjuste.ValueOrDefault;
   lblIvaRot.Caption := Format(SIvaPorcentaje,
-    [FormatFloat('0.##', ACotizacion.PorcentajeIva)]);
+    [TFormato.Porcentaje(ACotizacion.PorcentajeIva)]);
   lblIva.Caption := TFormato.Colones(ACotizacion.MontoImpuesto.ValueOrDefault);
   lblTotal.Caption := TFormato.Colones(ACotizacion.MontoTotal.ValueOrDefault);
 

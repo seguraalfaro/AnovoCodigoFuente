@@ -27,7 +27,9 @@ type
     class function MesAnio(const AFecha: TDateTime): string; static;
     class function Colones(const AMonto: Currency): string; static;
     class function Dias(const ADias: Integer): string; static;
+    class function Fecha(const AFecha: TDateTime): string; static;
     class function FechaHora(const AFecha: TDateTime): string; static;
+    class function Porcentaje(const AValor: Double): string; static;
     class function ClaveEnGrupos(const AClave: string): string; static;
     class function Cantidad(const ACantidad: Integer;
       const AUno, AVarios: string): string; static;
@@ -47,6 +49,12 @@ uses
   System.StrUtils,
   Anovo.DTOs.Catalogos,
   Anovo.Textos;
+
+const
+  FORMATO_FECHA = 'dd/mm/yyyy';
+  FORMATO_FECHA_HORA = 'dd/mm/yyyy hh:nn';
+  FORMATO_MONTO = '#,##0.00';
+  FORMATO_PORCENTAJE = '0.##';
 
 class function TFormato.AccionAuditoria(const AValor: string): string;
 begin
@@ -189,7 +197,7 @@ end;
 
 class function TFormato.Colones(const AMonto: Currency): string;
 begin
-  Result := Format(SColones, [FormatFloat('#,##0.00', AMonto)]);
+  Result := Format(SColones, [FormatFloat(FORMATO_MONTO, AMonto)]);
 end;
 
 class function TFormato.Dias(const ADias: Integer): string;
@@ -200,9 +208,19 @@ begin
     Result := Format(SDias, [ADias]);
 end;
 
+class function TFormato.Fecha(const AFecha: TDateTime): string;
+begin
+  Result := FormatDateTime(FORMATO_FECHA, AFecha);
+end;
+
 class function TFormato.FechaHora(const AFecha: TDateTime): string;
 begin
-  Result := FormatDateTime('dd/mm/yyyy hh:nn', AFecha);
+  Result := FormatDateTime(FORMATO_FECHA_HORA, AFecha);
+end;
+
+class function TFormato.Porcentaje(const AValor: Double): string;
+begin
+  Result := FormatFloat(FORMATO_PORCENTAJE, AValor);
 end;
 
 class function TFormato.Cantidad(const ACantidad: Integer;

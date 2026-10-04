@@ -98,14 +98,12 @@ type
     fSolicitudId: Integer;
     fTipoTrabajoId: NullableInt32;
     fDescripcionTrabajo: string;
-    fPorcentajeIva: Currency;
   public
     property SolicitudId: Integer read fSolicitudId write fSolicitudId;
     property TipoTrabajoId: NullableInt32 read fTipoTrabajoId
       write fTipoTrabajoId;
     property DescripcionTrabajo: string read fDescripcionTrabajo
       write fDescripcionTrabajo;
-    property PorcentajeIva: Currency read fPorcentajeIva write fPorcentajeIva;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -113,14 +111,12 @@ type
   private
     fTipoTrabajoId: NullableInt32;
     fDescripcionTrabajo: string;
-    fPorcentajeIva: Currency;
     fObjVersion: NullableInt32;
   public
     property TipoTrabajoId: NullableInt32 read fTipoTrabajoId
       write fTipoTrabajoId;
     property DescripcionTrabajo: string read fDescripcionTrabajo
       write fDescripcionTrabajo;
-    property PorcentajeIva: Currency read fPorcentajeIva write fPorcentajeIva;
     [MVCNameAs('objversion')]
     property ObjVersion: NullableInt32 read fObjVersion write fObjVersion;
   end;

@@ -12,10 +12,9 @@ uses
   System.SysUtils,
   System.Classes,
   Data.DB,
-  Vcl.Dialogs,
   Vcl.Controls,
-  System.UITypes,
   RosiCompGlobalCfg,
+  Anovo.UI.Vista,
   Anovo.Textos;
 
 type
@@ -30,8 +29,7 @@ var
 procedure TManejadorRequeridos.AlSalir(Sender: TObject; AField: TField;
   var ACanExit: Boolean);
 begin
-  MessageDlg(Format(SCampoObligatorio, [AField.DisplayLabel]),
-    mtWarning, [mbOK], 0);
+  AvisarError(Format(SCampoObligatorio, [AField.DisplayLabel]));
   ACanExit := False;
 end;
 

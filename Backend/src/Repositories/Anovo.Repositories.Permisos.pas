@@ -9,7 +9,8 @@ uses
   System.Generics.Collections,
   Anovo.Repositories.Base,
   Anovo.Repositories.Intf.Permisos,
-  Anovo.Entities.Permisos;
+  Anovo.Entities.Permisos,
+  Anovo.Entities.Consultas;
 
 type
   TPermisoRepository = class(TAnovoRepository<TRolesPermisos>,
@@ -22,17 +23,15 @@ type
   TPermisoCatalogoRepository = class(TAnovoRepository<TPermisos>,
     IPermisoCatalogoRepository)
   public
-    function Catalogo: TObjectList<TPermisos>;
+    function Catalogo: TObjectList<TCatalogoPermisos>;
   end;
 
 implementation
 
-uses
-  Anovo.Entities.Consultas;
-
-function TPermisoCatalogoRepository.Catalogo: TObjectList<TPermisos>;
+function TPermisoCatalogoRepository.Catalogo: TObjectList<TCatalogoPermisos>;
 begin
-  Result := SelectRQL('sort(+ID)', SIN_LIMITE);
+  Result := ListarConsulta<TCatalogoPermisos>(CONSULTA_ORDENADAS, [],
+    SIN_LIMITE);
 end;
 
 function TPermisoRepository.Matriz: TArray<TRolPermiso>;

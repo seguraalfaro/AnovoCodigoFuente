@@ -7,7 +7,8 @@ interface
 uses
   System.Generics.Collections,
   MVCFramework.Repository,
-  Anovo.Entities.Permisos;
+  Anovo.Entities.Permisos,
+  Anovo.Entities.Consultas;
 
 const
   TIPO_OTORGADO = 'otorgado';
@@ -34,7 +35,7 @@ type
 
   IPermisoCatalogoRepository = interface(IMVCRepository<TPermisos>)
     ['{544E293B-EA1E-433E-8403-EFE332186997}']
-    function Catalogo: TObjectList<TPermisos>;
+    function Catalogo: TObjectList<TCatalogoPermisos>;
   end;
 
 implementation

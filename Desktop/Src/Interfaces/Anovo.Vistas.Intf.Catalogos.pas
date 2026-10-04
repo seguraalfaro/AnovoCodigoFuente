@@ -40,6 +40,7 @@ type
     procedure MostrarPaginacion(const APagina, ATotalPaginas: Integer;
       const ATotal: Int64);
     procedure MostrarError(const AMensaje: string);
+    function Confirmar(const AMensaje: string): Boolean;
 
     procedure MostrarFormularioItem(const ACatalogo: TCatalogo;
       const AId: Integer);

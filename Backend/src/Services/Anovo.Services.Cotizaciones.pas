@@ -8,11 +8,13 @@ interface
 uses
   System.Generics.Collections,
   MVCFramework,
+  MVCFramework.Nullables,
   Anovo.DTOs.Cotizaciones,
   Anovo.Entities.Cotizaciones,
   Anovo.Repositories.Intf.Catalogos,
   Anovo.Repositories.Intf.Clientes,
   Anovo.Repositories.Intf.Cotizaciones,
+  Anovo.Repositories.Intf.Empresa,
   Anovo.Repositories.Intf.Solicitudes,
   Anovo.Services.Intf.Cotizaciones,
   Anovo.Services.Intf.Permisos;
@@ -42,6 +44,8 @@ type
     fMateriales: IMaterialPrecioRepository;
     fManoObra: IManoObraPrecioRepository;
     fMaquinas: IMaquinaPrecioRepository;
+    fTipos: ITipoTrabajoRepository;
+    fEmpresa: IEmpresaRepository;
     fPermisos: IPermisoService;
 
     function TraerVigente(const AId: Integer): TCotizaciones;
@@ -51,6 +55,8 @@ type
     procedure LlenarLinea(const ALinea: TCotizacionDetalle;
       const ADto: TLineaNuevaDTO);
     function PrecioDeCatalogo(const ADto: TLineaNuevaDTO): Currency;
+    function IvaPara(const AClienteId: Integer): Currency;
+    procedure ValidarTipoTrabajo(const ATipoId, AActual: NullableInt32);
   public
     [MVCInject]
     constructor Create(ARepo: ICotizacionRepository;
@@ -58,8 +64,8 @@ type
       ASolicitudes: ISolicitudRepository; AClientes: IClienteRepository;
       AMateriales: IMaterialPrecioRepository;
       AManoObra: IManoObraPrecioRepository;
-      AMaquinas: IMaquinaPrecioRepository;
-      APermisos: IPermisoService); reintroduce;
+      AMaquinas: IMaquinaPrecioRepository; ATipos: ITipoTrabajoRepository;
+      AEmpresa: IEmpresaRepository; APermisos: IPermisoService); reintroduce;
 
     function Buscar(const ATexto, AEstado: string; const AClienteId: Integer;
       const ADesde, AHasta: TDateTime; const ARoles: TArray<string>;
@@ -101,6 +107,7 @@ uses
   Anovo.Auditoria.Contexto,
   Anovo.Entities.Catalogos,
   Anovo.Entities.Clientes,
+  Anovo.Entities.Empresa,
   Anovo.Entities.Solicitudes,
   Anovo.Entities.Vistas.Lectura,
   Anovo.Entities.Consultas,
@@ -113,6 +120,7 @@ constructor TCotizacionService.Create(ARepo: ICotizacionRepository;
   ADetalle: ICotizacionDetalleRepository; ASolicitudes: ISolicitudRepository;
   AClientes: IClienteRepository; AMateriales: IMaterialPrecioRepository;
   AManoObra: IManoObraPrecioRepository; AMaquinas: IMaquinaPrecioRepository;
+  ATipos: ITipoTrabajoRepository; AEmpresa: IEmpresaRepository;
   APermisos: IPermisoService);
 begin
   inherited Create;
@@ -123,7 +131,51 @@ begin
   fMateriales := AMateriales;
   fManoObra := AManoObra;
   fMaquinas := AMaquinas;
+  fTipos := ATipos;
+  fEmpresa := AEmpresa;
   fPermisos := APermisos;
+end;
+
+function TCotizacionService.IvaPara(const AClienteId: Integer): Currency;
+var
+  lCliente: TClientes;
+  lEmpresa: TEmpresa;
+begin
+  lCliente := fClientes.GetByPK(AClienteId, False);
+  try
+    if (lCliente <> nil) and lCliente.Exonerado then
+      Exit(0);
+  finally
+    lCliente.Free;
+  end;
+
+  lEmpresa := fEmpresa.GetByPK(EMPRESA_ID, False);
+  if lEmpresa = nil then
+    raise ERecursoNoEncontrado.Create(SRecursoEmpresa, EMPRESA_ID);
+  try
+    Result := lEmpresa.PorcentajeIva;
+  finally
+    lEmpresa.Free;
+  end;
+end;
+
+procedure TCotizacionService.ValidarTipoTrabajo(const ATipoId,
+  AActual: NullableInt32);
+var
+  lTipo: TTiposTrabajo;
+begin
+  if not ATipoId.HasValue then
+    Exit;
+  if AActual.HasValue and (AActual.Value = ATipoId.Value) then
+    Exit;
+
+  lTipo := fTipos.GetByPK(ATipoId.Value, False);
+  try
+    if (lTipo = nil) or not lTipo.Activo.ValueOrDefault then
+      raise EDatoInvalido.Create(STipoTrabajoNoDisponible);
+  finally
+    lTipo.Free;
+  end;
 end;
 
 function TCotizacionService.TraerVigente(const AId: Integer): TCotizaciones;
@@ -394,6 +446,7 @@ begin
 
     lCotizacion := TCotizaciones.Create;
     try
+      ValidarTipoTrabajo(ADto.TipoTrabajoId, nil);
       lCotizacion.SolicitudId := lSolicitud.ID.ValueOrDefault;
       lCotizacion.ClienteId := lSolicitud.ClienteId;
       lCotizacion.TipoTrabajoId := ADto.TipoTrabajoId;
@@ -406,7 +459,7 @@ begin
       lCotizacion.Numero := fRepo.SiguienteNumero;
       lCotizacion.ElaboradaPor := UsuarioActual;
       lCotizacion.Estado := ESTADO_BORRADOR;
-      lCotizacion.PorcentajeIva := ADto.PorcentajeIva;
+      lCotizacion.PorcentajeIva := IvaPara(lCotizacion.ClienteId);
       lCotizacion.PorcentajeAjuste := 0;
       lCotizacion.FechaElaboracion := Now;
 
@@ -443,9 +496,10 @@ begin
     if lCotizacion.Objversion.ValueOrDefault <> ADto.ObjVersion.Value then
       raise EVersionVencida.Create(SRecursoCotizacion, AId);
 
+    ValidarTipoTrabajo(ADto.TipoTrabajoId, lCotizacion.TipoTrabajoId);
     lCotizacion.TipoTrabajoId := ADto.TipoTrabajoId;
     lCotizacion.DescripcionTrabajo := ADto.DescripcionTrabajo;
-    lCotizacion.PorcentajeIva := ADto.PorcentajeIva;
+    lCotizacion.PorcentajeIva := IvaPara(lCotizacion.ClienteId);
     FijarDetalle(Format(SDetalleCambioCotizacion, [lCotizacion.Numero]));
     fRepo.Update(lCotizacion);
   finally

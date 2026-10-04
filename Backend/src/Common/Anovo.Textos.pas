@@ -154,6 +154,9 @@ resourcestring
   SRecursoManoObra = 'la mano de obra';
   SRecursoMaquina = 'la máquina';
   SRecursoTipoTrabajo = 'el tipo de trabajo';
+  SRecursoEmpresa = 'los datos de la empresa';
+  STipoTrabajoNoDisponible =
+    'El tipo de trabajo no existe o está inactivo.';
   SRecursoUnidadMedida = 'la unidad de medida';
   SRecursoCliente = 'el cliente';
   SRecursoContacto = 'el contacto';

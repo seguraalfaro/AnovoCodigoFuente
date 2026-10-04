@@ -8,6 +8,7 @@ interface
 uses
   MVCFramework.Serializer.Commons,
   MVCFramework.ActiveRecord,
+  Anovo.Entities.Permisos,
   Anovo.Entities.Vistas.Lectura;
 
 const
@@ -221,6 +222,14 @@ type
   [MVCNamedRQLQuery(CONSULTA_ORDENADAS,
     'sort(+ID)')]
   TRolesOrdenados = class(TVRoles)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('PERMISOS')]
+  [MVCNamedRQLQuery(CONSULTA_ORDENADAS,
+    'sort(+ID)')]
+  TCatalogoPermisos = class(TPermisos)
   end;
 
   [MVCNameCase(ncSnakeCase)]

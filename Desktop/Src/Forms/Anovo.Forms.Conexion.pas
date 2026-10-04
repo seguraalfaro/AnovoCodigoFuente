@@ -15,7 +15,7 @@ uses
   Anovo.Presentadores.Configuracion;
 
 type
-  TfrmConexion = class(TForm, IVistaPruebaConexion)
+  TfrmConexion = class(TForm, IVistaConexion)
     TitleBarPanel1: TTitleBarPanel;
     pnlTitulo: TPanel;
     lblTitulo: TLabel;
@@ -37,9 +37,10 @@ type
     procedure btnProbarClick(Sender: TObject);
   private
     FPresentador: TPresentadorConexion;
-    function UrlEscrita: string;
     procedure MostrarProbando;
     procedure MostrarConexion(const AResultado: TResultadoConexion);
+    procedure MostrarUrlInvalida(const AMensaje: string);
+    procedure UrlGuardada;
   public
     class procedure Mostrar(AOwner: TComponent);
   end;
@@ -50,6 +51,7 @@ implementation
 
 uses
   Anovo.UI.Tema,
+  Anovo.UI.Vista,
   Anovo.Api.Configuracion,
   Anovo.Config,
   Anovo.Textos;
@@ -79,44 +81,24 @@ begin
   FPresentador.Free;
 end;
 
-function TfrmConexion.UrlEscrita: string;
-begin
-  Result := Trim(edUrl.Text);
-  if Result.IsEmpty then
-    raise Exception.Create(SUrlVacia);
-  if not Result.StartsWith('https://', True) then
-    raise Exception.Create(SUrlSinHttps);
-end;
-
 procedure TfrmConexion.btnProbarClick(Sender: TObject);
-var
-  lUrl: string;
 begin
-  try
-    lUrl := UrlEscrita;
-  except
-    on E: Exception do
-    begin
-      MessageDlg(E.Message, mtWarning, [mbOK], 0);
-      edUrl.SetFocus;
-      Exit;
-    end;
-  end;
-  FPresentador.Probar(lUrl);
+  FPresentador.Probar(edUrl.Text);
 end;
 
 procedure TfrmConexion.btnGuardarClick(Sender: TObject);
 begin
-  try
-    TConfig.GuardarUrl(UrlEscrita);
-  except
-    on E: Exception do
-    begin
-      MessageDlg(E.Message, mtWarning, [mbOK], 0);
-      edUrl.SetFocus;
-      Exit;
-    end;
-  end;
+  FPresentador.Guardar(edUrl.Text);
+end;
+
+procedure TfrmConexion.MostrarUrlInvalida(const AMensaje: string);
+begin
+  AvisarError(AMensaje);
+  edUrl.SetFocus;
+end;
+
+procedure TfrmConexion.UrlGuardada;
+begin
   ModalResult := mrOk;
 end;
 
@@ -143,7 +125,7 @@ begin
   begin
     lblPrueba.Tag := TAG_ERROR;
     lblPrueba.Caption := SSinRespuesta;
-    MessageDlg(AResultado.Mensaje, mtWarning, [mbOK], 0);
+    AvisarError(AResultado.Mensaje);
   end;
   AplicarTemaEtiqueta(lblPrueba);
 end;

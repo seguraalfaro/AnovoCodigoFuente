@@ -69,7 +69,7 @@ end;
 function TRolService.Matriz: TMatrizPermisosDTO;
 var
   lRoles: TObjectList<TRolesOrdenados>;
-  lPermisos: TObjectList<TPermisos>;
+  lPermisos: TObjectList<TCatalogoPermisos>;
   lAsignaciones: TObjectList<TRolesPermisos>;
 begin
   Result := TMatrizPermisosDTO.Create;
@@ -85,7 +85,7 @@ begin
     lPermisos := fCatalogo.Catalogo;
     try
       Result.Permisos.Free;
-      Result.Permisos := TMapeo.AListaDto<TPermisos, TPermisoDTO>(lPermisos);
+      Result.Permisos := TMapeo.AListaDto<TCatalogoPermisos, TPermisoDTO>(lPermisos);
     finally
       lPermisos.Free;
     end;

@@ -34,6 +34,8 @@ type
     class function PuedeEditar: Boolean;
     class function PuedeRevocar: Boolean;
     class function PuedeVerCotizaciones: Boolean;
+    class function AccionesContacto: TAccionesContacto;
+    class function AccionesCotizacion: TAccionesCotizacionCliente;
   end;
 
 implementation
@@ -69,9 +71,25 @@ begin
     PERMISO_COTIZACIONES_VER_APROBADAS_PROPIAS]);
 end;
 
+class function TPresentadorClienteDatos.AccionesContacto: TAccionesContacto;
+begin
+  Result := [];
+  if PuedeEditar then
+    Result := [acoEditar, acoQuitar];
+end;
+
+class function TPresentadorClienteDatos.AccionesCotizacion
+  : TAccionesCotizacionCliente;
+begin
+  Result := [];
+  if PuedeVerCotizaciones then
+    Result := [accVer];
+end;
+
 procedure TPresentadorClienteDatos.Iniciar;
 begin
-  FVista.MostrarAcciones(PuedeEditar, PuedeRevocar, PuedeVerCotizaciones);
+  FVista.MostrarAcciones(PuedeEditar, PuedeRevocar, PuedeVerCotizaciones,
+    AccionesContacto, AccionesCotizacion);
   AbrirPestana(pcDatos);
 end;
 
