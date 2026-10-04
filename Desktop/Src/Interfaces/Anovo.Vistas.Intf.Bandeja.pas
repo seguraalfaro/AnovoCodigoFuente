@@ -8,8 +8,12 @@ uses
   Anovo.DTOs.Cotizaciones;
 
 type
+  TAccionBandeja = (abRevisar);
+  TAccionesBandeja = set of TAccionBandeja;
+
   IVistaBandeja = interface
     ['{858BB0F1-3F49-4843-8716-E32F4C57192F}']
+    procedure MostrarAcciones(const AAcciones: TAccionesBandeja);
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarBusqueda(const ATexto: string;
       const APuedeLimpiar: Boolean);

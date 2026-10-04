@@ -125,10 +125,10 @@ const
   CAMPO_ACCIONES = 'ACCIONES';
 
   ACCIONES_CONTACTO: array [0 .. 1] of TAccionRejilla = ((Clave: 'editar';
-    Rotulo: 'Editar'), (Clave: 'quitar'; Rotulo: 'Quitar'));
+    Rotulo: SAccionEditar), (Clave: 'quitar'; Rotulo: SAccionQuitar));
 
   ACCIONES_COTIZACION: array [0 .. 0] of TAccionRejilla = ((Clave: 'ver';
-    Rotulo: 'Ver'));
+    Rotulo: SAccionVer));
 
 constructor TfraClienteDatos.Crear(AOwner: TComponent;
   const AClienteId: Integer);

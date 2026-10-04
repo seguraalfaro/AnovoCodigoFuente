@@ -66,7 +66,7 @@ const
   CAMPO_CONSENTIMIENTO = 'CONSENTIMIENTO_ESTADO';
 
   ACCIONES: array [TAccionCliente] of TAccionRejilla = ((Clave: 'detalles';
-    Rotulo: 'Detalles'));
+    Rotulo: SAccionDetalles));
 
 constructor TfraClientes.Create(AOwner: TComponent);
 var

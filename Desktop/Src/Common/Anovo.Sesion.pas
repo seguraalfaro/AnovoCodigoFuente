@@ -51,15 +51,15 @@ uses
   System.StrUtils,
   System.DateUtils,
   MVCFramework.Commons,
-  JsonDataObjects;
+  JsonDataObjects,
+  Anovo.Textos;
 
 const
   CODIGOS: array [TRolUsuario] of string = ('', 'asesor', 'asistente',
     'supervisor', 'gerencia', 'admin');
 
-  NOMBRES: array [TRolUsuario] of string = ('Sin rol', 'Asesor comercial',
-    'Asistente de cotizaciones', 'Supervisor', 'Gerencia',
-    'Administrador del sistema');
+  NOMBRES: array [TRolUsuario] of string = (SRolSinRol, SRolAsesor,
+    SRolAsistente, SRolSupervisor, SRolGerencia, SRolAdmin);
 
   MARGEN_SEGUNDOS = 60;
 
@@ -104,8 +104,7 @@ var
 begin
   lPartes := AToken.Split(['.']);
   if Length(lPartes) <> 3 then
-    raise Exception.Create
-      ('El servidor devolvio un token con formato invalido.');
+    raise Exception.Create(STokenInvalido);
 
   lDatos := TJsonObject.Parse
     (TEncoding.UTF8.GetString(URLSafeB64DecodeBytes(lPartes[1])))

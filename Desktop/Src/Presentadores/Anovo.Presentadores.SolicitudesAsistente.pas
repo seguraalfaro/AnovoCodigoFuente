@@ -29,6 +29,7 @@ type
       const AApi: IApiSolicitudes; const ACotizaciones: IApiCotizaciones);
     destructor Destroy; override;
     procedure Iniciar;
+    class function AccionesPermitidas: TAccionesCola;
     procedure CambiarModo(const AModo: TModoSolicitudes);
     procedure Buscar(const ATexto: string);
     procedure Limpiar;
@@ -52,7 +53,11 @@ uses
   Anovo.DTOs.Dashboard,
   Anovo.DTOs.Solicitudes,
   Anovo.Mensajes,
+  Anovo.Sesion,
   Anovo.Textos;
+
+const
+  PERMISO_ELABORAR = 'cotizaciones.elaborar';
 
 constructor TPresentadorSolicitudesAsistente.Create(const AVista
   : IVistaSolicitudesAsistente; const AApi: IApiSolicitudes;
@@ -72,8 +77,17 @@ begin
   inherited;
 end;
 
+class function TPresentadorSolicitudesAsistente.AccionesPermitidas
+  : TAccionesCola;
+begin
+  Result := [];
+  if TSesion.Tiene(PERMISO_ELABORAR) then
+    Include(Result, acTomar);
+end;
+
 procedure TPresentadorSolicitudesAsistente.Iniciar;
 begin
+  FVista.MostrarAcciones(AccionesPermitidas);
   FVista.MostrarModo(FModo);
   FVista.MostrarBusqueda('', False);
   Cargar;
@@ -199,7 +213,7 @@ var
   lCancelacion: ICancelacion;
   lApi: IApiCotizaciones;
 begin
-  if ASolicitudId <= 0 then
+  if (ASolicitudId <= 0) or not (acTomar in AccionesPermitidas) then
     Exit;
   lCancelacion := FCancelacion;
   lApi := FCotizaciones;

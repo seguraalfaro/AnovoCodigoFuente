@@ -12,9 +12,12 @@ uses
 
 type
   TModoSolicitudes = (msCola, msEnTrabajo);
+  TAccionCola = (acTomar);
+  TAccionesCola = set of TAccionCola;
 
   IVistaSolicitudesAsistente = interface
     ['{8346550D-2F58-4EDB-9829-B75763CB7E68}']
+    procedure MostrarAcciones(const AAcciones: TAccionesCola);
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarBusqueda(const ATexto: string;
       const APuedeLimpiar: Boolean);

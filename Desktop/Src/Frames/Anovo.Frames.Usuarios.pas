@@ -66,8 +66,8 @@ const
   CAMPO_ACTIVO = 'ACTIVO';
 
   ACCIONES: array [TAccionUsuario] of TAccionRejilla = ((Clave: 'editar';
-    Rotulo: 'Editar'), (Clave: 'estado'; Rotulo: 'Inactivar';
-    Alterno: 'Activar'; Campo: CAMPO_ACTIVO));
+    Rotulo: SAccionEditar), (Clave: 'estado'; Rotulo: SAccionInactivar;
+    Alterno: SAccionActivar; Campo: CAMPO_ACTIVO));
 
 constructor TfraUsuarios.Create(AOwner: TComponent);
 var

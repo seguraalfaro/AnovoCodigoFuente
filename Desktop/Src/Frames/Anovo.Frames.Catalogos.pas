@@ -84,9 +84,9 @@ const
   CAMPO_ESTADO = 'ESTADO';
 
   ACCIONES: array [TAccionCatalogo] of TAccionRejilla = ((Clave: 'editar';
-    Rotulo: 'Editar'), (Clave: 'historial'; Rotulo: 'Historial'),
-    (Clave: 'precio'; Rotulo: 'Precio'), (Clave: 'inactivar';
-    Rotulo: 'Inactivar'));
+    Rotulo: SAccionEditar), (Clave: 'historial'; Rotulo: SAccionHistorial),
+    (Clave: 'precio'; Rotulo: SAccionPrecio), (Clave: 'inactivar';
+    Rotulo: SAccionInactivar));
 
 function TituloDe(const ACatalogo: TCatalogo): string;
 begin

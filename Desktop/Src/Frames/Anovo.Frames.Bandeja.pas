@@ -27,6 +27,8 @@ type
     procedure grDatosDblClick(Sender: TObject);
   private
     FPresentador: TPresentadorBandeja;
+    FAcciones: TAccionesBandeja;
+    procedure MostrarAcciones(const AAcciones: TAccionesBandeja);
     procedure Accion(Sender: TObject; const AClave: string);
     procedure Revisar;
     procedure MostrarBandeja(const ADatos: TBandejaPaginaDTO);
@@ -55,7 +57,8 @@ uses
 
 const
   CAMPO_ACCIONES = 'ACCIONES';
-  ACCION_REVISAR: TAccionRejilla = (Clave: 'revisar'; Rotulo: SAccionRevisar);
+  ACCIONES: array [TAccionBandeja] of TAccionRejilla = ((Clave: 'revisar';
+    Rotulo: SAccionRevisar));
 
 constructor TfraBandeja.Create(AOwner: TComponent);
 var
@@ -68,7 +71,6 @@ begin
 
   lRejilla := TDBGridExtend.De(grDatos);
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
-  lRejilla.PonerLista([ACCION_REVISAR]);
   lRejilla.OnAccion := Accion;
 
   FPresentador := TPresentadorBandeja.Create(Self, TApiCotizaciones.Create);
@@ -112,13 +114,21 @@ end;
 
 procedure TfraBandeja.Accion(Sender: TObject; const AClave: string);
 begin
-  if SameText(AClave, ACCION_REVISAR.Clave) then
+  if SameText(AClave, ACCIONES[abRevisar].Clave) then
     Revisar;
+end;
+
+procedure TfraBandeja.MostrarAcciones(const AAcciones: TAccionesBandeja);
+begin
+  FAcciones := AAcciones;
+  TDBGridExtend.De(grDatos).PonerAcciones<TAccionesBandeja>(ACCIONES,
+    AAcciones);
 end;
 
 procedure TfraBandeja.grDatosDblClick(Sender: TObject);
 begin
-  Revisar;
+  if abRevisar in FAcciones then
+    Revisar;
 end;
 
 procedure TfraBandeja.Revisar;

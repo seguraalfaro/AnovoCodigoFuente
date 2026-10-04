@@ -25,6 +25,7 @@ type
       const AApi: IApiCotizaciones);
     destructor Destroy; override;
     procedure Iniciar;
+    class function AccionesPermitidas: TAccionesBandeja;
     procedure Recargar;
     procedure Buscar(const ATexto: string);
     procedure Limpiar;
@@ -44,7 +45,11 @@ uses
   System.Threading,
   Anovo.Api.Base,
   Anovo.DTOs.Cotizaciones,
+  Anovo.Sesion,
   Anovo.Textos;
+
+const
+  PERMISO_APROBAR = 'cotizaciones.aprobar';
 
 function MensajeInesperado: string;
 begin
@@ -67,8 +72,16 @@ begin
   inherited;
 end;
 
+class function TPresentadorBandeja.AccionesPermitidas: TAccionesBandeja;
+begin
+  Result := [];
+  if TSesion.Tiene(PERMISO_APROBAR) then
+    Include(Result, abRevisar);
+end;
+
 procedure TPresentadorBandeja.Iniciar;
 begin
+  FVista.MostrarAcciones(AccionesPermitidas);
   FVista.MostrarBusqueda('', False);
   Cargar;
 end;

@@ -20,7 +20,8 @@ implementation
 uses
   System.SysUtils,
   JsonDataObjects,
-  MVCFramework.RESTClient.Intf;
+  MVCFramework.RESTClient.Intf,
+  Anovo.Textos;
 
 const
   RUTA_LOGIN = '/api/auth/login';
@@ -47,7 +48,7 @@ begin
 
   if Result.IsEmpty then
     raise EAnovoApiError.Create('ERROR',
-      'El servidor no devolvio el token de sesion.', lRespuesta.StatusCode);
+      SSinTokenSesion, lRespuesta.StatusCode);
 end;
 
 function TApiAutenticacion.ObtenerPermisos: TArray<string>;

@@ -4,6 +4,9 @@
 
 interface
 
+uses
+  Anovo.Textos;
+
 type
   TTipoIdentificacion = (tiSinEspecificar, tiFisica, tiJuridica, tiDimex);
 
@@ -23,7 +26,7 @@ type
 
 const
   TIPOS_IDENTIFICACION: array [TTipoIdentificacion] of string =
-    ('', 'Cedula fisica', 'Cedula juridica', 'DIMEX');
+    ('', STipoIdCedulaFisica, STipoIdCedulaJuridica, STipoIdDimex);
 
 const
   LARGO_TELEFONO = 8;

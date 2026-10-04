@@ -118,7 +118,7 @@ begin
   end;
 
   lCodigo := 'ERROR';
-  lMensaje := Format('El servidor respondio con un error (%d).',
+  lMensaje := Format(SErrorServidor,
     [Result.StatusCode]);
   try
     lCuerpo := TJsonBaseObject.Parse(Result.Content);
