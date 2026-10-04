@@ -12,7 +12,7 @@ uses
 
 type
   TModoSolicitudes = (msCola, msEnTrabajo);
-  TAccionCola = (acTomar);
+  TAccionCola = (acTomar, acAbrir);
   TAccionesCola = set of TAccionCola;
 
   IVistaSolicitudesAsistente = interface
@@ -28,6 +28,7 @@ type
     procedure MostrarPaginacion(const APagina, ATotalPaginas: Integer;
       const ATotal: Int64);
     procedure MostrarError(const AMensaje: string);
+    procedure AbrirCotizacion(const AId: Integer);
   end;
 
 implementation

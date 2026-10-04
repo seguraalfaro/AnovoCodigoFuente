@@ -1340,6 +1340,10 @@ object dmMemoria: TdmMemoria
       FieldName = 'MOTIVO_RECHAZO'
       Size = 500
     end
+    object mtSolicitudesEnTrabajoACCIONES: TStringField
+      DisplayLabel = 'Acciones'
+      FieldName = 'ACCIONES'
+    end
   end
   object dsSolicitudesEnTrabajo: TDataSource
     AutoEdit = False
@@ -2272,5 +2276,306 @@ object dmMemoria: TdmMemoria
     DataSet = mtMagnitudes
     Left = 936
     Top = 568
+  end
+  object mtCotizacionesLista: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1056
+    Top = 24
+    object mtCotizacionesListaID: TIntegerField
+      Visible = False
+      FieldName = 'ID'
+    end
+    object mtCotizacionesListaNUMERO: TIntegerField
+      DisplayLabel = 'N'#250'mero'
+      FieldName = 'NUMERO'
+    end
+    object mtCotizacionesListaCLIENTE_NOMBRE: TStringField
+      DisplayLabel = 'Cliente'
+      Size = 120
+      FieldName = 'CLIENTE_NOMBRE'
+    end
+    object mtCotizacionesListaDESCRIPCION_TRABAJO: TStringField
+      DisplayLabel = 'Trabajo'
+      Size = 500
+      FieldName = 'DESCRIPCION_TRABAJO'
+    end
+    object mtCotizacionesListaASESOR_NOMBRE: TStringField
+      DisplayLabel = 'Asesor'
+      Size = 120
+      FieldName = 'ASESOR_NOMBRE'
+    end
+    object mtCotizacionesListaFECHA_ELABORACION: TDateTimeField
+      DisplayLabel = 'Elaborada'
+      DisplayFormat = 'dd/mm/yyyy'
+      FieldName = 'FECHA_ELABORACION'
+    end
+    object mtCotizacionesListaMONTO_TOTAL: TCurrencyField
+      DisplayLabel = 'Total'
+      DisplayFormat = '#,##0.00'
+      currency = False
+      FieldName = 'MONTO_TOTAL'
+    end
+    object mtCotizacionesListaESTADO: TStringField
+      DisplayLabel = 'Estado'
+      OnGetText = EstadoGetText
+      FieldName = 'ESTADO'
+    end
+    object mtCotizacionesListaACCIONES: TStringField
+      DisplayLabel = 'Acciones'
+      FieldName = 'ACCIONES'
+    end
+  end
+  object dsCotizacionesLista: TDataSource
+    AutoEdit = False
+    DataSet = mtCotizacionesLista
+    Left = 1160
+    Top = 24
+  end
+  object mtLineasCotizacion: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1056
+    Top = 80
+    object mtLineasCotizacionID: TIntegerField
+      Visible = False
+      FieldName = 'ID'
+    end
+    object mtLineasCotizacionTIPO: TStringField
+      DisplayLabel = 'Tipo'
+      OnGetText = TipoGetText
+      FieldName = 'TIPO'
+    end
+    object mtLineasCotizacionDESCRIPCION: TStringField
+      DisplayLabel = 'Descripci'#243'n'
+      Size = 500
+      FieldName = 'DESCRIPCION'
+    end
+    object mtLineasCotizacionUNIDAD_MEDIDA: TStringField
+      DisplayLabel = 'Unidad'
+      Size = 30
+      FieldName = 'UNIDAD_MEDIDA'
+    end
+    object mtLineasCotizacionCANTIDAD: TCurrencyField
+      DisplayLabel = 'Cantidad'
+      DisplayFormat = '#,##0.00'
+      currency = False
+      FieldName = 'CANTIDAD'
+    end
+    object mtLineasCotizacionPRECIO_UNITARIO: TCurrencyField
+      DisplayLabel = 'Precio'
+      DisplayFormat = '#,##0.00'
+      currency = False
+      FieldName = 'PRECIO_UNITARIO'
+    end
+    object mtLineasCotizacionSUBTOTAL: TCurrencyField
+      DisplayLabel = 'Subtotal'
+      DisplayFormat = '#,##0.00'
+      currency = False
+      FieldName = 'SUBTOTAL'
+    end
+    object mtLineasCotizacionACCIONES: TStringField
+      DisplayLabel = 'Acciones'
+      FieldName = 'ACCIONES'
+    end
+  end
+  object dsLineasCotizacion: TDataSource
+    AutoEdit = False
+    DataSet = mtLineasCotizacion
+    Left = 1160
+    Top = 80
+  end
+  object mtCotizacionEdicion: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1056
+    Top = 136
+    object mtCotizacionEdicionTIPO_TRABAJO_ID: TIntegerField
+      FieldName = 'TIPO_TRABAJO_ID'
+    end
+    object mtCotizacionEdicionDESCRIPCION_TRABAJO: TStringField
+      Size = 500
+      FieldName = 'DESCRIPCION_TRABAJO'
+    end
+  end
+  object dsCotizacionEdicion: TDataSource
+    DataSet = mtCotizacionEdicion
+    Left = 1160
+    Top = 136
+  end
+  object mtTiposTrabajoLista: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1056
+    Top = 192
+    object mtTiposTrabajoListaID: TIntegerField
+      FieldName = 'ID'
+    end
+    object mtTiposTrabajoListaNOMBRE: TStringField
+      Size = 100
+      FieldName = 'NOMBRE'
+    end
+  end
+  object dsTiposTrabajoLista: TDataSource
+    AutoEdit = False
+    DataSet = mtTiposTrabajoLista
+    Left = 1160
+    Top = 192
+  end
+  object mtMedidas: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1056
+    Top = 248
+    object mtMedidasETIQUETA: TStringField
+      DisplayLabel = 'Medida'
+      Size = 120
+      FieldName = 'ETIQUETA'
+    end
+    object mtMedidasVALOR: TCurrencyField
+      DisplayLabel = 'Valor'
+      DisplayFormat = '#,##0.##'
+      currency = False
+      FieldName = 'VALOR'
+    end
+    object mtMedidasUNIDAD_MEDIDA: TStringField
+      DisplayLabel = 'Unidad'
+      Size = 30
+      FieldName = 'UNIDAD_MEDIDA'
+    end
+  end
+  object dsMedidas: TDataSource
+    AutoEdit = False
+    DataSet = mtMedidas
+    Left = 1160
+    Top = 248
+  end
+  object mtItemsLinea: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1056
+    Top = 304
+    object mtItemsLineaID: TIntegerField
+      Visible = False
+      FieldName = 'ID'
+    end
+    object mtItemsLineaCODIGO: TStringField
+      DisplayLabel = 'C'#243'digo'
+      Size = 30
+      FieldName = 'CODIGO'
+    end
+    object mtItemsLineaNOMBRE: TStringField
+      DisplayLabel = 'Nombre'
+      Size = 120
+      FieldName = 'NOMBRE'
+    end
+    object mtItemsLineaCATEGORIA: TStringField
+      DisplayLabel = 'Categor'#237'a'
+      Size = 100
+      FieldName = 'CATEGORIA'
+    end
+    object mtItemsLineaUNIDAD_MEDIDA: TStringField
+      DisplayLabel = 'Unidad'
+      Size = 30
+      FieldName = 'UNIDAD_MEDIDA'
+    end
+    object mtItemsLineaPRECIO: TCurrencyField
+      DisplayLabel = 'Precio vigente'
+      DisplayFormat = '#,##0.00'
+      currency = False
+      FieldName = 'PRECIO'
+    end
+    object mtItemsLineaPROGRAMADO_FECHA: TDateTimeField
+      DisplayLabel = 'Nuevo precio desde'
+      DisplayFormat = 'dd/mm/yyyy'
+      FieldName = 'PROGRAMADO_FECHA'
+    end
+  end
+  object dsItemsLinea: TDataSource
+    AutoEdit = False
+    DataSet = mtItemsLinea
+    Left = 1160
+    Top = 304
+  end
+  object mtLineaNueva: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1056
+    Top = 360
+    object mtLineaNuevaCANTIDAD: TCurrencyField
+      DisplayLabel = 'Cantidad'
+      DisplayFormat = '#,##0.##'
+      currency = False
+      FieldName = 'CANTIDAD'
+    end
+    object mtLineaNuevaNOTA: TStringField
+      Size = 500
+      FieldName = 'NOTA'
+    end
+  end
+  object dsLineaNueva: TDataSource
+    DataSet = mtLineaNueva
+    Left = 1160
+    Top = 360
+  end
+  object mtAjuste: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1056
+    Top = 416
+    object mtAjustePORCENTAJE: TCurrencyField
+      DisplayFormat = '#,##0.##'
+      currency = False
+      FieldName = 'PORCENTAJE'
+    end
+    object mtAjusteMOTIVO: TStringField
+      Size = 300
+      FieldName = 'MOTIVO'
+    end
+  end
+  object dsAjuste: TDataSource
+    DataSet = mtAjuste
+    Left = 1160
+    Top = 416
   end
 end

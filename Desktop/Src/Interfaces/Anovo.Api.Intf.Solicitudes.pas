@@ -20,6 +20,10 @@ type
     function EnTrabajo(const ATexto: string;
       const APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TSolicitudEnTrabajoDTO>;
+    function Obtener(const AId: Integer): TSolicitudDTO;
+    function Medidas(const AId: Integer): TObjectList<TMedidaDTO>;
+    function Adjuntos(const AId: Integer): TObjectList<TAdjuntoDTO>;
+    function Adjunto(const AId, AAdjuntoId: Integer): TAdjuntoContenidoDTO;
   end;
 
 implementation

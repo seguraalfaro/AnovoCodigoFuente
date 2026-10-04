@@ -14,6 +14,7 @@ const
   TIPO_MATERIAL = 'material';
   TIPO_MANO_OBRA = 'mano_obra';
   TIPO_MAQUINA = 'maquina';
+  TIPO_NOTA = 'nota';
 
   MAGNITUD_TIEMPO = 'tiempo';
   MAGNITUD_PESO = 'peso';

@@ -74,7 +74,8 @@ begin
       Continue;
     lOrigen := lTipoOrigen.GetProperty(lDestino.Name);
     if (lOrigen = nil) or not lOrigen.IsReadable or
-      (lOrigen.Visibility < mvPublic) then
+      (lOrigen.Visibility < mvPublic) or
+      (lOrigen.PropertyType.TypeKind = tkClass) then
       Continue;
 
     lValor := lOrigen.GetValue(AOrigen);
@@ -93,6 +94,9 @@ begin
       EscribirNullable(lContexto, lDestino, ADestino, lInterno)
     else if lOrigenNulable then
       lDestino.SetValue(ADestino, lInterno.Cast(lDestino.PropertyType.Handle))
+    else if (lOrigen.PropertyType.TypeKind = lDestino.PropertyType.TypeKind) and
+      (lDestino.PropertyType.TypeKind in [tkInteger, tkInt64, tkFloat]) then
+      lDestino.SetValue(ADestino, lValor.Cast(lDestino.PropertyType.Handle))
     else
       raise EMapeo.CreateFmt('%s.%s es %s y %s.%s es %s: no se mapea solo',
         [AOrigen.ClassName, lOrigen.Name, lOrigen.PropertyType.Name,

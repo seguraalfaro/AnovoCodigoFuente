@@ -15,7 +15,6 @@ uses
   Anovo.Frames.Dashboard.Asistente,
   Anovo.Frames.SolicitudesAsesor,
   Anovo.Frames.SolicitudesAsistente,
-  Anovo.Frames.GeneracionCotizacion,
   Anovo.Frames.Bandeja,
   Anovo.Frames.Cotizaciones,
   Anovo.Frames.Usuarios,
@@ -355,8 +354,6 @@ begin
       Result := TfraBandeja.Create(Self);
     secCotizaciones:
       Result := TfraCotizaciones.Create(Self);
-    secGeneracion:
-      Result := TfraGeneracionCotizacion.Create(Self);
     secClientes:
       Result := TfraClientes.Create(Self);
     secMateriales:

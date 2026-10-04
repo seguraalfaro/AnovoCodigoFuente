@@ -163,7 +163,6 @@ type
     fDescripcion: string;
     fUnidadMedida: NullableString;
     fCantidad: NullableCurrency;
-    fPrecioUnitario: NullableCurrency;
   public
     property Tipo: string read fTipo write fTipo;
     property MaterialId: NullableInt32 read fMaterialId write fMaterialId;
@@ -173,8 +172,6 @@ type
     property UnidadMedida: NullableString read fUnidadMedida
       write fUnidadMedida;
     property Cantidad: NullableCurrency read fCantidad write fCantidad;
-    property PrecioUnitario: NullableCurrency read fPrecioUnitario
-      write fPrecioUnitario;
   end;
 
   [MVCNameCase(ncSnakeCase)]

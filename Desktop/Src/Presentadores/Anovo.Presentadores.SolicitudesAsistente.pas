@@ -26,6 +26,7 @@ type
     procedure MostrarPagina(const APagina: Integer; const ATotal: Int64);
     procedure MostrarError(AMensaje: string);
     procedure MostrarCargando(AActivo: Boolean);
+    procedure PublicarAcciones;
   public
     constructor Create(const AVista: IVistaSolicitudesAsistente;
       const AApi: IApiSolicitudes; const ACotizaciones: IApiCotizaciones);
@@ -38,6 +39,8 @@ type
     procedure PaginaSiguiente;
     procedure PaginaAnterior;
     procedure Tomar(const ASolicitudId: Integer);
+    procedure Abrir(const ACotizacionId: Integer);
+    procedure Recargar;
   end;
 
 const
@@ -68,14 +71,33 @@ end;
 class function TPresentadorSolicitudesAsistente.AccionesPermitidas
   : TAccionesCola;
 begin
-  Result := [];
+  Result := [acAbrir];
   if TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR) then
     Include(Result, acTomar);
 end;
 
+procedure TPresentadorSolicitudesAsistente.PublicarAcciones;
+begin
+  if FModo = msCola then
+    FVista.MostrarAcciones(AccionesPermitidas * [acTomar])
+  else
+    FVista.MostrarAcciones(AccionesPermitidas * [acAbrir]);
+end;
+
+procedure TPresentadorSolicitudesAsistente.Abrir(const ACotizacionId: Integer);
+begin
+  if (FModo = msEnTrabajo) and (ACotizacionId > 0) then
+    FVista.AbrirCotizacion(ACotizacionId);
+end;
+
+procedure TPresentadorSolicitudesAsistente.Recargar;
+begin
+  Cargar;
+end;
+
 procedure TPresentadorSolicitudesAsistente.Iniciar;
 begin
-  FVista.MostrarAcciones(AccionesPermitidas);
+  PublicarAcciones;
   FVista.MostrarModo(FModo);
   FVista.MostrarBusqueda('', False);
   Cargar;
@@ -88,6 +110,7 @@ begin
     Exit;
   FModo := AModo;
   FPagina := 1;
+  PublicarAcciones;
   FVista.MostrarModo(FModo);
   Cargar;
 end;
@@ -198,6 +221,7 @@ begin
       AvisarCambioEnAvisos;
       FModo := msEnTrabajo;
       FPagina := 1;
+      PublicarAcciones;
       FVista.MostrarModo(FModo);
       Cargar;
     end,

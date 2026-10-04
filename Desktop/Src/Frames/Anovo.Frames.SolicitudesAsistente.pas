@@ -12,6 +12,7 @@ uses
   Vcl.ExtCtrls, Vcl.WinXCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.BotonWin, VclPlano.Pestanas,
   Anovo.Frames.Listado,
+  Anovo.Frames.Cotizacion,
   Anovo.DTOs.Dashboard,
   Anovo.DTOs.Solicitudes,
   Anovo.Vistas.Intf.SolicitudesAsistente,
@@ -23,7 +24,10 @@ type
     procedure pstModoChange(Sender: TObject);
   private
     FPresentador: TPresentadorSolicitudesAsistente;
+    FCotizacion: TfraCotizacion;
     procedure Accion(Sender: TObject; const AClave: string);
+    procedure AbrirCotizacion(const AId: Integer);
+    procedure CerrarCotizacion(Sender: TObject);
     procedure MostrarAcciones(const AAcciones: TAccionesCola);
     procedure MostrarModo(const AModo: TModoSolicitudes);
     procedure MostrarCola(const AFilas: TObjectList<TSolicitudPorCotizarDTO>);
@@ -47,6 +51,7 @@ implementation
 uses
   Anovo.UI.DBGridExtend,
   Anovo.UI.Vista,
+  Anovo.UI.Tema,
   Anovo.Api.Solicitudes,
   Anovo.Api.Cotizaciones,
   Anovo.Mapeo.Datos,
@@ -57,7 +62,7 @@ const
   CAMPO_ACCIONES = 'ACCIONES';
   CAMPO_ESTADO = 'ESTADO';
   ACCIONES: array [TAccionCola] of TAccionRejilla = ((Clave: 'tomar';
-    Rotulo: SAccionTomar));
+    Rotulo: SAccionTomar), (Clave: 'abrir'; Rotulo: SAccionAbrir));
 
 
 constructor TfraSolicitudesAsistente.Create(AOwner: TComponent);
@@ -151,6 +156,12 @@ end;
 procedure TfraSolicitudesAsistente.Accion(Sender: TObject;
   const AClave: string);
 begin
+  if SameText(AClave, ACCIONES[acAbrir].Clave) then
+  begin
+    if not dmMemoria.mtSolicitudesEnTrabajo.IsEmpty then
+      FPresentador.Abrir(dmMemoria.mtSolicitudesEnTrabajoID.AsInteger);
+    Exit;
+  end;
   if dmMemoria.mtSolicitudesCola.IsEmpty or
     (pstModo.ItemIndex <> Ord(msCola)) then
     Exit;
@@ -158,6 +169,29 @@ begin
     Confirmar(Format(SConfirmarTomar,
     [dmMemoria.mtSolicitudesColaCLIENTE_NOMBRE.AsString])) then
     FPresentador.Tomar(dmMemoria.mtSolicitudesColaID.AsInteger);
+end;
+
+procedure TfraSolicitudesAsistente.AbrirCotizacion(const AId: Integer);
+begin
+  FreeAndNil(FCotizacion);
+  FCotizacion := TfraCotizacion.Crear(Self, AId);
+  FCotizacion.OnRegresar := CerrarCotizacion;
+  FCotizacion.Parent := Self;
+  FCotizacion.SetBounds(0, 0, ClientWidth, ClientHeight);
+  FCotizacion.Anchors := [akLeft, akTop, akRight, akBottom];
+  FCotizacion.BringToFront;
+  AplicarTemaFrame(FCotizacion);
+end;
+
+procedure TfraSolicitudesAsistente.CerrarCotizacion(Sender: TObject);
+begin
+  FCotizacion.Visible := False;
+  TThread.ForceQueue(nil,
+    procedure
+    begin
+      FreeAndNil(FCotizacion);
+      FPresentador.Recargar;
+    end);
 end;
 
 procedure TfraSolicitudesAsistente.pstModoChange(Sender: TObject);

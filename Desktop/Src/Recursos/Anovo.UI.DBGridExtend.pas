@@ -7,7 +7,7 @@ interface
 
 uses
   System.Types, System.Classes, Vcl.Controls, Vcl.Forms, Vcl.Graphics,
-  Vcl.Grids, Vcl.DBGrids, rDBGrid;
+  Vcl.Grids, Vcl.DBGrids, rDBGrid, VclPlano.Paleta;
 
 const
   ALTO_FILA_LISTADO = 34;
@@ -24,6 +24,8 @@ procedure AjustarColumnas(AGrid: TrDBGrid);
 procedure AlinearDerecha(AGrid: TrDBGrid; const ACampos: array of string);
 
 procedure OcultarScrollVertical(AGrid: TrDBGrid);
+
+function EstadoPlano(const lEstado: string): TPlanoEstado;
 
 type
   TAccionRejilla = record
@@ -92,7 +94,7 @@ implementation
 
 uses
   Winapi.Windows, System.SysUtils, System.Math, System.UITypes, Data.DB, RosiCompGlobalCfg,
-  VclPlano.Paleta, VclPlano.Dibujo, VclPlano.Pastilla, Anovo.UI.Tema;
+  VclPlano.Dibujo, VclPlano.Pastilla, Anovo.UI.Tema;
 
 const
   MARGEN_CELDA = 10;

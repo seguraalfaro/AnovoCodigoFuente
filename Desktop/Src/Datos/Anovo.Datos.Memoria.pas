@@ -278,6 +278,7 @@ type
     mtSolicitudesEnTrabajoDESCRIPCION_TRABAJO: TStringField;
     mtSolicitudesEnTrabajoESTADO: TStringField;
     mtSolicitudesEnTrabajoMOTIVO_RECHAZO: TStringField;
+    mtSolicitudesEnTrabajoACCIONES: TStringField;
     dsSolicitudesEnTrabajo: TDataSource;
     mtSeguimiento: TFDMemTable;
     mtSeguimientoID: TIntegerField;
@@ -450,6 +451,57 @@ type
     mtMagnitudesCODIGO: TStringField;
     mtMagnitudesNOMBRE: TStringField;
     dsMagnitudes: TDataSource;
+    mtCotizacionesLista: TFDMemTable;
+    mtCotizacionesListaID: TIntegerField;
+    mtCotizacionesListaNUMERO: TIntegerField;
+    mtCotizacionesListaCLIENTE_NOMBRE: TStringField;
+    mtCotizacionesListaDESCRIPCION_TRABAJO: TStringField;
+    mtCotizacionesListaASESOR_NOMBRE: TStringField;
+    mtCotizacionesListaFECHA_ELABORACION: TDateTimeField;
+    mtCotizacionesListaMONTO_TOTAL: TCurrencyField;
+    mtCotizacionesListaESTADO: TStringField;
+    mtCotizacionesListaACCIONES: TStringField;
+    dsCotizacionesLista: TDataSource;
+    mtLineasCotizacion: TFDMemTable;
+    mtLineasCotizacionID: TIntegerField;
+    mtLineasCotizacionTIPO: TStringField;
+    mtLineasCotizacionDESCRIPCION: TStringField;
+    mtLineasCotizacionUNIDAD_MEDIDA: TStringField;
+    mtLineasCotizacionCANTIDAD: TCurrencyField;
+    mtLineasCotizacionPRECIO_UNITARIO: TCurrencyField;
+    mtLineasCotizacionSUBTOTAL: TCurrencyField;
+    mtLineasCotizacionACCIONES: TStringField;
+    dsLineasCotizacion: TDataSource;
+    mtCotizacionEdicion: TFDMemTable;
+    mtCotizacionEdicionTIPO_TRABAJO_ID: TIntegerField;
+    mtCotizacionEdicionDESCRIPCION_TRABAJO: TStringField;
+    dsCotizacionEdicion: TDataSource;
+    mtTiposTrabajoLista: TFDMemTable;
+    mtTiposTrabajoListaID: TIntegerField;
+    mtTiposTrabajoListaNOMBRE: TStringField;
+    dsTiposTrabajoLista: TDataSource;
+    mtMedidas: TFDMemTable;
+    mtMedidasETIQUETA: TStringField;
+    mtMedidasVALOR: TCurrencyField;
+    mtMedidasUNIDAD_MEDIDA: TStringField;
+    dsMedidas: TDataSource;
+    mtItemsLinea: TFDMemTable;
+    mtItemsLineaID: TIntegerField;
+    mtItemsLineaCODIGO: TStringField;
+    mtItemsLineaNOMBRE: TStringField;
+    mtItemsLineaCATEGORIA: TStringField;
+    mtItemsLineaUNIDAD_MEDIDA: TStringField;
+    mtItemsLineaPRECIO: TCurrencyField;
+    mtItemsLineaPROGRAMADO_FECHA: TDateTimeField;
+    dsItemsLinea: TDataSource;
+    mtLineaNueva: TFDMemTable;
+    mtLineaNuevaCANTIDAD: TCurrencyField;
+    mtLineaNuevaNOTA: TStringField;
+    dsLineaNueva: TDataSource;
+    mtAjuste: TFDMemTable;
+    mtAjustePORCENTAJE: TCurrencyField;
+    mtAjusteMOTIVO: TStringField;
+    dsAjuste: TDataSource;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     procedure DataModuleCreate(Sender: TObject);
     procedure mtContactoNuevoBeforePost(DataSet: TDataSet);
@@ -487,6 +539,7 @@ type
     procedure PrepararClienteNuevo;
     procedure PrepararContactoNuevo(const AClienteId: Integer);
     procedure PrepararUsuario;
+    procedure Preparar(const ATabla: TFDMemTable);
     procedure SoloExcepciones(const ASolo: Boolean);
     procedure SinTodasLasCategorias(const ASin: Boolean);
     function PermisoSinGuardar: Boolean;
@@ -690,6 +743,8 @@ begin
     Text := STipoManoObra
   else if SameText(Sender.AsString, TIPO_MAQUINA) then
     Text := STipoMaquina
+  else if SameText(Sender.AsString, TIPO_NOTA) then
+    Text := STipoNota
   else
     Text := STipoMaterial;
 end;
@@ -760,6 +815,13 @@ end;
 function TdmMemoria.PermisoSinGuardar: Boolean;
 begin
   Result := mtPermisosUsuarioORIGEN.AsString = ORIGEN_SIN_GUARDAR;
+end;
+
+procedure TdmMemoria.Preparar(const ATabla: TFDMemTable);
+begin
+  ATabla.Close;
+  ATabla.CreateDataSet;
+  ATabla.Append;
 end;
 
 procedure TdmMemoria.PrepararUsuario;

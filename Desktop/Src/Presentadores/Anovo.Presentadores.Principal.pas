@@ -74,11 +74,11 @@ const
      PERMISO_AUDITORIA_VER_TODA + SEPARADOR + PERMISO_AUDITORIA_VER_CUENTAS,
      SIEMPRE);
 
-  ORDEN_MENU: array [0 .. 15] of TSeccion = (secDashboardSupervisor,
+  ORDEN_MENU: array [0 .. 14] of TSeccion = (secDashboardSupervisor,
     secDashboardCuentas, secDashboardAsesor, secDashboardAsistente,
-    secSolicitudes, secBandeja, secCotizaciones,
-    secGeneracion, secClientes, secMateriales, secReportes, secGerencia,
-    secUsuarios, secRoles, secAuditoria, secConfiguracion);
+    secSolicitudes, secBandeja, secCotizaciones, secClientes, secMateriales,
+    secReportes, secGerencia, secUsuarios, secRoles, secAuditoria,
+    secConfiguracion);
 
   ORDEN_INICIO: array [0 .. 6] of TSeccion = (secGerencia,
     secDashboardSupervisor,

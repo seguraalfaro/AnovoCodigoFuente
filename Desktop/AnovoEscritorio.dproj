@@ -213,11 +213,8 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Src\Frames\Anovo.Frames.GeneracionCotizacion.pas">
-            <Form>fraGeneracionCotizacion</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Cotizaciones.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Cotizaciones.pas"/>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Clientes.pas"/>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Cotizaciones.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Cotizaciones.pas"/>
@@ -226,6 +223,21 @@
         <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Bandeja.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Revision.pas"/>
         <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Revision.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Cotizacion.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Cotizacion.pas"/>
+        <DCCReference Include="Src\Recursos\Anovo.UI.Croquis.pas"/>
+        <DCCReference Include="Src\Recursos\Anovo.UI.Imagen.pas"/>
+        <DCCReference Include="Src\Frames\Anovo.Frames.Cotizacion.pas">
+            <Form>fraCotizacion</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Src\Forms\Anovo.Forms.LineaCotizacion.pas">
+            <Form>frmLineaCotizacion</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Forms\Anovo.Forms.AjusteCotizacion.pas">
+            <Form>frmAjusteCotizacion</Form>
+        </DCCReference>
         <DCCReference Include="Src\Forms\Anovo.Forms.Revision.pas">
             <Form>frmRevision</Form>
         </DCCReference>

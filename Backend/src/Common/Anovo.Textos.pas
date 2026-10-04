@@ -277,6 +277,7 @@ resourcestring
   STipoMaterial = 'Material';
   STipoManoObra = 'Mano de obra';
   STipoMaquina = 'Máquina';
+  STipoNota = 'Nota';
 
   SItemMaterial = 'material';
   SItemManoObra = 'mano de obra';
@@ -574,6 +575,53 @@ resourcestring
   SDetalleMedidaEliminada = 'Medida eliminada de la solicitud %d';
   SDetalleAdjuntoAgregado = 'Adjunto agregado a la solicitud %d';
   SDetalleAdjuntoInactivado = 'Adjunto inactivado en la solicitud %d';
+
+  SAccionAbrir = 'Abrir';
+  SAccionEnviarCotizacion = 'enviar la cotización';
+  SAccionPresentarCotizacion = 'presentar la cotización';
+  SAccionCargarCotizaciones = 'cargar las cotizaciones';
+  SAccionBuscarCatalogo = 'buscar en el catálogo';
+  SCotizacionTitulo = 'Cotización Nº %d · %s';
+  SCotizacionSubtitulo = 'Solicitud %d · Asesor: %s · Elaboró: %s';
+  SCotizacionDevuelta = 'Devuelta por el supervisor: %s';
+  SIvaExonerado = 'Cliente exonerado: IVA 0 %';
+  SSinAjuste = 'Sin ajuste';
+  SFotografias = 'Fotografías · %d';
+  SSinCroquis = 'La solicitud no tiene croquis';
+  SSinFotos = 'Sin fotografías';
+  SConfirmarQuitarLinea = '¿Quitar la línea «%s»?';
+  SConfirmarPresentar = '¿Presentar la cotización Nº %d a aprobación? ' +
+    'Mientras la revisan no se puede editar.';
+  SConfirmarEnviar = '¿Marcar la cotización Nº %d como enviada al cliente?';
+  SAgregarMaterial = 'Agregar material';
+  SAgregarManoObra = 'Agregar mano de obra';
+  SAgregarMaquina = 'Agregar máquina';
+  SAgregarNota = 'Agregar nota';
+  SEditarLinea = 'Editar línea';
+  SEditarNota = 'Editar nota';
+  SBotonAgregarLinea = 'Agregar línea';
+  SBotonGuardarCambio = 'Guardar cambio';
+  SBotonAplicarAjuste = 'Aplicar ajuste';
+  SEscojaItem = 'Escoja un elemento de la lista.';
+  SNotaVacia = 'Escriba el texto de la nota.';
+  SPrecioSeCopia = 'El precio se copia a la línea: si después cambia en el ' +
+    'catálogo, esta cotización conserva el suyo.';
+  SPrecioConservado = 'El precio es el que se copió al agregar la línea; no ' +
+    'se vuelve a leer del catálogo.';
+  SAjusteTitulo = 'Ajuste de la cotización';
+  SAjusteAyuda = 'Vista previa; el total definitivo lo calcula el servidor. ' +
+    'El ajuste y su motivo quedan en la auditoría.';
+  SRecargo = 'Recargo %s %%';
+  SDescuento = 'Descuento %s %%';
+  SCargandoCotizaciones = 'Cargando cotizaciones...';
+  SSinCotizaciones = 'No hay cotizaciones con ese filtro';
+  SPaginacionCotizaciones = '%d cotizaciones · página %d de %d';
+  SFiltroTodas = 'Todas';
+  SFiltroBorrador = 'Borrador';
+  SFiltroPendiente = 'Pendientes';
+  SFiltroAprobada = 'Aprobadas';
+  SFiltroEnviada = 'Enviadas';
+  SFiltroRechazada = 'Rechazadas';
 
 implementation
 

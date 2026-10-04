@@ -19,6 +19,18 @@ type
     procedure Devolver(const AId: Integer; const AMotivo: string);
     procedure Rechazar(const AId: Integer; const AMotivo: string);
     procedure Tomar(const ASolicitudId: Integer);
+    function Listar(const ATexto, AEstado: string;
+      const APagina, APorPagina: Integer; out ATotal: Int64)
+      : TObjectList<TCotizacionDTO>;
+    procedure Actualizar(const AId: Integer; const ADto: TCotizacionEdicionDTO);
+    function AgregarLinea(const AId: Integer;
+      const ADto: TLineaNuevaDTO): Integer;
+    procedure ActualizarLinea(const AId, ALineaId: Integer;
+      const ADto: TLineaNuevaDTO);
+    procedure QuitarLinea(const AId, ALineaId: Integer);
+    procedure AplicarAjuste(const AId: Integer; const ADto: TAjusteDTO);
+    procedure Presentar(const AId: Integer);
+    procedure Enviar(const AId: Integer);
   end;
 
 implementation

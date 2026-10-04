@@ -23,7 +23,12 @@ type
     function EnTrabajo(const ATexto: string;
       const APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TSolicitudEnTrabajoDTO>;
+    function Obtener(const AId: Integer): TSolicitudDTO;
+    function Medidas(const AId: Integer): TObjectList<TMedidaDTO>;
+    function Adjuntos(const AId: Integer): TObjectList<TAdjuntoDTO>;
+    function Adjunto(const AId, AAdjuntoId: Integer): TAdjuntoContenidoDTO;
   private
+    function Leer(const ARuta: string): IMVCRESTResponse;
     function Pagina(const ARuta, ATexto: string;
       const APagina, APorPagina: Integer; out ATotal: Int64;
       const ALista: TObject; const AClase: TClass): IMVCRESTResponse;
@@ -40,6 +45,11 @@ const
   RUTA_SEGUIMIENTO = '/api/solicitudes/seguimiento';
   RUTA_COLA = '/api/solicitudes/cola';
   RUTA_EN_TRABAJO = '/api/solicitudes/en-trabajo';
+  RUTA_SOLICITUD = '/api/solicitudes/%d';
+  RUTA_MEDIDAS = '/api/solicitudes/%d/medidas';
+  RUTA_ADJUNTOS = '/api/solicitudes/%d/adjuntos';
+  RUTA_ADJUNTO = '/api/solicitudes/%d/adjuntos/%d';
+  CAMPO_DATOS = 'data';
   PERIODO_MES = 'mes';
   PERIODO_TODO = 'todo';
 
@@ -108,6 +118,63 @@ begin
     ATotal := lJson.L['total'];
   finally
     lJson.Free;
+  end;
+end;
+
+function TApiSolicitudes.Leer(const ARuta: string): IMVCRESTResponse;
+begin
+  Result := Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.Get(ARuta);
+    end);
+end;
+
+function TApiSolicitudes.Obtener(const AId: Integer): TSolicitudDTO;
+begin
+  Result := TSolicitudDTO.Create;
+  try
+    Leer(Format(RUTA_SOLICITUD, [AId])).BodyFor(Result, CAMPO_DATOS);
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
+function TApiSolicitudes.Medidas(const AId: Integer): TObjectList<TMedidaDTO>;
+begin
+  Result := TObjectList<TMedidaDTO>.Create(True);
+  try
+    Leer(Format(RUTA_MEDIDAS, [AId])).BodyForListOf(Result, TMedidaDTO,
+      CAMPO_DATOS);
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
+function TApiSolicitudes.Adjuntos(const AId: Integer)
+  : TObjectList<TAdjuntoDTO>;
+begin
+  Result := TObjectList<TAdjuntoDTO>.Create(True);
+  try
+    Leer(Format(RUTA_ADJUNTOS, [AId])).BodyForListOf(Result, TAdjuntoDTO,
+      CAMPO_DATOS);
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
+function TApiSolicitudes.Adjunto(const AId, AAdjuntoId: Integer)
+  : TAdjuntoContenidoDTO;
+begin
+  Result := TAdjuntoContenidoDTO.Create;
+  try
+    Leer(Format(RUTA_ADJUNTO, [AId, AAdjuntoId])).BodyFor(Result, CAMPO_DATOS);
+  except
+    Result.Free;
+    raise;
   end;
 end;
 

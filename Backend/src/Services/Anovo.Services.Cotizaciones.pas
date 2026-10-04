@@ -53,7 +53,9 @@ type
     function ADto(const ACotizacion: TCotizaciones): TCotizacionDTO;
     procedure ExigirEditable(const ACotizacion: TCotizaciones);
     procedure LlenarLinea(const ALinea: TCotizacionDetalle;
-      const ADto: TLineaNuevaDTO);
+      const ADto: TLineaNuevaDTO; const APrecio: Currency);
+    function MismoItem(const ALinea: TCotizacionDetalle;
+      const ADto: TLineaNuevaDTO): Boolean;
     function PrecioDeCatalogo(const ADto: TLineaNuevaDTO): Currency;
     function IvaPara(const AClienteId: Integer): Currency;
     procedure ValidarTipoTrabajo(const ATipoId, AActual: NullableInt32);
@@ -257,8 +259,17 @@ begin
   end;
 end;
 
+function TCotizacionService.MismoItem(const ALinea: TCotizacionDetalle;
+  const ADto: TLineaNuevaDTO): Boolean;
+begin
+  Result := (ALinea.Tipo = ADto.Tipo) and
+    (ALinea.MaterialId.ValueOrDefault = ADto.MaterialId.ValueOrDefault) and
+    (ALinea.ManoObraId.ValueOrDefault = ADto.ManoObraId.ValueOrDefault) and
+    (ALinea.MaquinaId.ValueOrDefault = ADto.MaquinaId.ValueOrDefault);
+end;
+
 procedure TCotizacionService.LlenarLinea(const ALinea: TCotizacionDetalle;
-  const ADto: TLineaNuevaDTO);
+  const ADto: TLineaNuevaDTO; const APrecio: Currency);
 var
   lPrecio: Currency;
   lCantidad: Currency;
@@ -303,8 +314,8 @@ begin
   if lCantidad <= 0 then
     raise EDatoInvalido.Create(SCantidadInvalida);
 
-  if ADto.PrecioUnitario.HasValue then
-    lPrecio := ADto.PrecioUnitario.Value
+  if APrecio > 0 then
+    lPrecio := APrecio
   else
     lPrecio := PrecioDeCatalogo(ADto);
 
@@ -538,7 +549,7 @@ begin
     lLinea := TCotizacionDetalle.Create;
     try
       lLinea.CotizacionId := AId;
-      LlenarLinea(lLinea, ADto);
+      LlenarLinea(lLinea, ADto, 0);
       lLinea.Orden := fDetalle.SiguienteOrden(AId);
       FijarDetalle(Format(SDetalleLineaAgregada, [lCotizacion.Numero]));
       fDetalle.Insert(lLinea);
@@ -568,7 +579,10 @@ begin
 
     lLinea := TraerLinea(AId, ALineaId);
     try
-      LlenarLinea(lLinea, ADto);
+      if MismoItem(lLinea, ADto) then
+        LlenarLinea(lLinea, ADto, lLinea.PrecioUnitario)
+      else
+        LlenarLinea(lLinea, ADto, 0);
       FijarDetalle(Format(SDetalleCambioLinea, [lCotizacion.Numero]));
       fDetalle.Update(lLinea);
     finally
