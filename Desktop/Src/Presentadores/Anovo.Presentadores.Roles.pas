@@ -28,8 +28,9 @@ type
     constructor Create(const AVista: IVistaRoles; const AApi: IApiRoles);
     destructor Destroy; override;
     procedure Iniciar;
-    function MarcarPermiso(const ARol: string; const APermisoId: Integer;
-      const AAsignado: Boolean): Boolean;
+    function PuedeMarcar(const ARol: string): Boolean;
+    procedure MarcarPermiso(const ARol: string; const APermisoId: Integer;
+      const AAsignado: Boolean);
     function HayCambios: Boolean;
     procedure Guardar(const AMotivo: string);
     class function PuedeEditar: Boolean;
@@ -227,21 +228,19 @@ begin
     end);
 end;
 
-function TPresentadorRoles.MarcarPermiso(const ARol: string;
-  const APermisoId: Integer; const AAsignado: Boolean): Boolean;
+function TPresentadorRoles.PuedeMarcar(const ARol: string): Boolean;
+begin
+  Result := PuedeEditar and not SameText(ARol, CodigoDeRol(TSesion.Rol)) and
+    FRoles.ContainsKey(LowerCase(ARol));
+end;
+
+procedure TPresentadorRoles.MarcarPermiso(const ARol: string;
+  const APermisoId: Integer; const AAsignado: Boolean);
 var
   lRolId: Integer;
   lLlave: string;
 begin
-  Result := False;
-  if not PuedeEditar then
-    Exit;
-  if SameText(ARol, CodigoDeRol(TSesion.Rol)) then
-  begin
-    FVista.MostrarError(Format(SSinPermiso, [SAccionPermisosPropioRol]));
-    Exit;
-  end;
-  if not FRoles.TryGetValue(LowerCase(ARol), lRolId) then
+  if not PuedeMarcar(ARol) or not FRoles.TryGetValue(LowerCase(ARol), lRolId) then
     Exit;
 
   lLlave := Llave(lRolId, APermisoId);
@@ -250,7 +249,6 @@ begin
   else
     FCambios.AddOrSetValue(lLlave, AAsignado);
   FVista.MostrarCambios(FCambios.Count);
-  Result := True;
 end;
 
 function TPresentadorRoles.HayCambios: Boolean;

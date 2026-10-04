@@ -27,7 +27,10 @@ type
     grMatriz: TrDBGrid;
     pnlPie: TPanel;
     lblCambios: TLabel;
-    procedure grMatrizCellClick(Column: TColumn);
+    procedure grMatrizCanEdit(Sender: TObject; Field: TField; Column: TColumn;
+      var CanEdit: Boolean);
+    procedure grMatrizBoolClick(Sender: TObject; DataSet: TDataSet;
+      Column: TColumn; Field: TField; Value: Variant);
     procedure btnGuardarClick(Sender: TObject);
     procedure btnDescartarClick(Sender: TObject);
   private
@@ -64,6 +67,7 @@ constructor TfraRoles.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   AplicarTemaGrid(grMatriz);
+  EditarCasillas(grMatriz);
   MarcarRolPropio;
   btnGuardar.Visible := TPresentadorRoles.PuedeEditar;
   btnDescartar.Visible := TPresentadorRoles.PuedeEditar;
@@ -128,20 +132,19 @@ begin
   AvisarError(AMensaje);
 end;
 
-procedure TfraRoles.grMatrizCellClick(Column: TColumn);
-var
-  lCampo: TField;
+procedure TfraRoles.grMatrizCanEdit(Sender: TObject; Field: TField;
+  Column: TColumn; var CanEdit: Boolean);
 begin
-    lCampo := Column.Field;
-  if (lCampo = nil) or (lCampo.DataType <> ftBoolean) or lCampo.IsNull or
-    dmMemoria.mtMatrizRoles.IsEmpty then
-    Exit;
-  if not FPresentador.MarcarPermiso(lCampo.FieldName,
-    dmMemoria.mtMatrizRolesPERMISO_ID.AsInteger, not lCampo.AsBoolean) then
-    Exit;
-  dmMemoria.mtMatrizRoles.Edit;
-  lCampo.AsBoolean := not lCampo.AsBoolean;
-  dmMemoria.mtMatrizRoles.Post;
+  CanEdit := CanEdit and (Field <> nil) and (Field.DataType = ftBoolean) and
+    not Field.IsNull and FPresentador.PuedeMarcar(Field.FieldName);
+end;
+
+procedure TfraRoles.grMatrizBoolClick(Sender: TObject; DataSet: TDataSet;
+  Column: TColumn; Field: TField; Value: Variant);
+begin
+  dmMemoria.Confirmar(DataSet);
+  FPresentador.MarcarPermiso(Field.FieldName,
+    dmMemoria.mtMatrizRolesPERMISO_ID.AsInteger, Field.AsBoolean);
 end;
 
 procedure TfraRoles.btnGuardarClick(Sender: TObject);

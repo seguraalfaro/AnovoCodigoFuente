@@ -17,6 +17,8 @@ procedure AplicarTemaGrid(AGrid: TrDBGrid; ASoloLectura: Boolean = True;
 
 procedure TemarTitulos(AGrid: TrDBGrid);
 
+procedure EditarCasillas(AGrid: TrDBGrid);
+
 procedure AjustarColumnas(AGrid: TrDBGrid);
 
 procedure AlinearDerecha(AGrid: TrDBGrid; const ACampos: array of string);
@@ -643,6 +645,13 @@ begin
   AGrid.Ctl3D := False;
 
   AGrid.DoubleBuffered := True;
+end;
+
+procedure EditarCasillas(AGrid: TrDBGrid);
+begin
+  AGrid.Options := AGrid.Options - [dgRowSelect] + [dgEditing];
+  AGrid.ReadOnly := False;
+  AGrid.OptionsEx2.Editors.BoolOneClickChange := True;
 end;
 
 procedure TemarTitulos(AGrid: TrDBGrid);

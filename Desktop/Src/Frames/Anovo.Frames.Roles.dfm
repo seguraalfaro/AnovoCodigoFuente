@@ -140,7 +140,8 @@ object fraRoles: TfraRoles
       TitleFont.Name = 'Segoe UI'
       TitleFont.Style = []
       StyleElements = [seFont]
-      OnCellClick = grMatrizCellClick
+      OnCanEdit = grMatrizCanEdit
+      OnBoolClick = grMatrizBoolClick
       Columns = <
         item
           Expanded = False

@@ -43,7 +43,10 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure btnGuardarClick(Sender: TObject);
     procedure cbRolClick(Sender: TObject);
-    procedure grPermisosCellClick(Column: TColumn);
+    procedure grPermisosCanEdit(Sender: TObject; Field: TField;
+      Column: TColumn; var CanEdit: Boolean);
+    procedure grPermisosBoolClick(Sender: TObject; DataSet: TDataSet;
+      Column: TColumn; Field: TField; Value: Variant);
     procedure btnGenerarClick(Sender: TObject);
     procedure btnCopiarClick(Sender: TObject);
     procedure btnPedirCambioClick(Sender: TObject);
@@ -88,7 +91,6 @@ uses
   Anovo.Textos;
 
 const
-  CAMPO_TIENE = 'TIENE';
   CAMPO_ORIGEN = 'ORIGEN';
   PERMISO_EDITAR_PERMISOS = 'permisos.editar';
 
@@ -124,6 +126,7 @@ var
   lRejilla: TDBGridExtend;
 begin
   AplicarTemaGrid(grPermisos);
+  EditarCasillas(grPermisos);
   lRejilla := TDBGridExtend.De(grPermisos);
   lRejilla.ColumnaEstado(CAMPO_ORIGEN);
   dmMemoria.mtPermisosUsuario.Close;
@@ -281,19 +284,19 @@ begin
     lAdicionales, lQuitados, lCambios]);
 end;
 
-procedure TfrmUsuario.grPermisosCellClick(Column: TColumn);
-var
-  lTabla: TDataSet;
+procedure TfrmUsuario.grPermisosCanEdit(Sender: TObject; Field: TField;
+  Column: TColumn; var CanEdit: Boolean);
 begin
-  lTabla := dmMemoria.mtPermisosUsuario;
-  if (Column.FieldName <> CAMPO_TIENE) or lTabla.IsEmpty or CambioRol then
-    Exit;
-  lTabla.Edit;
-  dmMemoria.mtPermisosUsuarioTIENE.AsBoolean :=
-    not dmMemoria.mtPermisosUsuarioTIENE.AsBoolean;
-  lTabla.Post;
+  CanEdit := CanEdit and (Field = dmMemoria.mtPermisosUsuarioTIENE) and
+    not CambioRol;
+end;
+
+procedure TfrmUsuario.grPermisosBoolClick(Sender: TObject; DataSet: TDataSet;
+  Column: TColumn; Field: TField; Value: Variant);
+begin
+  dmMemoria.Confirmar(DataSet);
   FPresentador.MarcarPermiso(dmMemoria.mtPermisosUsuarioPERMISO_ID.AsInteger,
-    dmMemoria.mtPermisosUsuarioTIENE.AsBoolean);
+    Field.AsBoolean);
   MostrarResumen;
 end;
 

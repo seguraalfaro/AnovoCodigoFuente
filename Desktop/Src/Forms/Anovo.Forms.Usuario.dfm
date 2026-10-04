@@ -34,9 +34,11 @@ inherited frmUsuario: TfrmUsuario
     inherited btnGuardar: TPlanoBotonWin
       Left = 500
       OnClick = btnGuardarClick
+      ExplicitLeft = 500
     end
     inherited btnCancelar: TPlanoBotonWin
       Left = 374
+      ExplicitLeft = 374
     end
   end
   object pstSecciones: TPlanoPestanas
@@ -175,7 +177,7 @@ inherited frmUsuario: TfrmUsuario
         object pstClave: TPlanoPastilla
           Left = 16
           Top = 48
-          Width = 100
+          Width = 59
           Height = 22
           Status = fsInfo
           Caption = 'Vigente'
@@ -286,7 +288,8 @@ inherited frmUsuario: TfrmUsuario
         TitleFont.Name = 'Segoe UI'
         TitleFont.Style = []
         StyleElements = [seFont]
-        OnCellClick = grPermisosCellClick
+        OnCanEdit = grPermisosCanEdit
+        OnBoolClick = grPermisosBoolClick
         Columns = <
           item
             Expanded = False
