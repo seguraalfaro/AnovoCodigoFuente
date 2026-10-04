@@ -6,170 +6,110 @@ unit Anovo.Presentadores.Registro;
 interface
 
 uses
+  System.SysUtils,
   Anovo.Api.Intf.Clientes,
-  Anovo.Cancelacion,
+  Anovo.Presentadores.Base,
   Anovo.DTOs.Clientes,
   Anovo.Vistas.Intf.Registro;
 
 type
-  TPresentadorClienteNuevo = class
-  private
+  TPresentadorRegistro = class(TPresentadorBase)
+  protected
     FVista: IVistaRegistro;
     FApi: IApiClientes;
-    FCancelacion: ICancelacion;
+    procedure Enviar(const ACrear: TFunc<Integer>; const ADto: TObject);
   public
     constructor Create(const AVista: IVistaRegistro; const AApi: IApiClientes);
-    destructor Destroy; override;
+  end;
+
+  TPresentadorClienteNuevo = class(TPresentadorRegistro)
+  public
     procedure Guardar(const ADto: TClienteNuevoDTO);
   end;
 
-  TPresentadorContactoNuevo = class
+  TPresentadorContactoNuevo = class(TPresentadorRegistro)
   private
-    FVista: IVistaRegistro;
-    FApi: IApiClientes;
-    FCancelacion: ICancelacion;
     FClienteId: Integer;
   public
     constructor Create(const AVista: IVistaRegistro; const AApi: IApiClientes;
       const AClienteId: Integer);
-    destructor Destroy; override;
     procedure Guardar(const ADto: TContactoNuevoDTO);
   end;
 
 implementation
 
 uses
-  System.SysUtils,
-  System.Classes,
-  System.Threading,
-  Anovo.Api.Base,
   Anovo.Textos;
 
-function MensajeInesperado: string;
-begin
-  Result := Format(SErrorInesperado, [SAccionGuardar]);
-end;
-
-constructor TPresentadorClienteNuevo.Create(const AVista: IVistaRegistro;
+constructor TPresentadorRegistro.Create(const AVista: IVistaRegistro;
   const AApi: IApiClientes);
 begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
-  FCancelacion := TCancelacion.Create;
 end;
 
-destructor TPresentadorClienteNuevo.Destroy;
+procedure TPresentadorRegistro.Enviar(const ACrear: TFunc<Integer>;
+  const ADto: TObject);
+var
+  lId: Integer;
 begin
-  FCancelacion.Cancelar;
-  inherited;
+  lId := 0;
+
+  Ejecutar(SAccionGuardar,
+    procedure
+    begin
+      lId := ACrear();
+    end,
+    procedure
+    begin
+      FVista.Guardado(lId);
+    end,
+    procedure(AMensaje: string)
+    begin
+      FVista.MostrarError(AMensaje);
+    end,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarGuardando(AActivo);
+    end,
+    procedure
+    begin
+      ADto.Free;
+    end);
 end;
 
 procedure TPresentadorClienteNuevo.Guardar(const ADto: TClienteNuevoDTO);
 var
-  lCancelacion: ICancelacion;
   lApi: IApiClientes;
 begin
-  lCancelacion := FCancelacion;
   lApi := FApi;
-  FVista.MostrarGuardando(True);
-
-  TTask.Run(
-    procedure
-    var
-      lId: Integer;
-      lError: string;
+  Enviar(
+    function: Integer
     begin
-      lId := 0;
-      lError := '';
-      try
-        try
-          lId := lApi.Crear(ADto);
-        except
-          on E: EAnovoCliente do
-            lError := E.Message;
-          on E: Exception do
-            lError := MensajeInesperado;
-        end;
-      finally
-        ADto.Free;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          if lCancelacion.Cancelada then
-            Exit;
-          FVista.MostrarGuardando(False);
-          if lError.IsEmpty then
-            FVista.Guardado(lId)
-          else
-
-            FVista.MostrarError(lError);
-        end);
-    end);
+      Result := lApi.Crear(ADto);
+    end, ADto);
 end;
 
 constructor TPresentadorContactoNuevo.Create(const AVista: IVistaRegistro;
-const AApi: IApiClientes; const AClienteId: Integer);
+  const AApi: IApiClientes; const AClienteId: Integer);
 begin
-  inherited Create;
-  FVista := AVista;
-  FApi := AApi;
+  inherited Create(AVista, AApi);
   FClienteId := AClienteId;
-  FCancelacion := TCancelacion.Create;
-end;
-
-destructor TPresentadorContactoNuevo.Destroy;
-begin
-  FCancelacion.Cancelar;
-  inherited;
 end;
 
 procedure TPresentadorContactoNuevo.Guardar(const ADto: TContactoNuevoDTO);
 var
-  lCancelacion: ICancelacion;
   lApi: IApiClientes;
   lCliente: Integer;
 begin
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lCliente := FClienteId;
-  FVista.MostrarGuardando(True);
-
-  TTask.Run(
-    procedure
-    var
-      lId: Integer;
-      lError: string;
+  Enviar(
+    function: Integer
     begin
-      lId := 0;
-      lError := '';
-      try
-        try
-          lId := lApi.CrearContacto(lCliente, ADto);
-        except
-          on E: EAnovoCliente do
-            lError := E.Message;
-          on E: Exception do
-            lError := MensajeInesperado;
-        end;
-      finally
-        ADto.Free;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          if lCancelacion.Cancelada then
-            Exit;
-          FVista.MostrarGuardando(False);
-          if lError.IsEmpty then
-            FVista.Guardado(lId)
-          else
-            FVista.MostrarError(lError);
-        end);
-    end);
+      Result := lApi.CrearContacto(lCliente, ADto);
+    end, ADto);
 end;
 
 end.

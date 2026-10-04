@@ -7,21 +7,20 @@ interface
 
 uses
   Anovo.Api.Intf.Cotizaciones,
-  Anovo.Cancelacion,
+  Anovo.Presentadores.Base,
   Anovo.Vistas.Intf.Revision;
 
 type
-  TPresentadorRevision = class
+  TPresentadorRevision = class(TPresentadorBase)
   private
     FVista: IVistaRevision;
     FApi: IApiCotizaciones;
-    FCancelacion: ICancelacion;
     FId: Integer;
     procedure Decidir(const ADecision: TDecision; const AMotivo: string);
+    procedure MostrarError(AMensaje: string);
   public
     constructor Create(const AVista: IVistaRevision;
       const AApi: IApiCotizaciones; const AId: Integer);
-    destructor Destroy; override;
     procedure Iniciar;
     procedure Aprobar;
     procedure Devolver(const AMotivo: string);
@@ -32,10 +31,7 @@ implementation
 
 uses
   System.SysUtils,
-  System.Classes,
-  System.Threading,
   System.Generics.Collections,
-  Anovo.Api.Base,
   Anovo.DTOs.Cotizaciones,
   Anovo.Mensajes,
   Anovo.Textos;
@@ -47,67 +43,43 @@ begin
   FVista := AVista;
   FApi := AApi;
   FId := AId;
-  FCancelacion := TCancelacion.Create;
 end;
 
-destructor TPresentadorRevision.Destroy;
+procedure TPresentadorRevision.MostrarError(AMensaje: string);
 begin
-  FCancelacion.Cancelar;
-  inherited;
+  FVista.MostrarError(AMensaje);
 end;
 
 procedure TPresentadorRevision.Iniciar;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiCotizaciones;
   lId: Integer;
+  lCotizacion: TCotizacionDTO;
+  lLineas: TObjectList<TLineaDTO>;
 begin
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lId := FId;
+  lCotizacion := nil;
+  lLineas := nil;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
+  Ejecutar(SAccionCargarCotizacion,
     procedure
-    var
-      lCotizacion: TCotizacionDTO;
-      lLineas: TObjectList<TLineaDTO>;
-      lError: string;
     begin
-      lCotizacion := nil;
-      lLineas := nil;
-      lError := '';
-      try
-        lCotizacion := lApi.Obtener(lId);
-        lLineas := lApi.Detalle(lId);
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := Format(SErrorInesperado, [SAccionCargarCotizacion]);
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada then
-              Exit;
-
-            FVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-            begin
-              FVista.MostrarError(lError);
-              Exit;
-            end;
-
-            FVista.MostrarCotizacion(lCotizacion, lLineas);
-          finally
-            lLineas.Free;
-            lCotizacion.Free;
-          end;
-        end);
+      lCotizacion := lApi.Obtener(lId);
+      lLineas := lApi.Detalle(lId);
+    end,
+    procedure
+    begin
+      FVista.MostrarCotizacion(lCotizacion, lLineas);
+    end, MostrarError,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarCargando(AActivo);
+    end,
+    procedure
+    begin
+      lLineas.Free;
+      lCotizacion.Free;
     end);
 end;
 
@@ -129,56 +101,36 @@ end;
 procedure TPresentadorRevision.Decidir(const ADecision: TDecision;
   const AMotivo: string);
 var
-  lCancelacion: ICancelacion;
   lApi: IApiCotizaciones;
   lId: Integer;
   lMotivo: string;
+  lDecision: TDecision;
 begin
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lId := FId;
   lMotivo := AMotivo.Trim;
+  lDecision := ADecision;
 
-  FVista.MostrarProcesando(True);
-
-  TTask.Run(
+  Ejecutar(SAccionRevisarCotizacion,
     procedure
-    var
-      lError: string;
     begin
-      lError := '';
-      try
-        case ADecision of
-          dcAprobar:
-            lApi.Aprobar(lId);
-          dcDevolver:
-            lApi.Devolver(lId, lMotivo);
-          dcRechazar:
-            lApi.Rechazar(lId, lMotivo);
-        end;
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := Format(SErrorInesperado, [SAccionRevisarCotizacion]);
+      case lDecision of
+        dcAprobar:
+          lApi.Aprobar(lId);
+        dcDevolver:
+          lApi.Devolver(lId, lMotivo);
+        dcRechazar:
+          lApi.Rechazar(lId, lMotivo);
       end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          if lCancelacion.Cancelada then
-            Exit;
-
-          FVista.MostrarProcesando(False);
-          if not lError.IsEmpty then
-          begin
-            FVista.MostrarError(lError);
-            Exit;
-          end;
-
-          AvisarCambioEnAvisos;
-          FVista.Revisada;
-        end);
+    end,
+    procedure
+    begin
+      AvisarCambioEnAvisos;
+      FVista.Revisada;
+    end, MostrarError,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarProcesando(AActivo);
     end);
 end;
 

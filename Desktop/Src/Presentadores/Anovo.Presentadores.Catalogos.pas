@@ -23,7 +23,6 @@ type
     FCategoriaId: Integer;
     FPagina: Integer;
     FTotalPaginas: Integer;
-    FSolicitud: Integer;
     FCategoriasPedidas: Boolean;
     procedure Cargar;
     procedure CargarLista<T: class>(const ATrabajo: TFunc<TObjectList<T>>;
@@ -135,27 +134,15 @@ end;
 
 procedure TPresentadorCatalogos.CargarLista<T>(const ATrabajo
   : TFunc<TObjectList<T>>; const AListo: TProc<TObjectList<T>>);
-var
-  lNumero: Integer;
 begin
-  Inc(FSolicitud);
-  lNumero := FSolicitud;
-
-  Ejecutar<TObjectList<T>>(SAccionCargarCatalogo, ATrabajo,
-    procedure(ALista: TObjectList<T>)
-    begin
-      if lNumero = FSolicitud then
-        AListo(ALista);
-    end,
+  EjecutarUltima<TObjectList<T>>(SAccionCargarCatalogo, ATrabajo, AListo,
     procedure(AMensaje: string)
     begin
-      if lNumero = FSolicitud then
-        FVista.MostrarError(AMensaje);
+      FVista.MostrarError(AMensaje);
     end,
     procedure(AActivo: Boolean)
     begin
-      if lNumero = FSolicitud then
-        FVista.MostrarCargando(AActivo);
+      FVista.MostrarCargando(AActivo);
     end);
 end;
 

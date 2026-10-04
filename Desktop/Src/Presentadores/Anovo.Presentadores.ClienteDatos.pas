@@ -7,28 +7,26 @@ interface
 
 uses
   Anovo.Api.Intf.Clientes,
-  Anovo.Cancelacion,
+  Anovo.Presentadores.Base,
   Anovo.DTOs.Clientes,
   Anovo.Vistas.Intf.ClienteDatos,
   Anovo.Permisos;
 
 type
-  TPresentadorClienteDatos = class
+  TPresentadorClienteDatos = class(TPresentadorBase)
   private
     FVista: IVistaClienteDatos;
     FApi: IApiClientes;
-    FCancelacion: ICancelacion;
     FClienteId: Integer;
-    FSolicitud: Integer;
-
     FCargadas: set of TPestanaCliente;
     procedure CargarDatosCliente;
     procedure CargarContactos;
     procedure CargarConsentimientos;
+    procedure MostrarError(AMensaje: string);
+    procedure MostrarCargando(AActivo: Boolean);
   public
     constructor Create(const AVista: IVistaClienteDatos;
       const AApi: IApiClientes; const AClienteId: Integer);
-    destructor Destroy; override;
     procedure Iniciar;
     procedure AbrirPestana(const APestana: TPestanaCliente);
     procedure Refrescar(const APestana: TPestanaCliente);
@@ -42,17 +40,9 @@ implementation
 
 uses
   System.SysUtils,
-  System.Classes,
-  System.Threading,
   System.Generics.Collections,
-  Anovo.Api.Base,
   Anovo.Sesion,
   Anovo.Textos;
-
-function MensajeInesperado: string;
-begin
-  Result := Format(SErrorInesperado, [SAccionCargarFichaCliente]);
-end;
 
 constructor TPresentadorClienteDatos.Create(const AVista: IVistaClienteDatos;
   const AApi: IApiClientes; const AClienteId: Integer);
@@ -61,14 +51,6 @@ begin
   FVista := AVista;
   FApi := AApi;
   FClienteId := AClienteId;
-  FCancelacion := TCancelacion.Create;
-end;
-
-destructor TPresentadorClienteDatos.Destroy;
-begin
-
-  FCancelacion.Cancelar;
-  inherited;
 end;
 
 class function TPresentadorClienteDatos.PuedeEditar: Boolean;
@@ -83,7 +65,6 @@ end;
 
 class function TPresentadorClienteDatos.PuedeVerCotizaciones: Boolean;
 begin
-
   Result := TSesion.TieneAlguno([PERMISO_COTIZACIONES_VER_TODAS,
     PERMISO_COTIZACIONES_VER_APROBADAS_PROPIAS]);
 end;
@@ -112,216 +93,100 @@ begin
       CargarContactos;
     pcConsentimiento:
       CargarConsentimientos;
-
     pcCotizaciones:
       ;
   end;
 end;
 
+procedure TPresentadorClienteDatos.MostrarError(AMensaje: string);
+begin
+  FVista.MostrarError(AMensaje);
+end;
+
+procedure TPresentadorClienteDatos.MostrarCargando(AActivo: Boolean);
+begin
+  FVista.MostrarCargando(AActivo);
+end;
+
 procedure TPresentadorClienteDatos.Guardar(const ADto: TClienteEdicionDTO);
 var
-  lCancelacion: ICancelacion;
   lApi: IApiClientes;
   lId: Integer;
 begin
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lId := FClienteId;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
+  Ejecutar(SAccionGuardar,
     procedure
-    var
-      lError: string;
     begin
-      lError := '';
-      try
-        try
-          lApi.Actualizar(lId, ADto);
-        except
-
-          on E: EAnovoCliente do
-            lError := E.Message;
-          on E: Exception do
-            lError := MensajeInesperado;
-        end;
-      finally
-        ADto.Free;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          if lCancelacion.Cancelada then
-            Exit;
-
-          FVista.MostrarCargando(False);
-          if not lError.IsEmpty then
-          begin
-
-            FVista.MostrarError(lError);
-            Exit;
-          end;
-
-          FVista.MostrarModoEdicion(False);
-
-          Refrescar(pcDatos);
-        end);
+      lApi.Actualizar(lId, ADto);
+    end,
+    procedure
+    begin
+      FVista.MostrarModoEdicion(False);
+      Refrescar(pcDatos);
+    end, MostrarError, MostrarCargando,
+    procedure
+    begin
+      ADto.Free;
     end);
 end;
 
 procedure TPresentadorClienteDatos.CargarDatosCliente;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiClientes;
-  lId, lNumero: Integer;
+  lId: Integer;
 begin
-
-  Inc(FSolicitud);
-  lNumero := FSolicitud;
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lId := FClienteId;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
-    procedure
-    var
-      lCliente: TClienteDTO;
-      lError: string;
+  Ejecutar<TClienteDTO>(SAccionCargarFichaCliente,
+    function: TClienteDTO
     begin
-      lCliente := nil;
-      lError := '';
-      try
-        lCliente := lApi.Obtener(lId);
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-
-        on E: Exception do
-          lError := MensajeInesperado;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-
-            if lCancelacion.Cancelada or (lNumero <> FSolicitud) then
-              Exit;
-
-            FVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-              FVista.MostrarError(lError)
-            else
-              FVista.MostrarCliente(lCliente);
-          finally
-            lCliente.Free;
-          end;
-        end);
-    end);
+      Result := lApi.Obtener(lId);
+    end,
+    procedure(ACliente: TClienteDTO)
+    begin
+      FVista.MostrarCliente(ACliente);
+    end, MostrarError, MostrarCargando);
 end;
 
 procedure TPresentadorClienteDatos.CargarContactos;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiClientes;
-  lId, lNumero: Integer;
+  lId: Integer;
 begin
-  Inc(FSolicitud);
-  lNumero := FSolicitud;
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lId := FClienteId;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
-    procedure
-    var
-      lLista: TObjectList<TContactoDTO>;
-      lError: string;
+  Ejecutar<TObjectList<TContactoDTO>>(SAccionCargarFichaCliente,
+    function: TObjectList<TContactoDTO>
     begin
-      lLista := nil;
-      lError := '';
-      try
-        lLista := lApi.Contactos(lId);
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada or (lNumero <> FSolicitud) then
-              Exit;
-
-            FVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-              FVista.MostrarError(lError)
-            else
-              FVista.MostrarContactos(lLista);
-          finally
-            lLista.Free;
-          end;
-        end);
-    end);
+      Result := lApi.Contactos(lId);
+    end,
+    procedure(ALista: TObjectList<TContactoDTO>)
+    begin
+      FVista.MostrarContactos(ALista);
+    end, MostrarError, MostrarCargando);
 end;
 
 procedure TPresentadorClienteDatos.CargarConsentimientos;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiClientes;
-  lId, lNumero: Integer;
+  lId: Integer;
 begin
-  Inc(FSolicitud);
-  lNumero := FSolicitud;
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lId := FClienteId;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
-    procedure
-    var
-      lLista: TObjectList<TConsentimientoDTO>;
-      lError: string;
+  Ejecutar<TObjectList<TConsentimientoDTO>>(SAccionCargarFichaCliente,
+    function: TObjectList<TConsentimientoDTO>
     begin
-      lLista := nil;
-      lError := '';
-      try
-        lLista := lApi.Consentimientos(lId);
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada or (lNumero <> FSolicitud) then
-              Exit;
-
-            FVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-              FVista.MostrarError(lError)
-            else
-              FVista.MostrarConsentimientos(lLista);
-          finally
-            lLista.Free;
-          end;
-        end);
-    end);
+      Result := lApi.Consentimientos(lId);
+    end,
+    procedure(ALista: TObjectList<TConsentimientoDTO>)
+    begin
+      FVista.MostrarConsentimientos(ALista);
+    end, MostrarError, MostrarCargando);
 end;
 
 end.

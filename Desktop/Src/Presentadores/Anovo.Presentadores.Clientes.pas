@@ -6,27 +6,24 @@ interface
 
 uses
   Anovo.Api.Intf.Clientes,
-  Anovo.Cancelacion,
+  Anovo.Presentadores.Base,
   Anovo.Vistas.Intf.Clientes,
   Anovo.Permisos;
 
 type
-  TPresentadorClientes = class
+  TPresentadorClientes = class(TPresentadorBase)
   private
     FVista: IVistaClientes;
     FApi: IApiClientes;
-    FCancelacion: ICancelacion;
     FTexto: string;
     FFiltro: TFiltroConsentimiento;
     FPagina: Integer;
     FTotalPaginas: Integer;
-    FSolicitud: Integer;
     FDetalle: Integer;
     procedure Cargar;
   public
     constructor Create(const AVista: IVistaClientes;
       const AApi: IApiClientes);
-    destructor Destroy; override;
     procedure Iniciar;
     procedure Buscar(const ATexto: string);
     procedure Limpiar;
@@ -47,25 +44,16 @@ implementation
 
 uses
   System.SysUtils,
-  System.Classes,
-  System.Threading,
   System.Generics.Collections,
-  Anovo.Api.Base,
   Anovo.DTOs.Clientes,
   Anovo.Sesion,
   Anovo.Textos;
 
 const
-
   CONSENTIMIENTO_API: array [TFiltroConsentimiento] of string = ('',
     'firmado', 'pendiente');
 
   PERMISOS_ACCION: array [TAccionCliente] of string = (PERMISO_CLIENTES_VER);
-
-function MensajeInesperado: string;
-begin
-  Result := Format(SErrorInesperado, [SAccionCargarClientes]);
-end;
 
 constructor TPresentadorClientes.Create(const AVista: IVistaClientes;
   const AApi: IApiClientes);
@@ -73,14 +61,7 @@ begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
-  FCancelacion := TCancelacion.Create;
   FPagina := 1;
-end;
-
-destructor TPresentadorClientes.Destroy;
-begin
-  FCancelacion.Cancelar;
-  inherited;
 end;
 
 class function TPresentadorClientes.AccionesPermitidas: TAccionesCliente;
@@ -159,64 +140,37 @@ end;
 
 procedure TPresentadorClientes.Cargar;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiClientes;
-  lNumero: Integer;
   lTexto, lConsentimiento: string;
   lPagina: Integer;
+  lTotal: Int64;
 begin
-  Inc(FSolicitud);
-  lNumero := FSolicitud;
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lTexto := FTexto;
   lConsentimiento := CONSENTIMIENTO_API[FFiltro];
   lPagina := FPagina;
+  lTotal := 0;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
-    procedure
-    var
-      lLista: TObjectList<TClienteDTO>;
-      lTotal: Int64;
-      lError: string;
+  EjecutarUltima<TObjectList<TClienteDTO>>(SAccionCargarClientes,
+    function: TObjectList<TClienteDTO>
     begin
-      lLista := nil;
-      lTotal := 0;
-      lError := '';
-      try
-        lLista := lApi.Buscar(lTexto, lConsentimiento, lPagina,
-          CLIENTES_POR_PAGINA, lTotal);
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada or (lNumero <> FSolicitud) then
-              Exit;
-
-            FVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-            begin
-              FVista.MostrarError(lError);
-              Exit;
-            end;
-
-            FTotalPaginas := (lTotal + CLIENTES_POR_PAGINA - 1) div
-              CLIENTES_POR_PAGINA;
-            FVista.MostrarClientes(lLista);
-            FVista.MostrarPaginacion(lPagina, FTotalPaginas, lTotal);
-          finally
-            lLista.Free;
-          end;
-        end);
+      Result := lApi.Buscar(lTexto, lConsentimiento, lPagina,
+        CLIENTES_POR_PAGINA, lTotal);
+    end,
+    procedure(ALista: TObjectList<TClienteDTO>)
+    begin
+      FTotalPaginas := (lTotal + CLIENTES_POR_PAGINA - 1) div
+        CLIENTES_POR_PAGINA;
+      FVista.MostrarClientes(ALista);
+      FVista.MostrarPaginacion(lPagina, FTotalPaginas, lTotal);
+    end,
+    procedure(AMensaje: string)
+    begin
+      FVista.MostrarError(AMensaje);
+    end,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarCargando(AActivo);
     end);
 end;
 

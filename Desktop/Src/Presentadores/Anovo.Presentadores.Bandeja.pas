@@ -6,25 +6,22 @@ interface
 
 uses
   Anovo.Api.Intf.Cotizaciones,
-  Anovo.Cancelacion,
+  Anovo.Presentadores.Base,
   Anovo.Vistas.Intf.Bandeja,
   Anovo.Permisos;
 
 type
-  TPresentadorBandeja = class
+  TPresentadorBandeja = class(TPresentadorBase)
   private
     FVista: IVistaBandeja;
     FApi: IApiCotizaciones;
-    FCancelacion: ICancelacion;
     FTexto: string;
     FPagina: Integer;
     FTotalPaginas: Integer;
-    FSolicitud: Integer;
     procedure Cargar;
   public
     constructor Create(const AVista: IVistaBandeja;
       const AApi: IApiCotizaciones);
-    destructor Destroy; override;
     procedure Iniciar;
     class function AccionesPermitidas: TAccionesBandeja;
     procedure Recargar;
@@ -42,17 +39,9 @@ implementation
 
 uses
   System.SysUtils,
-  System.Classes,
-  System.Threading,
-  Anovo.Api.Base,
   Anovo.DTOs.Cotizaciones,
   Anovo.Sesion,
   Anovo.Textos;
-
-function MensajeInesperado: string;
-begin
-  Result := Format(SErrorInesperado, [SAccionCargarBandeja]);
-end;
 
 constructor TPresentadorBandeja.Create(const AVista: IVistaBandeja;
   const AApi: IApiCotizaciones);
@@ -60,14 +49,7 @@ begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
-  FCancelacion := TCancelacion.Create;
   FPagina := 1;
-end;
-
-destructor TPresentadorBandeja.Destroy;
-begin
-  FCancelacion.Cancelar;
-  inherited;
 end;
 
 class function TPresentadorBandeja.AccionesPermitidas: TAccionesBandeja;
@@ -122,60 +104,33 @@ end;
 
 procedure TPresentadorBandeja.Cargar;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiCotizaciones;
-  lNumero: Integer;
   lTexto: string;
   lPagina: Integer;
 begin
-  Inc(FSolicitud);
-  lNumero := FSolicitud;
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lTexto := FTexto;
   lPagina := FPagina;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
-    procedure
-    var
-      lDatos: TBandejaPaginaDTO;
-      lError: string;
+  EjecutarUltima<TBandejaPaginaDTO>(SAccionCargarBandeja,
+    function: TBandejaPaginaDTO
     begin
-      lDatos := nil;
-      lError := '';
-      try
-        lDatos := lApi.Bandeja(lTexto, lPagina, BANDEJA_POR_PAGINA);
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada or (lNumero <> FSolicitud) then
-              Exit;
-
-            FVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-            begin
-              FVista.MostrarError(lError);
-              Exit;
-            end;
-
-            FTotalPaginas := (lDatos.Total + BANDEJA_POR_PAGINA - 1) div
-              BANDEJA_POR_PAGINA;
-            FVista.MostrarBandeja(lDatos);
-            FVista.MostrarPaginacion(lPagina, FTotalPaginas, lDatos.Total);
-          finally
-            lDatos.Free;
-          end;
-        end);
+      Result := lApi.Bandeja(lTexto, lPagina, BANDEJA_POR_PAGINA);
+    end,
+    procedure(ADatos: TBandejaPaginaDTO)
+    begin
+      FTotalPaginas := (ADatos.Total + BANDEJA_POR_PAGINA - 1) div
+        BANDEJA_POR_PAGINA;
+      FVista.MostrarBandeja(ADatos);
+      FVista.MostrarPaginacion(lPagina, FTotalPaginas, ADatos.Total);
+    end,
+    procedure(AMensaje: string)
+    begin
+      FVista.MostrarError(AMensaje);
+    end,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarCargando(AActivo);
     end);
 end;
 

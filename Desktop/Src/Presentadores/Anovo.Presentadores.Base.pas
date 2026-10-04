@@ -13,6 +13,7 @@ type
   TPresentadorBase = class
   private
     FCancelacion: ICancelacion;
+    FSolicitud: Integer;
   protected
     procedure Ejecutar(const AAccion: string; const ATrabajo: TProc;
       const AListo: TProc; const AError: TProc<string>;
@@ -22,6 +23,9 @@ type
       const ATrabajo: TFunc<T>; const AListo: TProc<T>;
       const AError: TProc<string>;
       const AOcupado: TProc<Boolean> = nil); overload;
+    procedure EjecutarUltima<T: class>(const AAccion: string;
+      const ATrabajo: TFunc<T>; const AListo: TProc<T>;
+      const AError: TProc<string>; const AOcupado: TProc<Boolean>);
   public
     constructor Create;
     destructor Destroy; override;
@@ -111,6 +115,33 @@ begin
     procedure
     begin
       lResultado.Free;
+    end);
+end;
+
+procedure TPresentadorBase.EjecutarUltima<T>(const AAccion: string;
+  const ATrabajo: TFunc<T>; const AListo: TProc<T>;
+  const AError: TProc<string>; const AOcupado: TProc<Boolean>);
+var
+  lNumero: Integer;
+begin
+  Inc(FSolicitud);
+  lNumero := FSolicitud;
+
+  Ejecutar<T>(AAccion, ATrabajo,
+    procedure(AResultado: T)
+    begin
+      if lNumero = FSolicitud then
+        AListo(AResultado);
+    end,
+    procedure(AMensaje: string)
+    begin
+      if (lNumero = FSolicitud) and Assigned(AError) then
+        AError(AMensaje);
+    end,
+    procedure(AActivo: Boolean)
+    begin
+      if (lNumero = FSolicitud) and Assigned(AOcupado) then
+        AOcupado(AActivo);
     end);
 end;
 
