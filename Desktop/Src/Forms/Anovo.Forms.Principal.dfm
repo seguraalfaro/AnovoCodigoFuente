@@ -281,7 +281,7 @@ object frmPrincipal: TfrmPrincipal
     Left = 824
     Top = 366
     object AcSalir: TAction
-      Caption = 'Cerrar Sesi'#243'n'
+      Caption = 'Cerrar sesi'#243'n'
       ImageIndex = 72
       ImageName = 'Blanco\11-salir-blanco'
       OnExecute = AcSalirExecute

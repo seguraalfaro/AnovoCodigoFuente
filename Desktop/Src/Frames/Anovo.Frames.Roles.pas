@@ -36,6 +36,8 @@ type
       var CanEdit: Boolean);
     procedure grMatrizBoolClick(Sender: TObject; DataSet: TDataSet;
       Column: TColumn; Field: TField; Value: Variant);
+    procedure grMatrizGetCellParams(Sender: TObject; Field: TField;
+      AFont: TFont; var Background: TColor; ActiveRow, Highlight: Boolean);
     procedure btnGuardarClick(Sender: TObject);
     procedure btnDescartarClick(Sender: TObject);
   private
@@ -82,7 +84,7 @@ end;
 
 destructor TfraRoles.Destroy;
 begin
-  FPresentador.Free;
+  FreeAndNil(FPresentador);
   CursorOcupado(False);
   inherited;
 end;
@@ -160,6 +162,17 @@ begin
   dmMemoria.Confirmar(DataSet);
   FPresentador.MarcarPermiso(Field.FieldName,
     dmMemoria.mtMatrizRolesPERMISO_ID.AsInteger, Field.AsBoolean);
+end;
+
+procedure TfraRoles.grMatrizGetCellParams(Sender: TObject; Field: TField;
+  AFont: TFont; var Background: TColor; ActiveRow, Highlight: Boolean);
+begin
+  if (FPresentador = nil) or dmMemoria.mtMatrizRoles.IsEmpty or
+    not FPresentador.PermisoCambiado
+    (dmMemoria.mtMatrizRolesPERMISO_ID.AsInteger) then
+    Exit;
+  Background := clAnovoAvisoMedio;
+  AFont.Style := AFont.Style + [fsBold];
 end;
 
 procedure TfraRoles.btnGuardarClick(Sender: TObject);

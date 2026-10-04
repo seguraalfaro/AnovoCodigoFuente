@@ -30,6 +30,9 @@ const
   clAnovoSuave = TColor($00E8DCD0);
   clAnovoSeleccion = TColor($00F5E4D6);
   clAnovoAvisoSuave = TColor($00DAEEFA);
+  clAnovoAvisoMedio = TColor($00A4D9F7);
+  clAnovoFondoIngreso = TColor($00E5DED9);
+  RADIO_TARJETA = 12;
   clAnovoFilaAlterna = TColor($00FAF7F5);
   clAnovoDeshabilitado = TColor($00C1B8B0);
 
@@ -131,10 +134,55 @@ procedure AplicarTemaControlEstandar(AControl: TControl);
 
 procedure AplicarTemaRotuloRosi(AControl: TControl);
 
+procedure DibujarSombra(ACanvas: TCanvas; const AMarco: TRect;
+  const AFondo: TColor);
+
+procedure RedondearEsquinas(AControl: TWinControl);
+
 implementation
 
 uses
-  System.TypInfo;
+  System.TypInfo,
+  VclPlano.Paleta;
+
+const
+  CAPAS_SOMBRA = 10;
+  INTENSIDAD_SOMBRA = 3;
+
+procedure DibujarSombra(ACanvas: TCanvas; const AMarco: TRect;
+  const AFondo: TColor);
+var
+  I: Integer;
+  R: TRect;
+  lColor: TColor;
+begin
+  ACanvas.Pen.Style := psSolid;
+  ACanvas.Brush.Style := bsSolid;
+  for I := CAPAS_SOMBRA downto 1 do
+  begin
+    R := AMarco;
+    InflateRect(R, I, I);
+    OffsetRect(R, 0, I div 2 + 2);
+    lColor := PlanoMezcla(AFondo, clAnovoMarca,
+      (CAPAS_SOMBRA - I + 1) * INTENSIDAD_SOMBRA);
+    ACanvas.Pen.Color := lColor;
+    ACanvas.Brush.Color := lColor;
+    ACanvas.RoundRect(R, RADIO_TARJETA * 2 + I, RADIO_TARJETA * 2 + I);
+  end;
+
+  R := AMarco;
+  InflateRect(R, 1, 1);
+  ACanvas.Brush.Style := bsClear;
+  ACanvas.Pen.Color := clAnovoBorde;
+  ACanvas.RoundRect(R, RADIO_TARJETA * 2, RADIO_TARJETA * 2);
+  ACanvas.Brush.Style := bsSolid;
+end;
+
+procedure RedondearEsquinas(AControl: TWinControl);
+begin
+  SetWindowRgn(AControl.Handle, CreateRoundRectRgn(0, 0, AControl.Width + 1,
+    AControl.Height + 1, RADIO_TARJETA * 2, RADIO_TARJETA * 2), True);
+end;
 
 procedure AplicarTemaBarraTitulo(AFormulario: TCustomForm;
   APanel: TCustomTitleBarPanel; AAlto: Integer = 0);

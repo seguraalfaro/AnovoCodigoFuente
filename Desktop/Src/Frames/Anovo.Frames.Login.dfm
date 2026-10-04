@@ -1,59 +1,19 @@
-object frmLogin: TfrmLogin
+object fraLogin: TfraLogin
   Left = 0
   Top = 0
-  BorderStyle = bsDialog
-  ClientHeight = 560
-  ClientWidth = 900
-  Color = clBtnFace
-  CustomTitleBar.Control = TitleBarPanel1
-  CustomTitleBar.Enabled = True
-  CustomTitleBar.Height = 26
-  CustomTitleBar.BackgroundColor = clWhite
-  CustomTitleBar.ForegroundColor = 65793
-  CustomTitleBar.InactiveBackgroundColor = clWhite
-  CustomTitleBar.InactiveForegroundColor = 10066329
-  CustomTitleBar.ButtonForegroundColor = 65793
-  CustomTitleBar.ButtonBackgroundColor = clWhite
-  CustomTitleBar.ButtonHoverForegroundColor = 65793
-  CustomTitleBar.ButtonHoverBackgroundColor = 16053492
-  CustomTitleBar.ButtonPressedForegroundColor = 65793
-  CustomTitleBar.ButtonPressedBackgroundColor = 15395562
-  CustomTitleBar.ButtonInactiveForegroundColor = 10066329
-  CustomTitleBar.ButtonInactiveBackgroundColor = clWhite
+  Width = 900
+  Height = 535
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  GlassFrame.Enabled = True
-  GlassFrame.Top = 26
-  OldCreateOrder = False
-  Position = poDesktopCenter
+  ParentFont = False
   StyleElements = [seFont, seClient]
-  OnCloseQuery = FormCloseQuery
-  OnCreate = FormCreate
-  OnDestroy = FormDestroy
-  PixelsPerInch = 96
-  TextHeight = 13
-  object TitleBarPanel1: TTitleBarPanel
-    Left = 0
-    Top = 0
-    Width = 900
-    Height = 25
-    CustomButtons = <
-      item
-        ButtonType = sbCustom
-        Enabled = True
-        Width = 32
-        Visible = True
-      end>
-    DesignSize = (
-      900
-      25)
-  end
+  TabOrder = 0
   object pnlMarca: TPanel
     Left = 0
-    Top = 25
+    Top = 0
     Width = 420
     Height = 535
     Align = alLeft
@@ -372,7 +332,7 @@ object frmLogin: TfrmLogin
   end
   object pnlForm: TRelativePanel
     Left = 420
-    Top = 25
+    Top = 0
     Width = 480
     Height = 535
     ControlCollection = <

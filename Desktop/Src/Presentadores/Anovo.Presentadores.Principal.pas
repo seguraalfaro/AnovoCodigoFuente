@@ -27,6 +27,7 @@ type
     destructor Destroy; override;
     procedure Iniciar;
     procedure Navegar(const ASeccion: TSeccion);
+    procedure CerrarSesion;
     procedure RefrescarAvisos;
     class function SeccionesPermitidas: TSecciones;
     class function MenuOrdenado(const APermitidas: TSecciones)
@@ -175,6 +176,14 @@ begin
       FVista.AbrirSeccion(lSeccion);
       Exit;
     end;
+end;
+
+procedure TPresentadorPrincipal.CerrarSesion;
+begin
+  FCancelacion.Cancelar;
+  FCancelacion := TCancelacion.Create;
+  FPermitidas := [];
+  TSesion.Cerrar;
 end;
 
 procedure TPresentadorPrincipal.Navegar(const ASeccion: TSeccion);

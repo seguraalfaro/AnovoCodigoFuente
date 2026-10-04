@@ -476,6 +476,7 @@ type
     procedure SoloExcepciones(const ASolo: Boolean);
     function PermisoSinGuardar: Boolean;
     procedure Confirmar(const ATabla: TDataSet);
+    procedure LimpiarTodo;
     function FilaCatalogo: TDataSet;
   end;
 
@@ -690,6 +691,15 @@ begin
   mtClienteNuevoANONIMIZADO.AsBoolean := False;
   mtClienteNuevoEXONERADO.AsBoolean := False;
   mtClienteNuevoCONSENTIMIENTO_ESTADO.AsString := CONSENTIMIENTO_PENDIENTE;
+end;
+
+procedure TdmMemoria.LimpiarTodo;
+var
+  I: Integer;
+begin
+  for I := 0 to ComponentCount - 1 do
+    if Components[I] is TFDMemTable then
+      TFDMemTable(Components[I]).Close;
 end;
 
 procedure TdmMemoria.Confirmar(const ATabla: TDataSet);

@@ -23,6 +23,7 @@ type
   protected
     function ControlesEdicion: TArray<TControl>; virtual;
     procedure DoCreate; override;
+    procedure MostrarOcupado(const AActivo: Boolean);
     procedure MostrarGuardando(const AActivo: Boolean);
     procedure MostrarError(const AMensaje: string);
     function MostrarReparos(const AReparos: TStrings;
@@ -49,10 +50,17 @@ begin
   Result := [];
 end;
 
+procedure TfrmEdicion.MostrarOcupado(const AActivo: Boolean);
+var
+  lControles: TArray<TControl>;
+begin
+  lControles := [btnGuardar, btnCancelar] + ControlesEdicion;
+  BloquearEdicion(lControles, AActivo);
+end;
+
 procedure TfrmEdicion.MostrarGuardando(const AActivo: Boolean);
 begin
-  BloquearEdicion([btnGuardar, btnCancelar], AActivo);
-  BloquearEdicion(ControlesEdicion, AActivo);
+  MostrarOcupado(AActivo);
 end;
 
 procedure TfrmEdicion.MostrarError(const AMensaje: string);

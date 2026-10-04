@@ -1,6 +1,7 @@
 unit Anovo.Forms.Principal;
 
-// Ventana principal: menu lateral y frame de la seccion abierta.
+// Ventana principal: sin sesion muestra el ingreso centrado; con sesion,
+// menu lateral y frame de la seccion abierta.
 
 interface
 
@@ -21,6 +22,7 @@ uses
   Anovo.Frames.Roles,
   Anovo.Frames.Auditoria,
   Anovo.Frames.Configuracion,
+  Anovo.Frames.Login,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.TitleBarCtrls, Vcl.StdCtrls,
   Vcl.ExtCtrls, Anovo.UI.Tema,
@@ -59,7 +61,13 @@ type
   private
     FPresentador: TPresentadorPrincipal;
     FFrameTemp: TFrame;
+    FLogin: TfraLogin;
+    FSombra: TPaintBox;
     FItems: TArray<TPlanoNavItem>;
+    procedure SombraPaint(Sender: TObject);
+    procedure MostrarIngreso;
+    procedure Ingreso(Sender: TObject);
+    procedure ContenidoResize(Sender: TObject);
     function ObtenerFrame(ASeccion: TSeccion): TFrame;
     procedure LimpiarMenu;
 
@@ -83,6 +91,7 @@ implementation
 
 uses
   Anovo.UI.Iconos,
+  Anovo.Datos.Memoria,
   Anovo.Sesion,
   Anovo.Api.Dashboard,
   Anovo.Textos;
@@ -151,7 +160,55 @@ begin
   AplicarTemaBarraTitulo(Self, TitleBarPanel1, 55);
   AplicarTema(Self);
   FPresentador := TPresentadorPrincipal.Create(Self, TApiDashboard.Create);
-  FPresentador.Iniciar;
+  pnlContenido.OnResize := ContenidoResize;
+  MostrarIngreso;
+end;
+
+procedure TfrmPrincipal.MostrarIngreso;
+begin
+  SV.Visible := False;
+  VirtualImage1.Visible := False;
+  pnlContenido.Color := clAnovoFondoIngreso;
+
+  FSombra := TPaintBox.Create(Self);
+  FSombra.Parent := pnlContenido;
+  FSombra.Align := alClient;
+  FSombra.OnPaint := SombraPaint;
+
+  FLogin := TfraLogin.Create(Self);
+  FLogin.Parent := pnlContenido;
+  AplicarTemaFrame(FLogin);
+  FLogin.OnIngreso := Ingreso;
+  FLogin.Centrar;
+  RedondearEsquinas(FLogin);
+end;
+
+procedure TfrmPrincipal.SombraPaint(Sender: TObject);
+begin
+  if Assigned(FLogin) then
+    DibujarSombra(FSombra.Canvas, FLogin.BoundsRect, pnlContenido.Color);
+end;
+
+procedure TfrmPrincipal.Ingreso(Sender: TObject);
+begin
+  TThread.ForceQueue(nil,
+    procedure
+    begin
+      FreeAndNil(FLogin);
+      FreeAndNil(FSombra);
+      pnlContenido.Color := clAnovoFondo;
+      SV.Visible := True;
+      VirtualImage1.Visible := True;
+      FPresentador.Iniciar;
+    end);
+end;
+
+procedure TfrmPrincipal.ContenidoResize(Sender: TObject);
+begin
+  if Assigned(FLogin) then
+    FLogin.Centrar;
+  if Assigned(FSombra) then
+    FSombra.Invalidate;
 end;
 
 procedure TfrmPrincipal.FormDestroy(Sender: TObject);
@@ -162,6 +219,9 @@ end;
 
 procedure TfrmPrincipal.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
+  CanClose := not (Assigned(FLogin) and FLogin.Cargando);
+  if not CanClose then
+    Exit;
   if Assigned(FFrameTemp) then
     FreeAndNil(FFrameTemp);
 end;
@@ -189,7 +249,13 @@ end;
 
 procedure TfrmPrincipal.AcSalirExecute(Sender: TObject);
 begin
-  close;
+  tmrAvisos.Enabled := False;
+  FreeAndNil(FFrameTemp);
+  LimpiarMenu;
+  MostrarUsuario('', '', '');
+  FPresentador.CerrarSesion;
+  dmMemoria.LimpiarTodo;
+  MostrarIngreso;
 end;
 
 procedure TfrmPrincipal.AgregarItem(const ASeccion: TSeccion);

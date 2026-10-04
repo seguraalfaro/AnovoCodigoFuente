@@ -32,6 +32,7 @@ type
     procedure MarcarPermiso(const ARol: string; const APermisoId: Integer;
       const AAsignado: Boolean);
     function HayCambios: Boolean;
+    function PermisoCambiado(const APermisoId: Integer): Boolean;
     procedure Guardar(const AMotivo: string);
     class function PuedeEditar: Boolean;
   end;
@@ -252,6 +253,16 @@ begin
   else
     FCambios.AddOrSetValue(lLlave, AAsignado);
   FVista.MostrarCambios(FCambios.Count);
+end;
+
+function TPresentadorRoles.PermisoCambiado(const APermisoId: Integer): Boolean;
+var
+  lRolId: Integer;
+begin
+  for lRolId in FRoles.Values do
+    if FCambios.ContainsKey(Llave(lRolId, APermisoId)) then
+      Exit(True);
+  Result := False;
 end;
 
 function TPresentadorRoles.HayCambios: Boolean;

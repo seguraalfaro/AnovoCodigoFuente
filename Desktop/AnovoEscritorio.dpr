@@ -11,7 +11,7 @@ uses
   Anovo.UI.Requeridos in 'Src\Recursos\Anovo.UI.Requeridos.pas',
   Anovo.UI.Tema in 'Src\Recursos\Anovo.UI.Tema.pas',
   Anovo.UI.Iconos in 'Src\Recursos\Anovo.UI.Iconos.pas' {dmIconos: TDataModule},
-  Anovo.Forms.Login in 'Src\Forms\Anovo.Forms.Login.pas' {frmLogin},
+  Anovo.Frames.Login in 'Src\Frames\Anovo.Frames.Login.pas' {fraLogin: TFrame},
   Anovo.Forms.Principal in 'Src\Forms\Anovo.Forms.Principal.pas' {frmPrincipal},
   Anovo.Frames.Cotizaciones in 'Src\Frames\Anovo.Frames.Cotizaciones.pas' {fraCotizaciones: TFrame},
   Anovo.Frames.Clientes in 'Src\Frames\Anovo.Frames.Clientes.pas' {fraClientes: TFrame},
@@ -128,10 +128,6 @@ uses
 
 {$R *.res}
 
-var
-  lLogin: TfrmLogin;
-  lDestino: TModalResult;
-
 begin
 
   TStyleManager.TrySetStyle('Windows10', False);
@@ -141,28 +137,7 @@ begin
   EngancharRequeridos;
   Application.CreateForm(TdmIconos, dmIconos);
   Application.CreateForm(TdmMemoria, dmMemoria);
-  repeat
-    lLogin := TfrmLogin.Create(nil);
-    try
-      lDestino := lLogin.ShowModal;
-    finally
-      lLogin.Free;
-    end;
-
-    if lDestino = mrRetry then
-    begin
-      if TfrmCambioClave.Mostrar(nil, True) then
-        MessageDlg(SClaveCambiadaReingreso, mtInformation, [mbOK], 0)
-      else
-        lDestino := mrCancel;
-      TSesion.Cerrar;
-    end;
-  until lDestino <> mrRetry;
-
-  if lDestino = mrOk then
-  begin
-    Application.CreateForm(TfrmPrincipal, frmPrincipal);
-    Application.Run;
-  end;
+  Application.CreateForm(TfrmPrincipal, frmPrincipal);
+  Application.Run;
 
 end.

@@ -18,12 +18,14 @@ inherited frmUsuario: TfrmUsuario
       Left = 68
       Width = 40
       Caption = 'Usuario'
+      ExplicitLeft = 68
       ExplicitWidth = 40
     end
     inherited lblSubtitulo: TLabel
       Left = 68
       Width = 3
       Caption = ''
+      ExplicitLeft = 68
       ExplicitWidth = 3
     end
     object pnlAvatar: TPanel
@@ -60,7 +62,7 @@ inherited frmUsuario: TfrmUsuario
     object pstEstado: TPlanoPastilla
       Left = 140
       Top = 12
-      Width = 60
+      Width = 52
       Height = 22
       Status = fsSuccess
       Caption = 'Activo'
@@ -310,6 +312,20 @@ inherited frmUsuario: TfrmUsuario
       Caption = 'Permisos'
       CardIndex = 1
       TabOrder = 1
+      object lblResumen: TLabel
+        Tag = 13
+        AlignWithMargins = True
+        Left = 20
+        Top = 42
+        Width = 600
+        Height = 15
+        Margins.Left = 20
+        Margins.Top = 8
+        Margins.Right = 20
+        Align = alTop
+        ExplicitTop = 40
+        ExplicitWidth = 3
+      end
       object pnlResumen: TPanel
         Tag = 1
         AlignWithMargins = True
@@ -323,21 +339,20 @@ inherited frmUsuario: TfrmUsuario
         Margins.Bottom = 0
         Align = alTop
         BevelOuter = bvNone
-        ParentBackground = True
         ParentColor = True
         TabOrder = 1
         object pstDelRol: TPlanoPastilla
           AlignWithMargins = True
           Left = 0
           Top = 2
-          Width = 80
+          Width = 62
           Height = 22
           Margins.Left = 0
           Margins.Top = 2
           Margins.Right = 6
           Margins.Bottom = 2
-          Align = alLeft
           Status = fsInfo
+          Align = alLeft
           Caption = '0 del rol'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -350,14 +365,14 @@ inherited frmUsuario: TfrmUsuario
           AlignWithMargins = True
           Left = 86
           Top = 2
-          Width = 80
+          Width = 86
           Height = 22
           Margins.Left = 0
           Margins.Top = 2
           Margins.Right = 6
           Margins.Bottom = 2
-          Align = alLeft
           Status = fsSuccess
+          Align = alLeft
           Caption = '0 adicionales'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -370,14 +385,14 @@ inherited frmUsuario: TfrmUsuario
           AlignWithMargins = True
           Left = 172
           Top = 2
-          Width = 80
+          Width = 74
           Height = 22
           Margins.Left = 0
           Margins.Top = 2
           Margins.Right = 6
           Margins.Bottom = 2
-          Align = alLeft
           Status = fsDanger
+          Align = alLeft
           Caption = '0 quitados'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -390,14 +405,14 @@ inherited frmUsuario: TfrmUsuario
           AlignWithMargins = True
           Left = 258
           Top = 2
-          Width = 80
+          Width = 86
           Height = 22
           Margins.Left = 0
           Margins.Top = 2
           Margins.Right = 6
           Margins.Bottom = 2
-          Align = alLeft
           Status = fsPending
+          Align = alLeft
           Caption = '0 sin guardar'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -417,25 +432,12 @@ inherited frmUsuario: TfrmUsuario
           OnClick = chkSoloExcepcionesClick
         end
       end
-      object lblResumen: TLabel
-        Tag = 13
-        AlignWithMargins = True
-        Left = 20
-        Top = 40
-        Width = 600
-        Height = 15
-        Margins.Left = 20
-        Margins.Top = 8
-        Margins.Right = 20
-        Align = alTop
-        ExplicitWidth = 3
-      end
       object grPermisos: TrDBGrid
         AlignWithMargins = True
         Left = 20
-        Top = 29
+        Top = 63
         Width = 600
-        Height = 330
+        Height = 296
         Margins.Left = 20
         Margins.Right = 20
         Margins.Bottom = 8
@@ -452,8 +454,8 @@ inherited frmUsuario: TfrmUsuario
         TitleFont.Style = []
         StyleElements = [seFont]
         OnCanEdit = grPermisosCanEdit
-        OnGetCellParams = grPermisosGetCellParams
         OnBoolClick = grPermisosBoolClick
+        OnGetCellParams = grPermisosGetCellParams
         Columns = <
           item
             Expanded = False

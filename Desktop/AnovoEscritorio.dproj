@@ -111,8 +111,9 @@
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
-        <DCCReference Include="Src\Forms\Anovo.Forms.Login.pas">
-            <Form>frmLogin</Form>
+        <DCCReference Include="Src\Frames\Anovo.Frames.Login.pas">
+            <Form>fraLogin</Form>
+            <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Src\Forms\Anovo.Forms.Principal.pas">
             <Form>frmPrincipal</Form>

@@ -113,14 +113,12 @@ end;
 
 procedure TfrmRevision.MostrarCargando(const AActivo: Boolean);
 begin
-  CursorOcupado(AActivo);
-  MostrarGuardando(AActivo);
+  MostrarOcupado(AActivo);
 end;
 
 procedure TfrmRevision.MostrarProcesando(const AActivo: Boolean);
 begin
-  CursorOcupado(AActivo);
-  MostrarGuardando(AActivo);
+  MostrarOcupado(AActivo);
 end;
 
 procedure TfrmRevision.MostrarCotizacion(const ACotizacion: TCotizacionDTO;

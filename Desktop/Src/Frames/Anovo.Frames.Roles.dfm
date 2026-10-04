@@ -246,6 +246,7 @@ object fraRoles: TfraRoles
       StyleElements = [seFont]
       OnCanEdit = grMatrizCanEdit
       OnBoolClick = grMatrizBoolClick
+      OnGetCellParams = grMatrizGetCellParams
       Columns = <
         item
           Expanded = False

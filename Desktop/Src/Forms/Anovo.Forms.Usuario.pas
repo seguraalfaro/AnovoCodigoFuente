@@ -173,7 +173,7 @@ end;
 
 procedure TfrmUsuario.MostrarCargando(const AActivo: Boolean);
 begin
-  MostrarGuardando(AActivo);
+  MostrarOcupado(AActivo);
 end;
 
 procedure TfrmUsuario.MostrarRoles(const ARoles: TObjectList<TRolDTO>);
@@ -359,8 +359,10 @@ end;
 procedure TfrmUsuario.grPermisosGetCellParams(Sender: TObject; Field: TField;
   AFont: TFont; var Background: TColor; ActiveRow, Highlight: Boolean);
 begin
-  if not Highlight and dmMemoria.PermisoSinGuardar then
-    Background := clAnovoAvisoSuave;
+  if not dmMemoria.PermisoSinGuardar then
+    Exit;
+  Background := clAnovoAvisoMedio;
+  AFont.Style := AFont.Style + [fsBold];
 end;
 
 procedure TfrmUsuario.grPermisosCanEdit(Sender: TObject; Field: TField;
