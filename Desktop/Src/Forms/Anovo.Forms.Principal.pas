@@ -13,7 +13,7 @@ uses
   Anovo.Frames.Dashboard.Cuentas,
   Anovo.Frames.Dashboard.Asesor,
   Anovo.Frames.Dashboard.Asistente,
-  Anovo.Frames.Solicitudes,
+  Anovo.Frames.SolicitudesAsesor,
   Anovo.Frames.SolicitudesAsistente,
   Anovo.Frames.GeneracionCotizacion,
   Anovo.Frames.Bandeja,
@@ -347,7 +347,7 @@ begin
       Result := TfraDashboardAsistente.Create(Self);
     secSolicitudes:
       if TSesion.Tiene('solicitudes.ver_propias') then
-        Result := TfraSolicitudes.Create(Self)
+        Result := TfraSolicitudesAsesor.Create(Self)
       else
         Result := TfraSolicitudesAsistente.Create(Self);
     secBandeja:

@@ -1,4 +1,4 @@
-unit Anovo.Frames.Solicitudes;
+unit Anovo.Frames.SolicitudesAsesor;
 
 // Seccion Solicitudes del asesor: las del mes y el
 // historial completo.
@@ -15,15 +15,15 @@ uses
   FlatVcl.BotonWin, VclPlano.Pestanas, VclPlano.BotonWin,
   Anovo.Frames.Listado,
   Anovo.DTOs.Dashboard,
-  Anovo.Vistas.Intf.Solicitudes,
-  Anovo.Presentadores.Solicitudes;
+  Anovo.Vistas.Intf.SolicitudesAsesor,
+  Anovo.Presentadores.SolicitudesAsesor;
 
 type
-  TfraSolicitudes = class(TfraListado, IVistaSolicitudes)
+  TfraSolicitudesAsesor = class(TfraListado, IVistaSolicitudesAsesor)
     pstPeriodo: TPlanoPestanas;
     procedure pstPeriodoChange(Sender: TObject);
   private
-    FPresentador: TPresentadorSolicitudes;
+    FPresentador: TPresentadorSolicitudesAsesor;
     procedure MostrarPeriodo(const AHistorial: Boolean;
       const ADesde: TDateTime);
     procedure MostrarSolicitudes(const AFilas: TObjectList<TSolicitudAsesorDTO>);
@@ -53,7 +53,7 @@ uses
 const
   CAMPO_ESTADO = 'ESTADO';
 
-constructor TfraSolicitudes.Create(AOwner: TComponent);
+constructor TfraSolicitudesAsesor.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FTextoCargando := SCargandoSolicitudes;
@@ -61,62 +61,62 @@ begin
   FTextoPaginacion := SPaginacionSolicitudes;
   TDBGridExtend.De(grDatos).ColumnaEstado(CAMPO_ESTADO);
 
-  FPresentador := TPresentadorSolicitudes.Create(Self, TApiSolicitudes.Create);
+  FPresentador := TPresentadorSolicitudesAsesor.Create(Self, TApiSolicitudes.Create);
   FPresentador.Iniciar;
 end;
 
-destructor TfraSolicitudes.Destroy;
+destructor TfraSolicitudesAsesor.Destroy;
 begin
   FPresentador.Free;
   inherited;
 end;
 
-procedure TfraSolicitudes.Resize;
+procedure TfraSolicitudesAsesor.Resize;
 begin
   inherited;
   Anovo.UI.DBGridExtend.AjustarColumnas(grDatos);
 end;
 
-procedure TfraSolicitudes.Buscar(const ATexto: string);
+procedure TfraSolicitudesAsesor.Buscar(const ATexto: string);
 begin
   FPresentador.Buscar(ATexto);
 end;
 
-procedure TfraSolicitudes.Limpiar;
+procedure TfraSolicitudesAsesor.Limpiar;
 begin
   FPresentador.Limpiar;
 end;
 
-procedure TfraSolicitudes.PaginaAnterior;
+procedure TfraSolicitudesAsesor.PaginaAnterior;
 begin
   FPresentador.PaginaAnterior;
 end;
 
-procedure TfraSolicitudes.PaginaSiguiente;
+procedure TfraSolicitudesAsesor.PaginaSiguiente;
 begin
   FPresentador.PaginaSiguiente;
 end;
 
-procedure TfraSolicitudes.pstPeriodoChange(Sender: TObject);
+procedure TfraSolicitudesAsesor.pstPeriodoChange(Sender: TObject);
 begin
   if not Assigned(FPresentador) then
     Exit;
   FPresentador.VerHistorial(pstPeriodo.ItemIndex = 1);
 end;
 
-procedure TfraSolicitudes.MostrarCargando(const AActivo: Boolean);
+procedure TfraSolicitudesAsesor.MostrarCargando(const AActivo: Boolean);
 begin
   inherited;
   pstPeriodo.Enabled := not AActivo;
 end;
 
-procedure TfraSolicitudes.MostrarPeriodo(const AHistorial: Boolean;
+procedure TfraSolicitudesAsesor.MostrarPeriodo(const AHistorial: Boolean;
   const ADesde: TDateTime);
 begin
 
 end;
 
-procedure TfraSolicitudes.MostrarSolicitudes(const AFilas
+procedure TfraSolicitudesAsesor.MostrarSolicitudes(const AFilas
   : TObjectList<TSolicitudAsesorDTO>);
 begin
   TMapeoDatos.AListaTabla<TSolicitudAsesorDTO>(AFilas,

@@ -1,4 +1,4 @@
-unit Anovo.Presentadores.Solicitudes;
+unit Anovo.Presentadores.SolicitudesAsesor;
 
 // Presentador de la seccion Solicitudes del asesor.
 
@@ -7,12 +7,12 @@ interface
 uses
   Anovo.Api.Intf.Solicitudes,
   Anovo.Cancelacion,
-  Anovo.Vistas.Intf.Solicitudes;
+  Anovo.Vistas.Intf.SolicitudesAsesor;
 
 type
-  TPresentadorSolicitudes = class
+  TPresentadorSolicitudesAsesor = class
   private
-    FVista: IVistaSolicitudes;
+    FVista: IVistaSolicitudesAsesor;
     FApi: IApiSolicitudes;
     FCancelacion: ICancelacion;
     FTexto: string;
@@ -22,7 +22,7 @@ type
     FSolicitud: Integer;
     procedure Cargar;
   public
-    constructor Create(const AVista: IVistaSolicitudes;
+    constructor Create(const AVista: IVistaSolicitudesAsesor;
       const AApi: IApiSolicitudes);
     destructor Destroy; override;
     procedure Iniciar;
@@ -53,7 +53,7 @@ begin
   Result := Format(SErrorInesperado, [SAccionCargarSolicitudes]);
 end;
 
-constructor TPresentadorSolicitudes.Create(const AVista: IVistaSolicitudes;
+constructor TPresentadorSolicitudesAsesor.Create(const AVista: IVistaSolicitudesAsesor;
   const AApi: IApiSolicitudes);
 begin
   inherited Create;
@@ -64,19 +64,19 @@ begin
   FPagina := 1;
 end;
 
-destructor TPresentadorSolicitudes.Destroy;
+destructor TPresentadorSolicitudesAsesor.Destroy;
 begin
   FCancelacion.Cancelar;
   inherited;
 end;
 
-procedure TPresentadorSolicitudes.Iniciar;
+procedure TPresentadorSolicitudesAsesor.Iniciar;
 begin
   FVista.MostrarBusqueda('', False);
   Cargar;
 end;
 
-procedure TPresentadorSolicitudes.Buscar(const ATexto: string);
+procedure TPresentadorSolicitudesAsesor.Buscar(const ATexto: string);
 begin
   FTexto := Trim(ATexto);
   FPagina := 1;
@@ -84,12 +84,12 @@ begin
   Cargar;
 end;
 
-procedure TPresentadorSolicitudes.Limpiar;
+procedure TPresentadorSolicitudesAsesor.Limpiar;
 begin
   Buscar('');
 end;
 
-procedure TPresentadorSolicitudes.VerHistorial(const AHistorial: Boolean);
+procedure TPresentadorSolicitudesAsesor.VerHistorial(const AHistorial: Boolean);
 begin
   if AHistorial = FHistorial then
     Exit;
@@ -98,7 +98,7 @@ begin
   Cargar;
 end;
 
-procedure TPresentadorSolicitudes.IrAPagina(const APagina: Integer);
+procedure TPresentadorSolicitudesAsesor.IrAPagina(const APagina: Integer);
 begin
   if (APagina < 1) or ((FTotalPaginas > 0) and (APagina > FTotalPaginas)) then
     Exit;
@@ -106,17 +106,17 @@ begin
   Cargar;
 end;
 
-procedure TPresentadorSolicitudes.PaginaSiguiente;
+procedure TPresentadorSolicitudesAsesor.PaginaSiguiente;
 begin
   IrAPagina(FPagina + 1);
 end;
 
-procedure TPresentadorSolicitudes.PaginaAnterior;
+procedure TPresentadorSolicitudesAsesor.PaginaAnterior;
 begin
   IrAPagina(FPagina - 1);
 end;
 
-procedure TPresentadorSolicitudes.Cargar;
+procedure TPresentadorSolicitudesAsesor.Cargar;
 var
   lCancelacion: ICancelacion;
   lApi: IApiSolicitudes;

@@ -249,10 +249,10 @@
         <DCCReference Include="Src\Presentadores\Anovo.Presentadores.DashboardCuentas.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Solicitudes.pas"/>
         <DCCReference Include="Src\Api\Anovo.Api.Solicitudes.pas"/>
-        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Solicitudes.pas"/>
-        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Solicitudes.pas"/>
-        <DCCReference Include="Src\Frames\Anovo.Frames.Solicitudes.pas">
-            <Form>fraSolicitudes</Form>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.SolicitudesAsesor.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.SolicitudesAsesor.pas"/>
+        <DCCReference Include="Src\Frames\Anovo.Frames.SolicitudesAsesor.pas">
+            <Form>fraSolicitudesAsesor</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>

@@ -1,4 +1,4 @@
-inherited fraSolicitudes: TfraSolicitudes
+inherited fraSolicitudesAsesor: TfraSolicitudesAsesor
   inherited pnlTitulo: TPanel
     inherited lblTitulo: TLabel
       Width = 136

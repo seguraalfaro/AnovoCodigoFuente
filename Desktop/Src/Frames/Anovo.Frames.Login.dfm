@@ -9,8 +9,8 @@ object fraLogin: TfraLogin
   Font.Name = 'Tahoma'
   Font.Style = []
   ParentFont = False
-  StyleElements = [seFont, seClient]
   TabOrder = 0
+  StyleElements = [seFont, seClient]
   object pnlMarca: TPanel
     Left = 0
     Top = 0
@@ -464,7 +464,7 @@ object fraLogin: TfraLogin
     Font.Style = []
     ParentBackground = False
     ParentFont = False
-    TabOrder = 2
+    TabOrder = 0
     StyleElements = [seFont, seBorder]
     DesignSize = (
       480

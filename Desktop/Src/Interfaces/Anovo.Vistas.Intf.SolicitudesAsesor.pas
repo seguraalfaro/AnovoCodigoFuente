@@ -1,4 +1,4 @@
-unit Anovo.Vistas.Intf.Solicitudes;
+unit Anovo.Vistas.Intf.SolicitudesAsesor;
 
 // Contrato de la vista de la seccion Solicitudes.
 
@@ -9,7 +9,7 @@ uses
   Anovo.DTOs.Dashboard;
 
 type
-  IVistaSolicitudes = interface
+  IVistaSolicitudesAsesor = interface
     ['{01EEFFBF-6CAF-4626-BAB3-E7D3DC13325D}']
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarBusqueda(const ATexto: string;
