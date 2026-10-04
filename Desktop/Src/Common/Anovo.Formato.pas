@@ -22,6 +22,8 @@ type
     class function Estado(const AValor: string): string; static;
     class function Magnitud(const AValor: string): string; static;
     class function Modulo(const AValor: string): string; static;
+    class function AccionAuditoria(const AValor: string): string; static;
+    class function EntidadAuditoria(const AValor: string): string; static;
     class function MesAnio(const AFecha: TDateTime): string; static;
     class function Colones(const AMonto: Currency): string; static;
     class function Dias(const ADias: Integer): string; static;
@@ -45,6 +47,60 @@ uses
   System.StrUtils,
   Anovo.DTOs.Catalogos,
   Anovo.Textos;
+
+class function TFormato.AccionAuditoria(const AValor: string): string;
+begin
+  case IndexText(AValor, ['insertar', 'actualizar', 'borrar']) of
+    0:
+      Result := SAccionAudRegistro;
+    1:
+      Result := SAccionAudCambio;
+    2:
+      Result := SAccionAudBorrado;
+  else
+    Result := AValor;
+  end;
+end;
+
+class function TFormato.EntidadAuditoria(const AValor: string): string;
+begin
+  case IndexText(AValor, ['USUARIOS', 'USUARIOS_CLAVES', 'ROLES_PERMISOS',
+    'USUARIOS_PERMISOS', 'CLIENTES', 'CLIENTE_CONTACTOS', 'CONSENTIMIENTO',
+    'COTIZACIONES', 'SOLICITUDES', 'EMPRESA', 'UNIDADES_MEDIDA',
+    'MATERIALES_PRECIOS', 'MAQUINAS_PRECIOS', 'MANO_OBRA_PRECIOS',
+    'PRECIOS_PROGRAMADOS', 'MANO_OBRA_CATEGORIA']) of
+    0:
+      Result := SEntUsuario;
+    1:
+      Result := SEntClave;
+    2:
+      Result := SEntPermisoRol;
+    3:
+      Result := SEntPermisoPersona;
+    4:
+      Result := SEntCliente;
+    5:
+      Result := SEntContacto;
+    6:
+      Result := SEntConsentimiento;
+    7:
+      Result := SEntCotizacion;
+    8:
+      Result := SEntSolicitud;
+    9:
+      Result := SEntEmpresa;
+    10:
+      Result := SEntUnidadMedida;
+    11, 12, 13:
+      Result := SEntPrecio;
+    14:
+      Result := SEntPrecioProgramado;
+    15:
+      Result := SEntCategoriaManoObra;
+  else
+    Result := AValor;
+  end;
+end;
 
 class function TFormato.Modulo(const AValor: string): string;
 begin

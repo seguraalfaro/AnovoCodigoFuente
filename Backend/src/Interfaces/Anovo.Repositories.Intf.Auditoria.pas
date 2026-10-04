@@ -9,6 +9,9 @@ uses
   MVCFramework.Repository,
   Anovo.Entities.Auditoria;
 
+const
+  ENTIDAD_GRUPO_CUENTAS = 'CUENTAS';
+
 type
 
   IAuditoriaRepository = interface(IMVCRepository<TAuditoria>)

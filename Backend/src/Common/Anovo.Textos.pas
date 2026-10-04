@@ -60,6 +60,33 @@ resourcestring
   SSinTipoTrabajo = 'Sin tipo de trabajo';
 
   SPeriodoInvertido = 'La fecha de inicio es posterior a la del fin.';
+  SFiltroTodo = 'Todo';
+  SFiltroClientes = 'Clientes';
+  SFiltroCotizaciones = 'Cotizaciones';
+  SFiltroCuentas = 'Cuentas';
+  SFiltroUsuarios = 'Usuarios';
+  SFiltroClaves = 'Claves';
+  SFiltroMatrizRoles = 'Matriz de roles';
+  SFiltroPermisosPersona = 'Permisos por persona';
+  SAccionAudRegistro = 'Registro';
+  SAccionAudCambio = 'Cambio';
+  SAccionAudBorrado = 'Borrado';
+  SEntUsuario = 'Usuario';
+  SEntClave = 'Clave';
+  SEntPermisoRol = 'Permiso de rol';
+  SEntPermisoPersona = 'Permiso de persona';
+  SEntCliente = 'Cliente';
+  SEntContacto = 'Contacto';
+  SEntConsentimiento = 'Consentimiento';
+  SEntCotizacion = 'Cotización';
+  SEntSolicitud = 'Solicitud';
+  SEntEmpresa = 'Empresa';
+  SEntUnidadMedida = 'Unidad de medida';
+  SEntPrecio = 'Precio';
+  SEntPrecioProgramado = 'Precio programado';
+  SEntCategoriaManoObra = 'Categoría de mano de obra';
+  SAuditoriaSoloCuentas = 'consultar en la auditoría algo distinto de las ' +
+    'cuentas: usuarios, claves, matriz de roles y permisos por persona';
 
   SFaltaClaveActual = 'Falta la clave actual.';
   SClaveActualIncorrecta = 'La clave actual no es correcta.';

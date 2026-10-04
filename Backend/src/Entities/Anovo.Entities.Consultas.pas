@@ -157,7 +157,8 @@ type
   [MVCEntityActions([eaRetrieve])]
   [MVCTable('V_AUDITORIA')]
   [MVCNamedRQLQuery(CONSULTA_RECIENTES,
-    'eq(Entidad,"USUARIOS");sort(-Fecha,-ID);limit(0,20)')]
+    'in(Entidad,["USUARIOS","USUARIOS_CLAVES","ROLES_PERMISOS",' +
+    '"USUARIOS_PERMISOS"]);sort(-Fecha,-ID);limit(0,20)')]
   TCambiosDeCuentas = class(TVAuditoria)
   end;
 

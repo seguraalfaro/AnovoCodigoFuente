@@ -74,12 +74,11 @@ begin
     Exit(lEntidad);
 
   if lEntidad = '' then
-    Exit(ENTIDAD_USUARIOS);
-  if not MatchStr(lEntidad, [ENTIDAD_USUARIOS, ENTIDAD_USUARIOS_CLAVES,
-    ENTIDAD_ROLES_PERMISOS, ENTIDAD_USUARIOS_PERMISOS]) then
-    raise ESinPermiso.Create
-      ('Con auditoria.ver_cuentas solo se consulta USUARIOS, ' +
-      'USUARIOS_CLAVES, ROLES_PERMISOS y USUARIOS_PERMISOS.');
+    Exit(ENTIDAD_GRUPO_CUENTAS);
+  if not MatchStr(lEntidad, [ENTIDAD_GRUPO_CUENTAS, ENTIDAD_USUARIOS,
+    ENTIDAD_USUARIOS_CLAVES, ENTIDAD_ROLES_PERMISOS,
+    ENTIDAD_USUARIOS_PERMISOS]) then
+    raise ESinPermiso.Create(SAuditoriaSoloCuentas);
   Result := lEntidad;
 end;
 

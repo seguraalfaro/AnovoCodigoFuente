@@ -49,8 +49,8 @@ type
       ptInteger, False)]
     [MVCSwagParam(plQuery, 'usuario_id', 'Filtra por quien hizo el cambio',
       ptInteger, False)]
-    [MVCSwagParam(plQuery, 'entidad', 'Filtra por tabla, por ejemplo CLIENTES',
-      ptString, False)]
+    [MVCSwagParam(plQuery, 'entidad', 'Filtra por tabla, por ejemplo ' +
+      'CLIENTES; CUENTAS trae las cuatro tablas de cuentas', ptString, False)]
     [MVCSwagParam(plQuery, 'accion',
       'Filtra por accion: creacion, modificacion o eliminacion',
       ptString, False)]
@@ -90,8 +90,8 @@ type
     [MVCSwagParam(plQuery, 'usuario_id', 'Filtra por quien hizo el cambio',
       ptInteger, False)]
     [MVCSwagParam(plQuery, 'entidad',
-      'USUARIOS, USUARIOS_CLAVES, ROLES_PERMISOS o USUARIOS_PERMISOS. ' +
-      'Por defecto USUARIOS', ptString, False)]
+      'CUENTAS (las cuatro), USUARIOS, USUARIOS_CLAVES, ROLES_PERMISOS o ' +
+      'USUARIOS_PERMISOS. Por defecto CUENTAS', ptString, False)]
     [MVCSwagParam(plQuery, 'accion',
       'Filtra por accion: creacion, modificacion o eliminacion',
       ptString, False)]

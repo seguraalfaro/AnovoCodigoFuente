@@ -19,11 +19,13 @@ type
     FDesde: TDateTime;
     FHasta: TDateTime;
     FFiltro: TFiltroEntidad;
+    FFiltros: TFiltrosEntidad;
     FTexto: string;
     FPagina: Integer;
     FTotalPaginas: Integer;
     FSolicitud: Integer;
     function EntidadPedida: string;
+    function Rotulos: TArray<string>;
     procedure Cargar;
   public
     constructor Create(const AVista: IVistaAuditoria;
@@ -32,7 +34,7 @@ type
     procedure Iniciar;
     procedure Buscar(const ATexto: string);
     procedure Limpiar;
-    procedure Filtrar(const AFiltro: TFiltroEntidad);
+    procedure Filtrar(const AIndice: Integer);
     procedure CambiarPeriodo(const ADesde, AHasta: TDateTime);
     procedure IrAPagina(const APagina: Integer);
     procedure PaginaSiguiente;
@@ -60,8 +62,21 @@ uses
 
 const
 
+  PERMISO_VER_TODA = 'auditoria.ver_toda';
+  PERMISO_VER_CUENTAS = 'auditoria.ver_cuentas';
+
   ENTIDAD_API: array [TFiltroEntidad] of string = ('', 'CLIENTES',
-    'COTIZACIONES', 'USUARIOS');
+    'COTIZACIONES', 'CUENTAS', 'USUARIOS', 'USUARIOS_CLAVES', 'ROLES_PERMISOS',
+    'USUARIOS_PERMISOS');
+
+  ROTULO_FILTRO: array [TFiltroEntidad] of string = (SFiltroTodo,
+    SFiltroClientes, SFiltroCotizaciones, SFiltroCuentas, SFiltroUsuarios,
+    SFiltroClaves, SFiltroMatrizRoles, SFiltroPermisosPersona);
+
+  FILTROS_TODA: TFiltrosEntidad = [feTodo, feClientes, feCotizaciones,
+    feCuentas];
+  FILTROS_CUENTAS: TFiltrosEntidad = [feCuentas, feUsuarios, feClaves,
+    feMatrizRoles, fePermisosPersona];
 
 function MensajeInesperado: string;
 begin
@@ -88,26 +103,38 @@ end;
 
 class function TPresentadorAuditoria.PuedeVerTodo: Boolean;
 begin
-  Result := TSesion.Tiene('auditoria.ver_toda');
+  Result := TSesion.Tiene(PERMISO_VER_TODA);
 end;
 
 class function TPresentadorAuditoria.PuedeVerCuentas: Boolean;
 begin
-  Result := TSesion.Tiene('auditoria.ver_cuentas');
+  Result := TSesion.Tiene(PERMISO_VER_CUENTAS);
+end;
+
+function TPresentadorAuditoria.Rotulos: TArray<string>;
+var
+  lFiltro: TFiltroEntidad;
+begin
+  Result := [];
+  for lFiltro in FFiltros do
+    Result := Result + [ROTULO_FILTRO[lFiltro]];
+  Result[0] := SFiltroTodo;
 end;
 
 function TPresentadorAuditoria.EntidadPedida: string;
 begin
-  if FSoloCuentas then
-    Result := ''
-  else
-    Result := ENTIDAD_API[FFiltro];
+  Result := ENTIDAD_API[FFiltro];
 end;
 
 procedure TPresentadorAuditoria.Iniciar;
 begin
   FSoloCuentas := not PuedeVerTodo;
-  FVista.MostrarAlcance(not FSoloCuentas);
+  if FSoloCuentas then
+    FFiltros := FILTROS_CUENTAS
+  else
+    FFiltros := FILTROS_TODA;
+  FFiltro := FFiltros[0];
+  FVista.MostrarFiltros(Rotulos);
   FVista.MostrarPeriodo(FDesde, FHasta);
   FVista.MostrarBusqueda('', False);
   Cargar;
@@ -126,9 +153,11 @@ begin
   Buscar('');
 end;
 
-procedure TPresentadorAuditoria.Filtrar(const AFiltro: TFiltroEntidad);
+procedure TPresentadorAuditoria.Filtrar(const AIndice: Integer);
 begin
-  FFiltro := AFiltro;
+  if (AIndice < 0) or (AIndice > High(FFiltros)) then
+    Exit;
+  FFiltro := FFiltros[AIndice];
   FPagina := 1;
   Cargar;
 end;

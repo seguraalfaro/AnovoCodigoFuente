@@ -1115,6 +1115,7 @@ object dmMemoria: TdmMemoria
     object mtDashboardCuentasACCION: TStringField
       DisplayLabel = 'Acci'#243'n'
       FieldName = 'ACCION'
+      OnGetText = AccionAuditoriaGetText
       Size = 50
     end
     object mtDashboardCuentasDETALLE: TStringField
@@ -1539,11 +1540,13 @@ object dmMemoria: TdmMemoria
     object mtAuditoriaACCION: TStringField
       DisplayLabel = 'Acci'#243'n'
       FieldName = 'ACCION'
+      OnGetText = AccionAuditoriaGetText
       Size = 50
     end
     object mtAuditoriaENTIDAD: TStringField
       DisplayLabel = 'Entidad'
       FieldName = 'ENTIDAD'
+      OnGetText = EntidadAuditoriaGetText
       Size = 50
     end
     object mtAuditoriaENTIDAD_ID: TIntegerField

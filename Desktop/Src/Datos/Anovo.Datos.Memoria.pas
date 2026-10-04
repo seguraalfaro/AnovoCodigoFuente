@@ -457,6 +457,10 @@ type
     procedure PermisosUsuarioCalcFields(DataSet: TDataSet);
     procedure OrigenGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
+    procedure AccionAuditoriaGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
+    procedure EntidadAuditoriaGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
     procedure ModuloGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
     procedure UsuarioNombreGetText(Sender: TField; var Text: string;
@@ -588,6 +592,18 @@ begin
     mtPermisosUsuarioORIGEN.AsString := ORIGEN_ADICIONAL
   else
     mtPermisosUsuarioORIGEN.AsString := ORIGEN_QUITADO;
+end;
+
+procedure TdmMemoria.AccionAuditoriaGetText(Sender: TField; var Text: string;
+  DisplayText: Boolean);
+begin
+  Text := TFormato.AccionAuditoria(Sender.AsString);
+end;
+
+procedure TdmMemoria.EntidadAuditoriaGetText(Sender: TField; var Text: string;
+  DisplayText: Boolean);
+begin
+  Text := TFormato.EntidadAuditoria(Sender.AsString);
 end;
 
 procedure TdmMemoria.ModuloGetText(Sender: TField; var Text: string;

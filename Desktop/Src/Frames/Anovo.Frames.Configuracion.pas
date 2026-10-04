@@ -115,7 +115,7 @@ end;
 procedure TfraConfiguracion.btnCambiarClaveClick(Sender: TObject);
 begin
   if TfrmCambioClave.Mostrar(Self, False) then
-    MessageDlg(SClaveCambiada, mtInformation, [mbOK], 0);
+    Informar(SClaveCambiada);
 end;
 
 procedure TfraConfiguracion.btnProbarClick(Sender: TObject);

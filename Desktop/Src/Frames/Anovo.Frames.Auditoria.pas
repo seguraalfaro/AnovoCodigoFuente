@@ -29,7 +29,7 @@ type
   private
     FPresentador: TPresentadorAuditoria;
     FPoniendoPeriodo: Boolean;
-    procedure MostrarAlcance(const APuedeVerTodo: Boolean);
+    procedure MostrarFiltros(const ARotulos: TArray<string>);
     procedure MostrarPeriodo(const ADesde, AHasta: TDateTime);
     procedure MostrarAuditoria(const AFilas: TObjectList<TAuditoriaDTO>);
   protected
@@ -89,9 +89,15 @@ begin
   FPresentador.PaginaSiguiente;
 end;
 
-procedure TfraAuditoria.MostrarAlcance(const APuedeVerTodo: Boolean);
+procedure TfraAuditoria.MostrarFiltros(const ARotulos: TArray<string>);
 begin
-  pstFiltros.Visible := APuedeVerTodo;
+  pstFiltros.Items.BeginUpdate;
+  try
+    pstFiltros.Items.Clear;
+    pstFiltros.Items.AddStrings(ARotulos);
+  finally
+    pstFiltros.Items.EndUpdate;
+  end;
 end;
 
 procedure TfraAuditoria.MostrarCargando(const AActivo: Boolean);
@@ -124,7 +130,7 @@ begin
   if not Assigned(FPresentador) then
     Exit;
 
-  FPresentador.Filtrar(TFiltroEntidad(pstFiltros.ItemIndex));
+  FPresentador.Filtrar(pstFiltros.ItemIndex);
 end;
 
 procedure TfraAuditoria.PeriodoChange(Sender: TObject);

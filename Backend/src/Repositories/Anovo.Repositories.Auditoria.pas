@@ -73,7 +73,9 @@ begin
   Result := AUDITORIA_FILTRO_FECHA;
   if AUsuarioId > 0 then
     Result := Result + AUDITORIA_POR_USUARIO;
-  if AEntidad <> '' then
+  if AEntidad = ENTIDAD_GRUPO_CUENTAS then
+    Result := Result + AUDITORIA_DE_CUENTAS
+  else if AEntidad <> '' then
     Result := Result + AUDITORIA_POR_ENTIDAD;
   if AAccion <> '' then
     Result := Result + AUDITORIA_POR_ACCION;
@@ -96,7 +98,7 @@ begin
   Result := [Variant(ADesde), Variant(HastaElFinal(AHasta))];
   if AUsuarioId > 0 then
     Result := Result + [Variant(AUsuarioId)];
-  if AEntidad <> '' then
+  if (AEntidad <> '') and (AEntidad <> ENTIDAD_GRUPO_CUENTAS) then
     Result := Result + [Variant(AEntidad)];
   if AAccion <> '' then
     Result := Result + [Variant(AAccion)];

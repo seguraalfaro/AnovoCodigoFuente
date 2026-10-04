@@ -9,12 +9,14 @@ uses
   Anovo.DTOs.Auditoria;
 
 type
-  TFiltroEntidad = (feTodo, feClientes, feCotizaciones, feCuentas);
+  TFiltroEntidad = (feTodo, feClientes, feCotizaciones, feCuentas, feUsuarios,
+    feClaves, feMatrizRoles, fePermisosPersona);
+  TFiltrosEntidad = TArray<TFiltroEntidad>;
 
   IVistaAuditoria = interface
     ['{3B8D06F1-5C27-4E94-A6B0-D174E9C2538A}']
 
-    procedure MostrarAlcance(const APuedeVerTodo: Boolean);
+    procedure MostrarFiltros(const ARotulos: TArray<string>);
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarPeriodo(const ADesde, AHasta: TDateTime);
     procedure MostrarBusqueda(const ATexto: string;
