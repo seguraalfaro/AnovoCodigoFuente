@@ -52,6 +52,10 @@ Thumbs.db
 desktop.ini
 .DS_Store
 
+# ============ HERRAMIENTAS ============
+# Scripts de apoyo al desarrollo; no se publican.
+/Herramientas/
+
 # ============ NOTA ============
 # SI se versionan: .dpr .dproj .pas .dfm .b4a, la carpeta Files/ de B4A
 # (contiene los layouts .bal) y toda la carpeta db/ con los scripts SQL.
