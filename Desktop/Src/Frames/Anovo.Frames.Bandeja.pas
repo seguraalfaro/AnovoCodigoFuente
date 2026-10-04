@@ -55,7 +55,7 @@ uses
 
 const
   CAMPO_ACCIONES = 'ACCIONES';
-  ACCION_REVISAR = 'revisar';
+  ACCION_REVISAR: TAccionRejilla = (Clave: 'revisar'; Rotulo: SAccionRevisar);
 
 constructor TfraBandeja.Create(AOwner: TComponent);
 var
@@ -68,8 +68,7 @@ begin
 
   lRejilla := TDBGridExtend.De(grDatos);
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
-  lRejilla.Agregar(ACCION_REVISAR, SAccionRevisar);
-  lRejilla.AjustarAcciones;
+  lRejilla.PonerLista([ACCION_REVISAR]);
   lRejilla.OnAccion := Accion;
 
   FPresentador := TPresentadorBandeja.Create(Self, TApiCotizaciones.Create);
@@ -113,7 +112,7 @@ end;
 
 procedure TfraBandeja.Accion(Sender: TObject; const AClave: string);
 begin
-  if SameText(AClave, ACCION_REVISAR) then
+  if SameText(AClave, ACCION_REVISAR.Clave) then
     Revisar;
 end;
 

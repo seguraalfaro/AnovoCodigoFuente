@@ -55,7 +55,7 @@ uses
 const
   CAMPO_ACCIONES = 'ACCIONES';
   CAMPO_ESTADO = 'ESTADO';
-  ACCION_TOMAR = 'tomar';
+  ACCION_TOMAR: TAccionRejilla = (Clave: 'tomar'; Rotulo: SAccionTomar);
 
 
 constructor TfraSolicitudesAsistente.Create(AOwner: TComponent);
@@ -69,8 +69,7 @@ begin
   lRejilla := TDBGridExtend.De(grDatos);
   lRejilla.ColumnaEstado(CAMPO_ESTADO);
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
-  lRejilla.Agregar(ACCION_TOMAR, SAccionTomar);
-  lRejilla.AjustarAcciones;
+  lRejilla.PonerLista([ACCION_TOMAR]);
   lRejilla.OnAccion := Accion;
 
   FPresentador := TPresentadorSolicitudesAsistente.Create(Self,
@@ -148,7 +147,7 @@ begin
   if dmMemoria.mtSolicitudesCola.IsEmpty or
     (pstModo.ItemIndex <> Ord(msCola)) then
     Exit;
-  if SameText(AClave, ACCION_TOMAR) and
+  if SameText(AClave, ACCION_TOMAR.Clave) and
     Confirmar(Format(SConfirmarTomar,
     [dmMemoria.mtSolicitudesColaCLIENTE_NOMBRE.AsString])) then
     FPresentador.Tomar(dmMemoria.mtSolicitudesColaID.AsInteger);
