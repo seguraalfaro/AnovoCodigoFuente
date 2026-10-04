@@ -7,7 +7,7 @@ interface
 uses
   System.SysUtils, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.WinXCtrls, Vcl.VirtualImage, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
+  Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Vcl.VirtualImage, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.BotonWin;
 
 type

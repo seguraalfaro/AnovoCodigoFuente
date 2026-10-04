@@ -61,6 +61,7 @@ uses
   Anovo.Presentadores.Cotizacion in 'Src\Presentadores\Anovo.Presentadores.Cotizacion.pas',
   Anovo.UI.Croquis in 'Src\Recursos\Anovo.UI.Croquis.pas',
   Anovo.UI.Imagen in 'Src\Recursos\Anovo.UI.Imagen.pas',
+  Anovo.UI.PanelRelativo in 'Src\Recursos\Anovo.UI.PanelRelativo.pas',
   Anovo.Frames.Cotizacion in 'Src\Frames\Anovo.Frames.Cotizacion.pas' {fraCotizacion: TFrame},
   Anovo.Forms.LineaCotizacion in 'Src\Forms\Anovo.Forms.LineaCotizacion.pas' {frmLineaCotizacion},
   Anovo.Forms.AjusteCotizacion in 'Src\Forms\Anovo.Forms.AjusteCotizacion.pas' {frmAjusteCotizacion},

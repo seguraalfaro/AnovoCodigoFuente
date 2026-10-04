@@ -228,23 +228,24 @@ object fraCotizacion: TfraCotizacion
           Width = 70
           Height = 70
           Cursor = crHandPoint
-          OnClick = imgFotoClick
+          DragCursor = crSizeAll
           Font.Charset = DEFAULT_CHARSET
-          Font.Color = 8421504
+          Font.Color = clGray
           Font.Height = -11
           Font.Name = 'Segoe UI'
           Font.Style = []
           ParentFont = False
           ParentColor = False
-          ParentBackground = False
+          OnClick = imgFotoClick
+          EnlargeToFit = True
+          ReduceToFit = True
           DragAndMove = False
-          BorderColor = 12632256
+          BorderColor = clSilver
           BackgroundColor = 15854566
           BackgroundText = 'Sin foto'
           ShowEditor = ieNone
           ShowPopupMenu = False
-          ReduceToFit = True
-          EnlargeToFit = True
+          SaveInJPG = False
           ReadOnly = True
         end
         object imgFoto2: TrImageZoom
@@ -254,23 +255,24 @@ object fraCotizacion: TfraCotizacion
           Width = 70
           Height = 70
           Cursor = crHandPoint
-          OnClick = imgFotoClick
+          DragCursor = crSizeAll
           Font.Charset = DEFAULT_CHARSET
-          Font.Color = 8421504
+          Font.Color = clGray
           Font.Height = -11
           Font.Name = 'Segoe UI'
           Font.Style = []
           ParentFont = False
           ParentColor = False
-          ParentBackground = False
+          OnClick = imgFotoClick
+          EnlargeToFit = True
+          ReduceToFit = True
           DragAndMove = False
-          BorderColor = 12632256
+          BorderColor = clSilver
           BackgroundColor = 15854566
           BackgroundText = 'Sin foto'
           ShowEditor = ieNone
           ShowPopupMenu = False
-          ReduceToFit = True
-          EnlargeToFit = True
+          SaveInJPG = False
           ReadOnly = True
         end
         object imgFoto3: TrImageZoom
@@ -280,23 +282,24 @@ object fraCotizacion: TfraCotizacion
           Width = 70
           Height = 70
           Cursor = crHandPoint
-          OnClick = imgFotoClick
+          DragCursor = crSizeAll
           Font.Charset = DEFAULT_CHARSET
-          Font.Color = 8421504
+          Font.Color = clGray
           Font.Height = -11
           Font.Name = 'Segoe UI'
           Font.Style = []
           ParentFont = False
           ParentColor = False
-          ParentBackground = False
+          OnClick = imgFotoClick
+          EnlargeToFit = True
+          ReduceToFit = True
           DragAndMove = False
-          BorderColor = 12632256
+          BorderColor = clSilver
           BackgroundColor = 15854566
           BackgroundText = 'Sin foto'
           ShowEditor = ieNone
           ShowPopupMenu = False
-          ReduceToFit = True
-          EnlargeToFit = True
+          SaveInJPG = False
           ReadOnly = True
         end
         object imgFoto4: TrImageZoom
@@ -306,23 +309,24 @@ object fraCotizacion: TfraCotizacion
           Width = 70
           Height = 70
           Cursor = crHandPoint
-          OnClick = imgFotoClick
+          DragCursor = crSizeAll
           Font.Charset = DEFAULT_CHARSET
-          Font.Color = 8421504
+          Font.Color = clGray
           Font.Height = -11
           Font.Name = 'Segoe UI'
           Font.Style = []
           ParentFont = False
           ParentColor = False
-          ParentBackground = False
+          OnClick = imgFotoClick
+          EnlargeToFit = True
+          ReduceToFit = True
           DragAndMove = False
-          BorderColor = 12632256
+          BorderColor = clSilver
           BackgroundColor = 15854566
           BackgroundText = 'Sin foto'
           ShowEditor = ieNone
           ShowPopupMenu = False
-          ReduceToFit = True
-          EnlargeToFit = True
+          SaveInJPG = False
           ReadOnly = True
         end
       end
@@ -384,7 +388,7 @@ object fraCotizacion: TfraCotizacion
         Left = 0
         Top = 0
         Width = 796
-        Height = 104
+        Height = 89
         Align = alTop
         TabOrder = 0
         object RelativePanel1: TRelativePanel
@@ -392,7 +396,7 @@ object fraCotizacion: TfraCotizacion
           Left = 3
           Top = 3
           Width = 790
-          Height = 98
+          Height = 83
           ControlCollection = <
             item
               Control = lblQueSeCotiza
@@ -400,12 +404,12 @@ object fraCotizacion: TfraCotizacion
               AlignHorizontalCenterWithPanel = False
               AlignLeftWithPanel = False
               AlignRightWithPanel = False
-              AlignTopWithPanel = False
+              AlignTopWithPanel = True
               AlignVerticalCenterWithPanel = False
             end
             item
               Control = cbTipoTrabajo
-              AlignBottomWithPanel = False
+              AlignBottomWithPanel = True
               AlignHorizontalCenterWithPanel = False
               AlignLeftWithPanel = False
               AlignRightWithPanel = False
@@ -430,7 +434,7 @@ object fraCotizacion: TfraCotizacion
             end
             item
               Control = edDescripcion
-              AlignBottomWithPanel = False
+              AlignBottomWithPanel = True
               AlignHorizontalCenterWithPanel = False
               AlignLeftWithPanel = False
               AlignRightWithPanel = False
@@ -447,7 +451,7 @@ object fraCotizacion: TfraCotizacion
             end
             item
               Control = btnNuevoTipo
-              AlignBottomWithPanel = False
+              AlignBottomWithPanel = True
               AlignHorizontalCenterWithPanel = False
               AlignLeftWithPanel = False
               AlignRightWithPanel = False
@@ -460,32 +464,33 @@ object fraCotizacion: TfraCotizacion
               AlignHorizontalCenterWithPanel = False
               AlignLeftWithPanel = False
               AlignRightWithPanel = True
-              AlignTopWithPanel = False
+              AlignTopWithPanel = True
               AlignVerticalCenterWithPanel = False
             end>
           Align = alClient
           BevelOuter = bvNone
           TabOrder = 0
-          ExplicitLeft = 0
-          ExplicitTop = 36
-          ExplicitWidth = 796
-          ExplicitHeight = 68
+          ExplicitHeight = 78
           DesignSize = (
             790
-            98)
+            83)
           object lblQueSeCotiza: TLabel
             Tag = 12
+            AlignWithMargins = True
             Left = 13
-            Top = 6
-            Width = 4
-            Height = 20
+            Top = 10
+            Width = 65
+            Height = 13
+            Margins.Top = 10
             Caption = 'Qu'#233' se cotiza'
           end
           object cbTipoTrabajo: TrDBLookupComboBox
+            AlignWithMargins = True
             Left = 16
-            Top = 31
+            Top = 52
             Width = 226
             Height = 21
+            Margins.Bottom = 10
             Anchors = []
             DataField = 'TIPO_TRABAJO_ID'
             DataSource = dmMemoria.dsCotizacionEdicion
@@ -498,17 +503,17 @@ object fraCotizacion: TfraCotizacion
             DBEditLabel.OwnCaption = 'Tipo de trabajo'
             BoundLabel.Anchors = []
             BoundLabel.Position = lpTopRight
-            BoundLabel.ExplicitLeft = 102
-            BoundLabel.ExplicitTop = -14
             EmptyDisplayValue = 'Sin especificar'
             AllowLookupFilter = True
             AutoDropDown = True
           end
           object edDescripcion: TrDBEdit
+            AlignWithMargins = True
             Left = 292
-            Top = 31
+            Top = 52
             Width = 488
             Height = 21
+            Margins.Bottom = 10
             Anchors = [akLeft, akTop, akRight]
             DataField = 'DESCRIPCION_TRABAJO'
             DataSource = dmMemoria.dsCotizacionEdicion
@@ -521,12 +526,14 @@ object fraCotizacion: TfraCotizacion
             DBEditLabel.ShowRequiredBold = True
           end
           object btnNuevoTipo: TPlanoBotonWin
+            AlignWithMargins = True
             Left = 246
-            Top = 24
+            Top = 45
             Width = 30
             Height = 28
             Cursor = crHandPoint
             Hint = 'Agregar un tipo de trabajo al cat'#225'logo'
+            Margins.Bottom = 10
             Anchors = []
             Caption = '+'
             ParentShowHint = False
@@ -540,9 +547,10 @@ object fraCotizacion: TfraCotizacion
           object pstEstado: TPlanoPastilla
             AlignWithMargins = True
             Left = 750
-            Top = 3
+            Top = 10
             Width = 20
             Height = 22
+            Margins.Top = 10
             Margins.Right = 20
             Anchors = [akTop, akRight]
             Font.Charset = DEFAULT_CHARSET
@@ -756,9 +764,9 @@ object fraCotizacion: TfraCotizacion
         Tag = 3
         AlignWithMargins = True
         Left = 0
-        Top = 114
+        Top = 99
         Width = 796
-        Height = 265
+        Height = 280
         Margins.Left = 0
         Margins.Top = 10
         Margins.Right = 0
@@ -770,9 +778,11 @@ object fraCotizacion: TfraCotizacion
         Padding.Right = 12
         Padding.Bottom = 12
         TabOrder = 1
+        ExplicitTop = 114
+        ExplicitHeight = 265
         DesignSize = (
           796
-          265)
+          280)
         object btnMaterial: TPlanoBotonWin
           Left = 366
           Top = 6
@@ -853,7 +863,7 @@ object fraCotizacion: TfraCotizacion
           Left = 12
           Top = 80
           Width = 772
-          Height = 173
+          Height = 188
           Align = alClient
           BorderStyle = bsNone
           DataSource = dmMemoria.dsLineasCotizacion

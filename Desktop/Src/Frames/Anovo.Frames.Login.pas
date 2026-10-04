@@ -9,7 +9,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics, System.UITypes,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.WinXCtrls, Vcl.Imaging.pngimage, Vcl.Buttons,
+  Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Vcl.Imaging.pngimage, Vcl.Buttons,
   Vcl.VirtualImage, System.Actions, Vcl.ActnList,
   Anovo.Vistas.Intf.Login,
   Anovo.Presentadores.Login, VclPlano.BotonWin;

@@ -16,7 +16,7 @@ uses
   Anovo.DTOs.Cotizaciones,
   Anovo.DTOs.Solicitudes,
   Anovo.Vistas.Intf.Cotizacion,
-  Anovo.Presentadores.Cotizacion, Vcl.WinXCtrls;
+  Anovo.Presentadores.Cotizacion, Vcl.WinXCtrls, Anovo.UI.PanelRelativo;
 
 type
   TfraCotizacion = class(TFrame, IVistaCotizacion)

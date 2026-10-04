@@ -16,7 +16,7 @@ uses
   Anovo.DTOs.Usuarios,
   Anovo.DTOs.Roles,
   Anovo.Vistas.Intf.Usuario,
-  Anovo.Presentadores.Usuario, Vcl.Mask, Vcl.WinXCtrls,
+  Anovo.Presentadores.Usuario, Vcl.Mask, Vcl.WinXCtrls, Anovo.UI.PanelRelativo,
   Anovo.Permisos;
 
 type

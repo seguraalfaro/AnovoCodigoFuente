@@ -227,6 +227,7 @@
         <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Cotizacion.pas"/>
         <DCCReference Include="Src\Recursos\Anovo.UI.Croquis.pas"/>
         <DCCReference Include="Src\Recursos\Anovo.UI.Imagen.pas"/>
+        <DCCReference Include="Src\Recursos\Anovo.UI.PanelRelativo.pas"/>
         <DCCReference Include="Src\Frames\Anovo.Frames.Cotizacion.pas">
             <Form>fraCotizacion</Form>
             <FormType>dfm</FormType>

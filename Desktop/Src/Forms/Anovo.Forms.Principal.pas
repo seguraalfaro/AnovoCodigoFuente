@@ -26,7 +26,7 @@ uses
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.TitleBarCtrls, Vcl.StdCtrls,
   Vcl.ExtCtrls, Anovo.UI.Tema,
   Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.ToolWin, Vcl.VirtualImage,
-  Vcl.WinXCtrls, Vcl.CategoryButtons, Vcl.Buttons, FlatVcl.NavItem,
+  Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Vcl.CategoryButtons, Vcl.Buttons, FlatVcl.NavItem,
   VclPlano.NavItem,
   System.Actions, Vcl.ActnList, PestanasPlanas, Vcl.WinXPanels,
   Anovo.Vistas.Intf.Principal,

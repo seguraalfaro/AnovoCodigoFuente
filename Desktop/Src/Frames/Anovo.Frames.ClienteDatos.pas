@@ -12,7 +12,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, System.UITypes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  VclPlano.BotonWin, Vcl.ExtCtrls, Vcl.WinXCtrls, System.Actions, Vcl.ActnList,
+  VclPlano.BotonWin, Vcl.ExtCtrls, Vcl.WinXCtrls, Anovo.UI.PanelRelativo, System.Actions, Vcl.ActnList,
   VclPlano.Pestanas, Vcl.WinXPanels, VclPlano.Tarjeta, Data.DB, Vcl.Grids,
   Vcl.DBGrids, rDBGrid, VclPlano.Pastilla, Vcl.Mask, Vcl.DBCtrls,
   rDBComponents,

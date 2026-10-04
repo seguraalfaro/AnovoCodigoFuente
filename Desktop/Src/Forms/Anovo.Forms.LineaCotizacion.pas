@@ -9,7 +9,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, System.UITypes, System.Generics.Collections,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.ExtCtrls, Vcl.TitleBarCtrls, Vcl.WinXCtrls, Vcl.Mask, Vcl.DBCtrls,
+  Vcl.ExtCtrls, Vcl.TitleBarCtrls, Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Vcl.Mask, Vcl.DBCtrls,
   Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid, rDBComponents,
   VclPlano.BotonWin,
   Anovo.Forms.Edicion,
