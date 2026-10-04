@@ -40,6 +40,7 @@ implementation
 
 uses
   System.SysUtils,
+  System.StrUtils,
   System.Classes,
   System.Threading,
   System.Generics.Defaults,
@@ -55,24 +56,26 @@ const
   ROL_SUPERVISOR = 'supervisor';
   ROL_GERENCIA = 'gerencia';
   ROL_ADMIN = 'admin';
-  SEPARADOR_ROLES = '   ·   ';
+  ORDEN_ROLES: array [0 .. 4] of string = (ROL_ASESOR, ROL_ASISTENTE,
+    ROL_SUPERVISOR, ROL_GERENCIA, ROL_ADMIN);
 
 function Llave(const ARolId, APermisoId: Integer): string;
 begin
   Result := ARolId.ToString + #9 + APermisoId.ToString;
 end;
 
-function ResumenDeRoles(const ARoles: TObjectList<TRolDTO>): string;
+function RotulosDeRoles(const ARoles: TObjectList<TRolDTO>): TArray<string>;
 var
   lRol: TRolDTO;
+  lPosicion: Integer;
 begin
-  Result := '';
+  SetLength(Result, Length(ORDEN_ROLES));
   for lRol in ARoles do
   begin
-    if not Result.IsEmpty then
-      Result := Result + SEPARADOR_ROLES;
-    Result := Result + Format(SRolConUsuarios, [lRol.Nombre,
-      lRol.UsuariosActivos]);
+    lPosicion := IndexText(lRol.Codigo, ORDEN_ROLES);
+    if lPosicion >= 0 then
+      Result[lPosicion] := Format(SRolConUsuarios, [lRol.Nombre,
+        lRol.UsuariosActivos]);
   end;
 end;
 
@@ -215,7 +218,7 @@ begin
             TomarMatriz(lMatriz);
             lFilas := FilasDe(lMatriz);
             try
-              FVista.MostrarRoles(ResumenDeRoles(lMatriz.Roles));
+              FVista.MostrarRoles(RotulosDeRoles(lMatriz.Roles));
               FVista.MostrarMatriz(lFilas);
               FVista.MostrarCambios(0);
             finally

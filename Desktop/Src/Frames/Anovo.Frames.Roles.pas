@@ -10,7 +10,7 @@ uses
   System.Classes, System.Generics.Collections,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, Vcl.WinXCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
-  VclPlano.BotonWin,
+  VclPlano.BotonWin, VclPlano.Pastilla,
   Anovo.Vistas.Intf.Roles,
   Anovo.Presentadores.Roles;
 
@@ -20,7 +20,12 @@ type
     lblTitulo: TLabel;
     lblSubtitulo: TLabel;
     pnlBarra: TPanel;
-    lblRoles: TLabel;
+    pnlRoles: TPanel;
+    pstRolAsesor: TPlanoPastilla;
+    pstRolAsistente: TPlanoPastilla;
+    pstRolSupervisor: TPlanoPastilla;
+    pstRolGerencia: TPlanoPastilla;
+    pstRolAdmin: TPlanoPastilla;
     btnDescartar: TPlanoBotonWin;
     btnGuardar: TPlanoBotonWin;
     pnclient: TRelativePanel;
@@ -37,7 +42,7 @@ type
     FPresentador: TPresentadorRoles;
     procedure MarcarRolPropio;
     procedure MostrarCargando(const AActivo: Boolean);
-    procedure MostrarRoles(const ATexto: string);
+    procedure MostrarRoles(const ARotulos: TArray<string>);
     procedure MostrarMatriz(const AFilas: TObjectList<TFilaMatriz>);
     procedure MostrarCambios(const ACantidad: Integer);
     procedure MostrarError(const AMensaje: string);
@@ -109,9 +114,19 @@ begin
   BloquearEdicion([grMatriz, btnGuardar, btnDescartar], AActivo);
 end;
 
-procedure TfraRoles.MostrarRoles(const ATexto: string);
+procedure PonerPastilla(APastilla: TPlanoPastilla; const ARotulo: string);
 begin
-  lblRoles.Caption := ATexto;
+  APastilla.Caption := ARotulo;
+  APastilla.Visible := ARotulo <> '';
+end;
+
+procedure TfraRoles.MostrarRoles(const ARotulos: TArray<string>);
+begin
+  PonerPastilla(pstRolAsesor, ARotulos[0]);
+  PonerPastilla(pstRolAsistente, ARotulos[1]);
+  PonerPastilla(pstRolSupervisor, ARotulos[2]);
+  PonerPastilla(pstRolGerencia, ARotulos[3]);
+  PonerPastilla(pstRolAdmin, ARotulos[4]);
 end;
 
 procedure TfraRoles.MostrarMatriz(const AFilas: TObjectList<TFilaMatriz>);

@@ -33,7 +33,7 @@ type
   IVistaRoles = interface
     ['{7F3C5A92-1E64-4B08-A9D7-2C8B0E61F435}']
     procedure MostrarCargando(const AActivo: Boolean);
-    procedure MostrarRoles(const ATexto: string);
+    procedure MostrarRoles(const ARotulos: TArray<string>);
     procedure MostrarMatriz(const AFilas: TObjectList<TFilaMatriz>);
     procedure MostrarCambios(const ACantidad: Integer);
     procedure MostrarError(const AMensaje: string);

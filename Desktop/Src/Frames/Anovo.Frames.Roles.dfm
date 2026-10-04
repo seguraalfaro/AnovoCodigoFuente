@@ -67,12 +67,116 @@ object fraRoles: TfraRoles
     DesignSize = (
       954
       52)
-    object lblRoles: TLabel
-      Tag = 13
+    object pnlRoles: TPanel
+      Tag = 1
       Left = 20
-      Top = 18
-      Width = 3
-      Height = 15
+      Top = 13
+      Width = 620
+      Height = 26
+      BevelOuter = bvNone
+      ParentBackground = True
+      ParentColor = True
+      TabOrder = 2
+      object pstRolAsesor: TPlanoPastilla
+        AlignWithMargins = True
+        Left = 0
+        Top = 2
+        Width = 100
+        Height = 22
+        Margins.Left = 0
+        Margins.Top = 2
+        Margins.Right = 6
+        Margins.Bottom = 2
+        Align = alLeft
+        Status = fsInfo
+        Caption = ''
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Segoe UI Semibold'
+        Font.Style = []
+        ParentFont = False
+      end
+      object pstRolAsistente: TPlanoPastilla
+        AlignWithMargins = True
+        Left = 106
+        Top = 2
+        Width = 100
+        Height = 22
+        Margins.Left = 0
+        Margins.Top = 2
+        Margins.Right = 6
+        Margins.Bottom = 2
+        Align = alLeft
+        Status = fsSuccess
+        Caption = ''
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Segoe UI Semibold'
+        Font.Style = []
+        ParentFont = False
+      end
+      object pstRolSupervisor: TPlanoPastilla
+        AlignWithMargins = True
+        Left = 212
+        Top = 2
+        Width = 100
+        Height = 22
+        Margins.Left = 0
+        Margins.Top = 2
+        Margins.Right = 6
+        Margins.Bottom = 2
+        Align = alLeft
+        Status = fsPending
+        Caption = ''
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Segoe UI Semibold'
+        Font.Style = []
+        ParentFont = False
+      end
+      object pstRolGerencia: TPlanoPastilla
+        AlignWithMargins = True
+        Left = 318
+        Top = 2
+        Width = 100
+        Height = 22
+        Margins.Left = 0
+        Margins.Top = 2
+        Margins.Right = 6
+        Margins.Bottom = 2
+        Align = alLeft
+        Status = fsNeutral
+        Caption = ''
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Segoe UI Semibold'
+        Font.Style = []
+        ParentFont = False
+      end
+      object pstRolAdmin: TPlanoPastilla
+        AlignWithMargins = True
+        Left = 424
+        Top = 2
+        Width = 100
+        Height = 22
+        Margins.Left = 0
+        Margins.Top = 2
+        Margins.Right = 6
+        Margins.Bottom = 2
+        Align = alLeft
+        Status = fsDanger
+        Caption = ''
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Segoe UI Semibold'
+        Font.Style = []
+        ParentFont = False
+      end
     end
     object btnDescartar: TPlanoBotonWin
       Left = 658
