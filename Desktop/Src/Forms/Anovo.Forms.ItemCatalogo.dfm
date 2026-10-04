@@ -225,14 +225,6 @@ inherited frmItemCatalogo: TfrmItemCatalogo
       Caption = 'Mano de obra'
       CardIndex = 1
       TabOrder = 1
-      object lblCategoriaMo: TLabel
-        Tag = 13
-        Left = 20
-        Top = 132
-        Width = 51
-        Height = 15
-        Caption = 'Categor'#237'a'
-      end
       object edCodigoMo: TrDBEdit
         Left = 20
         Top = 25
@@ -281,13 +273,23 @@ inherited frmItemCatalogo: TfrmItemCatalogo
         DBEditLabel.OwnCaption = 'Nombre'
         DBEditLabel.ShowRequiredBold = True
       end
-      object cbCategoriaMo: TComboBox
+      object cbCategoriaMo: TrDBLookupComboBox
         Left = 20
         Top = 152
         Width = 300
         Height = 23
-        Style = csDropDownList
+        DataField = 'CATEGORIA_ID'
+        DataSource = dmMemoria.dsItemCatalogo
+        DropDownRows = 10
+        KeyField = 'ID'
+        ListField = 'NOMBRE'
+        ListSource = dmMemoria.dsCategorias
         TabOrder = 3
+        ReadOnlyColor = 15987699
+        DBEditLabel.OwnCaption = 'Categor'#237'a'
+        DBEditLabel.ShowRequiredBold = True
+        BoundLabel.Position = lpTopRight
+        EmptyDisplayValue = 'Sin especificar'
       end
       object meDescripcionMo: TrDBMemo
         Left = 20
@@ -393,14 +395,6 @@ inherited frmItemCatalogo: TfrmItemCatalogo
       Caption = 'Unidad de medida'
       CardIndex = 4
       TabOrder = 4
-      object lblMagnitudUni: TLabel
-        Tag = 13
-        Left = 20
-        Top = 72
-        Width = 55
-        Height = 15
-        Caption = 'Magnitud'
-      end
       object edNombreUni: TrDBEdit
         Left = 20
         Top = 25
@@ -430,13 +424,23 @@ inherited frmItemCatalogo: TfrmItemCatalogo
         DBEditLabel.Margins.Top = 5
         DBEditLabel.OwnCaption = 'Abreviatura'
       end
-      object cbMagnitudUni: TComboBox
+      object cbMagnitudUni: TrDBLookupComboBox
         Left = 20
         Top = 92
         Width = 300
         Height = 23
-        Style = csDropDownList
+        DataField = 'MAGNITUD'
+        DataSource = dmMemoria.dsItemCatalogo
+        DropDownRows = 6
+        KeyField = 'CODIGO'
+        ListField = 'NOMBRE'
+        ListSource = dmMemoria.dsMagnitudes
         TabOrder = 2
+        ReadOnlyColor = 15987699
+        DBEditLabel.OwnCaption = 'Magnitud'
+        DBEditLabel.ShowRequiredBold = True
+        BoundLabel.Position = lpTopRight
+        EmptyDisplayValue = 'Sin especificar'
       end
     end
   end

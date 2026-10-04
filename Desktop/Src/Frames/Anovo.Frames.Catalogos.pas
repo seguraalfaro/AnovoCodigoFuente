@@ -11,7 +11,8 @@ uses
   System.Classes, System.Types, System.Generics.Collections,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.WinXCtrls, Vcl.WinXPanels,
-  Data.DB, FireDAC.Comp.Client, Vcl.Grids, Vcl.DBGrids, rDBGrid,
+  Data.DB, FireDAC.Comp.Client, Vcl.Grids, Vcl.DBGrids, Vcl.DBCtrls, rDBGrid,
+  rDBComponents,
   FlatVcl.BotonWin, VclPlano.Pestanas, VclPlano.BotonWin,
   Anovo.Frames.Listado,
   Anovo.DTOs.Catalogos,
@@ -22,10 +23,10 @@ type
   TfraCatalogos = class(TfraListado, IVistaCatalogos)
     btnExportar: TPlanoBotonWin;
     btnNuevo: TPlanoBotonWin;
-    cbCategoria: TComboBox;
+    cbCategoria: TrDBLookupComboBox;
     pstCatalogo: TPlanoPestanas;
     procedure pstCatalogoChange(Sender: TObject);
-    procedure cbCategoriaChange(Sender: TObject);
+    procedure cbCategoriaClick(Sender: TObject);
     procedure btnNuevoClick(Sender: TObject);
     procedure btnExportarClick(Sender: TObject);
   private
@@ -161,6 +162,7 @@ end;
 destructor TfraCatalogos.Destroy;
 begin
   FPresentador.Free;
+  dmMemoria.mtCategorias.Close;
   inherited;
 end;
 
@@ -219,6 +221,7 @@ begin
   sbBuscar.TextHint := PistaBusquedaDe(ACatalogo);
 
   cbCategoria.Visible := ACatalogo = ctManoObra;
+  cbCategoria.KeyValue := 0;
 
   case ACatalogo of
     ctTodos:
@@ -336,25 +339,15 @@ end;
 
 procedure TfraCatalogos.MostrarCategorias(const ACategorias
   : TObjectList<TCategoriaDTO>);
-var
-  lCategoria: TCategoriaDTO;
 begin
-  cbCategoria.Items.BeginUpdate;
-  try
-    cbCategoria.Items.Clear;
-    cbCategoria.Items.AddObject(STodasLasCategorias, TObject(0));
-    for lCategoria in ACategorias do
-      cbCategoria.Items.AddObject(lCategoria.Nombre, TObject(lCategoria.ID));
-    cbCategoria.ItemIndex := 0;
-  finally
-    cbCategoria.Items.EndUpdate;
-  end;
+  TMapeoDatos.AListaTabla<TCategoriaDTO>(ACategorias, dmMemoria.mtCategorias);
+  cbCategoria.KeyValue := 0;
 end;
 
 procedure TfraCatalogos.MostrarFormularioItem(const ACatalogo: TCatalogo;
   const AId: Integer);
 begin
-  if TfrmItemCatalogo.Mostrar(Self, ACatalogo, AId, cbCategoria.Items) then
+  if TfrmItemCatalogo.Mostrar(Self, ACatalogo, AId) then
     FPresentador.Recargar;
 end;
 
@@ -383,14 +376,11 @@ begin
   FPresentador.Filtrar(TCatalogo(pstCatalogo.ItemIndex));
 end;
 
-procedure TfraCatalogos.cbCategoriaChange(Sender: TObject);
+procedure TfraCatalogos.cbCategoriaClick(Sender: TObject);
 begin
-  if not Assigned(FPresentador) then
+  if not Assigned(FPresentador) or VarIsNull(cbCategoria.KeyValue) then
     Exit;
-  if cbCategoria.ItemIndex < 0 then
-    Exit;
-  FPresentador.FiltrarCategoria
-    (Integer(cbCategoria.Items.Objects[cbCategoria.ItemIndex]));
+  FPresentador.FiltrarCategoria(cbCategoria.KeyValue);
 end;
 
 procedure TfraCatalogos.btnNuevoClick(Sender: TObject);

@@ -21,12 +21,18 @@ type
     FCancelacion: ICancelacion;
     FCatalogo: TCatalogo;
     FId: Integer;
+    FPrecioOriginal: TPrecioNuevoDTO;
+    function PrecioCambio(const APrecio: TPrecioNuevoDTO;
+      const AProgramado: Boolean): Boolean;
   public
     constructor Create(const AVista: IVistaRegistro;
-      const AApi: IApiCatalogos; const ACatalogo: TCatalogo;
-      const AId: Integer);
+      const AApi: IApiCatalogos);
     destructor Destroy; override;
-    procedure Guardar(const ADto: TObject);
+    procedure Iniciar(const ACatalogo: TCatalogo; const AId: Integer);
+    procedure RecordarPrecio(const APrecio: TPrecioNuevoDTO);
+    function LlevaPrecio: Boolean;
+    procedure Guardar(const AItem: TObject; const APrecio: TPrecioNuevoDTO;
+      const AProgramado: Boolean);
   end;
 
   TPresentadorPrecioCatalogo = class
@@ -58,30 +64,119 @@ begin
   Result := Format(SErrorInesperado, [SAccionGuardar]);
 end;
 
+function EnviarItem(const AApi: IApiCatalogos; const ACatalogo: TCatalogo;
+  const AId: Integer; const ADto: TObject): Integer;
+begin
+  Result := AId;
+  case ACatalogo of
+    ctManoObra:
+      if AId = 0 then
+        Result := AApi.CrearManoObra(ADto as TManoObraNuevaDTO)
+      else
+        AApi.ActualizarManoObra(AId, ADto as TManoObraEdicionDTO);
+    ctMaquinas:
+      if AId = 0 then
+        Result := AApi.CrearMaquina(ADto as TMaquinaNuevaDTO)
+      else
+        AApi.ActualizarMaquina(AId, ADto as TMaquinaEdicionDTO);
+    ctTiposTrabajo:
+      if AId = 0 then
+        Result := AApi.CrearTipoTrabajo(ADto as TTipoTrabajoNuevoDTO)
+      else
+        AApi.ActualizarTipoTrabajo(AId, ADto as TTipoTrabajoNuevoDTO);
+    ctUnidadesMedida:
+      if AId = 0 then
+        Result := AApi.CrearUnidadMedida(ADto as TUnidadMedidaNuevaDTO)
+      else
+        AApi.ActualizarUnidadMedida(AId, ADto as TUnidadMedidaNuevaDTO);
+  else
+    if AId = 0 then
+      Result := AApi.CrearMaterial(ADto as TMaterialNuevoDTO)
+    else
+      AApi.ActualizarMaterial(AId, ADto as TMaterialEdicionDTO);
+  end;
+end;
+
+procedure EnviarPrecio(const AApi: IApiCatalogos; const ACatalogo: TCatalogo;
+  const AId: Integer; const ADto: TPrecioNuevoDTO);
+begin
+  case ACatalogo of
+    ctManoObra:
+      AApi.CambiarPrecioManoObra(AId, ADto);
+    ctMaquinas:
+      AApi.CambiarCostoMaquina(AId, ADto);
+  else
+    AApi.CambiarPrecioMaterial(AId, ADto);
+  end;
+end;
+
 constructor TPresentadorItemCatalogo.Create(const AVista: IVistaRegistro;
-  const AApi: IApiCatalogos; const ACatalogo: TCatalogo; const AId: Integer);
+  const AApi: IApiCatalogos);
 begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
   FCancelacion := TCancelacion.Create;
-  FCatalogo := ACatalogo;
-  FId := AId;
+  FPrecioOriginal := TPrecioNuevoDTO.Create;
 end;
 
 destructor TPresentadorItemCatalogo.Destroy;
 begin
   FCancelacion.Cancelar;
+  FPrecioOriginal.Free;
   inherited;
 end;
 
-procedure TPresentadorItemCatalogo.Guardar(const ADto: TObject);
+procedure TPresentadorItemCatalogo.Iniciar(const ACatalogo: TCatalogo;
+  const AId: Integer);
+begin
+  FCatalogo := ACatalogo;
+  FId := AId;
+end;
+
+procedure TPresentadorItemCatalogo.RecordarPrecio(const APrecio
+  : TPrecioNuevoDTO);
+begin
+  FPrecioOriginal.Free;
+  FPrecioOriginal := APrecio;
+end;
+
+function TPresentadorItemCatalogo.LlevaPrecio: Boolean;
+begin
+  Result := not (FCatalogo in [ctTiposTrabajo, ctUnidadesMedida]);
+end;
+
+function TPresentadorItemCatalogo.PrecioCambio(const APrecio: TPrecioNuevoDTO;
+  const AProgramado: Boolean): Boolean;
+begin
+  Result := LlevaPrecio and (APrecio <> nil) and (AProgramado or
+    (APrecio.CostoUnitario.ValueOrDefault <>
+    FPrecioOriginal.CostoUnitario.ValueOrDefault) or
+    (APrecio.PrecioUnitario.ValueOrDefault <>
+    FPrecioOriginal.PrecioUnitario.ValueOrDefault) or
+    (APrecio.CostoHora.ValueOrDefault <>
+    FPrecioOriginal.CostoHora.ValueOrDefault));
+end;
+
+procedure TPresentadorItemCatalogo.Guardar(const AItem: TObject;
+  const APrecio: TPrecioNuevoDTO; const AProgramado: Boolean);
 var
   lCancelacion: ICancelacion;
   lApi: IApiCatalogos;
   lCatalogo: TCatalogo;
   lId: Integer;
+  lConPrecio: Boolean;
 begin
+  lConPrecio := PrecioCambio(APrecio, AProgramado);
+  if lConPrecio and (FCatalogo = ctMateriales) and
+    (APrecio.PrecioUnitario.ValueOrDefault <= 0) then
+  begin
+    AItem.Free;
+    APrecio.Free;
+    FVista.MostrarError(SFaltaPrecioVenta);
+    Exit;
+  end;
+
   lCancelacion := FCancelacion;
   lApi := FApi;
   lCatalogo := FCatalogo;
@@ -98,33 +193,9 @@ begin
       lNuevo := lId;
       try
         try
-          case lCatalogo of
-            ctManoObra:
-              if lId = 0 then
-                lNuevo := lApi.CrearManoObra(ADto as TManoObraNuevaDTO)
-              else
-                lApi.ActualizarManoObra(lId, ADto as TManoObraEdicionDTO);
-            ctMaquinas:
-              if lId = 0 then
-                lNuevo := lApi.CrearMaquina(ADto as TMaquinaNuevaDTO)
-              else
-                lApi.ActualizarMaquina(lId, ADto as TMaquinaEdicionDTO);
-            ctTiposTrabajo:
-              if lId = 0 then
-                lNuevo := lApi.CrearTipoTrabajo(ADto as TTipoTrabajoNuevoDTO)
-              else
-                lApi.ActualizarTipoTrabajo(lId, ADto as TTipoTrabajoNuevoDTO);
-            ctUnidadesMedida:
-              if lId = 0 then
-                lNuevo := lApi.CrearUnidadMedida(ADto as TUnidadMedidaNuevaDTO)
-              else
-                lApi.ActualizarUnidadMedida(lId, ADto as TUnidadMedidaNuevaDTO);
-          else
-            if lId = 0 then
-              lNuevo := lApi.CrearMaterial(ADto as TMaterialNuevoDTO)
-            else
-              lApi.ActualizarMaterial(lId, ADto as TMaterialEdicionDTO);
-          end;
+          lNuevo := EnviarItem(lApi, lCatalogo, lId, AItem);
+          if lConPrecio then
+            EnviarPrecio(lApi, lCatalogo, lNuevo, APrecio);
         except
           on E: EAnovoCliente do
             lError := E.Message;
@@ -132,7 +203,8 @@ begin
             lError := MensajeInesperado;
         end;
       finally
-        ADto.Free;
+        AItem.Free;
+        APrecio.Free;
       end;
 
       TThread.Queue(nil,
@@ -140,6 +212,7 @@ begin
         begin
           if lCancelacion.Cancelada then
             Exit;
+          FId := lNuevo;
           FVista.MostrarGuardando(False);
           if lError.IsEmpty then
             FVista.Guardado(lNuevo)
@@ -187,14 +260,7 @@ begin
       lError := '';
       try
         try
-          case lCatalogo of
-            ctManoObra:
-              lApi.CambiarPrecioManoObra(lId, ADto);
-            ctMaquinas:
-              lApi.CambiarCostoMaquina(lId, ADto);
-          else
-            lApi.CambiarPrecioMaterial(lId, ADto);
-          end;
+          EnviarPrecio(lApi, lCatalogo, lId, ADto);
         except
           on E: EAnovoCliente do
             lError := E.Message;

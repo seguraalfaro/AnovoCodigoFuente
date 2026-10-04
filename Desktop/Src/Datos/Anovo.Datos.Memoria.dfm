@@ -1642,6 +1642,9 @@ object dmMemoria: TdmMemoria
       FieldName = 'MAGNITUD'
       Size = 10
     end
+    object mtItemCatalogoCATEGORIA_ID: TIntegerField
+      FieldName = 'CATEGORIA_ID'
+    end
   end
   object mtPrecioCatalogo: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -2220,5 +2223,54 @@ object dmMemoria: TdmMemoria
     DataSet = mtRoles
     Left = 272
     Top = 496
+  end
+  object mtCategorias: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 936
+    Top = 400
+    object mtCategoriasID: TIntegerField
+      FieldName = 'ID'
+    end
+    object mtCategoriasNOMBRE: TStringField
+      FieldName = 'NOMBRE'
+      Size = 100
+    end
+  end
+  object dsCategorias: TDataSource
+    AutoEdit = False
+    DataSet = mtCategorias
+    Left = 936
+    Top = 456
+  end
+  object mtMagnitudes: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 936
+    Top = 512
+    object mtMagnitudesCODIGO: TStringField
+      FieldName = 'CODIGO'
+      Size = 10
+    end
+    object mtMagnitudesNOMBRE: TStringField
+      FieldName = 'NOMBRE'
+      Size = 40
+    end
+  end
+  object dsMagnitudes: TDataSource
+    AutoEdit = False
+    DataSet = mtMagnitudes
+    Left = 936
+    Top = 568
   end
 end

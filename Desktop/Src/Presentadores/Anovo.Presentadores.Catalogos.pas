@@ -78,6 +78,13 @@ begin
   Result := Format(SErrorInesperado, [SAccionCargarCatalogo]);
 end;
 
+function TodasLasCategorias: TCategoriaDTO;
+begin
+  Result := TCategoriaDTO.Create;
+  Result.ID := 0;
+  Result.Nombre := STodasLasCategorias;
+end;
+
 constructor TPresentadorCatalogos.Create(const AVista: IVistaCatalogos;
   const AApi: IApiCatalogos);
 begin
@@ -460,6 +467,7 @@ begin
       lLista := nil;
       try
         lLista := lApi.Categorias;
+        lLista.Insert(0, TodasLasCategorias);
       except
         on E: Exception do
           Exit;

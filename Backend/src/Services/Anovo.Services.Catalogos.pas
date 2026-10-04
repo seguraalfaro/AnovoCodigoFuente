@@ -238,8 +238,7 @@ end;
 procedure TCatalogoService.ValidarUnidadMedida(const ADto: TUnidadMedidaNuevaDTO;
   const AExcluirId: Integer);
 begin
-  if not MatchStr(ADto.Magnitud, [MAGNITUD_TIEMPO, MAGNITUD_PESO,
-    MAGNITUD_LONGITUD, MAGNITUD_AREA, MAGNITUD_VOLUMEN, MAGNITUD_UNIDADES]) then
+  if not MatchStr(ADto.Magnitud, MAGNITUDES) then
     raise EDatoInvalido.Create(SMagnitudInvalida);
   if fUnidades.ExisteNombre(ADto.Nombre, AExcluirId) then
     if AExcluirId = 0 then

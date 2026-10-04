@@ -22,6 +22,9 @@ const
   MAGNITUD_VOLUMEN = 'volumen';
   MAGNITUD_UNIDADES = 'unidades';
 
+  MAGNITUDES: array [0 .. 5] of string = (MAGNITUD_TIEMPO, MAGNITUD_PESO,
+    MAGNITUD_LONGITUD, MAGNITUD_AREA, MAGNITUD_VOLUMEN, MAGNITUD_UNIDADES);
+
 type
 
   [MVCNameCase(ncSnakeCase)]

@@ -30,8 +30,7 @@ type
     CarManoObra: TCard;
     edCodigoMo: TrDBEdit;
     edNombreMo: TrDBEdit;
-    lblCategoriaMo: TLabel;
-    cbCategoriaMo: TComboBox;
+    cbCategoriaMo: TrDBLookupComboBox;
     cbUnidadMo: TrDBLookupComboBox;
     meDescripcionMo: TrDBMemo;
     CarMaquina: TCard;
@@ -41,10 +40,9 @@ type
     CarTipoTrabajo: TCard;
     edNombreTipo: TrDBEdit;
     CarUnidadMedida: TCard;
-    lblMagnitudUni: TLabel;
     edNombreUni: TrDBEdit;
     edAbreviaturaUni: TrDBEdit;
-    cbMagnitudUni: TComboBox;
+    cbMagnitudUni: TrDBLookupComboBox;
     pnlPrecio: TPanel;
     lblPrecio: TLabel;
     edCosto: TrDBEdit;
@@ -58,15 +56,9 @@ type
     procedure btnGuardarClick(Sender: TObject);
   private
     FPresentador: TPresentadorItemCatalogo;
-    FPresentadorPrecio: TPresentadorPrecioCatalogo;
     FCatalogo: TCatalogo;
     FId: Integer;
     FGuardado: Boolean;
-    FPrecioEnviado: Boolean;
-    FCostoOriginal: Currency;
-    FPrecioOriginal: Currency;
-    FCostoHoraOriginal: Currency;
-    FVigenciaOriginal: TDateTime;
     FVigencia: TVigenciaPrecio;
     FProgramadoExistente: TDateTime;
     procedure PrepararCampos;
@@ -74,16 +66,13 @@ type
     procedure PrepararPrecio;
     function ValidarCampos: Boolean;
     function DtoEscrito: TObject;
-    function CategoriaEscogida: Integer;
-    function MagnitudEscogida: string;
-    function LlevaPrecio: Boolean;
-    function PrecioCambio: Boolean;
+    function PrecioEscrito: TPrecioNuevoDTO;
     procedure Guardado(const AId: Integer);
   protected
     function ControlesEdicion: TArray<TControl>; override;
   public
     class function Mostrar(AOwner: TComponent; const ACatalogo: TCatalogo;
-      const AId: Integer; const ACategorias: TStrings): Boolean;
+      const AId: Integer): Boolean;
   end;
 
 implementation
@@ -92,17 +81,12 @@ implementation
 
 uses
   Anovo.Api.Catalogos,
-  System.StrUtils,
-  Anovo.Formato,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
   Anovo.Textos;
 
 const
   PREFIJO: array [TCatalogo] of string = ('', 'MAT-', 'MO-', 'MAQ-', '', '');
-
-  MAGNITUDES: array [0 .. 5] of string = (MAGNITUD_TIEMPO, MAGNITUD_PESO,
-    MAGNITUD_LONGITUD, MAGNITUD_AREA, MAGNITUD_VOLUMEN, MAGNITUD_UNIDADES);
 
 function ItemDe(const ACatalogo: TCatalogo): string;
 begin
@@ -121,8 +105,7 @@ begin
 end;
 
 class function TfrmItemCatalogo.Mostrar(AOwner: TComponent;
-  const ACatalogo: TCatalogo; const AId: Integer;
-  const ACategorias: TStrings): Boolean;
+  const ACatalogo: TCatalogo; const AId: Integer): Boolean;
 var
   lForma: TfrmItemCatalogo;
 begin
@@ -130,8 +113,7 @@ begin
   try
     lForma.FCatalogo := ACatalogo;
     lForma.FId := AId;
-    if ACategorias <> nil then
-      lForma.cbCategoriaMo.Items.Assign(ACategorias);
+    lForma.FPresentador.Iniciar(ACatalogo, AId);
     lForma.PrepararCampos;
     lForma.PrepararTabla;
     lForma.PrepararPrecio;
@@ -147,24 +129,22 @@ end;
 
 procedure TfrmItemCatalogo.FormCreate(Sender: TObject);
 begin
-  FPresentador := nil;
-  FPresentadorPrecio := nil;
   FGuardado := False;
-  FPrecioEnviado := False;
+  FProgramadoExistente := 0;
+  FPresentador := TPresentadorItemCatalogo.Create(Self, TApiCatalogos.Create);
+  dmMemoria.SinTodasLasCategorias(True);
 end;
 
 procedure TfrmItemCatalogo.FormDestroy(Sender: TObject);
 begin
   FVigencia.Free;
   FPresentador.Free;
-  FPresentadorPrecio.Free;
+  dmMemoria.SinTodasLasCategorias(False);
   dmMemoria.mtItemCatalogo.Close;
   dmMemoria.mtPrecioCatalogo.Close;
 end;
 
 procedure TfrmItemCatalogo.PrepararCampos;
-var
-  lMagnitud: string;
 begin
   if (FId = 0) and (FCatalogo = ctUnidadesMedida) then
     lblTitulo.Caption := STituloNuevaUnidadMedida
@@ -186,11 +166,7 @@ begin
     cpCatalogo.ActiveCard := CarMaterial;
   end;
 
-  cbMagnitudUni.Items.Clear;
-  for lMagnitud in MAGNITUDES do
-    cbMagnitudUni.Items.Add(TFormato.Magnitud(lMagnitud));
-
-  pnlPrecio.Visible := LlevaPrecio;
+  pnlPrecio.Visible := FPresentador.LlevaPrecio;
   edCosto.Visible := FCatalogo in [ctMateriales, ctManoObra];
   edPrecio.Visible := FCatalogo = ctMateriales;
   edCostoHora.Visible := FCatalogo = ctMaquinas;
@@ -210,34 +186,20 @@ begin
   if FId = 0 then
   begin
     dmMemoria.mtItemCatalogoCODIGO.AsString := PREFIJO[FCatalogo];
-    if cbCategoriaMo.Items.Count > 0 then
-      cbCategoriaMo.ItemIndex := 0;
     Exit;
   end;
 
   lOrigen := dmMemoria.FilaCatalogo;
-  if lOrigen = nil then
-    Exit;
-
-  dmMemoria.mtItemCatalogo.CopyRecord(lOrigen);
-  cbMagnitudUni.ItemIndex := IndexStr(dmMemoria.mtItemCatalogoMAGNITUD.AsString,
-    MAGNITUDES);
-  if FCatalogo = ctManoObra then
-    cbCategoriaMo.ItemIndex := cbCategoriaMo.Items.IndexOfObject
-      (TObject(lOrigen.FieldByName('CATEGORIA_ID').AsInteger));
+  if lOrigen <> nil then
+    dmMemoria.mtItemCatalogo.CopyRecord(lOrigen);
 end;
 
 procedure TfrmItemCatalogo.PrepararPrecio;
 var
   lOrigen: TDataSet;
+  lVigencia: TDateTime;
 begin
-  FCostoOriginal := 0;
-  FPrecioOriginal := 0;
-  FCostoHoraOriginal := 0;
-  FVigenciaOriginal := 0;
-  FProgramadoExistente := 0;
-
-  if not LlevaPrecio then
+  if not FPresentador.LlevaPrecio then
     Exit;
 
   dmMemoria.PrepararPrecioCatalogo;
@@ -248,57 +210,17 @@ begin
   if lOrigen = nil then
     Exit;
 
-  if FCatalogo = ctMaquinas then
-  begin
-    FCostoHoraOriginal := lOrigen.FieldByName('COSTO_HORA').AsCurrency;
-    dmMemoria.mtPrecioCatalogoCOSTO_HORA.AsCurrency := FCostoHoraOriginal;
-  end
-  else
-  begin
-    FCostoOriginal := lOrigen.FieldByName('COSTO_UNITARIO').AsCurrency;
-    dmMemoria.mtPrecioCatalogoCOSTO_UNITARIO.AsCurrency := FCostoOriginal;
-    if FCatalogo = ctMateriales then
-    begin
-      FPrecioOriginal := lOrigen.FieldByName('PRECIO_UNITARIO').AsCurrency;
-      dmMemoria.mtPrecioCatalogoPRECIO_UNITARIO.AsCurrency := FPrecioOriginal;
-    end;
-  end;
-
+  dmMemoria.mtPrecioCatalogo.CopyRecord(lOrigen);
   FProgramadoExistente := ProgramadoDeLaFila(lOrigen);
 
-  FVigenciaOriginal := lOrigen.FieldByName('FECHA_VIGENCIA').AsDateTime;
-  if FVigenciaOriginal > 0 then
+  lVigencia := dmMemoria.mtPrecioCatalogoFECHA_VIGENCIA.AsDateTime;
+  if lVigencia > 0 then
     lblPrecio.Caption := Format(SPrecioVigenteDesde,
-      [FormatDateTime('dd/mm/yyyy', FVigenciaOriginal)]);
-end;
+      [FormatDateTime('dd/mm/yyyy', lVigencia)]);
 
-function TfrmItemCatalogo.LlevaPrecio: Boolean;
-begin
-  Result := not (FCatalogo in [ctTiposTrabajo, ctUnidadesMedida]);
-end;
-
-function TfrmItemCatalogo.CategoriaEscogida: Integer;
-begin
-  if cbCategoriaMo.ItemIndex < 0 then
-    Exit(0);
-  Result := Integer(cbCategoriaMo.Items.Objects[cbCategoriaMo.ItemIndex]);
-end;
-
-function TfrmItemCatalogo.MagnitudEscogida: string;
-begin
-  if cbMagnitudUni.ItemIndex < 0 then
-    Exit('');
-  Result := MAGNITUDES[cbMagnitudUni.ItemIndex];
-end;
-
-function TfrmItemCatalogo.PrecioCambio: Boolean;
-begin
-
-  Result := LlevaPrecio and
-    ((dmMemoria.mtPrecioCatalogoCOSTO_UNITARIO.AsCurrency <> FCostoOriginal) or
-    (dmMemoria.mtPrecioCatalogoPRECIO_UNITARIO.AsCurrency <> FPrecioOriginal) or
-    (dmMemoria.mtPrecioCatalogoCOSTO_HORA.AsCurrency <> FCostoHoraOriginal) or
-    FVigencia.Programado);
+  FPresentador.RecordarPrecio(TMapeoDatos.ADto<TPrecioNuevoDTO>
+    (dmMemoria.mtPrecioCatalogo));
+  dmMemoria.mtPrecioCatalogoFECHA_VIGENCIA.AsDateTime := Date;
 end;
 
 function TfrmItemCatalogo.ValidarCampos: Boolean;
@@ -329,13 +251,15 @@ begin
     Exit;
   end;
 
-  if (FCatalogo = ctUnidadesMedida) and MagnitudEscogida.IsEmpty then
+  if (FCatalogo = ctUnidadesMedida) and
+    dmMemoria.mtItemCatalogoMAGNITUD.AsString.IsEmpty then
   begin
     MostrarError(SEscojaMagnitud);
     Exit;
   end;
 
-  if (FCatalogo = ctManoObra) and (CategoriaEscogida = 0) then
+  if (FCatalogo = ctManoObra) and
+    (dmMemoria.mtItemCatalogoCATEGORIA_ID.AsInteger = 0) then
   begin
     MostrarError(SEscojaCategoria);
     Exit;
@@ -349,39 +273,18 @@ begin
     Exit;
   end;
 
-  if PrecioCambio and (FCatalogo = ctMateriales) and
-    (dmMemoria.mtPrecioCatalogoPRECIO_UNITARIO.AsCurrency <= 0) then
-  begin
-    MostrarError(SFaltaPrecioVenta);
-    edPrecio.SetFocus;
-    Exit;
-  end;
-
   Result := True;
 end;
 
 function TfrmItemCatalogo.DtoEscrito: TObject;
-var
-  lManoObraNueva: TManoObraNuevaDTO;
-  lManoObraEdicion: TManoObraEdicionDTO;
-  lUnidad: TUnidadMedidaNuevaDTO;
 begin
   case FCatalogo of
     ctManoObra:
       if FId = 0 then
-      begin
-        lManoObraNueva := TMapeoDatos.ADto<TManoObraNuevaDTO>
-          (dmMemoria.mtItemCatalogo);
-        lManoObraNueva.CategoriaId := CategoriaEscogida;
-        Result := lManoObraNueva;
-      end
+        Result := TMapeoDatos.ADto<TManoObraNuevaDTO>(dmMemoria.mtItemCatalogo)
       else
-      begin
-        lManoObraEdicion := TMapeoDatos.ADto<TManoObraEdicionDTO>
+        Result := TMapeoDatos.ADto<TManoObraEdicionDTO>
           (dmMemoria.mtItemCatalogo);
-        lManoObraEdicion.CategoriaId := CategoriaEscogida;
-        Result := lManoObraEdicion;
-      end;
     ctMaquinas:
       if FId = 0 then
         Result := TMapeoDatos.ADto<TMaquinaNuevaDTO>(dmMemoria.mtItemCatalogo)
@@ -392,12 +295,8 @@ begin
       Result := TMapeoDatos.ADto<TTipoTrabajoNuevoDTO>
         (dmMemoria.mtItemCatalogo);
     ctUnidadesMedida:
-      begin
-        lUnidad := TMapeoDatos.ADto<TUnidadMedidaNuevaDTO>
-          (dmMemoria.mtItemCatalogo);
-        lUnidad.Magnitud := MagnitudEscogida;
-        Result := lUnidad;
-      end;
+      Result := TMapeoDatos.ADto<TUnidadMedidaNuevaDTO>
+        (dmMemoria.mtItemCatalogo);
   else
     if FId = 0 then
       Result := TMapeoDatos.ADto<TMaterialNuevoDTO>(dmMemoria.mtItemCatalogo)
@@ -405,6 +304,13 @@ begin
       Result := TMapeoDatos.ADto<TMaterialEdicionDTO>
         (dmMemoria.mtItemCatalogo);
   end;
+end;
+
+function TfrmItemCatalogo.PrecioEscrito: TPrecioNuevoDTO;
+begin
+  if not FPresentador.LlevaPrecio then
+    Exit(nil);
+  Result := TMapeoDatos.ADto<TPrecioNuevoDTO>(dmMemoria.mtPrecioCatalogo);
 end;
 
 procedure TfrmItemCatalogo.btnGuardarClick(Sender: TObject);
@@ -415,11 +321,7 @@ begin
   if not ValidarCampos then
     Exit;
 
-  if FPresentador = nil then
-    FPresentador := TPresentadorItemCatalogo.Create(Self,
-      TApiCatalogos.Create, FCatalogo, FId);
-
-  FPresentador.Guardar(DtoEscrito);
+  FPresentador.Guardar(DtoEscrito, PrecioEscrito, FVigencia.Programado);
 end;
 
 function TfrmItemCatalogo.ControlesEdicion: TArray<TControl>;
@@ -429,16 +331,6 @@ end;
 
 procedure TfrmItemCatalogo.Guardado(const AId: Integer);
 begin
-  if (AId > 0) and PrecioCambio and not FPrecioEnviado then
-  begin
-    FPrecioEnviado := True;
-    FPresentadorPrecio := TPresentadorPrecioCatalogo.Create(Self,
-      TApiCatalogos.Create, FCatalogo, AId);
-    FPresentadorPrecio.Guardar(TMapeoDatos.ADto<TPrecioNuevoDTO>
-      (dmMemoria.mtPrecioCatalogo));
-    Exit;
-  end;
-
   FGuardado := True;
   ModalResult := mrOk;
 end;

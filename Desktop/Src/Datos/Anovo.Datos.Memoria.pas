@@ -331,6 +331,7 @@ type
     mtItemCatalogoUNIDAD_MEDIDA_ID: TIntegerField;
     mtItemCatalogoABREVIATURA: TStringField;
     mtItemCatalogoMAGNITUD: TStringField;
+    mtItemCatalogoCATEGORIA_ID: TIntegerField;
     mtPrecioCatalogo: TFDMemTable;
     mtPrecioCatalogoCOSTO_UNITARIO: TCurrencyField;
     mtPrecioCatalogoPRECIO_UNITARIO: TCurrencyField;
@@ -441,6 +442,14 @@ type
     mtUsuarioCLAVE_TEMPORAL: TStringField;
     dsUsuario: TDataSource;
     dsRoles: TDataSource;
+    mtCategorias: TFDMemTable;
+    mtCategoriasID: TIntegerField;
+    mtCategoriasNOMBRE: TStringField;
+    dsCategorias: TDataSource;
+    mtMagnitudes: TFDMemTable;
+    mtMagnitudesCODIGO: TStringField;
+    mtMagnitudesNOMBRE: TStringField;
+    dsMagnitudes: TDataSource;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     procedure DataModuleCreate(Sender: TObject);
     procedure mtContactoNuevoBeforePost(DataSet: TDataSet);
@@ -471,6 +480,7 @@ type
       DisplayText: Boolean);
   private
     procedure CargarTiposIdentificacion;
+    procedure CargarMagnitudes;
   public
     procedure PrepararItemCatalogo;
     procedure PrepararPrecioCatalogo;
@@ -478,6 +488,7 @@ type
     procedure PrepararContactoNuevo(const AClienteId: Integer);
     procedure PrepararUsuario;
     procedure SoloExcepciones(const ASolo: Boolean);
+    procedure SinTodasLasCategorias(const ASin: Boolean);
     function PermisoSinGuardar: Boolean;
     procedure Confirmar(const ATabla: TDataSet);
     procedure LimpiarTodo;
@@ -509,6 +520,7 @@ const
   ORIGEN_QUITADO = 'quitado';
   ORIGEN_SIN_GUARDAR = 'sin_guardar';
   FILTRO_EXCEPCIONES = 'TIENE <> DEL_ROL';
+  FILTRO_CATEGORIAS = 'ID > 0';
 
 function NuevoUuid: string;
 begin
@@ -518,6 +530,7 @@ end;
 procedure TdmMemoria.DataModuleCreate(Sender: TObject);
 begin
   CargarTiposIdentificacion;
+  CargarMagnitudes;
 end;
 
 procedure TdmMemoria.CargarTiposIdentificacion;
@@ -530,6 +543,17 @@ begin
     mtTiposIdentificacion.AppendRecord([Ord(lTipo),
       TIPOS_IDENTIFICACION[lTipo]]);
   mtTiposIdentificacion.First;
+end;
+
+procedure TdmMemoria.CargarMagnitudes;
+var
+  lMagnitud: string;
+begin
+  mtMagnitudes.Close;
+  mtMagnitudes.CreateDataSet;
+  for lMagnitud in MAGNITUDES do
+    mtMagnitudes.AppendRecord([lMagnitud, TFormato.Magnitud(lMagnitud)]);
+  mtMagnitudes.First;
 end;
 
 procedure TdmMemoria.mtContactoNuevoBeforePost(DataSet: TDataSet);
@@ -704,6 +728,8 @@ begin
   for I := 0 to ComponentCount - 1 do
     if Components[I] is TFDMemTable then
       TFDMemTable(Components[I]).Close;
+  CargarTiposIdentificacion;
+  CargarMagnitudes;
 end;
 
 procedure TdmMemoria.Confirmar(const ATabla: TDataSet);
@@ -717,6 +743,12 @@ begin
   Result := dsCatalogo.DataSet;
   if (Result <> nil) and Result.IsEmpty then
     Result := nil;
+end;
+
+procedure TdmMemoria.SinTodasLasCategorias(const ASin: Boolean);
+begin
+  mtCategorias.Filter := FILTRO_CATEGORIAS;
+  mtCategorias.Filtered := ASin;
 end;
 
 procedure TdmMemoria.SoloExcepciones(const ASolo: Boolean);

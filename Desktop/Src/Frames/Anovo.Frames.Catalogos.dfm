@@ -49,15 +49,19 @@ inherited fraCatalogos: TfraCatalogos
       StyleElements = []
       OnClick = btnNuevoClick
     end
-    object cbCategoria: TComboBox
+    object cbCategoria: TrDBLookupComboBox
       Left = 430
       Top = 13
       Width = 180
       Height = 23
-      Style = csDropDownList
+      DropDownRows = 10
+      KeyField = 'ID'
+      ListField = 'NOMBRE'
+      ListSource = dmMemoria.dsCategorias
       TabOrder = 2
       Visible = False
-      OnChange = cbCategoriaChange
+      OnClick = cbCategoriaClick
+      ReadOnlyColor = clWindow
     end
   end
   inherited pnclient: TRelativePanel
