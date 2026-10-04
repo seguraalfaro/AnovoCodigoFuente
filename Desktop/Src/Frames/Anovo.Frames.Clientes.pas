@@ -114,17 +114,10 @@ end;
 
 procedure TfraClientes.MostrarAcciones(const AAcciones: TAccionesCliente;
   const APuedeCrear: Boolean);
-var
-  lAccion: TAccionCliente;
-  lRejilla: TDBGridExtend;
 begin
   btnNuevo.Visible := APuedeCrear;
-
-  lRejilla := TDBGridExtend.De(grDatos);
-  lRejilla.Limpiar;
-  for lAccion in AAcciones do
-    lRejilla.Agregar(ACCIONES[lAccion].Clave, ACCIONES[lAccion].Rotulo);
-  lRejilla.AjustarAcciones;
+  TDBGridExtend.De(grDatos).PonerAcciones<TAccionesCliente>(ACCIONES,
+    AAcciones);
 end;
 
 procedure TfraClientes.MostrarCargando(const AActivo: Boolean);

@@ -79,12 +79,6 @@ uses
   Anovo.Datos.Memoria,
   Anovo.Textos;
 
-type
-  TAccionRejilla = record
-    Clave: string;
-    Rotulo: string;
-  end;
-
 const
   CAMPO_ACCIONES = 'ACCIONES';
   CAMPO_ESTADO = 'ESTADO';
@@ -246,17 +240,10 @@ end;
 
 procedure TfraCatalogos.MostrarAcciones(const AAcciones: TAccionesCatalogo;
   const APuedeCrear: Boolean);
-var
-  lAccion: TAccionCatalogo;
-  lRejilla: TDBGridExtend;
 begin
   btnNuevo.Visible := APuedeCrear;
-
-  lRejilla := TDBGridExtend.De(grDatos);
-  lRejilla.Limpiar;
-  for lAccion in AAcciones do
-    lRejilla.Agregar(ACCIONES[lAccion].Clave, ACCIONES[lAccion].Rotulo);
-  lRejilla.AjustarColumnas;
+  TDBGridExtend.De(grDatos).PonerAcciones<TAccionesCatalogo>(ACCIONES,
+    AAcciones);
 end;
 
 procedure TfraCatalogos.Cargar<T>(const AFilas: TObjectList<T>;

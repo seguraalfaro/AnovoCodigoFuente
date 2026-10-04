@@ -301,23 +301,10 @@ type
     mtFotosNOMBRE_ARCHIVO: TStringField;
     mtFotosFECHA_CREACION: TDateTimeField;
     mtFotosACCIONES: TStringField;
-    mtUsuarios: TFDMemTable;
-    mtUsuariosID: TIntegerField;
-    mtUsuariosUSUARIO: TStringField;
-    mtUsuariosNOMBRE: TStringField;
-    mtUsuariosCORREO: TStringField;
-    mtUsuariosROL: TStringField;
-    mtUsuariosULTIMO_ACCESO: TDateTimeField;
-    mtUsuariosACTIVO: TStringField;
-    mtUsuariosACCIONES: TStringField;
     mtRoles: TFDMemTable;
     mtRolesID: TIntegerField;
     mtRolesCODIGO: TStringField;
     mtRolesNOMBRE: TStringField;
-    mtRolesUSUARIOS: TIntegerField;
-    mtRolesPERMISOS: TIntegerField;
-    mtRolesACTIVO: TStringField;
-    mtRolesACCIONES: TStringField;
     mtPermisos: TFDMemTable;
     mtPermisosID: TIntegerField;
     mtPermisosCODIGO: TStringField;
@@ -409,6 +396,49 @@ type
     mtTiposIdentificacionID: TSmallintField;
     mtTiposIdentificacionNOMBRE: TStringField;
     dsTiposIdentificacion: TDataSource;
+    mtUsuarios: TFDMemTable;
+    mtUsuariosID: TIntegerField;
+    mtUsuariosNOMBRE: TStringField;
+    mtUsuariosCORREO: TStringField;
+    mtUsuariosROL_ID: TIntegerField;
+    mtUsuariosROL_NOMBRE: TStringField;
+    mtUsuariosACTIVO: TBooleanField;
+    mtUsuariosDEBE_CAMBIAR_CLAVE: TBooleanField;
+    mtUsuariosEXCEPCIONES: TIntegerField;
+    mtUsuariosESTADO: TStringField;
+    mtUsuariosACCIONES: TStringField;
+    dsUsuarios: TDataSource;
+    mtPermisosUsuario: TFDMemTable;
+    mtPermisosUsuarioPERMISO_ID: TIntegerField;
+    mtPermisosUsuarioMODULO: TStringField;
+    mtPermisosUsuarioNOMBRE: TStringField;
+    mtPermisosUsuarioTIENE: TBooleanField;
+    mtPermisosUsuarioDEL_ROL: TBooleanField;
+    mtPermisosUsuarioTIENE_ORIGINAL: TBooleanField;
+    mtPermisosUsuarioMOTIVO: TStringField;
+    mtPermisosUsuarioORIGEN: TStringField;
+    mtPermisosUsuarioBASICOS: TAggregateField;
+    mtPermisosUsuarioADICIONALES: TAggregateField;
+    mtPermisosUsuarioQUITADOS: TAggregateField;
+    mtPermisosUsuarioCAMBIOS: TAggregateField;
+    dsPermisosUsuario: TDataSource;
+    mtMatrizRoles: TFDMemTable;
+    mtMatrizRolesPERMISO_ID: TIntegerField;
+    mtMatrizRolesMODULO: TStringField;
+    mtMatrizRolesNOMBRE: TStringField;
+    mtMatrizRolesASESOR: TBooleanField;
+    mtMatrizRolesASISTENTE: TBooleanField;
+    mtMatrizRolesSUPERVISOR: TBooleanField;
+    mtMatrizRolesGERENCIA: TBooleanField;
+    mtMatrizRolesADMIN: TBooleanField;
+    dsMatrizRoles: TDataSource;
+    mtUsuario: TFDMemTable;
+    mtUsuarioNOMBRE: TStringField;
+    mtUsuarioCORREO: TStringField;
+    mtUsuarioROL_ID: TIntegerField;
+    mtUsuarioCLAVE_TEMPORAL: TStringField;
+    dsUsuario: TDataSource;
+    dsRoles: TDataSource;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     procedure DataModuleCreate(Sender: TObject);
     procedure mtContactoNuevoBeforePost(DataSet: TDataSet);
@@ -417,7 +447,21 @@ type
       DisplayText: Boolean);
     procedure TipoGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
+    procedure ClaveGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
     procedure MagnitudGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
+    procedure UsuariosCalcFields(DataSet: TDataSet);
+    procedure UsuarioEstadoGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
+    procedure AdicionalesGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
+    procedure PermisosUsuarioCalcFields(DataSet: TDataSet);
+    procedure OrigenGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
+    procedure ModuloGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
+    procedure UsuarioNombreGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
   private
     procedure CargarTiposIdentificacion;
@@ -426,6 +470,7 @@ type
     procedure PrepararPrecioCatalogo;
     procedure PrepararClienteNuevo;
     procedure PrepararContactoNuevo(const AClienteId: Integer);
+    procedure PrepararUsuario;
     procedure Confirmar(const ATabla: TDataSet);
     function FilaCatalogo: TDataSet;
   end;
@@ -439,6 +484,7 @@ implementation
 
 uses
   Anovo.DTOs.Catalogos,
+  Anovo.Sesion,
   Anovo.Textos;
 
 const
@@ -447,6 +493,11 @@ const
   ESTADO_ACTIVO = 'activo';
   ESTADO_INACTIVO = 'inactivo';
   ESTADO_PROGRAMADO = 'programado';
+  ESTADO_CLAVE_PENDIENTE = 'pendiente';
+
+  ORIGEN_BASICO = 'basico';
+  ORIGEN_ADICIONAL = 'adicional';
+  ORIGEN_QUITADO = 'quitado';
 
 function NuevoUuid: string;
 begin
@@ -491,10 +542,87 @@ begin
     lEstado.AsString := ESTADO_ACTIVO;
 end;
 
+procedure TdmMemoria.UsuariosCalcFields(DataSet: TDataSet);
+begin
+  if not mtUsuariosACTIVO.AsBoolean then
+    mtUsuariosESTADO.AsString := ESTADO_INACTIVO
+  else if mtUsuariosDEBE_CAMBIAR_CLAVE.AsBoolean then
+    mtUsuariosESTADO.AsString := ESTADO_CLAVE_PENDIENTE
+  else
+    mtUsuariosESTADO.AsString := ESTADO_ACTIVO;
+end;
+
+procedure TdmMemoria.UsuarioEstadoGetText(Sender: TField; var Text: string;
+  DisplayText: Boolean);
+begin
+  if Sender.AsString = ESTADO_CLAVE_PENDIENTE then
+    Text := SEstClavePendiente
+  else
+    Text := TFormato.Estado(Sender.AsString);
+end;
+
+procedure TdmMemoria.AdicionalesGetText(Sender: TField; var Text: string;
+  DisplayText: Boolean);
+begin
+  if Sender.AsInteger > 0 then
+    Text := Sender.AsString
+  else
+    Text := '';
+end;
+
+procedure TdmMemoria.PermisosUsuarioCalcFields(DataSet: TDataSet);
+begin
+  if mtPermisosUsuarioTIENE.AsBoolean = mtPermisosUsuarioDEL_ROL.AsBoolean then
+  begin
+    if mtPermisosUsuarioDEL_ROL.AsBoolean then
+      mtPermisosUsuarioORIGEN.AsString := ORIGEN_BASICO
+    else
+      mtPermisosUsuarioORIGEN.AsString := '';
+  end
+  else if mtPermisosUsuarioTIENE.AsBoolean then
+    mtPermisosUsuarioORIGEN.AsString := ORIGEN_ADICIONAL
+  else
+    mtPermisosUsuarioORIGEN.AsString := ORIGEN_QUITADO;
+end;
+
+procedure TdmMemoria.ModuloGetText(Sender: TField; var Text: string;
+  DisplayText: Boolean);
+begin
+  Text := TFormato.Modulo(Sender.AsString);
+end;
+
+procedure TdmMemoria.UsuarioNombreGetText(Sender: TField; var Text: string;
+  DisplayText: Boolean);
+begin
+  if mtUsuariosID.AsInteger = TSesion.UsuarioId then
+    Text := Format(SUsted, [Sender.AsString])
+  else
+    Text := Sender.AsString;
+end;
+
+procedure TdmMemoria.OrigenGetText(Sender: TField; var Text: string;
+  DisplayText: Boolean);
+begin
+  if Sender.AsString = ORIGEN_BASICO then
+    Text := SOrigenBasico
+  else if Sender.AsString = ORIGEN_ADICIONAL then
+    Text := SOrigenAdicional
+  else if Sender.AsString = ORIGEN_QUITADO then
+    Text := SOrigenQuitado
+  else
+    Text := '';
+end;
+
 procedure TdmMemoria.EstadoGetText(Sender: TField; var Text: string;
   DisplayText: Boolean);
 begin
   Text := TFormato.Estado(Sender.AsString);
+end;
+
+procedure TdmMemoria.ClaveGetText(Sender: TField; var Text: string;
+  DisplayText: Boolean);
+begin
+  Text := TFormato.ClaveEnGrupos(Sender.AsString);
 end;
 
 procedure TdmMemoria.MagnitudGetText(Sender: TField; var Text: string;
@@ -552,6 +680,13 @@ begin
   Result := dsCatalogo.DataSet;
   if (Result <> nil) and Result.IsEmpty then
     Result := nil;
+end;
+
+procedure TdmMemoria.PrepararUsuario;
+begin
+  mtUsuario.Close;
+  mtUsuario.CreateDataSet;
+  mtUsuario.Append;
 end;
 
 procedure TdmMemoria.PrepararContactoNuevo(const AClienteId: Integer);

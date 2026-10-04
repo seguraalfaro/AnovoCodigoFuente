@@ -21,10 +21,12 @@ type
 
     class function Estado(const AValor: string): string; static;
     class function Magnitud(const AValor: string): string; static;
+    class function Modulo(const AValor: string): string; static;
     class function MesAnio(const AFecha: TDateTime): string; static;
     class function Colones(const AMonto: Currency): string; static;
     class function Dias(const ADias: Integer): string; static;
     class function FechaHora(const AFecha: TDateTime): string; static;
+    class function ClaveEnGrupos(const AClave: string): string; static;
   end;
 
 const
@@ -41,6 +43,24 @@ uses
   System.StrUtils,
   Anovo.DTOs.Catalogos,
   Anovo.Textos;
+
+class function TFormato.Modulo(const AValor: string): string;
+begin
+  case IndexStr(AValor, ['adjuntos', 'auditoria', 'catalogos', 'clientes',
+    'cotizaciones', 'permisos', 'reportes', 'solicitudes', 'usuarios']) of
+    0: Result := SModuloAdjuntos;
+    1: Result := SModuloAuditoria;
+    2: Result := SModuloCatalogos;
+    3: Result := SModuloClientes;
+    4: Result := SModuloCotizaciones;
+    5: Result := SModuloPermisos;
+    6: Result := SModuloReportes;
+    7: Result := SModuloSolicitudes;
+    8: Result := SModuloUsuarios;
+  else
+    Result := AValor;
+  end;
+end;
 
 class function TFormato.Magnitud(const AValor: string): string;
 begin
@@ -125,6 +145,21 @@ end;
 class function TFormato.FechaHora(const AFecha: TDateTime): string;
 begin
   Result := FormatDateTime('dd/mm/yyyy hh:nn', AFecha);
+end;
+
+class function TFormato.ClaveEnGrupos(const AClave: string): string;
+const
+  LARGO_GRUPO = 4;
+var
+  I: Integer;
+begin
+  Result := '';
+  for I := 1 to Length(AClave) do
+  begin
+    if (I > 1) and ((I - 1) mod LARGO_GRUPO = 0) then
+      Result := Result + ' ';
+    Result := Result + AClave[I];
+  end;
 end;
 
 class function TFormato.SoloDigitos(const ATexto: string): string;

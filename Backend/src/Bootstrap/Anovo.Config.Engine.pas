@@ -24,6 +24,8 @@ uses
   Anovo.Controllers.Clientes,
   Anovo.Controllers.Sesion,
   Anovo.Controllers.Version,
+  Anovo.Controllers.Roles,
+  Anovo.Controllers.Usuarios,
   Anovo.Auth.RoleHandler,
   Anovo.Errors,
   Anovo.Middleware.ContextoAuditoria,
@@ -62,6 +64,8 @@ begin
   AEngine.AddController(TDashboardController);
   AEngine.AddController(TReportesController);
   AEngine.AddController(TVersionController);
+  AEngine.AddController(TRolesController);
+  AEngine.AddController(TUsuariosController);
 
   AEngine.SetExceptionHandler(ManejadorDeErrores());
 

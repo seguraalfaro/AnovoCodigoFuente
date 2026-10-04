@@ -312,6 +312,21 @@
         <DCCReference Include="Src\Forms\Anovo.Forms.Conexion.pas">
             <Form>frmConexion</Form>
         </DCCReference>
+        <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Usuarios.pas"/>
+        <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Roles.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Usuarios.pas"/>
+        <DCCReference Include="Src\Api\Anovo.Api.Usuarios.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Roles.pas"/>
+        <DCCReference Include="Src\Api\Anovo.Api.Roles.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Usuarios.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Usuario.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Usuarios.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Usuario.pas"/>
+        <DCCReference Include="Src\Forms\Anovo.Forms.Usuario.pas">
+            <Form>frmUsuario</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Roles.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Roles.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

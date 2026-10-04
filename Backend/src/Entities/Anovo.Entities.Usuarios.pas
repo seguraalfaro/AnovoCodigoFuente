@@ -1,6 +1,6 @@
 unit Anovo.Entities.Usuarios;
 
-// Entidades de usuarios, roles y claves.
+// Entidades de usuarios, roles, claves y excepciones de permisos.
 // Generada por MVCEntGen; al regenerar, partir de Db/generado.
 
 interface
@@ -61,10 +61,15 @@ type
     [MVCTableField('DEBE_CAMBIAR_CLAVE')]
     [MVCRequired]
     fDebeCambiarClave: Boolean;
-    [MVCTableField('FECHA_CREACION')]
+    [MVCTableField('FECHA_CREACION', [foDoNotInsert, foDoNotUpdate, foRefresh])]
     fFechaCreacion: NullableTDateTime ;
-    [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
+    [MVCTableField('FECHA_MODIFICACION', [foDoNotInsert, foDoNotUpdate,
+      foRefresh])]
     fFechaModificacion: NullableTDateTime ;
+    [MVCTableField('AMBITO')]
+    [MVCRequired]
+    [MVCMaxLength(15)]
+    fAmbito: String;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -78,6 +83,7 @@ type
       read fFechaCreacion write fFechaCreacion;
     property FechaModificacion: NullableTDateTime
       read fFechaModificacion write fFechaModificacion;
+    property Ambito: String read fAmbito write fAmbito;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -109,6 +115,40 @@ type
       read fFechaCambio write fFechaCambio;
   end;
 
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('USUARIOS_PERMISOS')]
+  TUsuariosPermisos = class(TMVCActiveRecord)
+  private
+    [MVCTableField('USUARIO_ID', [foPrimaryKey])]
+    [MVCRequired]
+    fUsuarioId: Int32;
+    [MVCTableField('PERMISO_ID', [foPrimaryKey])]
+    [MVCRequired]
+    fPermisoId: Int32;
+    [MVCTableField('AMBITO')]
+    [MVCRequired]
+    [MVCMaxLength(15)]
+    fAmbito: String;
+    [MVCTableField('TIPO')]
+    [MVCRequired]
+    [MVCMaxLength(10)]
+    fTipo: String;
+    [MVCTableField('MOTIVO')]
+    [MVCRequired]
+    [MVCMaxLength(500)]
+    fMotivo: String;
+    [MVCTableField('FECHA_CREACION', [foDoNotInsert, foDoNotUpdate, foRefresh])]
+    fFechaCreacion: NullableTDateTime;
+  public
+    property UsuarioId: Int32 read fUsuarioId write fUsuarioId;
+    property PermisoId: Int32 read fPermisoId write fPermisoId;
+    property Ambito: String read fAmbito write fAmbito;
+    property Tipo: String read fTipo write fTipo;
+    property Motivo: String read fMotivo write fMotivo;
+    property FechaCreacion: NullableTDateTime read fFechaCreacion
+      write fFechaCreacion;
+  end;
+
 implementation
 
 initialization
@@ -116,5 +156,6 @@ initialization
 ActiveRecordMappingRegistry.AddEntity('roles', TRoles);
 ActiveRecordMappingRegistry.AddEntity('usuarios', TUsuarios);
 ActiveRecordMappingRegistry.AddEntity('usuarios_claves', TUsuariosClaves);
+ActiveRecordMappingRegistry.AddEntity('usuarios_permisos', TUsuariosPermisos);
 
 end.

@@ -115,7 +115,7 @@ var
   lRol: string;
 begin
   for lRol in Context.LoggedUser.Roles do
-    if APermisos.Tiene(lRol, APermiso) then
+    if APermisos.Tiene(UsuarioId, lRol, APermiso) then
       Exit(True);
   Result := False;
 end;

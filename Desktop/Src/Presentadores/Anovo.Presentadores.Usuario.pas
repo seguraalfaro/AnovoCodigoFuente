@@ -1,0 +1,404 @@
+unit Anovo.Presentadores.Usuario;
+
+// Presentador de la ventana de un usuario: carga roles, cuenta y
+// permisos; guarda datos, clave temporal y adicionales en una sola accion.
+
+interface
+
+uses
+  System.Generics.Collections,
+  Anovo.Api.Intf.Usuarios,
+  Anovo.Api.Intf.Roles,
+  Anovo.Cancelacion,
+  Anovo.DTOs.Usuarios,
+  Anovo.Vistas.Intf.Usuario;
+
+type
+  TPresentadorUsuario = class
+  private
+    FVista: IVistaUsuario;
+    FApiUsuarios: IApiUsuarios;
+    FApiRoles: IApiRoles;
+    FCancelacion: ICancelacion;
+    FFilas: TObjectList<TFilaPermiso>;
+    FPorId: TDictionary<Integer, TFilaPermiso>;
+    FCambios: TDictionary<Integer, string>;
+    FId: Integer;
+    FNombre: string;
+    FCorreo: string;
+    FRolId: Integer;
+    FAdicionales: Integer;
+    FDebeCambiarClave: Boolean;
+    FPedirCambio: Boolean;
+    procedure TomarOriginal(const AUsuario: TUsuarioDTO);
+    procedure TomarFilas(const AFilas: TObjectList<TFilaPermiso>);
+    function CambiosAEnviar(const AMotivo: string): TCambiosExcepcionesDTO;
+  public
+    constructor Create(const AVista: IVistaUsuario;
+      const AApiUsuarios: IApiUsuarios; const AApiRoles: IApiRoles);
+    destructor Destroy; override;
+    procedure Cargar(const AId: Integer);
+    procedure MarcarPermiso(const APermisoId: Integer; const ATiene: Boolean);
+    function HayCambiosDePermisos: Boolean;
+    function CambioRol(const ARolId: Integer): Boolean;
+    function CambioDatos(const ADatos: TUsuarioEdicionDTO): Boolean;
+    function GuardaPermisos(const ARolId: Integer): Boolean;
+    function PuedeRestablecer: Boolean;
+    function HayCambios(const ADatos: TUsuarioEdicionDTO;
+      const AConPermisos: Boolean): Boolean;
+    procedure PedirCambio(const APedir: Boolean);
+    class function GenerarClave: string;
+    property Adicionales: Integer read FAdicionales;
+    property DebeCambiarClave: Boolean read FDebeCambiarClave;
+    property PideCambio: Boolean read FPedirCambio;
+    procedure Guardar(const ADatos: TUsuarioEdicionDTO; const AMotivo: string;
+      const AConPermisos: Boolean);
+  end;
+
+implementation
+
+uses
+  System.SysUtils,
+  System.Classes,
+  System.Threading,
+  System.Generics.Defaults,
+  Anovo.Api.Base,
+  Anovo.DTOs.Roles,
+  Anovo.Sesion,
+  Anovo.Textos;
+
+const
+  TIPO_OTORGADO = 'otorgado';
+  TIPO_QUITADO = 'quitado';
+  LARGO_CLAVE_TEMPORAL = 12;
+  LETRAS_CLAVE = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
+  DIGITOS_CLAVE = '23456789';
+
+function MensajeInesperado(const AAccion: string): string;
+begin
+  Result := Format(SErrorInesperado, [AAccion]);
+end;
+
+function FilasDe(const AMatriz: TMatrizPermisosDTO; const AUsuario: TUsuarioDTO;
+  const AExcepciones: TObjectList<TExcepcionDTO>): TObjectList<TFilaPermiso>;
+var
+  lPermiso: TPermisoDTO;
+  lAsignacion: TAsignacionDTO;
+  lExcepcion: TExcepcionDTO;
+  lFila: TFilaPermiso;
+begin
+  Result := TObjectList<TFilaPermiso>.Create(True);
+  try
+    for lPermiso in AMatriz.Permisos do
+    begin
+      if not SameText(lPermiso.Ambito, AUsuario.Ambito) then
+        Continue;
+      lFila := TFilaPermiso.Create;
+      Result.Add(lFila);
+      lFila.PermisoId := lPermiso.ID;
+      lFila.Modulo := lPermiso.Modulo;
+      lFila.Nombre := lPermiso.Nombre;
+      for lAsignacion in AMatriz.Asignaciones do
+        if (lAsignacion.RolId = AUsuario.RolId) and
+          (lAsignacion.PermisoId = lPermiso.ID) then
+          lFila.DelRol := True;
+      lFila.Tiene := lFila.DelRol;
+      for lExcepcion in AExcepciones do
+        if lExcepcion.PermisoId = lPermiso.ID then
+        begin
+          lFila.Tiene := lExcepcion.Tipo = TIPO_OTORGADO;
+          lFila.Motivo := lExcepcion.Motivo;
+        end;
+      lFila.TieneOriginal := lFila.Tiene;
+    end;
+    Result.Sort(TComparer<TFilaPermiso>.Construct(
+      function(const A, B: TFilaPermiso): Integer
+      begin
+        Result := CompareText(A.Modulo, B.Modulo);
+        if Result = 0 then
+          Result := CompareText(A.Nombre, B.Nombre);
+      end));
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
+constructor TPresentadorUsuario.Create(const AVista: IVistaUsuario;
+  const AApiUsuarios: IApiUsuarios; const AApiRoles: IApiRoles);
+begin
+  inherited Create;
+  FVista := AVista;
+  FApiUsuarios := AApiUsuarios;
+  FApiRoles := AApiRoles;
+  FCancelacion := TCancelacion.Create;
+  FPorId := TDictionary<Integer, TFilaPermiso>.Create;
+  FCambios := TDictionary<Integer, string>.Create;
+end;
+
+destructor TPresentadorUsuario.Destroy;
+begin
+  FCancelacion.Cancelar;
+  FCambios.Free;
+  FPorId.Free;
+  FFilas.Free;
+  inherited;
+end;
+
+procedure TPresentadorUsuario.TomarOriginal(const AUsuario: TUsuarioDTO);
+begin
+  FNombre := AUsuario.Nombre;
+  FCorreo := AUsuario.Correo;
+  FRolId := AUsuario.RolId;
+  FAdicionales := AUsuario.Excepciones;
+  FDebeCambiarClave := AUsuario.DebeCambiarClave;
+  FPedirCambio := False;
+end;
+
+procedure TPresentadorUsuario.TomarFilas(const AFilas: TObjectList<TFilaPermiso>);
+var
+  lFila: TFilaPermiso;
+begin
+  FFilas.Free;
+  FFilas := AFilas;
+  FPorId.Clear;
+  FCambios.Clear;
+  for lFila in FFilas do
+    FPorId.Add(lFila.PermisoId, lFila);
+end;
+
+procedure TPresentadorUsuario.MarcarPermiso(const APermisoId: Integer;
+  const ATiene: Boolean);
+var
+  lFila: TFilaPermiso;
+begin
+  if not FPorId.TryGetValue(APermisoId, lFila) then
+    Exit;
+  lFila.Tiene := ATiene;
+  if ATiene = lFila.TieneOriginal then
+    FCambios.Remove(APermisoId)
+  else if ATiene = lFila.DelRol then
+    FCambios.AddOrSetValue(APermisoId, '')
+  else if ATiene then
+    FCambios.AddOrSetValue(APermisoId, TIPO_OTORGADO)
+  else
+    FCambios.AddOrSetValue(APermisoId, TIPO_QUITADO);
+end;
+
+function TPresentadorUsuario.HayCambiosDePermisos: Boolean;
+begin
+  Result := FCambios.Count > 0;
+end;
+
+function TPresentadorUsuario.CambioRol(const ARolId: Integer): Boolean;
+begin
+  Result := (FId > 0) and (ARolId <> FRolId);
+end;
+
+function TPresentadorUsuario.CambioDatos(const ADatos
+  : TUsuarioEdicionDTO): Boolean;
+begin
+  Result := (FId = 0) or CambioRol(ADatos.RolId) or
+    (ADatos.Nombre.Trim <> FNombre) or
+    (ADatos.Correo.Trim.ToLower <> FCorreo);
+end;
+
+function TPresentadorUsuario.GuardaPermisos(const ARolId: Integer): Boolean;
+begin
+  Result := (FId > 0) and not CambioRol(ARolId) and HayCambiosDePermisos;
+end;
+
+function TPresentadorUsuario.PuedeRestablecer: Boolean;
+begin
+  Result := (FId > 0) and (FId <> TSesion.UsuarioId);
+end;
+
+class function TPresentadorUsuario.GenerarClave: string;
+var
+  lBytes: TBytes;
+  I: Integer;
+begin
+  lBytes := TGUID.NewGuid.ToByteArray;
+  SetLength(Result, LARGO_CLAVE_TEMPORAL);
+  for I := 1 to LARGO_CLAVE_TEMPORAL do
+    if I mod 4 = 0 then
+      Result[I] := DIGITOS_CLAVE[lBytes[I - 1] mod Length(DIGITOS_CLAVE) + 1]
+    else
+      Result[I] := LETRAS_CLAVE[lBytes[I - 1] mod Length(LETRAS_CLAVE) + 1];
+end;
+
+procedure TPresentadorUsuario.PedirCambio(const APedir: Boolean);
+begin
+  FPedirCambio := APedir and PuedeRestablecer and not FDebeCambiarClave;
+end;
+
+function TPresentadorUsuario.HayCambios(const ADatos: TUsuarioEdicionDTO;
+  const AConPermisos: Boolean): Boolean;
+begin
+  Result := CambioDatos(ADatos) or not ADatos.ClaveTemporal.IsEmpty or
+    FPedirCambio or AConPermisos;
+end;
+
+function TPresentadorUsuario.CambiosAEnviar(const AMotivo: string)
+  : TCambiosExcepcionesDTO;
+var
+  lPar: TPair<Integer, string>;
+  lCambio: TCambioExcepcionDTO;
+begin
+  Result := TCambiosExcepcionesDTO.Create;
+  Result.Motivo := AMotivo;
+  for lPar in FCambios do
+  begin
+    lCambio := TCambioExcepcionDTO.Create;
+    Result.Cambios.Add(lCambio);
+    lCambio.PermisoId := lPar.Key;
+    lCambio.Tipo := lPar.Value;
+  end;
+end;
+
+procedure TPresentadorUsuario.Cargar(const AId: Integer);
+var
+  lCancelacion: ICancelacion;
+  lApiUsuarios: IApiUsuarios;
+  lApiRoles: IApiRoles;
+begin
+  FId := AId;
+  lCancelacion := FCancelacion;
+  lApiUsuarios := FApiUsuarios;
+  lApiRoles := FApiRoles;
+  FVista.MostrarCargando(True);
+
+  TTask.Run(
+    procedure
+    var
+      lMatriz: TMatrizPermisosDTO;
+      lUsuario: TUsuarioDTO;
+      lExcepciones: TObjectList<TExcepcionDTO>;
+      lFilas: TObjectList<TFilaPermiso>;
+      lError: string;
+    begin
+      lMatriz := nil;
+      lUsuario := nil;
+      lExcepciones := nil;
+      lFilas := nil;
+      lError := '';
+      try
+        lMatriz := lApiRoles.Matriz;
+        if AId > 0 then
+        begin
+          lUsuario := lApiUsuarios.Obtener(AId);
+          lExcepciones := lApiUsuarios.Excepciones(AId);
+          lFilas := FilasDe(lMatriz, lUsuario, lExcepciones);
+        end;
+      except
+        on E: EAnovoCliente do
+          lError := E.Message;
+        on E: Exception do
+          lError := MensajeInesperado(SAccionCargarUsuario);
+      end;
+
+      TThread.Queue(nil,
+        procedure
+        begin
+          try
+            if lCancelacion.Cancelada then
+              Exit;
+            FVista.MostrarCargando(False);
+            if not lError.IsEmpty then
+            begin
+              FVista.MostrarError(lError);
+              Exit;
+            end;
+            FVista.MostrarRoles(lMatriz.Roles);
+            if lUsuario <> nil then
+            begin
+              TomarOriginal(lUsuario);
+              FVista.MostrarUsuario(lUsuario);
+              TomarFilas(lFilas);
+              lFilas := nil;
+              FVista.MostrarPermisos(FFilas);
+            end;
+          finally
+            lFilas.Free;
+            lExcepciones.Free;
+            lUsuario.Free;
+            lMatriz.Free;
+          end;
+        end);
+    end);
+end;
+
+procedure TPresentadorUsuario.Guardar(const ADatos: TUsuarioEdicionDTO;
+  const AMotivo: string; const AConPermisos: Boolean);
+var
+  lCancelacion: ICancelacion;
+  lApi: IApiUsuarios;
+  lId: Integer;
+  lClave: string;
+  lPedir, lEnviarDatos: Boolean;
+  lCambios: TCambiosExcepcionesDTO;
+begin
+  lId := FId;
+  ADatos.Nombre := ADatos.Nombre.Trim;
+  ADatos.Correo := ADatos.Correo.Trim;
+  lClave := ADatos.ClaveTemporal;
+  lPedir := FPedirCambio and lClave.IsEmpty;
+  lEnviarDatos := CambioDatos(ADatos);
+  if lId > 0 then
+    ADatos.ClaveTemporal := '';
+  lCambios := nil;
+  if AConPermisos and HayCambiosDePermisos then
+    lCambios := CambiosAEnviar(AMotivo);
+  lCancelacion := FCancelacion;
+  lApi := FApiUsuarios;
+  FVista.MostrarGuardando(True);
+
+  TTask.Run(
+    procedure
+    var
+      lError: string;
+    begin
+      lError := '';
+      try
+        try
+          if lId = 0 then
+            lApi.Crear(ADatos).Free
+          else
+          begin
+            if lEnviarDatos then
+              lApi.Editar(lId, ADatos);
+            if not lClave.IsEmpty then
+              lApi.RestablecerClave(lId, lClave);
+            if lPedir then
+              lApi.PedirCambioClave(lId);
+            if lCambios <> nil then
+              lApi.CambiarExcepciones(lId, lCambios);
+          end;
+        except
+          on E: EAnovoCliente do
+            lError := E.Message;
+          on E: Exception do
+            lError := MensajeInesperado(SAccionGuardar);
+        end;
+      finally
+        ADatos.Free;
+        lCambios.Free;
+      end;
+
+      TThread.Queue(nil,
+        procedure
+        begin
+          if lCancelacion.Cancelada then
+            Exit;
+          FVista.MostrarGuardando(False);
+          if not lError.IsEmpty then
+          begin
+            FVista.MostrarError(lError);
+            Exit;
+          end;
+          FVista.Guardado;
+        end);
+    end);
+end;
+
+end.

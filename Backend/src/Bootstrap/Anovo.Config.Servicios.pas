@@ -50,7 +50,11 @@ uses
   Anovo.Services.Intf.Reportes,
   Anovo.Services.Reportes,
   Anovo.Services.Intf.Sesion,
-  Anovo.Services.Sesion;
+  Anovo.Services.Sesion,
+  Anovo.Services.Intf.Roles,
+  Anovo.Services.Roles,
+  Anovo.Services.Intf.Usuarios,
+  Anovo.Services.Usuarios;
 
 procedure RegisterServices(Container: IMVCServiceContainer);
 begin
@@ -137,6 +141,15 @@ begin
     TRegistrationType.Singleton);
 
   Container.RegisterType(TPermisoService, IPermisoService,
+    TRegistrationType.SingletonPerRequest);
+
+  Container.RegisterType(TPermisoCatalogoRepository, IPermisoCatalogoRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TRolService, IRolService,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TUsuarioPermisoRepository, IUsuarioPermisoRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TUsuarioService, IUsuarioService,
     TRegistrationType.SingletonPerRequest);
 end;
 

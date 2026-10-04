@@ -49,6 +49,8 @@ uses
 const
   ENTIDAD_USUARIOS = 'USUARIOS';
   ENTIDAD_USUARIOS_CLAVES = 'USUARIOS_CLAVES';
+  ENTIDAD_ROLES_PERMISOS = 'ROLES_PERMISOS';
+  ENTIDAD_USUARIOS_PERMISOS = 'USUARIOS_PERMISOS';
 
   USUARIO_DESCONOCIDO = 'Usuario eliminado';
   USUARIO_SISTEMA = 'Sistema';
@@ -73,10 +75,11 @@ begin
 
   if lEntidad = '' then
     Exit(ENTIDAD_USUARIOS);
-  if not MatchStr(lEntidad, [ENTIDAD_USUARIOS, ENTIDAD_USUARIOS_CLAVES]) then
+  if not MatchStr(lEntidad, [ENTIDAD_USUARIOS, ENTIDAD_USUARIOS_CLAVES,
+    ENTIDAD_ROLES_PERMISOS, ENTIDAD_USUARIOS_PERMISOS]) then
     raise ESinPermiso.Create
-      ('Con auditoria.ver_cuentas solo se consulta USUARIOS y ' +
-      'USUARIOS_CLAVES.');
+      ('Con auditoria.ver_cuentas solo se consulta USUARIOS, ' +
+      'USUARIOS_CLAVES, ROLES_PERMISOS y USUARIOS_PERMISOS.');
   Result := lEntidad;
 end;
 

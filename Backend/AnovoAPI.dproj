@@ -257,6 +257,14 @@
         <DCCReference Include="src\UI\Anovo.Forms.Servidor.pas">
             <Form>frmServidor</Form>
         </DCCReference>
+        <DCCReference Include="src\Services\Anovo.Services.Roles.pas"/>
+        <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Roles.pas"/>
+        <DCCReference Include="src\DTOs\Anovo.DTOs.Roles.pas"/>
+        <DCCReference Include="src\Controllers\Anovo.Controllers.Roles.pas"/>
+        <DCCReference Include="src\DTOs\Anovo.DTOs.Usuarios.pas"/>
+        <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Usuarios.pas"/>
+        <DCCReference Include="src\Services\Anovo.Services.Usuarios.pas"/>
+        <DCCReference Include="src\Controllers\Anovo.Controllers.Usuarios.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

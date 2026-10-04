@@ -17,7 +17,8 @@ type
   private
     fRtti: TRttiContext;
     function TieneAlguno(const APermisos: IPermisoService;
-      UserRoles: TList<string>; const ACodigos: TArray<string>): Boolean;
+      const AUsuarioId: Integer; UserRoles: TList<string>;
+      const ACodigos: TArray<string>): Boolean;
     function CumplePermisos(const AContext: TWebContext;
       UserRoles: TList<string>;
       const AAtributos: TArray<TCustomAttribute>): Boolean;
@@ -52,6 +53,17 @@ begin
   inherited;
 end;
 
+function UsuarioDe(const AContext: TWebContext): Integer;
+var
+  lTexto: string;
+begin
+  lTexto := '';
+  if Assigned(AContext.LoggedUser.CustomData) then
+    AContext.LoggedUser.CustomData.TryGetValue('USUARIO_ID', lTexto);
+  if not TryStrToInt(lTexto, Result) then
+    Result := 0;
+end;
+
 function TAuthentication.CumplePermisos(const AContext: TWebContext;
   UserRoles: TList<string>; const AAtributos: TArray<TCustomAttribute>)
   : Boolean;
@@ -66,20 +78,21 @@ begin
       if lPermisos = nil then
         lPermisos := AContext.ServiceContainerResolver.Resolve(
           TypeInfo(IPermisoService)) as IPermisoService;
-      if not TieneAlguno(lPermisos, UserRoles,
+      if not TieneAlguno(lPermisos, UsuarioDe(AContext), UserRoles,
         MVCRequiresPermisoAttribute(lAtributo).GetPermisos) then
         Exit(False);
     end;
 end;
 
 function TAuthentication.TieneAlguno(const APermisos: IPermisoService;
-  UserRoles: TList<string>; const ACodigos: TArray<string>): Boolean;
+  const AUsuarioId: Integer; UserRoles: TList<string>;
+  const ACodigos: TArray<string>): Boolean;
 var
   lRol, lCodigo: string;
 begin
   for lRol in UserRoles do
     for lCodigo in ACodigos do
-      if APermisos.Tiene(lRol, lCodigo) then
+      if APermisos.Tiene(AUsuarioId, lRol, lCodigo) then
         Exit(True);
   Result := False;
 end;

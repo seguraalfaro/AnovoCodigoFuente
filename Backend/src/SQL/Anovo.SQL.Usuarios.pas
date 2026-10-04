@@ -14,6 +14,14 @@ const
 
   USUARIO_SISTEMA = 'CORREO = ''sistema@anovo.local''';
 
+  USUARIO_CORREO_DUPLICADO = 'UPPER(CORREO) = UPPER(?) AND ID <> ?';
+
+  USUARIOS_DE_ROL = 'ROL_ID = ?';
+
+  EXCEPCIONES_DE_USUARIO = 'USUARIO_ID = ?';
+
+  EXCEPCION_DE_USUARIO = 'USUARIO_ID = ? AND PERMISO_ID = ?';
+
 implementation
 
 end.

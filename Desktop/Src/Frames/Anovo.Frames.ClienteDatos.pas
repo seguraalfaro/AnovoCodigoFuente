@@ -200,16 +200,11 @@ end;
 
 procedure TfraClienteDatos.PrepararAcciones(const AGrid: TrDBGrid;
   const AAcciones: array of TAccionRejilla; const AActiva: Boolean);
-var
-  lRejilla: TDBGridExtend;
-  lAccion: TAccionRejilla;
 begin
-  lRejilla := TDBGridExtend.De(AGrid);
-  lRejilla.Limpiar;
   if AActiva then
-    for lAccion in AAcciones do
-      lRejilla.Agregar(lAccion.Clave, lAccion.Rotulo);
-  lRejilla.AjustarAcciones;
+    TDBGridExtend.De(AGrid).PonerLista(AAcciones)
+  else
+    TDBGridExtend.De(AGrid).PonerLista([]);
 end;
 
 procedure TfraClienteDatos.BotonesDeEdicion(const AEdicion: Boolean);

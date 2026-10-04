@@ -5,8 +5,13 @@ unit Anovo.Repositories.Intf.Permisos;
 interface
 
 uses
+  System.Generics.Collections,
   MVCFramework.Repository,
   Anovo.Entities.Permisos;
+
+const
+  TIPO_OTORGADO = 'otorgado';
+  TIPO_QUITADO = 'quitado';
 
 type
   TRolPermiso = record
@@ -14,10 +19,22 @@ type
     Permiso: string;
   end;
 
+  TExcepcionPermiso = record
+    UsuarioId: Integer;
+    Permiso: string;
+    Otorgado: Boolean;
+  end;
+
   IPermisoRepository = interface(IMVCRepository<TRolesPermisos>)
     ['{B7E3D2A1-5C4F-4E8B-9A16-3F0D7C29E851}']
 
     function Matriz: TArray<TRolPermiso>;
+    function Excepciones: TArray<TExcepcionPermiso>;
+  end;
+
+  IPermisoCatalogoRepository = interface(IMVCRepository<TPermisos>)
+    ['{544E293B-EA1E-433E-8403-EFE332186997}']
+    function Catalogo: TObjectList<TPermisos>;
   end;
 
 implementation

@@ -1,12 +1,14 @@
 unit Anovo.Repositories.Usuarios;
 
-// Repositorios de usuarios, de sus claves y de los roles.
+// Repositorios de usuarios, de sus claves, de los roles y de las
+// excepciones de permisos por usuario.
 
 interface
 
 uses
   System.Generics.Collections,
   MVCFramework.Repository,
+  Anovo.Entities.Consultas,
   Anovo.Repositories.Base,
   Anovo.Repositories.Intf.Usuarios,
   Anovo.Entities.Usuarios;
@@ -18,6 +20,13 @@ type
       : TDictionary<Integer, string>;
     function IdSistema: Integer;
     function PorCorreo(const ACorreo: string): TUsuarios;
+    function Buscar(const ATexto, AEstado: string;
+      const APagina, APorPagina: Integer): TObjectList<TUsuariosBuscados>;
+    function ContarBusqueda(const ATexto, AEstado: string): Int64;
+    function Vista(const AId: Integer): TUsuariosBuscados;
+    function ExisteCorreo(const ACorreo: string;
+      const AExcluirId: Integer): Boolean;
+    function DeRol(const ARolId: Integer): TObjectList<TUsuarios>;
   end;
 
   TUsuarioClaveRepository = class(TAnovoRepository<TUsuariosClaves>,
@@ -27,6 +36,18 @@ type
   end;
 
   TRolRepository = class(TAnovoRepository<TRoles>, IRolRepository)
+  public
+    function Resumen: TObjectList<TRolesOrdenados>;
+  end;
+
+  TUsuarioPermisoRepository = class(TAnovoRepository<TUsuariosPermisos>,
+    IUsuarioPermisoRepository)
+  public
+    function ExcepcionesDe(const AUsuarioId: Integer)
+      : TObjectList<TExcepcionesDePermisos>;
+    function DeUsuario(const AUsuarioId: Integer)
+      : TObjectList<TUsuariosPermisos>;
+    function Una(const AUsuarioId, APermisoId: Integer): TUsuariosPermisos;
   end;
 
 implementation
@@ -68,6 +89,78 @@ begin
     Result.Free;
     raise;
   end;
+end;
+
+function NombreBusqueda(const AEstado: string): string;
+begin
+  if SameText(AEstado, ESTADO_USUARIOS_ACTIVOS) then
+    Result := CONSULTA_BUSCAR_ACTIVOS
+  else if SameText(AEstado, ESTADO_USUARIOS_INACTIVOS) then
+    Result := CONSULTA_BUSCAR_INACTIVOS
+  else if SameText(AEstado, ESTADO_USUARIOS_CLAVE_PENDIENTE) then
+    Result := CONSULTA_BUSCAR_CLAVE_PENDIENTE
+  else if SameText(AEstado, ESTADO_USUARIOS_CON_ADICIONALES) then
+    Result := CONSULTA_BUSCAR_CON_ADICIONALES
+  else
+    Result := CONSULTA_BUSCAR;
+end;
+
+function TUsuarioRepository.Buscar(const ATexto, AEstado: string;
+  const APagina, APorPagina: Integer): TObjectList<TUsuariosBuscados>;
+begin
+  Result := ListarConsulta<TUsuariosBuscados>(NombreBusqueda(AEstado),
+    [TextoParaRQL(ATexto), TextoParaRQL(ATexto), (APagina - 1) * APorPagina,
+    APorPagina]);
+end;
+
+function TUsuarioRepository.ContarBusqueda(const ATexto,
+  AEstado: string): Int64;
+begin
+  Result := ContarConsulta<TUsuariosBuscados>(NombreBusqueda(AEstado),
+    [TextoParaRQL(ATexto), TextoParaRQL(ATexto), 0, 0]);
+end;
+
+function TUsuarioRepository.Vista(const AId: Integer): TUsuariosBuscados;
+begin
+  Result := PrimeraFilaDeConsulta<TUsuariosBuscados>(CONSULTA_POR_ID, [AId]);
+end;
+
+function TUsuarioRepository.ExisteCorreo(const ACorreo: string;
+  const AExcluirId: Integer): Boolean;
+begin
+  Result := ContarPorFiltro(USUARIO_CORREO_DUPLICADO, [ACorreo, AExcluirId]) > 0;
+end;
+
+function TUsuarioRepository.DeRol(const ARolId: Integer)
+  : TObjectList<TUsuarios>;
+begin
+  Result := GetWhere(USUARIOS_DE_ROL, [ARolId]);
+end;
+
+function TUsuarioPermisoRepository.ExcepcionesDe(const AUsuarioId: Integer)
+  : TObjectList<TExcepcionesDePermisos>;
+begin
+  Result := ListarConsulta<TExcepcionesDePermisos>(CONSULTA_DE_USUARIO,
+    [AUsuarioId], SIN_LIMITE);
+end;
+
+function TUsuarioPermisoRepository.DeUsuario(const AUsuarioId: Integer)
+  : TObjectList<TUsuariosPermisos>;
+begin
+  Result := GetWhere(EXCEPCIONES_DE_USUARIO, [AUsuarioId]);
+end;
+
+function TUsuarioPermisoRepository.Una(const AUsuarioId,
+  APermisoId: Integer): TUsuariosPermisos;
+begin
+  Result := GetOneByWhere(EXCEPCION_DE_USUARIO, [AUsuarioId, APermisoId],
+    False);
+end;
+
+function TRolRepository.Resumen: TObjectList<TRolesOrdenados>;
+begin
+  Result := ListarConsulta<TRolesOrdenados>(CONSULTA_ORDENADAS, [],
+    SIN_LIMITE);
 end;
 
 function TUsuarioClaveRepository.ClaveActivaDe(const AUsuarioId: Integer)

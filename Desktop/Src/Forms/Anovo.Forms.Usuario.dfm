@@ -1,0 +1,329 @@
+inherited frmUsuario: TfrmUsuario
+  Caption = 'Usuario'
+  ClientHeight = 560
+  ClientWidth = 640
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  ExplicitWidth = 646
+  ExplicitHeight = 589
+  PixelsPerInch = 96
+  TextHeight = 15
+  inherited TitleBarPanel1: TTitleBarPanel
+    Width = 640
+  end
+  inherited pnlTitulo: TPanel
+    Width = 640
+    ExplicitWidth = 640
+    inherited lblTitulo: TLabel
+      Width = 40
+      Caption = 'Usuario'
+      ExplicitWidth = 40
+    end
+    inherited lblSubtitulo: TLabel
+      Width = 3
+      Caption = ''
+      ExplicitWidth = 3
+    end
+  end
+  inherited pnlPie: TRelativePanel
+    Top = 500
+    Width = 640
+    TabOrder = 3
+    ExplicitTop = 500
+    ExplicitWidth = 640
+    inherited btnGuardar: TPlanoBotonWin
+      Left = 500
+      OnClick = btnGuardarClick
+    end
+    inherited btnCancelar: TPlanoBotonWin
+      Left = 374
+    end
+  end
+  object pstSecciones: TPlanoPestanas
+    AlignWithMargins = True
+    Left = 3
+    Top = 90
+    Width = 634
+    Height = 40
+    Items.Strings = (
+      'Datos'
+      'Permisos')
+    CardPanel = cpUsuario
+    Indent = 20
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ActiveFont.Charset = DEFAULT_CHARSET
+    ActiveFont.Color = clWindowText
+    ActiveFont.Height = -12
+    ActiveFont.Name = 'Segoe UI Semibold'
+    ActiveFont.Style = []
+    ParentFont = False
+  end
+  object cpUsuario: TCardPanel
+    Left = 0
+    Top = 133
+    Width = 640
+    Height = 367
+    Align = alClient
+    ActiveCard = crdDatos
+    BevelOuter = bvNone
+    Caption = 'cpUsuario'
+    TabOrder = 1
+    object crdDatos: TCard
+      Left = 0
+      Top = 0
+      Width = 640
+      Height = 367
+      Caption = 'Datos'
+      CardIndex = 0
+      TabOrder = 0
+      object lblAviso: TLabel
+        Tag = 14
+        Left = 20
+        Top = 118
+        Width = 600
+        Height = 32
+        AutoSize = False
+        Caption = 'Al cambiar de rol se quitan sus permisos adicionales.'
+        WordWrap = True
+      end
+      object lblFechas: TLabel
+        Tag = 13
+        Left = 20
+        Top = 330
+        Width = 600
+        Height = 15
+        AutoSize = False
+      end
+      object edNombre: TrDBEdit
+        Left = 20
+        Top = 25
+        Width = 600
+        Height = 23
+        DataField = 'NOMBRE'
+        DataSource = dmMemoria.dsUsuario
+        TabOrder = 0
+        StyleElements = []
+        ReadOnlyColor = 15987699
+        DBEditLabel.AlignWithMargins = True
+        DBEditLabel.Margins.Top = 5
+        DBEditLabel.OwnCaption = 'Nombre completo'
+        DBEditLabel.ShowRequiredBold = True
+      end
+      object edCorreo: TrDBEdit
+        Left = 20
+        Top = 88
+        Width = 290
+        Height = 23
+        DataField = 'CORREO'
+        DataSource = dmMemoria.dsUsuario
+        TabOrder = 1
+        StyleElements = []
+        ReadOnlyColor = 15987699
+        DBEditLabel.AlignWithMargins = True
+        DBEditLabel.Margins.Top = 5
+        DBEditLabel.OwnCaption = 'Correo'
+        DBEditLabel.ShowRequiredBold = True
+      end
+      object cbRol: TrDBLookupComboBox
+        Left = 330
+        Top = 88
+        Width = 290
+        Height = 23
+        DataField = 'ROL_ID'
+        DataSource = dmMemoria.dsUsuario
+        DropDownRows = 6
+        KeyField = 'ID'
+        ListField = 'NOMBRE'
+        ListSource = dmMemoria.dsRoles
+        TabOrder = 2
+        OnClick = cbRolClick
+        ReadOnlyColor = 15987699
+        DBEditLabel.OwnCaption = 'Rol'
+        DBEditLabel.ShowRequiredBold = True
+        BoundLabel.Position = lpTopRight
+        EmptyDisplayValue = 'Sin especificar'
+      end
+      object tjClave: TPlanoTarjeta
+        Tag = 3
+        Left = 20
+        Top = 156
+        Width = 600
+        Height = 164
+        Caption = 'Clave de acceso'
+        TabOrder = 3
+        object lblClaveEstado: TLabel
+          Tag = 13
+          Left = 124
+          Top = 52
+          Width = 160
+          Height = 15
+          AutoSize = False
+        end
+        object lblClaveNota: TLabel
+          Tag = 13
+          Left = 16
+          Top = 124
+          Width = 568
+          Height = 32
+          AutoSize = False
+          WordWrap = True
+        end
+        object pstClave: TPlanoPastilla
+          Left = 16
+          Top = 48
+          Width = 100
+          Height = 22
+          Status = fsInfo
+          Caption = 'Vigente'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Segoe UI Semibold'
+          Font.Style = []
+          ParentFont = False
+        end
+        object btnPedirCambio: TPlanoBotonWin
+          Left = 290
+          Top = 44
+          Width = 160
+          Height = 28
+          Cursor = crHandPoint
+          Caption = 'Pedir cambio al entrar'
+          TabOrder = 0
+          StyleElements = []
+          OnClick = btnPedirCambioClick
+          Kind = fkSecondary
+        end
+        object btnGenerar: TPlanoBotonWin
+          Left = 460
+          Top = 44
+          Width = 124
+          Height = 28
+          Cursor = crHandPoint
+          Caption = 'Generar clave'
+          TabOrder = 1
+          StyleElements = []
+          OnClick = btnGenerarClick
+          Kind = fkSecondary
+        end
+        object edClave: TrDBEdit
+          Tag = 1
+          Left = 16
+          Top = 82
+          Width = 436
+          Height = 31
+          DataField = 'CLAVE_TEMPORAL'
+          DataSource = dmMemoria.dsUsuario
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'Consolas'
+          Font.Style = []
+          ParentFont = False
+          ReadOnly = True
+          TabOrder = 2
+          StyleElements = []
+          ReadOnlyColor = 15987699
+          DBEditLabel.Visible = False
+        end
+        object btnCopiar: TPlanoBotonWin
+          Left = 460
+          Top = 84
+          Width = 124
+          Height = 28
+          Cursor = crHandPoint
+          Caption = 'Copiar'
+          TabOrder = 3
+          StyleElements = []
+          OnClick = btnCopiarClick
+          Kind = fkSecondary
+        end
+      end
+    end
+    object crdPermisos: TCard
+      Left = 0
+      Top = 0
+      Width = 640
+      Height = 367
+      Caption = 'Permisos'
+      CardIndex = 1
+      TabOrder = 1
+      object lblResumen: TLabel
+        Tag = 13
+        AlignWithMargins = True
+        Left = 20
+        Top = 8
+        Width = 600
+        Height = 15
+        Margins.Left = 20
+        Margins.Top = 8
+        Margins.Right = 20
+        Align = alTop
+        ExplicitWidth = 3
+      end
+      object grPermisos: TrDBGrid
+        AlignWithMargins = True
+        Left = 20
+        Top = 29
+        Width = 600
+        Height = 330
+        Margins.Left = 20
+        Margins.Right = 20
+        Margins.Bottom = 8
+        Align = alClient
+        BorderStyle = bsNone
+        DataSource = dmMemoria.dsPermisosUsuario
+        DefaultDrawing = False
+        Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
+        TabOrder = 0
+        TitleFont.Charset = ANSI_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -12
+        TitleFont.Name = 'Segoe UI'
+        TitleFont.Style = []
+        StyleElements = [seFont]
+        OnCellClick = grPermisosCellClick
+        Columns = <
+          item
+            Expanded = False
+            FieldName = 'MODULO'
+            Title.Caption = 'M'#243'dulo'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'TIENE'
+            Title.Caption = 'Tiene'
+            Width = 50
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'NOMBRE'
+            Title.Caption = 'Permiso'
+            Width = 190
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ORIGEN'
+            Title.Caption = 'Origen'
+            Width = 100
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'MOTIVO'
+            Title.Caption = 'Motivo'
+            Width = 150
+            Visible = True
+          end>
+      end
+    end
+  end
+end

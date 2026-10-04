@@ -105,7 +105,15 @@ uses
   Anovo.Services.Sesion in 'src\Services\Anovo.Services.Sesion.pas',
   Anovo.Controllers.Version in 'src\Controllers\Anovo.Controllers.Version.pas',
   Anovo.Middleware.Actividad in 'src\Middleware\Anovo.Middleware.Actividad.pas',
-  Anovo.Forms.Servidor in 'src\UI\Anovo.Forms.Servidor.pas' {frmServidor};
+  Anovo.Forms.Servidor in 'src\UI\Anovo.Forms.Servidor.pas' {frmServidor},
+  Anovo.Services.Roles in 'src\Services\Anovo.Services.Roles.pas',
+  Anovo.Services.Intf.Roles in 'src\Interfaces\Anovo.Services.Intf.Roles.pas',
+  Anovo.DTOs.Roles in 'src\DTOs\Anovo.DTOs.Roles.pas',
+  Anovo.Controllers.Roles in 'src\Controllers\Anovo.Controllers.Roles.pas',
+  Anovo.DTOs.Usuarios in 'src\DTOs\Anovo.DTOs.Usuarios.pas',
+  Anovo.Services.Intf.Usuarios in 'src\Interfaces\Anovo.Services.Intf.Usuarios.pas',
+  Anovo.Services.Usuarios in 'src\Services\Anovo.Services.Usuarios.pas',
+  Anovo.Controllers.Usuarios in 'src\Controllers\Anovo.Controllers.Usuarios.pas';
 
 {$R *.res}
 

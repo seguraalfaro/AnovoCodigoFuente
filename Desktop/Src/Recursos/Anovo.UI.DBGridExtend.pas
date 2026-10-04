@@ -27,6 +27,8 @@ type
   TAccionRejilla = record
     Clave: string;
     Rotulo: string;
+    Alterno: string;
+    Campo: string;
   end;
 
   TEventoAccion = procedure(Sender: TObject; const AClave: string) of object;
@@ -46,10 +48,13 @@ type
     FCoordHover: TGridCoord;
     FBotonHover: Integer;
     function EsColumnaEstado(const ACampo: string): Boolean;
+    function SinFilas: Boolean;
     function FondoDeCelda(const ARect: TRect; AColumn: TColumn): TColor;
     procedure RellenarFondo(const ARect: TRect; AColumn: TColumn);
     procedure DibujarEstado(const ARect: TRect; AColumn: TColumn);
     procedure DibujarAcciones(const ARect: TRect; AColumn: TColumn);
+    function AnchoRotulo(ACanvas: TCanvas; AIndice: Integer): Integer;
+    function RotuloDe(AIndice: Integer): string;
     function RectDeBoton(const ACelda: TRect; AIndice: Integer): TRect;
     function BotonEnPunto(AX, AY: Integer; out ATop: Integer;
       out ACoord: TGridCoord): Integer;
@@ -69,7 +74,11 @@ type
     procedure ColumnaEstado(const ACampo: string);
     procedure ColumnaAcciones(const ACampo: string);
     procedure Agregar(const AClave, ARotulo: string);
+    procedure AgregarAlterna(const AClave, ARotulo, AAlterno, ACampo: string);
     procedure Limpiar;
+    procedure PonerLista(const AAcciones: array of TAccionRejilla);
+    procedure PonerAcciones<T>(const ATodas: array of TAccionRejilla;
+      const APermitidas: T);
     function AnchoAcciones: Integer;
     procedure AjustarAcciones;
     procedure AjustarColumnas;
@@ -80,7 +89,7 @@ type
 implementation
 
 uses
-  Winapi.Windows, System.SysUtils, System.UITypes, Data.DB, RosiCompGlobalCfg,
+  Winapi.Windows, System.SysUtils, System.Math, System.UITypes, Data.DB, RosiCompGlobalCfg,
   VclPlano.Paleta, VclPlano.Dibujo, VclPlano.Pastilla, Anovo.UI.Tema;
 
 const
@@ -111,10 +120,11 @@ begin
   if (e = 'borrador') or (e = 'pendiente') or (e = 'recibida') or
     (e = 'programado') then
     Result := fsPending
-  else if (e = 'aprobada') or (e = 'activo') or (e = 'firmado') then
+  else if (e = 'aprobada') or (e = 'activo') or (e = 'firmado') or
+    (e = 'adicional') then
     Result := fsSuccess
   else if (e = 'rechazada') or (e = 'descartada') or (e = 'inactivo') or
-    (e = 'revocado') then
+    (e = 'revocado') or (e = 'quitado') then
     Result := fsDanger
   else if (e = 'enviada') or (e = 'en_cotizacion') or (e = 'en cotizacion') then
     Result := fsInfo
@@ -172,9 +182,76 @@ begin
   FAcciones := FAcciones + [lNueva];
 end;
 
+procedure TDBGridExtend.AgregarAlterna(const AClave, ARotulo, AAlterno,
+  ACampo: string);
+var
+  lNueva: TAccionRejilla;
+begin
+  lNueva.Clave := AClave;
+  lNueva.Rotulo := ARotulo;
+  lNueva.Alterno := AAlterno;
+  lNueva.Campo := ACampo;
+  FAcciones := FAcciones + [lNueva];
+end;
+
+function TDBGridExtend.AnchoRotulo(ACanvas: TCanvas; AIndice: Integer): Integer;
+begin
+  Result := ACanvas.TextWidth(FAcciones[AIndice].Rotulo);
+  if FAcciones[AIndice].Alterno <> '' then
+    Result := Max(Result, ACanvas.TextWidth(FAcciones[AIndice].Alterno));
+end;
+
+function TDBGridExtend.RotuloDe(AIndice: Integer): string;
+var
+  lCampo: TField;
+begin
+  Result := FAcciones[AIndice].Rotulo;
+  if (FAcciones[AIndice].Campo = '') or (FGrid.DataSource = nil) or
+    (FGrid.DataSource.DataSet = nil) then
+    Exit;
+  lCampo := FGrid.DataSource.DataSet.FindField(FAcciones[AIndice].Campo);
+  if (lCampo <> nil) and not lCampo.AsBoolean then
+    Result := FAcciones[AIndice].Alterno;
+end;
+
 procedure TDBGridExtend.Limpiar;
 begin
   SetLength(FAcciones, 0);
+end;
+
+procedure TDBGridExtend.PonerLista(const AAcciones: array of TAccionRejilla);
+var
+  lAccion: TAccionRejilla;
+begin
+  Limpiar;
+  for lAccion in AAcciones do
+    if lAccion.Campo = '' then
+      Agregar(lAccion.Clave, lAccion.Rotulo)
+    else
+      AgregarAlterna(lAccion.Clave, lAccion.Rotulo, lAccion.Alterno,
+        lAccion.Campo);
+  AjustarColumnas;
+end;
+
+procedure TDBGridExtend.PonerAcciones<T>(const ATodas: array of TAccionRejilla;
+  const APermitidas: T);
+var
+  lBits: UInt64;
+  lTamano, I: Integer;
+  lElegidas: TArray<TAccionRejilla>;
+begin
+  Assert(GetTypeKind(T) = tkSet);
+  lBits := 0;
+  lTamano := SizeOf(T);
+  if lTamano > SizeOf(lBits) then
+    lTamano := SizeOf(lBits);
+  Move(APermitidas, lBits, lTamano);
+
+  lElegidas := [];
+  for I := 0 to High(ATodas) do
+    if (lBits and (UInt64(1) shl I)) <> 0 then
+      lElegidas := lElegidas + [ATodas[I]];
+  PonerLista(lElegidas);
 end;
 
 function TDBGridExtend.EsColumnaEstado(const ACampo: string): Boolean;
@@ -201,7 +278,7 @@ begin
     FuenteDeCelda(lAux.Canvas, FGrid.Font);
     for I := 0 to High(FAcciones) do
     begin
-      Inc(Result, lAux.Canvas.TextWidth(FAcciones[I].Rotulo) + RELLENO_BOTON * 2);
+      Inc(Result, AnchoRotulo(lAux.Canvas, I) + RELLENO_BOTON * 2);
       if I > 0 then
         Inc(Result, SEPARACION_BOTONES);
     end;
@@ -232,6 +309,12 @@ procedure TDBGridExtend.AjustarColumnas;
 begin
   AjustarAcciones;
   Anovo.UI.DBGridExtend.AjustarColumnas(FGrid);
+end;
+
+function TDBGridExtend.SinFilas: Boolean;
+begin
+  Result := (FGrid.DataSource = nil) or (FGrid.DataSource.DataSet = nil) or
+    not FGrid.DataSource.DataSet.Active or FGrid.DataSource.DataSet.IsEmpty;
 end;
 
 function TDBGridExtend.FondoDeCelda(const ARect: TRect; AColumn: TColumn): TColor;
@@ -301,11 +384,11 @@ var
 begin
   lX := ACelda.Left + MARGEN_CELDA;
   for I := 0 to AIndice - 1 do
-    lX := lX + FGrid.Canvas.TextWidth(FAcciones[I].Rotulo) + RELLENO_BOTON * 2 +
+    lX := lX + AnchoRotulo(FGrid.Canvas, I) + RELLENO_BOTON * 2 +
       SEPARACION_BOTONES;
 
   Result.Left := lX;
-  Result.Right := lX + FGrid.Canvas.TextWidth(FAcciones[AIndice].Rotulo) +
+  Result.Right := lX + AnchoRotulo(FGrid.Canvas, AIndice) +
     RELLENO_BOTON * 2;
   Result.Top := ACelda.Top + (ACelda.Height - ALTO_BOTON) div 2;
   Result.Bottom := Result.Top + ALTO_BOTON;
@@ -316,6 +399,7 @@ var
   I: Integer;
   lBoton: TRect;
   lTexto: TColor;
+  lRotulo: string;
 begin
   RellenarFondo(ARect, AColumn);
   FuenteDeCelda(FGrid.Canvas, FGrid.Font);
@@ -341,7 +425,8 @@ begin
 
     FGrid.Canvas.Brush.Style := bsClear;
     FGrid.Canvas.Font.Color := lTexto;
-    FGrid.Canvas.TextRect(lBoton, FAcciones[I].Rotulo,
+    lRotulo := RotuloDe(I);
+    FGrid.Canvas.TextRect(lBoton, lRotulo,
       [tfCenter, tfVerticalCenter, tfSingleLine]);
     FGrid.Canvas.Brush.Style := bsSolid;
   end;
@@ -350,13 +435,22 @@ end;
 procedure TDBGridExtend.DibujarCelda(Sender: TObject; const ARect: TRect;
   ADataCol: Integer; AColumn: TColumn; AState: TGridDrawState);
 begin
-  if AColumn <> nil then
+  if (AColumn <> nil) and SinFilas then
+  begin
+    if SameText(AColumn.FieldName, FCampoAcciones) or
+      EsColumnaEstado(AColumn.FieldName) then
+      RellenarFondo(ARect, AColumn);
+  end
+  else if AColumn <> nil then
   begin
     if (FCampoAcciones <> '') and (Length(FAcciones) > 0) and
       SameText(AColumn.FieldName, FCampoAcciones) then
       DibujarAcciones(ARect, AColumn)
     else if EsColumnaEstado(AColumn.FieldName) and (AColumn.Field <> nil) then
-      DibujarEstado(ARect, AColumn);
+      DibujarEstado(ARect, AColumn)
+    else if (AColumn.Field <> nil) and (AColumn.Field.DataType = ftBoolean) and
+      AColumn.Field.IsNull then
+      RellenarFondo(ARect, AColumn);
   end;
 
   if Assigned(FCeldaAnterior) then
@@ -418,7 +512,7 @@ begin
   ATop := -1;
   ACoord.X := -1;
   ACoord.Y := -1;
-  if (FCampoAcciones = '') or (Length(FAcciones) = 0) then
+  if (FCampoAcciones = '') or (Length(FAcciones) = 0) or SinFilas then
     Exit;
 
   ACoord := FGrid.MouseCoord(AX, AY);

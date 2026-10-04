@@ -70,6 +70,8 @@ resourcestring
   SRecursoNoExiste = 'No existe %s con el número %d.';
   SRecursoNoExisteGenerico = 'El recurso solicitado no existe.';
   SRecursoMaterial = 'el material';
+  SRecursoRol = 'el rol';
+  SRecursoPermiso = 'el permiso';
   SRecursoManoObra = 'la mano de obra';
   SRecursoMaquina = 'la máquina';
   SRecursoTipoTrabajo = 'el tipo de trabajo';
@@ -124,6 +126,50 @@ resourcestring
   SBotonDevolver = 'Devolver';
   SBotonRechazar = 'Rechazar';
   SMotivoFalta = 'Escriba el motivo.';
+  SSinCambiosPermisos = 'No hay cambios de permisos que guardar.';
+  SPermisoFueraDeAmbito = 'El permiso «%s» no corresponde al ámbito del ' +
+    'rol %s.';
+  SAccionCambiarPermisos = 'cambiar permisos';
+  SAccionPermisosPropioRol = 'cambiar los permisos de su propio rol';
+  SDetalleOtorgaPermisoRol = 'Se otorgó «%s» al rol %s: %s';
+  SDetalleQuitaPermisoRol = 'Se quitó «%s» al rol %s: %s';
+  SDetalleBorraExcepcionPorRol = 'La excepción de «%s» quedó de más: el rol %s ' +
+    'ya lo decide.';
+  SAccionPermisosPropios = 'cambiar sus propios permisos';
+  SAccionCambiarPropioRol = 'cambiar su propio rol';
+  SAccionInactivarPropiaCuenta = 'inactivar su propia cuenta';
+  SAccionRestablecerPropiaClave = 'restablecer su propia clave desde aquí; ' +
+    'use el cambio de clave de su cuenta';
+  SAccionPedirCambioPropiaClave = 'pedir el cambio de su propia clave desde ' +
+    'aquí; use el cambio de clave de su cuenta';
+  SClaveTemporalInvalida = 'La clave temporal debe tener al menos %d ' +
+    'caracteres y no llevar espacios.';
+  SFaltaNombreUsuario = 'Escriba el nombre de la persona.';
+  SCorreoInvalido = 'Escriba un correo válido.';
+  SCorreoDuplicado = 'Ya existe un usuario con el correo %s.';
+  SEstadoUsuarioInvalido = 'El estado «%s» no existe. Use activos, ' +
+    'inactivos, clave_pendiente o con_adicionales.';
+  STipoExcepcionInvalido = 'El tipo «%s» no existe. Use otorgado, quitado ' +
+    'o vacío para quitar la excepción.';
+  SExcepcionSinEfecto = 'El rol %s ya %s «%s»: la excepción no cambiaría nada.';
+  SRolYaTiene = 'tiene';
+  SRolNoTiene = 'no tiene';
+  SDetalleUsuarioCreado = 'Se registró la cuenta de %s con el rol %s.';
+  SDetalleUsuarioEditado = 'Se actualizaron los datos de %s.';
+  SDetalleUsuarioCambioRol = 'Cambio de rol de %s: %s a %s.';
+  SDetalleExcepcionesPorCambioRol = 'Se borraron las excepciones de %s ' +
+    'por el cambio de rol.';
+  SDetalleUsuarioInactivado = 'Se inactivó la cuenta de %s.';
+  SDetalleUsuarioActivado = 'Se activó la cuenta de %s.';
+  SDetalleClaveRestablecida = 'Se restableció la clave de %s; debe ' +
+    'cambiarla en su próximo ingreso.';
+  SDetalleClaveAnterior = 'Clave anterior de %s desactivada por ' +
+    'restablecimiento.';
+  SDetalleCambioClavePedido = 'Se pidió a %s cambiar su clave en el ' +
+    'próximo ingreso.';
+  SDetalleOtorgaPermisoUsuario = 'Se otorgó «%s» a %s: %s';
+  SDetalleQuitaPermisoUsuario = 'Se quitó «%s» a %s: %s';
+  SDetalleBorraExcepcionUsuario = 'Se borró la excepción de «%s» de %s: %s';
   SAjustePorcentaje = 'Ajuste %s %%';
   SIvaPorcentaje = 'IVA %s %%';
   SAccionRevisar = 'Revisar';
@@ -255,18 +301,85 @@ resourcestring
   SCargandoBandeja = 'Cargando la bandeja...';
   SCargandoSolicitudes = 'Cargando solicitudes...';
   SCargandoBitacora = 'Cargando la bitácora...';
+  SCargandoUsuarios = 'Cargando usuarios...';
   SSinClientes = 'No hay clientes que coincidan';
   SSinBandeja = 'No hay cotizaciones esperando revisión';
   SSinSolicitudes = 'No hay solicitudes que coincidan';
   SSinCola = 'No hay solicitudes sin procesar';
   SSinEnTrabajo = 'No tiene solicitudes en curso';
   SSinRegistros = 'No hay registros que coincidan';
+  SSinUsuarios = 'No hay usuarios que coincidan';
 
   SPaginacionRegistros = '%d registros · página %d de %d';
   SPaginacionClientes = '%d clientes · página %d de %d';
   SPaginacionBandeja = '%d cotizaciones · página %d de %d';
   SPaginacionSolicitudes = '%d solicitudes · página %d de %d';
   SPaginacionMovimientos = '%d movimientos · página %d de %d';
+  SPaginacionUsuarios = '%d usuarios · página %d de %d';
+
+  SAccionCargarUsuarios = 'cargar los usuarios';
+  SAccionCargarUsuario = 'cargar el usuario';
+  SAccionRestablecerClave = 'restablecer la clave';
+  SAccionCambiarEstadoUsuario = 'cambiar el estado de la cuenta';
+  SConfirmarInactivarUsuario = '¿Inactivar la cuenta de %s? Ya no podrá ' +
+    'ingresar; sus registros se conservan y se puede volver a activar.';
+  SConfirmarActivarUsuario = '¿Activar la cuenta de %s?';
+  SEstClavePendiente = 'Cambiar clave';
+  SOrigenBasico = 'Paquete básico';
+  SOrigenAdicional = 'Adicional';
+  SOrigenQuitado = 'Quitado';
+  SClaveTemporalTitulo = 'Clave temporal';
+  SGenerarClave = 'Generar clave';
+  SGenerarOtra = 'Generar otra';
+  SPedirCambio = 'Pedir cambio al entrar';
+  SNoPedirCambio = 'No pedir cambio';
+  SSinGuardar = 'Sin guardar';
+  SClaveVigente = 'Vigente';
+  SClaveCambiadaEl = 'Cambiada el %s';
+  SClaveDebeCambiar = 'Debe cambiarla al entrar';
+  SClaveSeAplica = 'Se aplica al guardar. La persona deberá cambiarla al ' +
+    'entrar. Désela en persona o por teléfono, no por correo ni WhatsApp.';
+  SClaveNuevaNota = 'Se aplica al crear la cuenta. La persona deberá ' +
+    'cambiarla al entrar. Désela en persona o por teléfono.';
+  SCambioPedidoNota = 'Al guardar, se le pedirá cambiar su clave la próxima ' +
+    'vez que entre.';
+  SCopiar = 'Copiar';
+  SCopiada = 'Copiada';
+  SListo = 'Listo';
+  SBotonGuardar = 'Guardar';
+  SNuevoUsuarioTitulo = 'Nuevo usuario';
+  SNuevoUsuarioAyuda = 'Se genera una clave temporal que la persona cambia ' +
+    'en su primer ingreso';
+  SUsuarioRegistrado = 'Registrado el %s';
+  SFaltaRol = 'Escoja el rol de la persona.';
+  SAvisoCambioRol = 'Al cambiar de rol se quitan sus permisos adicionales ' +
+    'y quitados (%d). Quedará solo con el paquete básico del rol nuevo.';
+  SPermisosTrasCambioRol = 'Guarde primero el cambio de rol; después se ' +
+    'ajustan los permisos sobre el paquete básico del rol nuevo.';
+  SPermisosResumen = 'Rol %s · %d del paquete básico · %d adicionales · ' +
+    '%d quitados · %d cambios sin guardar';
+  SMotivoPermisosTitulo = 'Motivo del cambio de permisos';
+  SModuloAdjuntos = 'Croquis y fotos';
+  SModuloAuditoria = 'Auditoría';
+  SModuloCatalogos = 'Catálogos';
+  SModuloClientes = 'Clientes';
+  SModuloCotizaciones = 'Cotizaciones';
+  SModuloPermisos = 'Permisos';
+  SModuloReportes = 'Reportes';
+  SModuloSolicitudes = 'Solicitudes';
+  SModuloUsuarios = 'Usuarios';
+  SUsted = '%s (usted)';
+  SSuRol = '%s (su rol)';
+  SAccionCargarRoles = 'cargar los roles';
+  SRolConUsuarios = '%s · %d';
+  SSinCambiosRoles = 'Sin cambios pendientes';
+  SCambiosRolesPendientes = '%d cambios sin guardar · su propio rol no se ' +
+    'puede cambiar';
+  SMotivoRolesTitulo = 'Motivo del cambio de paquete básico';
+  SMotivoRolesAyuda = 'Rige para todas las personas del rol y queda en la ' +
+    'auditoría. Indique quién lo autorizó y por qué.';
+  SMotivoPermisosAyuda = 'Queda en la auditoría junto con quién lo hizo. ' +
+    'Indique quién lo autorizó y por qué.';
   SRegistrosTotal = '%d registros';
 
   STodasLasCategorias = 'Todas las categorías';

@@ -23,7 +23,7 @@ type
     [MVCPath]
     [MVCHTTPMethods([httpGET])]
     [MVCRequiresAuthentication]
-    [MVCSwagSummary('Sesion', 'Rol y permisos del usuario del token',
+    [MVCSwagSummary('Sesion', 'Rol y permisos efectivos del usuario del token',
       'obtenerSesion')]
     [MVCSwagResponses(200, 'Rol y permisos', TSesionDTO)]
     [MVCSwagResponses(401, 'Sin token o token vencido')]
@@ -81,7 +81,7 @@ var
 begin
   lSesion := TSesionDTO.Create;
   lSesion.Rol := Rol;
-  lSesion.Permisos := APermisos.PermisosDe(lSesion.Rol);
+  lSesion.Permisos := APermisos.PermisosDe(UsuarioId, lSesion.Rol);
   Result := OKResponse(lSesion);
 end;
 

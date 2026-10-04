@@ -1057,6 +1057,10 @@ type
     fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
     fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('AMBITO')]
+    [MVCRequired]
+    [MVCMaxLength(15)]
+    fAmbito: String;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -1067,6 +1071,7 @@ type
     property DebeCambiarClave: Boolean read fDebeCambiarClave write fDebeCambiarClave;
     property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
     property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
+    property Ambito: String read fAmbito write fAmbito;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -1093,6 +1098,39 @@ type
     property ClaveHash: String read fClaveHash write fClaveHash;
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaCambio: NullableTDateTime {dtDateTimeStamp} read fFechaCambio write fFechaCambio;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('USUARIOS_PERMISOS')]
+  TUsuariosPermisos = class(TMVCActiveRecord)
+  private
+    [MVCTableField('USUARIO_ID', [foPrimaryKey])]
+    [MVCRequired]
+    fUsuarioId: Int32;
+    [MVCTableField('PERMISO_ID', [foPrimaryKey])]
+    [MVCRequired]
+    fPermisoId: Int32;
+    [MVCTableField('AMBITO')]
+    [MVCRequired]
+    [MVCMaxLength(15)]
+    fAmbito: String;
+    [MVCTableField('TIPO')]
+    [MVCRequired]
+    [MVCMaxLength(10)]
+    fTipo: String;
+    [MVCTableField('MOTIVO')]
+    [MVCRequired]
+    [MVCMaxLength(500)]
+    fMotivo: String;
+    [MVCTableField('FECHA_CREACION')]
+    fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
+  public
+    property UsuarioId: Int32 read fUsuarioId write fUsuarioId;
+    property PermisoId: Int32 read fPermisoId write fPermisoId;
+    property Ambito: String read fAmbito write fAmbito;
+    property Tipo: String read fTipo write fTipo;
+    property Motivo: String read fMotivo write fMotivo;
+    property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -1532,6 +1570,31 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_ROLES')]
+  TVRoles = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ID')]
+    fID: NullableInt32;
+    [MVCTableField('CODIGO')]
+    [MVCMaxLength(20)]
+    fCodigo: NullableString;
+    [MVCTableField('NOMBRE')]
+    [MVCMaxLength(120)]
+    fNombre: NullableString;
+    [MVCTableField('AMBITO')]
+    [MVCMaxLength(15)]
+    fAmbito: NullableString;
+    [MVCTableField('USUARIOS_ACTIVOS')]
+    fUsuariosActivos: NullableInt32;
+  public
+    property ID: NullableInt32 read fID write fID;
+    property Codigo: NullableString read fCodigo write fCodigo;
+    property Nombre: NullableString read fNombre write fNombre;
+    property Ambito: NullableString read fAmbito write fAmbito;
+    property UsuariosActivos: NullableInt32 read fUsuariosActivos write fUsuariosActivos;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
   [MVCTable('V_SEGUIMIENTO_ASESOR')]
   TVSeguimientoAsesor = class(TMVCActiveRecord)
   private
@@ -1678,6 +1741,93 @@ type
     property MontoPorAprobar: NullableCurrency read fMontoPorAprobar write fMontoPorAprobar;
   end;
 
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_USUARIOS')]
+  TVUsuarios = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ID')]
+    fID: NullableInt32;
+    [MVCTableField('CORREO')]
+    [MVCMaxLength(150)]
+    fCorreo: NullableString;
+    [MVCTableField('NOMBRE')]
+    [MVCMaxLength(120)]
+    fNombre: NullableString;
+    [MVCTableField('ROL_ID')]
+    fRolId: NullableInt32;
+    [MVCTableField('ROL')]
+    [MVCMaxLength(20)]
+    fRol: NullableString;
+    [MVCTableField('ROL_NOMBRE')]
+    [MVCMaxLength(120)]
+    fRolNombre: NullableString;
+    [MVCTableField('AMBITO')]
+    [MVCMaxLength(15)]
+    fAmbito: NullableString;
+    [MVCTableField('ACTIVO')]
+    fActivo: NullableBoolean;
+    [MVCTableField('DEBE_CAMBIAR_CLAVE')]
+    fDebeCambiarClave: NullableBoolean;
+    [MVCTableField('FECHA_CREACION')]
+    fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('FECHA_MODIFICACION')]
+    fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('FECHA_CLAVE')]
+    fFechaClave: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('EXCEPCIONES')]
+    fExcepciones: NullableInt32;
+  public
+    property ID: NullableInt32 read fID write fID;
+    property Correo: NullableString read fCorreo write fCorreo;
+    property Nombre: NullableString read fNombre write fNombre;
+    property RolId: NullableInt32 read fRolId write fRolId;
+    property Rol: NullableString read fRol write fRol;
+    property RolNombre: NullableString read fRolNombre write fRolNombre;
+    property Ambito: NullableString read fAmbito write fAmbito;
+    property Activo: NullableBoolean read fActivo write fActivo;
+    property DebeCambiarClave: NullableBoolean read fDebeCambiarClave write fDebeCambiarClave;
+    property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
+    property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
+    property FechaClave: NullableTDateTime {dtDateTimeStamp} read fFechaClave write fFechaClave;
+    property Excepciones: NullableInt32 read fExcepciones write fExcepciones;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_USUARIOS_PERMISOS')]
+  TVUsuariosPermisos = class(TMVCActiveRecord)
+  private
+    [MVCTableField('USUARIO_ID')]
+    fUsuarioId: NullableInt32;
+    [MVCTableField('PERMISO_ID')]
+    fPermisoId: NullableInt32;
+    [MVCTableField('PERMISO')]
+    [MVCMaxLength(50)]
+    fPermiso: NullableString;
+    [MVCTableField('NOMBRE')]
+    [MVCMaxLength(120)]
+    fNombre: NullableString;
+    [MVCTableField('MODULO')]
+    [MVCMaxLength(30)]
+    fModulo: NullableString;
+    [MVCTableField('TIPO')]
+    [MVCMaxLength(10)]
+    fTipo: NullableString;
+    [MVCTableField('MOTIVO')]
+    [MVCMaxLength(500)]
+    fMotivo: NullableString;
+    [MVCTableField('FECHA_CREACION')]
+    fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
+  public
+    property UsuarioId: NullableInt32 read fUsuarioId write fUsuarioId;
+    property PermisoId: NullableInt32 read fPermisoId write fPermisoId;
+    property Permiso: NullableString read fPermiso write fPermiso;
+    property Nombre: NullableString read fNombre write fNombre;
+    property Modulo: NullableString read fModulo write fModulo;
+    property Tipo: NullableString read fTipo write fTipo;
+    property Motivo: NullableString read fMotivo write fMotivo;
+    property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
+  end;
+
 implementation
 
 constructor TClienteConsentimientoHistorial.Create;
@@ -1731,6 +1881,7 @@ ActiveRecordMappingRegistry.AddEntity('tipos_trabajo', TTiposTrabajo);
 ActiveRecordMappingRegistry.AddEntity('unidades_medida', TUnidadesMedida);
 ActiveRecordMappingRegistry.AddEntity('usuarios', TUsuarios);
 ActiveRecordMappingRegistry.AddEntity('usuarios_claves', TUsuariosClaves);
+ActiveRecordMappingRegistry.AddEntity('usuarios_permisos', TUsuariosPermisos);
 ActiveRecordMappingRegistry.AddEntity('v_asesores_mes', TVAsesoresMes);
 ActiveRecordMappingRegistry.AddEntity('v_auditoria', TVAuditoria);
 ActiveRecordMappingRegistry.AddEntity('v_catalogo_items', TVCatalogoItems);
@@ -1742,9 +1893,12 @@ ActiveRecordMappingRegistry.AddEntity('v_cuentas_resumen', TVCuentasResumen);
 ActiveRecordMappingRegistry.AddEntity('v_periodo_actual', TVPeriodoActual);
 ActiveRecordMappingRegistry.AddEntity('v_permisos_roles', TVPermisosRoles);
 ActiveRecordMappingRegistry.AddEntity('v_resumen_mes', TVResumenMes);
+ActiveRecordMappingRegistry.AddEntity('v_roles', TVRoles);
 ActiveRecordMappingRegistry.AddEntity('v_seguimiento_asesor', TVSeguimientoAsesor);
 ActiveRecordMappingRegistry.AddEntity('v_solicitudes', TVSolicitudes);
 ActiveRecordMappingRegistry.AddEntity('v_solicitud_adjuntos', TVSolicitudAdjuntos);
 ActiveRecordMappingRegistry.AddEntity('v_trabajo_usuario', TVTrabajoUsuario);
+ActiveRecordMappingRegistry.AddEntity('v_usuarios', TVUsuarios);
+ActiveRecordMappingRegistry.AddEntity('v_usuarios_permisos', TVUsuariosPermisos);
 
 end.

@@ -26,8 +26,14 @@ const
   CONSULTA_POR_ID = 'PorId';
   CONSULTA_DE_SOLICITUD = 'DeSolicitud';
   CONSULTA_DE_CLIENTE = 'DeCliente';
+  CONSULTA_BUSCAR_INACTIVOS = 'BuscarInactivos';
+  CONSULTA_BUSCAR_CLAVE_PENDIENTE = 'BuscarClavePendiente';
+  CONSULTA_BUSCAR_CON_ADICIONALES = 'BuscarConAdicionales';
 
   RQL_PAGINA = ';limit(%d,%d)';
+  RQL_TEXTO_USUARIO = 'or(contains(Nombre,"%s"),contains(Correo,"%s"))';
+  RQL_SIN_SISTEMA = 'ne(Correo,"sistema@anovo.local")';
+  RQL_ORDEN_USUARIOS = ';sort(+Nombre,+ID)';
   RQL_TEXTO_COTIZACION =
     'or(contains(ClienteNombre,"%s"),contains(DescripcionTrabajo,"%s"))';
   RQL_TEXTO_SOLICITUD =
@@ -206,6 +212,47 @@ type
   [MVCNamedRQLQuery(CONSULTA_ORDENADAS,
     'sort(+Rol,+Permiso)')]
   TPermisosDeRoles = class(TVPermisosRoles)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_ROLES')]
+  [MVCNamedRQLQuery(CONSULTA_ORDENADAS,
+    'sort(+ID)')]
+  TRolesOrdenados = class(TVRoles)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_USUARIOS')]
+  [MVCNamedRQLQuery(CONSULTA_BUSCAR,
+    'and(' + RQL_SIN_SISTEMA + ',' + RQL_TEXTO_USUARIO + ')' +
+    RQL_ORDEN_USUARIOS + RQL_PAGINA)]
+  [MVCNamedRQLQuery(CONSULTA_BUSCAR_ACTIVOS,
+    'and(' + RQL_SIN_SISTEMA + ',eq(Activo,true),' + RQL_TEXTO_USUARIO + ')' +
+    RQL_ORDEN_USUARIOS + RQL_PAGINA)]
+  [MVCNamedRQLQuery(CONSULTA_BUSCAR_INACTIVOS,
+    'and(' + RQL_SIN_SISTEMA + ',eq(Activo,false),' + RQL_TEXTO_USUARIO + ')' +
+    RQL_ORDEN_USUARIOS + RQL_PAGINA)]
+  [MVCNamedRQLQuery(CONSULTA_BUSCAR_CLAVE_PENDIENTE,
+    'and(' + RQL_SIN_SISTEMA + ',eq(Activo,true),eq(DebeCambiarClave,true),' +
+    RQL_TEXTO_USUARIO + ')' + RQL_ORDEN_USUARIOS + RQL_PAGINA)]
+  [MVCNamedRQLQuery(CONSULTA_BUSCAR_CON_ADICIONALES,
+    'and(' + RQL_SIN_SISTEMA + ',gt(Excepciones,0),' + RQL_TEXTO_USUARIO + ')' +
+    RQL_ORDEN_USUARIOS + RQL_PAGINA)]
+  [MVCNamedRQLQuery(CONSULTA_POR_ID,
+    'and(' + RQL_SIN_SISTEMA + ',eq(ID,%d))')]
+  TUsuariosBuscados = class(TVUsuarios)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_USUARIOS_PERMISOS')]
+  [MVCNamedRQLQuery(CONSULTA_DE_USUARIO,
+    'eq(UsuarioId,%d);sort(+Modulo,+Nombre)')]
+  [MVCNamedRQLQuery(CONSULTA_ORDENADAS,
+    'sort(+UsuarioId,+PermisoId)')]
+  TExcepcionesDePermisos = class(TVUsuariosPermisos)
   end;
 
 implementation

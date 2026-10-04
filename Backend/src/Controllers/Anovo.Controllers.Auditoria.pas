@@ -90,7 +90,8 @@ type
     [MVCSwagParam(plQuery, 'usuario_id', 'Filtra por quien hizo el cambio',
       ptInteger, False)]
     [MVCSwagParam(plQuery, 'entidad',
-      'USUARIOS o USUARIOS_CLAVES. Por defecto USUARIOS', ptString, False)]
+      'USUARIOS, USUARIOS_CLAVES, ROLES_PERMISOS o USUARIOS_PERMISOS. ' +
+      'Por defecto USUARIOS', ptString, False)]
     [MVCSwagParam(plQuery, 'accion',
       'Filtra por accion: creacion, modificacion o eliminacion',
       ptString, False)]

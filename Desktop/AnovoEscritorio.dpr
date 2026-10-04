@@ -1,7 +1,6 @@
 program AnovoEscritorio;
 
-// Cliente de escritorio de Anovo: login, cambio de clave
-// provisional y ventana principal.
+
 
 uses
   Vcl.Dialogs,
@@ -112,7 +111,20 @@ uses
   Anovo.Frames.Configuracion in 'Src\Frames\Anovo.Frames.Configuracion.pas' {fraConfiguracion: TFrame},
   Anovo.Forms.Edicion in 'Src\Forms\Anovo.Forms.Edicion.pas' {frmEdicion},
   Anovo.Forms.CambioClave in 'Src\Forms\Anovo.Forms.CambioClave.pas' {frmCambioClave},
-  Anovo.Forms.Conexion in 'Src\Forms\Anovo.Forms.Conexion.pas' {frmConexion};
+  Anovo.Forms.Conexion in 'Src\Forms\Anovo.Forms.Conexion.pas' {frmConexion},
+  Anovo.DTOs.Usuarios in '..\Backend\src\DTOs\Anovo.DTOs.Usuarios.pas',
+  Anovo.DTOs.Roles in '..\Backend\src\DTOs\Anovo.DTOs.Roles.pas',
+  Anovo.Api.Intf.Usuarios in 'Src\Interfaces\Anovo.Api.Intf.Usuarios.pas',
+  Anovo.Api.Usuarios in 'Src\Api\Anovo.Api.Usuarios.pas',
+  Anovo.Api.Intf.Roles in 'Src\Interfaces\Anovo.Api.Intf.Roles.pas',
+  Anovo.Api.Roles in 'Src\Api\Anovo.Api.Roles.pas',
+  Anovo.Vistas.Intf.Usuarios in 'Src\Interfaces\Anovo.Vistas.Intf.Usuarios.pas',
+  Anovo.Vistas.Intf.Usuario in 'Src\Interfaces\Anovo.Vistas.Intf.Usuario.pas',
+  Anovo.Presentadores.Usuarios in 'Src\Presentadores\Anovo.Presentadores.Usuarios.pas',
+  Anovo.Presentadores.Usuario in 'Src\Presentadores\Anovo.Presentadores.Usuario.pas',
+  Anovo.Forms.Usuario in 'Src\Forms\Anovo.Forms.Usuario.pas' {frmUsuario},
+  Anovo.Vistas.Intf.Roles in 'Src\Interfaces\Anovo.Vistas.Intf.Roles.pas',
+  Anovo.Presentadores.Roles in 'Src\Presentadores\Anovo.Presentadores.Roles.pas';
 
 {$R *.res}
 

@@ -293,7 +293,7 @@ var
   lRol: string;
 begin
   for lRol in Context.LoggedUser.Roles do
-    if APermisos.Tiene(lRol, PERMISO_VER_TODAS) then
+    if APermisos.Tiene(UsuarioId, lRol, PERMISO_VER_TODAS) then
       Exit(False);
   Result := True;
 end;

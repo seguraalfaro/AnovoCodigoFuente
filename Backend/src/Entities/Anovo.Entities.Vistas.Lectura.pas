@@ -1,6 +1,6 @@
 unit Anovo.Entities.Vistas.Lectura;
 
-// Entidades de las vistas de lectura (migraciones 18 a 22), de solo lectura.
+// Entidades de las vistas de lectura (migraciones 18 a 25), de solo lectura.
 // Generadas por MVCEntGen; al regenerar, partir de Db/generado.
 
 interface
@@ -609,6 +609,121 @@ type
   public
     property Rol: NullableString read fRol write fRol;
     property Permiso: NullableString read fPermiso write fPermiso;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_ROLES')]
+  TVRoles = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ID')]
+    fID: NullableInt32;
+    [MVCTableField('CODIGO')]
+    [MVCMaxLength(20)]
+    fCodigo: NullableString;
+    [MVCTableField('NOMBRE')]
+    [MVCMaxLength(120)]
+    fNombre: NullableString;
+    [MVCTableField('AMBITO')]
+    [MVCMaxLength(15)]
+    fAmbito: NullableString;
+    [MVCTableField('USUARIOS_ACTIVOS')]
+    fUsuariosActivos: NullableInt32;
+  public
+    property ID: NullableInt32 read fID write fID;
+    property Codigo: NullableString read fCodigo write fCodigo;
+    property Nombre: NullableString read fNombre write fNombre;
+    property Ambito: NullableString read fAmbito write fAmbito;
+    property UsuariosActivos: NullableInt32 read fUsuariosActivos write fUsuariosActivos;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_USUARIOS')]
+  TVUsuarios = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ID')]
+    fID: NullableInt32;
+    [MVCTableField('CORREO')]
+    [MVCMaxLength(150)]
+    fCorreo: NullableString;
+    [MVCTableField('NOMBRE')]
+    [MVCMaxLength(120)]
+    fNombre: NullableString;
+    [MVCTableField('ROL_ID')]
+    fRolId: NullableInt32;
+    [MVCTableField('ROL')]
+    [MVCMaxLength(20)]
+    fRol: NullableString;
+    [MVCTableField('ROL_NOMBRE')]
+    [MVCMaxLength(120)]
+    fRolNombre: NullableString;
+    [MVCTableField('AMBITO')]
+    [MVCMaxLength(15)]
+    fAmbito: NullableString;
+    [MVCTableField('ACTIVO')]
+    fActivo: NullableBoolean;
+    [MVCTableField('DEBE_CAMBIAR_CLAVE')]
+    fDebeCambiarClave: NullableBoolean;
+    [MVCTableField('FECHA_CREACION')]
+    fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('FECHA_MODIFICACION')]
+    fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('FECHA_CLAVE')]
+    fFechaClave: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('EXCEPCIONES')]
+    fExcepciones: NullableInt32;
+  public
+    property ID: NullableInt32 read fID write fID;
+    property Correo: NullableString read fCorreo write fCorreo;
+    property Nombre: NullableString read fNombre write fNombre;
+    property RolId: NullableInt32 read fRolId write fRolId;
+    property Rol: NullableString read fRol write fRol;
+    property RolNombre: NullableString read fRolNombre write fRolNombre;
+    property Ambito: NullableString read fAmbito write fAmbito;
+    property Activo: NullableBoolean read fActivo write fActivo;
+    property DebeCambiarClave: NullableBoolean read fDebeCambiarClave write fDebeCambiarClave;
+    property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
+    property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
+    property FechaClave: NullableTDateTime {dtDateTimeStamp} read fFechaClave write fFechaClave;
+    property Excepciones: NullableInt32 read fExcepciones write fExcepciones;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_USUARIOS_PERMISOS')]
+  TVUsuariosPermisos = class(TMVCActiveRecord)
+  private
+    [MVCTableField('USUARIO_ID')]
+    fUsuarioId: NullableInt32;
+    [MVCTableField('PERMISO_ID')]
+    fPermisoId: NullableInt32;
+    [MVCTableField('PERMISO')]
+    [MVCMaxLength(50)]
+    fPermiso: NullableString;
+    [MVCTableField('NOMBRE')]
+    [MVCMaxLength(120)]
+    fNombre: NullableString;
+    [MVCTableField('MODULO')]
+    [MVCMaxLength(30)]
+    fModulo: NullableString;
+    [MVCTableField('TIPO')]
+    [MVCMaxLength(10)]
+    fTipo: NullableString;
+    [MVCTableField('MOTIVO')]
+    [MVCMaxLength(500)]
+    fMotivo: NullableString;
+    [MVCTableField('FECHA_CREACION')]
+    fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
+  public
+    property UsuarioId: NullableInt32 read fUsuarioId write fUsuarioId;
+    property PermisoId: NullableInt32 read fPermisoId write fPermisoId;
+    property Permiso: NullableString read fPermiso write fPermiso;
+    property Nombre: NullableString read fNombre write fNombre;
+    property Modulo: NullableString read fModulo write fModulo;
+    property Tipo: NullableString read fTipo write fTipo;
+    property Motivo: NullableString read fMotivo write fMotivo;
+    property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
   end;
 
 implementation

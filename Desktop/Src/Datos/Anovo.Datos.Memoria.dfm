@@ -1463,47 +1463,6 @@ object dmMemoria: TdmMemoria
       Size = 1
     end
   end
-  object mtUsuarios: TFDMemTable
-    FetchOptions.AssignedValues = [evMode]
-    FetchOptions.Mode = fmAll
-    ResourceOptions.AssignedValues = [rvSilentMode]
-    ResourceOptions.SilentMode = True
-    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
-    UpdateOptions.CheckRequired = False
-    UpdateOptions.AutoCommitUpdates = True
-    Left = 152
-    Top = 440
-    object mtUsuariosID: TIntegerField
-      FieldName = 'ID'
-    end
-    object mtUsuariosUSUARIO: TStringField
-      FieldName = 'USUARIO'
-      Size = 30
-    end
-    object mtUsuariosNOMBRE: TStringField
-      FieldName = 'NOMBRE'
-      Size = 120
-    end
-    object mtUsuariosCORREO: TStringField
-      FieldName = 'CORREO'
-      Size = 150
-    end
-    object mtUsuariosROL: TStringField
-      FieldName = 'ROL'
-    end
-    object mtUsuariosULTIMO_ACCESO: TDateTimeField
-      FieldName = 'ULTIMO_ACCESO'
-      DisplayFormat = 'dd/mm/yyyy hh:nn'
-    end
-    object mtUsuariosACTIVO: TStringField
-      FieldName = 'ACTIVO'
-      Size = 15
-    end
-    object mtUsuariosACCIONES: TStringField
-      FieldName = 'ACCIONES'
-      Size = 1
-    end
-  end
   object mtRoles: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll
@@ -1523,20 +1482,6 @@ object dmMemoria: TdmMemoria
     object mtRolesNOMBRE: TStringField
       FieldName = 'NOMBRE'
       Size = 140
-    end
-    object mtRolesUSUARIOS: TIntegerField
-      FieldName = 'USUARIOS'
-    end
-    object mtRolesPERMISOS: TIntegerField
-      FieldName = 'PERMISOS'
-    end
-    object mtRolesACTIVO: TStringField
-      FieldName = 'ACTIVO'
-      Size = 15
-    end
-    object mtRolesACCIONES: TStringField
-      FieldName = 'ACCIONES'
-      Size = 1
     end
   end
   object mtPermisos: TFDMemTable
@@ -2035,5 +1980,227 @@ object dmMemoria: TdmMemoria
     DataSet = mtContactoNuevo
     Left = 488
     Top = 80
+  end
+  object mtUsuarios: TFDMemTable
+    OnCalcFields = UsuariosCalcFields
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 48
+    Top = 1160
+    object mtUsuariosID: TIntegerField
+      FieldName = 'ID'
+    end
+    object mtUsuariosNOMBRE: TStringField
+      FieldName = 'NOMBRE'
+      OnGetText = UsuarioNombreGetText
+      Size = 120
+    end
+    object mtUsuariosCORREO: TStringField
+      FieldName = 'CORREO'
+      Size = 150
+    end
+    object mtUsuariosROL_ID: TIntegerField
+      FieldName = 'ROL_ID'
+      Visible = False
+    end
+    object mtUsuariosROL_NOMBRE: TStringField
+      FieldName = 'ROL_NOMBRE'
+      Size = 120
+    end
+    object mtUsuariosACTIVO: TBooleanField
+      FieldName = 'ACTIVO'
+      Visible = False
+    end
+    object mtUsuariosDEBE_CAMBIAR_CLAVE: TBooleanField
+      FieldName = 'DEBE_CAMBIAR_CLAVE'
+      Visible = False
+    end
+    object mtUsuariosEXCEPCIONES: TIntegerField
+      Alignment = taCenter
+      FieldName = 'EXCEPCIONES'
+      OnGetText = AdicionalesGetText
+    end
+    object mtUsuariosESTADO: TStringField
+      DisplayLabel = 'Estado'
+      FieldKind = fkCalculated
+      FieldName = 'ESTADO'
+      OnGetText = UsuarioEstadoGetText
+      Size = 15
+      Calculated = True
+    end
+    object mtUsuariosACCIONES: TStringField
+      FieldName = 'ACCIONES'
+      Size = 1
+    end
+  end
+  object dsUsuarios: TDataSource
+    AutoEdit = False
+    DataSet = mtUsuarios
+    Left = 48
+    Top = 1216
+  end
+  object mtPermisosUsuario: TFDMemTable
+    OnCalcFields = PermisosUsuarioCalcFields
+    AggregatesActive = True
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 160
+    Top = 1160
+    object mtPermisosUsuarioPERMISO_ID: TIntegerField
+      FieldName = 'PERMISO_ID'
+      Visible = False
+    end
+    object mtPermisosUsuarioMODULO: TStringField
+      FieldName = 'MODULO'
+      OnGetText = ModuloGetText
+      Size = 30
+    end
+    object mtPermisosUsuarioNOMBRE: TStringField
+      FieldName = 'NOMBRE'
+      Size = 120
+    end
+    object mtPermisosUsuarioTIENE: TBooleanField
+      FieldName = 'TIENE'
+    end
+    object mtPermisosUsuarioDEL_ROL: TBooleanField
+      FieldName = 'DEL_ROL'
+      Visible = False
+    end
+    object mtPermisosUsuarioTIENE_ORIGINAL: TBooleanField
+      FieldName = 'TIENE_ORIGINAL'
+      Visible = False
+    end
+    object mtPermisosUsuarioMOTIVO: TStringField
+      FieldName = 'MOTIVO'
+      Size = 500
+    end
+    object mtPermisosUsuarioORIGEN: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'ORIGEN'
+      OnGetText = OrigenGetText
+      Size = 15
+      Calculated = True
+    end
+    object mtPermisosUsuarioBASICOS: TAggregateField
+      FieldName = 'BASICOS'
+      Active = True
+      DisplayName = ''
+      Expression = 'SUM(IIF(DEL_ROL, 1, 0))'
+    end
+    object mtPermisosUsuarioADICIONALES: TAggregateField
+      FieldName = 'ADICIONALES'
+      Active = True
+      DisplayName = ''
+      Expression = 'SUM(IIF(TIENE AND NOT DEL_ROL, 1, 0))'
+    end
+    object mtPermisosUsuarioQUITADOS: TAggregateField
+      FieldName = 'QUITADOS'
+      Active = True
+      DisplayName = ''
+      Expression = 'SUM(IIF(DEL_ROL AND NOT TIENE, 1, 0))'
+    end
+    object mtPermisosUsuarioCAMBIOS: TAggregateField
+      FieldName = 'CAMBIOS'
+      Active = True
+      DisplayName = ''
+      Expression = 'SUM(IIF(TIENE <> TIENE_ORIGINAL, 1, 0))'
+    end
+  end
+  object dsPermisosUsuario: TDataSource
+    DataSet = mtPermisosUsuario
+    Left = 160
+    Top = 1216
+  end
+  object mtMatrizRoles: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 280
+    Top = 1160
+    object mtMatrizRolesPERMISO_ID: TIntegerField
+      FieldName = 'PERMISO_ID'
+      Visible = False
+    end
+    object mtMatrizRolesMODULO: TStringField
+      FieldName = 'MODULO'
+      OnGetText = ModuloGetText
+      Size = 30
+    end
+    object mtMatrizRolesNOMBRE: TStringField
+      FieldName = 'NOMBRE'
+      Size = 120
+    end
+    object mtMatrizRolesASESOR: TBooleanField
+      FieldName = 'ASESOR'
+    end
+    object mtMatrizRolesASISTENTE: TBooleanField
+      FieldName = 'ASISTENTE'
+    end
+    object mtMatrizRolesSUPERVISOR: TBooleanField
+      FieldName = 'SUPERVISOR'
+    end
+    object mtMatrizRolesGERENCIA: TBooleanField
+      FieldName = 'GERENCIA'
+    end
+    object mtMatrizRolesADMIN: TBooleanField
+      FieldName = 'ADMIN'
+    end
+  end
+  object dsMatrizRoles: TDataSource
+    DataSet = mtMatrizRoles
+    Left = 280
+    Top = 1216
+  end
+  object mtUsuario: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 400
+    Top = 1160
+    object mtUsuarioNOMBRE: TStringField
+      FieldName = 'NOMBRE'
+      Size = 120
+    end
+    object mtUsuarioCORREO: TStringField
+      FieldName = 'CORREO'
+      Size = 150
+    end
+    object mtUsuarioROL_ID: TIntegerField
+      FieldName = 'ROL_ID'
+    end
+    object mtUsuarioCLAVE_TEMPORAL: TStringField
+      FieldName = 'CLAVE_TEMPORAL'
+      OnGetText = ClaveGetText
+      Size = 30
+    end
+  end
+  object dsUsuario: TDataSource
+    DataSet = mtUsuario
+    Left = 400
+    Top = 1216
+  end
+  object dsRoles: TDataSource
+    AutoEdit = False
+    DataSet = mtRoles
+    Left = 272
+    Top = 496
   end
 end
