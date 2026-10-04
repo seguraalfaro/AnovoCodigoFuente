@@ -8,23 +8,24 @@ interface
 uses
   System.Generics.Collections,
   Anovo.Api.Intf.Roles,
-  Anovo.Cancelacion,
+  Anovo.Presentadores.Base,
   Anovo.DTOs.Roles,
   Anovo.Vistas.Intf.Roles,
   Anovo.Permisos;
 
 type
-  TPresentadorRoles = class
+  TPresentadorRoles = class(TPresentadorBase)
   private
     FVista: IVistaRoles;
     FApi: IApiRoles;
-    FCancelacion: ICancelacion;
     FRoles: TDictionary<string, Integer>;
     FOriginal: TDictionary<string, Boolean>;
     FCambios: TDictionary<string, Boolean>;
     procedure TomarMatriz(const AMatriz: TMatrizPermisosDTO);
     function FilasDe(const AMatriz: TMatrizPermisosDTO)
       : TObjectList<TFilaMatriz>;
+    procedure MostrarError(AMensaje: string);
+    procedure MostrarCargando(AActivo: Boolean);
   public
     constructor Create(const AVista: IVistaRoles; const AApi: IApiRoles);
     destructor Destroy; override;
@@ -44,11 +45,8 @@ implementation
 uses
   System.SysUtils,
   System.StrUtils,
-  System.Classes,
-  System.Threading,
   System.Generics.Defaults,
   MVCFramework.Nullables,
-  Anovo.Api.Base,
   Anovo.Sesion,
   Anovo.Textos;
 
@@ -81,18 +79,12 @@ begin
   end;
 end;
 
-function MensajeInesperado(const AAccion: string): string;
-begin
-  Result := Format(SErrorInesperado, [AAccion]);
-end;
-
 constructor TPresentadorRoles.Create(const AVista: IVistaRoles;
   const AApi: IApiRoles);
 begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
-  FCancelacion := TCancelacion.Create;
   FRoles := TDictionary<string, Integer>.Create;
   FOriginal := TDictionary<string, Boolean>.Create;
   FCambios := TDictionary<string, Boolean>.Create;
@@ -100,7 +92,6 @@ end;
 
 destructor TPresentadorRoles.Destroy;
 begin
-  FCancelacion.Cancelar;
   FCambios.Free;
   FOriginal.Free;
   FRoles.Free;
@@ -177,60 +168,41 @@ begin
   end;
 end;
 
+procedure TPresentadorRoles.MostrarError(AMensaje: string);
+begin
+  FVista.MostrarError(AMensaje);
+end;
+
+procedure TPresentadorRoles.MostrarCargando(AActivo: Boolean);
+begin
+  FVista.MostrarCargando(AActivo);
+end;
+
 procedure TPresentadorRoles.Iniciar;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiRoles;
 begin
-  lCancelacion := FCancelacion;
   lApi := FApi;
-  FVista.MostrarCargando(True);
 
-  TTask.Run(
-    procedure
-    var
-      lMatriz: TMatrizPermisosDTO;
-      lError: string;
+  Ejecutar<TMatrizPermisosDTO>(SAccionCargarRoles,
+    function: TMatrizPermisosDTO
     begin
-      lMatriz := nil;
-      lError := '';
+      Result := lApi.Matriz;
+    end,
+    procedure(AMatriz: TMatrizPermisosDTO)
+    var
+      lFilas: TObjectList<TFilaMatriz>;
+    begin
+      TomarMatriz(AMatriz);
+      lFilas := FilasDe(AMatriz);
       try
-        lMatriz := lApi.Matriz;
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado(SAccionCargarRoles);
+        FVista.MostrarRoles(RotulosDeRoles(AMatriz.Roles));
+        FVista.MostrarMatriz(lFilas);
+        FVista.MostrarCambios(0);
+      finally
+        lFilas.Free;
       end;
-
-      TThread.Queue(nil,
-        procedure
-        var
-          lFilas: TObjectList<TFilaMatriz>;
-        begin
-          try
-            if lCancelacion.Cancelada then
-              Exit;
-            FVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-            begin
-              FVista.MostrarError(lError);
-              Exit;
-            end;
-            TomarMatriz(lMatriz);
-            lFilas := FilasDe(lMatriz);
-            try
-              FVista.MostrarRoles(RotulosDeRoles(lMatriz.Roles));
-              FVista.MostrarMatriz(lFilas);
-              FVista.MostrarCambios(0);
-            finally
-              lFilas.Free;
-            end;
-          finally
-            lMatriz.Free;
-          end;
-        end);
-    end);
+    end, MostrarError, MostrarCargando);
 end;
 
 class function TPresentadorRoles.CampoRolPropio: string;
@@ -278,7 +250,6 @@ end;
 
 procedure TPresentadorRoles.Guardar(const AMotivo: string);
 var
-  lCancelacion: ICancelacion;
   lApi: IApiRoles;
   lDto: TCambiosMatrizDTO;
   lPar: TPair<string, Boolean>;
@@ -300,42 +271,20 @@ begin
     lCambio.Asignado := lPar.Value;
   end;
 
-  lCancelacion := FCancelacion;
   lApi := FApi;
-  FVista.MostrarCargando(True);
 
-  TTask.Run(
+  Ejecutar(SAccionCambiarPermisos,
     procedure
-    var
-      lError: string;
     begin
-      lError := '';
-      try
-        try
-          lApi.CambiarMatriz(lDto);
-        except
-          on E: EAnovoCliente do
-            lError := E.Message;
-          on E: Exception do
-            lError := MensajeInesperado(SAccionCambiarPermisos);
-        end;
-      finally
-        lDto.Free;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          if lCancelacion.Cancelada then
-            Exit;
-          FVista.MostrarCargando(False);
-          if not lError.IsEmpty then
-          begin
-            FVista.MostrarError(lError);
-            Exit;
-          end;
-          Iniciar;
-        end);
+      lApi.CambiarMatriz(lDto);
+    end,
+    procedure
+    begin
+      Iniciar;
+    end, MostrarError, MostrarCargando,
+    procedure
+    begin
+      lDto.Free;
     end);
 end;
 

@@ -8,27 +8,25 @@ interface
 uses
   System.SysUtils,
   Anovo.Api.Intf.Usuarios,
-  Anovo.Cancelacion,
+  Anovo.Presentadores.Base,
   Anovo.Vistas.Intf.Usuarios,
   Anovo.Permisos;
 
 type
-  TPresentadorUsuarios = class
+  TPresentadorUsuarios = class(TPresentadorBase)
   private
     FVista: IVistaUsuarios;
     FApi: IApiUsuarios;
-    FCancelacion: ICancelacion;
     FTexto: string;
     FFiltro: TFiltroUsuarios;
     FPagina: Integer;
     FTotalPaginas: Integer;
-    FSolicitud: Integer;
     procedure Cargar;
-    procedure Ejecutar(const ALlamada: TProc; const AAccion: string);
+    procedure MostrarError(AMensaje: string);
+    procedure MostrarCargando(AActivo: Boolean);
   public
     constructor Create(const AVista: IVistaUsuarios;
       const AApi: IApiUsuarios);
-    destructor Destroy; override;
     procedure Iniciar;
     procedure Recargar;
     procedure Buscar(const ATexto: string);
@@ -50,23 +48,14 @@ const
 implementation
 
 uses
-  System.Classes,
-  System.Threading,
   System.Generics.Collections,
-  Anovo.Api.Base,
   Anovo.DTOs.Usuarios,
   Anovo.Sesion,
   Anovo.Textos;
 
 const
-
   ESTADO_API: array [TFiltroUsuarios] of string = ('', 'activos', 'inactivos',
     'clave_pendiente', 'con_adicionales');
-
-function MensajeInesperado(const AAccion: string): string;
-begin
-  Result := Format(SErrorInesperado, [AAccion]);
-end;
 
 constructor TPresentadorUsuarios.Create(const AVista: IVistaUsuarios;
   const AApi: IApiUsuarios);
@@ -74,14 +63,7 @@ begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
-  FCancelacion := TCancelacion.Create;
   FPagina := 1;
-end;
-
-destructor TPresentadorUsuarios.Destroy;
-begin
-  FCancelacion.Cancelar;
-  inherited;
 end;
 
 class function TPresentadorUsuarios.AccionesPermitidas: TAccionesUsuario;
@@ -150,6 +132,16 @@ begin
     FVista.AbrirUsuario(AId);
 end;
 
+procedure TPresentadorUsuarios.MostrarError(AMensaje: string);
+begin
+  FVista.MostrarError(AMensaje);
+end;
+
+procedure TPresentadorUsuarios.MostrarCargando(AActivo: Boolean);
+begin
+  FVista.MostrarCargando(AActivo);
+end;
+
 procedure TPresentadorUsuarios.CambiarEstado(const AId: Integer;
   const ANombre: string; const AEstaActivo: Boolean);
 var
@@ -172,116 +164,46 @@ begin
     Exit;
 
   lApi := FApi;
-  Ejecutar(
+  Ejecutar(SAccionCambiarEstadoUsuario,
     procedure
     begin
       if AEstaActivo then
         lApi.Inactivar(AId)
       else
         lApi.Activar(AId);
-    end, SAccionCambiarEstadoUsuario);
-end;
-
-procedure TPresentadorUsuarios.Ejecutar(const ALlamada: TProc;
-  const AAccion: string);
-var
-  lCancelacion: ICancelacion;
-begin
-  lCancelacion := FCancelacion;
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
+    end,
     procedure
-    var
-      lError: string;
     begin
-      lError := '';
-      try
-        ALlamada();
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado(AAccion);
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          if lCancelacion.Cancelada then
-            Exit;
-          FVista.MostrarCargando(False);
-          if not lError.IsEmpty then
-          begin
-            FVista.MostrarError(lError);
-            Exit;
-          end;
-          Cargar;
-        end);
-    end);
+      Cargar;
+    end, MostrarError, MostrarCargando);
 end;
 
 procedure TPresentadorUsuarios.Cargar;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiUsuarios;
-  lNumero: Integer;
   lTexto, lEstado: string;
   lPagina: Integer;
+  lTotal: Int64;
 begin
-  Inc(FSolicitud);
-  lNumero := FSolicitud;
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lTexto := FTexto;
   lEstado := ESTADO_API[FFiltro];
   lPagina := FPagina;
+  lTotal := 0;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
-    procedure
-    var
-      lLista: TObjectList<TUsuarioDTO>;
-      lTotal: Int64;
-      lError: string;
+  EjecutarUltima<TObjectList<TUsuarioDTO>>(SAccionCargarUsuarios,
+    function: TObjectList<TUsuarioDTO>
     begin
-      lLista := nil;
-      lTotal := 0;
-      lError := '';
-      try
-        lLista := lApi.Buscar(lTexto, lEstado, lPagina, USUARIOS_POR_PAGINA,
-          lTotal);
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado(SAccionCargarUsuarios);
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada or (lNumero <> FSolicitud) then
-              Exit;
-
-            FVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-            begin
-              FVista.MostrarError(lError);
-              Exit;
-            end;
-
-            FTotalPaginas := (lTotal + USUARIOS_POR_PAGINA - 1) div
-              USUARIOS_POR_PAGINA;
-            FVista.MostrarUsuarios(lLista);
-            FVista.MostrarPaginacion(lPagina, FTotalPaginas, lTotal);
-          finally
-            lLista.Free;
-          end;
-        end);
-    end);
+      Result := lApi.Buscar(lTexto, lEstado, lPagina, USUARIOS_POR_PAGINA,
+        lTotal);
+    end,
+    procedure(ALista: TObjectList<TUsuarioDTO>)
+    begin
+      FTotalPaginas := (lTotal + USUARIOS_POR_PAGINA - 1) div
+        USUARIOS_POR_PAGINA;
+      FVista.MostrarUsuarios(ALista);
+      FVista.MostrarPaginacion(lPagina, FTotalPaginas, lTotal);
+    end, MostrarError, MostrarCargando);
 end;
 
 end.

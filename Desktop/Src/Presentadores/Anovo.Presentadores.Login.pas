@@ -7,12 +7,13 @@ interface
 
 uses
   Anovo.Api.Intf.Autenticacion,
+  Anovo.Presentadores.Base,
   Anovo.Vistas.Intf.Login;
 
 type
   TResultadoLogin = (rlCorrecto, rlDebeCambiarClave, rlSinAccesoEscritorio);
 
-  TPresentadorLogin = class
+  TPresentadorLogin = class(TPresentadorBase)
   private
     FVista: IVistaLogin;
     FApi: IApiAutenticacion;
@@ -27,16 +28,9 @@ implementation
 
 uses
   System.SysUtils,
-  System.Classes,
-  System.Threading,
   Anovo.Api.Base,
   Anovo.Sesion,
   Anovo.Textos;
-
-function MensajeInesperado: string;
-begin
-  Result := Format(SErrorInesperado, [SAccionIngresar]);
-end;
 
 constructor TPresentadorLogin.Create(const AVista: IVistaLogin;
   const AApi: IApiAutenticacion);
@@ -68,6 +62,7 @@ end;
 procedure TPresentadorLogin.Ingresar(const ACorreo, AClave: string);
 var
   lCorreo, lClave: string;
+  lResultado: TResultadoLogin;
 begin
   lCorreo := ACorreo;
   lClave := AClave;
@@ -78,46 +73,38 @@ begin
     Exit;
   end;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
+  lResultado := rlCorrecto;
+  Ejecutar(SAccionIngresar,
     procedure
-    var
-      lResultado: TResultadoLogin;
-      lError: string;
     begin
-      lResultado := rlCorrecto;
-      lError := '';
       try
         lResultado := Resolver(lCorreo, lClave);
       except
         on E: EAnovoApiError do
           if E.Status = 401 then
-            lError := SCredencialesInvalidas
+            raise EAnovoCliente.Create(SCredencialesInvalidas)
           else
-            lError := E.Message;
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado;
+            raise;
       end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          FVista.MostrarCargando(False);
-          if not lError.IsEmpty then
-            FVista.MostrarError(lError)
-          else
-            case lResultado of
-              rlCorrecto:
-                FVista.IrAPrincipal;
-              rlDebeCambiarClave:
-                FVista.IrACambioDeClave;
-              rlSinAccesoEscritorio:
-                FVista.MostrarError(SUsuarioSinPermisos);
-            end;
-        end);
+    end,
+    procedure
+    begin
+      case lResultado of
+        rlCorrecto:
+          FVista.IrAPrincipal;
+        rlDebeCambiarClave:
+          FVista.IrACambioDeClave;
+        rlSinAccesoEscritorio:
+          FVista.MostrarError(SUsuarioSinPermisos);
+      end;
+    end,
+    procedure(AMensaje: string)
+    begin
+      FVista.MostrarError(AMensaje);
+    end,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarCargando(AActivo);
     end);
 end;
 

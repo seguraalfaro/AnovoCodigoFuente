@@ -7,46 +7,45 @@ interface
 
 uses
   Anovo.Api.Intf.Configuracion,
-  Anovo.Cancelacion,
+  Anovo.Presentadores.Base,
   Anovo.Vistas.Intf.Configuracion,
   Anovo.Vistas.Intf.Registro;
 
 type
-  TPresentadorConfiguracion = class
+  TPresentadorPrueba = class(TPresentadorBase)
+  protected
+    FApi: IApiConfiguracion;
+    procedure LanzarPrueba(const AVista: IVistaPruebaConexion;
+      const AUrl: string);
+  end;
+
+  TPresentadorConfiguracion = class(TPresentadorPrueba)
   private
     FVista: IVistaConfiguracion;
-    FApi: IApiConfiguracion;
-    FCancelacion: ICancelacion;
     procedure CargarCuenta;
   public
     constructor Create(const AVista: IVistaConfiguracion;
       const AApi: IApiConfiguracion);
-    destructor Destroy; override;
     procedure Iniciar;
     procedure Probar;
   end;
 
-  TPresentadorConexion = class
+  TPresentadorConexion = class(TPresentadorPrueba)
   private
     FVista: IVistaPruebaConexion;
-    FApi: IApiConfiguracion;
-    FCancelacion: ICancelacion;
   public
     constructor Create(const AVista: IVistaPruebaConexion;
       const AApi: IApiConfiguracion);
-    destructor Destroy; override;
     procedure Probar(const AUrl: string);
   end;
 
-  TPresentadorCambioClave = class
+  TPresentadorCambioClave = class(TPresentadorBase)
   private
     FVista: IVistaRegistro;
     FApi: IApiConfiguracion;
-    FCancelacion: ICancelacion;
   public
     constructor Create(const AVista: IVistaRegistro;
       const AApi: IApiConfiguracion);
-    destructor Destroy; override;
     procedure Guardar(const AActual, ANueva: string);
   end;
 
@@ -54,53 +53,47 @@ implementation
 
 uses
   System.SysUtils,
-  System.Classes,
-  System.Threading,
   System.Diagnostics,
-  Anovo.Api.Base,
   Anovo.DTOs.Sesion,
   Anovo.Textos;
 
-procedure LanzarPrueba(const AVista: IVistaPruebaConexion;
-  const AApi: IApiConfiguracion; const ACancelacion: ICancelacion;
+procedure TPresentadorPrueba.LanzarPrueba(const AVista: IVistaPruebaConexion;
   const AUrl: string);
+var
+  lApi: IApiConfiguracion;
+  lResultado: TResultadoConexion;
+  lVersion: TVersionDTO;
 begin
+  lApi := FApi;
+  lResultado := Default(TResultadoConexion);
+  lVersion := nil;
   AVista.MostrarProbando;
 
-  TTask.Run(
+  Ejecutar(SAccionProbarConexion,
     procedure
     var
-      lResultado: TResultadoConexion;
       lReloj: TStopwatch;
-      lVersion: TVersionDTO;
     begin
-      lResultado := Default(TResultadoConexion);
-      try
-        lReloj := TStopwatch.StartNew;
-        lVersion := AApi.Version(AUrl);
-        try
-          lResultado.Milisegundos := lReloj.ElapsedMilliseconds;
-          lResultado.Conectado := True;
-          lResultado.VersionServidor := lVersion.Servidor;
-          lResultado.VersionMovil := lVersion.Movil;
-          lResultado.VersionAviso := lVersion.AvisoPrivacidad;
-        finally
-          lVersion.Free;
-        end;
-      except
-        on E: EAnovoCliente do
-          lResultado.Mensaje := E.Message;
-        on E: Exception do
-          lResultado.Mensaje := Format(SErrorInesperado,
-            [SAccionProbarConexion]);
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          if not ACancelacion.Cancelada then
-            AVista.MostrarConexion(lResultado);
-        end);
+      lReloj := TStopwatch.StartNew;
+      lVersion := lApi.Version(AUrl);
+      lResultado.Milisegundos := lReloj.ElapsedMilliseconds;
+    end,
+    procedure
+    begin
+      lResultado.Conectado := True;
+      lResultado.VersionServidor := lVersion.Servidor;
+      lResultado.VersionMovil := lVersion.Movil;
+      lResultado.VersionAviso := lVersion.AvisoPrivacidad;
+      AVista.MostrarConexion(lResultado);
+    end,
+    procedure(AMensaje: string)
+    begin
+      lResultado.Mensaje := AMensaje;
+      AVista.MostrarConexion(lResultado);
+    end, nil,
+    procedure
+    begin
+      lVersion.Free;
     end);
 end;
 
@@ -110,13 +103,6 @@ begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
-  FCancelacion := TCancelacion.Create;
-end;
-
-destructor TPresentadorConfiguracion.Destroy;
-begin
-  FCancelacion.Cancelar;
-  inherited;
 end;
 
 procedure TPresentadorConfiguracion.Iniciar;
@@ -127,57 +113,31 @@ end;
 
 procedure TPresentadorConfiguracion.Probar;
 begin
-  LanzarPrueba(FVista, FApi, FCancelacion, '');
+  LanzarPrueba(FVista, '');
 end;
 
 procedure TPresentadorConfiguracion.CargarCuenta;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiConfiguracion;
-  lVista: IVistaConfiguracion;
 begin
-  lCancelacion := FCancelacion;
   lApi := FApi;
-  lVista := FVista;
 
-  lVista.MostrarCargando(True);
-
-  TTask.Run(
-    procedure
-    var
-      lDatos: TCuentaDTO;
-      lError: string;
+  Ejecutar<TCuentaDTO>(SAccionCargarCuenta,
+    function: TCuentaDTO
     begin
-      lDatos := nil;
-      lError := '';
-      try
-        lDatos := lApi.Cuenta;
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := Format(SErrorInesperado, [SAccionCargarCuenta]);
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada then
-              Exit;
-
-            lVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-            begin
-              lVista.MostrarError(lError);
-              Exit;
-            end;
-
-            lVista.MostrarCuenta(lDatos);
-          finally
-            lDatos.Free;
-          end;
-        end);
+      Result := lApi.Cuenta;
+    end,
+    procedure(ADatos: TCuentaDTO)
+    begin
+      FVista.MostrarCuenta(ADatos);
+    end,
+    procedure(AMensaje: string)
+    begin
+      FVista.MostrarError(AMensaje);
+    end,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarCargando(AActivo);
     end);
 end;
 
@@ -187,18 +147,11 @@ begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
-  FCancelacion := TCancelacion.Create;
-end;
-
-destructor TPresentadorConexion.Destroy;
-begin
-  FCancelacion.Cancelar;
-  inherited;
 end;
 
 procedure TPresentadorConexion.Probar(const AUrl: string);
 begin
-  LanzarPrueba(FVista, FApi, FCancelacion, AUrl);
+  LanzarPrueba(FVista, AUrl);
 end;
 
 constructor TPresentadorCambioClave.Create(const AVista: IVistaRegistro;
@@ -207,62 +160,38 @@ begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
-  FCancelacion := TCancelacion.Create;
-end;
-
-destructor TPresentadorCambioClave.Destroy;
-begin
-  FCancelacion.Cancelar;
-  inherited;
 end;
 
 procedure TPresentadorCambioClave.Guardar(const AActual, ANueva: string);
 var
-  lCancelacion: ICancelacion;
   lApi: IApiConfiguracion;
-  lVista: IVistaRegistro;
+  lDto: TCambioClaveDTO;
 begin
-  lCancelacion := FCancelacion;
   lApi := FApi;
-  lVista := FVista;
+  lDto := TCambioClaveDTO.Create;
+  lDto.ClaveActual := AActual;
+  lDto.ClaveNueva := ANueva;
 
-  lVista.MostrarGuardando(True);
-
-  TTask.Run(
+  Ejecutar(SAccionCambiarClave,
     procedure
-    var
-      lDto: TCambioClaveDTO;
-      lError: string;
     begin
-      lError := '';
-      lDto := TCambioClaveDTO.Create;
-      try
-        lDto.ClaveActual := AActual;
-        lDto.ClaveNueva := ANueva;
-        try
-          lApi.CambiarClave(lDto);
-        except
-          on E: EAnovoCliente do
-            lError := E.Message;
-          on E: Exception do
-            lError := Format(SErrorInesperado, [SAccionCambiarClave]);
-        end;
-      finally
-        lDto.Free;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          if lCancelacion.Cancelada then
-            Exit;
-
-          lVista.MostrarGuardando(False);
-          if lError.IsEmpty then
-            lVista.Guardado(0)
-          else
-            lVista.MostrarError(lError);
-        end);
+      lApi.CambiarClave(lDto);
+    end,
+    procedure
+    begin
+      FVista.Guardado(0);
+    end,
+    procedure(AMensaje: string)
+    begin
+      FVista.MostrarError(AMensaje);
+    end,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarGuardando(AActivo);
+    end,
+    procedure
+    begin
+      lDto.Free;
     end);
 end;
 

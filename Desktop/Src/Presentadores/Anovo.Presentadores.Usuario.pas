@@ -9,18 +9,17 @@ uses
   System.Generics.Collections,
   Anovo.Api.Intf.Usuarios,
   Anovo.Api.Intf.Roles,
-  Anovo.Cancelacion,
+  Anovo.Presentadores.Base,
   Anovo.DTOs.Usuarios,
   Anovo.DTOs.Roles,
   Anovo.Vistas.Intf.Usuario;
 
 type
-  TPresentadorUsuario = class
+  TPresentadorUsuario = class(TPresentadorBase)
   private
     FVista: IVistaUsuario;
     FApiUsuarios: IApiUsuarios;
     FApiRoles: IApiRoles;
-    FCancelacion: ICancelacion;
     FFilas: TObjectList<TFilaPermiso>;
     FPorId: TDictionary<Integer, TFilaPermiso>;
     FCambios: TDictionary<Integer, string>;
@@ -36,6 +35,7 @@ type
     procedure TomarFilas(const AFilas: TObjectList<TFilaPermiso>);
     procedure TomarBasicos(const AMatriz: TMatrizPermisosDTO);
     function CambiosAEnviar(const AMotivo: string): TCambiosExcepcionesDTO;
+    procedure MostrarError(AMensaje: string);
   public
     constructor Create(const AVista: IVistaUsuario;
       const AApiUsuarios: IApiUsuarios; const AApiRoles: IApiRoles);
@@ -66,10 +66,7 @@ implementation
 
 uses
   System.SysUtils,
-  System.Classes,
-  System.Threading,
   System.Generics.Defaults,
-  Anovo.Api.Base,
   Anovo.Sesion,
   Anovo.Permisos,
   Anovo.Textos;
@@ -80,11 +77,6 @@ const
   LARGO_CLAVE_TEMPORAL = 12;
   LETRAS_CLAVE = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
   DIGITOS_CLAVE = '23456789';
-
-function MensajeInesperado(const AAccion: string): string;
-begin
-  Result := Format(SErrorInesperado, [AAccion]);
-end;
 
 function FilasDe(const AMatriz: TMatrizPermisosDTO; const AUsuario: TUsuarioDTO;
   const AExcepciones: TObjectList<TExcepcionDTO>): TObjectList<TFilaPermiso>;
@@ -138,7 +130,6 @@ begin
   FVista := AVista;
   FApiUsuarios := AApiUsuarios;
   FApiRoles := AApiRoles;
-  FCancelacion := TCancelacion.Create;
   FPorId := TDictionary<Integer, TFilaPermiso>.Create;
   FCambios := TDictionary<Integer, string>.Create;
   FBasicos := TDictionary<Integer, Integer>.Create;
@@ -146,7 +137,6 @@ end;
 
 destructor TPresentadorUsuario.Destroy;
 begin
-  FCancelacion.Cancelar;
   FCambios.Free;
   FBasicos.Free;
   FPorId.Free;
@@ -300,83 +290,68 @@ begin
   end;
 end;
 
+procedure TPresentadorUsuario.MostrarError(AMensaje: string);
+begin
+  FVista.MostrarError(AMensaje);
+end;
+
 procedure TPresentadorUsuario.Cargar(const AId: Integer);
 var
-  lCancelacion: ICancelacion;
   lApiUsuarios: IApiUsuarios;
   lApiRoles: IApiRoles;
+  lMatriz: TMatrizPermisosDTO;
+  lUsuario: TUsuarioDTO;
+  lExcepciones: TObjectList<TExcepcionDTO>;
+  lFilas: TObjectList<TFilaPermiso>;
 begin
   FId := AId;
-  lCancelacion := FCancelacion;
   lApiUsuarios := FApiUsuarios;
   lApiRoles := FApiRoles;
-  FVista.MostrarCargando(True);
+  lMatriz := nil;
+  lUsuario := nil;
+  lExcepciones := nil;
+  lFilas := nil;
 
-  TTask.Run(
+  Ejecutar(SAccionCargarUsuario,
     procedure
-    var
-      lMatriz: TMatrizPermisosDTO;
-      lUsuario: TUsuarioDTO;
-      lExcepciones: TObjectList<TExcepcionDTO>;
-      lFilas: TObjectList<TFilaPermiso>;
-      lError: string;
     begin
-      lMatriz := nil;
-      lUsuario := nil;
-      lExcepciones := nil;
-      lFilas := nil;
-      lError := '';
-      try
-        lMatriz := lApiRoles.Matriz;
-        if AId > 0 then
-        begin
-          lUsuario := lApiUsuarios.Obtener(AId);
-          lExcepciones := lApiUsuarios.Excepciones(AId);
-          lFilas := FilasDe(lMatriz, lUsuario, lExcepciones);
-        end;
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado(SAccionCargarUsuario);
+      lMatriz := lApiRoles.Matriz;
+      if AId > 0 then
+      begin
+        lUsuario := lApiUsuarios.Obtener(AId);
+        lExcepciones := lApiUsuarios.Excepciones(AId);
+        lFilas := FilasDe(lMatriz, lUsuario, lExcepciones);
       end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada then
-              Exit;
-            FVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-            begin
-              FVista.MostrarError(lError);
-              Exit;
-            end;
-            TomarBasicos(lMatriz);
-            FVista.MostrarRoles(lMatriz.Roles);
-            if lUsuario <> nil then
-            begin
-              TomarOriginal(lUsuario);
-              FVista.MostrarUsuario(lUsuario);
-              TomarFilas(lFilas);
-              lFilas := nil;
-              FVista.MostrarPermisos(FFilas);
-            end;
-          finally
-            lFilas.Free;
-            lExcepciones.Free;
-            lUsuario.Free;
-            lMatriz.Free;
-          end;
-        end);
+    end,
+    procedure
+    begin
+      TomarBasicos(lMatriz);
+      FVista.MostrarRoles(lMatriz.Roles);
+      if lUsuario <> nil then
+      begin
+        TomarOriginal(lUsuario);
+        FVista.MostrarUsuario(lUsuario);
+        TomarFilas(lFilas);
+        lFilas := nil;
+        FVista.MostrarPermisos(FFilas);
+      end;
+    end, MostrarError,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarCargando(AActivo);
+    end,
+    procedure
+    begin
+      lFilas.Free;
+      lExcepciones.Free;
+      lUsuario.Free;
+      lMatriz.Free;
     end);
 end;
 
 procedure TPresentadorUsuario.Guardar(const ADatos: TUsuarioEdicionDTO;
   const AMotivo: string; const AConPermisos: Boolean);
 var
-  lCancelacion: ICancelacion;
   lApi: IApiUsuarios;
   lId: Integer;
   lClave: string;
@@ -394,55 +369,37 @@ begin
   lCambios := nil;
   if AConPermisos and HayCambiosDePermisos then
     lCambios := CambiosAEnviar(AMotivo);
-  lCancelacion := FCancelacion;
   lApi := FApiUsuarios;
-  FVista.MostrarGuardando(True);
 
-  TTask.Run(
+  Ejecutar(SAccionGuardar,
     procedure
-    var
-      lError: string;
     begin
-      lError := '';
-      try
-        try
-          if lId = 0 then
-            lApi.Crear(ADatos).Free
-          else
-          begin
-            if lEnviarDatos then
-              lApi.Editar(lId, ADatos);
-            if not lClave.IsEmpty then
-              lApi.RestablecerClave(lId, lClave);
-            if lPedir then
-              lApi.PedirCambioClave(lId);
-            if lCambios <> nil then
-              lApi.CambiarExcepciones(lId, lCambios);
-          end;
-        except
-          on E: EAnovoCliente do
-            lError := E.Message;
-          on E: Exception do
-            lError := MensajeInesperado(SAccionGuardar);
-        end;
-      finally
-        ADatos.Free;
-        lCambios.Free;
+      if lId = 0 then
+        lApi.Crear(ADatos).Free
+      else
+      begin
+        if lEnviarDatos then
+          lApi.Editar(lId, ADatos);
+        if not lClave.IsEmpty then
+          lApi.RestablecerClave(lId, lClave);
+        if lPedir then
+          lApi.PedirCambioClave(lId);
+        if lCambios <> nil then
+          lApi.CambiarExcepciones(lId, lCambios);
       end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          if lCancelacion.Cancelada then
-            Exit;
-          FVista.MostrarGuardando(False);
-          if not lError.IsEmpty then
-          begin
-            FVista.MostrarError(lError);
-            Exit;
-          end;
-          FVista.Guardado;
-        end);
+    end,
+    procedure
+    begin
+      FVista.Guardado;
+    end, MostrarError,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarGuardando(AActivo);
+    end,
+    procedure
+    begin
+      ADatos.Free;
+      lCambios.Free;
     end);
 end;
 

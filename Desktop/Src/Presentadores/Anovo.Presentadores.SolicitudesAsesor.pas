@@ -6,25 +6,22 @@ interface
 
 uses
   Anovo.Api.Intf.Solicitudes,
-  Anovo.Cancelacion,
+  Anovo.Presentadores.Base,
   Anovo.Vistas.Intf.SolicitudesAsesor;
 
 type
-  TPresentadorSolicitudesAsesor = class
+  TPresentadorSolicitudesAsesor = class(TPresentadorBase)
   private
     FVista: IVistaSolicitudesAsesor;
     FApi: IApiSolicitudes;
-    FCancelacion: ICancelacion;
     FTexto: string;
     FHistorial: Boolean;
     FPagina: Integer;
     FTotalPaginas: Integer;
-    FSolicitud: Integer;
     procedure Cargar;
   public
     constructor Create(const AVista: IVistaSolicitudesAsesor;
       const AApi: IApiSolicitudes);
-    destructor Destroy; override;
     procedure Iniciar;
     procedure Buscar(const ATexto: string);
     procedure Limpiar;
@@ -41,17 +38,9 @@ implementation
 
 uses
   System.SysUtils,
-  System.Classes,
-  System.Threading,
   System.Generics.Collections,
-  Anovo.Api.Base,
   Anovo.DTOs.Dashboard,
   Anovo.Textos;
-
-function MensajeInesperado: string;
-begin
-  Result := Format(SErrorInesperado, [SAccionCargarSolicitudes]);
-end;
 
 constructor TPresentadorSolicitudesAsesor.Create(const AVista: IVistaSolicitudesAsesor;
   const AApi: IApiSolicitudes);
@@ -59,15 +48,8 @@ begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
-  FCancelacion := TCancelacion.Create;
   FHistorial := False;
   FPagina := 1;
-end;
-
-destructor TPresentadorSolicitudesAsesor.Destroy;
-begin
-  FCancelacion.Cancelar;
-  inherited;
 end;
 
 procedure TPresentadorSolicitudesAsesor.Iniciar;
@@ -118,67 +100,41 @@ end;
 
 procedure TPresentadorSolicitudesAsesor.Cargar;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiSolicitudes;
-  lNumero, lPagina: Integer;
+  lPagina: Integer;
   lTexto: string;
   lHistorial: Boolean;
+  lTotal: Int64;
+  lDesde: TDateTime;
 begin
-  Inc(FSolicitud);
-  lNumero := FSolicitud;
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lTexto := FTexto;
   lPagina := FPagina;
   lHistorial := FHistorial;
+  lTotal := 0;
+  lDesde := 0;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
-    procedure
-    var
-      lLista: TObjectList<TSolicitudAsesorDTO>;
-      lTotal: Int64;
-      lDesde: TDateTime;
-      lError: string;
+  EjecutarUltima<TObjectList<TSolicitudAsesorDTO>>(SAccionCargarSolicitudes,
+    function: TObjectList<TSolicitudAsesorDTO>
     begin
-      lLista := nil;
-      lTotal := 0;
-      lDesde := 0;
-      lError := '';
-      try
-        lLista := lApi.Seguimiento(lTexto, lHistorial, lPagina,
-          SOLICITUDES_POR_PAGINA, lTotal, lDesde);
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada or (lNumero <> FSolicitud) then
-              Exit;
-
-            FVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-            begin
-              FVista.MostrarError(lError);
-              Exit;
-            end;
-
-            FTotalPaginas := (lTotal + SOLICITUDES_POR_PAGINA - 1) div
-              SOLICITUDES_POR_PAGINA;
-            FVista.MostrarPeriodo(lHistorial, lDesde);
-            FVista.MostrarSolicitudes(lLista);
-            FVista.MostrarPaginacion(lPagina, FTotalPaginas, lTotal);
-          finally
-            lLista.Free;
-          end;
-        end);
+      Result := lApi.Seguimiento(lTexto, lHistorial, lPagina,
+        SOLICITUDES_POR_PAGINA, lTotal, lDesde);
+    end,
+    procedure(ALista: TObjectList<TSolicitudAsesorDTO>)
+    begin
+      FTotalPaginas := (lTotal + SOLICITUDES_POR_PAGINA - 1) div
+        SOLICITUDES_POR_PAGINA;
+      FVista.MostrarPeriodo(lHistorial, lDesde);
+      FVista.MostrarSolicitudes(ALista);
+      FVista.MostrarPaginacion(lPagina, FTotalPaginas, lTotal);
+    end,
+    procedure(AMensaje: string)
+    begin
+      FVista.MostrarError(AMensaje);
+    end,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarCargando(AActivo);
     end);
 end;
 

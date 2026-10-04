@@ -6,16 +6,15 @@ interface
 
 uses
   Anovo.Api.Intf.Auditoria,
-  Anovo.Cancelacion,
+  Anovo.Presentadores.Base,
   Anovo.Vistas.Intf.Auditoria,
   Anovo.Permisos;
 
 type
-  TPresentadorAuditoria = class
+  TPresentadorAuditoria = class(TPresentadorBase)
   private
     FVista: IVistaAuditoria;
     FApi: IApiAuditoria;
-    FCancelacion: ICancelacion;
     FSoloCuentas: Boolean;
     FDesde: TDateTime;
     FHasta: TDateTime;
@@ -24,14 +23,12 @@ type
     FTexto: string;
     FPagina: Integer;
     FTotalPaginas: Integer;
-    FSolicitud: Integer;
     function EntidadPedida: string;
     function Rotulos: TArray<string>;
     procedure Cargar;
   public
     constructor Create(const AVista: IVistaAuditoria;
       const AApi: IApiAuditoria);
-    destructor Destroy; override;
     procedure Iniciar;
     procedure Buscar(const ATexto: string);
     procedure Limpiar;
@@ -52,18 +49,13 @@ implementation
 
 uses
   System.SysUtils,
-  System.Classes,
   System.DateUtils,
-  System.Threading,
   System.Generics.Collections,
-  Anovo.Api.Base,
   Anovo.DTOs.Auditoria,
   Anovo.Sesion,
   Anovo.Textos;
 
 const
-
-
   ENTIDAD_API: array [TFiltroEntidad] of string = ('', 'CLIENTES',
     'COTIZACIONES', 'CUENTAS', 'USUARIOS', 'USUARIOS_CLAVES', 'ROLES_PERMISOS',
     'USUARIOS_PERMISOS');
@@ -77,27 +69,15 @@ const
   FILTROS_CUENTAS: TFiltrosEntidad = [feCuentas, feUsuarios, feClaves,
     feMatrizRoles, fePermisosPersona];
 
-function MensajeInesperado: string;
-begin
-  Result := Format(SErrorInesperado, [SAccionCargarBitacora]);
-end;
-
 constructor TPresentadorAuditoria.Create(const AVista: IVistaAuditoria;
   const AApi: IApiAuditoria);
 begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
-  FCancelacion := TCancelacion.Create;
   FPagina := 1;
   FHasta := Date;
   FDesde := IncDay(FHasta, -DIAS_POR_DEFECTO);
-end;
-
-destructor TPresentadorAuditoria.Destroy;
-begin
-  FCancelacion.Cancelar;
-  inherited;
 end;
 
 class function TPresentadorAuditoria.PuedeVerTodo: Boolean;
@@ -196,17 +176,13 @@ end;
 
 procedure TPresentadorAuditoria.Cargar;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiAuditoria;
-  lNumero: Integer;
   lSoloCuentas: Boolean;
   lDesde, lHasta: TDateTime;
   lEntidad, lTexto: string;
   lPagina: Integer;
+  lTotal: Int64;
 begin
-  Inc(FSolicitud);
-  lNumero := FSolicitud;
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lSoloCuentas := FSoloCuentas;
   lDesde := FDesde;
@@ -214,51 +190,28 @@ begin
   lEntidad := EntidadPedida;
   lTexto := FTexto;
   lPagina := FPagina;
+  lTotal := 0;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
-    procedure
-    var
-      lLista: TObjectList<TAuditoriaDTO>;
-      lTotal: Int64;
-      lError: string;
+  EjecutarUltima<TObjectList<TAuditoriaDTO>>(SAccionCargarBitacora,
+    function: TObjectList<TAuditoriaDTO>
     begin
-      lLista := nil;
-      lTotal := 0;
-      lError := '';
-      try
-        lLista := lApi.Buscar(lSoloCuentas, lDesde, lHasta, lEntidad, '',
-          lTexto, lPagina, AUDITORIA_POR_PAGINA, lTotal);
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada or (lNumero <> FSolicitud) then
-              Exit;
-
-            FVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-            begin
-              FVista.MostrarError(lError);
-              Exit;
-            end;
-
-            FTotalPaginas := (lTotal + AUDITORIA_POR_PAGINA - 1) div
-              AUDITORIA_POR_PAGINA;
-            FVista.MostrarAuditoria(lLista);
-            FVista.MostrarPaginacion(lPagina, FTotalPaginas, lTotal);
-          finally
-            lLista.Free;
-          end;
-        end);
+      Result := lApi.Buscar(lSoloCuentas, lDesde, lHasta, lEntidad, '',
+        lTexto, lPagina, AUDITORIA_POR_PAGINA, lTotal);
+    end,
+    procedure(ALista: TObjectList<TAuditoriaDTO>)
+    begin
+      FTotalPaginas := (lTotal + AUDITORIA_POR_PAGINA - 1) div
+        AUDITORIA_POR_PAGINA;
+      FVista.MostrarAuditoria(ALista);
+      FVista.MostrarPaginacion(lPagina, FTotalPaginas, lTotal);
+    end,
+    procedure(AMensaje: string)
+    begin
+      FVista.MostrarError(AMensaje);
+    end,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarCargando(AActivo);
     end);
 end;
 

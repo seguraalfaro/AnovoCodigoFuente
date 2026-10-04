@@ -7,16 +7,15 @@ interface
 
 uses
   Anovo.Api.Intf.Dashboard,
-  Anovo.Cancelacion,
+  Anovo.Presentadores.Base,
   Anovo.Vistas.Intf.Principal,
   Anovo.Permisos;
 
 type
-  TPresentadorPrincipal = class
+  TPresentadorPrincipal = class(TPresentadorBase)
   private
     FVista: IVistaPrincipal;
     FApi: IApiDashboard;
-    FCancelacion: ICancelacion;
     FPermitidas: TSecciones;
     FConsultando: Boolean;
     FSuscripcion: Integer;
@@ -41,8 +40,8 @@ implementation
 uses
   System.SysUtils,
   System.Classes,
-  System.Threading,
   System.Messaging,
+  Anovo.Cancelacion,
   Anovo.Config,
   Anovo.Mensajes,
   Anovo.DTOs.Dashboard,
@@ -90,7 +89,6 @@ begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
-  FCancelacion := TCancelacion.Create;
   FSuscripcion := TMessageManager.DefaultManager.SubscribeToMessage
     (TMensajeAvisos,
     procedure(const Sender: TObject; const AMensaje: TMessage)
@@ -105,7 +103,7 @@ begin
       lCancelacion: ICancelacion;
     begin
       lSeccion := TMensajeNavegar(AMensaje).Value;
-      lCancelacion := FCancelacion;
+      lCancelacion := Cancelacion;
       TThread.ForceQueue(nil,
         procedure
         begin
@@ -120,7 +118,6 @@ begin
   TMessageManager.DefaultManager.Unsubscribe(TMensajeAvisos, FSuscripcion);
   TMessageManager.DefaultManager.Unsubscribe(TMensajeNavegar,
     FSuscripcionNavegar);
-  FCancelacion.Cancelar;
   inherited;
 end;
 
@@ -187,8 +184,8 @@ end;
 
 procedure TPresentadorPrincipal.CerrarSesion;
 begin
-  FCancelacion.Cancelar;
-  FCancelacion := TCancelacion.Create;
+  CancelarPendientes;
+  FConsultando := False;
   FPermitidas := [];
   TSesion.Cerrar;
 end;
@@ -204,42 +201,27 @@ end;
 
 procedure TPresentadorPrincipal.RefrescarAvisos;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiDashboard;
 begin
   if FConsultando or not TieneAvisos then
     Exit;
   FConsultando := True;
-  lCancelacion := FCancelacion;
   lApi := FApi;
 
-  TTask.Run(
-    procedure
-    var
-      lAvisos: TAvisosDTO;
+  Ejecutar<TAvisosDTO>('',
+    function: TAvisosDTO
     begin
-      lAvisos := nil;
-      try
-        lAvisos := lApi.Avisos;
-      except
-        lAvisos := nil;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada then
-              Exit;
-            FConsultando := False;
-            if lAvisos = nil then
-              Exit;
-            FVista.MostrarAviso(secBandeja, lAvisos.PorAprobar);
-            FVista.MostrarAviso(secSolicitudes, lAvisos.PorCotizar);
-          finally
-            lAvisos.Free;
-          end;
-        end);
+      Result := lApi.Avisos;
+    end,
+    procedure(AAvisos: TAvisosDTO)
+    begin
+      FConsultando := False;
+      FVista.MostrarAviso(secBandeja, AAvisos.PorAprobar);
+      FVista.MostrarAviso(secSolicitudes, AAvisos.PorCotizar);
+    end,
+    procedure(AMensaje: string)
+    begin
+      FConsultando := False;
     end);
 end;
 

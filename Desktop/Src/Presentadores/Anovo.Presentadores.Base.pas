@@ -15,6 +15,8 @@ type
     FCancelacion: ICancelacion;
     FSolicitud: Integer;
   protected
+    function Cancelacion: ICancelacion;
+    procedure CancelarPendientes;
     procedure Ejecutar(const AAccion: string; const ATrabajo: TProc;
       const AListo: TProc; const AError: TProc<string>;
       const AOcupado: TProc<Boolean> = nil;
@@ -49,6 +51,17 @@ destructor TPresentadorBase.Destroy;
 begin
   FCancelacion.Cancelar;
   inherited;
+end;
+
+function TPresentadorBase.Cancelacion: ICancelacion;
+begin
+  Result := FCancelacion;
+end;
+
+procedure TPresentadorBase.CancelarPendientes;
+begin
+  FCancelacion.Cancelar;
+  FCancelacion := TCancelacion.Create;
 end;
 
 procedure TPresentadorBase.Ejecutar(const AAccion: string;
