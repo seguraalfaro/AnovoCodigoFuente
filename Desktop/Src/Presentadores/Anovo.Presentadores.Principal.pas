@@ -49,6 +49,7 @@ uses
 
 const
   SIEMPRE = '*';
+  SEPARADOR = ';';
 
   PERMISOS_AVISOS: array [0 .. 1] of string = (PERMISO_COTIZACIONES_APROBAR,
     PERMISO_COTIZACIONES_ELABORAR);
@@ -58,18 +59,19 @@ const
      PERMISO_USUARIOS_ADMINISTRAR,
      PERMISO_COTIZACIONES_VER_APROBADAS_PROPIAS,
      PERMISO_COTIZACIONES_ELABORAR,
-     'solicitudes.ver_propias;cotizaciones.elaborar',
+     PERMISO_SOLICITUDES_VER_PROPIAS + SEPARADOR + PERMISO_COTIZACIONES_ELABORAR,
      PERMISO_COTIZACIONES_APROBAR,
      PERMISO_COTIZACIONES_VER_TODAS,
      PERMISO_COTIZACIONES_ELABORAR,
-     'cotizaciones.ver_todas;cotizaciones.ver_aprobadas_propias',
+     PERMISO_COTIZACIONES_VER_TODAS + SEPARADOR +
+     PERMISO_COTIZACIONES_VER_APROBADAS_PROPIAS,
      PERMISO_CLIENTES_VER,
-     'cotizaciones.elaborar;catalogos.editar',
+     PERMISO_COTIZACIONES_ELABORAR + SEPARADOR + PERMISO_CATALOGOS_EDITAR,
      PERMISO_REPORTES_VER,
      PERMISO_REPORTES_VER,
      PERMISO_USUARIOS_ADMINISTRAR,
      PERMISO_PERMISOS_VER,
-     'auditoria.ver_toda;auditoria.ver_cuentas',
+     PERMISO_AUDITORIA_VER_TODA + SEPARADOR + PERMISO_AUDITORIA_VER_CUENTAS,
      SIEMPRE);
 
   ORDEN_MENU: array [0 .. 15] of TSeccion = (secDashboardSupervisor,
@@ -136,7 +138,7 @@ begin
   begin
     lCodigos := PERMISOS_SECCION[lSeccion];
     if (lCodigos = SIEMPRE) or TSesion.TieneAlguno
-      (lCodigos.Split([';'], TStringSplitOptions.ExcludeEmpty)) then
+      (lCodigos.Split([SEPARADOR], TStringSplitOptions.ExcludeEmpty)) then
       Include(Result, lSeccion);
   end;
   if secDashboardSupervisor in Result then
