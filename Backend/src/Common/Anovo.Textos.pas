@@ -356,8 +356,21 @@ resourcestring
     'y quitados (%d). Quedará solo con el paquete básico del rol nuevo.';
   SPermisosTrasCambioRol = 'Guarde primero el cambio de rol; después se ' +
     'ajustan los permisos sobre el paquete básico del rol nuevo.';
-  SPermisosResumen = 'Rol %s · %d del paquete básico · %d adicionales · ' +
-    '%d quitados · %d cambios sin guardar';
+  SPastillaDelRol = '%d del rol';
+  SUnAdicional = '%d adicional';
+  SVariosAdicionales = '%d adicionales';
+  SUnQuitado = '%d quitado';
+  SVariosQuitados = '%d quitados';
+  SSinGuardarCantidad = '%d sin guardar';
+  SSoloExcepciones = 'Solo adicionales y quitados';
+  SPestanaPermisos = 'Permisos';
+  SPestanaPermisosCon = 'Permisos · %s';
+  SPaqueteBasico = 'Paquete básico del rol: %d permisos. Los adicionales se ' +
+    'dan en la pestaña Permisos.';
+  SIconoNuevo = '+';
+  SCorreoYRol = '%s · %s';
+  SEstActivo = 'Activo';
+  SEstInactivo = 'Inactivo';
   SMotivoPermisosTitulo = 'Motivo del cambio de permisos';
   SModuloAdjuntos = 'Croquis y fotos';
   SModuloAuditoria = 'Auditoría';

@@ -11,6 +11,7 @@ uses
   Anovo.Api.Intf.Roles,
   Anovo.Cancelacion,
   Anovo.DTOs.Usuarios,
+  Anovo.DTOs.Roles,
   Anovo.Vistas.Intf.Usuario;
 
 type
@@ -23,6 +24,7 @@ type
     FFilas: TObjectList<TFilaPermiso>;
     FPorId: TDictionary<Integer, TFilaPermiso>;
     FCambios: TDictionary<Integer, string>;
+    FBasicos: TDictionary<Integer, Integer>;
     FId: Integer;
     FNombre: string;
     FCorreo: string;
@@ -32,6 +34,7 @@ type
     FPedirCambio: Boolean;
     procedure TomarOriginal(const AUsuario: TUsuarioDTO);
     procedure TomarFilas(const AFilas: TObjectList<TFilaPermiso>);
+    procedure TomarBasicos(const AMatriz: TMatrizPermisosDTO);
     function CambiosAEnviar(const AMotivo: string): TCambiosExcepcionesDTO;
   public
     constructor Create(const AVista: IVistaUsuario;
@@ -40,6 +43,8 @@ type
     procedure Cargar(const AId: Integer);
     procedure MarcarPermiso(const APermisoId: Integer; const ATiene: Boolean);
     function HayCambiosDePermisos: Boolean;
+    function CambiosDePermisos: Integer;
+    function BasicosDelRol(const ARolId: Integer): Integer;
     function CambioRol(const ARolId: Integer): Boolean;
     function CambioDatos(const ADatos: TUsuarioEdicionDTO): Boolean;
     function GuardaPermisos(const ARolId: Integer): Boolean;
@@ -63,7 +68,6 @@ uses
   System.Threading,
   System.Generics.Defaults,
   Anovo.Api.Base,
-  Anovo.DTOs.Roles,
   Anovo.Sesion,
   Anovo.Textos;
 
@@ -134,12 +138,14 @@ begin
   FCancelacion := TCancelacion.Create;
   FPorId := TDictionary<Integer, TFilaPermiso>.Create;
   FCambios := TDictionary<Integer, string>.Create;
+  FBasicos := TDictionary<Integer, Integer>.Create;
 end;
 
 destructor TPresentadorUsuario.Destroy;
 begin
   FCancelacion.Cancelar;
   FCambios.Free;
+  FBasicos.Free;
   FPorId.Free;
   FFilas.Free;
   inherited;
@@ -183,6 +189,31 @@ begin
     FCambios.AddOrSetValue(APermisoId, TIPO_OTORGADO)
   else
     FCambios.AddOrSetValue(APermisoId, TIPO_QUITADO);
+end;
+
+procedure TPresentadorUsuario.TomarBasicos(const AMatriz: TMatrizPermisosDTO);
+var
+  lAsignacion: TAsignacionDTO;
+  lCantidad: Integer;
+begin
+  FBasicos.Clear;
+  for lAsignacion in AMatriz.Asignaciones do
+  begin
+    if not FBasicos.TryGetValue(lAsignacion.RolId, lCantidad) then
+      lCantidad := 0;
+    FBasicos.AddOrSetValue(lAsignacion.RolId, lCantidad + 1);
+  end;
+end;
+
+function TPresentadorUsuario.BasicosDelRol(const ARolId: Integer): Integer;
+begin
+  if not FBasicos.TryGetValue(ARolId, Result) then
+    Result := 0;
+end;
+
+function TPresentadorUsuario.CambiosDePermisos: Integer;
+begin
+  Result := FCambios.Count;
 end;
 
 function TPresentadorUsuario.HayCambiosDePermisos: Boolean;
@@ -309,6 +340,7 @@ begin
               FVista.MostrarError(lError);
               Exit;
             end;
+            TomarBasicos(lMatriz);
             FVista.MostrarRoles(lMatriz.Roles);
             if lUsuario <> nil then
             begin

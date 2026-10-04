@@ -27,6 +27,8 @@ type
     class function Dias(const ADias: Integer): string; static;
     class function FechaHora(const AFecha: TDateTime): string; static;
     class function ClaveEnGrupos(const AClave: string): string; static;
+    class function Cantidad(const ACantidad: Integer;
+      const AUno, AVarios: string): string; static;
   end;
 
 const
@@ -145,6 +147,15 @@ end;
 class function TFormato.FechaHora(const AFecha: TDateTime): string;
 begin
   Result := FormatDateTime('dd/mm/yyyy hh:nn', AFecha);
+end;
+
+class function TFormato.Cantidad(const ACantidad: Integer;
+  const AUno, AVarios: string): string;
+begin
+  if ACantidad = 1 then
+    Result := Format(AUno, [ACantidad])
+  else
+    Result := Format(AVarios, [ACantidad]);
 end;
 
 class function TFormato.ClaveEnGrupos(const AClave: string): string;

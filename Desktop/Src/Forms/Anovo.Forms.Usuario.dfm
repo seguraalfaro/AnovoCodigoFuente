@@ -15,14 +15,61 @@ inherited frmUsuario: TfrmUsuario
     Width = 640
     ExplicitWidth = 640
     inherited lblTitulo: TLabel
+      Left = 68
       Width = 40
       Caption = 'Usuario'
       ExplicitWidth = 40
     end
     inherited lblSubtitulo: TLabel
+      Left = 68
       Width = 3
       Caption = ''
       ExplicitWidth = 3
+    end
+    object pnlAvatar: TPanel
+      Tag = 1
+      Left = 20
+      Top = 13
+      Width = 36
+      Height = 36
+      BevelOuter = bvNone
+      Color = 9067566
+      ParentBackground = False
+      TabOrder = 0
+      StyleElements = []
+      object lblIniciales: TLabel
+        Tag = 1
+        Left = 0
+        Top = 0
+        Width = 36
+        Height = 36
+        Align = alClient
+        Alignment = taCenter
+        AutoSize = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -13
+        Font.Name = 'Segoe UI Semibold'
+        Font.Style = []
+        ParentFont = False
+        Transparent = True
+        Layout = tlCenter
+        StyleElements = [seFont, seBorder]
+      end
+    end
+    object pstEstado: TPlanoPastilla
+      Left = 140
+      Top = 12
+      Width = 60
+      Height = 22
+      Status = fsSuccess
+      Caption = 'Activo'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Segoe UI Semibold'
+      Font.Style = []
+      ParentFont = False
     end
   end
   inherited pnlPie: TRelativePanel
@@ -82,12 +129,21 @@ inherited frmUsuario: TfrmUsuario
       Caption = 'Datos'
       CardIndex = 0
       TabOrder = 0
+      object lblPaquete: TLabel
+        Tag = 13
+        Left = 330
+        Top = 116
+        Width = 290
+        Height = 34
+        AutoSize = False
+        WordWrap = True
+      end
       object lblAviso: TLabel
         Tag = 14
         Left = 20
-        Top = 118
-        Width = 600
-        Height = 32
+        Top = 116
+        Width = 290
+        Height = 34
         AutoSize = False
         Caption = 'Al cambiar de rol se quitan sus permisos adicionales.'
         WordWrap = True
@@ -254,11 +310,118 @@ inherited frmUsuario: TfrmUsuario
       Caption = 'Permisos'
       CardIndex = 1
       TabOrder = 1
+      object pnlResumen: TPanel
+        Tag = 1
+        AlignWithMargins = True
+        Left = 20
+        Top = 8
+        Width = 600
+        Height = 26
+        Margins.Left = 20
+        Margins.Top = 8
+        Margins.Right = 20
+        Margins.Bottom = 0
+        Align = alTop
+        BevelOuter = bvNone
+        ParentBackground = True
+        ParentColor = True
+        TabOrder = 1
+        object pstDelRol: TPlanoPastilla
+          AlignWithMargins = True
+          Left = 0
+          Top = 2
+          Width = 80
+          Height = 22
+          Margins.Left = 0
+          Margins.Top = 2
+          Margins.Right = 6
+          Margins.Bottom = 2
+          Align = alLeft
+          Status = fsInfo
+          Caption = '0 del rol'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Segoe UI Semibold'
+          Font.Style = []
+          ParentFont = False
+        end
+        object pstAdicionales: TPlanoPastilla
+          AlignWithMargins = True
+          Left = 86
+          Top = 2
+          Width = 80
+          Height = 22
+          Margins.Left = 0
+          Margins.Top = 2
+          Margins.Right = 6
+          Margins.Bottom = 2
+          Align = alLeft
+          Status = fsSuccess
+          Caption = '0 adicionales'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Segoe UI Semibold'
+          Font.Style = []
+          ParentFont = False
+        end
+        object pstQuitados: TPlanoPastilla
+          AlignWithMargins = True
+          Left = 172
+          Top = 2
+          Width = 80
+          Height = 22
+          Margins.Left = 0
+          Margins.Top = 2
+          Margins.Right = 6
+          Margins.Bottom = 2
+          Align = alLeft
+          Status = fsDanger
+          Caption = '0 quitados'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Segoe UI Semibold'
+          Font.Style = []
+          ParentFont = False
+        end
+        object pstSinGuardar: TPlanoPastilla
+          AlignWithMargins = True
+          Left = 258
+          Top = 2
+          Width = 80
+          Height = 22
+          Margins.Left = 0
+          Margins.Top = 2
+          Margins.Right = 6
+          Margins.Bottom = 2
+          Align = alLeft
+          Status = fsPending
+          Caption = '0 sin guardar'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Segoe UI Semibold'
+          Font.Style = []
+          ParentFont = False
+        end
+        object chkSoloExcepciones: TCheckBox
+          Left = 410
+          Top = 0
+          Width = 190
+          Height = 26
+          Align = alRight
+          Caption = 'Solo adicionales y quitados'
+          TabOrder = 0
+          OnClick = chkSoloExcepcionesClick
+        end
+      end
       object lblResumen: TLabel
         Tag = 13
         AlignWithMargins = True
         Left = 20
-        Top = 8
+        Top = 40
         Width = 600
         Height = 15
         Margins.Left = 20
@@ -289,6 +452,7 @@ inherited frmUsuario: TfrmUsuario
         TitleFont.Style = []
         StyleElements = [seFont]
         OnCanEdit = grPermisosCanEdit
+        OnGetCellParams = grPermisosGetCellParams
         OnBoolClick = grPermisosBoolClick
         Columns = <
           item

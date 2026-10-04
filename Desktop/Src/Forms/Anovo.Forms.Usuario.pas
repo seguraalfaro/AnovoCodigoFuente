@@ -20,12 +20,16 @@ uses
 
 type
   TfrmUsuario = class(TfrmEdicion, IVistaUsuario)
+    pnlAvatar: TPanel;
+    lblIniciales: TLabel;
+    pstEstado: TPlanoPastilla;
     pstSecciones: TPlanoPestanas;
     cpUsuario: TCardPanel;
     crdDatos: TCard;
     edNombre: TrDBEdit;
     edCorreo: TrDBEdit;
     cbRol: TrDBLookupComboBox;
+    lblPaquete: TLabel;
     lblAviso: TLabel;
     tjClave: TPlanoTarjeta;
     pstClave: TPlanoPastilla;
@@ -37,6 +41,12 @@ type
     lblClaveNota: TLabel;
     lblFechas: TLabel;
     crdPermisos: TCard;
+    pnlResumen: TPanel;
+    pstDelRol: TPlanoPastilla;
+    pstAdicionales: TPlanoPastilla;
+    pstQuitados: TPlanoPastilla;
+    pstSinGuardar: TPlanoPastilla;
+    chkSoloExcepciones: TCheckBox;
     lblResumen: TLabel;
     grPermisos: TrDBGrid;
     procedure FormCreate(Sender: TObject);
@@ -50,6 +60,9 @@ type
     procedure btnGenerarClick(Sender: TObject);
     procedure btnCopiarClick(Sender: TObject);
     procedure btnPedirCambioClick(Sender: TObject);
+    procedure chkSoloExcepcionesClick(Sender: TObject);
+    procedure grPermisosGetCellParams(Sender: TObject; Field: TField;
+      AFont: TFont; var Background: TColor; ActiveRow, Highlight: Boolean);
   private
     FPresentador: TPresentadorUsuario;
     FId: Integer;
@@ -58,6 +71,7 @@ type
     FFechaClave: string;
     procedure PonerClaveNueva;
     procedure MostrarClave;
+    procedure MostrarPaquete;
     function RolEscogido: Integer;
     function CambioRol: Boolean;
     function ValidarCampos: Boolean;
@@ -86,6 +100,7 @@ uses
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
   Anovo.UI.DBGridExtend,
+  Anovo.UI.Tema,
   Anovo.Formato,
   Anovo.Sesion,
   Anovo.Textos;
@@ -107,6 +122,8 @@ begin
     begin
       lForma.lblTitulo.Caption := SNuevoUsuarioTitulo;
       lForma.lblSubtitulo.Caption := SNuevoUsuarioAyuda;
+      lForma.lblIniciales.Caption := SIconoNuevo;
+      lForma.pstEstado.Visible := False;
       lForma.pstSecciones.Visible := False;
       lForma.cpUsuario.ActiveCard := lForma.crdDatos;
       lForma.tjClave.Caption := SClaveTemporalTitulo;
@@ -129,9 +146,13 @@ begin
   EditarCasillas(grPermisos);
   lRejilla := TDBGridExtend.De(grPermisos);
   lRejilla.ColumnaEstado(CAMPO_ORIGEN);
+  dmMemoria.SoloExcepciones(False);
   dmMemoria.mtPermisosUsuario.Close;
   dmMemoria.mtUsuario.Close;
   lblAviso.Visible := False;
+  lblPaquete.Visible := False;
+  lblResumen.Visible := False;
+  chkSoloExcepciones.Caption := SSoloExcepciones;
   FPresentador := TPresentadorUsuario.Create(Self, TApiUsuarios.Create,
     TApiRoles.Create);
 end;
@@ -139,6 +160,7 @@ end;
 procedure TfrmUsuario.FormDestroy(Sender: TObject);
 begin
   FPresentador.Free;
+  dmMemoria.SoloExcepciones(False);
   dmMemoria.mtUsuario.Close;
   dmMemoria.mtRoles.Close;
   dmMemoria.mtPermisosUsuario.Close;
@@ -163,7 +185,26 @@ procedure TfrmUsuario.MostrarUsuario(const AUsuario: TUsuarioDTO);
 begin
   TMapeoDatos.ATabla(AUsuario, dmMemoria.mtUsuario);
   lblTitulo.Caption := AUsuario.Nombre;
-  lblSubtitulo.Caption := AUsuario.Correo;
+  lblSubtitulo.Caption := Format(SCorreoYRol, [AUsuario.Correo,
+    AUsuario.RolNombre]);
+  lblIniciales.Caption := InicialesDe(AUsuario.Nombre);
+  if AUsuario.Activo then
+  begin
+    pstEstado.Status := fsSuccess;
+    pstEstado.Caption := SEstActivo;
+  end
+  else
+  begin
+    pstEstado.Status := fsDanger;
+    pstEstado.Caption := SEstInactivo;
+  end;
+  pstEstado.Left := lblTitulo.Left + lblTitulo.Width + 10;
+  if AUsuario.Excepciones > 0 then
+    pstSecciones.Items[1] := Format(SPestanaPermisosCon,
+      [TFormato.Cantidad(AUsuario.Excepciones, SUnAdicional,
+      SVariosAdicionales)])
+  else
+    pstSecciones.Items[1] := SPestanaPermisos;
   cbRol.Enabled := not FPropia;
   lblFechas.Caption := Format(SUsuarioRegistrado,
     [TFormato.FechaHora(AUsuario.FechaCreacion.ValueOrDefault)]);
@@ -174,7 +215,16 @@ begin
   pstSecciones.Visible := not FPropia and
     TSesion.Tiene(PERMISO_EDITAR_PERMISOS);
 
+  MostrarPaquete;
   MostrarClave;
+end;
+
+procedure TfrmUsuario.MostrarPaquete;
+begin
+  lblPaquete.Visible := RolEscogido > 0;
+  if lblPaquete.Visible then
+    lblPaquete.Caption := Format(SPaqueteBasico,
+      [FPresentador.BasicosDelRol(RolEscogido)]);
 end;
 
 procedure TfrmUsuario.PonerClaveNueva;
@@ -266,22 +316,51 @@ end;
 
 procedure TfrmUsuario.MostrarResumen;
 var
-  lBasicos, lAdicionales, lQuitados, lCambios: Integer;
+  lAdicionales, lQuitados, lCambios: Integer;
 begin
-  if dmMemoria.mtPermisosUsuario.IsEmpty then
+  if not dmMemoria.mtPermisosUsuario.Active then
     Exit;
   grPermisos.Enabled := not CambioRol;
+  pnlResumen.Visible := not CambioRol;
+  lblResumen.Visible := CambioRol;
   if CambioRol then
   begin
     lblResumen.Caption := SPermisosTrasCambioRol;
     Exit;
   end;
-  lBasicos := dmMemoria.mtPermisosUsuarioBASICOS.Value;
-  lAdicionales := dmMemoria.mtPermisosUsuarioADICIONALES.Value;
-  lQuitados := dmMemoria.mtPermisosUsuarioQUITADOS.Value;
-  lCambios := dmMemoria.mtPermisosUsuarioCAMBIOS.Value;
-  lblResumen.Caption := Format(SPermisosResumen, [cbRol.Text, lBasicos,
-    lAdicionales, lQuitados, lCambios]);
+
+  lAdicionales := 0;
+  lQuitados := 0;
+  if not dmMemoria.mtPermisosUsuario.IsEmpty then
+  begin
+    lAdicionales := dmMemoria.mtPermisosUsuarioADICIONALES.Value;
+    lQuitados := dmMemoria.mtPermisosUsuarioQUITADOS.Value;
+  end;
+  lCambios := FPresentador.CambiosDePermisos;
+
+  pstDelRol.Caption := Format(SPastillaDelRol,
+    [FPresentador.BasicosDelRol(RolEscogido)]);
+  pstAdicionales.Caption := TFormato.Cantidad(lAdicionales, SUnAdicional,
+    SVariosAdicionales);
+  pstAdicionales.Visible := lAdicionales > 0;
+  pstQuitados.Caption := TFormato.Cantidad(lQuitados, SUnQuitado,
+    SVariosQuitados);
+  pstQuitados.Visible := lQuitados > 0;
+  pstSinGuardar.Caption := Format(SSinGuardarCantidad, [lCambios]);
+  pstSinGuardar.Visible := lCambios > 0;
+end;
+
+procedure TfrmUsuario.chkSoloExcepcionesClick(Sender: TObject);
+begin
+  dmMemoria.SoloExcepciones(chkSoloExcepciones.Checked);
+  MostrarResumen;
+end;
+
+procedure TfrmUsuario.grPermisosGetCellParams(Sender: TObject; Field: TField;
+  AFont: TFont; var Background: TColor; ActiveRow, Highlight: Boolean);
+begin
+  if not Highlight and dmMemoria.PermisoSinGuardar then
+    Background := clAnovoAvisoSuave;
 end;
 
 procedure TfrmUsuario.grPermisosCanEdit(Sender: TObject; Field: TField;
@@ -315,6 +394,7 @@ begin
   lblAviso.Visible := CambioRol and (FPresentador.Adicionales > 0);
   if lblAviso.Visible then
     lblAviso.Caption := Format(SAvisoCambioRol, [FPresentador.Adicionales]);
+  MostrarPaquete;
   MostrarResumen;
 end;
 

@@ -417,10 +417,8 @@ type
     mtPermisosUsuarioTIENE_ORIGINAL: TBooleanField;
     mtPermisosUsuarioMOTIVO: TStringField;
     mtPermisosUsuarioORIGEN: TStringField;
-    mtPermisosUsuarioBASICOS: TAggregateField;
     mtPermisosUsuarioADICIONALES: TAggregateField;
     mtPermisosUsuarioQUITADOS: TAggregateField;
-    mtPermisosUsuarioCAMBIOS: TAggregateField;
     dsPermisosUsuario: TDataSource;
     mtMatrizRoles: TFDMemTable;
     mtMatrizRolesPERMISO_ID: TIntegerField;
@@ -471,6 +469,8 @@ type
     procedure PrepararClienteNuevo;
     procedure PrepararContactoNuevo(const AClienteId: Integer);
     procedure PrepararUsuario;
+    procedure SoloExcepciones(const ASolo: Boolean);
+    function PermisoSinGuardar: Boolean;
     procedure Confirmar(const ATabla: TDataSet);
     function FilaCatalogo: TDataSet;
   end;
@@ -498,6 +498,8 @@ const
   ORIGEN_BASICO = 'basico';
   ORIGEN_ADICIONAL = 'adicional';
   ORIGEN_QUITADO = 'quitado';
+  ORIGEN_SIN_GUARDAR = 'sin_guardar';
+  FILTRO_EXCEPCIONES = 'TIENE <> DEL_ROL';
 
 function NuevoUuid: string;
 begin
@@ -572,7 +574,10 @@ end;
 
 procedure TdmMemoria.PermisosUsuarioCalcFields(DataSet: TDataSet);
 begin
-  if mtPermisosUsuarioTIENE.AsBoolean = mtPermisosUsuarioDEL_ROL.AsBoolean then
+  if mtPermisosUsuarioTIENE.AsBoolean <>
+    mtPermisosUsuarioTIENE_ORIGINAL.AsBoolean then
+    mtPermisosUsuarioORIGEN.AsString := ORIGEN_SIN_GUARDAR
+  else if mtPermisosUsuarioTIENE.AsBoolean = mtPermisosUsuarioDEL_ROL.AsBoolean then
   begin
     if mtPermisosUsuarioDEL_ROL.AsBoolean then
       mtPermisosUsuarioORIGEN.AsString := ORIGEN_BASICO
@@ -609,6 +614,8 @@ begin
     Text := SOrigenAdicional
   else if Sender.AsString = ORIGEN_QUITADO then
     Text := SOrigenQuitado
+  else if Sender.AsString = ORIGEN_SIN_GUARDAR then
+    Text := SSinGuardar
   else
     Text := '';
 end;
@@ -680,6 +687,17 @@ begin
   Result := dsCatalogo.DataSet;
   if (Result <> nil) and Result.IsEmpty then
     Result := nil;
+end;
+
+procedure TdmMemoria.SoloExcepciones(const ASolo: Boolean);
+begin
+  mtPermisosUsuario.Filter := FILTRO_EXCEPCIONES;
+  mtPermisosUsuario.Filtered := ASolo;
+end;
+
+function TdmMemoria.PermisoSinGuardar: Boolean;
+begin
+  Result := mtPermisosUsuarioORIGEN.AsString = ORIGEN_SIN_GUARDAR;
 end;
 
 procedure TdmMemoria.PrepararUsuario;

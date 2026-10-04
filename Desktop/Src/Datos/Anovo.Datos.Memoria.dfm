@@ -2091,12 +2091,6 @@ object dmMemoria: TdmMemoria
       Size = 15
       Calculated = True
     end
-    object mtPermisosUsuarioBASICOS: TAggregateField
-      FieldName = 'BASICOS'
-      Active = True
-      DisplayName = ''
-      Expression = 'SUM(IIF(DEL_ROL, 1, 0))'
-    end
     object mtPermisosUsuarioADICIONALES: TAggregateField
       FieldName = 'ADICIONALES'
       Active = True
@@ -2108,12 +2102,6 @@ object dmMemoria: TdmMemoria
       Active = True
       DisplayName = ''
       Expression = 'SUM(IIF(DEL_ROL AND NOT TIENE, 1, 0))'
-    end
-    object mtPermisosUsuarioCAMBIOS: TAggregateField
-      FieldName = 'CAMBIOS'
-      Active = True
-      DisplayName = ''
-      Expression = 'SUM(IIF(TIENE <> TIENE_ORIGINAL, 1, 0))'
     end
   end
   object dsPermisosUsuario: TDataSource

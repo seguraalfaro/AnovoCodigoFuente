@@ -29,6 +29,7 @@ const
   clAnovoBorde = TColor($00E4DED9);
   clAnovoSuave = TColor($00E8DCD0);
   clAnovoSeleccion = TColor($00F5E4D6);
+  clAnovoAvisoSuave = TColor($00DAEEFA);
   clAnovoFilaAlterna = TColor($00FAF7F5);
   clAnovoDeshabilitado = TColor($00C1B8B0);
 

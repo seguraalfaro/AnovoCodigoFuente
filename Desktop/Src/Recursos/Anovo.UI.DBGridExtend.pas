@@ -120,7 +120,7 @@ var
 begin
   e := LowerCase(Trim(lEstado));
   if (e = 'borrador') or (e = 'pendiente') or (e = 'recibida') or
-    (e = 'programado') then
+    (e = 'programado') or (e = 'sin_guardar') then
     Result := fsPending
   else if (e = 'aprobada') or (e = 'activo') or (e = 'firmado') or
     (e = 'adicional') then
