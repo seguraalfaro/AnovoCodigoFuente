@@ -137,7 +137,8 @@ uses
   System.Math,
   System.DateUtils,
   System.Generics.Collections,
-  Anovo.Errors;
+  Anovo.Errors,
+  Anovo.Textos;
 
 function ComoFecha(const ATexto: string; const APorDefecto: TDateTime)
   : TDateTime;
@@ -151,8 +152,7 @@ begin
   lFormato.DateSeparator := '-';
   lFormato.ShortDateFormat := 'yyyy-mm-dd';
   if not TryStrToDate(Trim(ATexto), Result, lFormato) then
-    raise EDatoInvalido.Create('La fecha ' + ATexto +
-      ' no tiene la forma aaaa-mm-dd.');
+    raise EDatoInvalido.Create(Format(SFechaInvalida, [ATexto]));
 end;
 
 function TAuditoriaController.Consultar(const AServicio: IAuditoriaService;

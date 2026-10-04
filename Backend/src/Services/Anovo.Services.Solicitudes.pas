@@ -165,7 +165,7 @@ begin
 
   if not lValida then
     raise EConflictoDeEstado.Create('TRANSICION_INVALIDA',
-      Format('Una solicitud en estado %s no puede pasar a %s.',
+      Format(SSolicitudTransicionInvalida,
       [ADesde, AHacia]));
 end;
 
@@ -261,17 +261,16 @@ begin
   lTx := TMVCRepository.UseTransactionContext;
 
   if not ADto.ObjVersion.HasValue then
-    raise EDatoInvalido.Create
-      ('Falta la version del registro. Recargue la solicitud y vuelva a editarla.');
+    raise EDatoInvalido.Create(Format(SFaltaVersion, [SRecursoSolicitud]));
 
   lSolicitud := TraerVigente(AId);
   try
     if lSolicitud.Estado = ESTADO_EN_COTIZACION then
       raise EConflictoDeEstado.Create('SOLICITUD_COTIZADA',
-        'Esta solicitud ya tiene cotizacion y no admite cambios.');
+        SSolicitudCotizada);
 
     if lSolicitud.Objversion.ValueOrDefault <> ADto.ObjVersion.Value then
-      raise EVersionVencida.Create('la solicitud', AId);
+      raise EVersionVencida.Create(SRecursoSolicitud, AId);
 
     TMapeo.Copiar(ADto, lSolicitud);
     FijarDetalle(Format(SDetalleCambioSolicitud, [AId]));
@@ -516,8 +515,7 @@ begin
       lBytes := TNetEncoding.Base64.DecodeStringToBytes(ADto.Contenido.Value);
 
       if Length(lBytes) > ADJUNTO_MAXIMO_BYTES then
-        raise EDatoInvalido.Create
-          ('El adjunto supera el maximo de 3 MB permitido.');
+        raise EDatoInvalido.Create(SAdjuntoMuyGrande);
 
       lStream := TMemoryStream.Create;
       lStream.WriteBuffer(lBytes[0], Length(lBytes));
@@ -526,8 +524,7 @@ begin
       lAdjunto.TamanoBytes := Length(lBytes);
     end
     else if not ADto.ContenidoJson.HasValue then
-      raise EDatoInvalido.Create
-        ('El adjunto viene vacio: falta el contenido o los trazos.');
+      raise EDatoInvalido.Create(SAdjuntoVacio);
 
     fAdjuntos.Insert(lAdjunto);
     Result := lAdjunto.ID.ValueOrDefault;

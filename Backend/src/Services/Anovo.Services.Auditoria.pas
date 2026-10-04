@@ -52,8 +52,6 @@ const
   ENTIDAD_ROLES_PERMISOS = 'ROLES_PERMISOS';
   ENTIDAD_USUARIOS_PERMISOS = 'USUARIOS_PERMISOS';
 
-  USUARIO_DESCONOCIDO = 'Usuario eliminado';
-  USUARIO_SISTEMA = 'Sistema';
 
 constructor TAuditoriaService.Create(ARepo: IAuditoriaRepository;
   AUsuarios: IUsuarioRepository);
@@ -156,11 +154,11 @@ begin
     for lFila in ALista do
     begin
       if not lFila.UsuarioId.HasValue then
-        lFila.Usuario := USUARIO_SISTEMA
+        lFila.Usuario := SUsuarioSistema
       else if lNombres.TryGetValue(lFila.UsuarioId.Value, lNombre) then
         lFila.Usuario := lNombre
       else
-        lFila.Usuario := USUARIO_DESCONOCIDO;
+        lFila.Usuario := SUsuarioEliminado;
     end;
   finally
     lNombres.Free;

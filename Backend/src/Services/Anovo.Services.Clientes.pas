@@ -118,8 +118,7 @@ begin
   if (lConsentimiento <> '') and not MatchStr(lConsentimiento,
     [CONSENTIMIENTO_PENDIENTE, CONSENTIMIENTO_FIRMADO, CONSENTIMIENTO_REVOCADO])
   then
-    raise EDatoInvalido.Create
-      ('consentimiento debe ser pendiente, firmado o revocado.');
+    raise EDatoInvalido.Create(SFiltroConsentimientoInvalido);
 
   ATotal := fRepo.ContarBusqueda(ATexto, AIncluirInactivos, lConsentimiento);
   lEntidades := fRepo.Buscar(ATexto, APagina, APorPagina, AIncluirInactivos,
@@ -177,18 +176,16 @@ begin
   lTx := TMVCRepository.UseTransactionContext;
 
   if not ADto.ObjVersion.HasValue then
-    raise EDatoInvalido.Create
-      ('Falta la version del registro. Recargue el cliente y vuelva a editarlo.');
+    raise EDatoInvalido.Create(Format(SFaltaVersion, [SRecursoCliente]));
 
   lCliente := TraerVigente(AId);
   try
     if lCliente.Anonimizado then
       raise EConflictoDeEstado.Create('CLIENTE_ANONIMIZADO',
-        'Este cliente fue anonimizado por politica de retencion de datos y ' +
-        'ya no admite cambios.');
+        SClienteAnonimizado);
 
     if lCliente.ObjVersion <> ADto.ObjVersion.Value then
-      raise EVersionVencida.Create('el cliente', AId);
+      raise EVersionVencida.Create(SRecursoCliente, AId);
 
     TMapeo.Copiar(ADto, lCliente);
     FijarDetalle(SDetalleEdicionCliente);
@@ -196,7 +193,7 @@ begin
       fRepo.Update(lCliente);
     except
       on EMVCActiveRecordVersionedItemNotFound do
-        raise EVersionVencida.Create('el cliente', AId);
+        raise EVersionVencida.Create(SRecursoCliente, AId);
     end;
   finally
     lCliente.Free;
@@ -238,8 +235,7 @@ begin
 
   if not ADto.Cliente.UuidLocal.HasValue or ADto.Cliente.UuidLocal.Value.IsEmpty
   then
-    raise EDatoInvalido.Create
-      ('El registro no contiene informacion del UuidLocal .');
+    raise EDatoInvalido.Create(SFaltaUuidLocal);
 
   lId := ValidarUuidLocal(ADto.Cliente.UuidLocal);
   if lId > 0 then
@@ -285,7 +281,7 @@ begin
         raise;
       on E: Exception do
         raise EConflictoDeEstado.Create('REGISTRO_NO_GUARDADO',
-          Format('No se pudo guardar el registro de %s: %s',
+          Format(SRegistroNoGuardado,
           [ADto.Cliente.Nombre, E.Message]));
     end;
   finally
@@ -337,13 +333,12 @@ begin
   lTx := TMVCRepository.UseTransactionContext;
 
   if not ADto.ObjVersion.HasValue then
-    raise EDatoInvalido.Create
-      ('Falta la version del registro. Recargue el contacto y vuelva a editarlo.');
+    raise EDatoInvalido.Create(Format(SFaltaVersion, [SRecursoContacto]));
 
   lContacto := TraerContacto(AId, AContactoId);
   try
     if lContacto.ObjVersion.ValueOrDefault <> ADto.ObjVersion.Value then
-      raise EVersionVencida.Create('el contacto', AContactoId);
+      raise EVersionVencida.Create(SRecursoContacto, AContactoId);
 
     TMapeo.Copiar(ADto, lContacto);
     lContacto.ClienteId := AId;
@@ -352,7 +347,7 @@ begin
       fContactos.Update(lContacto);
     except
       on EMVCActiveRecordVersionedItemNotFound do
-        raise EVersionVencida.Create('el contacto', AContactoId);
+        raise EVersionVencida.Create(SRecursoContacto, AContactoId);
     end;
   finally
     lContacto.Free;
@@ -404,17 +399,16 @@ begin
   lTx := TMVCRepository.UseTransactionContext;
 
   if not ADto.ObjVersion.HasValue then
-    raise EDatoInvalido.Create
-      ('Falta la version del registro. Recargue el cliente y vuelva a intentarlo.');
+    raise EDatoInvalido.Create(Format(SFaltaVersion, [SRecursoCliente]));
 
   lCliente := TraerVigente(AId);
   lFirma := nil;
   try
     if lCliente.ObjVersion <> ADto.ObjVersion.Value then
-      raise EVersionVencida.Create('el cliente', AId);
+      raise EVersionVencida.Create(SRecursoCliente, AId);
     if lCliente.ConsentimientoEstado = CONSENTIMIENTO_REVOCADO then
       raise EConflictoDeEstado.Create('CONSENTIMIENTO_YA_REVOCADO',
-        'El consentimiento de este cliente ya estaba revocado.');
+        SConsentimientoYaRevocado);
 
     lFecha := Now;
 
@@ -434,7 +428,7 @@ begin
       fRepo.Update(lCliente);
     except
       on EMVCActiveRecordVersionedItemNotFound do
-        raise EVersionVencida.Create('el cliente', AId);
+        raise EVersionVencida.Create(SRecursoCliente, AId);
     end;
   finally
     lFirma.Free;

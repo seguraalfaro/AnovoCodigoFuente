@@ -173,8 +173,7 @@ begin
 
   lPrecioId := Aplicar(AProg);
   if lPrecioId = 0 then
-    raise Exception.Create
-      ('El pendiente no apunta a ningun item del catalogo.');
+    raise Exception.Create(SPendienteSinItem);
 
   AProg.Estado := 'aplicado';
   AProg.PrecioId := lPrecioId;

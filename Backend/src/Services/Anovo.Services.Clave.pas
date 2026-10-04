@@ -26,12 +26,13 @@ const
 implementation
 
 uses
-  System.SysUtils, BCrypt, BCrypt.Types;
+  System.SysUtils, BCrypt, BCrypt.Types,
+  Anovo.Textos;
 
 function TClaveService.Hashear(const AClave: string): string;
 begin
   if AClave.IsEmpty then
-    raise Exception.Create('No se puede hashear una clave vacia');
+    raise Exception.Create(SClaveVaciaHash);
 
   Result := TBCrypt.GenerateHash(AClave, COSTO_BCRYPT, THashType.Default);
 end;

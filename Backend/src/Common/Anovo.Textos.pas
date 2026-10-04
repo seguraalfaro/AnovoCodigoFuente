@@ -56,6 +56,58 @@ resourcestring
   SRevisarPropia = 'Una cotización no la puede revisar quien la elaboró.';
   SSolicitudTomada = 'Esta solicitud ya la tomó otro usuario.';
   SFechaInvalida = 'La fecha %s no tiene la forma aaaa-mm-dd.';
+  SFiltroConsentimientoInvalido = 'El filtro de consentimiento debe ser ' +
+    'pendiente, firmado o revocado.';
+  SFaltaVersion = 'Falta la versión del registro. Recargue %s y vuelva a ' +
+    'intentarlo.';
+  SClienteAnonimizado = 'Este cliente fue anonimizado por la política de ' +
+    'retención de datos y ya no admite cambios.';
+  SFaltaUuidLocal = 'El registro no trae su identificador local (uuid_local).';
+  SRegistroNoGuardado = 'No se pudo guardar el registro de %s: %s';
+  SConsentimientoYaRevocado = 'El consentimiento de este cliente ya estaba ' +
+    'revocado.';
+  SCotizacionNoEditable = 'Una cotización en estado %s ya no admite cambios.';
+  SLineaSinManoObra = 'Una línea de mano de obra necesita la mano de obra.';
+  SLineaSinPrecio = 'El ítem no tiene precio vigente en el catálogo. Cargue ' +
+    'el precio o indíquelo en la línea.';
+  SSolicitudNoCotizable = 'Una solicitud en estado %s no se puede cotizar.';
+  SAjusteSinMotivo = 'Un ajuste distinto de cero exige indicar el motivo.';
+  SCotizacionSinLineas = 'La cotización no tiene líneas: no hay nada que ' +
+    'revisar.';
+  SCotizacionNoAprobable = 'Una cotización en estado %s no se puede aprobar.';
+  SCotizacionNoRechazable = 'Una cotización en estado %s no se puede rechazar.';
+  SCotizacionNoDevolvible = 'Una cotización en estado %s no se puede devolver.';
+  SCotizacionNoEnviable = 'Una cotización en estado %s no se puede enviar al ' +
+    'cliente.';
+  SSolicitudTransicionInvalida = 'Una solicitud en estado %s no puede pasar a ' +
+    '%s.';
+  SSolicitudCotizada = 'Esta solicitud ya tiene cotización y no admite cambios.';
+  SAdjuntoMuyGrande = 'El adjunto supera el máximo de 3 MB permitido.';
+  SAdjuntoVacio = 'El adjunto viene vacío: falta el contenido o los trazos.';
+  SPendienteSinItem = 'El pendiente no apunta a ningún ítem del catálogo.';
+  SClaveVaciaHash = 'No se puede calcular el hash de una clave vacía.';
+  SUsuarioEliminado = 'Usuario eliminado';
+  SUsuarioSistema = 'Sistema';
+  SAccionEditar = 'Editar';
+  SAccionHistorial = 'Historial';
+  SAccionPrecio = 'Precio';
+  SAccionInactivar = 'Inactivar';
+  SAccionActivar = 'Activar';
+  SAccionDetalles = 'Detalles';
+  SAccionQuitar = 'Quitar';
+  SAccionVer = 'Ver';
+  SSinTokenSesion = 'El servidor no devolvió el token de sesión.';
+  SErrorServidor = 'El servidor respondió con un error (%d).';
+  STokenInvalido = 'El servidor devolvió un token con formato inválido.';
+  SRolSinRol = 'Sin rol';
+  SRolAsesor = 'Asesor comercial';
+  SRolAsistente = 'Asistente de cotizaciones';
+  SRolSupervisor = 'Supervisor';
+  SRolGerencia = 'Gerencia';
+  SRolAdmin = 'Administrador del sistema';
+  STipoIdCedulaFisica = 'Cédula física';
+  STipoIdCedulaJuridica = 'Cédula jurídica';
+  STipoIdDimex = 'DIMEX';
   SReporteRangoInvalido = 'La fecha inicial no puede ser posterior a la final.';
   SSinTipoTrabajo = 'Sin tipo de trabajo';
 
@@ -391,6 +443,20 @@ resourcestring
   SSinGuardarCantidad = '%d sin guardar';
   SSoloExcepciones = 'Solo adicionales y quitados';
   SSinResultados = 'Sin resultados';
+  SValNombreCliente = 'El nombre o razón social debe tener al menos tres letras.';
+  SValNombreContacto = 'El nombre del contacto debe tener al menos tres letras.';
+  SValIdentificacion = 'La identificación no tiene el largo que corresponde al ' +
+    'tipo seleccionado.';
+  SValTelefono = 'El teléfono debe tener ocho dígitos.';
+  SValTelefonoExt = 'El teléfono debe tener ocho dígitos, con extensión o ' +
+    'sin ella.';
+  SValCelular = 'El celular debe tener ocho dígitos.';
+  SValCorreo = 'El correo no tiene una forma válida, por ejemplo ' +
+    'nombre@dominio.cr';
+  SValCodigoExoneracion = 'Un cliente exonerado necesita su código de ' +
+    'exoneración.';
+  SReparosCliente = 'No se puede guardar el cliente. Corrija lo siguiente:';
+  SReparosContacto = 'No se puede guardar el contacto. Corrija lo siguiente:';
   SSinExcepciones = 'Esta persona no tiene permisos adicionales ni quitados.';
   SSinPermisosParaMostrar = 'No hay permisos para mostrar.';
   SPestanaPermisos = 'Permisos';

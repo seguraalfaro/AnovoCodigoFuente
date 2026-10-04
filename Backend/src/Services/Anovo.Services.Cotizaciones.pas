@@ -154,7 +154,7 @@ procedure TCotizacionService.ExigirEditable(const ACotizacion: TCotizaciones);
 begin
   if ACotizacion.Estado <> ESTADO_BORRADOR then
     raise EConflictoDeEstado.Create('COTIZACION_NO_EDITABLE',
-      Format('Una cotizacion en estado %s ya no admite cambios.',
+      Format(SCotizacionNoEditable,
       [ACotizacion.Estado]));
 end;
 
@@ -208,8 +208,7 @@ begin
   if (ADto.Tipo = TIPO_MATERIAL) and not ADto.MaterialId.HasValue then
     raise EDatoInvalido.Create(SLineaSinMaterial);
   if (ADto.Tipo = TIPO_MANO_OBRA) and not ADto.ManoObraId.HasValue then
-    raise EDatoInvalido.Create
-      ('Una linea de mano de obra necesita la mano de obra.');
+    raise EDatoInvalido.Create(SLineaSinManoObra);
   if (ADto.Tipo = TIPO_MAQUINA) and not ADto.MaquinaId.HasValue then
     raise EDatoInvalido.Create(SLineaSinMaquina);
 
@@ -252,9 +251,7 @@ begin
     lPrecio := PrecioDeCatalogo(ADto);
 
   if lPrecio <= 0 then
-    raise EDatoInvalido.Create
-      ('El item no tiene precio vigente en el catalogo. Cargue el precio o ' +
-      'indiquelo en la linea.');
+    raise EDatoInvalido.Create(SLineaSinPrecio);
 
   ALinea.Cantidad := lCantidad;
   ALinea.PrecioUnitario := lPrecio;
@@ -382,7 +379,7 @@ begin
     if (lSolicitud.Estado <> SOLICITUD_RECIBIDA) and
       (lSolicitud.Estado <> SOLICITUD_EN_COTIZACION) then
       raise EConflictoDeEstado.Create('SOLICITUD_NO_COTIZABLE',
-        Format('Una solicitud en estado %s no se puede cotizar.',
+        Format(SSolicitudNoCotizable,
         [lSolicitud.Estado]));
 
     if fRepo.TieneEnCurso(lSolicitud.ID.ValueOrDefault) then
@@ -430,15 +427,14 @@ begin
   lTx := TMVCRepository.UseTransactionContext;
 
   if not ADto.ObjVersion.HasValue then
-    raise EDatoInvalido.Create
-      ('Falta la version del registro. Recargue la cotizacion y vuelva a editarla.');
+    raise EDatoInvalido.Create(Format(SFaltaVersion, [SRecursoCotizacion]));
 
   lCotizacion := TraerVigente(AId);
   try
     ExigirEditable(lCotizacion);
 
     if lCotizacion.Objversion.ValueOrDefault <> ADto.ObjVersion.Value then
-      raise EVersionVencida.Create('la cotizacion', AId);
+      raise EVersionVencida.Create(SRecursoCotizacion, AId);
 
     lCotizacion.TipoTrabajoId := ADto.TipoTrabajoId;
     lCotizacion.DescripcionTrabajo := ADto.DescripcionTrabajo;
@@ -597,8 +593,7 @@ begin
 
     if (ADto.PorcentajeAjuste <> 0) and
       (not ADto.MotivoAjuste.HasValue or ADto.MotivoAjuste.Value.IsEmpty) then
-      raise EDatoInvalido.Create
-        ('Un ajuste distinto de cero exige indicar el motivo.');
+      raise EDatoInvalido.Create(SAjusteSinMotivo);
 
     lCotizacion.PorcentajeAjuste := ADto.PorcentajeAjuste;
     if ADto.PorcentajeAjuste = 0 then
@@ -637,7 +632,7 @@ begin
     end;
     if lVacia then
       raise EConflictoDeEstado.Create('COTIZACION_SIN_DETALLE',
-        'La cotizacion no tiene lineas: no hay nada que revisar.');
+        SCotizacionSinLineas);
 
     lCotizacion.Estado := ESTADO_PENDIENTE;
     FijarDetalle(Format(SDetalleCotizacionPresentada, [lCotizacion.Numero]));
@@ -658,7 +653,7 @@ begin
   try
     if lCotizacion.Estado <> ESTADO_PENDIENTE then
       raise EConflictoDeEstado.Create('TRANSICION_INVALIDA',
-        Format('Una cotizacion en estado %s no se puede aprobar.',
+        Format(SCotizacionNoAprobable,
         [lCotizacion.Estado]));
 
     if lCotizacion.ElaboradaPor = UsuarioActual then
@@ -689,7 +684,7 @@ begin
   try
     if lCotizacion.Estado <> ESTADO_PENDIENTE then
       raise EConflictoDeEstado.Create('TRANSICION_INVALIDA',
-        Format('Una cotizacion en estado %s no se puede rechazar.',
+        Format(SCotizacionNoRechazable,
         [lCotizacion.Estado]));
 
     if lCotizacion.ElaboradaPor = UsuarioActual then
@@ -719,7 +714,7 @@ begin
   try
     if lCotizacion.Estado <> ESTADO_PENDIENTE then
       raise EConflictoDeEstado.Create('TRANSICION_INVALIDA',
-        Format('Una cotizacion en estado %s no se puede devolver.',
+        Format(SCotizacionNoDevolvible,
         [lCotizacion.Estado]));
 
     if lCotizacion.ElaboradaPor = UsuarioActual then
@@ -745,7 +740,7 @@ begin
   try
     if lCotizacion.Estado <> ESTADO_APROBADA then
       raise EConflictoDeEstado.Create('TRANSICION_INVALIDA',
-        Format('Una cotizacion en estado %s no se puede enviar al cliente.',
+        Format(SCotizacionNoEnviable,
         [lCotizacion.Estado]));
 
     lCotizacion.Estado := ESTADO_ENVIADA;
