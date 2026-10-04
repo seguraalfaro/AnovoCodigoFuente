@@ -10,6 +10,7 @@ uses
   MVCFramework.Serializer.Commons,
   MVCFramework.Swagger.Commons,
   Anovo.Auth.Permisos,
+  Anovo.Controllers.Base,
   Anovo.DTOs.Auditoria,
   Anovo.Services.Intf.Auditoria,
   Anovo.Permisos;
@@ -24,8 +25,9 @@ const
 type
 
   [MVCPath('/api/auditoria')]
-  [MVCRequiresPermiso(PERMISO_AUDITORIA_VER_TODA + ';' + PERMISO_AUDITORIA_VER_CUENTAS)]
-  TAuditoriaController = class(TMVCController)
+  [MVCRequiresPermiso(PERMISO_AUDITORIA_VER_TODA + SEPARADOR_PERMISOS +
+    PERMISO_AUDITORIA_VER_CUENTAS)]
+  TAuditoriaController = class(TControllerBase)
   private
     function Consultar(const AServicio: IAuditoriaService;
       const AAlcance: TAlcanceAuditoria; const ADesde, AHasta: string;
@@ -138,21 +140,6 @@ uses
   System.Generics.Collections,
   Anovo.Errors,
   Anovo.Textos;
-
-function ComoFecha(const ATexto: string; const APorDefecto: TDateTime)
-  : TDateTime;
-var
-  lFormato: TFormatSettings;
-begin
-  if Trim(ATexto) = '' then
-    Exit(APorDefecto);
-
-  lFormato := TFormatSettings.Create;
-  lFormato.DateSeparator := '-';
-  lFormato.ShortDateFormat := 'yyyy-mm-dd';
-  if not TryStrToDate(Trim(ATexto), Result, lFormato) then
-    raise EDatoInvalido.Create(Format(SFechaInvalida, [ATexto]));
-end;
 
 function TAuditoriaController.Consultar(const AServicio: IAuditoriaService;
   const AAlcance: TAlcanceAuditoria; const ADesde, AHasta: string;

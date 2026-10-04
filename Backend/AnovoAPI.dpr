@@ -61,6 +61,7 @@ uses
   Anovo.DTOs.Auditoria in 'src\DTOs\Anovo.DTOs.Auditoria.pas',
   Anovo.Services.Intf.Auditoria in 'src\Interfaces\Anovo.Services.Intf.Auditoria.pas',
   Anovo.Services.Auditoria in 'src\Services\Anovo.Services.Auditoria.pas',
+  Anovo.Controllers.Base in 'src\Controllers\Anovo.Controllers.Base.pas',
   Anovo.Controllers.Auditoria in 'src\Controllers\Anovo.Controllers.Auditoria.pas',
   Anovo.SQL.Usuarios in 'src\SQL\Anovo.SQL.Usuarios.pas',
   Anovo.Repositories.Intf.Usuarios in 'src\Interfaces\Anovo.Repositories.Intf.Usuarios.pas',

@@ -13,6 +13,7 @@ uses
   Anovo.Repositories.Intf.Clientes,
   Anovo.Repositories.Intf.Solicitudes,
   Anovo.Services.Intf.Solicitudes,
+  Anovo.Services.Intf.Permisos,
   Anovo.DTOs.Dashboard;
 
 const
@@ -33,6 +34,7 @@ type
     fMedidas: ISolicitudMedidaRepository;
     fAdjuntos: ISolicitudAdjuntoRepository;
     fClientes: IClienteRepository;
+    fPermisos: IPermisoService;
 
     function TraerVigente(const AId: Integer): TSolicitudes;
     function TraerMedida(const AId, AMedidaId: Integer): TSolicitudMedidas;
@@ -50,10 +52,11 @@ type
     constructor Create(ARepo: ISolicitudRepository;
       AMedidas: ISolicitudMedidaRepository;
       AAdjuntos: ISolicitudAdjuntoRepository;
-      AClientes: IClienteRepository); reintroduce;
+      AClientes: IClienteRepository; APermisos: IPermisoService);
+      reintroduce;
 
     function Buscar(const ATexto, AEstado: string;
-      const ADesde, AHasta: TDateTime; const ASoloPropias: Boolean;
+      const ADesde, AHasta: TDateTime; const ARoles: TArray<string>;
       const AAsesorId, APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TSolicitudDTO>;
     function Obtener(const AId: Integer): TSolicitudDTO;
@@ -97,6 +100,7 @@ uses
   Anovo.Entities.Clientes,
   Anovo.Errors,
   Anovo.Mapeo,
+  Anovo.Permisos,
   Anovo.Textos,
   System.DateUtils,
   Anovo.Entities.Vistas.Lectura,
@@ -104,13 +108,15 @@ uses
 
 constructor TSolicitudService.Create(ARepo: ISolicitudRepository;
   AMedidas: ISolicitudMedidaRepository;
-  AAdjuntos: ISolicitudAdjuntoRepository; AClientes: IClienteRepository);
+  AAdjuntos: ISolicitudAdjuntoRepository; AClientes: IClienteRepository;
+  APermisos: IPermisoService);
 begin
   inherited Create;
   fRepo := ARepo;
   fMedidas := AMedidas;
   fAdjuntos := AAdjuntos;
   fClientes := AClientes;
+  fPermisos := APermisos;
 end;
 
 function TSolicitudService.TraerVigente(const AId: Integer): TSolicitudes;
@@ -180,7 +186,7 @@ begin
 end;
 
 function TSolicitudService.Buscar(const ATexto, AEstado: string;
-  const ADesde, AHasta: TDateTime; const ASoloPropias: Boolean;
+  const ADesde, AHasta: TDateTime; const ARoles: TArray<string>;
   const AAsesorId, APagina, APorPagina: Integer; out ATotal: Int64)
   : TObjectList<TSolicitudDTO>;
 var
@@ -188,10 +194,11 @@ var
   lFilas: TObjectList<TSolicitudes>;
   lFila: TSolicitudes;
 begin
-  if ASoloPropias then
-    lFiltroAsesor := AAsesorId
+  if fPermisos.TieneAlguno(AAsesorId, ARoles,
+    [PERMISO_SOLICITUDES_VER_TODAS]) then
+    lFiltroAsesor := 0
   else
-    lFiltroAsesor := 0;
+    lFiltroAsesor := AAsesorId;
 
   ATotal := fRepo.ContarBusqueda(ATexto, lFiltroAsesor, AEstado,
     ADesde, AHasta);

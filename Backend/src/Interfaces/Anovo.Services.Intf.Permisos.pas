@@ -28,6 +28,8 @@ type
     ['{A93F1C58-6E27-4B0D-8D41-2C5E7B90F364}']
     function Tiene(const AUsuarioId: Integer;
       const ARol, APermiso: string): Boolean;
+    function TieneAlguno(const AUsuarioId: Integer;
+      const ARoles, APermisos: TArray<string>): Boolean;
     function PermisosDe(const AUsuarioId: Integer;
       const ARol: string): TArray<string>;
   end;

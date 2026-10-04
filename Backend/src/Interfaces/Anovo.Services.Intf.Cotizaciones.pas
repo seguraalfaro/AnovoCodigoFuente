@@ -13,7 +13,7 @@ type
     ['{E3061B58-2D47-4F9A-B0C5-78A16D052C94}']
 
     function Buscar(const ATexto, AEstado: string; const AClienteId: Integer;
-      const ADesde, AHasta: TDateTime; const ASoloPropias: Boolean;
+      const ADesde, AHasta: TDateTime; const ARoles: TArray<string>;
       const AUsuarioId, APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TCotizacionDTO>;
 

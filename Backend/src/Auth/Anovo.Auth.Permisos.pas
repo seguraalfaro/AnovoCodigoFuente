@@ -8,6 +8,10 @@ interface
 uses
   MVCFramework;
 
+const
+  DATO_USUARIO_ID = 'USUARIO_ID';
+  SEPARADOR_PERMISOS = ';';
+
 type
   MVCRequiresPermisoAttribute = class(MVCRequiresAuthenticationAttribute)
   private
@@ -16,6 +20,8 @@ type
     constructor Create(const APermisos: string);
     function GetPermisos: TArray<string>;
   end;
+
+function UsuarioDelToken(const AContext: TWebContext): Integer;
 
 implementation
 
@@ -32,9 +38,21 @@ function MVCRequiresPermisoAttribute.GetPermisos: TArray<string>;
 var
   I: Integer;
 begin
-  Result := fPermisos.Split([';'], TStringSplitOptions.ExcludeEmpty);
+  Result := fPermisos.Split([SEPARADOR_PERMISOS],
+    TStringSplitOptions.ExcludeEmpty);
   for I := 0 to High(Result) do
     Result[I] := Result[I].Trim;
+end;
+
+function UsuarioDelToken(const AContext: TWebContext): Integer;
+var
+  lTexto: string;
+begin
+  lTexto := '';
+  if Assigned(AContext.LoggedUser.CustomData) then
+    AContext.LoggedUser.CustomData.TryGetValue(DATO_USUARIO_ID, lTexto);
+  if not TryStrToInt(lTexto, Result) then
+    Result := 0;
 end;
 
 end.

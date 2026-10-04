@@ -11,13 +11,14 @@ uses
   MVCFramework.Swagger.Commons,
   Anovo.Auth.Permisos,
   Anovo.DTOs.Cotizaciones,
+  Anovo.Controllers.Base,
   Anovo.Services.Intf.Cotizaciones,
-  Anovo.Services.Intf.Permisos,
   Anovo.Permisos;
 
 const
 
-  PERMISO_VER = PERMISO_COTIZACIONES_VER_APROBADAS_PROPIAS + ';' + PERMISO_COTIZACIONES_VER_TODAS;
+  PERMISO_VER = PERMISO_COTIZACIONES_VER_APROBADAS_PROPIAS + SEPARADOR_PERMISOS +
+    PERMISO_COTIZACIONES_VER_TODAS;
 
   POR_PAGINA_POR_DEFECTO = 50;
   POR_PAGINA_MAXIMO = 200;
@@ -28,10 +29,7 @@ type
 
   [MVCPath('/api/cotizaciones')]
   [MVCRequiresPermiso(PERMISO_VER)]
-  TCotizacionesController = class(TMVCController)
-  private
-    function UsuarioId: Integer;
-    function SoloPropias(const APermisos: IPermisoService): Boolean;
+  TCotizacionesController = class(TControllerBase)
   public
     [MVCPath]
     [MVCHTTPMethods([httpGET])]
@@ -54,7 +52,6 @@ type
     [MVCSwagResponses(401, 'Sin token o token vencido')]
     [MVCSwagResponses(403, 'El rol no tiene el permiso para esta operacion')]
     function Listar([MVCInject] AServicio: ICotizacionService;
-      [MVCInject] APermisos: IPermisoService;
       const [MVCFromQueryString('q', '')] ABusqueda: string;
       const [MVCFromQueryString('estado', '')] AEstado: string;
       const [MVCFromQueryString('cliente_id', 0)] AClienteId: Integer;
@@ -240,43 +237,8 @@ uses
   System.SysUtils,
   System.Generics.Collections;
 
-function TCotizacionesController.UsuarioId: Integer;
-var
-  lTexto: string;
-begin
-  lTexto := '';
-  if Assigned(Context.LoggedUser.CustomData) then
-    Context.LoggedUser.CustomData.TryGetValue('USUARIO_ID', lTexto);
-  if not TryStrToInt(lTexto, Result) then
-    Result := 0;
-end;
-
-function TCotizacionesController.SoloPropias(const APermisos
-  : IPermisoService): Boolean;
-var
-  lRol: string;
-begin
-  for lRol in Context.LoggedUser.Roles do
-    if APermisos.Tiene(UsuarioId, lRol, PERMISO_COTIZACIONES_VER_TODAS) then
-      Exit(False);
-  Result := True;
-end;
-
-function ComoFecha(const ATexto: string): TDateTime;
-var
-  lFormato: TFormatSettings;
-begin
-  if ATexto.IsEmpty then
-    Exit(0);
-  lFormato := TFormatSettings.Create;
-  lFormato.DateSeparator := '-';
-  lFormato.ShortDateFormat := 'yyyy-mm-dd';
-  if not TryStrToDate(ATexto, Result, lFormato) then
-    Result := 0;
-end;
-
 function TCotizacionesController.Listar(AServicio: ICotizacionService;
-  APermisos: IPermisoService; const ABusqueda, AEstado: string;
+  const ABusqueda, AEstado: string;
   const AClienteId: Integer; const ADesde, AHasta: string;
   const APagina, APorPagina: Integer): TCotizacionesPaginaDTO;
 var
@@ -288,12 +250,10 @@ begin
   lPagina := Max(APagina, 1);
   lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
 
-  lHasta := ComoFecha(AHasta);
-  if lHasta > 0 then
-    lHasta := lHasta + 1 - (1 / SecsPerDay);
+  lHasta := HastaFinDelDia(ComoFecha(AHasta));
 
   lDatos := AServicio.Buscar(ABusqueda, AEstado, AClienteId,
-    ComoFecha(ADesde), lHasta, SoloPropias(APermisos), UsuarioId,
+    ComoFecha(ADesde), lHasta, Roles, UsuarioId,
     lPagina, lPorPagina, lTotal);
 
   Result := TCotizacionesPaginaDTO.Create(lDatos, lTotal, lPagina, lPorPagina);

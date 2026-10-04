@@ -14,7 +14,7 @@ type
     ['{A25D8F63-70B4-49C1-8E06-3F91C7A4D052}']
 
     function Buscar(const ATexto, AEstado: string;
-      const ADesde, AHasta: TDateTime; const ASoloPropias: Boolean;
+      const ADesde, AHasta: TDateTime; const ARoles: TArray<string>;
       const AAsesorId, APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TSolicitudDTO>;
 

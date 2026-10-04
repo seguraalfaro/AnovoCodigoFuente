@@ -58,7 +58,8 @@ implementation
 
 uses
   System.SysUtils,
-  System.Diagnostics;
+  System.Diagnostics,
+  Anovo.Auth.Permisos;
 
 const
   CLAVE_INICIO = 'anovo.inicio';
@@ -182,11 +183,7 @@ begin
     lRegistro.Milisegundos :=
       (TStopwatch.GetTimeStamp - lInicio) * 1000 div TStopwatch.Frequency;
 
-  lTexto := '';
-  if Assigned(AContext.LoggedUser.CustomData) then
-    AContext.LoggedUser.CustomData.TryGetValue('USUARIO_ID', lTexto);
-  if not TryStrToInt(lTexto, lRegistro.UsuarioId) then
-    lRegistro.UsuarioId := 0;
+  lRegistro.UsuarioId := UsuarioDelToken(AContext);
 
   TActividad.Registrar(lRegistro);
 end;

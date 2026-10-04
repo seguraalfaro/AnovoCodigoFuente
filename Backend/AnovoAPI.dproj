@@ -210,6 +210,7 @@
         <DCCReference Include="src\DTOs\Anovo.DTOs.Auditoria.pas"/>
         <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Auditoria.pas"/>
         <DCCReference Include="src\Services\Anovo.Services.Auditoria.pas"/>
+        <DCCReference Include="src\Controllers\Anovo.Controllers.Base.pas"/>
         <DCCReference Include="src\Controllers\Anovo.Controllers.Auditoria.pas"/>
         <DCCReference Include="src\SQL\Anovo.SQL.Usuarios.pas"/>
         <DCCReference Include="src\Interfaces\Anovo.Repositories.Intf.Usuarios.pas"/>

@@ -16,9 +16,6 @@ type
   TAuthentication = class(TRoleBasedAuthHandler)
   private
     fRtti: TRttiContext;
-    function TieneAlguno(const APermisos: IPermisoService;
-      const AUsuarioId: Integer; UserRoles: TList<string>;
-      const ACodigos: TArray<string>): Boolean;
     function CumplePermisos(const AContext: TWebContext;
       UserRoles: TList<string>;
       const AAtributos: TArray<TCustomAttribute>): Boolean;
@@ -53,17 +50,6 @@ begin
   inherited;
 end;
 
-function UsuarioDe(const AContext: TWebContext): Integer;
-var
-  lTexto: string;
-begin
-  lTexto := '';
-  if Assigned(AContext.LoggedUser.CustomData) then
-    AContext.LoggedUser.CustomData.TryGetValue('USUARIO_ID', lTexto);
-  if not TryStrToInt(lTexto, Result) then
-    Result := 0;
-end;
-
 function TAuthentication.CumplePermisos(const AContext: TWebContext;
   UserRoles: TList<string>; const AAtributos: TArray<TCustomAttribute>)
   : Boolean;
@@ -78,23 +64,11 @@ begin
       if lPermisos = nil then
         lPermisos := AContext.ServiceContainerResolver.Resolve(
           TypeInfo(IPermisoService)) as IPermisoService;
-      if not TieneAlguno(lPermisos, UsuarioDe(AContext), UserRoles,
-        MVCRequiresPermisoAttribute(lAtributo).GetPermisos) then
+      if not lPermisos.TieneAlguno(UsuarioDelToken(AContext),
+        UserRoles.ToArray, MVCRequiresPermisoAttribute(lAtributo).GetPermisos)
+      then
         Exit(False);
     end;
-end;
-
-function TAuthentication.TieneAlguno(const APermisos: IPermisoService;
-  const AUsuarioId: Integer; UserRoles: TList<string>;
-  const ACodigos: TArray<string>): Boolean;
-var
-  lRol, lCodigo: string;
-begin
-  for lRol in UserRoles do
-    for lCodigo in ACodigos do
-      if APermisos.Tiene(AUsuarioId, lRol, lCodigo) then
-        Exit(True);
-  Result := False;
 end;
 
 procedure TAuthentication.OnAuthentication(const AContext: TWebContext;
@@ -114,7 +88,7 @@ begin
     Exit;
 
   UserRoles.Add(lResultado.Rol);
-  SessionData.AddOrSetValue('USUARIO_ID', lResultado.UsuarioId.ToString);
+  SessionData.AddOrSetValue(DATO_USUARIO_ID, lResultado.UsuarioId.ToString);
   SessionData.AddOrSetValue('NOMBRE', lResultado.Nombre);
   SessionData.AddOrSetValue('DEBE_CAMBIAR_CLAVE',
     BoolToStr(lResultado.DebeCambiarClave, True));

@@ -14,7 +14,8 @@ uses
   Anovo.Repositories.Intf.Clientes,
   Anovo.Repositories.Intf.Cotizaciones,
   Anovo.Repositories.Intf.Solicitudes,
-  Anovo.Services.Intf.Cotizaciones;
+  Anovo.Services.Intf.Cotizaciones,
+  Anovo.Services.Intf.Permisos;
 
 const
   ESTADO_BORRADOR = 'borrador';
@@ -41,6 +42,7 @@ type
     fMateriales: IMaterialPrecioRepository;
     fManoObra: IManoObraPrecioRepository;
     fMaquinas: IMaquinaPrecioRepository;
+    fPermisos: IPermisoService;
 
     function TraerVigente(const AId: Integer): TCotizaciones;
     function TraerLinea(const AId, ALineaId: Integer): TCotizacionDetalle;
@@ -56,10 +58,11 @@ type
       ASolicitudes: ISolicitudRepository; AClientes: IClienteRepository;
       AMateriales: IMaterialPrecioRepository;
       AManoObra: IManoObraPrecioRepository;
-      AMaquinas: IMaquinaPrecioRepository); reintroduce;
+      AMaquinas: IMaquinaPrecioRepository;
+      APermisos: IPermisoService); reintroduce;
 
     function Buscar(const ATexto, AEstado: string; const AClienteId: Integer;
-      const ADesde, AHasta: TDateTime; const ASoloPropias: Boolean;
+      const ADesde, AHasta: TDateTime; const ARoles: TArray<string>;
       const AUsuarioId, APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TCotizacionDTO>;
     function Bandeja(const AUsuarioId: Integer; const ATexto: string;
@@ -103,12 +106,14 @@ uses
   Anovo.Entities.Consultas,
   Anovo.Errors,
   Anovo.Mapeo,
+  Anovo.Permisos,
   Anovo.Textos;
 
 constructor TCotizacionService.Create(ARepo: ICotizacionRepository;
   ADetalle: ICotizacionDetalleRepository; ASolicitudes: ISolicitudRepository;
   AClientes: IClienteRepository; AMateriales: IMaterialPrecioRepository;
-  AManoObra: IManoObraPrecioRepository; AMaquinas: IMaquinaPrecioRepository);
+  AManoObra: IManoObraPrecioRepository; AMaquinas: IMaquinaPrecioRepository;
+  APermisos: IPermisoService);
 begin
   inherited Create;
   fRepo := ARepo;
@@ -118,6 +123,7 @@ begin
   fMateriales := AMateriales;
   fManoObra := AManoObra;
   fMaquinas := AMaquinas;
+  fPermisos := APermisos;
 end;
 
 function TCotizacionService.TraerVigente(const AId: Integer): TCotizaciones;
@@ -260,17 +266,18 @@ end;
 
 function TCotizacionService.Buscar(const ATexto, AEstado: string;
   const AClienteId: Integer; const ADesde, AHasta: TDateTime;
-  const ASoloPropias: Boolean; const AUsuarioId, APagina, APorPagina: Integer;
+  const ARoles: TArray<string>; const AUsuarioId, APagina, APorPagina: Integer;
   out ATotal: Int64): TObjectList<TCotizacionDTO>;
 var
   lFiltroUsuario: Integer;
   lFilas: TObjectList<TCotizaciones>;
   lFila: TCotizaciones;
 begin
-  if ASoloPropias then
-    lFiltroUsuario := AUsuarioId
+  if fPermisos.TieneAlguno(AUsuarioId, ARoles,
+    [PERMISO_COTIZACIONES_VER_TODAS]) then
+    lFiltroUsuario := 0
   else
-    lFiltroUsuario := 0;
+    lFiltroUsuario := AUsuarioId;
 
   ATotal := fRepo.ContarBusqueda(ATexto, AEstado, AClienteId, lFiltroUsuario,
     ADesde, AHasta);

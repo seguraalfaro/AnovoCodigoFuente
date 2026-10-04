@@ -10,6 +10,7 @@ uses
   MVCFramework.Commons,
   MVCFramework.Swagger.Commons,
   Anovo.Auth.Permisos,
+  Anovo.Controllers.Base,
   Anovo.DTOs.Dashboard,
   Anovo.Services.Intf.Dashboard,
   Anovo.Services.Intf.Permisos,
@@ -18,9 +19,8 @@ uses
 type
 
   [MVCPath('/api/dashboard')]
-  TDashboardController = class(TMVCController)
+  TDashboardController = class(TControllerBase)
   private
-    function UsuarioId: Integer;
     function Tiene(const APermisos: IPermisoService;
       const APermiso: string): Boolean;
   public
@@ -92,26 +92,10 @@ implementation
 uses
   System.SysUtils;
 
-function TDashboardController.UsuarioId: Integer;
-var
-  lTexto: string;
-begin
-  lTexto := '';
-  if Assigned(Context.LoggedUser.CustomData) then
-    Context.LoggedUser.CustomData.TryGetValue('USUARIO_ID', lTexto);
-  if not TryStrToInt(lTexto, Result) then
-    Result := 0;
-end;
-
 function TDashboardController.Tiene(const APermisos: IPermisoService;
   const APermiso: string): Boolean;
-var
-  lRol: string;
 begin
-  for lRol in Context.LoggedUser.Roles do
-    if APermisos.Tiene(UsuarioId, lRol, APermiso) then
-      Exit(True);
-  Result := False;
+  Result := APermisos.TieneAlguno(UsuarioId, Roles, [APermiso]);
 end;
 
 function TDashboardController.Asesor(AServicio: IDashboardService)

@@ -26,6 +26,7 @@ implementation
 uses
   System.SysUtils,
   MVCFramework.Logger,
+  Anovo.Auth.Permisos,
   Anovo.Auditoria.Contexto;
 
 procedure TContextoAuditoriaMiddleware.OnBeforeRouting(Context: TWebContext;
@@ -43,7 +44,7 @@ var
 begin
   lTexto := '';
   if Assigned(Context.LoggedUser.CustomData) then
-    Context.LoggedUser.CustomData.TryGetValue('USUARIO_ID', lTexto);
+    Context.LoggedUser.CustomData.TryGetValue(DATO_USUARIO_ID, lTexto);
 
   if not TryStrToInt(lTexto, lUsuarioId) then
   begin

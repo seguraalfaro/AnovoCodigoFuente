@@ -9,16 +9,14 @@ uses
   MVCFramework,
   MVCFramework.Commons,
   MVCFramework.Swagger.Commons,
+  Anovo.Controllers.Base,
   Anovo.DTOs.Sesion,
   Anovo.Services.Intf.Permisos,
   Anovo.Services.Intf.Sesion;
 
 type
   [MVCPath('/api/sesion')]
-  TSesionController = class(TMVCController)
-  private
-    function UsuarioId: Integer;
-    function Rol: string;
+  TSesionController = class(TControllerBase)
   public
     [MVCPath]
     [MVCHTTPMethods([httpGET])]
@@ -56,24 +54,6 @@ implementation
 
 uses
   System.SysUtils;
-
-function TSesionController.UsuarioId: Integer;
-var
-  lTexto: string;
-begin
-  lTexto := '';
-  if Assigned(Context.LoggedUser.CustomData) then
-    Context.LoggedUser.CustomData.TryGetValue('USUARIO_ID', lTexto);
-  if not TryStrToInt(lTexto, Result) then
-    Result := 0;
-end;
-
-function TSesionController.Rol: string;
-begin
-  Result := '';
-  if Context.LoggedUser.Roles.Count > 0 then
-    Result := Context.LoggedUser.Roles[0];
-end;
 
 function TSesionController.Obtener(APermisos: IPermisoService): IMVCResponse;
 var

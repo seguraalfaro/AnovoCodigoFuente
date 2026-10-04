@@ -9,6 +9,7 @@ uses
   MVCFramework.Commons,
   MVCFramework.Swagger.Commons,
   Anovo.Auth.Permisos,
+  Anovo.Controllers.Base,
   Anovo.DTOs.Reportes,
   Anovo.Services.Intf.Reportes,
   Anovo.Permisos;
@@ -16,7 +17,7 @@ uses
 type
 
   [MVCPath('/api/reportes')]
-  TReportesController = class(TMVCController)
+  TReportesController = class(TControllerBase)
   public
     [MVCPath('/cotizaciones')]
     [MVCHTTPMethods([httpGET])]
@@ -41,24 +42,7 @@ implementation
 
 uses
   System.SysUtils,
-  System.DateUtils,
-  Anovo.Errors,
-  Anovo.Textos;
-
-function ComoFecha(const ATexto: string; const APorDefecto: TDateTime)
-  : TDateTime;
-var
-  lFormato: TFormatSettings;
-begin
-  if Trim(ATexto) = '' then
-    Exit(APorDefecto);
-
-  lFormato := TFormatSettings.Create;
-  lFormato.DateSeparator := '-';
-  lFormato.ShortDateFormat := 'yyyy-mm-dd';
-  if not TryStrToDate(Trim(ATexto), Result, lFormato) then
-    raise EDatoInvalido.Create(Format(SFechaInvalida, [ATexto]));
-end;
+  System.DateUtils;
 
 function TReportesController.Cotizaciones(AServicio: IReporteService;
   const ADesde, AHasta: string): IMVCResponse;

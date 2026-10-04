@@ -47,6 +47,8 @@ type
       reintroduce;
     function Tiene(const AUsuarioId: Integer;
       const ARol, APermiso: string): Boolean;
+    function TieneAlguno(const AUsuarioId: Integer;
+      const ARoles, APermisos: TArray<string>): Boolean;
     function PermisosDe(const AUsuarioId: Integer;
       const ARol: string): TArray<string>;
   end;
@@ -191,6 +193,19 @@ function TPermisoService.Tiene(const AUsuarioId: Integer;
 begin
   AsegurarCargada;
   Result := fCache.Tiene(AUsuarioId, ARol, APermiso);
+end;
+
+function TPermisoService.TieneAlguno(const AUsuarioId: Integer;
+  const ARoles, APermisos: TArray<string>): Boolean;
+var
+  lRol, lPermiso: string;
+begin
+  AsegurarCargada;
+  for lRol in ARoles do
+    for lPermiso in APermisos do
+      if fCache.Tiene(AUsuarioId, lRol, lPermiso) then
+        Exit(True);
+  Result := False;
 end;
 
 function TPermisoService.PermisosDe(const AUsuarioId: Integer;
