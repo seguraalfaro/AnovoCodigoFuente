@@ -5,17 +5,19 @@ unit Anovo.Presentadores.Catalogos;
 interface
 
 uses
+  System.SysUtils,
+  System.Generics.Collections,
   Anovo.Api.Intf.Catalogos,
-  Anovo.Cancelacion,
+  Anovo.Presentadores.Base,
   Anovo.Vistas.Intf.Catalogos,
-  Anovo.Permisos;
+  Anovo.Permisos,
+  Anovo.Textos;
 
 type
-  TPresentadorCatalogos = class
+  TPresentadorCatalogos = class(TPresentadorBase)
   private
     FVista: IVistaCatalogos;
     FApi: IApiCatalogos;
-    FCancelacion: ICancelacion;
     FCatalogo: TCatalogo;
     FTexto: string;
     FCategoriaId: Integer;
@@ -24,6 +26,9 @@ type
     FSolicitud: Integer;
     FCategoriasPedidas: Boolean;
     procedure Cargar;
+    procedure CargarLista<T: class>(const ATrabajo: TFunc<TObjectList<T>>;
+      const AListo: TProc<TObjectList<T>>);
+    procedure MostrarPagina(const APagina: Integer; const ATotal: Int64);
     procedure CargarMateriales;
     procedure CargarManoObra;
     procedure CargarMaquinas;
@@ -37,7 +42,6 @@ type
   public
     constructor Create(const AVista: IVistaCatalogos;
       const AApi: IApiCatalogos);
-    destructor Destroy; override;
     procedure Iniciar;
     procedure Buscar(const ATexto: string);
     procedure Limpiar;
@@ -64,19 +68,8 @@ const
 implementation
 
 uses
-  System.SysUtils,
-  System.Classes,
-  System.Threading,
-  System.Generics.Collections,
-  Anovo.Api.Base,
   Anovo.DTOs.Catalogos,
-  Anovo.Sesion,
-  Anovo.Textos;
-
-function MensajeInesperado: string;
-begin
-  Result := Format(SErrorInesperado, [SAccionCargarCatalogo]);
-end;
+  Anovo.Sesion;
 
 function TodasLasCategorias: TCategoriaDTO;
 begin
@@ -91,15 +84,8 @@ begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
-  FCancelacion := TCancelacion.Create;
   FCatalogo := ctTodos;
   FPagina := 1;
-end;
-
-destructor TPresentadorCatalogos.Destroy;
-begin
-  FCancelacion.Cancelar;
-  inherited;
 end;
 
 procedure TPresentadorCatalogos.Iniciar;
@@ -126,7 +112,6 @@ begin
   case FCatalogo of
     ctTodos:
       begin
-
         if not FCategoriasPedidas then
           CargarCategorias;
         CargarTodos;
@@ -135,7 +120,6 @@ begin
       CargarMateriales;
     ctManoObra:
       begin
-
         if not FCategoriasPedidas then
           CargarCategorias;
         CargarManoObra;
@@ -149,434 +133,217 @@ begin
   end;
 end;
 
-procedure TPresentadorCatalogos.CargarMateriales;
+procedure TPresentadorCatalogos.CargarLista<T>(const ATrabajo
+  : TFunc<TObjectList<T>>; const AListo: TProc<TObjectList<T>>);
 var
-  lCancelacion: ICancelacion;
-  lApi: IApiCatalogos;
-  lNumero, lPagina: Integer;
-  lTexto: string;
+  lNumero: Integer;
 begin
   Inc(FSolicitud);
   lNumero := FSolicitud;
-  lCancelacion := FCancelacion;
+
+  Ejecutar<TObjectList<T>>(SAccionCargarCatalogo, ATrabajo,
+    procedure(ALista: TObjectList<T>)
+    begin
+      if lNumero = FSolicitud then
+        AListo(ALista);
+    end,
+    procedure(AMensaje: string)
+    begin
+      if lNumero = FSolicitud then
+        FVista.MostrarError(AMensaje);
+    end,
+    procedure(AActivo: Boolean)
+    begin
+      if lNumero = FSolicitud then
+        FVista.MostrarCargando(AActivo);
+    end);
+end;
+
+procedure TPresentadorCatalogos.MostrarPagina(const APagina: Integer;
+  const ATotal: Int64);
+begin
+  FTotalPaginas := (ATotal + CATALOGO_POR_PAGINA - 1) div CATALOGO_POR_PAGINA;
+  FVista.MostrarPaginacion(APagina, FTotalPaginas, ATotal);
+end;
+
+procedure TPresentadorCatalogos.CargarMateriales;
+var
+  lApi: IApiCatalogos;
+  lTexto: string;
+  lPagina: Integer;
+  lTotal: Int64;
+begin
   lApi := FApi;
   lTexto := FTexto;
   lPagina := FPagina;
+  lTotal := 0;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
-    procedure
-    var
-      lLista: TObjectList<TMaterialDTO>;
-      lTotal: Int64;
-      lError: string;
+  CargarLista<TMaterialDTO>(
+    function: TObjectList<TMaterialDTO>
     begin
-      lLista := nil;
-      lTotal := 0;
-      lError := '';
-      try
-        lLista := lApi.BuscarMateriales(lTexto, lPagina, CATALOGO_POR_PAGINA,
-          False, lTotal);
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada or (lNumero <> FSolicitud) then
-              Exit;
-
-            FVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-            begin
-              FVista.MostrarError(lError);
-              Exit;
-            end;
-
-            FTotalPaginas := (lTotal + CATALOGO_POR_PAGINA - 1)
-              div CATALOGO_POR_PAGINA;
-            FVista.MostrarMateriales(lLista);
-            FVista.MostrarPaginacion(lPagina, FTotalPaginas, lTotal);
-          finally
-            lLista.Free;
-          end;
-        end);
+      Result := lApi.BuscarMateriales(lTexto, lPagina, CATALOGO_POR_PAGINA,
+        False, lTotal);
+    end,
+    procedure(ALista: TObjectList<TMaterialDTO>)
+    begin
+      FVista.MostrarMateriales(ALista);
+      MostrarPagina(lPagina, lTotal);
     end);
 end;
 
 procedure TPresentadorCatalogos.CargarManoObra;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiCatalogos;
-  lNumero, lPagina, lCategoria: Integer;
   lTexto: string;
+  lPagina, lCategoria: Integer;
+  lTotal: Int64;
 begin
-  Inc(FSolicitud);
-  lNumero := FSolicitud;
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lTexto := FTexto;
   lPagina := FPagina;
   lCategoria := FCategoriaId;
+  lTotal := 0;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
-    procedure
-    var
-      lLista: TObjectList<TManoObraDTO>;
-      lTotal: Int64;
-      lError: string;
+  CargarLista<TManoObraDTO>(
+    function: TObjectList<TManoObraDTO>
     begin
-      lLista := nil;
-      lTotal := 0;
-      lError := '';
-      try
-        lLista := lApi.BuscarManoObra(lTexto, lPagina, CATALOGO_POR_PAGINA,
-          False, lCategoria, lTotal);
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada or (lNumero <> FSolicitud) then
-              Exit;
-
-            FVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-            begin
-              FVista.MostrarError(lError);
-              Exit;
-            end;
-
-            FTotalPaginas := (lTotal + CATALOGO_POR_PAGINA - 1)
-              div CATALOGO_POR_PAGINA;
-            FVista.MostrarManoObra(lLista);
-            FVista.MostrarPaginacion(lPagina, FTotalPaginas, lTotal);
-          finally
-            lLista.Free;
-          end;
-        end);
+      Result := lApi.BuscarManoObra(lTexto, lPagina, CATALOGO_POR_PAGINA,
+        False, lCategoria, lTotal);
+    end,
+    procedure(ALista: TObjectList<TManoObraDTO>)
+    begin
+      FVista.MostrarManoObra(ALista);
+      MostrarPagina(lPagina, lTotal);
     end);
 end;
 
 procedure TPresentadorCatalogos.CargarMaquinas;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiCatalogos;
-  lNumero, lPagina: Integer;
   lTexto: string;
+  lPagina: Integer;
+  lTotal: Int64;
 begin
-  Inc(FSolicitud);
-  lNumero := FSolicitud;
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lTexto := FTexto;
   lPagina := FPagina;
+  lTotal := 0;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
-    procedure
-    var
-      lLista: TObjectList<TMaquinaDTO>;
-      lTotal: Int64;
-      lError: string;
+  CargarLista<TMaquinaDTO>(
+    function: TObjectList<TMaquinaDTO>
     begin
-      lLista := nil;
-      lTotal := 0;
-      lError := '';
-      try
-        lLista := lApi.BuscarMaquinas(lTexto, lPagina, CATALOGO_POR_PAGINA,
-          False, lTotal);
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada or (lNumero <> FSolicitud) then
-              Exit;
-
-            FVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-            begin
-              FVista.MostrarError(lError);
-              Exit;
-            end;
-
-            FTotalPaginas := (lTotal + CATALOGO_POR_PAGINA - 1)
-              div CATALOGO_POR_PAGINA;
-            FVista.MostrarMaquinas(lLista);
-            FVista.MostrarPaginacion(lPagina, FTotalPaginas, lTotal);
-          finally
-            lLista.Free;
-          end;
-        end);
+      Result := lApi.BuscarMaquinas(lTexto, lPagina, CATALOGO_POR_PAGINA,
+        False, lTotal);
+    end,
+    procedure(ALista: TObjectList<TMaquinaDTO>)
+    begin
+      FVista.MostrarMaquinas(ALista);
+      MostrarPagina(lPagina, lTotal);
     end);
 end;
 
 procedure TPresentadorCatalogos.CargarTodos;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiCatalogos;
-  lNumero, lPagina: Integer;
   lTexto: string;
+  lPagina: Integer;
+  lTotal: Int64;
 begin
-  Inc(FSolicitud);
-  lNumero := FSolicitud;
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lTexto := FTexto;
   lPagina := FPagina;
+  lTotal := 0;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
-    procedure
-    var
-      lLista: TObjectList<TCatalogoItemDTO>;
-      lTotal: Int64;
-      lError: string;
+  CargarLista<TCatalogoItemDTO>(
+    function: TObjectList<TCatalogoItemDTO>
     begin
-      lLista := nil;
-      lTotal := 0;
-      lError := '';
-      try
-        lLista := lApi.BuscarTodos(lTexto, lPagina, CATALOGO_POR_PAGINA,
-          False, lTotal);
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada or (lNumero <> FSolicitud) then
-              Exit;
-
-            FVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-            begin
-              FVista.MostrarError(lError);
-              Exit;
-            end;
-
-            FTotalPaginas := (lTotal + CATALOGO_POR_PAGINA - 1)
-              div CATALOGO_POR_PAGINA;
-            FVista.MostrarTodos(lLista);
-            FVista.MostrarPaginacion(lPagina, FTotalPaginas, lTotal);
-          finally
-            lLista.Free;
-          end;
-        end);
+      Result := lApi.BuscarTodos(lTexto, lPagina, CATALOGO_POR_PAGINA,
+        False, lTotal);
+    end,
+    procedure(ALista: TObjectList<TCatalogoItemDTO>)
+    begin
+      FVista.MostrarTodos(ALista);
+      MostrarPagina(lPagina, lTotal);
     end);
 end;
 
 procedure TPresentadorCatalogos.CargarTiposTrabajo;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiCatalogos;
-  lNumero: Integer;
   lTexto: string;
 begin
-  Inc(FSolicitud);
-  lNumero := FSolicitud;
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lTexto := FTexto;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
-    procedure
-    var
-      lLista: TObjectList<TTipoTrabajoDTO>;
-      lError: string;
+  CargarLista<TTipoTrabajoDTO>(
+    function: TObjectList<TTipoTrabajoDTO>
     begin
-      lLista := nil;
-      lError := '';
-      try
-        lLista := lApi.TiposTrabajo(False, lTexto);
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada or (lNumero <> FSolicitud) then
-              Exit;
-
-            FVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-            begin
-              FVista.MostrarError(lError);
-              Exit;
-            end;
-
-            FTotalPaginas := 0;
-            FVista.MostrarTiposTrabajo(lLista);
-            FVista.MostrarPaginacion(1, 0, lLista.Count);
-          finally
-            lLista.Free;
-          end;
-        end);
+      Result := lApi.TiposTrabajo(False, lTexto);
+    end,
+    procedure(ALista: TObjectList<TTipoTrabajoDTO>)
+    begin
+      FTotalPaginas := 0;
+      FVista.MostrarTiposTrabajo(ALista);
+      FVista.MostrarPaginacion(1, 0, ALista.Count);
     end);
 end;
 
 procedure TPresentadorCatalogos.CargarCategorias;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiCatalogos;
 begin
   FCategoriasPedidas := True;
-  lCancelacion := FCancelacion;
   lApi := FApi;
 
-  TTask.Run(
-    procedure
-    var
-      lLista: TObjectList<TCategoriaDTO>;
+  Ejecutar<TObjectList<TCategoriaDTO>>(SAccionCargarCatalogo,
+    function: TObjectList<TCategoriaDTO>
     begin
-      lLista := nil;
-      try
-        lLista := lApi.Categorias;
-        lLista.Insert(0, TodasLasCategorias);
-      except
-        on E: Exception do
-          Exit;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada then
-              Exit;
-            FVista.MostrarCategorias(lLista);
-          finally
-            lLista.Free;
-          end;
-        end);
-    end);
+      Result := lApi.Categorias;
+      Result.Insert(0, TodasLasCategorias);
+    end,
+    procedure(ALista: TObjectList<TCategoriaDTO>)
+    begin
+      FVista.MostrarCategorias(ALista);
+    end, nil);
 end;
 
 procedure TPresentadorCatalogos.CargarUnidadesMedida;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiCatalogos;
-  lNumero: Integer;
   lTexto: string;
 begin
   CargarUnidadesActivas;
-  Inc(FSolicitud);
-  lNumero := FSolicitud;
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lTexto := FTexto;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
-    procedure
-    var
-      lLista: TObjectList<TUnidadMedidaDTO>;
-      lError: string;
+  CargarLista<TUnidadMedidaDTO>(
+    function: TObjectList<TUnidadMedidaDTO>
     begin
-      lLista := nil;
-      lError := '';
-      try
-        lLista := lApi.UnidadesMedida(False, lTexto);
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada or (lNumero <> FSolicitud) then
-              Exit;
-
-            FVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-            begin
-              FVista.MostrarError(lError);
-              Exit;
-            end;
-
-            FTotalPaginas := 0;
-            FVista.MostrarUnidadesMedida(lLista);
-            FVista.MostrarPaginacion(1, 0, lLista.Count);
-          finally
-            lLista.Free;
-          end;
-        end);
+      Result := lApi.UnidadesMedida(False, lTexto);
+    end,
+    procedure(ALista: TObjectList<TUnidadMedidaDTO>)
+    begin
+      FTotalPaginas := 0;
+      FVista.MostrarUnidadesMedida(ALista);
+      FVista.MostrarPaginacion(1, 0, ALista.Count);
     end);
 end;
 
 procedure TPresentadorCatalogos.CargarUnidadesActivas;
 var
-  lCancelacion: ICancelacion;
   lApi: IApiCatalogos;
 begin
-  lCancelacion := FCancelacion;
   lApi := FApi;
 
-  TTask.Run(
-    procedure
-    var
-      lLista: TObjectList<TUnidadMedidaDTO>;
+  Ejecutar<TObjectList<TUnidadMedidaDTO>>(SAccionCargarCatalogo,
+    function: TObjectList<TUnidadMedidaDTO>
     begin
-      lLista := nil;
-      try
-        lLista := lApi.UnidadesMedida(False);
-      except
-        on E: Exception do
-          Exit;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada then
-              Exit;
-            FVista.MostrarUnidadesActivas(lLista);
-          finally
-            lLista.Free;
-          end;
-        end);
-    end);
+      Result := lApi.UnidadesMedida(False);
+    end,
+    procedure(ALista: TObjectList<TUnidadMedidaDTO>)
+    begin
+      FVista.MostrarUnidadesActivas(ALista);
+    end, nil);
 end;
 
 procedure TPresentadorCatalogos.Buscar(const ATexto: string);
@@ -673,121 +440,77 @@ end;
 
 procedure TPresentadorCatalogos.VerHistorial(const AId: Integer);
 var
-  lCancelacion: ICancelacion;
   lApi: IApiCatalogos;
   lCatalogo: TCatalogo;
 begin
   lCatalogo := CatalogoDeFila;
   if lCatalogo in [ctTiposTrabajo, ctUnidadesMedida] then
     Exit;
-
-  lCancelacion := FCancelacion;
   lApi := FApi;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
-    procedure
-    var
-      lLista: TObjectList<TPrecioDTO>;
-      lError: string;
+  Ejecutar<TObjectList<TPrecioDTO>>(SAccionCargarCatalogo,
+    function: TObjectList<TPrecioDTO>
     begin
-      lLista := nil;
-      lError := '';
-      try
-        case lCatalogo of
-          ctManoObra:
-            lLista := lApi.HistorialPrecioManoObra(AId);
-          ctMaquinas:
-            lLista := lApi.HistorialCostoMaquina(AId);
-        else
-          lLista := lApi.HistorialPrecioMaterial(AId);
-        end;
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado;
+      case lCatalogo of
+        ctManoObra:
+          Result := lApi.HistorialPrecioManoObra(AId);
+        ctMaquinas:
+          Result := lApi.HistorialCostoMaquina(AId);
+      else
+        Result := lApi.HistorialPrecioMaterial(AId);
       end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada then
-              Exit;
-
-            FVista.MostrarCargando(False);
-            if not lError.IsEmpty then
-            begin
-              FVista.MostrarError(lError);
-              Exit;
-            end;
-
-            FVista.MostrarHistorial(lLista);
-          finally
-            lLista.Free;
-          end;
-        end);
+    end,
+    procedure(ALista: TObjectList<TPrecioDTO>)
+    begin
+      FVista.MostrarHistorial(ALista);
+    end,
+    procedure(AMensaje: string)
+    begin
+      FVista.MostrarError(AMensaje);
+    end,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarCargando(AActivo);
     end);
 end;
 
 procedure TPresentadorCatalogos.Inactivar(const AId: Integer);
 var
-  lCancelacion: ICancelacion;
   lApi: IApiCatalogos;
   lCatalogo: TCatalogo;
 begin
   if not PuedeEditar then
     Exit;
-
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lCatalogo := CatalogoDeFila;
 
-  FVista.MostrarCargando(True);
-
-  TTask.Run(
+  Ejecutar(SAccionCargarCatalogo,
     procedure
-    var
-      lError: string;
     begin
-      lError := '';
-      try
-        case lCatalogo of
-          ctManoObra:
-            lApi.InactivarManoObra(AId);
-          ctMaquinas:
-            lApi.InactivarMaquina(AId);
-          ctTiposTrabajo:
-            lApi.InactivarTipoTrabajo(AId);
-          ctUnidadesMedida:
-            lApi.InactivarUnidadMedida(AId);
-        else
-          lApi.InactivarMaterial(AId);
-        end;
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := MensajeInesperado;
+      case lCatalogo of
+        ctManoObra:
+          lApi.InactivarManoObra(AId);
+        ctMaquinas:
+          lApi.InactivarMaquina(AId);
+        ctTiposTrabajo:
+          lApi.InactivarTipoTrabajo(AId);
+        ctUnidadesMedida:
+          lApi.InactivarUnidadMedida(AId);
+      else
+        lApi.InactivarMaterial(AId);
       end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          if lCancelacion.Cancelada then
-            Exit;
-
-          FVista.MostrarCargando(False);
-          if not lError.IsEmpty then
-          begin
-            FVista.MostrarError(lError);
-            Exit;
-          end;
-
-          Cargar;
-        end);
+    end,
+    procedure
+    begin
+      Cargar;
+    end,
+    procedure(AMensaje: string)
+    begin
+      FVista.MostrarError(AMensaje);
+    end,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarCargando(AActivo);
     end);
 end;
 

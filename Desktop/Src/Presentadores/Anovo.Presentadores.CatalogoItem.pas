@@ -8,17 +8,16 @@ interface
 uses
   System.Generics.Collections,
   Anovo.Api.Intf.Catalogos,
-  Anovo.Cancelacion,
+  Anovo.Presentadores.Base,
   Anovo.DTOs.Catalogos,
   Anovo.Vistas.Intf.Catalogos,
   Anovo.Vistas.Intf.Registro;
 
 type
-  TPresentadorItemCatalogo = class
+  TPresentadorItemCatalogo = class(TPresentadorBase)
   private
     FVista: IVistaRegistro;
     FApi: IApiCatalogos;
-    FCancelacion: ICancelacion;
     FCatalogo: TCatalogo;
     FId: Integer;
     FPrecioOriginal: TPrecioNuevoDTO;
@@ -35,18 +34,16 @@ type
       const AProgramado: Boolean);
   end;
 
-  TPresentadorPrecioCatalogo = class
+  TPresentadorPrecioCatalogo = class(TPresentadorBase)
   private
     FVista: IVistaRegistro;
     FApi: IApiCatalogos;
-    FCancelacion: ICancelacion;
     FCatalogo: TCatalogo;
     FId: Integer;
   public
     constructor Create(const AVista: IVistaRegistro;
       const AApi: IApiCatalogos; const ACatalogo: TCatalogo;
       const AId: Integer);
-    destructor Destroy; override;
     procedure Guardar(const ADto: TPrecioNuevoDTO);
   end;
 
@@ -54,15 +51,7 @@ implementation
 
 uses
   System.SysUtils,
-  System.Classes,
-  System.Threading,
-  Anovo.Api.Base,
   Anovo.Textos;
-
-function MensajeInesperado: string;
-begin
-  Result := Format(SErrorInesperado, [SAccionGuardar]);
-end;
 
 function EnviarItem(const AApi: IApiCatalogos; const ACatalogo: TCatalogo;
   const AId: Integer; const ADto: TObject): Integer;
@@ -116,13 +105,11 @@ begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
-  FCancelacion := TCancelacion.Create;
   FPrecioOriginal := TPrecioNuevoDTO.Create;
 end;
 
 destructor TPresentadorItemCatalogo.Destroy;
 begin
-  FCancelacion.Cancelar;
   FPrecioOriginal.Free;
   inherited;
 end;
@@ -161,10 +148,9 @@ end;
 procedure TPresentadorItemCatalogo.Guardar(const AItem: TObject;
   const APrecio: TPrecioNuevoDTO; const AProgramado: Boolean);
 var
-  lCancelacion: ICancelacion;
   lApi: IApiCatalogos;
   lCatalogo: TCatalogo;
-  lId: Integer;
+  lId, lNuevo: Integer;
   lConPrecio: Boolean;
 begin
   lConPrecio := PrecioCambio(APrecio, AProgramado);
@@ -177,48 +163,36 @@ begin
     Exit;
   end;
 
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lCatalogo := FCatalogo;
   lId := FId;
-  FVista.MostrarGuardando(True);
+  lNuevo := lId;
 
-  TTask.Run(
+  Ejecutar(SAccionGuardar,
     procedure
-    var
-      lError: string;
-      lNuevo: Integer;
     begin
-      lError := '';
-      lNuevo := lId;
-      try
-        try
-          lNuevo := EnviarItem(lApi, lCatalogo, lId, AItem);
-          if lConPrecio then
-            EnviarPrecio(lApi, lCatalogo, lNuevo, APrecio);
-        except
-          on E: EAnovoCliente do
-            lError := E.Message;
-          on E: Exception do
-            lError := MensajeInesperado;
-        end;
-      finally
-        AItem.Free;
-        APrecio.Free;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          if lCancelacion.Cancelada then
-            Exit;
-          FId := lNuevo;
-          FVista.MostrarGuardando(False);
-          if lError.IsEmpty then
-            FVista.Guardado(lNuevo)
-          else
-            FVista.MostrarError(lError);
-        end);
+      lNuevo := EnviarItem(lApi, lCatalogo, lId, AItem);
+      if lConPrecio then
+        EnviarPrecio(lApi, lCatalogo, lNuevo, APrecio);
+    end,
+    procedure
+    begin
+      FId := lNuevo;
+      FVista.Guardado(lNuevo);
+    end,
+    procedure(AMensaje: string)
+    begin
+      FId := lNuevo;
+      FVista.MostrarError(AMensaje);
+    end,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarGuardando(AActivo);
+    end,
+    procedure
+    begin
+      AItem.Free;
+      APrecio.Free;
     end);
 end;
 
@@ -228,60 +202,40 @@ begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
-  FCancelacion := TCancelacion.Create;
   FCatalogo := ACatalogo;
   FId := AId;
 end;
 
-destructor TPresentadorPrecioCatalogo.Destroy;
-begin
-  FCancelacion.Cancelar;
-  inherited;
-end;
-
 procedure TPresentadorPrecioCatalogo.Guardar(const ADto: TPrecioNuevoDTO);
 var
-  lCancelacion: ICancelacion;
   lApi: IApiCatalogos;
   lCatalogo: TCatalogo;
   lId: Integer;
 begin
-  lCancelacion := FCancelacion;
   lApi := FApi;
   lCatalogo := FCatalogo;
   lId := FId;
-  FVista.MostrarGuardando(True);
 
-  TTask.Run(
+  Ejecutar(SAccionGuardar,
     procedure
-    var
-      lError: string;
     begin
-      lError := '';
-      try
-        try
-          EnviarPrecio(lApi, lCatalogo, lId, ADto);
-        except
-          on E: EAnovoCliente do
-            lError := E.Message;
-          on E: Exception do
-            lError := MensajeInesperado;
-        end;
-      finally
-        ADto.Free;
-      end;
-
-      TThread.Queue(nil,
-        procedure
-        begin
-          if lCancelacion.Cancelada then
-            Exit;
-          FVista.MostrarGuardando(False);
-          if lError.IsEmpty then
-            FVista.Guardado(lId)
-          else
-            FVista.MostrarError(lError);
-        end);
+      EnviarPrecio(lApi, lCatalogo, lId, ADto);
+    end,
+    procedure
+    begin
+      FVista.Guardado(lId);
+    end,
+    procedure(AMensaje: string)
+    begin
+      FVista.MostrarError(AMensaje);
+    end,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarGuardando(AActivo);
+    end,
+    procedure
+    begin
+      ADto.Free;
     end);
 end;
 
