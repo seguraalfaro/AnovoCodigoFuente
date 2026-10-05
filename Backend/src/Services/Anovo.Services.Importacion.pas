@@ -172,6 +172,7 @@ var
   lCodigos, lNombres: TDictionary<string, Integer>;
   lFila: TFilaImportacionDTO;
   lErrores: TArray<string>;
+  lExiste: Boolean;
   lPrevia: Integer;
   lCodigo, lNombre, lUnidad, lCategoria: string;
   lRevision: TRevisionFilaDTO;
@@ -200,6 +201,7 @@ begin
     for lFila in ADatos.Filas do
     begin
       lErrores := [];
+      lExiste := False;
       lCodigo := Trim(lFila.Codigo);
       lNombre := Trim(lFila.Nombre);
 
@@ -214,7 +216,10 @@ begin
         else
           lCodigos.Add(Clave(lCodigo), lFila.Fila);
         if CodigoExiste(ACatalogo, lCodigo) then
+        begin
           Agregar(SImpCodigoExiste);
+          lExiste := True;
+        end;
       end;
 
       if lNombre.IsEmpty then
@@ -228,7 +233,10 @@ begin
         else
           lNombres.Add(Clave(lNombre), lFila.Fila);
         if NombreExiste(ACatalogo, lNombre) then
+        begin
           Agregar(SImpNombreExiste);
+          lExiste := True;
+        end;
       end;
 
       if Length(Texto(lFila.Descripcion)) > LARGO_DESCRIPCION then
@@ -269,6 +277,7 @@ begin
         lRevision := TRevisionFilaDTO.Create;
         lRevision.Fila := lFila.Fila;
         lRevision.Error := string.Join(SImpSeparador, lErrores);
+        lRevision.Existe := lExiste;
         AResultado.Errores.Add(lRevision);
       end;
     end;

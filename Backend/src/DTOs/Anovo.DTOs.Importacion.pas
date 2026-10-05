@@ -51,9 +51,11 @@ type
   private
     fFila: Integer;
     fError: string;
+    fExiste: Boolean;
   public
     property Fila: Integer read fFila write fFila;
     property Error: string read fError write fError;
+    property Existe: Boolean read fExiste write fExiste;
   end;
 
   [MVCNameCase(ncSnakeCase)]

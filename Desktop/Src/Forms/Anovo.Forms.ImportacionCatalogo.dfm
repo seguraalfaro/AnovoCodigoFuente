@@ -174,7 +174,7 @@ object frmImportacionCatalogo: TfrmImportacionCatalogo
       Height = 32
       Cursor = crHandPoint
       Anchors = [akTop, akRight]
-      Caption = 'Aprobar carga'
+      Caption = 'Importar'
       Enabled = False
       TabOrder = 1
       StyleElements = []
@@ -259,7 +259,7 @@ object frmImportacionCatalogo: TfrmImportacionCatalogo
       Left = 0
       Top = 0
       Width = 808
-      Height = 32
+      Height = 52
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 0
@@ -274,6 +274,13 @@ object frmImportacionCatalogo: TfrmImportacionCatalogo
         Height = 15
         Caption = 'Abra un archivo para empezar.'
       end
+      object lblSaltadas: TLabel
+        Tag = 13
+        Left = 0
+        Top = 30
+        Width = 3
+        Height = 15
+      end
       object chkSoloErrores: TCheckBox
         Left = 640
         Top = 7
@@ -286,47 +293,11 @@ object frmImportacionCatalogo: TfrmImportacionCatalogo
         OnClick = chkSoloErroresClick
       end
     end
-    object pnlAccionesFila: TPanel
-      Tag = 2
-      Left = 0
-      Top = 409
-      Width = 808
-      Height = 44
-      Align = alBottom
-      BevelOuter = bvNone
-      TabOrder = 2
-      object btnQuitar: TPlanoBotonWin
-        Left = 0
-        Top = 8
-        Width = 110
-        Height = 28
-        Cursor = crHandPoint
-        Caption = 'Quitar fila'
-        Enabled = False
-        TabOrder = 0
-        StyleElements = []
-        OnClick = btnQuitarClick
-        Kind = fkSecondary
-      end
-      object btnExportar: TPlanoBotonWin
-        Left = 118
-        Top = 8
-        Width = 110
-        Height = 28
-        Cursor = crHandPoint
-        Caption = 'Exportar'
-        Enabled = False
-        TabOrder = 1
-        StyleElements = []
-        OnClick = btnExportarClick
-        Kind = fkSecondary
-      end
-    end
     object grFilas: TrDBGrid
       Left = 0
-      Top = 32
+      Top = 52
       Width = 808
-      Height = 377
+      Height = 401
       Align = alClient
       BorderStyle = bsNone
       DataSource = dmMemoria.dsImportacion

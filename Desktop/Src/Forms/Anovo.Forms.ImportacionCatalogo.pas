@@ -38,11 +38,9 @@ type
     pnlCentro: TPanel;
     pnlResumen: TPanel;
     lblResumen: TLabel;
+    lblSaltadas: TLabel;
     chkSoloErrores: TCheckBox;
     grFilas: TrDBGrid;
-    pnlAccionesFila: TPanel;
-    btnQuitar: TPlanoBotonWin;
-    btnExportar: TPlanoBotonWin;
     pnlPie: TPanel;
     lblNota: TLabel;
     btnCancelar: TPlanoBotonWin;
@@ -52,8 +50,6 @@ type
     procedure btnAbrirClick(Sender: TObject);
     procedure cbHojaChange(Sender: TObject);
     procedure chkSoloErroresClick(Sender: TObject);
-    procedure btnQuitarClick(Sender: TObject);
-    procedure btnExportarClick(Sender: TObject);
     procedure btnAprobarClick(Sender: TObject);
     procedure btnCancelarClick(Sender: TObject);
     procedure grFilasCanEdit(Sender: TObject; Field: TField; Column: TColumn;
@@ -80,6 +76,7 @@ type
     procedure MostrarFilas(const AFilas: TObjectList<TFilaCarga>);
     procedure MostrarResumen(const ALeidas, AListas, AConError: Integer;
       const ARevisando: Boolean);
+    procedure MostrarSaltadas(const ATexto: string);
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarError(const AMensaje: string);
     function Confirmar(const AMensaje: string): Boolean;
@@ -96,7 +93,6 @@ implementation
 {$R *.dfm}
 
 uses
-  rDBExport,
   Anovo.UI.Tema,
   Anovo.UI.Vista,
   Anovo.UI.DBGridExtend,
@@ -294,16 +290,18 @@ begin
       AConError]);
   btnAprobar.Caption := Format(SAprobarCarga, [AListas]);
   btnAprobar.Enabled := (AListas > 0) and not ARevisando;
-  btnQuitar.Enabled := ALeidas > 0;
-  btnExportar.Enabled := ALeidas > 0;
   chkSoloErrores.Enabled := ALeidas > 0;
+end;
+
+procedure TfrmImportacionCatalogo.MostrarSaltadas(const ATexto: string);
+begin
+  lblSaltadas.Caption := ATexto;
 end;
 
 procedure TfrmImportacionCatalogo.MostrarCargando(const AActivo: Boolean);
 begin
   CursorOcupado(AActivo);
-  BloquearEdicion([pnlArchivo, pnlCampos, grFilas, pnlAccionesFila,
-    btnAprobar], AActivo);
+  BloquearEdicion([pnlArchivo, pnlCampos, grFilas, btnAprobar], AActivo);
 end;
 
 procedure TfrmImportacionCatalogo.MostrarError(const AMensaje: string);
@@ -377,20 +375,6 @@ end;
 procedure TfrmImportacionCatalogo.chkSoloErroresClick(Sender: TObject);
 begin
   dmMemoria.SoloErroresImportacion(chkSoloErrores.Checked);
-end;
-
-procedure TfrmImportacionCatalogo.btnQuitarClick(Sender: TObject);
-begin
-  if not dmMemoria.mtImportacion.Active or dmMemoria.mtImportacion.IsEmpty
-  then
-    Exit;
-  dmMemoria.mtImportacion.Cancel;
-  FPresentador.QuitarFila(dmMemoria.mtImportacionFILA.AsInteger);
-end;
-
-procedure TfrmImportacionCatalogo.btnExportarClick(Sender: TObject);
-begin
-  rDBExport.DBExport(grFilas, True, True);
 end;
 
 procedure TfrmImportacionCatalogo.btnAprobarClick(Sender: TObject);

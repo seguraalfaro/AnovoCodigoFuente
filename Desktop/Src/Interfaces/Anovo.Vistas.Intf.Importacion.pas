@@ -48,6 +48,7 @@ type
     procedure MostrarFilas(const AFilas: TObjectList<TFilaCarga>);
     procedure MostrarResumen(const ALeidas, AListas, AConError: Integer;
       const ARevisando: Boolean);
+    procedure MostrarSaltadas(const ATexto: string);
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarError(const AMensaje: string);
     function Confirmar(const AMensaje: string): Boolean;

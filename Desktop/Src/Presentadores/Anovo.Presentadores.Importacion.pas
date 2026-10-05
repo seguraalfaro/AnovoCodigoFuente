@@ -29,7 +29,9 @@ type
     FColumnas: TArray<string>;
     FSeleccion: TArray<Integer>;
     FFilas: TObjectList<TFilaCarga>;
+    FSaltadas: TArray<Integer>;
     FRevisando: Boolean;
+    function TextoSaltadas: string;
     function Obligatorio(const ACampo: TCampoCarga): Boolean;
     function ValorDe(const AValores: TArray<string>;
       const ACampo: TCampoCarga): string;
@@ -64,6 +66,7 @@ implementation
 uses
   System.SysUtils,
   System.StrUtils,
+  System.Generics.Defaults,
   MVCFramework.Nullables,
   Anovo.Api.Base,
   Anovo.Textos;
@@ -317,6 +320,7 @@ var
   lValores: TArray<string>;
 begin
   FFilas.Clear;
+  FSaltadas := [];
   for I := 0 to High(FHoja.Filas) do
   begin
     lValores := FHoja.Filas[I];
@@ -443,6 +447,12 @@ begin
     lFila := FilaDe(lError.Fila);
     if lFila = nil then
       Continue;
+    if lError.Existe then
+    begin
+      FSaltadas := FSaltadas + [lFila.Fila];
+      FFilas.Remove(lFila);
+      Continue;
+    end;
     lFila.Revision := lError.Error;
     lFila.ConError := True;
   end;
@@ -498,6 +508,25 @@ begin
     nil);
 end;
 
+function TPresentadorImportacion.TextoSaltadas: string;
+var
+  lNumeros: TArray<string>;
+  lNumero: Integer;
+begin
+  Result := '';
+  if Length(FSaltadas) = 0 then
+    Exit;
+  TArray.Sort<Integer>(FSaltadas);
+  lNumeros := [];
+  for lNumero in FSaltadas do
+    lNumeros := lNumeros + [lNumero.ToString];
+  if Length(FSaltadas) = 1 then
+    Result := Format(SFilaSaltada, [lNumeros[0]])
+  else
+    Result := Format(SFilasSaltadas, [Length(FSaltadas),
+      string.Join(SSeparadorFilas, lNumeros)]);
+end;
+
 procedure TPresentadorImportacion.Publicar;
 var
   lListas: Integer;
@@ -508,6 +537,7 @@ begin
   FVista.MostrarFilas(FFilas);
   FVista.MostrarResumen(FFilas.Count, lListas, FFilas.Count - Length(Listas),
     FRevisando);
+  FVista.MostrarSaltadas(TextoSaltadas);
 end;
 
 procedure TPresentadorImportacion.Aprobar;

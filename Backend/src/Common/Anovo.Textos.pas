@@ -45,7 +45,10 @@ resourcestring
   SColumnaSinNombre = 'Columna %d';
   SFilaLista = 'Lista';
   SFilaRevisando = 'Revisando…';
-  SAprobarCarga = 'Aprobar carga · %d';
+  SAprobarCarga = 'Importar · %d';
+  SFilasSaltadas = 'Se saltaron %d filas porque ya existen en el catálogo: %s.';
+  SFilaSaltada = 'Se saltó 1 fila porque ya existe en el catálogo: %s.';
+  SSeparadorFilas = ', ';
   SResumenCarga = 'Filas leídas: %d  ·  Listas: %d  ·  Con error: %d';
   SResumenRevisando = 'Filas leídas: %d  ·  Revisando con el servidor…';
   SConfirmarCarga = 'Se van a crear %d ítems nuevos en el catálogo. ¿Desea continuar?';
