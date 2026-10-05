@@ -31,6 +31,7 @@ const
   clAnovoSeleccion = TColor($00F5E4D6);
   clAnovoAvisoSuave = TColor($00DAEEFA);
   clAnovoAvisoMedio = TColor($00A4D9F7);
+  clAnovoErrorSuave = TColor($00E6E6FD);
   clAnovoFondoIngreso = TColor($00E5DED9);
   RADIO_TARJETA = 12;
   clAnovoFilaAlterna = TColor($00FAF7F5);

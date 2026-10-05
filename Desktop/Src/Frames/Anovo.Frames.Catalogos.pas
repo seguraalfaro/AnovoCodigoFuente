@@ -16,12 +16,14 @@ uses
   FlatVcl.BotonWin, VclPlano.Pestanas, VclPlano.BotonWin,
   Anovo.Frames.Listado,
   Anovo.DTOs.Catalogos,
+  Anovo.DTOs.Importacion,
   Anovo.Vistas.Intf.Catalogos,
   Anovo.Presentadores.Catalogos;
 
 type
   TfraCatalogos = class(TfraListado, IVistaCatalogos)
     btnExportar: TPlanoBotonWin;
+    btnImportar: TPlanoBotonWin;
     btnNuevo: TPlanoBotonWin;
     cbCategoria: TrDBLookupComboBox;
     pstCatalogo: TPlanoPestanas;
@@ -29,6 +31,7 @@ type
     procedure cbCategoriaClick(Sender: TObject);
     procedure btnNuevoClick(Sender: TObject);
     procedure btnExportarClick(Sender: TObject);
+    procedure btnImportarClick(Sender: TObject);
   private
     FPresentador: TPresentadorCatalogos;
     FCatalogo: TCatalogo;
@@ -39,6 +42,9 @@ type
     procedure Cargar<T: class>(const AFilas: TObjectList<T>;
       const ATabla: TFDMemTable);
     procedure MostrarCatalogo(const ACatalogo: TCatalogo);
+    procedure MostrarImportar(const AVisible, AHabilitado: Boolean);
+    procedure MostrarFormularioImportacion(
+      const ACatalogo: TCatalogoImportacion);
     procedure MostrarAcciones(const AAcciones: TAccionesCatalogo;
       const APuedeCrear: Boolean);
     procedure MostrarMateriales(const AFilas: TObjectList<TMaterialDTO>);
@@ -77,6 +83,7 @@ uses
   Anovo.Api.Catalogos,
   Anovo.Forms.ItemCatalogo,
   Anovo.Forms.PrecioCatalogo,
+  Anovo.Forms.ImportacionCatalogo,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
   Anovo.UI.Vista,
@@ -354,6 +361,24 @@ procedure TfraCatalogos.MostrarFormularioItem(const ACatalogo: TCatalogo;
 begin
   if TfrmItemCatalogo.Mostrar(Self, ACatalogo, AId) then
     FPresentador.Recargar;
+end;
+
+procedure TfraCatalogos.MostrarImportar(const AVisible, AHabilitado: Boolean);
+begin
+  btnImportar.Visible := AVisible;
+  btnImportar.Enabled := AHabilitado;
+end;
+
+procedure TfraCatalogos.MostrarFormularioImportacion(
+  const ACatalogo: TCatalogoImportacion);
+begin
+  if TfrmImportacionCatalogo.Mostrar(Self, ACatalogo) then
+    FPresentador.Recargar;
+end;
+
+procedure TfraCatalogos.btnImportarClick(Sender: TObject);
+begin
+  FPresentador.Importar;
 end;
 
 procedure TfraCatalogos.MostrarFormularioPrecio(const ACatalogo: TCatalogo;

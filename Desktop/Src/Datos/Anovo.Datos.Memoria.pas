@@ -503,6 +503,50 @@ type
     mtAjustePORCENTAJE: TCurrencyField;
     mtAjusteMOTIVO: TStringField;
     dsAjuste: TDataSource;
+    mtReporteEstados: TFDMemTable;
+    mtReporteEstadosESTADO: TStringField;
+    mtReporteEstadosCANTIDAD: TIntegerField;
+    mtReporteEstadosMONTO: TCurrencyField;
+    dsReporteEstados: TDataSource;
+    mtReporteAsesores: TFDMemTable;
+    mtReporteAsesoresASESOR_ID: TIntegerField;
+    mtReporteAsesoresASESOR_NOMBRE: TStringField;
+    mtReporteAsesoresCANTIDAD: TIntegerField;
+    mtReporteAsesoresAPROBADAS: TIntegerField;
+    mtReporteAsesoresRECHAZADAS: TIntegerField;
+    mtReporteAsesoresTASA_APROBACION: TIntegerField;
+    mtReporteAsesoresMONTO_APROBADO: TCurrencyField;
+    mtReporteAsesoresMONTO_TOTAL: TCurrencyField;
+    dsReporteAsesores: TDataSource;
+    mtReporteTipos: TFDMemTable;
+    mtReporteTiposTIPO_TRABAJO_ID: TIntegerField;
+    mtReporteTiposTIPO_TRABAJO_NOMBRE: TStringField;
+    mtReporteTiposCANTIDAD: TIntegerField;
+    mtReporteTiposAPROBADAS: TIntegerField;
+    mtReporteTiposMONTO_TOTAL: TCurrencyField;
+    dsReporteTipos: TDataSource;
+    mtReporteMeses: TFDMemTable;
+    mtReporteMesesMES_NOMBRE: TStringField;
+    mtReporteMesesANIO: TIntegerField;
+    mtReporteMesesMES: TIntegerField;
+    mtReporteMesesCANTIDAD: TIntegerField;
+    mtReporteMesesAPROBADAS: TIntegerField;
+    mtReporteMesesRECHAZADAS: TIntegerField;
+    mtReporteMesesTASA_APROBACION: TIntegerField;
+    mtReporteMesesMONTO_TOTAL: TCurrencyField;
+    dsReporteMeses: TDataSource;
+    mtImportacion: TFDMemTable;
+    mtImportacionFILA: TIntegerField;
+    mtImportacionCODIGO: TStringField;
+    mtImportacionCATEGORIA: TStringField;
+    mtImportacionNOMBRE: TStringField;
+    mtImportacionDESCRIPCION: TStringField;
+    mtImportacionUNIDAD: TStringField;
+    mtImportacionCOSTO: TStringField;
+    mtImportacionPRECIO: TStringField;
+    mtImportacionREVISION: TStringField;
+    mtImportacionCON_ERROR: TBooleanField;
+    dsImportacion: TDataSource;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     procedure DataModuleCreate(Sender: TObject);
     procedure mtContactoNuevoBeforePost(DataSet: TDataSet);
@@ -531,6 +575,9 @@ type
       DisplayText: Boolean);
     procedure ModuloGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
+    procedure ReporteMesesCalcFields(DataSet: TDataSet);
+    procedure PorcentajeGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
     procedure UsuarioNombreGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
   private
@@ -544,6 +591,9 @@ type
     procedure PrepararUsuario;
     procedure Preparar(const ATabla: TFDMemTable);
     procedure SoloExcepciones(const ASolo: Boolean);
+    procedure PrepararImportacion(const AConUnidad, AConCategoria,
+      AConPrecio: Boolean; const ARotuloCosto: string);
+    procedure SoloErroresImportacion(const ASolo: Boolean);
     procedure SinTodasLasCategorias(const ASin: Boolean);
     function PermisoSinGuardar: Boolean;
     procedure Confirmar(const ATabla: TDataSet);
@@ -576,6 +626,7 @@ const
   ORIGEN_QUITADO = 'quitado';
   ORIGEN_SIN_GUARDAR = 'sin_guardar';
   FILTRO_EXCEPCIONES = 'TIENE <> DEL_ROL';
+  FILTRO_ERRORES_IMPORTACION = 'CON_ERROR = True';
   FILTRO_CATEGORIAS = 'ID > 0';
 
 function NuevoUuid: string;
@@ -721,6 +772,26 @@ begin
     Text := '';
 end;
 
+procedure TdmMemoria.ReporteMesesCalcFields(DataSet: TDataSet);
+var
+  lFecha: TDateTime;
+begin
+  if TryEncodeDate(mtReporteMesesANIO.AsInteger, mtReporteMesesMES.AsInteger,
+    1, lFecha) then
+    mtReporteMesesMES_NOMBRE.AsString := TFormato.MesAnio(lFecha)
+  else
+    mtReporteMesesMES_NOMBRE.Clear;
+end;
+
+procedure TdmMemoria.PorcentajeGetText(Sender: TField; var Text: string;
+  DisplayText: Boolean);
+begin
+  if Sender.IsNull then
+    Text := ''
+  else
+    Text := Format(SPorcentaje, [Sender.AsInteger]);
+end;
+
 procedure TdmMemoria.EstadoGetText(Sender: TField; var Text: string;
   DisplayText: Boolean);
 begin
@@ -821,6 +892,21 @@ procedure TdmMemoria.SoloExcepciones(const ASolo: Boolean);
 begin
   mtPermisosUsuario.Filter := FILTRO_EXCEPCIONES;
   mtPermisosUsuario.Filtered := ASolo;
+end;
+
+procedure TdmMemoria.PrepararImportacion(const AConUnidad, AConCategoria,
+  AConPrecio: Boolean; const ARotuloCosto: string);
+begin
+  mtImportacionUNIDAD.Visible := AConUnidad;
+  mtImportacionCATEGORIA.Visible := AConCategoria;
+  mtImportacionPRECIO.Visible := AConPrecio;
+  mtImportacionCOSTO.DisplayLabel := ARotuloCosto;
+end;
+
+procedure TdmMemoria.SoloErroresImportacion(const ASolo: Boolean);
+begin
+  mtImportacion.Filter := FILTRO_ERRORES_IMPORTACION;
+  mtImportacion.Filtered := ASolo;
 end;
 
 function TdmMemoria.PermisoSinGuardar: Boolean;

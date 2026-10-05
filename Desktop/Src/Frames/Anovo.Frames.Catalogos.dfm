@@ -24,21 +24,35 @@ inherited fraCatalogos: TfraCatalogos
       Left = 330
       ExplicitLeft = 330
     end
-    object btnExportar: TPlanoBotonWin
-      Left = 634
+    object btnImportar: TPlanoBotonWin
+      Left = 568
       Top = 12
-      Width = 130
+      Width = 96
       Height = 28
       Cursor = crHandPoint
       Anchors = [akTop, akRight]
-      Caption = 'Exportar listado'
+      Caption = 'Importar'
+      Enabled = False
+      TabOrder = 5
+      StyleElements = []
+      OnClick = btnImportarClick
+      Kind = fkSecondary
+    end
+    object btnExportar: TPlanoBotonWin
+      Left = 670
+      Top = 12
+      Width = 96
+      Height = 28
+      Cursor = crHandPoint
+      Anchors = [akTop, akRight]
+      Caption = 'Exportar'
       TabOrder = 3
       StyleElements = []
       OnClick = btnExportarClick
       Kind = fkSecondary
     end
     object btnNuevo: TPlanoBotonWin
-      Left = 770
+      Left = 772
       Top = 12
       Width = 162
       Height = 28
@@ -52,7 +66,7 @@ inherited fraCatalogos: TfraCatalogos
     object cbCategoria: TrDBLookupComboBox
       Left = 430
       Top = 13
-      Width = 180
+      Width = 130
       Height = 23
       DropDownRows = 10
       KeyField = 'ID'

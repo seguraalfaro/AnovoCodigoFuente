@@ -6,7 +6,8 @@ interface
 
 uses
   System.Generics.Collections,
-  Anovo.DTOs.Catalogos;
+  Anovo.DTOs.Catalogos,
+  Anovo.DTOs.Importacion;
 
 type
   TCatalogo = (ctTodos, ctMateriales, ctManoObra, ctMaquinas, ctTiposTrabajo,
@@ -19,6 +20,9 @@ type
     ['{5E2B9A70-1C46-4D83-B0F9-72A4E6C51D08}']
 
     procedure MostrarCatalogo(const ACatalogo: TCatalogo);
+    procedure MostrarImportar(const AVisible, AHabilitado: Boolean);
+    procedure MostrarFormularioImportacion(
+      const ACatalogo: TCatalogoImportacion);
     procedure MostrarAcciones(const AAcciones: TAccionesCatalogo;
       const APuedeCrear: Boolean);
     procedure MostrarCargando(const AActivo: Boolean);

@@ -6,7 +6,8 @@ interface
 
 uses
   System.Generics.Collections,
-  Anovo.DTOs.Catalogos;
+  Anovo.DTOs.Catalogos,
+  Anovo.DTOs.Importacion;
 
 type
   IApiCatalogos = interface
@@ -39,6 +40,9 @@ type
     function HistorialPrecioManoObra(const AId: Integer)
       : TObjectList<TPrecioDTO>;
     function Categorias: TObjectList<TCategoriaDTO>;
+    function Importar(const ACatalogo: TCatalogoImportacion;
+      const ADatos: TImportacionDTO; const ASoloRevisar: Boolean)
+      : TImportacionResultadoDTO;
 
     function BuscarTodos(const ATexto: string;
       const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;

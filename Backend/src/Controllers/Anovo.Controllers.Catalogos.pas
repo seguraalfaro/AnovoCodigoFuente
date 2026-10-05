@@ -11,7 +11,9 @@ uses
   MVCFramework.Swagger.Commons,
   Anovo.Auth.Permisos,
   Anovo.DTOs.Catalogos,
+  Anovo.DTOs.Importacion,
   Anovo.Services.Intf.Catalogos,
+  Anovo.Services.Intf.Importacion,
   Anovo.Permisos;
 
 const
@@ -294,6 +296,51 @@ type
     function CambiarCostoMaquina([MVCInject] AServicio: ICatalogoService;
       const AId: Integer;
       const [MVCFromBody] ADto: TPrecioNuevoDTO): IMVCResponse;
+
+    [MVCPath('/materiales/importacion')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
+    [MVCSwagSummary('Catalogos', 'Carga masiva de materiales nuevos. Con ' +
+      'revisar=true solo revisa las filas; sin errores, los registra todos ' +
+      'con su precio en una sola transaccion', 'importarMateriales')]
+    [MVCSwagParam(plQuery, 'revisar', 'true: solo revisa, no registra nada',
+      ptBoolean, False)]
+    [MVCSwagResponses(200, 'Filas revisadas, creadas y errores por fila',
+      TImportacionResultadoDTO)]
+    [MVCSwagResponses(422, 'Carga vacia o con mas filas que el maximo')]
+    function ImportarMateriales([MVCInject] AServicio: IImportacionService;
+      const [MVCFromQueryString('revisar', False)] ARevisar: Boolean;
+      const [MVCFromBody] ADto: TImportacionDTO): IMVCResponse;
+
+    [MVCPath('/mano-obra/importacion')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
+    [MVCSwagSummary('Catalogos', 'Carga masiva de items de mano de obra nuevos. Con ' +
+      'revisar=true solo revisa las filas; sin errores, los registra todos ' +
+      'con su precio en una sola transaccion', 'importarManoObra')]
+    [MVCSwagParam(plQuery, 'revisar', 'true: solo revisa, no registra nada',
+      ptBoolean, False)]
+    [MVCSwagResponses(200, 'Filas revisadas, creadas y errores por fila',
+      TImportacionResultadoDTO)]
+    [MVCSwagResponses(422, 'Carga vacia o con mas filas que el maximo')]
+    function ImportarManoObra([MVCInject] AServicio: IImportacionService;
+      const [MVCFromQueryString('revisar', False)] ARevisar: Boolean;
+      const [MVCFromBody] ADto: TImportacionDTO): IMVCResponse;
+
+    [MVCPath('/maquinas/importacion')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
+    [MVCSwagSummary('Catalogos', 'Carga masiva de maquinas nuevos. Con ' +
+      'revisar=true solo revisa las filas; sin errores, los registra todos ' +
+      'con su precio en una sola transaccion', 'importarMaquinas')]
+    [MVCSwagParam(plQuery, 'revisar', 'true: solo revisa, no registra nada',
+      ptBoolean, False)]
+    [MVCSwagResponses(200, 'Filas revisadas, creadas y errores por fila',
+      TImportacionResultadoDTO)]
+    [MVCSwagResponses(422, 'Carga vacia o con mas filas que el maximo')]
+    function ImportarMaquinas([MVCInject] AServicio: IImportacionService;
+      const [MVCFromQueryString('revisar', False)] ARevisar: Boolean;
+      const [MVCFromBody] ADto: TImportacionDTO): IMVCResponse;
 
     [MVCPath('/tipos-trabajo')]
     [MVCHTTPMethods([httpGET])]
@@ -636,6 +683,24 @@ function TCatalogosController.InactivarUnidadMedida(AServicio: ICatalogoService;
 begin
   AServicio.InactivarUnidadMedida(AId);
   Result := NoContentResponse;
+end;
+
+function TCatalogosController.ImportarMateriales(AServicio: IImportacionService;
+  const ARevisar: Boolean; const ADto: TImportacionDTO): IMVCResponse;
+begin
+  Result := OKResponse(AServicio.Importar(ciMateriales, ADto, ARevisar));
+end;
+
+function TCatalogosController.ImportarManoObra(AServicio: IImportacionService;
+  const ARevisar: Boolean; const ADto: TImportacionDTO): IMVCResponse;
+begin
+  Result := OKResponse(AServicio.Importar(ciManoObra, ADto, ARevisar));
+end;
+
+function TCatalogosController.ImportarMaquinas(AServicio: IImportacionService;
+  const ARevisar: Boolean; const ADto: TImportacionDTO): IMVCResponse;
+begin
+  Result := OKResponse(AServicio.Importar(ciMaquinas, ADto, ARevisar));
 end;
 
 end.

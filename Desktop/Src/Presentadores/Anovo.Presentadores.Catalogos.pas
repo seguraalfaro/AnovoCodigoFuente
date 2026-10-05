@@ -51,6 +51,7 @@ type
     procedure PaginaAnterior;
 
     procedure Nuevo;
+    procedure Importar;
     procedure Editar(const AId: Integer);
     procedure CambiarPrecio(const AId: Integer);
     procedure VerHistorial(const AId: Integer);
@@ -68,7 +69,11 @@ implementation
 
 uses
   Anovo.DTOs.Catalogos,
+  Anovo.DTOs.Importacion,
   Anovo.Sesion;
+
+const
+  CATALOGOS_IMPORTABLES = [ctMateriales, ctManoObra, ctMaquinas];
 
 function TodasLasCategorias: TCategoriaDTO;
 begin
@@ -104,6 +109,8 @@ begin
   if FCatalogo in [ctTiposTrabajo, ctUnidadesMedida] then
     lAcciones := lAcciones - [acPrecio, acHistorial];
   FVista.MostrarAcciones(lAcciones, PuedeEditar and (FCatalogo <> ctTodos));
+  FVista.MostrarImportar(PuedeEditar, PuedeEditar and
+    (FCatalogo in CATALOGOS_IMPORTABLES));
 end;
 
 procedure TPresentadorCatalogos.Cargar;
@@ -400,6 +407,20 @@ begin
     Result := FVista.CatalogoDeLaFila
   else
     Result := FCatalogo;
+end;
+
+procedure TPresentadorCatalogos.Importar;
+begin
+  if not PuedeEditar or not (FCatalogo in CATALOGOS_IMPORTABLES) then
+    Exit;
+  case FCatalogo of
+    ctManoObra:
+      FVista.MostrarFormularioImportacion(ciManoObra);
+    ctMaquinas:
+      FVista.MostrarFormularioImportacion(ciMaquinas);
+  else
+    FVista.MostrarFormularioImportacion(ciMateriales);
+  end;
 end;
 
 procedure TPresentadorCatalogos.Nuevo;

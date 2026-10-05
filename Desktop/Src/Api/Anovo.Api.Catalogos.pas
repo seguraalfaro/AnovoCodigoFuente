@@ -8,7 +8,8 @@ uses
   System.Generics.Collections,
   Anovo.Api.Base,
   Anovo.Api.Intf.Catalogos,
-  Anovo.DTOs.Catalogos;
+  Anovo.DTOs.Catalogos,
+  Anovo.DTOs.Importacion;
 
 type
   TApiCatalogos = class(TApiBase, IApiCatalogos)
@@ -50,6 +51,9 @@ type
     function HistorialPrecioManoObra(const AId: Integer)
       : TObjectList<TPrecioDTO>;
     function Categorias: TObjectList<TCategoriaDTO>;
+    function Importar(const ACatalogo: TCatalogoImportacion;
+      const ADatos: TImportacionDTO; const ASoloRevisar: Boolean)
+      : TImportacionResultadoDTO;
 
     function BuscarTodos(const ATexto: string;
       const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
@@ -98,6 +102,10 @@ const
   RUTA_TIPOS_TRABAJO = '/api/catalogos/tipos-trabajo';
   RUTA_UNIDADES_MEDIDA = '/api/catalogos/unidades-medida';
   RUTA_CATEGORIAS = '/api/catalogos/mano-obra/categorias';
+  RUTA_IMPORTACION = '%s/importacion';
+  RUTA_CATALOGO_IMPORTACION: array [TCatalogoImportacion] of string = (
+    RUTA_MATERIALES, RUTA_MANO_OBRA, RUTA_MAQUINAS);
+  VALOR_REVISAR: array [Boolean] of string = ('false', 'true');
 
   SUB_PRECIOS = '%s/%d/precios';
   SUB_INACTIVACION = '%s/%d/inactivacion';
@@ -322,6 +330,30 @@ end;
 function TApiCatalogos.Categorias: TObjectList<TCategoriaDTO>;
 begin
   Result := ListaDe<TCategoriaDTO>(RUTA_CATEGORIAS);
+end;
+
+function TApiCatalogos.Importar(const ACatalogo: TCatalogoImportacion;
+  const ADatos: TImportacionDTO; const ASoloRevisar: Boolean)
+  : TImportacionResultadoDTO;
+var
+  lRespuesta: IMVCRESTResponse;
+begin
+  lRespuesta := Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.AddBody(ADatos, False)
+        .AddQueryStringParam('revisar', VALOR_REVISAR[ASoloRevisar])
+        .Post(Format(RUTA_IMPORTACION,
+        [RUTA_CATALOGO_IMPORTACION[ACatalogo]]));
+    end);
+
+  Result := TImportacionResultadoDTO.Create;
+  try
+    lRespuesta.BodyFor(Result, 'data');
+  except
+    Result.Free;
+    raise;
+  end;
 end;
 
 function TApiCatalogos.BuscarTodos(const ATexto: string;

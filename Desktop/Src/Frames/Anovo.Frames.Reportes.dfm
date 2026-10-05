@@ -12,41 +12,41 @@ inherited fraReportes: TfraReportes
   inherited pnlKpi: TPanel
     Top = 114
     inherited tjCifra1: TPlanoTarjeta
-      Width = 174
+      Width = 150
       Caption = 'Cotizaciones'
       inherited lblCifra1: TLabel
-        Width = 142
+        Width = 118
       end
     end
     inherited tjCifra2: TPlanoTarjeta
-      Left = 206
-      Width = 174
+      Left = 182
+      Width = 268
       Caption = 'Monto total'
       inherited lblCifra2: TLabel
-        Width = 142
+        Width = 236
       end
     end
     inherited tjCifra3: TPlanoTarjeta
-      Left = 392
-      Width = 174
+      Left = 462
+      Width = 150
       Caption = 'Aprobadas'
       inherited lblCifra3: TLabel
-        Width = 142
+        Width = 118
       end
     end
     inherited tjCifra4: TPlanoTarjeta
-      Left = 578
-      Width = 174
+      Left = 624
+      Width = 150
       Caption = 'Tasa de aprobaci'#243'n'
       inherited lblCifra4: TLabel
-        Width = 142
+        Width = 118
       end
     end
     object tjCifra5: TPlanoTarjeta
       Tag = 8
-      Left = 764
+      Left = 786
       Top = 8
-      Width = 176
+      Width = 150
       Height = 92
       TitleHeight = 28
       CardColor = 761589
@@ -56,7 +56,7 @@ inherited fraReportes: TfraReportes
         Tag = 16
         Left = 16
         Top = 32
-        Width = 144
+        Width = 118
         Height = 34
         AutoSize = False
         Caption = '0'
@@ -100,6 +100,7 @@ inherited fraReportes: TfraReportes
       ActiveFont.Height = -12
       ActiveFont.Name = 'Segoe UI Semibold'
       ActiveFont.Style = []
+      OnChange = pstVistasChange
       ParentFont = False
     end
     inherited grLista: TrDBGrid
@@ -179,6 +180,7 @@ inherited fraReportes: TfraReportes
       ActiveFont.Height = -12
       ActiveFont.Name = 'Segoe UI Semibold'
       ActiveFont.Style = []
+      OnChange = pstPeriodoChange
       ParentFont = False
     end
     object btnConsultar: TPlanoBotonWin
@@ -191,6 +193,7 @@ inherited fraReportes: TfraReportes
       Caption = 'Consultar'
       TabOrder = 3
       StyleElements = []
+      OnClick = btnConsultarClick
     end
     object btnExportar: TPlanoBotonWin
       Left = 822
@@ -202,6 +205,7 @@ inherited fraReportes: TfraReportes
       Caption = 'Exportar'
       TabOrder = 4
       StyleElements = []
+      OnClick = btnExportarClick
       Kind = fkSecondary
     end
   end

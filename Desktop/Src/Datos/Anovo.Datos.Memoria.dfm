@@ -2584,4 +2584,258 @@ object dmMemoria: TdmMemoria
     Left = 1160
     Top = 416
   end
+  object mtReporteEstados: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1280
+    Top = 32
+    object mtReporteEstadosESTADO: TStringField
+      DisplayLabel = 'Estado'
+      DisplayWidth = 28
+      FieldName = 'ESTADO'
+      OnGetText = EstadoGetText
+    end
+    object mtReporteEstadosCANTIDAD: TIntegerField
+      DisplayLabel = 'Cotizaciones'
+      FieldName = 'CANTIDAD'
+    end
+    object mtReporteEstadosMONTO: TCurrencyField
+      DisplayLabel = 'Monto'
+      FieldName = 'MONTO'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+  end
+  object dsReporteEstados: TDataSource
+    DataSet = mtReporteEstados
+    Left = 1384
+    Top = 32
+  end
+  object mtReporteAsesores: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1280
+    Top = 96
+    object mtReporteAsesoresASESOR_ID: TIntegerField
+      FieldName = 'ASESOR_ID'
+      Visible = False
+    end
+    object mtReporteAsesoresASESOR_NOMBRE: TStringField
+      DisplayLabel = 'Asesor'
+      FieldName = 'ASESOR_NOMBRE'
+      Size = 120
+    end
+    object mtReporteAsesoresCANTIDAD: TIntegerField
+      DisplayLabel = 'Cotizaciones'
+      FieldName = 'CANTIDAD'
+    end
+    object mtReporteAsesoresAPROBADAS: TIntegerField
+      DisplayLabel = 'Aprobadas'
+      FieldName = 'APROBADAS'
+    end
+    object mtReporteAsesoresRECHAZADAS: TIntegerField
+      DisplayLabel = 'Rechazadas'
+      FieldName = 'RECHAZADAS'
+    end
+    object mtReporteAsesoresTASA_APROBACION: TIntegerField
+      Alignment = taCenter
+      DisplayLabel = 'Tasa'
+      FieldName = 'TASA_APROBACION'
+      OnGetText = PorcentajeGetText
+    end
+    object mtReporteAsesoresMONTO_APROBADO: TCurrencyField
+      DisplayLabel = 'Monto aprobado'
+      FieldName = 'MONTO_APROBADO'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtReporteAsesoresMONTO_TOTAL: TCurrencyField
+      DisplayLabel = 'Monto total'
+      FieldName = 'MONTO_TOTAL'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+  end
+  object dsReporteAsesores: TDataSource
+    DataSet = mtReporteAsesores
+    Left = 1384
+    Top = 96
+  end
+  object mtReporteTipos: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1280
+    Top = 160
+    object mtReporteTiposTIPO_TRABAJO_ID: TIntegerField
+      FieldName = 'TIPO_TRABAJO_ID'
+      Visible = False
+    end
+    object mtReporteTiposTIPO_TRABAJO_NOMBRE: TStringField
+      DisplayLabel = 'Tipo de trabajo'
+      FieldName = 'TIPO_TRABAJO_NOMBRE'
+      Size = 120
+    end
+    object mtReporteTiposCANTIDAD: TIntegerField
+      DisplayLabel = 'Cotizaciones'
+      FieldName = 'CANTIDAD'
+    end
+    object mtReporteTiposAPROBADAS: TIntegerField
+      DisplayLabel = 'Aprobadas'
+      FieldName = 'APROBADAS'
+    end
+    object mtReporteTiposMONTO_TOTAL: TCurrencyField
+      DisplayLabel = 'Monto total'
+      FieldName = 'MONTO_TOTAL'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+  end
+  object dsReporteTipos: TDataSource
+    DataSet = mtReporteTipos
+    Left = 1384
+    Top = 160
+  end
+  object mtReporteMeses: TFDMemTable
+    OnCalcFields = ReporteMesesCalcFields
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1280
+    Top = 224
+    object mtReporteMesesMES_NOMBRE: TStringField
+      DisplayLabel = 'Mes'
+      FieldKind = fkCalculated
+      FieldName = 'MES_NOMBRE'
+      Size = 40
+      Calculated = True
+    end
+    object mtReporteMesesANIO: TIntegerField
+      FieldName = 'ANIO'
+      Visible = False
+    end
+    object mtReporteMesesMES: TIntegerField
+      FieldName = 'MES'
+      Visible = False
+    end
+    object mtReporteMesesCANTIDAD: TIntegerField
+      DisplayLabel = 'Cotizaciones'
+      FieldName = 'CANTIDAD'
+    end
+    object mtReporteMesesAPROBADAS: TIntegerField
+      DisplayLabel = 'Aprobadas'
+      FieldName = 'APROBADAS'
+    end
+    object mtReporteMesesRECHAZADAS: TIntegerField
+      DisplayLabel = 'Rechazadas'
+      FieldName = 'RECHAZADAS'
+    end
+    object mtReporteMesesTASA_APROBACION: TIntegerField
+      Alignment = taCenter
+      DisplayLabel = 'Tasa'
+      FieldName = 'TASA_APROBACION'
+      OnGetText = PorcentajeGetText
+    end
+    object mtReporteMesesMONTO_TOTAL: TCurrencyField
+      DisplayLabel = 'Monto total'
+      FieldName = 'MONTO_TOTAL'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+  end
+  object dsReporteMeses: TDataSource
+    DataSet = mtReporteMeses
+    Left = 1384
+    Top = 224
+  end
+  object mtImportacion: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1280
+    Top = 288
+    object mtImportacionFILA: TIntegerField
+      DisplayLabel = 'Fila'
+      FieldName = 'FILA'
+    end
+    object mtImportacionCODIGO: TStringField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'CODIGO'
+      Size = 30
+    end
+    object mtImportacionCATEGORIA: TStringField
+      DisplayLabel = 'Categor'#237'a'
+      FieldName = 'CATEGORIA'
+      Size = 60
+    end
+    object mtImportacionNOMBRE: TStringField
+      DisplayLabel = 'Nombre'
+      FieldName = 'NOMBRE'
+      DisplayWidth = 30
+      Size = 120
+    end
+    object mtImportacionDESCRIPCION: TStringField
+      DisplayLabel = 'Descripci'#243'n'
+      FieldName = 'DESCRIPCION'
+      DisplayWidth = 30
+      Size = 500
+    end
+    object mtImportacionUNIDAD: TStringField
+      DisplayLabel = 'Unidad'
+      FieldName = 'UNIDAD'
+      DisplayWidth = 10
+      Size = 30
+    end
+    object mtImportacionCOSTO: TStringField
+      Alignment = taRightJustify
+      DisplayLabel = 'Costo'
+      FieldName = 'COSTO'
+      DisplayWidth = 14
+      Size = 30
+    end
+    object mtImportacionPRECIO: TStringField
+      Alignment = taRightJustify
+      DisplayLabel = 'Precio'
+      FieldName = 'PRECIO'
+      DisplayWidth = 14
+      Size = 30
+    end
+    object mtImportacionREVISION: TStringField
+      DisplayLabel = 'Revisi'#243'n'
+      FieldName = 'REVISION'
+      DisplayWidth = 40
+      Size = 300
+    end
+    object mtImportacionCON_ERROR: TBooleanField
+      FieldName = 'CON_ERROR'
+      Visible = False
+    end
+  end
+  object dsImportacion: TDataSource
+    DataSet = mtImportacion
+    Left = 1384
+    Top = 288
+  end
 end

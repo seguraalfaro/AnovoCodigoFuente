@@ -196,6 +196,19 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Reportes.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Reportes.pas"/>
+        <DCCReference Include="Src\Api\Anovo.Api.Reportes.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Reportes.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Reportes.pas"/>
+        <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Importacion.pas"/>
+        <DCCReference Include="Src\Common\Anovo.Archivo.Hoja.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Importacion.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Importacion.pas"/>
+        <DCCReference Include="Src\Forms\Anovo.Forms.ImportacionCatalogo.pas">
+            <Form>frmImportacionCatalogo</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <DCCReference Include="Src\Frames\Anovo.Frames.Dashboard.pas">
             <Form>fraDashboard</Form>
             <DesignClass>TFrame</DesignClass>

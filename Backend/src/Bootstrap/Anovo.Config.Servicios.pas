@@ -51,6 +51,8 @@ uses
   Anovo.Repositories.Empresa,
   Anovo.Services.Intf.Reportes,
   Anovo.Services.Reportes,
+  Anovo.Services.Intf.Importacion,
+  Anovo.Services.Importacion,
   Anovo.Services.Intf.Sesion,
   Anovo.Services.Sesion,
   Anovo.Services.Intf.Roles,
@@ -111,6 +113,8 @@ begin
   Container.RegisterType(TReporteService, IReporteService,
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TCatalogoService, ICatalogoService,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TImportacionService, IImportacionService,
     TRegistrationType.SingletonPerRequest);
 
   Container.RegisterType(TSolicitudRepository, ISolicitudRepository,
