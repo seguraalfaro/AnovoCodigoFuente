@@ -113,7 +113,7 @@ const
      'Blanco\02-clientes-blanco',
      'Blanco\03-materiales-blanco',
      'Blanco\05-reportes-blanco',
-     'Blanco\07-gerencia-blanco',
+     'Blanco\06-dashboard-blanco',
      'Blanco\08-usuarios-blanco',
      'Blanco\09-roles-blanco',
      'Blanco\26-auditoria-blanco',
@@ -123,7 +123,7 @@ function TituloSeccion(const ASeccion: TSeccion): string;
 begin
   case ASeccion of
     secDashboardSupervisor, secDashboardCuentas, secDashboardAsesor,
-    secDashboardAsistente:
+    secDashboardAsistente, secGerencia:
       Result := SMenuDashboard;
     secSolicitudes:
       Result := SMenuSolicitudes;
@@ -141,8 +141,6 @@ begin
       Result := SMenuMateriales;
     secReportes:
       Result := SMenuReportes;
-    secGerencia:
-      Result := SMenuGerencia;
     secUsuarios:
       Result := SMenuUsuarios;
     secRoles:

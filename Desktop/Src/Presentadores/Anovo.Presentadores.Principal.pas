@@ -74,11 +74,11 @@ const
      PERMISO_AUDITORIA_VER_TODA + SEPARADOR + PERMISO_AUDITORIA_VER_CUENTAS,
      SIEMPRE);
 
-  ORDEN_MENU: array [0 .. 14] of TSeccion = (secDashboardSupervisor,
-    secDashboardCuentas, secDashboardAsesor, secDashboardAsistente,
-    secSolicitudes, secBandeja, secCotizaciones, secClientes, secMateriales,
-    secReportes, secGerencia, secUsuarios, secRoles, secAuditoria,
-    secConfiguracion);
+  ORDEN_MENU: array [0 .. 14] of TSeccion = (secGerencia,
+    secDashboardSupervisor, secDashboardCuentas, secDashboardAsesor,
+    secDashboardAsistente, secSolicitudes, secBandeja, secCotizaciones,
+    secClientes, secMateriales, secReportes, secUsuarios, secRoles,
+    secAuditoria, secConfiguracion);
 
   ORDEN_INICIO: array [0 .. 6] of TSeccion = (secGerencia,
     secDashboardSupervisor,
@@ -141,7 +141,11 @@ begin
       (lCodigos.Split([SEPARADOR], TStringSplitOptions.ExcludeEmpty)) then
       Include(Result, lSeccion);
   end;
-  if secDashboardSupervisor in Result then
+  if TSesion.Rol <> rolGerencia then
+    Exclude(Result, secGerencia);
+  if secGerencia in Result then
+    Result := Result - [secDashboardSupervisor, secDashboardAsistente]
+  else if secDashboardSupervisor in Result then
     Exclude(Result, secDashboardAsistente);
 end;
 
