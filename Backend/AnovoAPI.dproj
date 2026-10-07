@@ -248,6 +248,13 @@
         <DCCReference Include="src\Controllers\Anovo.Controllers.Dashboard.pas"/>
         <DCCReference Include="src\DTOs\Anovo.DTOs.Reportes.pas"/>
         <DCCReference Include="src\DTOs\Anovo.DTOs.Importacion.pas"/>
+        <DCCReference Include="src\DTOs\Anovo.DTOs.Empresa.pas"/>
+        <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Empresa.pas"/>
+        <DCCReference Include="src\Services\Anovo.Services.Empresa.pas"/>
+        <DCCReference Include="src\Controllers\Anovo.Controllers.Empresa.pas"/>
+        <DCCReference Include="src\DTOs\Anovo.DTOs.Documento.pas"/>
+        <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Documento.pas"/>
+        <DCCReference Include="src\Services\Anovo.Services.Documento.pas"/>
         <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Importacion.pas"/>
         <DCCReference Include="src\Services\Anovo.Services.Importacion.pas"/>
         <DCCReference Include="src\Interfaces\Anovo.Repositories.Intf.Reportes.pas"/>

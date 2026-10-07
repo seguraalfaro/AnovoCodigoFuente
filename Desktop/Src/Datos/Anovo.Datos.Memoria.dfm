@@ -2412,6 +2412,21 @@ object dmMemoria: TdmMemoria
       Size = 500
       FieldName = 'DESCRIPCION_TRABAJO'
     end
+    object mtCotizacionEdicionFORMA_PAGO: TStringField
+      DisplayLabel = 'Forma de pago'
+      FieldName = 'FORMA_PAGO'
+      Size = 120
+    end
+    object mtCotizacionEdicionPLAZO_ENTREGA: TStringField
+      DisplayLabel = 'Entrega'
+      FieldName = 'PLAZO_ENTREGA'
+      Size = 120
+    end
+    object mtCotizacionEdicionGARANTIA: TStringField
+      DisplayLabel = 'Garant'#237'a'
+      FieldName = 'GARANTIA'
+      Size = 120
+    end
   end
   object dsCotizacionEdicion: TDataSource
     DataSet = mtCotizacionEdicion
@@ -2837,5 +2852,158 @@ object dmMemoria: TdmMemoria
     DataSet = mtImportacion
     Left = 1384
     Top = 288
+  end
+  object mtEmpresa: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1280
+    Top = 344
+    object mtEmpresaRAZON_SOCIAL: TStringField
+      DisplayLabel = 'Raz'#243'n social'
+      FieldName = 'RAZON_SOCIAL'
+      Required = True
+      Size = 120
+    end
+    object mtEmpresaCEDULA_JURIDICA: TStringField
+      DisplayLabel = 'C'#233'dula jur'#237'dica'
+      FieldName = 'CEDULA_JURIDICA'
+      Required = True
+      Size = 20
+    end
+    object mtEmpresaDIRECCION: TStringField
+      DisplayLabel = 'Direcci'#243'n'
+      FieldName = 'DIRECCION'
+      Size = 500
+    end
+    object mtEmpresaTELEFONO_FIJO: TStringField
+      DisplayLabel = 'Tel'#233'fono fijo'
+      FieldName = 'TELEFONO_FIJO'
+      Size = 30
+    end
+    object mtEmpresaCELULAR: TStringField
+      DisplayLabel = 'Celular'
+      FieldName = 'CELULAR'
+      Size = 30
+    end
+    object mtEmpresaCORREO: TStringField
+      DisplayLabel = 'Correo'
+      FieldName = 'CORREO'
+      Size = 150
+    end
+    object mtEmpresaREPRESENTANTE_LEGAL: TStringField
+      DisplayLabel = 'Representante legal'
+      FieldName = 'REPRESENTANTE_LEGAL'
+      Size = 120
+    end
+    object mtEmpresaCUENTA_BANCARIA: TStringField
+      DisplayLabel = 'Cuenta bancaria'
+      FieldName = 'CUENTA_BANCARIA'
+      Size = 60
+    end
+    object mtEmpresaFORMA_PAGO: TStringField
+      DisplayLabel = 'Forma de pago'
+      FieldName = 'FORMA_PAGO'
+      Size = 120
+    end
+    object mtEmpresaPLAZO_ENTREGA: TStringField
+      DisplayLabel = 'Entrega'
+      FieldName = 'PLAZO_ENTREGA'
+      Size = 120
+    end
+    object mtEmpresaGARANTIA: TStringField
+      DisplayLabel = 'Garant'#237'a'
+      FieldName = 'GARANTIA'
+      Size = 120
+    end
+    object mtEmpresaFIRMANTE: TStringField
+      DisplayLabel = 'Firma la cotizaci'#243'n'
+      FieldName = 'FIRMANTE'
+      Size = 120
+    end
+    object mtEmpresaCARTA_PRESENTACION: TStringField
+      DisplayLabel = 'Carta de presentaci'#243'n (segunda p'#225'gina)'
+      FieldName = 'CARTA_PRESENTACION'
+      Size = 4000
+    end
+    object mtEmpresaPORCENTAJE_IVA: TCurrencyField
+      DisplayLabel = 'IVA (%)'
+      DisplayFormat = '#,##0.##'
+      currency = False
+      FieldName = 'PORCENTAJE_IVA'
+      Required = True
+    end
+  end
+  object dsEmpresa: TDataSource
+    DataSet = mtEmpresa
+    Left = 1384
+    Top = 344
+  end
+  object mtParametros: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1280
+    Top = 400
+    object mtParametrosDIAS_SIN_RESPUESTA: TIntegerField
+      DisplayLabel = 'D'#237'as para '#171'sin respuesta'#187' del cliente'
+      FieldName = 'DIAS_SIN_RESPUESTA'
+    end
+    object mtParametrosMINUTOS_AVISOS: TIntegerField
+      DisplayLabel = 'Revisar avisos cada (minutos)'
+      FieldName = 'MINUTOS_AVISOS'
+    end
+  end
+  object dsParametros: TDataSource
+    DataSet = mtParametros
+    Left = 1384
+    Top = 400
+  end
+  object mtDocumentoLineas: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1280
+    Top = 456
+    object mtDocumentoLineasDESCRIPCION: TStringField
+      DisplayLabel = 'Descripci'#243'n'
+      FieldName = 'DESCRIPCION'
+      Size = 500
+    end
+    object mtDocumentoLineasCANTIDAD: TCurrencyField
+      DisplayLabel = 'Cantidad'
+      DisplayFormat = '#,##0.##'
+      currency = False
+      FieldName = 'CANTIDAD'
+    end
+    object mtDocumentoLineasPRECIO_UNITARIO: TCurrencyField
+      DisplayLabel = 'Precio unitario'
+      DisplayFormat = #162'#,##0.00'
+      currency = False
+      FieldName = 'PRECIO_UNITARIO'
+    end
+    object mtDocumentoLineasTOTAL: TCurrencyField
+      DisplayLabel = 'Total'
+      DisplayFormat = #162'#,##0.00'
+      currency = False
+      FieldName = 'TOTAL'
+    end
+  end
+  object dsDocumentoLineas: TDataSource
+    DataSet = mtDocumentoLineas
+    Left = 1384
+    Top = 456
   end
 end

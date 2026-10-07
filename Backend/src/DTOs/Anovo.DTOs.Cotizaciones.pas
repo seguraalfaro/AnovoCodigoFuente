@@ -44,6 +44,9 @@ type
     fElaboradaPorNombre: string;
     fAprobadaPorNombre: string;
     fTipoTrabajoNombre: string;
+    fFormaPago: NullableString;
+    fPlazoEntrega: NullableString;
+    fGarantia: NullableString;
   public
     property ID: Integer read fID write fID;
     property Numero: Integer read fNumero write fNumero;
@@ -90,6 +93,10 @@ type
       write fAprobadaPorNombre;
     property TipoTrabajoNombre: string read fTipoTrabajoNombre
       write fTipoTrabajoNombre;
+    property FormaPago: NullableString read fFormaPago write fFormaPago;
+    property PlazoEntrega: NullableString read fPlazoEntrega
+      write fPlazoEntrega;
+    property Garantia: NullableString read fGarantia write fGarantia;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -112,6 +119,9 @@ type
     fTipoTrabajoId: NullableInt32;
     fDescripcionTrabajo: string;
     fObjVersion: NullableInt32;
+    fFormaPago: NullableString;
+    fPlazoEntrega: NullableString;
+    fGarantia: NullableString;
   public
     property TipoTrabajoId: NullableInt32 read fTipoTrabajoId
       write fTipoTrabajoId;
@@ -119,6 +129,10 @@ type
       write fDescripcionTrabajo;
     [MVCNameAs('objversion')]
     property ObjVersion: NullableInt32 read fObjVersion write fObjVersion;
+    property FormaPago: NullableString read fFormaPago write fFormaPago;
+    property PlazoEntrega: NullableString read fPlazoEntrega
+      write fPlazoEntrega;
+    property Garantia: NullableString read fGarantia write fGarantia;
   end;
 
   [MVCNameCase(ncSnakeCase)]

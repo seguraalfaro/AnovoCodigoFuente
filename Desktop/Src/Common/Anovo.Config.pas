@@ -17,8 +17,13 @@ type
 
     class procedure GuardarUrl(const AUrl: string);
     class function MinutosAvisos: Integer;
+    class procedure GuardarMinutosAvisos(const AMinutos: Integer);
     class function VersionEscritorio: string;
   end;
+
+const
+  MINUTOS_AVISOS_MINIMO = 1;
+  MINUTOS_AVISOS_MAXIMO = 60;
 
 implementation
 
@@ -31,8 +36,6 @@ uses
 const
   URL_POR_DEFECTO = 'https://localhost:443';
   MINUTOS_AVISOS_POR_DEFECTO = 5;
-  MINUTOS_AVISOS_MINIMO = 1;
-  MINUTOS_AVISOS_MAXIMO = 60;
 
 class function TConfig.RutaIni: string;
 begin
@@ -90,6 +93,19 @@ begin
     lIni.Free;
   end;
   Result := EnsureRange(Result, MINUTOS_AVISOS_MINIMO, MINUTOS_AVISOS_MAXIMO);
+end;
+
+class procedure TConfig.GuardarMinutosAvisos(const AMinutos: Integer);
+var
+  lIni: TIniFile;
+begin
+  lIni := TIniFile.Create(RutaIni);
+  try
+    lIni.WriteInteger('Avisos', 'Minutos',
+      EnsureRange(AMinutos, MINUTOS_AVISOS_MINIMO, MINUTOS_AVISOS_MAXIMO));
+  finally
+    lIni.Free;
+  end;
 end;
 
 class function TConfig.VersionEscritorio: string;

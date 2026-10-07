@@ -83,6 +83,15 @@ type
     fFechaModificacion: NullableTDateTime ;
     [MVCTableField('OBJVERSION')]
     fObjversion: NullableInt32;
+    [MVCTableField('FORMA_PAGO')]
+    [MVCMaxLength(120)]
+    fFormaPago: NullableString;
+    [MVCTableField('PLAZO_ENTREGA')]
+    [MVCMaxLength(120)]
+    fPlazoEntrega: NullableString;
+    [MVCTableField('GARANTIA')]
+    [MVCMaxLength(120)]
+    fGarantia: NullableString;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -109,6 +118,9 @@ type
     property FechaEnvio: NullableTDateTime  read fFechaEnvio write fFechaEnvio;
     property FechaModificacion: NullableTDateTime  read fFechaModificacion write fFechaModificacion;
     property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property FormaPago: NullableString read fFormaPago write fFormaPago;
+    property PlazoEntrega: NullableString read fPlazoEntrega write fPlazoEntrega;
+    property Garantia: NullableString read fGarantia write fGarantia;
   end;
 
   [MVCNameCase(ncSnakeCase)]

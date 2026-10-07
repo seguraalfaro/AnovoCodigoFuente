@@ -26,6 +26,8 @@ type
     class function EntidadAuditoria(const AValor: string): string; static;
     class function MesAnio(const AFecha: TDateTime): string; static;
     class function Colones(const AMonto: Currency): string; static;
+    class function ColonesDocumento(const AMonto: Currency): string; static;
+    class function FechaLarga(const AFecha: TDateTime): string; static;
     class function Dias(const ADias: Integer): string; static;
     class function Fecha(const AFecha: TDateTime): string; static;
     class function FechaHora(const AFecha: TDateTime): string; static;
@@ -176,32 +178,45 @@ begin
     Result := UpperCase(lValor[1]) + Copy(lValor, 2, MaxInt);
 end;
 
-class function TFormato.MesAnio(const AFecha: TDateTime): string;
-var
-  lMes: string;
+function NombreMes(const AFecha: TDateTime): string;
 begin
   case MonthOf(AFecha) of
-    1: lMes := SMesEnero;
-    2: lMes := SMesFebrero;
-    3: lMes := SMesMarzo;
-    4: lMes := SMesAbril;
-    5: lMes := SMesMayo;
-    6: lMes := SMesJunio;
-    7: lMes := SMesJulio;
-    8: lMes := SMesAgosto;
-    9: lMes := SMesSetiembre;
-    10: lMes := SMesOctubre;
-    11: lMes := SMesNoviembre;
-    12: lMes := SMesDiciembre;
+    1: Result := SMesEnero;
+    2: Result := SMesFebrero;
+    3: Result := SMesMarzo;
+    4: Result := SMesAbril;
+    5: Result := SMesMayo;
+    6: Result := SMesJunio;
+    7: Result := SMesJulio;
+    8: Result := SMesAgosto;
+    9: Result := SMesSetiembre;
+    10: Result := SMesOctubre;
+    11: Result := SMesNoviembre;
+    12: Result := SMesDiciembre;
   else
-    lMes := '';
+    Result := '';
   end;
-  Result := Format(SMesAnio, [lMes, YearOf(AFecha)]);
+end;
+
+class function TFormato.MesAnio(const AFecha: TDateTime): string;
+begin
+  Result := Format(SMesAnio, [NombreMes(AFecha), YearOf(AFecha)]);
+end;
+
+class function TFormato.FechaLarga(const AFecha: TDateTime): string;
+begin
+  Result := Format(SFechaLarga, [DayOf(AFecha), LowerCase(NombreMes(AFecha)),
+    YearOf(AFecha)]);
 end;
 
 class function TFormato.Colones(const AMonto: Currency): string;
 begin
   Result := Format(SColones, [FormatFloat(FORMATO_MONTO, AMonto)]);
+end;
+
+class function TFormato.ColonesDocumento(const AMonto: Currency): string;
+begin
+  Result := Format(SColonesDocumento, [FormatFloat(FORMATO_MONTO, AMonto)]);
 end;
 
 class function TFormato.Dias(const ADias: Integer): string;

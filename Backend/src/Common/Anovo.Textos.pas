@@ -8,6 +8,14 @@ interface
 resourcestring
 
   SFaltaPrecioUnitario = 'Falta el precio unitario.';
+  SEmpresaFaltaRazonSocial = 'Falta la razón social.';
+  SEmpresaRazonSocialLarga = 'La razón social pasa de %d caracteres.';
+  SEmpresaFaltaCedula = 'Falta la cédula jurídica.';
+  SEmpresaCedulaLarga = 'La cédula jurídica pasa de %d caracteres.';
+  SEmpresaIvaFueraDeRango = 'El IVA debe estar entre 0 y 100 %.';
+  SEmpresaDiasFueraDeRango = 'El plazo sin respuesta debe estar entre %d y %d días.';
+  SDetalleCambioEmpresa = 'Cambio en los datos de la empresa';
+  SVersionBaseDatos = 'Migración %d';
   SImportacionVacia = 'La carga no trae filas para importar.';
   SImportacionDemasiadas = 'La carga trae %d filas; el máximo por carga es %d.';
   SImpSeparador = ' · ';
@@ -317,6 +325,53 @@ resourcestring
   SAccionCargarCuenta = 'cargar su cuenta';
   SAccionProbarConexion = 'probar la conexión';
   SAccionCambiarClave = 'cambiar la clave';
+  SAccionCargarEmpresa = 'cargar los datos de la empresa';
+  SAccionGuardarEmpresa = 'guardar los datos de la empresa';
+  SAccionGuardarParametros = 'guardar los parámetros';
+  SEmpresaGuardada = 'Los datos de la empresa quedaron guardados.';
+  SParametrosGuardados = 'Los parámetros quedaron guardados. El intervalo ' +
+    'de los avisos rige desde su próximo ingreso.';
+  SReparosEmpresa = 'No se pueden guardar los datos de la empresa. ' +
+    'Corrija lo siguiente:';
+  SMinutosAvisosFueraDeRango = 'Los avisos se revisan cada %d a %d minutos.';
+  SPermisosSoloRol = 'Solo los del rol';
+  SPermisosPropios = '%d adicionales · %d quitados';
+  SAccionCargarDocumento = 'preparar el documento de la cotización';
+  SDocumentoGuardado = 'El documento quedó guardado en %s';
+  SFiltroPdf = 'Documento PDF (*.pdf)|*.pdf';
+  SNombrePdfCotizacion = 'Cotizacion-%d.pdf';
+  SColonesDocumento = '¢%s';
+  SFechaLarga = '%d de %s de %d';
+  SDocCotizacion = 'COTIZACIÓN';
+  SDocProforma = 'Proforma #%d';
+  SDocSenores = 'Señores:';
+  SDocTelefono = 'Tel: %s';
+  SDocAtencion = 'Atención:';
+  SDocEstimado = 'Estimado(a) %s:';
+  SDocEstimadoCliente = 'Estimado(a) cliente:';
+  SDocIntroduccion = 'Nos complace presentarle la siguiente cotización ' +
+    'correspondiente a los servicios solicitados, la cual ponemos a su amable ' +
+    'consideración.';
+  SDocServicio = 'Descripción del servicio o producto:';
+  SDocColDescripcion = 'Descripción';
+  SDocColCantidad = 'Cantidad';
+  SDocColPrecio = 'Precio unitario';
+  SDocColTotal = 'Total';
+  SDocSubtotal = 'Subtotal';
+  SDocIva = 'IVA %s %%';
+  SDocTotal = 'Total';
+  SDocFormaPago = 'Forma de pago: %s';
+  SDocCuenta = 'Cuenta bancaria: %s';
+  SDocEntrega = 'Entrega: %s';
+  SDocGarantia = 'Garantía: %s';
+  SDocSujetoCambio = 'SUJETO A CAMBIO DE PRECIOS SIN PREVIO AVISO.';
+  SDocAtentamente = 'Atentamente:';
+  SDocCedula = 'CED: %s';
+  SDocTelefonos = 'TEL: %s';
+  SDocAviso = 'Sus datos se tratan según nuestro aviso de privacidad v%s';
+  SDocPagina = 'Página';
+  SDocDe = 'de';
+  SDocTitulo = 'Cotización %d - %s';
 
   SCatalogoTodos = 'Todos';
   SCatalogoMateriales = 'Materiales';

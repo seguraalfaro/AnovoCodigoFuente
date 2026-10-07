@@ -729,6 +729,17 @@ type
     property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
   end;
 
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_VERSION_ESQUEMA')]
+  TVVersionEsquema = class(TMVCActiveRecord)
+  private
+    [MVCTableField('NUMERO')]
+    fNumero: NullableInt32;
+  public
+    property Numero: NullableInt32 read fNumero write fNumero;
+  end;
+
 implementation
 
 end.

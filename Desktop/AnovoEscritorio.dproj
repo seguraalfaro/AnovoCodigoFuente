@@ -202,6 +202,12 @@
         <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Reportes.pas"/>
         <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Reportes.pas"/>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Importacion.pas"/>
+        <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Empresa.pas"/>
+        <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Documento.pas"/>
+        <DCCReference Include="Src\Reportes\Anovo.Reportes.Cotizacion.pas"/>
+        <DCCReference Include="Src\Forms\Anovo.Forms.DocumentoEmpresa.pas">
+            <Form>frmDocumentoEmpresa</Form>
+        </DCCReference>
         <DCCReference Include="Src\Common\Anovo.Archivo.Hoja.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Importacion.pas"/>
         <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Importacion.pas"/>

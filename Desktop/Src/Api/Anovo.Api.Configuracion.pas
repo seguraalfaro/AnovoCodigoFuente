@@ -7,6 +7,7 @@ interface
 uses
   Anovo.Api.Base,
   Anovo.Api.Intf.Configuracion,
+  Anovo.DTOs.Empresa,
   Anovo.DTOs.Sesion;
 
 type
@@ -15,6 +16,8 @@ type
     function Cuenta: TCuentaDTO;
     procedure CambiarClave(const ADto: TCambioClaveDTO);
     function Version(const AUrl: string = ''): TVersionDTO;
+    function Empresa: TEmpresaDTO;
+    procedure GuardarEmpresa(const ADto: TEmpresaDTO);
   end;
 
 implementation
@@ -26,6 +29,7 @@ const
   RUTA_CUENTA = '/api/sesion/cuenta';
   RUTA_CLAVE = '/api/sesion/clave';
   RUTA_VERSION = '/api/version';
+  RUTA_EMPRESA = '/api/empresa';
 
 function TApiConfiguracion.Cuenta: TCuentaDTO;
 var
@@ -72,6 +76,34 @@ begin
     Result.Free;
     raise;
   end;
+end;
+
+function TApiConfiguracion.Empresa: TEmpresaDTO;
+var
+  lRespuesta: IMVCRESTResponse;
+begin
+  lRespuesta := Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.Get(RUTA_EMPRESA);
+    end);
+
+  Result := TEmpresaDTO.Create;
+  try
+    lRespuesta.BodyFor(Result, 'data');
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
+procedure TApiConfiguracion.GuardarEmpresa(const ADto: TEmpresaDTO);
+begin
+  Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.AddBody(ADto, False).Put(RUTA_EMPRESA);
+    end);
 end;
 
 end.

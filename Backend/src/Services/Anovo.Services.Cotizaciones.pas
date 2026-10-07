@@ -22,6 +22,7 @@ uses
 const
   ESTADO_BORRADOR = 'borrador';
   ESTADO_PENDIENTE = 'pendiente';
+  DIAS_SIN_RESPUESTA_POR_DEFECTO = 7;
   ESTADO_DEVUELTA = 'devuelta';
   ESTADO_VISTO_BUENO = 'visto_bueno';
   ESTADO_ENVIADA = 'enviada';
@@ -53,7 +54,10 @@ type
     function TraerVigente(const AId: Integer): TCotizaciones;
     function TraerLinea(const AId, ALineaId: Integer): TCotizacionDetalle;
     function ADto(const ACotizacion: TCotizaciones): TCotizacionDTO;
+    procedure CopiarCondiciones(const ACotizacion: TCotizaciones);
     procedure ExigirEditable(const ACotizacion: TCotizaciones);
+    procedure ExigirAlcance(const ACotizacion: TCotizaciones;
+      const AUsuarioId: Integer; const ARoles: TArray<string>);
     procedure LlenarLinea(const ALinea: TCotizacionDetalle;
       const ADto: TLineaNuevaDTO; const APrecio: Currency);
     function MismoItem(const ALinea: TCotizacionDetalle;
@@ -77,13 +81,16 @@ type
       : TObjectList<TCotizacionDTO>;
     function Bandeja(const AUsuarioId: Integer; const ATexto: string;
       const APagina, APorPagina: Integer): TBandejaPaginaDTO;
-    function Obtener(const AId: Integer): TCotizacionDTO;
-    function ObtenerPorNumero(const ANumero: Integer): TCotizacionDTO;
+    function Obtener(const AId, AUsuarioId: Integer;
+      const ARoles: TArray<string>): TCotizacionDTO;
+    function ObtenerPorNumero(const ANumero, AUsuarioId: Integer;
+      const ARoles: TArray<string>): TCotizacionDTO;
     function CrearDesdeSolicitud(const ADto: TCotizacionNuevaDTO): Integer;
     procedure Actualizar(const AId: Integer;
       const ADto: TCotizacionEdicionDTO);
 
-    function Detalle(const AId: Integer): TObjectList<TLineaDTO>;
+    function Detalle(const AId, AUsuarioId: Integer;
+      const ARoles: TArray<string>): TObjectList<TLineaDTO>;
     function AgregarLinea(const AId: Integer;
       const ADto: TLineaNuevaDTO): Integer;
     procedure ActualizarLinea(const AId, ALineaId: Integer;
@@ -100,8 +107,7 @@ type
     procedure Devolver(const AId: Integer; const ADto: TMotivoDTO);
     procedure Enviar(const AId: Integer);
 
-    function EnviadasSinRespuesta(const ADias: Integer)
-      : TObjectList<TCotizacionDTO>;
+    function EnviadasSinRespuesta: TObjectList<TCotizacionDTO>;
   end;
 
 implementation
@@ -139,6 +145,23 @@ begin
   fTipos := ATipos;
   fEmpresa := AEmpresa;
   fPermisos := APermisos;
+end;
+
+procedure TCotizacionService.CopiarCondiciones(const ACotizacion
+  : TCotizaciones);
+var
+  lEmpresa: TEmpresa;
+begin
+  lEmpresa := fEmpresa.GetByPK(EMPRESA_ID, False);
+  if lEmpresa = nil then
+    Exit;
+  try
+    ACotizacion.FormaPago := lEmpresa.FormaPago;
+    ACotizacion.PlazoEntrega := lEmpresa.PlazoEntrega;
+    ACotizacion.Garantia := lEmpresa.Garantia;
+  finally
+    lEmpresa.Free;
+  end;
 end;
 
 function TCotizacionService.IvaPara(const AClienteId: Integer): Currency;
@@ -220,6 +243,27 @@ begin
     raise EConflictoDeEstado.Create('COTIZACION_NO_EDITABLE',
       Format(SCotizacionNoEditable,
       [ACotizacion.Estado]));
+end;
+
+procedure TCotizacionService.ExigirAlcance(const ACotizacion: TCotizaciones;
+  const AUsuarioId: Integer; const ARoles: TArray<string>);
+var
+  lSolicitud: TSolicitudes;
+  lPropia: Boolean;
+begin
+  if fPermisos.TieneAlguno(AUsuarioId, ARoles,
+    [PERMISO_COTIZACIONES_VER_TODAS]) then
+    Exit;
+
+  lSolicitud := fSolicitudes.GetByPK(ACotizacion.SolicitudId, False);
+  try
+    lPropia := (lSolicitud <> nil) and (lSolicitud.AsesorId = AUsuarioId);
+  finally
+    lSolicitud.Free;
+  end;
+  if not lPropia then
+    raise ERecursoNoEncontrado.Create(SRecursoCotizacion,
+      ACotizacion.ID.ValueOrDefault);
 end;
 
 function TCotizacionService.PrecioDeCatalogo(const ADto: TLineaNuevaDTO)
@@ -395,13 +439,15 @@ begin
   end;
 end;
 
-function TCotizacionService.Obtener(const AId: Integer): TCotizacionDTO;
+function TCotizacionService.Obtener(const AId, AUsuarioId: Integer;
+  const ARoles: TArray<string>): TCotizacionDTO;
 var
   lCotizacion: TCotizaciones;
   lVista: TCotizacionConNombres;
 begin
   lCotizacion := TraerVigente(AId);
   try
+    ExigirAlcance(lCotizacion, AUsuarioId, ARoles);
     Result := ADto(lCotizacion);
   finally
     lCotizacion.Free;
@@ -421,8 +467,8 @@ begin
   end;
 end;
 
-function TCotizacionService.ObtenerPorNumero(const ANumero: Integer)
-  : TCotizacionDTO;
+function TCotizacionService.ObtenerPorNumero(const ANumero,
+  AUsuarioId: Integer; const ARoles: TArray<string>): TCotizacionDTO;
 var
   lCotizacion: TCotizaciones;
 begin
@@ -430,6 +476,7 @@ begin
   if lCotizacion = nil then
     raise ERecursoNoEncontrado.Create(SRecursoCotizacion, ANumero);
   try
+    ExigirAlcance(lCotizacion, AUsuarioId, ARoles);
     Result := ADto(lCotizacion);
   finally
     lCotizacion.Free;
@@ -480,6 +527,7 @@ begin
       lCotizacion.PorcentajeIva := IvaPara(lCotizacion.ClienteId);
       lCotizacion.PorcentajeAjuste := 0;
       lCotizacion.FechaElaboracion := Now;
+      CopiarCondiciones(lCotizacion);
 
       FijarDetalle(Format(SDetalleCotizacionDesdeSolicitud,
         [lCotizacion.Numero, lSolicitud.ID.ValueOrDefault]));
@@ -517,6 +565,9 @@ begin
     ValidarTipoTrabajo(ADto.TipoTrabajoId, lCotizacion.TipoTrabajoId);
     lCotizacion.TipoTrabajoId := ADto.TipoTrabajoId;
     lCotizacion.DescripcionTrabajo := ADto.DescripcionTrabajo;
+    lCotizacion.FormaPago := ADto.FormaPago;
+    lCotizacion.PlazoEntrega := ADto.PlazoEntrega;
+    lCotizacion.Garantia := ADto.Garantia;
     lCotizacion.PorcentajeIva := IvaPara(lCotizacion.ClienteId);
     FijarDetalle(Format(SDetalleCambioCotizacion, [lCotizacion.Numero]));
     fRepo.Update(lCotizacion);
@@ -527,11 +578,19 @@ begin
   Recalcular(AId);
 end;
 
-function TCotizacionService.Detalle(const AId: Integer)
-  : TObjectList<TLineaDTO>;
+function TCotizacionService.Detalle(const AId, AUsuarioId: Integer;
+  const ARoles: TArray<string>): TObjectList<TLineaDTO>;
 var
   lFilas: TObjectList<TCotizacionDetalle>;
+  lCotizacion: TCotizaciones;
 begin
+  lCotizacion := TraerVigente(AId);
+  try
+    ExigirAlcance(lCotizacion, AUsuarioId, ARoles);
+  finally
+    lCotizacion.Free;
+  end;
+
   lFilas := fDetalle.DetalleDe(AId);
   try
     Result := TMapeo.AListaDto<TCotizacionDetalle, TLineaDTO>(lFilas);
@@ -835,13 +894,22 @@ begin
   end;
 end;
 
-function TCotizacionService.EnviadasSinRespuesta(const ADias: Integer)
-  : TObjectList<TCotizacionDTO>;
+function TCotizacionService.EnviadasSinRespuesta: TObjectList<TCotizacionDTO>;
 var
+  lEmpresa: TEmpresa;
+  lDias: Integer;
   lFilas: TObjectList<TCotizaciones>;
   lFila: TCotizaciones;
 begin
-  lFilas := fRepo.EnviadasSinRespuesta(ADias);
+  lDias := DIAS_SIN_RESPUESTA_POR_DEFECTO;
+  lEmpresa := fEmpresa.GetByPK(EMPRESA_ID, False);
+  if lEmpresa <> nil then
+    try
+      lDias := lEmpresa.DiasSinRespuesta;
+    finally
+      lEmpresa.Free;
+    end;
+  lFilas := fRepo.EnviadasSinRespuesta(lDias);
   try
     Result := TObjectList<TCotizacionDTO>.Create(True);
     for lFila in lFilas do

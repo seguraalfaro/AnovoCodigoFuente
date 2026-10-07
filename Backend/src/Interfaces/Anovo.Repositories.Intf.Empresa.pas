@@ -14,6 +14,7 @@ const
 type
   IEmpresaRepository = interface(IMVCRepository<TEmpresa>)
     ['{6B1E4F92-3A75-4D08-B2C6-9E81D0F5A437}']
+    function VersionEsquema: Integer;
   end;
 
 implementation

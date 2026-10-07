@@ -3,7 +3,7 @@
    Firebird 4.0 - base ANOVO
 
    La base entera desde cero, en el estado que dejo la ultima migracion. Es la
-   suma de migraciones\01 a 32 en orden de aplicacion; cada tramo conserva la
+   suma de migraciones\01 a 34 en orden de aplicacion; cada tramo conserva la
    cabecera de su script para saber de donde salio. La 12 no tiene tramo
    propio: su cambio ya esta en la tabla MANO_OBRA del tramo 01.
 
@@ -3541,6 +3541,112 @@ SELECT CAST(H.FECHA AS DATE) AS FECHA,
  GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9;
 
 COMMIT;
+
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE', NULL) FROM RDB$DATABASE;
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID', NULL) FROM RDB$DATABASE;
+
+COMMIT;
+
+/* ############################################################################
+   TRAMO 33_datos_empresa_y_parametros.sql
+   ############################################################################ */
+
+/* Anovo - Migracion 33: datos de la empresa y parametros editables desde
+   Configuracion (minuta 13/2026, tema 4, pendiente de aprobacion).
+   Dos permisos con el mismo alcance, uno por ambito: empresa.editar para
+   gerencia y empresa.administrar para TI. EMPRESA suma el plazo, en dias, de
+   las cotizaciones enviadas sin respuesta del cliente. ESQUEMA_MIGRACIONES
+   registra cada migracion aplicada; desde esta, cada script agrega su fila.
+   Todo en ASCII. */
+
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID',
+  (SELECT ID FROM USUARIOS WHERE CORREO = 'sistema@anovo.local'))
+  FROM RDB$DATABASE;
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE',
+  'migracion 33: datos de la empresa y parametros') FROM RDB$DATABASE;
+
+CREATE TABLE ESQUEMA_MIGRACIONES (
+  NUMERO  INTEGER NOT NULL PRIMARY KEY,
+  NOMBRE  VARCHAR(80) NOT NULL,
+  FECHA   D_TIMESTAMP
+);
+
+COMMENT ON TABLE ESQUEMA_MIGRACIONES IS
+  'Una fila por migracion aplicada. La version de la base es MAX(NUMERO).';
+
+CREATE VIEW V_VERSION_ESQUEMA AS
+SELECT CAST(COALESCE(MAX(NUMERO), 0) AS INTEGER) AS NUMERO
+  FROM ESQUEMA_MIGRACIONES;
+
+GRANT SELECT ON V_VERSION_ESQUEMA TO ROL_BACKEND;
+
+COMMIT;
+
+ALTER TABLE EMPRESA ADD DIAS_SIN_RESPUESTA INTEGER DEFAULT 7 NOT NULL;
+
+COMMIT;
+
+ALTER TABLE EMPRESA ADD CONSTRAINT CK_EMPRESA_DIAS_SIN_RESPUESTA
+  CHECK (DIAS_SIN_RESPUESTA BETWEEN 1 AND 90);
+
+INSERT INTO PERMISOS (ID, CODIGO, NOMBRE, MODULO, AMBITO)
+  VALUES (1001, 'empresa.editar', 'Modificar los datos de la empresa', 'empresa', 'negocio');
+INSERT INTO PERMISOS (ID, CODIGO, NOMBRE, MODULO, AMBITO)
+  VALUES (1002, 'empresa.administrar', 'Modificar los datos de la empresa (TI)', 'empresa', 'administracion');
+
+INSERT INTO ROLES_PERMISOS (ROL_ID, PERMISO_ID, AMBITO) VALUES (4, 1001, 'negocio');
+INSERT INTO ROLES_PERMISOS (ROL_ID, PERMISO_ID, AMBITO) VALUES (5, 1002, 'administracion');
+
+INSERT INTO ESQUEMA_MIGRACIONES (NUMERO, NOMBRE)
+  VALUES (33, '33_datos_empresa_y_parametros');
+
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE', NULL) FROM RDB$DATABASE;
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID', NULL) FROM RDB$DATABASE;
+
+COMMIT;
+
+/* ############################################################################
+   TRAMO 34_documento_cotizacion.sql
+   ############################################################################ */
+
+/* Anovo - Migracion 34: datos del documento de la cotizacion que se envia al
+   cliente (formato aprobado por Javier Arias Huertas el 06/10/2026).
+   EMPRESA guarda las condiciones por defecto, el firmante y la carta de
+   presentacion; COTIZACIONES guarda las condiciones de cada una, que se copian
+   de EMPRESA al crearla. Las columnas quedan vacias: los textos llevan tildes
+   y se cargan desde Configuracion. Todo en ASCII. */
+
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID',
+  (SELECT ID FROM USUARIOS WHERE CORREO = 'sistema@anovo.local'))
+  FROM RDB$DATABASE;
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE',
+  'migracion 34: documento de la cotizacion') FROM RDB$DATABASE;
+
+ALTER TABLE EMPRESA ADD FORMA_PAGO VARCHAR(120);
+ALTER TABLE EMPRESA ADD PLAZO_ENTREGA VARCHAR(120);
+ALTER TABLE EMPRESA ADD GARANTIA VARCHAR(120);
+ALTER TABLE EMPRESA ADD FIRMANTE D_NOMBRE;
+ALTER TABLE EMPRESA ADD CARTA_PRESENTACION VARCHAR(4000);
+
+ALTER TABLE COTIZACIONES ADD FORMA_PAGO VARCHAR(120);
+ALTER TABLE COTIZACIONES ADD PLAZO_ENTREGA VARCHAR(120);
+ALTER TABLE COTIZACIONES ADD GARANTIA VARCHAR(120);
+
+COMMIT;
+
+COMMENT ON COLUMN EMPRESA.FORMA_PAGO IS
+  'Forma de pago por defecto; se copia a cada cotizacion nueva.';
+COMMENT ON COLUMN EMPRESA.PLAZO_ENTREGA IS
+  'Plazo de entrega por defecto; se copia a cada cotizacion nueva.';
+COMMENT ON COLUMN EMPRESA.GARANTIA IS
+  'Garantia por defecto; se copia a cada cotizacion nueva.';
+COMMENT ON COLUMN EMPRESA.FIRMANTE IS
+  'Nombre que firma el documento de la cotizacion.';
+COMMENT ON COLUMN EMPRESA.CARTA_PRESENTACION IS
+  'Texto de la segunda pagina del documento: servicios de la empresa.';
+
+INSERT INTO ESQUEMA_MIGRACIONES (NUMERO, NOMBRE)
+  VALUES (34, '34_documento_cotizacion');
 
 SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE', NULL) FROM RDB$DATABASE;
 SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID', NULL) FROM RDB$DATABASE;

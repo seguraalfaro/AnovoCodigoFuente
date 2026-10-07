@@ -14,6 +14,7 @@ uses
   VclPlano.Tarjeta, VclPlano.BotonWin, VclPlano.Pastilla,
   Anovo.DTOs.Catalogos,
   Anovo.DTOs.Cotizaciones,
+  Anovo.DTOs.Documento,
   Anovo.DTOs.Solicitudes,
   Anovo.Vistas.Intf.Cotizacion,
   Anovo.Presentadores.Cotizacion, Vcl.WinXCtrls, Anovo.UI.PanelRelativo;
@@ -29,6 +30,8 @@ type
     btnEnviar: TPlanoBotonWin;
     btnClienteAprobo: TPlanoBotonWin;
     btnClienteRechazo: TPlanoBotonWin;
+    btnVistaPrevia: TPlanoBotonWin;
+    btnGuardarPdf: TPlanoBotonWin;
     pnlAviso: TPanel;
     lblAviso: TLabel;
     pnlCuerpo: TPanel;
@@ -66,6 +69,10 @@ type
     lblAjustePorcentaje: TLabel;
     lblAjusteMotivo: TLabel;
     btnAjuste: TPlanoBotonWin;
+    tjCondiciones: TPlanoTarjeta;
+    edFormaPago: TrDBEdit;
+    edEntrega: TrDBEdit;
+    edGarantia: TrDBEdit;
     tjLineas: TPlanoTarjeta;
     btnMaterial: TPlanoBotonWin;
     btnManoObra: TPlanoBotonWin;
@@ -86,6 +93,8 @@ type
     procedure btnEnviarClick(Sender: TObject);
     procedure btnClienteAproboClick(Sender: TObject);
     procedure btnClienteRechazoClick(Sender: TObject);
+    procedure btnVistaPreviaClick(Sender: TObject);
+    procedure btnGuardarPdfClick(Sender: TObject);
     procedure btnAjusteClick(Sender: TObject);
     procedure btnMaterialClick(Sender: TObject);
     procedure btnManoObraClick(Sender: TObject);
@@ -106,6 +115,9 @@ type
     procedure MostrarCotizacion(const ACotizacion: TCotizacionDTO;
       const AConEncabezado: Boolean);
     procedure MostrarDevolucion(const AMotivo: string);
+    procedure MostrarDocumento(const ADocumento: TCotizacionDocumentoDTO;
+      const ARuta: string);
+    procedure AcomodarBotones;
     procedure MostrarBotones(const ABotones: TBotonesCotizacion;
       const AAcciones: TAccionesLinea);
     procedure MostrarLineas(const ALineas: TObjectList<TLineaDTO>);
@@ -137,6 +149,8 @@ uses
   Anovo.Forms.LineaCotizacion,
   Anovo.Forms.AjusteCotizacion,
   Anovo.Forms.ItemCatalogo,
+  Anovo.Reportes.Cotizacion,
+  Vcl.Dialogs,
   Anovo.Vistas.Intf.Catalogos,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
@@ -145,6 +159,9 @@ uses
 
 const
   CAMPO_ACCIONES = 'ACCIONES';
+  EXTENSION_PDF = 'pdf';
+  MARGEN_BOTONES = 20;
+  SEPARACION_BOTONES = 10;
   ACCIONES: array [TAccionLinea] of TAccionRejilla = ((Clave: 'editar';
     Rotulo: SAccionEditar), (Clave: 'quitar'; Rotulo: SAccionQuitar));
   ANCHO_CROQUIS = 1000;
@@ -269,8 +286,14 @@ begin
   btnManoObra.Visible := bcAgregarLinea in ABotones;
   btnMaquina.Visible := bcAgregarLinea in ABotones;
   btnNota.Visible := bcAgregarLinea in ABotones;
+  btnVistaPrevia.Visible := bcDocumento in ABotones;
+  btnGuardarPdf.Visible := bcDocumento in ABotones;
+  AcomodarBotones;
   cbTipoTrabajo.ReadOnly := not lEditable;
   edDescripcion.ReadOnly := not lEditable;
+  edFormaPago.ReadOnly := not lEditable;
+  edEntrega.ReadOnly := not lEditable;
+  edGarantia.ReadOnly := not lEditable;
   if lEditable and dmMemoria.mtCotizacionEdicion.Active and
     not (dmMemoria.mtCotizacionEdicion.State in dsEditModes) then
     dmMemoria.mtCotizacionEdicion.Edit;
@@ -388,6 +411,55 @@ end;
 procedure TfraCotizacion.btnClienteRechazoClick(Sender: TObject);
 begin
   FPresentador.RegistrarRespuesta(False);
+end;
+
+procedure TfraCotizacion.btnVistaPreviaClick(Sender: TObject);
+begin
+  FPresentador.VerDocumento('');
+end;
+
+procedure TfraCotizacion.btnGuardarPdfClick(Sender: TObject);
+var
+  lDialogo: TSaveDialog;
+begin
+  lDialogo := TSaveDialog.Create(nil);
+  try
+    lDialogo.Filter := SFiltroPdf;
+    lDialogo.DefaultExt := EXTENSION_PDF;
+    lDialogo.FileName := Format(SNombrePdfCotizacion, [FPresentador.Numero]);
+    lDialogo.Options := lDialogo.Options + [ofOverwritePrompt];
+    if lDialogo.Execute then
+      FPresentador.VerDocumento(lDialogo.FileName);
+  finally
+    lDialogo.Free;
+  end;
+end;
+
+procedure TfraCotizacion.MostrarDocumento(const ADocumento
+  : TCotizacionDocumentoDTO; const ARuta: string);
+begin
+  if ARuta.IsEmpty then
+    TReporteCotizacion.VistaPrevia(ADocumento)
+  else
+  begin
+    TReporteCotizacion.GuardarPdf(ADocumento, ARuta);
+    Informar(Format(SDocumentoGuardado, [ARuta]));
+  end;
+end;
+
+procedure TfraCotizacion.AcomodarBotones;
+var
+  lBoton: TPlanoBotonWin;
+  lDerecha: Integer;
+begin
+  lDerecha := pnlEncabezado.ClientWidth - MARGEN_BOTONES;
+  for lBoton in [btnClienteAprobo, btnClienteRechazo, btnEnviar, btnPresentar,
+    btnGuardar, btnGuardarPdf, btnVistaPrevia, btnVolver] do
+    if lBoton.Visible then
+    begin
+      lBoton.Left := lDerecha - lBoton.Width;
+      lDerecha := lBoton.Left - SEPARACION_BOTONES;
+    end;
 end;
 
 procedure TfraCotizacion.btnVolverClick(Sender: TObject);

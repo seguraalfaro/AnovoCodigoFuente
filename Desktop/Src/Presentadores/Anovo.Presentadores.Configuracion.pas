@@ -6,7 +6,9 @@ unit Anovo.Presentadores.Configuracion;
 interface
 
 uses
+  System.SysUtils,
   Anovo.Api.Intf.Configuracion,
+  Anovo.DTOs.Empresa,
   Anovo.Presentadores.Base,
   Anovo.Vistas.Intf.Configuracion,
   Anovo.Vistas.Intf.Registro;
@@ -22,12 +24,23 @@ type
   TPresentadorConfiguracion = class(TPresentadorPrueba)
   private
     FVista: IVistaConfiguracion;
+    FEmpresa: TEmpresaDTO;
     procedure CargarCuenta;
+    procedure CargarEmpresa;
+    function PuedeEditarEmpresa: Boolean;
+    function TextoPermisosPropios(const AAdicionales,
+      AQuitados: Integer): string;
+    procedure EnviarEmpresa(const ADto: TEmpresaDTO; const AAccion: string;
+      const AListo, AFallo: TProc; const ALiberar: TProc = nil);
   public
     constructor Create(const AVista: IVistaConfiguracion;
       const AApi: IApiConfiguracion);
+    destructor Destroy; override;
     procedure Iniciar;
     procedure Probar;
+    procedure GuardarEmpresa(const ADto: TEmpresaDTO);
+    procedure DeshacerEmpresa;
+    procedure GuardarParametros(const ADias, AMinutos: Integer);
   end;
 
   TPresentadorConexion = class(TPresentadorPrueba)
@@ -54,10 +67,11 @@ type
 implementation
 
 uses
-  System.SysUtils,
   System.Diagnostics,
   Anovo.Config,
   Anovo.DTOs.Sesion,
+  Anovo.Permisos,
+  Anovo.Sesion,
   Anovo.Textos;
 
 const
@@ -90,6 +104,7 @@ begin
       lResultado.VersionServidor := lVersion.Servidor;
       lResultado.VersionMovil := lVersion.Movil;
       lResultado.VersionAviso := lVersion.AvisoPrivacidad;
+      lResultado.VersionBaseDatos := lVersion.BaseDatos;
       AVista.MostrarConexion(lResultado);
     end,
     procedure(AMensaje: string)
@@ -111,10 +126,162 @@ begin
   FApi := AApi;
 end;
 
+destructor TPresentadorConfiguracion.Destroy;
+begin
+  FreeAndNil(FEmpresa);
+  inherited;
+end;
+
 procedure TPresentadorConfiguracion.Iniciar;
 begin
+  FVista.MostrarMinutosAvisos(TConfig.MinutosAvisos);
+  FVista.MostrarSeccionEmpresa(PuedeEditarEmpresa);
   CargarCuenta;
   Probar;
+  if PuedeEditarEmpresa then
+    CargarEmpresa;
+end;
+
+function TPresentadorConfiguracion.PuedeEditarEmpresa: Boolean;
+begin
+  Result := TSesion.TieneAlguno([PERMISO_EMPRESA_EDITAR,
+    PERMISO_EMPRESA_ADMINISTRAR]);
+end;
+
+function TPresentadorConfiguracion.TextoPermisosPropios(const AAdicionales,
+  AQuitados: Integer): string;
+begin
+  if (AAdicionales = 0) and (AQuitados = 0) then
+    Result := SPermisosSoloRol
+  else
+    Result := Format(SPermisosPropios, [AAdicionales, AQuitados]);
+end;
+
+procedure TPresentadorConfiguracion.CargarEmpresa;
+var
+  lApi: IApiConfiguracion;
+  lEmpresa: TEmpresaDTO;
+begin
+  lApi := FApi;
+  lEmpresa := nil;
+
+  Ejecutar(SAccionCargarEmpresa,
+    procedure
+    begin
+      lEmpresa := lApi.Empresa;
+    end,
+    procedure
+    begin
+      FreeAndNil(FEmpresa);
+      FEmpresa := lEmpresa;
+      lEmpresa := nil;
+      FVista.MostrarEmpresa(FEmpresa);
+    end,
+    procedure(AMensaje: string)
+    begin
+      FVista.MostrarError(AMensaje);
+    end,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarCargando(AActivo);
+    end,
+    procedure
+    begin
+      lEmpresa.Free;
+    end);
+end;
+
+procedure TPresentadorConfiguracion.EnviarEmpresa(const ADto: TEmpresaDTO;
+  const AAccion: string; const AListo, AFallo, ALiberar: TProc);
+var
+  lApi: IApiConfiguracion;
+begin
+  lApi := FApi;
+
+  Ejecutar(AAccion,
+    procedure
+    begin
+      lApi.GuardarEmpresa(ADto);
+    end,
+    AListo,
+    procedure(AMensaje: string)
+    begin
+      if Assigned(AFallo) then
+        AFallo();
+      FVista.MostrarError(AMensaje);
+    end,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarCargando(AActivo);
+    end, ALiberar);
+end;
+
+procedure TPresentadorConfiguracion.GuardarEmpresa(const ADto: TEmpresaDTO);
+var
+  lDto: TEmpresaDTO;
+  lAdoptado: Boolean;
+begin
+  if FEmpresa = nil then
+  begin
+    ADto.Free;
+    Exit;
+  end;
+
+  lDto := ADto;
+  lAdoptado := False;
+  lDto.DiasSinRespuesta := FEmpresa.DiasSinRespuesta;
+  EnviarEmpresa(lDto, SAccionGuardarEmpresa,
+    procedure
+    begin
+      FEmpresa.Free;
+      FEmpresa := lDto;
+      lAdoptado := True;
+      FVista.EmpresaGuardada;
+    end, nil,
+    procedure
+    begin
+      if not lAdoptado then
+        lDto.Free;
+    end);
+end;
+
+procedure TPresentadorConfiguracion.DeshacerEmpresa;
+begin
+  if FEmpresa <> nil then
+    FVista.MostrarEmpresa(FEmpresa);
+end;
+
+procedure TPresentadorConfiguracion.GuardarParametros(const ADias,
+  AMinutos: Integer);
+var
+  lAnterior: Integer;
+begin
+  if (AMinutos < MINUTOS_AVISOS_MINIMO) or
+    (AMinutos > MINUTOS_AVISOS_MAXIMO) then
+  begin
+    FVista.MostrarError(Format(SMinutosAvisosFueraDeRango,
+      [MINUTOS_AVISOS_MINIMO, MINUTOS_AVISOS_MAXIMO]));
+    Exit;
+  end;
+  TConfig.GuardarMinutosAvisos(AMinutos);
+
+  if (FEmpresa = nil) or (ADias = FEmpresa.DiasSinRespuesta) then
+  begin
+    FVista.ParametrosGuardados;
+    Exit;
+  end;
+
+  lAnterior := FEmpresa.DiasSinRespuesta;
+  FEmpresa.DiasSinRespuesta := ADias;
+  EnviarEmpresa(FEmpresa, SAccionGuardarParametros,
+    procedure
+    begin
+      FVista.ParametrosGuardados;
+    end,
+    procedure
+    begin
+      FEmpresa.DiasSinRespuesta := lAnterior;
+    end);
 end;
 
 procedure TPresentadorConfiguracion.Probar;
@@ -136,6 +303,8 @@ begin
     procedure(ADatos: TCuentaDTO)
     begin
       FVista.MostrarCuenta(ADatos);
+      FVista.MostrarPermisosPropios(TextoPermisosPropios(
+        ADatos.PermisosAdicionales, ADatos.PermisosQuitados));
     end,
     procedure(AMensaje: string)
     begin

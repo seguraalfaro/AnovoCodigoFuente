@@ -41,6 +41,8 @@ uses
   Anovo.Repositories.Cotizaciones,
   Anovo.Services.Intf.Cotizaciones,
   Anovo.Services.Cotizaciones,
+  Anovo.Services.Intf.Documento,
+  Anovo.Services.Documento,
   Anovo.Repositories.Dashboard,
   Anovo.Services.Dashboard,
   Anovo.Repositories.Intf.Dashboard,
@@ -53,6 +55,8 @@ uses
   Anovo.Services.Reportes,
   Anovo.Services.Intf.Importacion,
   Anovo.Services.Importacion,
+  Anovo.Services.Intf.Empresa,
+  Anovo.Services.Empresa,
   Anovo.Services.Intf.Sesion,
   Anovo.Services.Sesion,
   Anovo.Services.Intf.Roles,
@@ -116,6 +120,8 @@ begin
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TImportacionService, IImportacionService,
     TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TEmpresaService, IEmpresaService,
+    TRegistrationType.SingletonPerRequest);
 
   Container.RegisterType(TSolicitudRepository, ISolicitudRepository,
     TRegistrationType.SingletonPerRequest);
@@ -134,6 +140,8 @@ begin
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TCotizacionService, ICotizacionService,
     TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TCotizacionDocumentoService,
+    ICotizacionDocumentoService, TRegistrationType.SingletonPerRequest);
 
   Container.RegisterType(TUsuarioClaveRepository, IUsuarioClaveRepository,
     TRegistrationType.SingletonPerRequest);

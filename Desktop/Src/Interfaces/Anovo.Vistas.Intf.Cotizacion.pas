@@ -11,6 +11,7 @@ uses
   MVCFramework.Nullables,
   Anovo.DTOs.Catalogos,
   Anovo.DTOs.Cotizaciones,
+  Anovo.DTOs.Documento,
   Anovo.DTOs.Solicitudes,
   Anovo.Vistas.Intf.Registro;
 
@@ -19,7 +20,7 @@ type
   TAccionesLinea = set of TAccionLinea;
 
   TBotonCotizacion = (bcGuardar, bcPresentar, bcEnviar, bcRespuesta,
-    bcAgregarLinea, bcAjuste, bcNuevoTipo);
+    bcAgregarLinea, bcAjuste, bcNuevoTipo, bcDocumento);
   TBotonesCotizacion = set of TBotonCotizacion;
 
   TModoLinea = (mlMaterial, mlManoObra, mlMaquina, mlNota, mlEditar);
@@ -52,6 +53,8 @@ type
     procedure MostrarCotizacion(const ACotizacion: TCotizacionDTO;
       const AConEncabezado: Boolean);
     procedure MostrarDevolucion(const AMotivo: string);
+    procedure MostrarDocumento(const ADocumento: TCotizacionDocumentoDTO;
+      const ARuta: string);
     procedure MostrarBotones(const ABotones: TBotonesCotizacion;
       const AAcciones: TAccionesLinea);
     procedure MostrarLineas(const ALineas: TObjectList<TLineaDTO>);

@@ -19,15 +19,18 @@ type
 
     function Bandeja(const AUsuarioId: Integer; const ATexto: string;
       const APagina, APorPagina: Integer): TBandejaPaginaDTO;
-    function Obtener(const AId: Integer): TCotizacionDTO;
-    function ObtenerPorNumero(const ANumero: Integer): TCotizacionDTO;
+    function Obtener(const AId, AUsuarioId: Integer;
+      const ARoles: TArray<string>): TCotizacionDTO;
+    function ObtenerPorNumero(const ANumero, AUsuarioId: Integer;
+      const ARoles: TArray<string>): TCotizacionDTO;
 
     function CrearDesdeSolicitud(const ADto: TCotizacionNuevaDTO): Integer;
 
     procedure Actualizar(const AId: Integer;
       const ADto: TCotizacionEdicionDTO);
 
-    function Detalle(const AId: Integer): TObjectList<TLineaDTO>;
+    function Detalle(const AId, AUsuarioId: Integer;
+      const ARoles: TArray<string>): TObjectList<TLineaDTO>;
     function AgregarLinea(const AId: Integer;
       const ADto: TLineaNuevaDTO): Integer;
     procedure ActualizarLinea(const AId, ALineaId: Integer;
@@ -45,8 +48,7 @@ type
     procedure Devolver(const AId: Integer; const ADto: TMotivoDTO);
     procedure Enviar(const AId: Integer);
 
-    function EnviadasSinRespuesta(const ADias: Integer)
-      : TObjectList<TCotizacionDTO>;
+    function EnviadasSinRespuesta: TObjectList<TCotizacionDTO>;
   end;
 
 implementation

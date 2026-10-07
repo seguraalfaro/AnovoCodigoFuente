@@ -13,6 +13,7 @@ uses
   Anovo.Api.Intf.Solicitudes,
   Anovo.DTOs.Catalogos,
   Anovo.DTOs.Cotizaciones,
+  Anovo.DTOs.Documento,
   Anovo.Presentadores.Base,
   Anovo.Vistas.Intf.Cotizacion,
   Anovo.Textos;
@@ -53,10 +54,12 @@ type
     procedure Guardar(const ADatos: TCotizacionEdicionDTO);
     procedure Presentar(const ADatos: TCotizacionEdicionDTO);
     procedure Enviar;
+    procedure VerDocumento(const ARuta: string);
     procedure RegistrarRespuesta(const AAceptada: Boolean);
     procedure QuitarLinea(const ALineaId: Integer);
     function Linea(const ALineaId: Integer): TLineaDTO;
     property Id: Integer read FId;
+    property Numero: Integer read FNumero;
     property Costo: Currency read FCosto;
     property PorcentajeIva: Currency read FPorcentajeIva;
     property PorcentajeAjuste: Currency read FPorcentajeAjuste;
@@ -124,6 +127,8 @@ const
   ESTADO_DEVUELTA = 'devuelta';
   ESTADO_VISTO_BUENO = 'visto_bueno';
   ESTADO_ENVIADA = 'enviada';
+  ESTADO_APROBADA = 'aprobada';
+  ESTADO_RECHAZADA = 'rechazada';
   ADJUNTO_CROQUIS = 'croquis';
   ADJUNTO_FOTO = 'foto';
   MAXIMO_FOTOS = 4;
@@ -184,6 +189,9 @@ begin
   else if (FEstado = ESTADO_ENVIADA) and
     TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR) then
     lBotones := [bcRespuesta];
+  if (FEstado = ESTADO_VISTO_BUENO) or (FEstado = ESTADO_ENVIADA) or
+    (FEstado = ESTADO_APROBADA) or (FEstado = ESTADO_RECHAZADA) then
+    Include(lBotones, bcDocumento);
   FVista.MostrarBotones(lBotones, lAcciones);
 end;
 
@@ -430,6 +438,25 @@ begin
     procedure
     begin
       FVista.Regresar;
+    end, MostrarError, MostrarCargando);
+end;
+
+procedure TPresentadorCotizacion.VerDocumento(const ARuta: string);
+var
+  lApi: IApiCotizaciones;
+  lId: Integer;
+begin
+  lApi := FApi;
+  lId := FId;
+
+  Ejecutar<TCotizacionDocumentoDTO>(SAccionCargarDocumento,
+    function: TCotizacionDocumentoDTO
+    begin
+      Result := lApi.Documento(lId);
+    end,
+    procedure(ADocumento: TCotizacionDocumentoDTO)
+    begin
+      FVista.MostrarDocumento(ADocumento, ARuta);
     end, MostrarError, MostrarCargando);
 end;
 

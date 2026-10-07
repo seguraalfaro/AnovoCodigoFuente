@@ -475,6 +475,9 @@ type
     mtCotizacionEdicion: TFDMemTable;
     mtCotizacionEdicionTIPO_TRABAJO_ID: TIntegerField;
     mtCotizacionEdicionDESCRIPCION_TRABAJO: TStringField;
+    mtCotizacionEdicionFORMA_PAGO: TStringField;
+    mtCotizacionEdicionPLAZO_ENTREGA: TStringField;
+    mtCotizacionEdicionGARANTIA: TStringField;
     dsCotizacionEdicion: TDataSource;
     mtTiposTrabajoLista: TFDMemTable;
     mtTiposTrabajoListaID: TIntegerField;
@@ -547,6 +550,32 @@ type
     mtImportacionREVISION: TStringField;
     mtImportacionCON_ERROR: TBooleanField;
     dsImportacion: TDataSource;
+    mtEmpresa: TFDMemTable;
+    mtEmpresaRAZON_SOCIAL: TStringField;
+    mtEmpresaCEDULA_JURIDICA: TStringField;
+    mtEmpresaDIRECCION: TStringField;
+    mtEmpresaTELEFONO_FIJO: TStringField;
+    mtEmpresaCELULAR: TStringField;
+    mtEmpresaCORREO: TStringField;
+    mtEmpresaREPRESENTANTE_LEGAL: TStringField;
+    mtEmpresaCUENTA_BANCARIA: TStringField;
+    mtEmpresaPORCENTAJE_IVA: TCurrencyField;
+    mtEmpresaFORMA_PAGO: TStringField;
+    mtEmpresaPLAZO_ENTREGA: TStringField;
+    mtEmpresaGARANTIA: TStringField;
+    mtEmpresaFIRMANTE: TStringField;
+    mtEmpresaCARTA_PRESENTACION: TStringField;
+    dsEmpresa: TDataSource;
+    mtParametros: TFDMemTable;
+    mtParametrosDIAS_SIN_RESPUESTA: TIntegerField;
+    mtParametrosMINUTOS_AVISOS: TIntegerField;
+    dsParametros: TDataSource;
+    mtDocumentoLineas: TFDMemTable;
+    mtDocumentoLineasDESCRIPCION: TStringField;
+    mtDocumentoLineasCANTIDAD: TCurrencyField;
+    mtDocumentoLineasPRECIO_UNITARIO: TCurrencyField;
+    mtDocumentoLineasTOTAL: TCurrencyField;
+    dsDocumentoLineas: TDataSource;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     procedure DataModuleCreate(Sender: TObject);
     procedure mtContactoNuevoBeforePost(DataSet: TDataSet);
@@ -589,6 +618,8 @@ type
     procedure PrepararClienteNuevo;
     procedure PrepararContactoNuevo(const AClienteId: Integer);
     procedure PrepararUsuario;
+    procedure PrepararParametros(const AMinutosAvisos: Integer);
+    procedure FijarDiasSinRespuesta(const ADias: Integer);
     procedure Preparar(const ATabla: TFDMemTable);
     procedure SoloExcepciones(const ASolo: Boolean);
     procedure PrepararImportacion(const AConUnidad, AConCategoria,
@@ -926,6 +957,24 @@ begin
   mtUsuario.Close;
   mtUsuario.CreateDataSet;
   mtUsuario.Append;
+end;
+
+procedure TdmMemoria.PrepararParametros(const AMinutosAvisos: Integer);
+begin
+  mtParametros.Close;
+  mtParametros.CreateDataSet;
+  mtParametros.Append;
+  mtParametrosMINUTOS_AVISOS.AsInteger := AMinutosAvisos;
+  mtParametros.Post;
+end;
+
+procedure TdmMemoria.FijarDiasSinRespuesta(const ADias: Integer);
+begin
+  if not mtParametros.Active then
+    PrepararParametros(0);
+  mtParametros.Edit;
+  mtParametrosDIAS_SIN_RESPUESTA.AsInteger := ADias;
+  mtParametros.Post;
 end;
 
 procedure TdmMemoria.PrepararContactoNuevo(const AClienteId: Integer);

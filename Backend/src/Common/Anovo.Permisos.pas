@@ -21,6 +21,8 @@ const
   PERMISO_COTIZACIONES_VER_APROBADAS_PROPIAS =
     'cotizaciones.ver_aprobadas_propias';
   PERMISO_COTIZACIONES_VER_TODAS = 'cotizaciones.ver_todas';
+  PERMISO_EMPRESA_ADMINISTRAR = 'empresa.administrar';
+  PERMISO_EMPRESA_EDITAR = 'empresa.editar';
   PERMISO_PERMISOS_EDITAR = 'permisos.editar';
   PERMISO_PERMISOS_VER = 'permisos.ver';
   PERMISO_REPORTES_VER = 'reportes.ver';

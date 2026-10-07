@@ -13,6 +13,7 @@ uses
   Anovo.DTOs.Cotizaciones,
   Anovo.Controllers.Base,
   Anovo.Services.Intf.Cotizaciones,
+  Anovo.Services.Intf.Documento,
   Anovo.Permisos;
 
 const
@@ -23,7 +24,6 @@ const
   POR_PAGINA_POR_DEFECTO = 50;
   POR_PAGINA_MAXIMO = 200;
 
-  DIAS_SIN_RESPUESTA = 7;
 
 type
 
@@ -95,7 +95,8 @@ type
     [MVCSwagSummary('Cotizaciones', 'Obtiene una cotizacion por su numero ' +
       'interno', 'obtenerCotizacion')]
     [MVCSwagResponses(200, 'La cotizacion', TCotizacionDTO)]
-    [MVCSwagResponses(404, 'No existe cotizacion con ese numero')]
+    [MVCSwagResponses(404, 'No existe cotizacion con ese numero, o es de ' +
+      'una solicitud de otro asesor')]
     function Obtener([MVCInject] AServicio: ICotizacionService;
       const AId: Integer): IMVCResponse;
 
@@ -134,6 +135,16 @@ type
       'listarDetalle')]
     [MVCSwagResponses(200, 'El detalle, en su orden')]
     function Detalle([MVCInject] AServicio: ICotizacionService;
+      const AId: Integer): IMVCResponse;
+
+    [MVCPath('/($AId)/documento')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCSwagSummary('Cotizaciones', 'Datos del documento que se envia al ' +
+      'cliente: encabezado de la empresa, cliente, condiciones y totales',
+      'obtenerDocumento')]
+    [MVCSwagResponses(200, 'El documento de la cotizacion')]
+    [MVCSwagResponses(404, 'No existe o no es de las solicitudes del asesor')]
+    function Documento([MVCInject] AServicio: ICotizacionDocumentoService;
       const AId: Integer): IMVCResponse;
 
     [MVCPath('/($AId)/detalle')]
@@ -271,19 +282,20 @@ end;
 function TCotizacionesController.SinRespuesta(AServicio: ICotizacionService)
   : IMVCResponse;
 begin
-  Result := OKResponse(AServicio.EnviadasSinRespuesta(DIAS_SIN_RESPUESTA));
+  Result := OKResponse(AServicio.EnviadasSinRespuesta);
 end;
 
 function TCotizacionesController.Obtener(AServicio: ICotizacionService;
   const AId: Integer): IMVCResponse;
 begin
-  Result := OKResponse(AServicio.Obtener(AId));
+  Result := OKResponse(AServicio.Obtener(AId, UsuarioId, Roles));
 end;
 
 function TCotizacionesController.ObtenerPorNumero(AServicio: ICotizacionService;
   const ANumero: Integer): IMVCResponse;
 begin
-  Result := OKResponse(AServicio.ObtenerPorNumero(ANumero));
+  Result := OKResponse(AServicio.ObtenerPorNumero(ANumero, UsuarioId,
+    Roles));
 end;
 
 function TCotizacionesController.Crear(AServicio: ICotizacionService;
@@ -303,7 +315,13 @@ end;
 function TCotizacionesController.Detalle(AServicio: ICotizacionService;
   const AId: Integer): IMVCResponse;
 begin
-  Result := OKResponse(AServicio.Detalle(AId));
+  Result := OKResponse(AServicio.Detalle(AId, UsuarioId, Roles));
+end;
+
+function TCotizacionesController.Documento(AServicio
+  : ICotizacionDocumentoService; const AId: Integer): IMVCResponse;
+begin
+  Result := OKResponse(AServicio.Documento(AId, UsuarioId, Roles));
 end;
 
 function TCotizacionesController.AgregarLinea(AServicio: ICotizacionService;

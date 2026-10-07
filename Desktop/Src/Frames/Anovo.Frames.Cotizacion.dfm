@@ -118,6 +118,36 @@ object fraCotizacion: TfraCotizacion
       StyleElements = []
       OnClick = btnClienteAproboClick
     end
+    object btnGuardarPdf: TPlanoBotonWin
+      Tag = 21
+      Left = 400
+      Top = 18
+      Width = 130
+      Height = 32
+      Cursor = crHandPoint
+      Anchors = [akTop, akRight]
+      Caption = 'Guardar PDF'
+      TabOrder = 6
+      Visible = False
+      StyleElements = []
+      OnClick = btnGuardarPdfClick
+      Kind = fkSecondary
+    end
+    object btnVistaPrevia: TPlanoBotonWin
+      Tag = 21
+      Left = 400
+      Top = 18
+      Width = 130
+      Height = 32
+      Cursor = crHandPoint
+      Anchors = [akTop, akRight]
+      Caption = 'Vista previa'
+      TabOrder = 7
+      Visible = False
+      StyleElements = []
+      OnClick = btnVistaPreviaClick
+      Kind = fkSecondary
+    end
   end
   object pnlAviso: TPanel
     Tag = 1
@@ -785,6 +815,66 @@ object fraCotizacion: TfraCotizacion
             StyleElements = []
             OnClick = btnAjusteClick
             Kind = fkSecondary
+          end
+        end
+        object tjCondiciones: TPlanoTarjeta
+          Tag = 3
+          AlignWithMargins = True
+          Left = 226
+          Top = 0
+          Width = 250
+          Height = 206
+          Margins.Left = 0
+          Margins.Top = 0
+          Margins.Right = 10
+          Margins.Bottom = 0
+          Caption = 'Condiciones para el cliente'
+          Align = alRight
+          TabOrder = 2
+          object edFormaPago: TrDBEdit
+            Left = 16
+            Top = 58
+            Width = 218
+            Height = 23
+            Anchors = [akLeft, akTop, akRight]
+            DataField = 'FORMA_PAGO'
+            DataSource = dmMemoria.dsCotizacionEdicion
+            TabOrder = 0
+            StyleElements = []
+            ReadOnlyColor = 15987699
+            DBEditLabel.AlignWithMargins = True
+            DBEditLabel.Margins.Top = 5
+            DBEditLabel.OwnCaption = 'Forma de pago'
+          end
+          object edEntrega: TrDBEdit
+            Left = 16
+            Top = 108
+            Width = 218
+            Height = 23
+            Anchors = [akLeft, akTop, akRight]
+            DataField = 'PLAZO_ENTREGA'
+            DataSource = dmMemoria.dsCotizacionEdicion
+            TabOrder = 1
+            StyleElements = []
+            ReadOnlyColor = 15987699
+            DBEditLabel.AlignWithMargins = True
+            DBEditLabel.Margins.Top = 5
+            DBEditLabel.OwnCaption = 'Entrega'
+          end
+          object edGarantia: TrDBEdit
+            Left = 16
+            Top = 158
+            Width = 218
+            Height = 23
+            Anchors = [akLeft, akTop, akRight]
+            DataField = 'GARANTIA'
+            DataSource = dmMemoria.dsCotizacionEdicion
+            TabOrder = 2
+            StyleElements = []
+            ReadOnlyColor = 15987699
+            DBEditLabel.AlignWithMargins = True
+            DBEditLabel.Margins.Top = 5
+            DBEditLabel.OwnCaption = 'Garant'#237'a'
           end
         end
       end

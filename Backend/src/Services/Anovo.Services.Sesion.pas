@@ -9,6 +9,7 @@ uses
   MVCFramework,
   Anovo.DTOs.Sesion,
   Anovo.Repositories.Intf.Usuarios,
+  Anovo.Repositories.Intf.Empresa,
   Anovo.Services.Intf.Sesion,
   Anovo.Services.Clave;
 
@@ -19,12 +20,15 @@ type
     fClaves: IUsuarioClaveRepository;
     fRoles: IRolRepository;
     fClave: IClaveService;
+    fExcepciones: IUsuarioPermisoRepository;
+    fEmpresa: IEmpresaRepository;
     procedure ValidarClaveNueva(const AClave: string);
   public
     [MVCInject]
     constructor Create(AUsuarios: IUsuarioRepository;
       AClaves: IUsuarioClaveRepository; ARoles: IRolRepository;
-      AClave: IClaveService); reintroduce;
+      AClave: IClaveService; AExcepciones: IUsuarioPermisoRepository;
+      AEmpresa: IEmpresaRepository); reintroduce;
     function Cuenta(const AUsuarioId: Integer; const ARol: string): TCuentaDTO;
     procedure CambiarClave(const AUsuarioId: Integer;
       const ADto: TCambioClaveDTO);
@@ -37,6 +41,8 @@ implementation
 uses
   System.SysUtils,
   System.Character,
+  System.Generics.Collections,
+  Anovo.Repositories.Intf.Permisos,
   MVCFramework.Commons,
   MVCFramework.Repository,
   MVCFramework.Logger,
@@ -50,13 +56,16 @@ const
 
 constructor TSesionService.Create(AUsuarios: IUsuarioRepository;
   AClaves: IUsuarioClaveRepository; ARoles: IRolRepository;
-  AClave: IClaveService);
+  AClave: IClaveService; AExcepciones: IUsuarioPermisoRepository;
+  AEmpresa: IEmpresaRepository);
 begin
   inherited Create;
   fUsuarios := AUsuarios;
   fClaves := AClaves;
   fRoles := ARoles;
   fClave := AClave;
+  fExcepciones := AExcepciones;
+  fEmpresa := AEmpresa;
 end;
 
 function TSesionService.Autenticar(const ACorreo, AClave: string)
@@ -148,6 +157,8 @@ function TSesionService.Cuenta(const AUsuarioId: Integer;
 var
   lUsuario: TUsuarios;
   lFila: TUsuariosClaves;
+  lExcepciones: TObjectList<TUsuariosPermisos>;
+  lExcepcion: TUsuariosPermisos;
 begin
   lUsuario := fUsuarios.GetByPK(AUsuarioId, False);
   if lUsuario = nil then
@@ -168,6 +179,17 @@ begin
     finally
       lFila.Free;
     end;
+
+  lExcepciones := fExcepciones.DeUsuario(AUsuarioId);
+  try
+    for lExcepcion in lExcepciones do
+      if lExcepcion.Tipo = TIPO_OTORGADO then
+        Result.PermisosAdicionales := Result.PermisosAdicionales + 1
+      else
+        Result.PermisosQuitados := Result.PermisosQuitados + 1;
+  finally
+    lExcepciones.Free;
+  end;
 end;
 
 procedure TSesionService.ValidarClaveNueva(const AClave: string);
@@ -252,6 +274,7 @@ begin
     Result.Servidor := Format('%d.%d.%d', [lMayor, lMenor, lCompilacion]);
   Result.Movil := dotEnv.Env('anovo.movil.version', '');
   Result.AvisoPrivacidad := dotEnv.Env('anovo.aviso_privacidad.version', '1.1');
+  Result.BaseDatos := Format(SVersionBaseDatos, [fEmpresa.VersionEsquema]);
 end;
 
 end.

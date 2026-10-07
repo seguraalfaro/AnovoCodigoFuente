@@ -345,6 +345,15 @@ type
     fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
     [MVCTableField('OBJVERSION')]
     fObjversion: NullableInt32;
+    [MVCTableField('FORMA_PAGO')]
+    [MVCMaxLength(120)]
+    fFormaPago: NullableString;
+    [MVCTableField('PLAZO_ENTREGA')]
+    [MVCMaxLength(120)]
+    fPlazoEntrega: NullableString;
+    [MVCTableField('GARANTIA')]
+    [MVCMaxLength(120)]
+    fGarantia: NullableString;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -371,6 +380,9 @@ type
     property FechaEnvio: NullableTDateTime {dtDateTimeStamp} read fFechaEnvio write fFechaEnvio;
     property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
     property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property FormaPago: NullableString read fFormaPago write fFormaPago;
+    property PlazoEntrega: NullableString read fPlazoEntrega write fPlazoEntrega;
+    property Garantia: NullableString read fGarantia write fGarantia;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -497,6 +509,24 @@ type
     [MVCTableField('PORCENTAJE_IVA')]
     [MVCRequired]
     fPorcentajeIva: Currency;
+    [MVCTableField('DIAS_SIN_RESPUESTA')]
+    [MVCRequired]
+    fDiasSinRespuesta: Int32;
+    [MVCTableField('FORMA_PAGO')]
+    [MVCMaxLength(120)]
+    fFormaPago: NullableString;
+    [MVCTableField('PLAZO_ENTREGA')]
+    [MVCMaxLength(120)]
+    fPlazoEntrega: NullableString;
+    [MVCTableField('GARANTIA')]
+    [MVCMaxLength(120)]
+    fGarantia: NullableString;
+    [MVCTableField('FIRMANTE')]
+    [MVCMaxLength(120)]
+    fFirmante: NullableString;
+    [MVCTableField('CARTA_PRESENTACION')]
+    [MVCMaxLength(4000)]
+    fCartaPresentacion: NullableString;
   public
     property ID: Int32 read fID write fID;
     property RazonSocial: String read fRazonSocial write fRazonSocial;
@@ -509,6 +539,31 @@ type
     property CuentaBancaria: NullableString read fCuentaBancaria write fCuentaBancaria;
     property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
     property PorcentajeIva: Currency read fPorcentajeIva write fPorcentajeIva;
+    property DiasSinRespuesta: Int32 read fDiasSinRespuesta write fDiasSinRespuesta;
+    property FormaPago: NullableString read fFormaPago write fFormaPago;
+    property PlazoEntrega: NullableString read fPlazoEntrega write fPlazoEntrega;
+    property Garantia: NullableString read fGarantia write fGarantia;
+    property Firmante: NullableString read fFirmante write fFirmante;
+    property CartaPresentacion: NullableString read fCartaPresentacion write fCartaPresentacion;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('ESQUEMA_MIGRACIONES')]
+  TEsquemaMigraciones = class(TMVCActiveRecord)
+  private
+    [MVCTableField('NUMERO', [foPrimaryKey])]
+    [MVCRequired]
+    fNumero: Int32;
+    [MVCTableField('NOMBRE')]
+    [MVCRequired]
+    [MVCMaxLength(80)]
+    fNombre: String;
+    [MVCTableField('FECHA')]
+    fFecha: NullableTDateTime {dtDateTimeStamp};
+  public
+    property Numero: Int32 read fNumero write fNumero;
+    property Nombre: String read fNombre write fNombre;
+    property Fecha: NullableTDateTime {dtDateTimeStamp} read fFecha write fFecha;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -1883,6 +1938,16 @@ type
     property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
   end;
 
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_VERSION_ESQUEMA')]
+  TVVersionEsquema = class(TMVCActiveRecord)
+  private
+    [MVCTableField('NUMERO')]
+    fNumero: NullableInt32;
+  public
+    property Numero: NullableInt32 read fNumero write fNumero;
+  end;
+
 implementation
 
 constructor TClienteConsentimientoHistorial.Create;
@@ -1919,6 +1984,7 @@ ActiveRecordMappingRegistry.AddEntity('cotizaciones', TCotizaciones);
 ActiveRecordMappingRegistry.AddEntity('cotizacion_detalle', TCotizacionDetalle);
 ActiveRecordMappingRegistry.AddEntity('cotizacion_estados', TCotizacionEstados);
 ActiveRecordMappingRegistry.AddEntity('empresa', TEmpresa);
+ActiveRecordMappingRegistry.AddEntity('esquema_migraciones', TEsquemaMigraciones);
 ActiveRecordMappingRegistry.AddEntity('mano_obra', TManoObra);
 ActiveRecordMappingRegistry.AddEntity('mano_obra_categoria', TManoObraCategoria);
 ActiveRecordMappingRegistry.AddEntity('mano_obra_precios', TManoObraPrecios);
@@ -1956,5 +2022,6 @@ ActiveRecordMappingRegistry.AddEntity('v_solicitud_adjuntos', TVSolicitudAdjunto
 ActiveRecordMappingRegistry.AddEntity('v_trabajo_usuario', TVTrabajoUsuario);
 ActiveRecordMappingRegistry.AddEntity('v_usuarios', TVUsuarios);
 ActiveRecordMappingRegistry.AddEntity('v_usuarios_permisos', TVUsuariosPermisos);
+ActiveRecordMappingRegistry.AddEntity('v_version_esquema', TVVersionEsquema);
 
 end.

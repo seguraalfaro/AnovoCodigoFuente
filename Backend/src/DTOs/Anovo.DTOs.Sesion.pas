@@ -26,12 +26,18 @@ type
     fCorreo: string;
     fRol: string;
     fClaveCambiada: NullableTDateTime;
+    fPermisosAdicionales: Integer;
+    fPermisosQuitados: Integer;
   public
     property Nombre: string read fNombre write fNombre;
     property Correo: string read fCorreo write fCorreo;
     property Rol: string read fRol write fRol;
     property ClaveCambiada: NullableTDateTime read fClaveCambiada
       write fClaveCambiada;
+    property PermisosAdicionales: Integer read fPermisosAdicionales
+      write fPermisosAdicionales;
+    property PermisosQuitados: Integer read fPermisosQuitados
+      write fPermisosQuitados;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -50,11 +56,13 @@ type
     fServidor: string;
     fMovil: string;
     fAvisoPrivacidad: string;
+    fBaseDatos: string;
   public
     property Servidor: string read fServidor write fServidor;
     property Movil: string read fMovil write fMovil;
     property AvisoPrivacidad: string read fAvisoPrivacidad
       write fAvisoPrivacidad;
+    property BaseDatos: string read fBaseDatos write fBaseDatos;
   end;
 
 implementation

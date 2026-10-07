@@ -6,7 +6,8 @@ interface
 
 uses
   System.Generics.Collections,
-  Anovo.DTOs.Cotizaciones;
+  Anovo.DTOs.Cotizaciones,
+  Anovo.DTOs.Documento;
 
 type
   IApiCotizaciones = interface
@@ -14,6 +15,7 @@ type
     function Bandeja(const ATexto: string; const APagina, APorPagina: Integer)
       : TBandejaPaginaDTO;
     function Obtener(const AId: Integer): TCotizacionDTO;
+    function Documento(const AId: Integer): TCotizacionDocumentoDTO;
     function Detalle(const AId: Integer): TObjectList<TLineaDTO>;
     procedure DarVistoBueno(const AId: Integer);
     procedure Devolver(const AId: Integer; const AMotivo: string);

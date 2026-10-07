@@ -5,6 +5,7 @@ unit Anovo.Api.Intf.Configuracion;
 interface
 
 uses
+  Anovo.DTOs.Empresa,
   Anovo.DTOs.Sesion;
 
 type
@@ -13,6 +14,8 @@ type
     function Cuenta: TCuentaDTO;
     procedure CambiarClave(const ADto: TCambioClaveDTO);
     function Version(const AUrl: string = ''): TVersionDTO;
+    function Empresa: TEmpresaDTO;
+    procedure GuardarEmpresa(const ADto: TEmpresaDTO);
   end;
 
 implementation

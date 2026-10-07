@@ -51,6 +51,24 @@ type
     [MVCTableField('PORCENTAJE_IVA')]
     [MVCRequired]
     fPorcentajeIva: Currency;
+    [MVCTableField('DIAS_SIN_RESPUESTA')]
+    [MVCRequired]
+    fDiasSinRespuesta: Int32;
+    [MVCTableField('FORMA_PAGO')]
+    [MVCMaxLength(120)]
+    fFormaPago: NullableString;
+    [MVCTableField('PLAZO_ENTREGA')]
+    [MVCMaxLength(120)]
+    fPlazoEntrega: NullableString;
+    [MVCTableField('GARANTIA')]
+    [MVCMaxLength(120)]
+    fGarantia: NullableString;
+    [MVCTableField('FIRMANTE')]
+    [MVCMaxLength(120)]
+    fFirmante: NullableString;
+    [MVCTableField('CARTA_PRESENTACION')]
+    [MVCMaxLength(4000)]
+    fCartaPresentacion: NullableString;
   public
     property ID: Int32 read fID write fID;
     property RazonSocial: String read fRazonSocial write fRazonSocial;
@@ -63,6 +81,12 @@ type
     property CuentaBancaria: NullableString read fCuentaBancaria write fCuentaBancaria;
     property FechaModificacion: NullableTDateTime  read fFechaModificacion write fFechaModificacion;
     property PorcentajeIva: Currency read fPorcentajeIva write fPorcentajeIva;
+    property DiasSinRespuesta: Int32 read fDiasSinRespuesta write fDiasSinRespuesta;
+    property FormaPago: NullableString read fFormaPago write fFormaPago;
+    property PlazoEntrega: NullableString read fPlazoEntrega write fPlazoEntrega;
+    property Garantia: NullableString read fGarantia write fGarantia;
+    property Firmante: NullableString read fFirmante write fFirmante;
+    property CartaPresentacion: NullableString read fCartaPresentacion write fCartaPresentacion;
   end;
 
 implementation
