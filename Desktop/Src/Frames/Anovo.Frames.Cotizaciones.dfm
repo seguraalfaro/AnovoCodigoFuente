@@ -32,9 +32,11 @@ inherited fraCotizaciones: TfraCotizaciones
     Items.Strings = (
       'Todas'
       'Borrador'
-      'Pendientes'
-      'Aprobadas'
+      'En revisi'#243'n'
+      'Devueltas'
+      'Con visto bueno'
       'Enviadas'
+      'Aprobadas'
       'Rechazadas')
     Style = pesPastilla
     Indent = 20

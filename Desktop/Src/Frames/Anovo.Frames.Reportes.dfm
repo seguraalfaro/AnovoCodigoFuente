@@ -6,14 +6,14 @@ inherited fraReportes: TfraReportes
     end
     inherited lblSubtitulo: TLabel
       Width = 330
-      Caption = 'Cotizaciones elaboradas en el periodo, con su estado actual'
+      Caption = 'Lo que pas'#243' en el periodo: env'#237'os al cliente, respuestas y cada paso del flujo'
     end
   end
   inherited pnlKpi: TPanel
     Top = 114
     inherited tjCifra1: TPlanoTarjeta
       Width = 150
-      Caption = 'Cotizaciones'
+      Caption = 'Enviadas'
       inherited lblCifra1: TLabel
         Width = 118
       end
@@ -21,7 +21,7 @@ inherited fraReportes: TfraReportes
     inherited tjCifra2: TPlanoTarjeta
       Left = 182
       Width = 268
-      Caption = 'Monto total'
+      Caption = 'Monto enviado'
       inherited lblCifra2: TLabel
         Width = 236
       end

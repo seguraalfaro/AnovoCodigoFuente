@@ -190,33 +190,34 @@ type
     [MVCPath('/($AId)/envio')]
     [MVCHTTPMethods([httpPOST])]
     [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
-    [MVCSwagSummary('Cotizaciones', 'Registra que la cotizacion aprobada se ' +
-      'envio al cliente', 'enviarCotizacion')]
+    [MVCSwagSummary('Cotizaciones', 'Registra que la cotizacion con visto ' +
+      'bueno se envio al cliente', 'enviarCotizacion')]
     [MVCSwagResponses(204, 'Enviada al cliente')]
-    [MVCSwagResponses(409, 'No esta aprobada')]
+    [MVCSwagResponses(409, 'No tiene el visto bueno')]
     function Enviar([MVCInject] AServicio: ICotizacionService;
       const AId: Integer): IMVCResponse;
 
-    [MVCPath('/($AId)/aprobacion')]
+    [MVCPath('/($AId)/visto-bueno')]
     [MVCHTTPMethods([httpPOST])]
     [MVCRequiresPermiso(PERMISO_COTIZACIONES_APROBAR)]
-    [MVCSwagSummary('Cotizaciones', 'Aprueba la cotizacion',
-      'aprobarCotizacion')]
-    [MVCSwagResponses(204, 'Aprobada')]
-    [MVCSwagResponses(409, 'No esta en un estado que permita aprobarla')]
-    function Aprobar([MVCInject] AServicio: ICotizacionService;
+    [MVCSwagSummary('Cotizaciones', 'Da el visto bueno a la cotizacion en ' +
+      'revision: queda lista para enviar al cliente', 'vistoBuenoCotizacion')]
+    [MVCSwagResponses(204, 'Con visto bueno')]
+    [MVCSwagResponses(409, 'No esta en revision, o la elaboro quien revisa')]
+    function DarVistoBueno([MVCInject] AServicio: ICotizacionService;
       const AId: Integer): IMVCResponse;
 
-    [MVCPath('/($AId)/rechazo')]
+    [MVCPath('/($AId)/respuesta')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_COTIZACIONES_APROBAR)]
-    [MVCSwagSummary('Cotizaciones', 'Rechaza la cotizacion. El motivo es ' +
-      'obligatorio', 'rechazarCotizacion')]
-    [MVCSwagResponses(204, 'Rechazada')]
-    [MVCSwagResponses(422, 'Falta el motivo')]
-    function Rechazar([MVCInject] AServicio: ICotizacionService;
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCSwagSummary('Cotizaciones', 'Registra la respuesta del cliente a la ' +
+      'cotizacion enviada: aceptada queda aprobada; si no, rechazada',
+      'respuestaCotizacion')]
+    [MVCSwagResponses(204, 'Respuesta registrada')]
+    [MVCSwagResponses(409, 'No esta enviada al cliente')]
+    function RegistrarRespuesta([MVCInject] AServicio: ICotizacionService;
       const AId: Integer;
-      const [MVCFromBody] ADto: TMotivoDTO): IMVCResponse;
+      const [MVCFromBody] ADto: TRespuestaClienteDTO): IMVCResponse;
 
     [MVCPath('/($AId)/devolucion')]
     [MVCHTTPMethods([httpPOST])]
@@ -347,17 +348,18 @@ begin
   Result := NoContentResponse;
 end;
 
-function TCotizacionesController.Aprobar(AServicio: ICotizacionService;
+function TCotizacionesController.DarVistoBueno(AServicio: ICotizacionService;
   const AId: Integer): IMVCResponse;
 begin
-  AServicio.Aprobar(AId);
+  AServicio.DarVistoBueno(AId);
   Result := NoContentResponse;
 end;
 
-function TCotizacionesController.Rechazar(AServicio: ICotizacionService;
-  const AId: Integer; const ADto: TMotivoDTO): IMVCResponse;
+function TCotizacionesController.RegistrarRespuesta(
+  AServicio: ICotizacionService; const AId: Integer;
+  const ADto: TRespuestaClienteDTO): IMVCResponse;
 begin
-  AServicio.Rechazar(AId, ADto);
+  AServicio.RegistrarRespuesta(AId, ADto);
   Result := NoContentResponse;
 end;
 

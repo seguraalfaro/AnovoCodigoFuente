@@ -71,7 +71,7 @@ object fraCotizacion: TfraCotizacion
       Height = 32
       Cursor = crHandPoint
       Anchors = [akTop, akRight]
-      Caption = 'Presentar a aprobaci'#243'n'
+      Caption = 'Enviar a revisi'#243'n'
       TabOrder = 2
       StyleElements = []
       OnClick = btnPresentarClick
@@ -89,6 +89,34 @@ object fraCotizacion: TfraCotizacion
       Visible = False
       StyleElements = []
       OnClick = btnEnviarClick
+    end
+    object btnClienteRechazo: TPlanoBotonWin
+      Tag = 19
+      Left = 800
+      Top = 18
+      Width = 170
+      Height = 32
+      Cursor = crHandPoint
+      Anchors = [akTop, akRight]
+      Caption = 'El cliente rechaz'#243
+      TabOrder = 4
+      Visible = False
+      StyleElements = []
+      OnClick = btnClienteRechazoClick
+    end
+    object btnClienteAprobo: TPlanoBotonWin
+      Tag = 18
+      Left = 980
+      Top = 18
+      Width = 180
+      Height = 32
+      Cursor = crHandPoint
+      Anchors = [akTop, akRight]
+      Caption = 'El cliente aprob'#243
+      TabOrder = 5
+      Visible = False
+      StyleElements = []
+      OnClick = btnClienteAproboClick
     end
   end
   object pnlAviso: TPanel

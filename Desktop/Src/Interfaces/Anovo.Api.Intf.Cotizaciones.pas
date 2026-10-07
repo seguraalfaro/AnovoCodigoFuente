@@ -15,9 +15,9 @@ type
       : TBandejaPaginaDTO;
     function Obtener(const AId: Integer): TCotizacionDTO;
     function Detalle(const AId: Integer): TObjectList<TLineaDTO>;
-    procedure Aprobar(const AId: Integer);
+    procedure DarVistoBueno(const AId: Integer);
     procedure Devolver(const AId: Integer; const AMotivo: string);
-    procedure Rechazar(const AId: Integer; const AMotivo: string);
+    procedure RegistrarRespuesta(const AId: Integer; const AAceptada: Boolean);
     procedure Tomar(const ASolicitudId: Integer);
     function Listar(const ATexto, AEstado: string;
       const APagina, APorPagina: Integer; out ATotal: Int64)

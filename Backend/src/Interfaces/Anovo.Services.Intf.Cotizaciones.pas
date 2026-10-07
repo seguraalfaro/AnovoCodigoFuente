@@ -39,8 +39,9 @@ type
     procedure AplicarAjuste(const AId: Integer; const ADto: TAjusteDTO);
 
     procedure Presentar(const AId: Integer);
-    procedure Aprobar(const AId: Integer);
-    procedure Rechazar(const AId: Integer; const ADto: TMotivoDTO);
+    procedure DarVistoBueno(const AId: Integer);
+    procedure RegistrarRespuesta(const AId: Integer;
+      const ADto: TRespuestaClienteDTO);
     procedure Devolver(const AId: Integer; const ADto: TMotivoDTO);
     procedure Enviar(const AId: Integer);
 

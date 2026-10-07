@@ -106,7 +106,6 @@ resourcestring
   SLineaSinMaquina = 'Una línea de máquina necesita la máquina.';
   SDescartarSinMotivo = 'Descartar una solicitud exige indicar el motivo.';
   SDevolverSinObservacion = 'Devolver exige una observación.';
-  SRechazarSinMotivo = 'Rechazar exige indicar el motivo.';
   SRevisarPropia = 'Una cotización no la puede revisar quien la elaboró.';
   SSolicitudTomada = 'Esta solicitud ya la tomó otro usuario.';
   SFechaInvalida = 'La fecha %s no tiene la forma aaaa-mm-dd.';
@@ -128,8 +127,8 @@ resourcestring
   SAjusteSinMotivo = 'Un ajuste distinto de cero exige indicar el motivo.';
   SCotizacionSinLineas = 'La cotización no tiene líneas: no hay nada que ' +
     'revisar.';
-  SCotizacionNoAprobable = 'Una cotización en estado %s no se puede aprobar.';
-  SCotizacionNoRechazable = 'Una cotización en estado %s no se puede rechazar.';
+  SCotizacionNoAprobable = 'Una cotización en estado %s no admite el visto bueno.';
+  SCotizacionSinRespuesta = 'La respuesta del cliente se registra sobre una cotización enviada; esta está en estado %s.';
   SCotizacionNoDevolvible = 'Una cotización en estado %s no se puede devolver.';
   SCotizacionNoEnviable = 'Una cotización en estado %s no se puede enviar al ' +
     'cliente.';
@@ -254,13 +253,10 @@ resourcestring
   SAccionRevisarCotizacion = 'registrar la revisión';
   SCotizacionNumero = 'Cotización Nº %d';
   SRevisionSubtitulo = '%s · Asesor: %s · Elaboró: %s';
-  SConfirmarAprobar = '¿Aprobar la cotización Nº %d?';
+  SConfirmarAprobar = '¿Dar el visto bueno a la cotización Nº %d? Queda lista para enviar al cliente.';
   SDevolverTitulo = 'Devolver la cotización Nº %d';
-  SDevolverAyuda = 'Vuelve a borrador para que se corrija. Indique qué hay que corregir.';
-  SRechazarTitulo = 'Rechazar la cotización Nº %d';
-  SRechazarAyuda = 'La cotización queda cerrada. Indique el motivo del rechazo.';
+  SDevolverAyuda = 'Queda devuelta para que se corrija y se envíe de nuevo a revisión. Indique qué hay que corregir.';
   SBotonDevolver = 'Devolver';
-  SBotonRechazar = 'Rechazar';
   SMotivoFalta = 'Escriba el motivo.';
   SSinCambiosPermisos = 'No hay cambios de permisos que guardar.';
   SPermisoFueraDeAmbito = 'El permiso «%s» no corresponde al ámbito del ' +
@@ -410,7 +406,9 @@ resourcestring
   SEstEnCotizacion = 'En cotización';
   SEstDescartada = 'Descartada';
   SEstBorrador = 'Borrador';
-  SEstPendiente = 'Pendiente de aprobación';
+  SEstPendiente = 'Enviada a revisión';
+  SEstDevuelta = 'Devuelta';
+  SEstVistoBueno = 'Con visto bueno';
   SEstAprobada = 'Aprobada';
   SEstRechazada = 'Rechazada';
   SEstEnviada = 'Enviada al cliente';
@@ -622,8 +620,9 @@ resourcestring
   SDetalleRecalculoCotizacion = 'Recálculo de totales de la cotización %d';
   SDetalleAjusteCotizacion = 'Ajuste de %s%% en la cotización %d';
   SDetalleCotizacionPresentada = 'Cotización %d presentada a revisión';
-  SDetalleAprobacionCotizacion = 'Aprobación de la cotización %d';
-  SDetalleRechazoCotizacion = 'Rechazo de la cotización %d';
+  SDetalleAprobacionCotizacion = 'Visto bueno de la cotización %d';
+  SDetalleRechazoCotizacion = 'El cliente rechazó la cotización %d';
+  SDetalleAceptacionCotizacion = 'El cliente aprobó la cotización %d';
   SDetalleDevolucionCotizacion = 'Devolución de la cotización %d';
   SDetalleEnvioCotizacion = 'Envío al cliente de la cotización %d';
   SDetalleRegistroSolicitud = 'Registro de la solicitud %s';
@@ -651,9 +650,12 @@ resourcestring
   SSinFotos = 'Sin fotografías';
   SAbrirEnVisor = 'Abrir en el visor de Windows';
   SConfirmarQuitarLinea = '¿Quitar la línea «%s»?';
-  SConfirmarPresentar = '¿Presentar la cotización Nº %d a aprobación? ' +
+  SConfirmarPresentar = '¿Enviar la cotización Nº %d a revisión? ' +
     'Mientras la revisan no se puede editar.';
   SConfirmarEnviar = '¿Marcar la cotización Nº %d como enviada al cliente?';
+  SConfirmarClienteAprobo = '¿Registrar que el cliente aprobó la cotización Nº %d?';
+  SConfirmarClienteRechazo = '¿Registrar que el cliente rechazó la cotización Nº %d?';
+  SAccionRegistrarRespuesta = 'registrar la respuesta del cliente';
   SAgregarMaterial = 'Agregar material';
   SAgregarManoObra = 'Agregar mano de obra';
   SAgregarMaquina = 'Agregar máquina';

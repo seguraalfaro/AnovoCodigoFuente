@@ -9,8 +9,8 @@ uses
   Anovo.DTOs.Cotizaciones;
 
 type
-  TFiltroCotizaciones = (fcTodas, fcBorrador, fcPendiente, fcAprobada,
-    fcEnviada, fcRechazada);
+  TFiltroCotizaciones = (fcTodas, fcBorrador, fcPendiente, fcDevuelta,
+    fcVistoBueno, fcEnviada, fcAprobada, fcRechazada);
 
   TAccionListaCotizacion = (alcAbrir);
   TAccionesListaCotizacion = set of TAccionListaCotizacion;

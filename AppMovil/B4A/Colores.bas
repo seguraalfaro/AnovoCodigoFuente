@@ -69,13 +69,13 @@ End Sub
 'Uso: Colores.ColorDeEstado("aprobada")
 Public Sub ColorDeEstado (Estado As String) As Int
 	Select Estado
-		Case "borrador", "pendiente"
+		Case "borrador", "pendiente", "devuelta"
 			Return COLOR_BORRADOR_PENDIENTE
 		Case "aprobada"
 			Return COLOR_APROBADA
 		Case "rechazada"
 			Return COLOR_RECHAZADA_ERROR
-		Case "enviada"
+		Case "enviada", "visto_bueno"
 			Return COLOR_MEDIO
 		Case "en_revision_provisional"
 			Return COLOR_EN_REVISION_PROVISIONAL

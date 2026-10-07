@@ -160,6 +160,10 @@ begin
     Result := SEstBorrador
   else if lValor = 'pendiente' then
     Result := SEstPendiente
+  else if lValor = 'devuelta' then
+    Result := SEstDevuelta
+  else if lValor = 'visto_bueno' then
+    Result := SEstVistoBueno
   else if lValor = 'aprobada' then
     Result := SEstAprobada
   else if lValor = 'rechazada' then

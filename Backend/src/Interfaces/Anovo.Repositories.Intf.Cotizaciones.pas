@@ -18,11 +18,11 @@ type
 
     function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
       const AEstado: string = ''; const AClienteId: Integer = 0;
-      const AElaboradaPor: Integer = 0; const ADesde: TDateTime = 0;
+      const AAsesorId: Integer = 0; const ADesde: TDateTime = 0;
       const AHasta: TDateTime = 0): TObjectList<TCotizaciones>;
 
     function ContarBusqueda(const ATexto: string; const AEstado: string = '';
-      const AClienteId: Integer = 0; const AElaboradaPor: Integer = 0;
+      const AClienteId: Integer = 0; const AAsesorId: Integer = 0;
       const ADesde: TDateTime = 0; const AHasta: TDateTime = 0): Int64;
 
     function ObtenerPorNumero(const ANumero: Integer): TCotizaciones;

@@ -43,8 +43,7 @@ const
   RQL_TEXTO_CATALOGO =
     'or(contains(Codigo,"%s"),contains(Nombre,"%s"),contains(Descripcion,"%s"))';
   RQL_ORDEN_CATALOGO = ';sort(+Nombre)';
-  RQL_EN_CURSO = 'or(in(Estado,["borrador","pendiente"]),' +
-    'and(eq(Estado,"aprobada"),eq(FechaEnvio,null)))';
+  RQL_EN_CURSO = 'in(Estado,["borrador","pendiente","devuelta","visto_bueno"])';
 
 type
 

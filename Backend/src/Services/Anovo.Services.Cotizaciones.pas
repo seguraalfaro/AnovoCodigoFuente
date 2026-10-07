@@ -22,9 +22,11 @@ uses
 const
   ESTADO_BORRADOR = 'borrador';
   ESTADO_PENDIENTE = 'pendiente';
+  ESTADO_DEVUELTA = 'devuelta';
+  ESTADO_VISTO_BUENO = 'visto_bueno';
+  ESTADO_ENVIADA = 'enviada';
   ESTADO_APROBADA = 'aprobada';
   ESTADO_RECHAZADA = 'rechazada';
-  ESTADO_ENVIADA = 'enviada';
 
   SOLICITUD_RECIBIDA = 'recibida';
   SOLICITUD_EN_COTIZACION = 'en_cotizacion';
@@ -92,8 +94,9 @@ type
     procedure AplicarAjuste(const AId: Integer; const ADto: TAjusteDTO);
 
     procedure Presentar(const AId: Integer);
-    procedure Aprobar(const AId: Integer);
-    procedure Rechazar(const AId: Integer; const ADto: TMotivoDTO);
+    procedure DarVistoBueno(const AId: Integer);
+    procedure RegistrarRespuesta(const AId: Integer;
+      const ADto: TRespuestaClienteDTO);
     procedure Devolver(const AId: Integer; const ADto: TMotivoDTO);
     procedure Enviar(const AId: Integer);
 
@@ -212,7 +215,8 @@ end;
 
 procedure TCotizacionService.ExigirEditable(const ACotizacion: TCotizaciones);
 begin
-  if ACotizacion.Estado <> ESTADO_BORRADOR then
+  if (ACotizacion.Estado <> ESTADO_BORRADOR) and
+    (ACotizacion.Estado <> ESTADO_DEVUELTA) then
     raise EConflictoDeEstado.Create('COTIZACION_NO_EDITABLE',
       Format(SCotizacionNoEditable,
       [ACotizacion.Estado]));
@@ -720,7 +724,7 @@ begin
   end;
 end;
 
-procedure TCotizacionService.Aprobar(const AId: Integer);
+procedure TCotizacionService.DarVistoBueno(const AId: Integer);
 var
   lCotizacion: TCotizaciones;
 begin
@@ -737,7 +741,7 @@ begin
     if lCotizacion.ElaboradaPor = UsuarioActual then
       raise EConflictoDeEstado.Create('COTIZACION_PROPIA', SRevisarPropia);
 
-    lCotizacion.Estado := ESTADO_APROBADA;
+    lCotizacion.Estado := ESTADO_VISTO_BUENO;
     lCotizacion.AprobadaPor := UsuarioActual;
     lCotizacion.FechaAprobacion := Now;
     FijarDetalle(Format(SDetalleAprobacionCotizacion, [lCotizacion.Numero]));
@@ -747,30 +751,31 @@ begin
   end;
 end;
 
-procedure TCotizacionService.Rechazar(const AId: Integer;
-  const ADto: TMotivoDTO);
+procedure TCotizacionService.RegistrarRespuesta(const AId: Integer;
+  const ADto: TRespuestaClienteDTO);
 var
   lCotizacion: TCotizaciones;
 begin
   var
   lTx := TMVCRepository.UseTransactionContext;
 
-  if ADto.Motivo.IsEmpty then
-    raise EDatoInvalido.Create(SRechazarSinMotivo);
-
   lCotizacion := TraerVigente(AId);
   try
-    if lCotizacion.Estado <> ESTADO_PENDIENTE then
+    if lCotizacion.Estado <> ESTADO_ENVIADA then
       raise EConflictoDeEstado.Create('TRANSICION_INVALIDA',
-        Format(SCotizacionNoRechazable,
+        Format(SCotizacionSinRespuesta,
         [lCotizacion.Estado]));
 
-    if lCotizacion.ElaboradaPor = UsuarioActual then
-      raise EConflictoDeEstado.Create('COTIZACION_PROPIA', SRevisarPropia);
-
-    lCotizacion.Estado := ESTADO_RECHAZADA;
-    lCotizacion.MotivoRechazo := ADto.Motivo;
-    FijarDetalle(Format(SDetalleRechazoCotizacion, [lCotizacion.Numero]));
+    if ADto.Aceptada then
+    begin
+      lCotizacion.Estado := ESTADO_APROBADA;
+      FijarDetalle(Format(SDetalleAceptacionCotizacion, [lCotizacion.Numero]));
+    end
+    else
+    begin
+      lCotizacion.Estado := ESTADO_RECHAZADA;
+      FijarDetalle(Format(SDetalleRechazoCotizacion, [lCotizacion.Numero]));
+    end;
     fRepo.Update(lCotizacion);
   finally
     lCotizacion.Free;
@@ -798,7 +803,7 @@ begin
     if lCotizacion.ElaboradaPor = UsuarioActual then
       raise EConflictoDeEstado.Create('COTIZACION_PROPIA', SRevisarPropia);
 
-    lCotizacion.Estado := ESTADO_BORRADOR;
+    lCotizacion.Estado := ESTADO_DEVUELTA;
     lCotizacion.MotivoRechazo := ADto.Motivo;
     FijarDetalle(Format(SDetalleDevolucionCotizacion, [lCotizacion.Numero]));
     fRepo.Update(lCotizacion);
@@ -816,7 +821,7 @@ begin
 
   lCotizacion := TraerVigente(AId);
   try
-    if lCotizacion.Estado <> ESTADO_APROBADA then
+    if lCotizacion.Estado <> ESTADO_VISTO_BUENO then
       raise EConflictoDeEstado.Create('TRANSICION_INVALIDA',
         Format(SCotizacionNoEnviable,
         [lCotizacion.Estado]));

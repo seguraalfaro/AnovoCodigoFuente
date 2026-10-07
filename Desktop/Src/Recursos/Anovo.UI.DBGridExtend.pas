@@ -121,7 +121,8 @@ var
   e: string;
 begin
   e := LowerCase(Trim(lEstado));
-  if (e = 'borrador') or (e = 'pendiente') or (e = 'recibida') or
+  if (e = 'borrador') or (e = 'pendiente') or (e = 'devuelta') or
+    (e = 'recibida') or
     (e = 'programado') or (e = 'sin_guardar') then
     Result := fsPending
   else if (e = 'aprobada') or (e = 'activo') or (e = 'firmado') or
@@ -130,7 +131,8 @@ begin
   else if (e = 'rechazada') or (e = 'descartada') or (e = 'inactivo') or
     (e = 'revocado') or (e = 'quitado') then
     Result := fsDanger
-  else if (e = 'enviada') or (e = 'en_cotizacion') or (e = 'en cotizacion') then
+  else if (e = 'enviada') or (e = 'visto_bueno') or (e = 'en_cotizacion') or
+    (e = 'en cotizacion') then
     Result := fsInfo
   else
     Result := fsNeutral;
@@ -615,6 +617,7 @@ begin
   AGrid.Font.Color := clAnovoTexto;
   AGrid.Font.Style := [];
   AGrid.RowFixHeight := AAltoFila;
+  AGrid.RowVerticalAlign := taVerticalCenter;
 
   AGrid.ColorOddRow := clAnovoFilaAlterna;
   AGrid.ColorActiveRow := clAnovoSeleccion;

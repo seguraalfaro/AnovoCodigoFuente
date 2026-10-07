@@ -9,7 +9,7 @@ uses
   Anovo.DTOs.Cotizaciones;
 
 type
-  TDecision = (dcAprobar, dcDevolver, dcRechazar);
+  TDecision = (dcVistoBueno, dcDevolver);
 
   IVistaRevision = interface
     ['{F952C463-A02D-49E3-B7B1-C9372FCC01BA}']

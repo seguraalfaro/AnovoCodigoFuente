@@ -42,22 +42,13 @@ inherited frmRevision: TfrmRevision
         AlignTopWithPanel = False
         AlignVerticalCenterWithPanel = True
         LeftOf = btnCancelar
-      end
-      item
-        Control = btnRechazar
-        AlignBottomWithPanel = False
-        AlignHorizontalCenterWithPanel = False
-        AlignLeftWithPanel = False
-        AlignRightWithPanel = False
-        AlignTopWithPanel = False
-        AlignVerticalCenterWithPanel = True
-        LeftOf = btnDevolver
       end>
     TabOrder = 4
     inherited btnGuardar: TPlanoBotonWin
       Tag = 18
-      Left = 720
-      Caption = 'Aprobar'
+      Left = 690
+      Width = 150
+      Caption = 'Dar visto bueno'
       OnClick = btnGuardarClick
     end
     inherited btnCancelar: TPlanoBotonWin
@@ -77,20 +68,6 @@ inherited frmRevision: TfrmRevision
       StyleElements = []
       OnClick = btnDevolverClick
       Kind = fkSecondary
-    end
-    object btnRechazar: TPlanoBotonWin
-      Tag = 19
-      AlignWithMargins = True
-      Left = 342
-      Top = 14
-      Width = 120
-      Height = 32
-      Cursor = crHandPoint
-      Anchors = [akTop, akRight]
-      Caption = 'Rechazar'
-      TabOrder = 3
-      StyleElements = []
-      OnClick = btnRechazarClick
     end
   end
   object pnlTrabajo: TPanel

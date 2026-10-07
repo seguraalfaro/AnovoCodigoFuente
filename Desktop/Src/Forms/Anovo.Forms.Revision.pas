@@ -20,7 +20,6 @@ uses
 type
   TfrmRevision = class(TfrmEdicion, IVistaRevision)
     btnDevolver: TPlanoBotonWin;
-    btnRechazar: TPlanoBotonWin;
     pnlTrabajo: TPanel;
     lblTrabajoRot: TLabel;
     lblTrabajo: TLabel;
@@ -44,7 +43,6 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure btnGuardarClick(Sender: TObject);
     procedure btnDevolverClick(Sender: TObject);
-    procedure btnRechazarClick(Sender: TObject);
   private
     FPresentador: TPresentadorRevision;
     FId: Integer;
@@ -108,7 +106,7 @@ end;
 
 function TfrmRevision.ControlesEdicion: TArray<TControl>;
 begin
-  Result := [btnDevolver, btnRechazar];
+  Result := [btnDevolver];
 end;
 
 procedure TfrmRevision.MostrarCargando(const AActivo: Boolean);
@@ -159,7 +157,7 @@ end;
 procedure TfrmRevision.btnGuardarClick(Sender: TObject);
 begin
   if Confirmar(Format(SConfirmarAprobar, [FNumero])) then
-    FPresentador.Aprobar;
+    FPresentador.DarVistoBueno;
 end;
 
 procedure TfrmRevision.btnDevolverClick(Sender: TObject);
@@ -171,13 +169,5 @@ begin
     FPresentador.Devolver(lMotivo);
 end;
 
-procedure TfrmRevision.btnRechazarClick(Sender: TObject);
-var
-  lMotivo: string;
-begin
-  if TfrmMotivo.Pedir(Self, Format(SRechazarTitulo, [FNumero]),
-    SRechazarAyuda, SBotonRechazar, lMotivo) then
-    FPresentador.Rechazar(lMotivo);
-end;
 
 end.

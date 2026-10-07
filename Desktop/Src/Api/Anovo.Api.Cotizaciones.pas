@@ -17,9 +17,9 @@ type
       : TBandejaPaginaDTO;
     function Obtener(const AId: Integer): TCotizacionDTO;
     function Detalle(const AId: Integer): TObjectList<TLineaDTO>;
-    procedure Aprobar(const AId: Integer);
+    procedure DarVistoBueno(const AId: Integer);
     procedure Devolver(const AId: Integer; const AMotivo: string);
-    procedure Rechazar(const AId: Integer; const AMotivo: string);
+    procedure RegistrarRespuesta(const AId: Integer; const AAceptada: Boolean);
     procedure Tomar(const ASolicitudId: Integer);
     function Listar(const ATexto, AEstado: string;
       const APagina, APorPagina: Integer; out ATotal: Int64)
@@ -50,9 +50,9 @@ const
   RUTA_BANDEJA = '/api/cotizaciones/bandeja';
   RUTA_COTIZACION = '/api/cotizaciones/%d';
   RUTA_DETALLE = '/api/cotizaciones/%d/detalle';
-  RUTA_APROBACION = '/api/cotizaciones/%d/aprobacion';
+  RUTA_VISTO_BUENO = '/api/cotizaciones/%d/visto-bueno';
   RUTA_DEVOLUCION = '/api/cotizaciones/%d/devolucion';
-  RUTA_RECHAZO = '/api/cotizaciones/%d/rechazo';
+  RUTA_RESPUESTA = '/api/cotizaciones/%d/respuesta';
   RUTA_LINEA = '/api/cotizaciones/%d/detalle/%d';
   RUTA_AJUSTE = '/api/cotizaciones/%d/ajuste';
   RUTA_PRESENTACION = '/api/cotizaciones/%d/presentacion';
@@ -129,9 +129,9 @@ begin
     end);
 end;
 
-procedure TApiCotizaciones.Aprobar(const AId: Integer);
+procedure TApiCotizaciones.DarVistoBueno(const AId: Integer);
 begin
-  Accion(AId, RUTA_APROBACION);
+  Accion(AId, RUTA_VISTO_BUENO);
 end;
 
 procedure TApiCotizaciones.Presentar(const AId: Integer);
@@ -235,9 +235,23 @@ begin
   Decidir(AId, RUTA_DEVOLUCION, AMotivo);
 end;
 
-procedure TApiCotizaciones.Rechazar(const AId: Integer; const AMotivo: string);
+procedure TApiCotizaciones.RegistrarRespuesta(const AId: Integer;
+  const AAceptada: Boolean);
+var
+  lDto: TRespuestaClienteDTO;
 begin
-  Decidir(AId, RUTA_RECHAZO, AMotivo);
+  lDto := TRespuestaClienteDTO.Create;
+  try
+    lDto.Aceptada := AAceptada;
+    Ejecutar(
+      function: IMVCRESTResponse
+      begin
+        Result := NuevoCliente.AddBody(lDto, False)
+          .Post(Format(RUTA_RESPUESTA, [AId]));
+      end);
+  finally
+    lDto.Free;
+  end;
 end;
 
 procedure TApiCotizaciones.Decidir(const AId: Integer;

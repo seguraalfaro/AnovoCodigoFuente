@@ -2595,13 +2595,13 @@ object dmMemoria: TdmMemoria
     Left = 1280
     Top = 32
     object mtReporteEstadosESTADO: TStringField
-      DisplayLabel = 'Estado'
+      DisplayLabel = 'Paso'
       DisplayWidth = 28
       FieldName = 'ESTADO'
       OnGetText = EstadoGetText
     end
     object mtReporteEstadosCANTIDAD: TIntegerField
-      DisplayLabel = 'Cotizaciones'
+      DisplayLabel = 'Cantidad'
       FieldName = 'CANTIDAD'
     end
     object mtReporteEstadosMONTO: TCurrencyField
@@ -2636,7 +2636,7 @@ object dmMemoria: TdmMemoria
       Size = 120
     end
     object mtReporteAsesoresCANTIDAD: TIntegerField
-      DisplayLabel = 'Cotizaciones'
+      DisplayLabel = 'Enviadas'
       FieldName = 'CANTIDAD'
     end
     object mtReporteAsesoresAPROBADAS: TIntegerField
@@ -2660,7 +2660,7 @@ object dmMemoria: TdmMemoria
       currency = False
     end
     object mtReporteAsesoresMONTO_TOTAL: TCurrencyField
-      DisplayLabel = 'Monto total'
+      DisplayLabel = 'Monto enviado'
       FieldName = 'MONTO_TOTAL'
       DisplayFormat = '#,##0.00'
       currency = False
@@ -2691,7 +2691,7 @@ object dmMemoria: TdmMemoria
       Size = 120
     end
     object mtReporteTiposCANTIDAD: TIntegerField
-      DisplayLabel = 'Cotizaciones'
+      DisplayLabel = 'Enviadas'
       FieldName = 'CANTIDAD'
     end
     object mtReporteTiposAPROBADAS: TIntegerField
@@ -2699,7 +2699,7 @@ object dmMemoria: TdmMemoria
       FieldName = 'APROBADAS'
     end
     object mtReporteTiposMONTO_TOTAL: TCurrencyField
-      DisplayLabel = 'Monto total'
+      DisplayLabel = 'Monto enviado'
       FieldName = 'MONTO_TOTAL'
       DisplayFormat = '#,##0.00'
       currency = False
@@ -2737,7 +2737,7 @@ object dmMemoria: TdmMemoria
       Visible = False
     end
     object mtReporteMesesCANTIDAD: TIntegerField
-      DisplayLabel = 'Cotizaciones'
+      DisplayLabel = 'Enviadas'
       FieldName = 'CANTIDAD'
     end
     object mtReporteMesesAPROBADAS: TIntegerField
@@ -2755,7 +2755,7 @@ object dmMemoria: TdmMemoria
       OnGetText = PorcentajeGetText
     end
     object mtReporteMesesMONTO_TOTAL: TCurrencyField
-      DisplayLabel = 'Monto total'
+      DisplayLabel = 'Monto enviado'
       FieldName = 'MONTO_TOTAL'
       DisplayFormat = '#,##0.00'
       currency = False

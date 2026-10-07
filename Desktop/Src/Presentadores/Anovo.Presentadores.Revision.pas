@@ -1,7 +1,7 @@
 unit Anovo.Presentadores.Revision;
 
 // Presentador de la revision: carga la cotizacion y registra
-// la decision del supervisor.
+// la decision del supervisor: visto bueno o devolucion.
 
 interface
 
@@ -22,9 +22,8 @@ type
     constructor Create(const AVista: IVistaRevision;
       const AApi: IApiCotizaciones; const AId: Integer);
     procedure Iniciar;
-    procedure Aprobar;
+    procedure DarVistoBueno;
     procedure Devolver(const AMotivo: string);
-    procedure Rechazar(const AMotivo: string);
   end;
 
 implementation
@@ -83,19 +82,14 @@ begin
     end);
 end;
 
-procedure TPresentadorRevision.Aprobar;
+procedure TPresentadorRevision.DarVistoBueno;
 begin
-  Decidir(dcAprobar, '');
+  Decidir(dcVistoBueno, '');
 end;
 
 procedure TPresentadorRevision.Devolver(const AMotivo: string);
 begin
   Decidir(dcDevolver, AMotivo);
-end;
-
-procedure TPresentadorRevision.Rechazar(const AMotivo: string);
-begin
-  Decidir(dcRechazar, AMotivo);
 end;
 
 procedure TPresentadorRevision.Decidir(const ADecision: TDecision;
@@ -115,12 +109,10 @@ begin
     procedure
     begin
       case lDecision of
-        dcAprobar:
-          lApi.Aprobar(lId);
+        dcVistoBueno:
+          lApi.DarVistoBueno(lId);
         dcDevolver:
           lApi.Devolver(lId, lMotivo);
-        dcRechazar:
-          lApi.Rechazar(lId, lMotivo);
       end;
     end,
     procedure

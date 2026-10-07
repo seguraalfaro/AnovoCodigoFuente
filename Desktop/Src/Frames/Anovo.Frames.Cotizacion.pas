@@ -27,6 +27,8 @@ type
     btnGuardar: TPlanoBotonWin;
     btnPresentar: TPlanoBotonWin;
     btnEnviar: TPlanoBotonWin;
+    btnClienteAprobo: TPlanoBotonWin;
+    btnClienteRechazo: TPlanoBotonWin;
     pnlAviso: TPanel;
     lblAviso: TLabel;
     pnlCuerpo: TPanel;
@@ -82,6 +84,8 @@ type
     procedure btnGuardarClick(Sender: TObject);
     procedure btnPresentarClick(Sender: TObject);
     procedure btnEnviarClick(Sender: TObject);
+    procedure btnClienteAproboClick(Sender: TObject);
+    procedure btnClienteRechazoClick(Sender: TObject);
     procedure btnAjusteClick(Sender: TObject);
     procedure btnMaterialClick(Sender: TObject);
     procedure btnManoObraClick(Sender: TObject);
@@ -257,6 +261,8 @@ begin
   btnGuardar.Visible := lEditable;
   btnPresentar.Visible := bcPresentar in ABotones;
   btnEnviar.Visible := bcEnviar in ABotones;
+  btnClienteAprobo.Visible := bcRespuesta in ABotones;
+  btnClienteRechazo.Visible := bcRespuesta in ABotones;
   btnAjuste.Visible := bcAjuste in ABotones;
   btnNuevoTipo.Visible := bcNuevoTipo in ABotones;
   btnMaterial.Visible := bcAgregarLinea in ABotones;
@@ -372,6 +378,16 @@ end;
 procedure TfraCotizacion.btnEnviarClick(Sender: TObject);
 begin
   FPresentador.Enviar;
+end;
+
+procedure TfraCotizacion.btnClienteAproboClick(Sender: TObject);
+begin
+  FPresentador.RegistrarRespuesta(True);
+end;
+
+procedure TfraCotizacion.btnClienteRechazoClick(Sender: TObject);
+begin
+  FPresentador.RegistrarRespuesta(False);
 end;
 
 procedure TfraCotizacion.btnVolverClick(Sender: TObject);

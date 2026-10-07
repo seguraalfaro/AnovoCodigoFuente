@@ -195,6 +195,14 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
+  TRespuestaClienteDTO = class
+  private
+    fAceptada: Boolean;
+  public
+    property Aceptada: Boolean read fAceptada write fAceptada;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
   TCotizacionBandejaDTO = class
   private
     fID: Integer;

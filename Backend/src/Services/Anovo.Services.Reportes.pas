@@ -1,8 +1,8 @@
 unit Anovo.Services.Reportes;
 
-// Servicio de reportes: suma por estado, asesor, tipo y mes las filas por
-// dia del periodo y calcula las tasas de aprobacion. Sin reportes.ver, solo
-// cuenta lo propio: sus solicitudes y lo que elaboro.
+// Servicio de reportes: cada paso del flujo cuenta en el dia en que ocurrio.
+// Envios al cliente, respuestas (aprobadas y rechazadas) y tasas por asesor,
+// tipo y mes. Sin reportes.ver, solo lo propio.
 
 interface
 
@@ -42,8 +42,36 @@ uses
   Anovo.Textos;
 
 const
-  ORDEN_ESTADOS: array [0 .. 3] of string = (ESTADO_BORRADOR,
-    ESTADO_PENDIENTE, ESTADO_APROBADA, ESTADO_ENVIADA);
+  ORDEN_ESTADOS: array [0 .. 6] of string = (ESTADO_BORRADOR,
+    ESTADO_PENDIENTE, ESTADO_DEVUELTA, ESTADO_VISTO_BUENO, ESTADO_ENVIADA,
+    ESTADO_APROBADA, ESTADO_RECHAZADA);
+
+function EsEnvio(const AFila: TCotizacionesDia): Boolean;
+begin
+  Result := AFila.Estado.ValueOrDefault = ESTADO_ENVIADA;
+end;
+
+function EsDelCliente(const AFila: TCotizacionesDia): Boolean;
+begin
+  Result := EsEnvio(AFila) or (AFila.Aprobadas.ValueOrDefault > 0) or
+    (AFila.Rechazadas.ValueOrDefault > 0);
+end;
+
+function EnviadasDe(const AFila: TCotizacionesDia): Integer;
+begin
+  if EsEnvio(AFila) then
+    Result := AFila.Cantidad.ValueOrDefault
+  else
+    Result := 0;
+end;
+
+function MontoEnviadoDe(const AFila: TCotizacionesDia): Currency;
+begin
+  if EsEnvio(AFila) then
+    Result := AFila.MontoTotal.ValueOrDefault
+  else
+    Result := 0;
+end;
 
 function Tasa(const AAprobadas, ARechazadas: Integer): Integer;
 begin
@@ -113,6 +141,8 @@ begin
   try
     for lFila in AFilas do
     begin
+      if not EsDelCliente(lFila) then
+        Continue;
       if not lPorClave.TryGetValue(lFila.AsesorId.ValueOrDefault, lAsesor) then
       begin
         lAsesor := TReporteAsesorDTO.Create;
@@ -121,14 +151,14 @@ begin
         lAsesor.AsesorNombre := lFila.AsesorNombre.ValueOrDefault;
         lPorClave.Add(lAsesor.AsesorId, lAsesor);
       end;
-      lAsesor.Cantidad := lAsesor.Cantidad + lFila.Cantidad.ValueOrDefault;
+      lAsesor.Cantidad := lAsesor.Cantidad + EnviadasDe(lFila);
       lAsesor.Aprobadas := lAsesor.Aprobadas + lFila.Aprobadas.ValueOrDefault;
       lAsesor.Rechazadas := lAsesor.Rechazadas +
         lFila.Rechazadas.ValueOrDefault;
       lAsesor.MontoAprobado := lAsesor.MontoAprobado.ValueOrDefault +
         lFila.MontoAprobado.ValueOrDefault;
       lAsesor.MontoTotal := lAsesor.MontoTotal.ValueOrDefault +
-        lFila.MontoTotal.ValueOrDefault;
+        MontoEnviadoDe(lFila);
     end;
   finally
     lPorClave.Free;
@@ -156,6 +186,8 @@ begin
   try
     for lFila in AFilas do
     begin
+      if not EsDelCliente(lFila) then
+        Continue;
       if not lPorClave.TryGetValue(lFila.TipoTrabajoId.ValueOrDefault,
         lTipo) then
       begin
@@ -165,10 +197,10 @@ begin
         lTipo.TipoTrabajoNombre := lFila.TipoTrabajoNombre.ValueOrDefault;
         lPorClave.Add(lFila.TipoTrabajoId.ValueOrDefault, lTipo);
       end;
-      lTipo.Cantidad := lTipo.Cantidad + lFila.Cantidad.ValueOrDefault;
+      lTipo.Cantidad := lTipo.Cantidad + EnviadasDe(lFila);
       lTipo.Aprobadas := lTipo.Aprobadas + lFila.Aprobadas.ValueOrDefault;
       lTipo.MontoTotal := lTipo.MontoTotal.ValueOrDefault +
-        lFila.MontoTotal.ValueOrDefault;
+        MontoEnviadoDe(lFila);
     end;
   finally
     lPorClave.Free;
@@ -197,6 +229,8 @@ begin
   try
     for lFila in AFilas do
     begin
+      if not EsDelCliente(lFila) then
+        Continue;
       lClave := lFila.Anio.ValueOrDefault * 100 + lFila.Mes.ValueOrDefault;
       if not lPorClave.TryGetValue(lClave, lMes) then
       begin
@@ -206,11 +240,11 @@ begin
         lMes.Mes := lFila.Mes.ValueOrDefault;
         lPorClave.Add(lClave, lMes);
       end;
-      lMes.Cantidad := lMes.Cantidad + lFila.Cantidad.ValueOrDefault;
+      lMes.Cantidad := lMes.Cantidad + EnviadasDe(lFila);
       lMes.Aprobadas := lMes.Aprobadas + lFila.Aprobadas.ValueOrDefault;
       lMes.Rechazadas := lMes.Rechazadas + lFila.Rechazadas.ValueOrDefault;
       lMes.MontoTotal := lMes.MontoTotal.ValueOrDefault +
-        lFila.MontoTotal.ValueOrDefault;
+        MontoEnviadoDe(lFila);
     end;
   finally
     lPorClave.Free;
@@ -260,9 +294,8 @@ begin
       lConRespuesta := 0;
       for lFila in lFilas do
       begin
-        Result.Total := Result.Total + lFila.Cantidad.ValueOrDefault;
-        Result.MontoTotal := Result.MontoTotal +
-          lFila.MontoTotal.ValueOrDefault;
+        Result.Total := Result.Total + EnviadasDe(lFila);
+        Result.MontoTotal := Result.MontoTotal + MontoEnviadoDe(lFila);
         Result.Aprobadas := Result.Aprobadas + lFila.Aprobadas.ValueOrDefault;
         Result.Rechazadas := Result.Rechazadas +
           lFila.Rechazadas.ValueOrDefault;

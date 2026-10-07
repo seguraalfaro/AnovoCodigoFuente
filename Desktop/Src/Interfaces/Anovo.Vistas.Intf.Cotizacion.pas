@@ -18,8 +18,8 @@ type
   TAccionLinea = (alEditar, alQuitar);
   TAccionesLinea = set of TAccionLinea;
 
-  TBotonCotizacion = (bcGuardar, bcPresentar, bcEnviar, bcAgregarLinea,
-    bcAjuste, bcNuevoTipo);
+  TBotonCotizacion = (bcGuardar, bcPresentar, bcEnviar, bcRespuesta,
+    bcAgregarLinea, bcAjuste, bcNuevoTipo);
   TBotonesCotizacion = set of TBotonCotizacion;
 
   TModoLinea = (mlMaterial, mlManoObra, mlMaquina, mlNota, mlEditar);

@@ -53,6 +53,7 @@ type
     procedure Guardar(const ADatos: TCotizacionEdicionDTO);
     procedure Presentar(const ADatos: TCotizacionEdicionDTO);
     procedure Enviar;
+    procedure RegistrarRespuesta(const AAceptada: Boolean);
     procedure QuitarLinea(const ALineaId: Integer);
     function Linea(const ALineaId: Integer): TLineaDTO;
     property Id: Integer read FId;
@@ -120,7 +121,9 @@ uses
 
 const
   ESTADO_BORRADOR = 'borrador';
-  ESTADO_APROBADA = 'aprobada';
+  ESTADO_DEVUELTA = 'devuelta';
+  ESTADO_VISTO_BUENO = 'visto_bueno';
+  ESTADO_ENVIADA = 'enviada';
   ADJUNTO_CROQUIS = 'croquis';
   ADJUNTO_FOTO = 'foto';
   MAXIMO_FOTOS = 4;
@@ -157,7 +160,7 @@ end;
 
 function TPresentadorCotizacion.Editable: Boolean;
 begin
-  Result := (FEstado = ESTADO_BORRADOR) and
+  Result := ((FEstado = ESTADO_BORRADOR) or (FEstado = ESTADO_DEVUELTA)) and
     TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR);
 end;
 
@@ -175,9 +178,12 @@ begin
       Include(lBotones, bcNuevoTipo);
     lAcciones := [alEditar, alQuitar];
   end
-  else if (FEstado = ESTADO_APROBADA) and
+  else if (FEstado = ESTADO_VISTO_BUENO) and
     TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR) then
-    lBotones := [bcEnviar];
+    lBotones := [bcEnviar]
+  else if (FEstado = ESTADO_ENVIADA) and
+    TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR) then
+    lBotones := [bcRespuesta];
   FVista.MostrarBotones(lBotones, lAcciones);
 end;
 
@@ -251,7 +257,7 @@ begin
       if lTipos <> nil then
         FVista.MostrarTiposTrabajo(lTipos);
       FVista.MostrarCotizacion(lCotizacion, AConEncabezado);
-      if (FEstado = ESTADO_BORRADOR) and lCotizacion.MotivoRechazo.HasValue then
+      if (FEstado = ESTADO_DEVUELTA) and lCotizacion.MotivoRechazo.HasValue then
         FVista.MostrarDevolucion(lCotizacion.MotivoRechazo.Value)
       else
         FVista.MostrarDevolucion('');
@@ -420,6 +426,32 @@ begin
     procedure
     begin
       lApi.Enviar(lId);
+    end,
+    procedure
+    begin
+      FVista.Regresar;
+    end, MostrarError, MostrarCargando);
+end;
+
+procedure TPresentadorCotizacion.RegistrarRespuesta(const AAceptada: Boolean);
+var
+  lApi: IApiCotizaciones;
+  lId: Integer;
+  lPregunta: string;
+begin
+  if AAceptada then
+    lPregunta := SConfirmarClienteAprobo
+  else
+    lPregunta := SConfirmarClienteRechazo;
+  if not FVista.Confirmar(Format(lPregunta, [FNumero])) then
+    Exit;
+  lApi := FApi;
+  lId := FId;
+
+  Ejecutar(SAccionRegistrarRespuesta,
+    procedure
+    begin
+      lApi.RegistrarRespuesta(lId, AAceptada);
     end,
     procedure
     begin
