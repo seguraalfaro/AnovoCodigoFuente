@@ -28,6 +28,8 @@ const
 
   ADJUNTO_CROQUIS = 'croquis';
   ADJUNTO_FOTO = 'foto';
+  MIME_JPEG = 'image/jpeg';
+  MIME_PNG = 'image/png';
 
 type
   TSolicitudService = class(TInterfacedObject, ISolicitudService)
@@ -104,6 +106,7 @@ uses
   System.Classes,
   System.NetEncoding,
   System.SysUtils,
+  JsonDataObjects,
   MVCFramework.Repository,
   Anovo.Auditoria.Contexto,
   Anovo.Entities.Catalogos,
@@ -559,6 +562,31 @@ begin
   end;
 end;
 
+function MimeDeImagen(const ABytes: TBytes): string;
+begin
+  Result := '';
+  if (Length(ABytes) >= 3) and (ABytes[0] = $FF) and (ABytes[1] = $D8) and
+    (ABytes[2] = $FF) then
+    Result := MIME_JPEG
+  else if (Length(ABytes) >= 8) and (ABytes[0] = $89) and (ABytes[1] = $50) and
+    (ABytes[2] = $4E) and (ABytes[3] = $47) and (ABytes[4] = $0D) and
+    (ABytes[5] = $0A) and (ABytes[6] = $1A) and (ABytes[7] = $0A) then
+    Result := MIME_PNG;
+end;
+
+function JsonValido(const ATexto: string): Boolean;
+var
+  lJson: TJsonBaseObject;
+begin
+  try
+    lJson := TJsonBaseObject.Parse(ATexto);
+    lJson.Free;
+    Result := True;
+  except
+    Result := False;
+  end;
+end;
+
 function TSolicitudService.InsertarAdjunto(const ASolicitudId: Integer;
   const ADto: TAdjuntoNuevoDTO): Integer;
 var
@@ -587,17 +615,26 @@ begin
     lAdjunto.UuidLocal := ADto.UuidLocal;
     lAdjunto.Tipo := ADto.Tipo;
     lAdjunto.NombreArchivo := ADto.NombreArchivo;
-    lAdjunto.Mime := ADto.Mime;
+    if ADto.ContenidoJson.HasValue and not JsonValido(ADto.ContenidoJson.Value) then
+      raise EDatoInvalido.Create(SAdjuntoJsonInvalido);
     lAdjunto.ContenidoJson := ADto.ContenidoJson;
     lAdjunto.Activo := True;
     lAdjunto.FechaCreacion := Now;
 
     if ADto.Contenido.HasValue and not ADto.Contenido.Value.IsEmpty then
     begin
-      lBytes := TNetEncoding.Base64.DecodeStringToBytes(ADto.Contenido.Value);
+      try
+        lBytes := TNetEncoding.Base64.DecodeStringToBytes(ADto.Contenido.Value);
+      except
+        raise EDatoInvalido.Create(SAdjuntoFormatoInvalido);
+      end;
 
       if Length(lBytes) > ADJUNTO_MAXIMO_BYTES then
         raise EDatoInvalido.Create(SAdjuntoMuyGrande);
+
+      lAdjunto.Mime := MimeDeImagen(lBytes);
+      if lAdjunto.Mime.Value.IsEmpty then
+        raise EDatoInvalido.Create(SAdjuntoFormatoInvalido);
 
       lStream := TMemoryStream.Create;
       lStream.WriteBuffer(lBytes[0], Length(lBytes));

@@ -241,6 +241,8 @@ resourcestring
 
   SSinConexion = 'No se pudo conectar con el servidor de Anovo. ' +
     'Revise la red o avise al administrador.';
+  SDemasiadasPeticiones = 'Se hicieron demasiadas consultas en poco tiempo. ' +
+    'Espere un minuto e intente de nuevo.';
   SSesionVencida = 'Su sesión venció. Vuelva a ingresar.';
   SCertificadoInvalido = 'No se pudo verificar el certificado del servidor ' +
     'de Anovo. Avise al administrador.';
@@ -405,6 +407,8 @@ resourcestring
     'nuevo en %d minutos.';
   SCambioClavePendiente = 'Debe cambiar su clave antes de continuar.';
   STokenAccesoInvalido = 'El token de acceso no es válido. Vuelva a ingresar.';
+  SAdjuntoFormatoInvalido = 'El adjunto debe ser una imagen JPEG o PNG.';
+  SAdjuntoJsonInvalido = 'El croquis no tiene un formato válido.';
   SSesionRevocada = 'Su cuenta cambió (estado, rol o clave). Vuelva a ingresar.';
   SDocsTitulo = 'Documentación de la API';
   SDocsSubtitulo = 'Acceso solo para el personal de TI de Anovo.';

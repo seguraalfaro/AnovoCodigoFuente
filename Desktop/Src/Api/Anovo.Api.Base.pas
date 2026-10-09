@@ -53,6 +53,8 @@ const
 
   TIEMPO_LECTURA_MS = 60000;
 
+  ESTADO_DEMASIADAS_PETICIONES = 429;
+
 procedure ValidarCertificado(const aSender: TObject; const aRequest: TURLRequest;
   const aCertificate: TCertificate; var aAccepted: Boolean);
 begin
@@ -138,6 +140,9 @@ begin
     on EJsonException do
       ;
   end;
+
+  if (Result.StatusCode = ESTADO_DEMASIADAS_PETICIONES) and (lCodigo = 'ERROR') then
+    lMensaje := SDemasiadasPeticiones;
 
   raise EAnovoApiError.Create(lCodigo, lMensaje, Result.StatusCode);
 end;
