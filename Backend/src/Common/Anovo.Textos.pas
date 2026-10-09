@@ -403,6 +403,15 @@ resourcestring
   SAccionEnviarCorreo = 'enviar la cotización por correo';
   SIngresoBloqueado = 'Demasiados intentos fallidos de ingreso. Intente de ' +
     'nuevo en %d minutos.';
+  SCambioClavePendiente = 'Debe cambiar su clave antes de continuar.';
+  SDocsTitulo = 'Documentación de la API';
+  SDocsSubtitulo = 'Acceso solo para el personal de TI de Anovo.';
+  SDocsCorreo = 'Correo';
+  SDocsClave = 'Clave';
+  SDocsEntrar = 'Entrar';
+  SDocsInvalido = 'El correo o la clave no son correctos.';
+  SDocsSinPermiso = 'Su cuenta no tiene acceso a la documentación de la API.';
+  SDocsSinAcceso = 'Inicie sesión en /docs/acceso para ver la documentación.';
   SAccionEstadoCorreo = 'consultar el correo del servidor';
   SEnvioAsunto = 'Cotización %d - %s';
   SEnvioMensaje = 'Estimado(a) %s:' + sLineBreak + sLineBreak +

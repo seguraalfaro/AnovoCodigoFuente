@@ -29,6 +29,7 @@ uses
   Anovo.Controllers.Empresa,
   Anovo.Controllers.Correo,
   Anovo.Red,
+  Anovo.Middleware.Documentacion,
   Anovo.Auth.RoleHandler,
   Anovo.Errors,
   Anovo.Middleware.ContextoAuditoria,
@@ -53,6 +54,7 @@ uses
 procedure ConfigureEngine(AEngine: TMVCEngine);
 var
   LRateLimitMiddleware: TMVCRateLimitMiddleware;
+  LJWTMiddleware: IMVCMiddleware;
   LJWTClaimsSetup: TJWTClaimsSetup;
   LSwaggerInfo: TMVCSwaggerInfo;
   LOpenAPIInfo: TMVCOpenAPIInfo;
@@ -116,6 +118,8 @@ begin
 
   AEngine.AddMiddleware(LRateLimitMiddleware);
 
+  AEngine.AddMiddleware(TDocumentacionMiddleware.Create);
+
   AEngine.AddMiddleware(TMVCStaticFilesMiddleware.Create('/swagger',
     TPath.Combine(AppPath, 'swaggerui'), 'index.html'));
 
@@ -137,12 +141,15 @@ begin
     dotEnv.Env('firedac.connection_definitions_filename', TPath.Combine(AppPath,
     'FDConnectionDefs.ini'))));
 
-  AEngine.AddMiddleware(UseJWTMiddleware(TAuthentication.Create,
+  LJWTMiddleware := UseJWTMiddleware(TAuthentication.Create,
     LJWTClaimsSetup, dotEnv.Env('JWT_SECRET'),
     '/api/auth/login',
     [TJWTCheckableClaim.ExpirationTime, TJWTCheckableClaim.NotBefore,
     TJWTCheckableClaim.IssuedAt], 300
-    ));
+    );
+  (LJWTMiddleware as TMVCJWTAuthenticationMiddleware)
+    .AuthorizationAccessTokenParamName := '';
+  AEngine.AddMiddleware(LJWTMiddleware);
 
   AEngine.AddMiddleware(TContextoAuditoriaMiddleware.Create);
   AEngine.AddMiddleware(TActividadMiddleware.Create);

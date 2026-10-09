@@ -126,6 +126,7 @@ uses
   Anovo.Controllers.Correo in 'src\Controllers\Anovo.Controllers.Correo.pas',
   Anovo.Red in 'src\Common\Anovo.Red.pas',
   Anovo.Auth.Intentos in 'src\Auth\Anovo.Auth.Intentos.pas',
+  Anovo.Middleware.Documentacion in 'src\Middleware\Anovo.Middleware.Documentacion.pas',
   Anovo.Services.Intf.Sesion in 'src\Interfaces\Anovo.Services.Intf.Sesion.pas',
   Anovo.Services.Sesion in 'src\Services\Anovo.Services.Sesion.pas',
   Anovo.Controllers.Version in 'src\Controllers\Anovo.Controllers.Version.pas',

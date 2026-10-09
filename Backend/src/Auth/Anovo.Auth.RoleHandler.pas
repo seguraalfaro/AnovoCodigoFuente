@@ -16,6 +16,7 @@ type
   TAuthentication = class(TRoleBasedAuthHandler)
   private
     fRtti: TRttiContext;
+    function DebeCambiarClave(const AContext: TWebContext): Boolean;
     function CumplePermisos(const AContext: TWebContext;
       UserRoles: TList<string>;
       const AAtributos: TArray<TCustomAttribute>): Boolean;
@@ -35,12 +36,18 @@ implementation
 
 uses
   System.SysUtils,
+  MVCFramework.Commons,
   MVCFramework.Logger,
   Anovo.Auth.Intentos,
   Anovo.Auth.Permisos,
   Anovo.Errors,
   Anovo.Red,
-  Anovo.Services.Intf.Sesion;
+  Anovo.Services.Intf.Sesion,
+  Anovo.Textos;
+
+const
+  DATO_DEBE_CAMBIAR_CLAVE = 'DEBE_CAMBIAR_CLAVE';
+  CONTROLLER_CUENTA_PROPIA = 'Anovo.Controllers.Sesion.TSesionController';
 
 constructor TAuthentication.Create;
 begin
@@ -52,6 +59,17 @@ destructor TAuthentication.Destroy;
 begin
   fRtti.Free;
   inherited;
+end;
+
+function TAuthentication.DebeCambiarClave(const AContext: TWebContext)
+  : Boolean;
+var
+  lValor: string;
+begin
+  lValor := '';
+  if Assigned(AContext.LoggedUser.CustomData) then
+    AContext.LoggedUser.CustomData.TryGetValue(DATO_DEBE_CAMBIAR_CLAVE, lValor);
+  Result := SameText(lValor, BoolToStr(True, True));
 end;
 
 function TAuthentication.CumplePermisos(const AContext: TWebContext;
@@ -104,7 +122,7 @@ begin
   UserRoles.Add(lResultado.Rol);
   SessionData.AddOrSetValue(DATO_USUARIO_ID, lResultado.UsuarioId.ToString);
   SessionData.AddOrSetValue('NOMBRE', lResultado.Nombre);
-  SessionData.AddOrSetValue('DEBE_CAMBIAR_CLAVE',
+  SessionData.AddOrSetValue(DATO_DEBE_CAMBIAR_CLAVE,
     BoolToStr(lResultado.DebeCambiarClave, True));
   IsValid := True;
 end;
@@ -119,6 +137,11 @@ begin
   inherited;
   if not IsAuthorized then
     Exit;
+
+  if DebeCambiarClave(AContext) and
+    not SameText(ControllerQualifiedClassName, CONTROLLER_CUENTA_PROPIA) then
+    raise EAnovoError.Create('CAMBIO_CLAVE_PENDIENTE', SCambioClavePendiente,
+      HTTP_STATUS.Forbidden);
 
   lTipo := fRtti.FindType(ControllerQualifiedClassName);
   if not CumplePermisos(AContext, UserRoles, lTipo.GetAttributes) then
