@@ -30,6 +30,7 @@ uses
   Anovo.Controllers.Correo,
   Anovo.Red,
   Anovo.Middleware.Documentacion,
+  Anovo.Middleware.Token,
   Anovo.Auth.RoleHandler,
   Anovo.Errors,
   Anovo.Middleware.ContextoAuditoria,
@@ -55,6 +56,7 @@ procedure ConfigureEngine(AEngine: TMVCEngine);
 var
   LRateLimitMiddleware: TMVCRateLimitMiddleware;
   LJWTMiddleware: IMVCMiddleware;
+  LOrigenesCORS: string;
   LJWTClaimsSetup: TJWTClaimsSetup;
   LSwaggerInfo: TMVCSwaggerInfo;
   LOpenAPIInfo: TMVCOpenAPIInfo;
@@ -112,11 +114,17 @@ begin
   LOpenAPIInfo.ContactName := LSwaggerInfo.ContactName;
   LOpenAPIInfo.ContactEmail := LSwaggerInfo.ContactEmail;
 
-  AEngine.AddMiddleware(TMVCCORSMiddleware.Create
-    (TMVCCORSDefaults.ALLOWS_ORIGIN_URL, TMVCCORSDefaults.ALLOWS_CREDENTIALS,
-    TMVCCORSDefaults.EXPOSE_HEADERS, TMVCCORSDefaults.ALLOWS_HEADERS));
+  LOrigenesCORS := dotEnv.Env('anovo.cors.origenes', '').Trim;
+  if not LOrigenesCORS.IsEmpty then
+    AEngine.AddMiddleware(TMVCCORSMiddleware.Create(LOrigenesCORS, False,
+      TMVCCORSDefaults.EXPOSE_HEADERS, TMVCCORSDefaults.ALLOWS_HEADERS));
 
   AEngine.AddMiddleware(LRateLimitMiddleware);
+
+  AEngine.AddMiddleware(TMVCActiveRecordMiddleware.Create
+    (dotEnv.Env('firedac.connection_definition_name', 'AnovoDef'),
+    dotEnv.Env('firedac.connection_definitions_filename', TPath.Combine(AppPath,
+    'FDConnectionDefs.ini'))));
 
   AEngine.AddMiddleware(TDocumentacionMiddleware.Create);
 
@@ -136,10 +144,6 @@ begin
   AEngine.AddMiddleware(TMVCOpenAPI3Middleware.Create(AEngine, LOpenAPIInfo,
     '/api/openapi.json'));
 
-  AEngine.AddMiddleware(TMVCActiveRecordMiddleware.Create
-    (dotEnv.Env('firedac.connection_definition_name', 'AnovoDef'),
-    dotEnv.Env('firedac.connection_definitions_filename', TPath.Combine(AppPath,
-    'FDConnectionDefs.ini'))));
 
   LJWTMiddleware := UseJWTMiddleware(TAuthentication.Create,
     LJWTClaimsSetup, dotEnv.Env('JWT_SECRET'),
@@ -149,6 +153,7 @@ begin
     );
   (LJWTMiddleware as TMVCJWTAuthenticationMiddleware)
     .AuthorizationAccessTokenParamName := '';
+  AEngine.AddMiddleware(TTokenFormatoMiddleware.Create);
   AEngine.AddMiddleware(LJWTMiddleware);
 
   AEngine.AddMiddleware(TContextoAuditoriaMiddleware.Create);

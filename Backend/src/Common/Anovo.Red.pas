@@ -17,7 +17,8 @@ uses
   MVCFramework.Commons;
 
 const
-  PROXIES_POR_DEFECTO = '127.0.0.1,::1,::ffff:127.0.0.1';
+  PROXIES_POR_DEFECTO = 'loopback';
+  PROXY_LOOPBACK = 'loopback';
   ENCABEZADO_POR_DEFECTO = 'CF-Connecting-IP';
   CARACTERES_IP = ['0' .. '9', 'a' .. 'f', 'A' .. 'F', '.', ':'];
   LARGO_MAXIMO_IP = 45;
@@ -34,6 +35,16 @@ begin
       Exit(False);
 end;
 
+function EsLoopback(const AIp: string): Boolean;
+var
+  lIp: string;
+begin
+  lIp := AIp.Trim.ToLower;
+  Result := lIp.StartsWith('127.') or (lIp = '::1') or
+    (lIp = '0:0:0:0:0:0:0:1') or lIp.StartsWith('::ffff:127.') or
+    lIp.StartsWith('0:0:0:0:0:ffff:7f');
+end;
+
 function EsProxyConfiable(const AIp: string): Boolean;
 var
   lProxy: string;
@@ -41,7 +52,12 @@ begin
   Result := False;
   for lProxy in dotEnv.Env('anovo.proxy.confiables', PROXIES_POR_DEFECTO)
     .Split([',']) do
-    if SameText(lProxy.Trim, AIp) then
+    if SameText(lProxy.Trim, PROXY_LOOPBACK) then
+    begin
+      if EsLoopback(AIp) then
+        Exit(True);
+    end
+    else if SameText(lProxy.Trim, AIp) then
       Exit(True);
 end;
 

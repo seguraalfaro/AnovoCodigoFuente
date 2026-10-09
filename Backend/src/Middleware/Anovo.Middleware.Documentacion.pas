@@ -154,8 +154,12 @@ begin
   try
     lJwt.RegClaimsToChecks := [TJWTCheckableClaim.ExpirationTime,
       TJWTCheckableClaim.NotBefore, TJWTCheckableClaim.IssuedAt];
-    Result := lJwt.LoadToken(lToken, lError) and
-      (lJwt.CustomClaims['app'] = APLICACION_DOCS);
+    try
+      Result := lJwt.LoadToken(lToken, lError) and
+        (lJwt.CustomClaims['app'] = APLICACION_DOCS);
+    except
+      Result := False;
+    end;
   finally
     lJwt.Free;
   end;
