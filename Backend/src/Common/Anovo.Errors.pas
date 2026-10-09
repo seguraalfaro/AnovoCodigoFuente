@@ -51,6 +51,11 @@ type
     constructor Create(const ACodigo, AMensaje: string); reintroduce;
   end;
 
+  EDemasiadosIntentos = class(EAnovoError)
+  public
+    constructor Create(const AMinutos: Integer); reintroduce;
+  end;
+
 function ManejadorDeErrores: TMVCExceptionHandlerProc;
 
 implementation
@@ -106,6 +111,12 @@ end;
 constructor EServicioExterno.Create(const ACodigo, AMensaje: string);
 begin
   inherited Create(ACodigo, AMensaje, HTTP_STATUS.BadGateway);
+end;
+
+constructor EDemasiadosIntentos.Create(const AMinutos: Integer);
+begin
+  inherited Create('INGRESO_BLOQUEADO', Format(SIngresoBloqueado, [AMinutos]),
+    HTTP_STATUS.TooManyRequests);
 end;
 
 function ManejadorDeErrores: TMVCExceptionHandlerProc;

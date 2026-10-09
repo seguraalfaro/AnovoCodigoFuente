@@ -264,6 +264,8 @@
         <DCCReference Include="src\Interfaces\Anovo.Services.Intf.EnvioCotizacion.pas"/>
         <DCCReference Include="src\Services\Anovo.Services.EnvioCotizacion.pas"/>
         <DCCReference Include="src\Controllers\Anovo.Controllers.Correo.pas"/>
+        <DCCReference Include="src\Common\Anovo.Red.pas"/>
+        <DCCReference Include="src\Auth\Anovo.Auth.Intentos.pas"/>
         <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Importacion.pas"/>
         <DCCReference Include="src\Services\Anovo.Services.Importacion.pas"/>
         <DCCReference Include="src\Interfaces\Anovo.Repositories.Intf.Reportes.pas"/>

@@ -35,7 +35,11 @@ implementation
 
 uses
   System.SysUtils,
+  MVCFramework.Logger,
+  Anovo.Auth.Intentos,
   Anovo.Auth.Permisos,
+  Anovo.Errors,
+  Anovo.Red,
   Anovo.Services.Intf.Sesion;
 
 constructor TAuthentication.Create;
@@ -77,15 +81,25 @@ procedure TAuthentication.OnAuthentication(const AContext: TWebContext;
 var
   lSesion: ISesionService;
   lResultado: TAutenticacion;
+  lIp: string;
+  lMinutos: Integer;
 begin
   IsValid := False;
   UserRoles.Clear;
+  lIp := IpCliente(AContext);
+  if TIntentosIngreso.Bloqueado(UserName, lIp, lMinutos) then
+    raise EDemasiadosIntentos.Create(lMinutos);
 
   lSesion := AContext.ServiceContainerResolver.Resolve(
     TypeInfo(ISesionService)) as ISesionService;
   lResultado := lSesion.Autenticar(UserName, Password);
   if not lResultado.Valido then
+  begin
+    if TIntentosIngreso.RegistrarFallo(UserName, lIp) then
+      LogW(Format('Ingreso bloqueado por intentos fallidos desde %s', [lIp]));
     Exit;
+  end;
+  TIntentosIngreso.RegistrarExito(UserName);
 
   UserRoles.Add(lResultado.Rol);
   SessionData.AddOrSetValue(DATO_USUARIO_ID, lResultado.UsuarioId.ToString);

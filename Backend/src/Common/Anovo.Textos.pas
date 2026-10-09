@@ -401,6 +401,8 @@ resourcestring
   SCorreoFallido = 'El servidor de correo no aceptó el envío (código %d).';
   SDetalleEnvioCorreo = 'Envío por correo de la cotización %d a %s';
   SAccionEnviarCorreo = 'enviar la cotización por correo';
+  SIngresoBloqueado = 'Demasiados intentos fallidos de ingreso. Intente de ' +
+    'nuevo en %d minutos.';
   SAccionEstadoCorreo = 'consultar el correo del servidor';
   SEnvioAsunto = 'Cotización %d - %s';
   SEnvioMensaje = 'Estimado(a) %s:' + sLineBreak + sLineBreak +

@@ -28,6 +28,7 @@ uses
   Anovo.Controllers.Usuarios,
   Anovo.Controllers.Empresa,
   Anovo.Controllers.Correo,
+  Anovo.Red,
   Anovo.Auth.RoleHandler,
   Anovo.Errors,
   Anovo.Middleware.ContextoAuditoria,
@@ -75,7 +76,8 @@ begin
 
   LRateLimitMiddleware := TMVCRateLimitMiddleware.Create(300,
     60,
-    rlkIPAddress);
+    rlkCustom);
+  LRateLimitMiddleware.SetKeyExtractor(IpCliente);
   LRateLimitMiddleware.AddExcludedPath('/health');
   LRateLimitMiddleware.SetOnRateLimitExceeded(
     procedure(const AContext: TWebContext; const AKey: string;
