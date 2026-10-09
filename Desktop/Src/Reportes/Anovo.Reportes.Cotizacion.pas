@@ -6,6 +6,7 @@ unit Anovo.Reportes.Cotizacion;
 interface
 
 uses
+  System.SysUtils,
   System.Classes,
   Vcl.Forms,
   RLReport,
@@ -45,13 +46,15 @@ type
     class procedure VistaPrevia(const ADocumento: TCotizacionDocumentoDTO);
     class procedure GuardarPdf(const ADocumento: TCotizacionDocumentoDTO;
       const ARuta: string);
+    class function PdfEnBytes(const ADocumento: TCotizacionDocumentoDTO)
+      : TBytes;
   end;
 
 implementation
 
 uses
   Winapi.Windows,
-  System.SysUtils,
+  System.IOUtils,
   System.UITypes,
   Vcl.Graphics,
   Vcl.Controls,
@@ -120,6 +123,21 @@ begin
     lReporte.FPrincipal.SaveToFile(ARuta);
   finally
     lReporte.Free;
+  end;
+end;
+
+class function TReporteCotizacion.PdfEnBytes(const ADocumento
+  : TCotizacionDocumentoDTO): TBytes;
+var
+  lRuta: string;
+begin
+  lRuta := TPath.Combine(TPath.GetTempPath, TGUID.NewGuid.ToString + '.pdf');
+  try
+    GuardarPdf(ADocumento, lRuta);
+    Result := TFile.ReadAllBytes(lRuta);
+  finally
+    if FileExists(lRuta) then
+      System.SysUtils.DeleteFile(lRuta);
   end;
 end;
 

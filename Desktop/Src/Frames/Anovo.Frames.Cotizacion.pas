@@ -117,6 +117,7 @@ type
     procedure MostrarDevolucion(const AMotivo: string);
     procedure MostrarDocumento(const ADocumento: TCotizacionDocumentoDTO;
       const ARuta: string);
+    procedure MostrarEnvio(const ADocumento: TCotizacionDocumentoDTO);
     procedure AcomodarBotones;
     procedure MostrarBotones(const ABotones: TBotonesCotizacion;
       const AAcciones: TAccionesLinea);
@@ -150,6 +151,7 @@ uses
   Anovo.Forms.AjusteCotizacion,
   Anovo.Forms.ItemCatalogo,
   Anovo.Reportes.Cotizacion,
+  Anovo.Forms.EnvioCotizacion,
   Vcl.Dialogs,
   Anovo.Vistas.Intf.Catalogos,
   Anovo.Mapeo.Datos,
@@ -400,7 +402,7 @@ end;
 
 procedure TfraCotizacion.btnEnviarClick(Sender: TObject);
 begin
-  FPresentador.Enviar;
+  FPresentador.PrepararEnvio;
 end;
 
 procedure TfraCotizacion.btnClienteAproboClick(Sender: TObject);
@@ -445,6 +447,13 @@ begin
     TReporteCotizacion.GuardarPdf(ADocumento, ARuta);
     Informar(Format(SDocumentoGuardado, [ARuta]));
   end;
+end;
+
+procedure TfraCotizacion.MostrarEnvio(const ADocumento
+  : TCotizacionDocumentoDTO);
+begin
+  if TfrmEnvioCotizacion.Enviar(Self, ADocumento, FPresentador.Id) then
+    Regresar;
 end;
 
 procedure TfraCotizacion.AcomodarBotones;

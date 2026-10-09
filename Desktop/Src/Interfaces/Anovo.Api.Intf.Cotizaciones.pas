@@ -6,6 +6,7 @@ interface
 
 uses
   System.Generics.Collections,
+  Anovo.DTOs.Correo,
   Anovo.DTOs.Cotizaciones,
   Anovo.DTOs.Documento;
 
@@ -16,6 +17,8 @@ type
       : TBandejaPaginaDTO;
     function Obtener(const AId: Integer): TCotizacionDTO;
     function Documento(const AId: Integer): TCotizacionDocumentoDTO;
+    function EstadoCorreo: TEstadoCorreoDTO;
+    procedure EnviarPorCorreo(const AId: Integer; const ADto: TEnvioCorreoDTO);
     function Detalle(const AId: Integer): TObjectList<TLineaDTO>;
     procedure DarVistoBueno(const AId: Integer);
     procedure Devolver(const AId: Integer; const AMotivo: string);

@@ -55,6 +55,7 @@ type
     procedure MostrarDevolucion(const AMotivo: string);
     procedure MostrarDocumento(const ADocumento: TCotizacionDocumentoDTO;
       const ARuta: string);
+    procedure MostrarEnvio(const ADocumento: TCotizacionDocumentoDTO);
     procedure MostrarBotones(const ABotones: TBotonesCotizacion;
       const AAcciones: TAccionesLinea);
     procedure MostrarLineas(const ALineas: TObjectList<TLineaDTO>);

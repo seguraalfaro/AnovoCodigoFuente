@@ -8,6 +8,7 @@ uses
   System.Generics.Collections,
   Anovo.Api.Base,
   Anovo.Api.Intf.Cotizaciones,
+  Anovo.DTOs.Correo,
   Anovo.DTOs.Cotizaciones,
   Anovo.DTOs.Documento;
 
@@ -18,6 +19,8 @@ type
       : TBandejaPaginaDTO;
     function Obtener(const AId: Integer): TCotizacionDTO;
     function Documento(const AId: Integer): TCotizacionDocumentoDTO;
+    function EstadoCorreo: TEstadoCorreoDTO;
+    procedure EnviarPorCorreo(const AId: Integer; const ADto: TEnvioCorreoDTO);
     function Detalle(const AId: Integer): TObjectList<TLineaDTO>;
     procedure DarVistoBueno(const AId: Integer);
     procedure Devolver(const AId: Integer; const AMotivo: string);
@@ -52,6 +55,8 @@ const
   RUTA_BANDEJA = '/api/cotizaciones/bandeja';
   RUTA_COTIZACION = '/api/cotizaciones/%d';
   RUTA_DOCUMENTO = '/api/cotizaciones/%d/documento';
+  RUTA_ENVIO_CORREO = '/api/cotizaciones/%d/envio-correo';
+  RUTA_ESTADO_CORREO = '/api/correo/estado';
   RUTA_DETALLE = '/api/cotizaciones/%d/detalle';
   RUTA_VISTO_BUENO = '/api/cotizaciones/%d/visto-bueno';
   RUTA_DEVOLUCION = '/api/cotizaciones/%d/devolucion';
@@ -122,6 +127,36 @@ begin
     Result.Free;
     raise;
   end;
+end;
+
+function TApiCotizaciones.EstadoCorreo: TEstadoCorreoDTO;
+var
+  lRespuesta: IMVCRESTResponse;
+begin
+  lRespuesta := Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.Get(RUTA_ESTADO_CORREO);
+    end);
+
+  Result := TEstadoCorreoDTO.Create;
+  try
+    lRespuesta.BodyFor(Result, 'data');
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
+procedure TApiCotizaciones.EnviarPorCorreo(const AId: Integer;
+  const ADto: TEnvioCorreoDTO);
+begin
+  Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.AddBody(ADto, False)
+        .Post(Format(RUTA_ENVIO_CORREO, [AId]));
+    end);
 end;
 
 function TApiCotizaciones.Detalle(const AId: Integer): TObjectList<TLineaDTO>;

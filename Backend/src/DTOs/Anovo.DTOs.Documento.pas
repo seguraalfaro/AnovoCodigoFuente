@@ -43,6 +43,7 @@ type
     fClienteNombre: string;
     fClienteTelefono: string;
     fContactoNombre: string;
+    fContactoCorreo: string;
     fDescripcionTrabajo: string;
     fSubtotal: Currency;
     fPorcentajeIva: Currency;
@@ -75,6 +76,7 @@ type
     property ClienteTelefono: string read fClienteTelefono
       write fClienteTelefono;
     property ContactoNombre: string read fContactoNombre write fContactoNombre;
+    property ContactoCorreo: string read fContactoCorreo write fContactoCorreo;
     property DescripcionTrabajo: string read fDescripcionTrabajo
       write fDescripcionTrabajo;
     property Subtotal: Currency read fSubtotal write fSubtotal;

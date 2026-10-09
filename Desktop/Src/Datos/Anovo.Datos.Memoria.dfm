@@ -3006,4 +3006,40 @@ object dmMemoria: TdmMemoria
     Left = 1384
     Top = 456
   end
+  object mtEnvioCorreo: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1280
+    Top = 512
+    object mtEnvioCorreoPARA: TStringField
+      DisplayLabel = 'Para (separe varios correos con coma)'
+      FieldName = 'PARA'
+      Size = 300
+    end
+    object mtEnvioCorreoCC: TStringField
+      DisplayLabel = 'Con copia (opcional)'
+      FieldName = 'CC'
+      Size = 300
+    end
+    object mtEnvioCorreoASUNTO: TStringField
+      DisplayLabel = 'Asunto'
+      FieldName = 'ASUNTO'
+      Size = 200
+    end
+    object mtEnvioCorreoMENSAJE: TStringField
+      DisplayLabel = 'Mensaje'
+      FieldName = 'MENSAJE'
+      Size = 4000
+    end
+  end
+  object dsEnvioCorreo: TDataSource
+    DataSet = mtEnvioCorreo
+    Left = 1384
+    Top = 512
+  end
 end

@@ -19,12 +19,14 @@ type
     lblEstado: TLabel;
     btnIniciar: TButton;
     btnDetener: TButton;
+    btnAutorizarCorreo: TButton;
     lblBase: TLabel;
     lblVersion: TLabel;
     pnlContadores: TPanel;
     lblServidas: TLabel;
     lblErrores: TLabel;
     lblCache: TLabel;
+    lblCorreo: TLabel;
     btnInvalidar: TButton;
     pgc: TPageControl;
     tabRegistro: TTabSheet;
@@ -41,6 +43,7 @@ type
     procedure btnIniciarClick(Sender: TObject);
     procedure btnDetenerClick(Sender: TObject);
     procedure btnInvalidarClick(Sender: TObject);
+    procedure btnAutorizarCorreoClick(Sender: TObject);
     procedure tmrRefrescoTimer(Sender: TObject);
     procedure tmrVigenciasTimer(Sender: TObject);
   private
@@ -50,6 +53,7 @@ type
     procedure MostrarEstado;
     procedure RelevarPrecios;
     procedure MostrarCabecera;
+    procedure MostrarCorreo;
     procedure RefrescarContadores;
     procedure RefrescarListas;
     function EstaEscuchando: Boolean;
@@ -73,6 +77,8 @@ uses
   Anovo.Servidor,
   Anovo.Middleware.Actividad,
   Anovo.Services.Vigencias,
+  Anovo.Correo.Config,
+  Anovo.Services.Correo.OAuth,
   Anovo.Services.Intf.Permisos;
 
 const
@@ -95,6 +101,7 @@ begin
   PrepararServicios;
 
   MostrarCabecera;
+  MostrarCorreo;
   MostrarEstado;
   tmrRefresco.Interval := REFRESCO_MS;
   tmrRefresco.Enabled := True;
@@ -130,6 +137,53 @@ begin
   lblBase.Caption := 'Base: ' + BaseConfigurada + '   Usuario: ' +
     UsuarioDeBase;
   lblVersion.Caption := 'DelphiMVCFramework ' + DMVCFRAMEWORK_VERSION;
+end;
+
+procedure TfrmServidor.MostrarCorreo;
+var
+  lConfig: TConfigCorreo;
+begin
+  lConfig := TConfigCorreo.Leer;
+  btnAutorizarCorreo.Visible := lConfig.Modo = mcOAuth2;
+  case lConfig.Modo of
+    mcClave:
+      lblCorreo.Caption := 'Correo: contrase'#$00F1'a de aplicaci'#$00F3'n';
+    mcOAuth2:
+      lblCorreo.Caption := 'Correo: OAuth2';
+  else
+    lblCorreo.Caption := 'Correo: sin configurar';
+  end;
+  if lConfig.Modo = mcNinguno then
+    lblCorreo.Font.Color := clGrayText
+  else if lConfig.Configurado then
+    lblCorreo.Font.Color := clGreen
+  else
+  begin
+    lblCorreo.Caption := lblCorreo.Caption + ' (incompleto)';
+    lblCorreo.Font.Color := clMaroon;
+  end;
+end;
+
+procedure TfrmServidor.btnAutorizarCorreoClick(Sender: TObject);
+var
+  lMensaje: string;
+begin
+  Screen.Cursor := crHourGlass;
+  try
+    if TAutorizacionCorreo.Autorizar(TConfigCorreo.Leer, lMensaje) then
+    begin
+      LogI(lMensaje);
+      MessageDlg(lMensaje, mtInformation, [mbOK], 0);
+    end
+    else
+    begin
+      LogW(lMensaje);
+      MessageDlg(lMensaje, mtWarning, [mbOK], 0);
+    end;
+  finally
+    Screen.Cursor := crDefault;
+    MostrarCorreo;
+  end;
 end;
 
 procedure TfrmServidor.MostrarEstado;

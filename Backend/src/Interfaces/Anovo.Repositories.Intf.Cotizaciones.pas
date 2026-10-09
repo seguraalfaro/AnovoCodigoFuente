@@ -58,6 +58,10 @@ type
       out AMateriales, AManoObra, AMaquina: Currency);
   end;
 
+  ICotizacionEnvioRepository = interface(IMVCRepository<TCotizacionEnvios>)
+    ['{3E7C1A94-6D25-4B80-9F13-A5C8E2D47B06}']
+  end;
+
 implementation
 
 end.

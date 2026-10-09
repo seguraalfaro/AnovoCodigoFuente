@@ -14,6 +14,8 @@ uses
   Anovo.Controllers.Base,
   Anovo.Services.Intf.Cotizaciones,
   Anovo.Services.Intf.Documento,
+  Anovo.Services.Intf.EnvioCotizacion,
+  Anovo.DTOs.Correo,
   Anovo.Permisos;
 
 const
@@ -136,6 +138,21 @@ type
     [MVCSwagResponses(200, 'El detalle, en su orden')]
     function Detalle([MVCInject] AServicio: ICotizacionService;
       const AId: Integer): IMVCResponse;
+
+    [MVCPath('/($AId)/envio-correo')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCSwagSummary('Cotizaciones', 'Envia la cotizacion con visto bueno al ' +
+      'cliente por correo, con el PDF adjunto, y la marca como enviada',
+      'enviarCotizacionPorCorreo')]
+    [MVCSwagResponses(204, 'Enviada')]
+    [MVCSwagResponses(409, 'No tiene visto bueno, o el correo no esta ' +
+      'configurado')]
+    [MVCSwagResponses(422, 'Destinatario, asunto o PDF no validos')]
+    [MVCSwagResponses(502, 'El servidor de correo rechazo el envio')]
+    function EnviarPorCorreo([MVCInject] AServicio: IEnvioCotizacionService;
+      const AId: Integer;
+      const [MVCFromBody] ADto: TEnvioCorreoDTO): IMVCResponse;
 
     [MVCPath('/($AId)/documento')]
     [MVCHTTPMethods([httpGET])]
@@ -316,6 +333,14 @@ function TCotizacionesController.Detalle(AServicio: ICotizacionService;
   const AId: Integer): IMVCResponse;
 begin
   Result := OKResponse(AServicio.Detalle(AId, UsuarioId, Roles));
+end;
+
+function TCotizacionesController.EnviarPorCorreo(AServicio
+  : IEnvioCotizacionService; const AId: Integer;
+  const ADto: TEnvioCorreoDTO): IMVCResponse;
+begin
+  AServicio.Enviar(AId, UsuarioId, Roles, ADto);
+  Result := NoContentResponse;
 end;
 
 function TCotizacionesController.Documento(AServicio

@@ -53,7 +53,7 @@ type
     procedure RecargarTipos;
     procedure Guardar(const ADatos: TCotizacionEdicionDTO);
     procedure Presentar(const ADatos: TCotizacionEdicionDTO);
-    procedure Enviar;
+    procedure PrepararEnvio;
     procedure VerDocumento(const ARuta: string);
     procedure RegistrarRespuesta(const AAceptada: Boolean);
     procedure QuitarLinea(const ALineaId: Integer);
@@ -420,24 +420,22 @@ begin
     end);
 end;
 
-procedure TPresentadorCotizacion.Enviar;
+procedure TPresentadorCotizacion.PrepararEnvio;
 var
   lApi: IApiCotizaciones;
   lId: Integer;
 begin
-  if not FVista.Confirmar(Format(SConfirmarEnviar, [FNumero])) then
-    Exit;
   lApi := FApi;
   lId := FId;
 
-  Ejecutar(SAccionEnviarCotizacion,
-    procedure
+  Ejecutar<TCotizacionDocumentoDTO>(SAccionCargarDocumento,
+    function: TCotizacionDocumentoDTO
     begin
-      lApi.Enviar(lId);
+      Result := lApi.Documento(lId);
     end,
-    procedure
+    procedure(ADocumento: TCotizacionDocumentoDTO)
     begin
-      FVista.Regresar;
+      FVista.MostrarEnvio(ADocumento);
     end, MostrarError, MostrarCargando);
 end;
 

@@ -82,7 +82,7 @@
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
-        <DCC_UnitSearchPath>$(DMVC);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>$(DMVC);$(ICS)\Source;$(ICS)\Source\Include;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_Framework>FMX;$(DCC_Framework)</DCC_Framework>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android)'!=''">
@@ -255,6 +255,15 @@
         <DCCReference Include="src\DTOs\Anovo.DTOs.Documento.pas"/>
         <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Documento.pas"/>
         <DCCReference Include="src\Services\Anovo.Services.Documento.pas"/>
+        <DCCReference Include="src\Common\Anovo.Correo.Config.pas"/>
+        <DCCReference Include="src\Common\Anovo.Correo.Token.pas"/>
+        <DCCReference Include="src\DTOs\Anovo.DTOs.Correo.pas"/>
+        <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Correo.pas"/>
+        <DCCReference Include="src\Services\Anovo.Services.Correo.OAuth.pas"/>
+        <DCCReference Include="src\Services\Anovo.Services.Correo.pas"/>
+        <DCCReference Include="src\Interfaces\Anovo.Services.Intf.EnvioCotizacion.pas"/>
+        <DCCReference Include="src\Services\Anovo.Services.EnvioCotizacion.pas"/>
+        <DCCReference Include="src\Controllers\Anovo.Controllers.Correo.pas"/>
         <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Importacion.pas"/>
         <DCCReference Include="src\Services\Anovo.Services.Importacion.pas"/>
         <DCCReference Include="src\Interfaces\Anovo.Repositories.Intf.Reportes.pas"/>

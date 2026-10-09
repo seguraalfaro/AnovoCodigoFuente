@@ -103,6 +103,7 @@ begin
         not lContacto.Anonimizado then
       begin
         ADocumento.ContactoNombre := lContacto.Nombre;
+        ADocumento.ContactoCorreo := lContacto.Correo.ValueOrDefault;
         Break;
       end;
   finally

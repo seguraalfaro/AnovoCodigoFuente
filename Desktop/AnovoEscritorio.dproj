@@ -208,6 +208,12 @@
         <DCCReference Include="Src\Forms\Anovo.Forms.DocumentoEmpresa.pas">
             <Form>frmDocumentoEmpresa</Form>
         </DCCReference>
+        <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Correo.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.EnvioCotizacion.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.EnvioCotizacion.pas"/>
+        <DCCReference Include="Src\Forms\Anovo.Forms.EnvioCotizacion.pas">
+            <Form>frmEnvioCotizacion</Form>
+        </DCCReference>
         <DCCReference Include="Src\Common\Anovo.Archivo.Hoja.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Importacion.pas"/>
         <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Importacion.pas"/>

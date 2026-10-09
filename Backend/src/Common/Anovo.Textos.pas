@@ -372,6 +372,58 @@ resourcestring
   SDocPagina = 'Página';
   SDocDe = 'de';
   SDocTitulo = 'Cotización %d - %s';
+  SCorreoNoConfigurado = 'El envío por correo no está configurado en el ' +
+    'servidor. Guarde el PDF y envíelo a mano.';
+  SCorreoSinAutorizacion = 'La cuenta de correo no está autorizada (OAuth2). ' +
+    'Autorícela desde la ventana del servidor.';
+  SCorreoFaltaClienteOAuth = 'Falta la cuenta o el client ID de OAuth2 en el .env.';
+  SCorreoAutorizacionFallida = 'No se pudo autorizar la cuenta de correo: %s';
+  SCorreoCuentaDistinta = 'Se esperaba la cuenta %s y se inició sesión con %s.';
+  SCorreoAutorizado = 'La cuenta %s quedó autorizada para enviar cotizaciones.';
+  SCorreoFaltaDestinatario = 'Falta el correo del destinatario.';
+  SCorreoDemasiadosDestinatarios = 'Se permiten hasta %d destinatarios por envío.';
+  SCorreoDestinatarioInvalido = 'El correo %s no tiene una forma válida.';
+  SCorreoFaltaAsunto = 'Falta el asunto del correo.';
+  SCorreoAsuntoInvalido = 'El asunto debe tener una sola línea y hasta %d ' +
+    'caracteres.';
+  SCorreoAdjuntoGrande = 'El PDF pasa de %d MB.';
+  SCorreoMensajeLargo = 'El mensaje pasa de %d caracteres.';
+  SCorreoFaltaPdf = 'Falta el PDF de la cotización.';
+  SCorreoPdfInvalido = 'El adjunto no es un PDF válido.';
+  SCorreoClaveRechazada = 'El servidor de correo rechazó la contraseña de ' +
+    'aplicación. Revísela en el .env del servidor o genere una nueva.';
+  SCorreoOAuthRechazado = 'El servidor de correo rechazó la autorización ' +
+    'OAuth2. Vuelva a autorizar la cuenta desde la ventana del servidor.';
+  SCorreoDestinatarioRechazado = 'El servidor de correo rechazó el ' +
+    'destinatario. Revise la dirección.';
+  SCorreoSinConexion = 'No se pudo conectar con el servidor de correo. ' +
+    'Revise la conexión a internet del servidor.';
+  SCorreoFallido = 'El servidor de correo no aceptó el envío (código %d).';
+  SDetalleEnvioCorreo = 'Envío por correo de la cotización %d a %s';
+  SAccionEnviarCorreo = 'enviar la cotización por correo';
+  SAccionEstadoCorreo = 'consultar el correo del servidor';
+  SEnvioAsunto = 'Cotización %d - %s';
+  SEnvioMensaje = 'Estimado(a) %s:' + sLineBreak + sLineBreak +
+    'Le adjuntamos la cotización Nº %d correspondiente a %s, para su ' +
+    'consideración.' + sLineBreak + sLineBreak +
+    'Quedamos atentos a sus comentarios.' + sLineBreak + sLineBreak +
+    'Atentamente,' + sLineBreak + '%s' + sLineBreak + '%s';
+  SEnvioClienteGenerico = 'cliente';
+  SEnvioAdjunto = 'Adjunto: %s';
+  SEnvioDesdeServidor = 'Desde el servidor sale con la cuenta de la empresa ' +
+    '(%s). Manualmente, se guarda el PDF y se abre su programa de correo.';
+  SEnvioServidorNoDisponible = 'El servidor no tiene configurado el correo. ' +
+    'Use «Enviar manualmente»: se guarda el PDF y se abre su programa de correo.';
+  SConfirmarEnvioServidor = '¿Enviar la cotización Nº %d a %s desde la cuenta ' +
+    'de la empresa?';
+  SConfirmarEnvioManual = 'Se guardó el PDF en %s y se abrió su programa de ' +
+    'correo. Adjunte el PDF y envíe el correo.' + sLineBreak + sLineBreak +
+    '¿Ya lo envió? La cotización Nº %d quedará marcada como enviada.';
+  SCotizacionEnviadaCorreo = 'La cotización Nº %d se envió a %s.';
+  SReparosEnvio = 'No se puede enviar. Corrija lo siguiente:';
+  SValPara = 'Escriba al menos un correo de destinatario válido.';
+  SValCopia = 'Uno de los correos en copia no tiene una forma válida.';
+  SValAsunto = 'Escriba el asunto del correo.';
 
   SCatalogoTodos = 'Todos';
   SCatalogoMateriales = 'Materiales';
@@ -707,7 +759,6 @@ resourcestring
   SConfirmarQuitarLinea = '¿Quitar la línea «%s»?';
   SConfirmarPresentar = '¿Enviar la cotización Nº %d a revisión? ' +
     'Mientras la revisan no se puede editar.';
-  SConfirmarEnviar = '¿Marcar la cotización Nº %d como enviada al cliente?';
   SConfirmarClienteAprobo = '¿Registrar que el cliente aprobó la cotización Nº %d?';
   SConfirmarClienteRechazo = '¿Registrar que el cliente rechazó la cotización Nº %d?';
   SAccionRegistrarRespuesta = 'registrar la respuesta del cliente';

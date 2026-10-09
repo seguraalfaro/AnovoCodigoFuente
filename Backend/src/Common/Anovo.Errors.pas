@@ -46,6 +46,11 @@ type
     constructor Create(const AMensaje: string); reintroduce;
   end;
 
+  EServicioExterno = class(EAnovoError)
+  public
+    constructor Create(const ACodigo, AMensaje: string); reintroduce;
+  end;
+
 function ManejadorDeErrores: TMVCExceptionHandlerProc;
 
 implementation
@@ -96,6 +101,11 @@ constructor EDatoInvalido.Create(const AMensaje: string);
 begin
   inherited Create('DATO_INVALIDO', AMensaje,
     HTTP_STATUS.UnprocessableEntity);
+end;
+
+constructor EServicioExterno.Create(const ACodigo, AMensaje: string);
+begin
+  inherited Create(ACodigo, AMensaje, HTTP_STATUS.BadGateway);
 end;
 
 function ManejadorDeErrores: TMVCExceptionHandlerProc;

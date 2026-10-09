@@ -43,6 +43,10 @@ uses
   Anovo.Services.Cotizaciones,
   Anovo.Services.Intf.Documento,
   Anovo.Services.Documento,
+  Anovo.Services.Intf.Correo,
+  Anovo.Services.Correo,
+  Anovo.Services.Intf.EnvioCotizacion,
+  Anovo.Services.EnvioCotizacion,
   Anovo.Repositories.Dashboard,
   Anovo.Services.Dashboard,
   Anovo.Repositories.Intf.Dashboard,
@@ -142,6 +146,12 @@ begin
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TCotizacionDocumentoService,
     ICotizacionDocumentoService, TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TCorreoService, ICorreoService,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TEnvioCotizacionService, IEnvioCotizacionService,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TCotizacionEnvioRepository,
+    ICotizacionEnvioRepository, TRegistrationType.SingletonPerRequest);
 
   Container.RegisterType(TUsuarioClaveRepository, IUsuarioClaveRepository,
     TRegistrationType.SingletonPerRequest);

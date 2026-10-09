@@ -71,6 +71,17 @@ object frmServidor: TfrmServidor
       Height = 15
       Caption = 'DelphiMVCFramework'
     end
+    object btnAutorizarCorreo: TButton
+      Left = 516
+      Top = 20
+      Width = 160
+      Height = 33
+      Anchors = [akTop, akRight]
+      Caption = 'Autorizar correo (OAuth2)'
+      TabOrder = 2
+      Visible = False
+      OnClick = btnAutorizarCorreoClick
+    end
     object btnIniciar: TButton
       Left = 686
       Top = 20
@@ -125,6 +136,13 @@ object frmServidor: TfrmServidor
       Width = 105
       Height = 15
       Caption = 'Permisos: sin cargar'
+    end
+    object lblCorreo: TLabel
+      Left = 420
+      Top = 12
+      Width = 90
+      Height = 15
+      Caption = 'Correo: sin configurar'
     end
     object btnInvalidar: TButton
       Left = 719

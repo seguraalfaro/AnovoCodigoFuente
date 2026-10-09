@@ -80,11 +80,11 @@ object fraCotizacion: TfraCotizacion
       Tag = 17
       Left = 910
       Top = 18
-      Width = 250
+      Width = 170
       Height = 32
       Cursor = crHandPoint
       Anchors = [akTop, akRight]
-      Caption = 'Marcar como enviada al cliente'
+      Caption = 'Enviar al cliente'
       TabOrder = 3
       Visible = False
       StyleElements = []

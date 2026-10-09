@@ -576,6 +576,12 @@ type
     mtDocumentoLineasPRECIO_UNITARIO: TCurrencyField;
     mtDocumentoLineasTOTAL: TCurrencyField;
     dsDocumentoLineas: TDataSource;
+    mtEnvioCorreo: TFDMemTable;
+    mtEnvioCorreoPARA: TStringField;
+    mtEnvioCorreoCC: TStringField;
+    mtEnvioCorreoASUNTO: TStringField;
+    mtEnvioCorreoMENSAJE: TStringField;
+    dsEnvioCorreo: TDataSource;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     procedure DataModuleCreate(Sender: TObject);
     procedure mtContactoNuevoBeforePost(DataSet: TDataSet);

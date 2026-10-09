@@ -59,6 +59,10 @@ type
       out AMateriales, AManoObra, AMaquina: Currency);
   end;
 
+  TCotizacionEnvioRepository = class(TAnovoRepository<TCotizacionEnvios>,
+    ICotizacionEnvioRepository)
+  end;
+
 implementation
 
 uses
