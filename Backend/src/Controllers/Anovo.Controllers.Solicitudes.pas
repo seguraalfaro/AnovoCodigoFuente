@@ -290,94 +290,94 @@ end;
 function TSolicitudesController.Obtener(AServicio: ISolicitudService;
   const AId: Integer): IMVCResponse;
 begin
-  Result := OKResponse(AServicio.Obtener(AId));
+  Result := OKResponse(AServicio.Obtener(AId, UsuarioId, Roles));
 end;
 
 function TSolicitudesController.Crear(AServicio: ISolicitudService;
   const ADto: TSolicitudNuevaDTO): IMVCResponse;
 begin
   Result := CreatedResponse('/api/solicitudes/' +
-    AServicio.Crear(ADto).ToString);
+    AServicio.Crear(ADto, UsuarioId, Roles).ToString);
 end;
 
 function TSolicitudesController.RegistrarCompleta(AServicio: ISolicitudService;
   const ADto: TSolicitudCompletaDTO): IMVCResponse;
 begin
   Result := CreatedResponse('/api/solicitudes/' +
-    AServicio.RegistrarCompleta(ADto).ToString);
+    AServicio.RegistrarCompleta(ADto, UsuarioId, Roles).ToString);
 end;
 
 function TSolicitudesController.Actualizar(AServicio: ISolicitudService;
   const AId: Integer; const ADto: TSolicitudEdicionDTO): IMVCResponse;
 begin
-  AServicio.Actualizar(AId, ADto);
+  AServicio.Actualizar(AId, ADto, UsuarioId, Roles);
   Result := NoContentResponse;
 end;
 
 function TSolicitudesController.Recibir(AServicio: ISolicitudService;
   const AId: Integer): IMVCResponse;
 begin
-  AServicio.MarcarRecibida(AId);
+  AServicio.MarcarRecibida(AId, UsuarioId, Roles);
   Result := NoContentResponse;
 end;
 
 function TSolicitudesController.CambiarEstado(AServicio: ISolicitudService;
   const AId: Integer; const ADto: TCambioEstadoDTO): IMVCResponse;
 begin
-  AServicio.CambiarEstado(AId, ADto);
+  AServicio.CambiarEstado(AId, ADto, UsuarioId, Roles);
   Result := NoContentResponse;
 end;
 
 function TSolicitudesController.Medidas(AServicio: ISolicitudService;
   const AId: Integer): IMVCResponse;
 begin
-  Result := OKResponse(AServicio.Medidas(AId));
+  Result := OKResponse(AServicio.Medidas(AId, UsuarioId, Roles));
 end;
 
 function TSolicitudesController.AgregarMedida(AServicio: ISolicitudService;
   const AId: Integer; const ADto: TMedidaNuevaDTO): IMVCResponse;
 begin
   Result := CreatedResponse('/api/solicitudes/' + AId.ToString + '/medidas/' +
-    AServicio.AgregarMedida(AId, ADto).ToString);
+    AServicio.AgregarMedida(AId, ADto, UsuarioId, Roles).ToString);
 end;
 
 function TSolicitudesController.ActualizarMedida(AServicio: ISolicitudService;
   const AId, AMedidaId: Integer; const ADto: TMedidaNuevaDTO): IMVCResponse;
 begin
-  AServicio.ActualizarMedida(AId, AMedidaId, ADto);
+  AServicio.ActualizarMedida(AId, AMedidaId, ADto, UsuarioId, Roles);
   Result := NoContentResponse;
 end;
 
 function TSolicitudesController.EliminarMedida(AServicio: ISolicitudService;
   const AId, AMedidaId: Integer): IMVCResponse;
 begin
-  AServicio.EliminarMedida(AId, AMedidaId);
+  AServicio.EliminarMedida(AId, AMedidaId, UsuarioId, Roles);
   Result := NoContentResponse;
 end;
 
 function TSolicitudesController.Adjuntos(AServicio: ISolicitudService;
   const AId: Integer): IMVCResponse;
 begin
-  Result := OKResponse(AServicio.Adjuntos(AId));
+  Result := OKResponse(AServicio.Adjuntos(AId, UsuarioId, Roles));
 end;
 
 function TSolicitudesController.ObtenerAdjunto(AServicio: ISolicitudService;
   const AId, AAdjuntoId: Integer): IMVCResponse;
 begin
-  Result := OKResponse(AServicio.ObtenerAdjunto(AId, AAdjuntoId));
+  Result := OKResponse(AServicio.ObtenerAdjunto(AId, AAdjuntoId, UsuarioId, Roles));
 end;
 
 function TSolicitudesController.AgregarAdjunto(AServicio: ISolicitudService;
   const AId: Integer; const ADto: TAdjuntoNuevoDTO): IMVCResponse;
 begin
   Result := CreatedResponse('/api/solicitudes/' + AId.ToString + '/adjuntos/' +
-    AServicio.AgregarAdjunto(AId, ADto).ToString);
+    AServicio.AgregarAdjunto(AId, ADto, UsuarioId, Roles).ToString);
 end;
 
 function TSolicitudesController.InactivarAdjunto(AServicio: ISolicitudService;
   const AId, AAdjuntoId: Integer): IMVCResponse;
 begin
-  AServicio.InactivarAdjunto(AId, AAdjuntoId);
+  AServicio.InactivarAdjunto(AId, AAdjuntoId, UsuarioId, Roles);
   Result := NoContentResponse;
 end;
 

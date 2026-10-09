@@ -40,6 +40,11 @@ type
     fPermisos: IPermisoService;
 
     function TraerVigente(const AId: Integer): TSolicitudes;
+    procedure ExigirAlcance(const ASolicitud: TSolicitudes;
+      const AUsuarioId: Integer; const ARoles: TArray<string>;
+      const APermisoTodas: string);
+    procedure ExigirAlcanceDe(const AId, AUsuarioId: Integer;
+      const ARoles: TArray<string>; const APermisoTodas: string);
     function TraerMedida(const AId, AMedidaId: Integer): TSolicitudMedidas;
     function TraerAdjunto(const AId, AAdjuntoId: Integer)
       : TSolicitudAdjuntos;
@@ -63,12 +68,12 @@ type
       const ADesde, AHasta: TDateTime; const ARoles: TArray<string>;
       const AAsesorId, APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TSolicitudDTO>;
-    function Obtener(const AId: Integer): TSolicitudDTO;
-    function Crear(const ADto: TSolicitudNuevaDTO): Integer;
-    procedure Actualizar(const AId: Integer; const ADto: TSolicitudEdicionDTO);
-    function RegistrarCompleta(const ADto: TSolicitudCompletaDTO): Integer;
-    procedure MarcarRecibida(const AId: Integer);
-    procedure CambiarEstado(const AId: Integer; const ADto: TCambioEstadoDTO);    function Seguimiento(const AAsesorId: Integer; const ATexto: string;
+    function Obtener(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>): TSolicitudDTO;
+    function Crear(const ADto: TSolicitudNuevaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
+    procedure Actualizar(const AId: Integer; const ADto: TSolicitudEdicionDTO; const AUsuarioId: Integer; const ARoles: TArray<string>);
+    function RegistrarCompleta(const ADto: TSolicitudCompletaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
+    procedure MarcarRecibida(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>);
+    procedure CambiarEstado(const AId: Integer; const ADto: TCambioEstadoDTO; const AUsuarioId: Integer; const ARoles: TArray<string>);    function Seguimiento(const AAsesorId: Integer; const ATexto: string;
       const ASoloMes: Boolean; const APagina, APorPagina: Integer;
       out ADesde, AHasta: TDateTime; out ATotal: Int64)
       : TObjectList<TSolicitudAsesorDTO>;
@@ -78,19 +83,19 @@ type
     function EnTrabajo(const AUsuarioId: Integer; const ATexto: string;
       const APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TSolicitudEnTrabajoDTO>;
-    function Medidas(const AId: Integer): TObjectList<TMedidaDTO>;
+    function Medidas(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>): TObjectList<TMedidaDTO>;
     function AgregarMedida(const AId: Integer;
-      const ADto: TMedidaNuevaDTO): Integer;
+      const ADto: TMedidaNuevaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
     procedure ActualizarMedida(const AId, AMedidaId: Integer;
-      const ADto: TMedidaNuevaDTO);
-    procedure EliminarMedida(const AId, AMedidaId: Integer);
+      const ADto: TMedidaNuevaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>);
+    procedure EliminarMedida(const AId, AMedidaId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>);
 
-    function Adjuntos(const AId: Integer): TObjectList<TAdjuntoDTO>;
-    function ObtenerAdjunto(const AId, AAdjuntoId: Integer)
+    function Adjuntos(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>): TObjectList<TAdjuntoDTO>;
+    function ObtenerAdjunto(const AId, AAdjuntoId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>)
       : TAdjuntoContenidoDTO;
     function AgregarAdjunto(const AId: Integer;
-      const ADto: TAdjuntoNuevoDTO): Integer;
-    procedure InactivarAdjunto(const AId, AAdjuntoId: Integer);
+      const ADto: TAdjuntoNuevoDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
+    procedure InactivarAdjunto(const AId, AAdjuntoId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>);
   end;
 
 implementation
@@ -149,6 +154,31 @@ begin
   Result := fRepo.GetByPK(AId, False);
   if Result = nil then
     raise ERecursoNoEncontrado.Create(SRecursoSolicitud, AId);
+end;
+
+procedure TSolicitudService.ExigirAlcance(const ASolicitud: TSolicitudes;
+  const AUsuarioId: Integer; const ARoles: TArray<string>;
+  const APermisoTodas: string);
+begin
+  if ASolicitud.AsesorId = AUsuarioId then
+    Exit;
+  if fPermisos.TieneAlguno(AUsuarioId, ARoles, [APermisoTodas]) then
+    Exit;
+  raise ERecursoNoEncontrado.Create(SRecursoSolicitud,
+    ASolicitud.ID.ValueOrDefault);
+end;
+
+procedure TSolicitudService.ExigirAlcanceDe(const AId, AUsuarioId: Integer;
+  const ARoles: TArray<string>; const APermisoTodas: string);
+var
+  lSolicitud: TSolicitudes;
+begin
+  lSolicitud := TraerVigente(AId);
+  try
+    ExigirAlcance(lSolicitud, AUsuarioId, ARoles, APermisoTodas);
+  finally
+    lSolicitud.Free;
+  end;
 end;
 
 function TSolicitudService.TraerMedida(const AId, AMedidaId: Integer)
@@ -239,19 +269,21 @@ begin
   end;
 end;
 
-function TSolicitudService.Obtener(const AId: Integer): TSolicitudDTO;
+function TSolicitudService.Obtener(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>): TSolicitudDTO;
 var
   lSolicitud: TSolicitudes;
 begin
   lSolicitud := TraerVigente(AId);
   try
+    ExigirAlcance(lSolicitud, AUsuarioId, ARoles,
+      PERMISO_SOLICITUDES_VER_TODAS);
     Result := ADto(lSolicitud);
   finally
     lSolicitud.Free;
   end;
 end;
 
-function TSolicitudService.Crear(const ADto: TSolicitudNuevaDTO): Integer;
+function TSolicitudService.Crear(const ADto: TSolicitudNuevaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
 var
   lSolicitud: TSolicitudes;
 begin
@@ -271,6 +303,9 @@ begin
   lSolicitud := TSolicitudes.Create;
   try
     TMapeo.Copiar(ADto, lSolicitud);
+    if not fPermisos.TieneAlguno(AUsuarioId, ARoles,
+      [PERMISO_SOLICITUDES_VER_TODAS]) then
+      lSolicitud.AsesorId := AUsuarioId;
     if ADto.FechaCaptura.HasValue then
       lSolicitud.FechaCaptura := ADto.FechaCaptura.Value
     else
@@ -286,7 +321,7 @@ begin
 end;
 
 procedure TSolicitudService.Actualizar(const AId: Integer;
-  const ADto: TSolicitudEdicionDTO);
+  const ADto: TSolicitudEdicionDTO; const AUsuarioId: Integer; const ARoles: TArray<string>);
 var
   lSolicitud: TSolicitudes;
 begin
@@ -298,6 +333,8 @@ begin
 
   lSolicitud := TraerVigente(AId);
   try
+    ExigirAlcance(lSolicitud, AUsuarioId, ARoles,
+      PERMISO_SOLICITUDES_EDITAR_TODAS);
     if lSolicitud.Estado = ESTADO_EN_COTIZACION then
       raise EConflictoDeEstado.Create('SOLICITUD_COTIZADA',
         SSolicitudCotizada);
@@ -315,7 +352,7 @@ begin
 end;
 
 function TSolicitudService.RegistrarCompleta(const ADto
-  : TSolicitudCompletaDTO): Integer;
+  : TSolicitudCompletaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
 var
   lMedida: TMedidaNuevaDTO;
   lAdjunto: TAdjuntoNuevoDTO;
@@ -323,7 +360,7 @@ begin
   var
   lTx := TMVCRepository.UseTransactionContext;
 
-  Result := Crear(ADto.Solicitud);
+  Result := Crear(ADto.Solicitud, AUsuarioId, ARoles);
 
   for lMedida in ADto.Medidas do
     InsertarMedida(Result, lMedida);
@@ -332,7 +369,7 @@ begin
     InsertarAdjunto(Result, lAdjunto);
 end;
 
-procedure TSolicitudService.MarcarRecibida(const AId: Integer);
+procedure TSolicitudService.MarcarRecibida(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>);
 var
   lSolicitud: TSolicitudes;
 begin
@@ -341,6 +378,8 @@ begin
 
   lSolicitud := TraerVigente(AId);
   try
+    ExigirAlcance(lSolicitud, AUsuarioId, ARoles,
+      PERMISO_SOLICITUDES_EDITAR_TODAS);
     if (lSolicitud.Estado <> ESTADO_CAPTURADA) and
       lSolicitud.FechaRecepcion.HasValue then
       Exit;
@@ -357,7 +396,7 @@ begin
 end;
 
 procedure TSolicitudService.CambiarEstado(const AId: Integer;
-  const ADto: TCambioEstadoDTO);
+  const ADto: TCambioEstadoDTO; const AUsuarioId: Integer; const ARoles: TArray<string>);
 var
   lSolicitud: TSolicitudes;
 begin
@@ -366,6 +405,8 @@ begin
 
   lSolicitud := TraerVigente(AId);
   try
+    ExigirAlcance(lSolicitud, AUsuarioId, ARoles,
+      PERMISO_SOLICITUDES_EDITAR_TODAS);
     ValidarTransicion(lSolicitud.Estado, ADto.Estado);
 
     if (ADto.Estado = ESTADO_DESCARTADA) and
@@ -383,10 +424,11 @@ begin
   end;
 end;
 
-function TSolicitudService.Medidas(const AId: Integer): TObjectList<TMedidaDTO>;
+function TSolicitudService.Medidas(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>): TObjectList<TMedidaDTO>;
 var
   lFilas: TObjectList<TSolicitudMedidas>;
 begin
+  ExigirAlcanceDe(AId, AUsuarioId, ARoles, PERMISO_SOLICITUDES_VER_TODAS);
   lFilas := fMedidas.MedidasDe(AId);
   try
     Result := TMapeo.AListaDto<TSolicitudMedidas, TMedidaDTO>(lFilas);
@@ -424,7 +466,7 @@ begin
 end;
 
 function TSolicitudService.AgregarMedida(const AId: Integer;
-  const ADto: TMedidaNuevaDTO): Integer;
+  const ADto: TMedidaNuevaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
 var
   lSolicitud: TSolicitudes;
 begin
@@ -433,6 +475,8 @@ begin
 
   lSolicitud := TraerVigente(AId);
   try
+    ExigirAlcance(lSolicitud, AUsuarioId, ARoles,
+      PERMISO_SOLICITUDES_EDITAR_TODAS);
     FijarDetalle(Format(SDetalleMedidaAgregada, [AId]));
     Result := InsertarMedida(AId, ADto);
   finally
@@ -441,13 +485,14 @@ begin
 end;
 
 procedure TSolicitudService.ActualizarMedida(const AId, AMedidaId: Integer;
-  const ADto: TMedidaNuevaDTO);
+  const ADto: TMedidaNuevaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>);
 var
   lMedida: TSolicitudMedidas;
 begin
   var
   lTx := TMVCRepository.UseTransactionContext;
 
+  ExigirAlcanceDe(AId, AUsuarioId, ARoles, PERMISO_SOLICITUDES_EDITAR_TODAS);
   lMedida := TraerMedida(AId, AMedidaId);
   try
     TMapeo.Copiar(ADto, lMedida);
@@ -459,13 +504,14 @@ begin
   end;
 end;
 
-procedure TSolicitudService.EliminarMedida(const AId, AMedidaId: Integer);
+procedure TSolicitudService.EliminarMedida(const AId, AMedidaId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>);
 var
   lMedida: TSolicitudMedidas;
 begin
   var
   lTx := TMVCRepository.UseTransactionContext;
 
+  ExigirAlcanceDe(AId, AUsuarioId, ARoles, PERMISO_SOLICITUDES_EDITAR_TODAS);
   lMedida := TraerMedida(AId, AMedidaId);
   try
     FijarDetalle(Format(SDetalleMedidaEliminada, [AId]));
@@ -475,11 +521,12 @@ begin
   end;
 end;
 
-function TSolicitudService.Adjuntos(const AId: Integer)
+function TSolicitudService.Adjuntos(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>)
   : TObjectList<TAdjuntoDTO>;
 var
   lFilas: TObjectList<TAdjuntosDeSolicitud>;
 begin
+  ExigirAlcanceDe(AId, AUsuarioId, ARoles, PERMISO_SOLICITUDES_VER_TODAS);
   lFilas := fAdjuntos.AdjuntosDe(AId);
   try
     Result := TMapeo.AListaDto<TAdjuntosDeSolicitud, TAdjuntoDTO>(lFilas);
@@ -488,12 +535,13 @@ begin
   end;
 end;
 
-function TSolicitudService.ObtenerAdjunto(const AId, AAdjuntoId: Integer)
+function TSolicitudService.ObtenerAdjunto(const AId, AAdjuntoId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>)
   : TAdjuntoContenidoDTO;
 var
   lAdjunto: TSolicitudAdjuntos;
   lBytes: TBytes;
 begin
+  ExigirAlcanceDe(AId, AUsuarioId, ARoles, PERMISO_SOLICITUDES_VER_TODAS);
   lAdjunto := TraerAdjunto(AId, AAdjuntoId);
   try
     Result := TMapeo.ADto<TAdjuntoContenidoDTO>(lAdjunto);
@@ -568,7 +616,7 @@ begin
 end;
 
 function TSolicitudService.AgregarAdjunto(const AId: Integer;
-  const ADto: TAdjuntoNuevoDTO): Integer;
+  const ADto: TAdjuntoNuevoDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
 var
   lSolicitud: TSolicitudes;
 begin
@@ -577,6 +625,8 @@ begin
 
   lSolicitud := TraerVigente(AId);
   try
+    ExigirAlcance(lSolicitud, AUsuarioId, ARoles,
+      PERMISO_SOLICITUDES_EDITAR_TODAS);
     FijarDetalle(Format(SDetalleAdjuntoAgregado, [AId]));
     Result := InsertarAdjunto(AId, ADto);
   finally
@@ -584,13 +634,14 @@ begin
   end;
 end;
 
-procedure TSolicitudService.InactivarAdjunto(const AId, AAdjuntoId: Integer);
+procedure TSolicitudService.InactivarAdjunto(const AId, AAdjuntoId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>);
 var
   lAdjunto: TSolicitudAdjuntos;
 begin
   var
   lTx := TMVCRepository.UseTransactionContext;
 
+  ExigirAlcanceDe(AId, AUsuarioId, ARoles, PERMISO_SOLICITUDES_EDITAR_TODAS);
   lAdjunto := TraerAdjunto(AId, AAdjuntoId);
   try
     lAdjunto.Activo := False;

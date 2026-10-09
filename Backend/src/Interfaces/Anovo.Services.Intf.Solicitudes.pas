@@ -18,17 +18,17 @@ type
       const AAsesorId, APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TSolicitudDTO>;
 
-    function Obtener(const AId: Integer): TSolicitudDTO;
+    function Obtener(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>): TSolicitudDTO;
 
-    function Crear(const ADto: TSolicitudNuevaDTO): Integer;
+    function Crear(const ADto: TSolicitudNuevaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
 
-    procedure Actualizar(const AId: Integer; const ADto: TSolicitudEdicionDTO);
+    procedure Actualizar(const AId: Integer; const ADto: TSolicitudEdicionDTO; const AUsuarioId: Integer; const ARoles: TArray<string>);
 
-    function RegistrarCompleta(const ADto: TSolicitudCompletaDTO): Integer;
+    function RegistrarCompleta(const ADto: TSolicitudCompletaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
 
-    procedure MarcarRecibida(const AId: Integer);
+    procedure MarcarRecibida(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>);
 
-    procedure CambiarEstado(const AId: Integer; const ADto: TCambioEstadoDTO);
+    procedure CambiarEstado(const AId: Integer; const ADto: TCambioEstadoDTO; const AUsuarioId: Integer; const ARoles: TArray<string>);
 
     function Seguimiento(const AAsesorId: Integer; const ATexto: string;
       const ASoloMes: Boolean; const APagina, APorPagina: Integer;
@@ -41,19 +41,19 @@ type
       const APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TSolicitudEnTrabajoDTO>;
 
-    function Medidas(const AId: Integer): TObjectList<TMedidaDTO>;
+    function Medidas(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>): TObjectList<TMedidaDTO>;
     function AgregarMedida(const AId: Integer;
-      const ADto: TMedidaNuevaDTO): Integer;
+      const ADto: TMedidaNuevaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
     procedure ActualizarMedida(const AId, AMedidaId: Integer;
-      const ADto: TMedidaNuevaDTO);
-    procedure EliminarMedida(const AId, AMedidaId: Integer);
+      const ADto: TMedidaNuevaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>);
+    procedure EliminarMedida(const AId, AMedidaId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>);
 
-    function Adjuntos(const AId: Integer): TObjectList<TAdjuntoDTO>;
-    function ObtenerAdjunto(const AId, AAdjuntoId: Integer)
+    function Adjuntos(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>): TObjectList<TAdjuntoDTO>;
+    function ObtenerAdjunto(const AId, AAdjuntoId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>)
       : TAdjuntoContenidoDTO;
     function AgregarAdjunto(const AId: Integer;
-      const ADto: TAdjuntoNuevoDTO): Integer;
-    procedure InactivarAdjunto(const AId, AAdjuntoId: Integer);
+      const ADto: TAdjuntoNuevoDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
+    procedure InactivarAdjunto(const AId, AAdjuntoId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>);
   end;
 
 implementation
