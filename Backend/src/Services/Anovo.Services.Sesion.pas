@@ -23,6 +23,8 @@ type
     fExcepciones: IUsuarioPermisoRepository;
     fEmpresa: IEmpresaRepository;
     procedure ValidarClaveNueva(const AClave: string);
+    procedure GuardarCambioClave(const AUsuarioId: Integer;
+      const ADto: TCambioClaveDTO);
   public
     [MVCInject]
     constructor Create(AUsuarios: IUsuarioRepository;
@@ -43,6 +45,7 @@ uses
   System.Character,
   System.Generics.Collections,
   Anovo.Repositories.Intf.Permisos,
+  Anovo.Auth.EstadoUsuarios,
   MVCFramework.Commons,
   MVCFramework.Repository,
   MVCFramework.Logger,
@@ -212,6 +215,13 @@ begin
 end;
 
 procedure TSesionService.CambiarClave(const AUsuarioId: Integer;
+  const ADto: TCambioClaveDTO);
+begin
+  GuardarCambioClave(AUsuarioId, ADto);
+  TEstadoUsuarios.Olvidar(AUsuarioId);
+end;
+
+procedure TSesionService.GuardarCambioClave(const AUsuarioId: Integer;
   const ADto: TCambioClaveDTO);
 var
   lUsuario: TUsuarios;

@@ -4,6 +4,12 @@ Cómo lograr que la aplicación de escritorio se conecte por HTTPS al servidor d
 usa un certificado emitido por una **autoridad certificadora (CA) propia**, y por qué la
 solución es la que es.
 
+> **Pendiente de prioridad alta al montar producción:** sacar del servidor la llave de la CA
+> (`rootCA.key`, hoy sin contraseña en `Backend/bin/certificates`), guardarla cifrada fuera de él y
+> volver a emitir la CA con restricción de nombres. El plan está en
+> `.claude/skills/anovo-tfg-desarrollo/references/pendientes.md`, sección «Antes de montar
+> producción».
+
 **Estado:** solución aplicada y **confirmada** el 16/09/2026 en `Src/Api/Anovo.Api.Base.pas`:
 el login desde la aplicación de escritorio funciona contra el servidor.
 

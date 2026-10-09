@@ -38,6 +38,8 @@ type
     procedure GuardarEdicion(const AId: Integer;
       const ADto: TUsuarioEdicionDTO);
     procedure CambiarEstado(const AId: Integer; const AActivo: Boolean);
+    procedure GuardarRestablecimiento(const AId: Integer; const AClave: string);
+    procedure GuardarPedidoCambio(const AId: Integer);
     procedure AplicarExcepciones(const AId: Integer;
       const ADto: TCambiosExcepcionesDTO);
     procedure AplicarExcepcion(const AUsuario: TUsuarios; const ARol: TRoles;
@@ -74,7 +76,8 @@ uses
   Anovo.Textos,
   Anovo.Auditoria.Contexto,
   Anovo.Entities.Permisos,
-  Anovo.Entities.Consultas;
+  Anovo.Entities.Consultas,
+  Anovo.Auth.EstadoUsuarios;
 
 const
   LARGO_MINIMO_CLAVE_TEMPORAL = 12;
@@ -318,6 +321,7 @@ procedure TUsuarioService.Editar(const AId: Integer;
 begin
   GuardarEdicion(AId, ADto);
   fCache.Invalidar;
+  TEstadoUsuarios.Olvidar(AId);
 end;
 
 procedure TUsuarioService.CambiarEstado(const AId: Integer;
@@ -349,14 +353,29 @@ end;
 procedure TUsuarioService.Inactivar(const AId: Integer);
 begin
   CambiarEstado(AId, False);
+  TEstadoUsuarios.Olvidar(AId);
 end;
 
 procedure TUsuarioService.Activar(const AId: Integer);
 begin
   CambiarEstado(AId, True);
+  TEstadoUsuarios.Olvidar(AId);
 end;
 
 procedure TUsuarioService.RestablecerClave(const AId: Integer;
+  const AClave: string);
+begin
+  GuardarRestablecimiento(AId, AClave);
+  TEstadoUsuarios.Olvidar(AId);
+end;
+
+procedure TUsuarioService.PedirCambioClave(const AId: Integer);
+begin
+  GuardarPedidoCambio(AId);
+  TEstadoUsuarios.Olvidar(AId);
+end;
+
+procedure TUsuarioService.GuardarRestablecimiento(const AId: Integer;
   const AClave: string);
 var
   lUsuario: TUsuarios;
@@ -379,7 +398,7 @@ begin
   end;
 end;
 
-procedure TUsuarioService.PedirCambioClave(const AId: Integer);
+procedure TUsuarioService.GuardarPedidoCambio(const AId: Integer);
 var
   lUsuario: TUsuarios;
 begin

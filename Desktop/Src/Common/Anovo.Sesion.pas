@@ -5,6 +5,9 @@ unit Anovo.Sesion;
 
 interface
 
+uses
+  System.SysUtils;
+
 type
   TRolUsuario = (rolNinguno, rolAsesor, rolAsistente, rolSupervisor,
     rolGerencia, rolAdmin);
@@ -20,9 +23,12 @@ type
     class var FDebeCambiarClave: Boolean;
     class var FVence: TDateTime;
     class var FPermisos: TArray<string>;
+    class var FAlVencer: TProc<string>;
   public
     class procedure Abrir(const AToken: string);
     class procedure Cerrar;
+    class procedure Vencer(const AMensaje: string);
+    class procedure AlVencer(const AProc: TProc<string>);
     class function Iniciada: Boolean;
     class function EstaVigente: Boolean;
 
@@ -47,7 +53,7 @@ function InicialesDe(const ANombre: string): string;
 implementation
 
 uses
-  System.SysUtils,
+  System.Classes,
   System.StrUtils,
   System.DateUtils,
   MVCFramework.Commons,
@@ -133,6 +139,26 @@ begin
   FDebeCambiarClave := False;
   FVence := 0;
   FPermisos := nil;
+end;
+
+class procedure TSesion.Vencer(const AMensaje: string);
+var
+  lAbierta: Boolean;
+begin
+  lAbierta := not FToken.IsEmpty;
+  Cerrar;
+  if lAbierta and Assigned(FAlVencer) then
+    TThread.Queue(nil,
+      procedure
+      begin
+        if Assigned(FAlVencer) then
+          FAlVencer(AMensaje);
+      end);
+end;
+
+class procedure TSesion.AlVencer(const AProc: TProc<string>);
+begin
+  FAlVencer := AProc;
 end;
 
 class function TSesion.Iniciada: Boolean;

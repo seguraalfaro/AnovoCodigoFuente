@@ -67,6 +67,7 @@ type
     FItems: TArray<TPlanoNavItem>;
     procedure SombraPaint(Sender: TObject);
     procedure MostrarIngreso;
+    procedure SesionVencida(const AMensaje: string);
     procedure Ingreso(Sender: TObject);
     procedure ContenidoResize(Sender: TObject);
     function ObtenerFrame(ASeccion: TSeccion): TFrame;
@@ -94,6 +95,7 @@ uses
   Anovo.UI.Iconos,
   Anovo.Datos.Memoria,
   Anovo.Sesion,
+  Anovo.UI.Vista,
   Anovo.Api.Dashboard,
   Anovo.Textos;
 
@@ -160,7 +162,21 @@ begin
   AplicarTema(Self);
   FPresentador := TPresentadorPrincipal.Create(Self, TApiDashboard.Create);
   pnlContenido.OnResize := ContenidoResize;
+  TSesion.AlVencer(
+    procedure(AMensaje: string)
+    begin
+      SesionVencida(AMensaje);
+    end);
   MostrarIngreso;
+end;
+
+procedure TfrmPrincipal.SesionVencida(const AMensaje: string);
+begin
+  if Assigned(FLogin) then
+    Exit;
+  AcSalirExecute(nil);
+  if not AMensaje.IsEmpty then
+    Informar(AMensaje);
 end;
 
 procedure TfrmPrincipal.MostrarIngreso;
@@ -212,6 +228,7 @@ end;
 
 procedure TfrmPrincipal.FormDestroy(Sender: TObject);
 begin
+  TSesion.AlVencer(nil);
   tmrAvisos.Enabled := False;
   FreeAndNil(FPresentador);
 end;

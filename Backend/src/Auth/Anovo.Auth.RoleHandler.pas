@@ -38,6 +38,7 @@ uses
   System.SysUtils,
   MVCFramework.Commons,
   MVCFramework.Logger,
+  Anovo.Auth.EstadoUsuarios,
   Anovo.Auth.Intentos,
   Anovo.Auth.Permisos,
   Anovo.Errors,
@@ -59,6 +60,14 @@ destructor TAuthentication.Destroy;
 begin
   fRtti.Free;
   inherited;
+end;
+
+function RolDelToken(const ARoles: TList<string>): string;
+begin
+  if ARoles.Count > 0 then
+    Result := ARoles[0]
+  else
+    Result := '';
 end;
 
 function TAuthentication.DebeCambiarClave(const AContext: TWebContext)
@@ -137,6 +146,12 @@ begin
   inherited;
   if not IsAuthorized then
     Exit;
+
+  if not TEstadoUsuarios.SesionVigente(AContext, UsuarioDelToken(AContext),
+    RolDelToken(UserRoles), AContext.LoggedUser.LoggedSince,
+    DebeCambiarClave(AContext)) then
+    raise EAnovoError.Create('SESION_REVOCADA', SSesionRevocada,
+      HTTP_STATUS.Unauthorized);
 
   if DebeCambiarClave(AContext) and
     not SameText(ControllerQualifiedClassName, CONTROLLER_CUENTA_PROPIA) then

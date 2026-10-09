@@ -87,7 +87,10 @@ begin
   if AConToken then
   begin
     if not TSesion.EstaVigente then
+    begin
+      TSesion.Vencer(SSesionVencida);
       raise EAnovoSesionVencida.Create(SSesionVencida);
+    end;
     Result.SetBearerAuthorization(TSesion.Token);
   end;
 end;
@@ -113,7 +116,7 @@ begin
 
   if (Result.StatusCode = 401) and not AEsLogin then
   begin
-    TSesion.Cerrar;
+    TSesion.Vencer(SSesionVencida);
     raise EAnovoSesionVencida.Create(SSesionVencida);
   end;
 

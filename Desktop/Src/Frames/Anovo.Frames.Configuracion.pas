@@ -160,7 +160,7 @@ end;
 procedure TfraConfiguracion.btnCambiarClaveClick(Sender: TObject);
 begin
   if TfrmCambioClave.Mostrar(Self, False) then
-    Informar(SClaveCambiada);
+    TSesion.Vencer(SClaveCambiadaReingreso);
 end;
 
 procedure TfraConfiguracion.btnProbarClick(Sender: TObject);

@@ -404,6 +404,7 @@ resourcestring
   SIngresoBloqueado = 'Demasiados intentos fallidos de ingreso. Intente de ' +
     'nuevo en %d minutos.';
   SCambioClavePendiente = 'Debe cambiar su clave antes de continuar.';
+  SSesionRevocada = 'Su cuenta cambió (estado, rol o clave). Vuelva a ingresar.';
   SDocsTitulo = 'Documentación de la API';
   SDocsSubtitulo = 'Acceso solo para el personal de TI de Anovo.';
   SDocsCorreo = 'Correo';
