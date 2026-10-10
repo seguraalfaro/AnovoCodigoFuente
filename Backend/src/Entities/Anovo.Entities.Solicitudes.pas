@@ -158,6 +158,9 @@ type
     fFechaCreacion: NullableTDateTime ;
     [MVCTableField('OBJVERSION')]
     fObjversion: NullableInt32;
+    [MVCTableField('CANTIDAD')]
+    [MVCRequired]
+    fCantidad: Int16;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -172,6 +175,7 @@ type
     property Orden: Int16 read fOrden write fOrden;
     property FechaCreacion: NullableTDateTime  read fFechaCreacion write fFechaCreacion;
     property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property Cantidad: Int16 read fCantidad write fCantidad;
   end;
 
 implementation

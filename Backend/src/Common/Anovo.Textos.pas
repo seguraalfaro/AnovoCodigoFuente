@@ -106,6 +106,7 @@ resourcestring
   SSolicitudNoExiste = 'La solicitud indicada no existe.';
   SFaltaIdLocalSolicitud = 'Falta el identificador local de la solicitud.';
   SFaltaIdLocalAdjunto = 'Falta el identificador local del adjunto.';
+  SCantidadMedidaInvalida = 'La cantidad de la medida debe estar entre 1 y 9999.';
   STipoAdjuntoInvalido = 'El tipo de adjunto debe ser croquis o foto.';
 
   SCantidadInvalida = 'La cantidad debe ser mayor que cero.';

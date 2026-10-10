@@ -488,6 +488,7 @@ type
     mtMedidasTIPO_MEDIDA: TStringField;
     mtMedidasUNIDAD_MEDIDA: TStringField;
     mtMedidasVALOR: TCurrencyField;
+    mtMedidasCANTIDAD: TIntegerField;
     dsMedidas: TDataSource;
     mtItemsLinea: TFDMemTable;
     mtItemsLineaID: TIntegerField;

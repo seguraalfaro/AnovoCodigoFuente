@@ -826,6 +826,35 @@ Public Sub LimpiarFormulario (Padre As B4XView)
 End Sub
 
 #End Region
+#Region Dialogos
+
+Public Sub EstilizarDialogo (Dialogo As B4XDialog)
+	Dialogo.BackgroundColor = Colores.COLOR_SUPERFICIE
+	Dialogo.BorderColor = Colores.COLOR_BORDE
+	Dialogo.BorderWidth = 1dip
+	Dialogo.BorderCornersRadius = 12dip
+	Dialogo.TitleBarColor = Colores.COLOR_PRIMARIO
+	Dialogo.TitleBarTextColor = Colores.COLOR_TEXTO_SOBRE_PRIMARIO
+	Dialogo.TitleBarHeight = 44dip
+	Dialogo.TitleBarFont = xui.CreateDefaultBoldFont(15)
+	Dialogo.ButtonsColor = Colores.COLOR_SUPERFICIE
+	Dialogo.ButtonsTextColor = Colores.COLOR_MEDIO
+	Dialogo.ButtonsTextColorDisabled = Colores.COLOR_DESHABILITADO
+	Dialogo.ButtonsFont = xui.CreateDefaultBoldFont(14)
+	Dialogo.ButtonsHeight = 48dip
+	Dialogo.BodyTextColor = Colores.COLOR_TEXTO_PRIMARIO
+	Dialogo.OverlayColor = 0x80000000
+	Dialogo.PutAtTop = True
+End Sub
+
+Public Sub EstilizarPlantillaTexto (Plantilla As B4XInputTemplate)
+	Plantilla.mBase.Color = Colores.COLOR_SUPERFICIE
+	Plantilla.lblTitle.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
+	Plantilla.TextField1.TextColor = Colores.COLOR_TEXTO_PRIMARIO
+	Plantilla.SetBorderColor(Colores.COLOR_BORDE, Colores.COLOR_RECHAZADA_ERROR)
+End Sub
+
+#End Region
 #Region Teclado
 
 Public Sub SoltarFoco (Campo As B4XView)

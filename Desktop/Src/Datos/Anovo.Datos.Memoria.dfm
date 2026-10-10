@@ -2489,6 +2489,10 @@ object dmMemoria: TdmMemoria
       DisplayFormat = '#,##0.##'
       currency = False
     end
+    object mtMedidasCANTIDAD: TIntegerField
+      DisplayLabel = 'Cantidad'
+      FieldName = 'CANTIDAD'
+    end
   end
   object dsMedidas: TDataSource
     AutoEdit = False

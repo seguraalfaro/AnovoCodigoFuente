@@ -22,6 +22,20 @@ Sub Class_Globals
 
 	Private menu As ASPopupMenuAdvanced
 
+	Private dlgCroquis As B4XDialog
+	Private plantillaTexto As B4XInputTemplate
+	Private pnlMedida As B4XView
+	Private spnMedida As Spinner
+	Private spnUnidad As Spinner
+	Private txtValor As EditText
+	Private txtCantidad As EditText
+	Private TIPOS_MEDIDA() As String = Array As String("Largo", "Ancho", "Alto", "Profundidad", _
+		"Diámetro", "Radio", "Espesor", "Ángulo")
+	Private UNIDADES() As String = Array As String("cm", "mm", "m", "pulg", "grados")
+	Private PLANOS() As String = Array As String("", "superior", "izquierda", "derecha", "frente")
+	Private NOMBRES_PLANO() As String = Array As String("automática", "arriba", "izquierda", "derecha", "de frente")
+	Private idxPlano As Int = 0
+
 	'Grupo de herramientas con un solo elemento activo.
 	Private herramientas() As B4XView
 
@@ -216,8 +230,24 @@ Private Sub menu_ItemClick (Index As Int, Tag As Object)
 	menu.CloseMenu
 
 	Select Tag
-		Case "puntos", "linea", "cota"
+		Case "puntos", "linea", "circulo", "agujero", "arco", "texto", "hueco", "cota", "angulo"
 			ASDrawIso1.setModo(Tag)
+
+		Case "llenar"
+			LlenarPendientes
+			Return
+
+		Case "plano"
+			idxPlano = (idxPlano + 1) Mod PLANOS.Length
+			ASDrawIso1.setPlanoCirculo(PLANOS(idxPlano))
+
+		Case "tipo_rejilla"
+			If ASDrawIso1.getTipoRejilla = "iso" Then
+				ASDrawIso1.setTipoRejilla("cuadrada")
+			Else
+				ASDrawIso1.setTipoRejilla("iso")
+			End If
+			ASDrawIso1.Rejilla = True
 
 		Case "terminar"
 			If ASDrawIso1.EnCadena Then ASDrawIso1.TerminarCadena(False)
@@ -226,7 +256,7 @@ Private Sub menu_ItemClick (Index As Int, Tag As Object)
 			If ASDrawIso1.PuedeCerrar Then ASDrawIso1.TerminarCadena(True)
 
 		Case "descartar"
-			If ASDrawIso1.EnCadena Or ASDrawIso1.CotaPendiente Then ASDrawIso1.Cancelar
+			If ASDrawIso1.EnCadena Or ASDrawIso1.TrazoPendiente Then ASDrawIso1.Cancelar
 
 		Case "rejilla"
 			ASDrawIso1.Rejilla = Not(ASDrawIso1.Rejilla)
@@ -256,6 +286,16 @@ End Sub
 Private Sub ASDrawIso1_Cambio
 	Refrescar
 End Sub
+
+Private Sub ASDrawIso1_Medida (Id As Int)
+	Wait For (PedirMedida(Id)) Complete (Listo As Boolean)
+	Refrescar
+End Sub
+
+Private Sub ASDrawIso1_Texto (Id As Int)
+	Wait For (PedirTexto(Id)) Complete (Listo As Boolean)
+	Refrescar
+End Sub
 #End Region
 
 #Region Metodos Menu
@@ -281,9 +321,20 @@ Private Sub ConstruirMenu
 	Dim m As String = ASDrawIso1.getModo
 
 	menu.AddTitle("HERRAMIENTAS", 26dip)
-	menu.AddItem(Fila(Chr(0xF192), "Puntos",      m = "puntos", False), "puntos")
-	menu.AddItem(Fila(Chr(0xF068), "Línea recta", m = "linea",  False), "linea")
-	menu.AddItem(Fila(Chr(0xF07E), "Cota",        m = "cota",   False), "cota")
+	menu.AddItem(Fila(Chr(0xF192), "Puntos",      m = "puntos",  False), "puntos")
+	menu.AddItem(Fila(Chr(0xF068), "Línea recta", m = "linea",   False), "linea")
+	menu.AddItem(Fila(Chr(0xF192), "Agujero",     m = "agujero", False), "agujero")
+	menu.AddItem(Fila(Chr(0xF10C), "Círculo",     m = "circulo", False), "circulo")
+	menu.AddItem(Fila(Chr(0xF1CE), "Arco",        m = "arco",    False), "arco")
+	menu.AddItem(Fila(Chr(0xF031), "Texto",       m = "texto",   False), "texto")
+	menu.AddItem(Fila(Chr(0xF1DB), "Marcar abertura", m = "hueco", False), "hueco")
+
+	menu.AddSeparator
+	menu.AddTitle("MEDIDAS", 26dip)
+	menu.AddItem(Fila(Chr(0xF07E), "Cota",        m = "cota",    False), "cota")
+	menu.AddItem(Fila(Chr(0xF1FE), "Ángulo",      m = "angulo",  False), "angulo")
+	Dim faltan As Int = ASDrawIso1.getMedidasPendientes
+	menu.AddItem(Fila(Chr(0xF044), "Llenar medidas (" & faltan & ")", False, faltan = 0), "llenar")
 
 	menu.AddSeparator
 	menu.AddTitle("FIGURA", 26dip)
@@ -292,11 +343,13 @@ Private Sub ConstruirMenu
 	menu.AddItem(Fila(Chr(0xF096), "Cerrar figura", False, _
 		Not(ASDrawIso1.PuedeCerrar)), "cerrar")
 	menu.AddItem(Fila(Chr(0xF00D), "Descartar figura", False, _
-		Not(ASDrawIso1.EnCadena Or ASDrawIso1.CotaPendiente)), "descartar")
+		Not(ASDrawIso1.EnCadena Or ASDrawIso1.TrazoPendiente)), "descartar")
 
 	menu.AddSeparator
 	menu.AddTitle("VISTA", 26dip)
 	menu.AddItem(Fila(Chr(0xF00A), "Rejilla", ASDrawIso1.Rejilla, False), "rejilla")
+	menu.AddItem(Fila(Chr(0xF0CE), "Rejilla cuadrada", ASDrawIso1.getTipoRejilla = "cuadrada", False), "tipo_rejilla")
+	menu.AddItem(Fila(Chr(0xF1B2), "Cara: " & NOMBRES_PLANO(idxPlano), False, False), "plano")
 	menu.AddItem(Fila(Chr(0xF076), "Imán",    ASDrawIso1.Iman,    False), "iman")
 	menu.AddItem(Fila(Chr(0xF02B), "Medidas", ASDrawIso1.Rotulos, False), "rotulos")
 
@@ -408,6 +461,103 @@ Private Sub ConfirmarLimpiar
 		"Borrar", "", "Cancelar", Null)) Msgbox_Result (Resultado As Int)
 	If Resultado = xui.DialogResponse_Positive Then ASDrawIso1.Limpiar
 End Sub
+
+Private Sub PrepararDialogos
+	If dlgCroquis.IsInitialized Then Return
+	dlgCroquis.Initialize(Root)
+	UI.EstilizarDialogo(dlgCroquis)
+	plantillaTexto.Initialize
+	plantillaTexto.lblTitle.Text = "Nota"
+	UI.EstilizarPlantillaTexto(plantillaTexto)
+
+	pnlMedida = xui.CreatePanel("")
+	pnlMedida.Tag = Utils.TAG_RAW
+	pnlMedida.Color = Colores.COLOR_SUPERFICIE
+	pnlMedida.SetLayoutAnimated(0, 0, 0, 300dip, 236dip)
+	spnMedida.Initialize("")
+	spnMedida.Tag = Utils.TAG_RAW
+	spnMedida.TextColor = Colores.COLOR_TEXTO_PRIMARIO
+	spnMedida.DropdownBackgroundColor = Colores.COLOR_SUPERFICIE
+	spnMedida.AddAll(TIPOS_MEDIDA)
+	spnUnidad.Initialize("")
+	spnUnidad.Tag = Utils.TAG_RAW
+	spnUnidad.TextColor = Colores.COLOR_TEXTO_PRIMARIO
+	spnUnidad.DropdownBackgroundColor = Colores.COLOR_SUPERFICIE
+	spnUnidad.AddAll(UNIDADES)
+	txtValor.Initialize("")
+	txtValor.InputType = txtValor.INPUT_TYPE_DECIMAL_NUMBERS
+	txtValor.SingleLine = True
+	txtCantidad.Initialize("")
+	txtCantidad.InputType = txtCantidad.INPUT_TYPE_NUMBERS
+	txtCantidad.SingleLine = True
+
+	AgregarRotulo("Tipo de medida", 12dip)
+	pnlMedida.AddView(spnMedida, 16dip, 32dip, 268dip, 44dip)
+	AgregarRotulo("Valor", 84dip)
+	pnlMedida.AddView(txtValor, 16dip, 104dip, 156dip, 44dip)
+	pnlMedida.AddView(spnUnidad, 184dip, 104dip, 100dip, 44dip)
+	AgregarRotulo("Cantidad de piezas iguales", 156dip)
+	pnlMedida.AddView(txtCantidad, 16dip, 176dip, 100dip, 44dip)
+	UI.AplicarTema(pnlMedida)
+End Sub
+
+Private Sub AgregarRotulo (Texto As String, Arriba As Int)
+	Dim l As Label
+	l.Initialize("")
+	l.Tag = Utils.TAG_SUB
+	l.Text = Texto
+	l.TextSize = 12
+	pnlMedida.AddView(l, 16dip, Arriba, 268dip, 20dip)
+End Sub
+
+Private Sub PedirMedida (Id As Int) As ResumableSub
+	Dim m As Map = ASDrawIso1.getMedida(Id)
+	If m.Size = 0 Then Return False
+	PrepararDialogos
+	spnMedida.SelectedIndex = Max(0, spnMedida.IndexOf(m.Get("medida")))
+	spnUnidad.SelectedIndex = Max(0, spnUnidad.IndexOf(m.Get("unidad")))
+	Dim valor As Double = m.Get("valor")
+	If valor > 0 Then txtValor.Text = NumberFormat2(valor, 1, 2, 0, False) Else txtValor.Text = ""
+	txtCantidad.Text = m.Get("cantidad")
+	dlgCroquis.Title = "Medida " & m.Get("etiqueta")
+	Wait For (dlgCroquis.ShowCustom(pnlMedida, "Guardar", "Quitar", "Cancelar")) Complete (Resultado As Int)
+	If Resultado = xui.DialogResponse_Negative Then
+		ASDrawIso1.QuitarTrazo(Id)
+		Return True
+	End If
+	If Resultado <> xui.DialogResponse_Positive Then Return False
+	Dim texto As String = txtValor.Text.Trim.Replace(",", ".")
+	If IsNumber(texto) = False Or texto = "" Then
+		xui.MsgboxAsync("Escriba el valor de la medida.", "Medida " & m.Get("etiqueta"))
+		Return False
+	End If
+	Dim cantidad As Int = 1
+	If IsNumber(txtCantidad.Text.Trim) Then cantidad = Max(1, txtCantidad.Text.Trim)
+	ASDrawIso1.FijarMedida(Id, spnMedida.SelectedItem, texto, spnUnidad.SelectedItem, cantidad)
+	Return True
+End Sub
+
+Private Sub LlenarPendientes
+	For Each m As Map In ASDrawIso1.getMedidas
+		Dim valor As Double = m.Get("valor")
+		If valor > 0 Then Continue
+		Wait For (PedirMedida(m.Get("id"))) Complete (Listo As Boolean)
+		If Listo = False Then Exit
+	Next
+	Refrescar
+End Sub
+
+Private Sub PedirTexto (Id As Int) As ResumableSub
+	PrepararDialogos
+	plantillaTexto.Text = ASDrawIso1.getTextoDe(Id)
+	Dim borrar As String = ""
+	If Id > 0 Then borrar = "Borrar"
+	dlgCroquis.Title = "Nota del croquis"
+	Wait For (dlgCroquis.ShowTemplate(plantillaTexto, "Guardar", borrar, "Cancelar")) Complete (Resultado As Int)
+	If Resultado = xui.DialogResponse_Positive Then ASDrawIso1.PonerTexto(Id, plantillaTexto.Text)
+	If Resultado = xui.DialogResponse_Negative Then ASDrawIso1.PonerTexto(Id, "")
+	Return True
+End Sub
 #End Region
 
 #Region Persistencia Croquis
@@ -431,6 +581,20 @@ End Sub
 Public Sub getCroquisVacio As Boolean
 	If ASDrawIso1.IsInitialized = False Then Return True
 	Return ASDrawIso1.Vacio
+End Sub
+
+Public Sub getMedidasCroquis As List
+	If ASDrawIso1.IsInitialized = False Then
+		Dim vacia As List
+		vacia.Initialize
+		Return vacia
+	End If
+	Return ASDrawIso1.Medidas
+End Sub
+
+Public Sub getMedidasPendientes As Int
+	If ASDrawIso1.IsInitialized = False Then Return 0
+	Return ASDrawIso1.MedidasPendientes
 End Sub
 #End Region
 

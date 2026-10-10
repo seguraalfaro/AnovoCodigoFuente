@@ -113,6 +113,7 @@ type
     fUnidadMedida: string;
     fObservacion: NullableString;
     fOrden: Integer;
+    fCantidad: Integer;
   public
     property ID: Integer read fID write fID;
     property UuidLocal: NullableString read fUuidLocal write fUuidLocal;
@@ -124,6 +125,7 @@ type
     property UnidadMedida: string read fUnidadMedida write fUnidadMedida;
     property Observacion: NullableString read fObservacion write fObservacion;
     property Orden: Integer read fOrden write fOrden;
+    property Cantidad: Integer read fCantidad write fCantidad;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -137,7 +139,9 @@ type
     fUnidadMedida: string;
     fObservacion: NullableString;
     fOrden: Integer;
+    fCantidad: Integer;
   public
+    constructor Create;
     property UuidLocal: NullableString read fUuidLocal write fUuidLocal;
     property CroquisId: NullableInt32 read fCroquisId write fCroquisId;
     property Etiqueta: NullableString read fEtiqueta write fEtiqueta;
@@ -146,6 +150,7 @@ type
     property UnidadMedida: string read fUnidadMedida write fUnidadMedida;
     property Observacion: NullableString read fObservacion write fObservacion;
     property Orden: Integer read fOrden write fOrden;
+    property Cantidad: Integer read fCantidad write fCantidad;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -322,6 +327,15 @@ type
   end;
 
 implementation
+
+const
+  CANTIDAD_POR_DEFECTO = 1;
+
+constructor TMedidaNuevaDTO.Create;
+begin
+  inherited Create;
+  fCantidad := CANTIDAD_POR_DEFECTO;
+end;
 
 constructor TSolicitudCompletaDTO.Create;
 begin

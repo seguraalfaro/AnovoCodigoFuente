@@ -109,6 +109,7 @@ CREATE TABLE IF NOT EXISTS medidas (
   etiqueta          TEXT,
   tipo_medida       TEXT NOT NULL,               -- Largo|Ancho|Alto|Diámetro|Espesor|Radio|Ángulo...
   valor             REAL NOT NULL,
+  cantidad          INTEGER NOT NULL DEFAULT 1,
   unidad_medida     TEXT NOT NULL DEFAULT 'cm',  -- cm|mm|m|pulg|grados...
   observacion       TEXT,
   orden             INTEGER NOT NULL DEFAULT 0,

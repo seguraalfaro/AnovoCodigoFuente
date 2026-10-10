@@ -26,6 +26,9 @@ const
 
   ADJUNTO_MAXIMO_BYTES = 3145728;
 
+  CANTIDAD_MINIMA = 1;
+  CANTIDAD_MAXIMA = 9999;
+
   ADJUNTO_CROQUIS = 'croquis';
   ADJUNTO_FOTO = 'foto';
   MIME_JPEG = 'image/jpeg';
@@ -440,6 +443,12 @@ begin
   end;
 end;
 
+procedure ValidarCantidad(const ADto: TMedidaNuevaDTO);
+begin
+  if (ADto.Cantidad < CANTIDAD_MINIMA) or (ADto.Cantidad > CANTIDAD_MAXIMA) then
+    raise EDatoInvalido.Create(SCantidadMedidaInvalida);
+end;
+
 function TSolicitudService.InsertarMedida(const ASolicitudId: Integer;
   const ADto: TMedidaNuevaDTO): Integer;
 var
@@ -457,6 +466,7 @@ begin
       end;
   end;
 
+  ValidarCantidad(ADto);
   lMedida := TSolicitudMedidas.Create;
   try
     TMapeo.Copiar(ADto, lMedida);
@@ -496,6 +506,7 @@ begin
   lTx := TMVCRepository.UseTransactionContext;
 
   ExigirAlcanceDe(AId, AUsuarioId, ARoles, PERMISO_SOLICITUDES_EDITAR_TODAS);
+  ValidarCantidad(ADto);
   lMedida := TraerMedida(AId, AMedidaId);
   try
     TMapeo.Copiar(ADto, lMedida);
