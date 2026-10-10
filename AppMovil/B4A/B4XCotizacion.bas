@@ -77,7 +77,7 @@ End Sub
 Private Sub ValidarPaso (Indice As Int) As Boolean
 	Select Indice
 		Case 0
-			If Validacion.ValidarFormulario(pn_fondo) Then
+			If UI.ValidarFormulario(pn_fondo) Then
 			'	xui.MsgboxAsync("Seleccione un cliente antes de continuar.", "Datos incompletos")
 			'	Return False
 			End If

@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS clientes (
   id_servidor             INTEGER,
   nombre                  TEXT NOT NULL,
   identificacion          TEXT,
-  -- 1 cedula fisica, 2 cedula juridica, 3 DIMEX. Coincide con el indice del combo
-  -- Utils.TiposIdent, donde el 0 es la opcion vacia y aqui se guarda como NULL.
+  -- 1 cedula fisica, 2 cedula juridica, 3 DIMEX: la posicion en el combo
+  -- Utils.TiposIdent mas uno. Sin tipo elegido se guarda NULL.
   tipo_identificacion     INTEGER CHECK (tipo_identificacion IN (1,2,3)),
   telefono                TEXT,
   correo                  TEXT,

@@ -4,105 +4,62 @@ ModulesStructureVersion=1
 Type=StaticCode
 Version=13.7
 @EndOfDesignText@
-'Code module
-'Subs in this code module will be accessible from all modules.
+' Unico modulo que escribe clientes, contactos y firmas de consentimiento en
+' SQLite. Todo en una transaccion: si algo falla, no queda nada a medias.
 Sub Process_Globals
-	'These global variables will be declared once when the application starts.
-	'These variables can be accessed from all modules.
 	Public Const CONSENT_VERSION As String = "v1"
+	Private Const SQL_CLIENTE As String = "INSERT INTO clientes (uuid_local, nombre, identificacion, tipo_identificacion, telefono, correo, contacto, direccion, estado_sync) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendiente')"
+	Private Const SQL_CONTACTO As String = "INSERT INTO cliente_contactos (uuid_local, cliente_uuid, nombre, area, telefono, celular, correo, principal, consentimiento_estado, estado_sync) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendiente', 'pendiente')"
+	Private Const SQL_FIRMAR_CONTACTO As String = "UPDATE cliente_contactos SET consentimiento_estado = 'firmado', consentimiento_version = ?, consentimiento_fecha = ? WHERE uuid_local = ?"
+	Private Const SQL_FIRMA As String = "INSERT INTO consentimiento_firmas (uuid_local, cliente_uuid, cliente_contacto_uuid, accion, version_texto, fecha, firmante_nombre, firmante_identificacion, firma, mime, estado_sync) VALUES (?, ?, ?, 'otorgado', ?, ?, ?, ?, ?, 'image/png', 'pendiente')"
+	Private Const TIPOS_IDENTIFICACION As Int = 3
 End Sub
 
-Public Sub GuardarCliente(Datos As Map,  firma() As Byte) As String
-	Dim s As SQL=Db.DbSQL
-	Dim uCliente As String = Datos.Get("uuid_cliente")
+Public Sub Guardar (c As Cliente, Contactos As List, Permiso As Consentimiento) As String
+	Dim s As SQL = Db.DbSQL
 	Dim ahora As String = Utils.AhoraBd
-	Dim Contactos As List = Datos.Get("contactos")
 	Dim uFirma As String = Db.NuevoUuid
+	Dim titular As Object = UuidDeFirmante(Contactos, Permiso.Firmante)
+	Dim uuids As List
+	uuids.Initialize
 	Dim ok As Boolean = False
-
-	Dim titular As Map = ContactoPorNombre(Contactos, Datos.GetDefault("firmante", ""))
-
-	Dim uTitular As String = ""
-	If titular <> Null Then uTitular = titular.GetDefault("uuid_local", "")
 
 	s.BeginTransaction
 	Try
-		extDBUtils.InsertMapIn(s, "clientes", CreateMap( _
-			"uuid_local":     uCliente, _
-			"nombre":         Datos.GetDefault("nombre", ""), _
-			"identificacion": Datos.GetDefault("identificacion", ""), _
-			"tipo_identificacion": TipoIdentificacion(Datos), _
-			"telefono":       Datos.GetDefault("telefono", ""), _
-			"direccion":      Datos.GetDefault("direccion", ""), _
-			"estado_sync":    "pendiente"))
-
-		If Contactos.IsInitialized And Contactos.Size > 0 Then
-			extDBUtils.InsertMapsIn(s, "cliente_contactos", Contactos)
-		End If
-
-		If uTitular <> "" Then
-			extDBUtils.UpdateRecord2(s, "cliente_contactos", _
-				CreateMap("consentimiento_estado": "firmado", _
-				          "consentimiento_version": CONSENT_VERSION, _
-				          "consentimiento_fecha": ahora), _
-				CreateMap("uuid_local": uTitular))
-		End If
-
-
-		extDBUtils.InsertMapIn(s, "consentimiento_firmas", CreateMap( _
-			"uuid_local": uFirma, _
-			"cliente_uuid": uCliente, _
-			"cliente_contacto_uuid": uTitular, _
-			"accion": "otorgado", _
-			"version_texto": CONSENT_VERSION, _
-			"fecha": ahora, _
-			"firmante_nombre": Datos.GetDefault("firmante", ""), _
-			"firmante_identificacion": Datos.GetDefault("Cedulafirmante", ""), _
-			"firma": firma, _
-			"mime": "image/png", _
-			"estado_sync": "pendiente"))
-
-		Db.Encolar("cliente", uCliente)
-		Db.EncolarFilas("contacto", Contactos)
+		s.ExecNonQuery2(SQL_CLIENTE, Array As Object(c.UuidLocal, c.Nombre, c.Identificacion, _
+			TipoIdentificacion(c.TipoIdentificacion), c.Telefono, c.CorreoCobro, c.ContactoCobro, c.Direccion))
+		For Each k As Contacto In Contactos
+			s.ExecNonQuery2(SQL_CONTACTO, Array As Object(k.UuidLocal, c.UuidLocal, k.Nombre, k.Puesto, _
+				k.Telefono, k.Celular, k.Correo, IIf(k.Principal, 1, 0)))
+			uuids.Add(k.UuidLocal)
+		Next
+		If titular <> Null Then s.ExecNonQuery2(SQL_FIRMAR_CONTACTO, Array As Object(CONSENT_VERSION, ahora, titular))
+		s.ExecNonQuery2(SQL_FIRMA, Array As Object(uFirma, c.UuidLocal, titular, CONSENT_VERSION, ahora, _
+			Permiso.Firmante, Permiso.CedulaFirmante, Permiso.Firma))
+		Db.Encolar("cliente", c.UuidLocal)
+		Db.EncolarVarios("contacto", uuids)
 		Db.Encolar("firma", uFirma)
-
 		s.TransactionSuccessful
 		ok = True
 	Catch
-		Log("DbClientes.GuardarCliente ERROR: " & LastException)
+		Log("DbClientes.Guardar: " & LastException.Message)
 	End Try
 	s.EndTransaction
 
 	If ok = False Then Return ""
-	Log("DbClientes: guardado " & uCliente & " con " & Cuantos(Contactos) & _
-		" contactos, titular [" & uTitular & "]")
-		
-	Return uCliente
-	
+	Return c.UuidLocal
 End Sub
 
-'Devuelve la tarjeta cuyo nombre coincide con el del combo, o Null si el
-'firmante no salio de la lista de contactos.
-Private Sub ContactoPorNombre (Contactos As List, Nombre As String) As Map
-	If Contactos.IsInitialized = False Then Return Null
+Private Sub UuidDeFirmante (Contactos As List, Nombre As String) As Object
 	Dim buscado As String = Nombre.Trim.ToLowerCase
 	If buscado = "" Then Return Null
-	For Each c As Map In Contactos
-		Dim n As String = c.GetDefault("nombre", "")
-		If n.Trim.ToLowerCase = buscado Then Return c
+	For Each k As Contacto In Contactos
+		If k.Nombre.Trim.ToLowerCase = buscado Then Return k.UuidLocal
 	Next
 	Return Null
 End Sub
 
-'El indice 0 del combo es la opcion vacia y la columna solo acepta 1, 2 o 3:
-'sin tipo elegido se guarda NULL o el CHECK tumba la transaccion entera.
-Private Sub TipoIdentificacion (Datos As Map) As Object
-	Dim i As Int = Datos.GetDefault("tipo_identificacion", 0)
-	If i < 1 Or i > 3 Then Return Null
-	Return i
-End Sub
-
-Private Sub Cuantos (L As List) As Int
-	If L.IsInitialized = False Then Return 0
-	Return L.Size
+Private Sub TipoIdentificacion (IndiceCombo As Int) As Object
+	If IndiceCombo < 0 Or IndiceCombo >= TIPOS_IDENTIFICACION Then Return Null
+	Return IndiceCombo + 1
 End Sub

@@ -79,6 +79,7 @@ Version=13.7
 '   UI.MarcarGrupo(navegacion, Position)
 
 Sub Process_Globals
+	Private Const TAG_OBLIGATORIO As String = "_oblig"
 	Private xui As XUI
 	Public RADIO_BOTON     As Int = 10dip
 	Public RADIO_CAMPO     As Int = 8dip
@@ -823,6 +824,42 @@ Public Sub LimpiarFormulario (Padre As B4XView)
 			If sp.Size > 0 Then sp.SelectedIndex = 0
 		End If
 	Next
+End Sub
+
+#End Region
+#Region Formularios
+
+Public Sub ValidarFormulario (Padre As B4XView) As Boolean
+	Dim ok As Boolean = True
+	For Each v As B4XView In Padre.GetAllViewsRecursive
+		If Obligatorio(v) = False Then Continue
+		Dim o As Object = v
+		Dim vacio As Boolean
+		If o Is EditText Then
+			vacio = Utils.EstaVacio(v.Text)
+		Else If o Is Spinner Then
+			Dim sp As Spinner = v
+			vacio = Utils.EstaVacio(sp.SelectedItem)
+		Else If o Is CheckBox Then
+			Dim cb As CheckBox = v
+			vacio = (cb.Checked = False)
+		Else
+			Continue
+		End If
+		If vacio Then
+			ok = False
+			MarcarError(v)
+		Else
+			MarcarNormal(v)
+		End If
+	Next
+	Return ok
+End Sub
+
+Private Sub Obligatorio (v As B4XView) As Boolean
+	Dim t As String = TagDelPadre(v)
+	If t = "" Then t = ObtenerTag(v)
+	Return t.Contains(TAG_OBLIGATORIO)
 End Sub
 
 #End Region

@@ -19,6 +19,10 @@ Sub Process_Globals
 	Public Const ItemContacto As String = "ItemContacto"
 	Public Const ItemFoto     As String = "ItemFoto"
 	Public Const ItemVacio    As String = "ItemVacio"
+	Public Const PAGINA_INICIO As String = "Phome"
+	Public Const PAGINA_COTIZACION As String = "Pcotizacion"
+	Public Const PAGINA_ESPECIFICACIONES As String = "PEspecificaciones"
+	Public Const PAGINA_CLIENTES As String = "PCLientes"
 End Sub
 
 Public Sub Inicializar

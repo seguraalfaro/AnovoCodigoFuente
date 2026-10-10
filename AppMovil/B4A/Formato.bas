@@ -174,12 +174,7 @@ End Sub
 'Normaliza segun el campo: SoloAlfanum se come la arroba y el punto,
 'asi que el correo va por NormalizarCorreo o ninguna validacion pasa.
 Public Sub EventoCambioFocusText(Remitente As Object)As Boolean
-	'Dim campo As B4XFloatTextField = Remitente
-	'Dim et As EditText = campo.TextField
 	Dim et As EditText = UI.RetornarTextField(Remitente)
-	
-	'Retirar cuando salga produccion solo es ayuda para debug 
-	Log("Foco: tag=[" & obtenerTag(et) & "] tipo=" & GetType(Remitente))
 	If et = Null Then Return True
 	If Utils.EstaVacio(et.text) Then Return False
 
@@ -189,17 +184,30 @@ Public Sub EventoCambioFocusText(Remitente As Object)As Boolean
 
 	Select mascara
 		Case MASCARA_TELEFONO
-			Return Validacion.RevisarTelefono(Utils.Normalizar(texto), Remitente)
+			Return Marcar(Remitente, Validacion.EsTelefono(Utils.Normalizar(texto)), Utils.HINT_TELEFONO, Utils.HINT_ERROR)
 		Case MASCARA_TELEFONO_EXT
-			Return Validacion.RevisarTelefonoExt(Utils.Normalizar(texto), Remitente)
-		Case MASCARA_IDENT_JURIDICA, MASCARA_IDENT_FISICA, MASCARA_IDENT_DIMEX
-			Return Validacion.RevisarIdentificacion(mascara, Utils.Normalizar(texto), Remitente)
+			Return Marcar(Remitente, Validacion.EsTelefonoExt(Utils.Normalizar(texto)), Utils.HINT_TELEFONO_EXT, Utils.HINT_ERROR)
+		Case MASCARA_IDENT_FISICA
+			Return Marcar(Remitente, Validacion.EsIdentificacion(mascara, Utils.Normalizar(texto)), Utils.HINT_CEDULA, Utils.HINT_FORMATO)
+		Case MASCARA_IDENT_JURIDICA
+			Return Marcar(Remitente, Validacion.EsIdentificacion(mascara, Utils.Normalizar(texto)), Utils.HINT_CEDULA_JURIDICA, Utils.HINT_FORMATO)
+		Case MASCARA_IDENT_DIMEX
+			Return Marcar(Remitente, Validacion.EsIdentificacion(mascara, Utils.Normalizar(texto)), Utils.HINT_CEDULA_DIMEX, Utils.HINT_FORMATO)
 		Case MASCARA_EMAIL
-			Return Validacion.RevisarCorreo(Utils.NormalizarCorreo(texto), Remitente)
+			Return Marcar(Remitente, Validacion.EsCorreo(Utils.NormalizarCorreo(texto)), Utils.HINT_CORREO, Utils.HINT_ERROR)
 		Case MASCARA_NOMBRE
-			Return  Validacion.RevisarTexto(texto, Remitente)
+			Return Marcar(Remitente, Validacion.EsTexto(texto), "", Utils.HINT_TEXTO_INVALIDO)
 	End Select
 
 	Return False
+End Sub
+
+Private Sub Marcar (Remitente As Object, Valido As Boolean, AyudaNormal As String, AyudaError As String) As Boolean
+	If Valido Then
+		UI.MarcarNormal(Remitente, AyudaNormal)
+	Else
+		UI.MarcarError(Remitente, AyudaError)
+	End If
+	Return Valido
 End Sub
 #End Region
