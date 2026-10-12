@@ -16,13 +16,14 @@ Sub Process_Globals
 	Public ExisteBaseDatos As Boolean
 	Private TABLAS() As String = Array As String( _
         "clientes", "cliente_contactos", "consentimiento_firmas", _
-        "solicitudes", "adjuntos", "medidas", _
+        "solicitudes", "piezas", "adjuntos", "medidas", _
+        "tipos_trabajo", "tipos_material", "acabados", _
         "cotizaciones_estado", "cola_sync", "config")
 End Sub
 
 ' Abre (o crea) la base y devuelve la conexión lista.
 Public Sub Abrir As SQL
-	'If BORRAR_BASE Then File.Delete(File.DirInternal, DB_NOMBRE)
+	If BORRAR_BASE Then BorrarBase
 
 	ExisteBaseDatos = (File.Exists(File.DirInternal, DB_NOMBRE) = False) Or _
                   (File.Size(File.DirInternal, DB_NOMBRE) = 0)
@@ -46,6 +47,13 @@ Public Sub Abrir As SQL
 	Log("DbEsquema: base lista.")
 	Return s
 End Sub
+Private Sub BorrarBase
+	For Each nombre As String In Array As String(DB_NOMBRE, DB_NOMBRE & "-wal", DB_NOMBRE & "-shm")
+		If File.Exists(File.DirInternal, nombre) Then File.Delete(File.DirInternal, nombre)
+	Next
+	Log("DbEsquema: base borrada por BORRAR_BASE.")
+End Sub
+
 Private Sub AplicarPragmas(s As SQL)
 	
 	Dim modo As String = s.ExecQuerySingleResult("PRAGMA journal_mode = WAL")

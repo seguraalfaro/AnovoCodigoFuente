@@ -13,6 +13,15 @@ Sub Process_Globals
 	Type Contacto (UuidLocal As String, Nombre As String, Puesto As String, Telefono As String, _
 		Celular As String, Correo As String, Principal As Boolean)
 	Type Consentimiento (Acepta As Boolean, Firmante As String, CedulaFirmante As String, Firma() As Byte)
+	Type Pieza (UuidLocal As String, Nombre As String, TipoTrabajo As String, Material As String, _
+		Acabado As String, Medidas As Int, Fotos As Int, Croquis As Boolean, _
+		TipoTrabajoId As Int, TipoMaterialId As Int, AcabadoId As Int, CroquisJson As String, _
+		ListaMedidas As List, ListaFotos As List)
+	Type MedidaPieza (Etiqueta As String, TipoMedida As String, Valor As Double, Unidad As String, _
+		Cantidad As Int, Orden As Int)
+	Type OpcionBusqueda (Titulo As String, Detalle As String, Valor As Object)
+	Type Solicitud (UuidLocal As String, ClienteUuid As String, ContactoUuid As String, _
+		NombreProyecto As String, Descripcion As String, Observaciones As String)
 End Sub
 
 Public Sub Correcto (Datos As Object) As Resultado
@@ -53,4 +62,39 @@ Public Sub ConsentimientoVacio As Consentimiento
 	Dim sinFirma(0) As Byte
 	c.Firma = sinFirma
 	Return c
+End Sub
+
+Public Sub ContactoVacio As Contacto
+	Dim k As Contacto
+	k.Initialize
+	k.UuidLocal = ""
+	k.Nombre = ""
+	k.Puesto = ""
+	k.Telefono = ""
+	k.Celular = ""
+	k.Correo = ""
+	Return k
+End Sub
+
+Public Sub Opcion (Titulo As String, Detalle As String, Valor As Object) As OpcionBusqueda
+	Dim o As OpcionBusqueda
+	o.Initialize
+	o.Titulo = Titulo
+	o.Detalle = Detalle
+	o.Valor = Valor
+	Return o
+End Sub
+
+Public Sub PiezaVacia As Pieza
+	Dim p As Pieza
+	p.Initialize
+	p.UuidLocal = ""
+	p.Nombre = ""
+	p.TipoTrabajo = ""
+	p.Material = ""
+	p.Acabado = ""
+	p.CroquisJson = ""
+	p.ListaMedidas.Initialize
+	p.ListaFotos.Initialize
+	Return p
 End Sub

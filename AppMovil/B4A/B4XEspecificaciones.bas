@@ -7,6 +7,16 @@ Version=13.7
 Sub Class_Globals
 	Private Root As B4XView 'ignore
 	Private xui As XUI 'ignore
+	Private presentador As PresentadorEspecificaciones
+	Private pendienteLimpiar As Boolean
+	Private Const TIPO_IMAGEN As String = "image/*"
+	Private pendienteEditar As Boolean
+	Private piezaEditar As Pieza
+	Private TextNombrePieza As B4XFloatTextField
+	Private TextTipoTrabajo As B4XFloatTextField
+	Private TextMaterial As B4XFloatTextField
+	Private TextAcabado As B4XFloatTextField
+	Private ventana As VentanaBuscar
 	Private pagecont As AHPageContainer
 	Private AHViewEspecificaciones As AHViewPager
 
@@ -29,11 +39,8 @@ Sub Class_Globals
 	Private spnUnidad As Spinner
 	Private txtValor As EditText
 	Private txtCantidad As EditText
-	Private TIPOS_MEDIDA() As String = Array As String("Largo", "Ancho", "Alto", "Profundidad", _
-		"Diámetro", "Radio", "Espesor", "Ángulo")
 	Private UNIDADES() As String = Array As String("cm", "mm", "m", "pulg", "grados")
 	Private PLANOS() As String = Array As String("", "superior", "izquierda", "derecha", "frente")
-	Private NOMBRES_PLANO() As String = Array As String("automática", "arriba", "izquierda", "derecha", "de frente")
 	Private idxPlano As Int = 0
 
 	'Grupo de herramientas con un solo elemento activo.
@@ -44,7 +51,6 @@ Sub Class_Globals
 	Private COLORES_LAPIZ() As Int
 
 	Private GROSORES() As Float
-	Private NOMBRES_GROSOR() As String
 	Private idxGrosor As Int = 1
 	Private idxColor  As Int = 0
 
@@ -60,7 +66,7 @@ Sub Class_Globals
 	Private PageFOTOS    As Int = 2
 	
 	
-	Private SvHOme As ScrollView
+	Private CvMedidas As CustomListView
 
     'Variables pageespecificaconesFoto
 	Private BtnDisparar As Button
@@ -87,16 +93,101 @@ End Sub
 Private Sub B4XPage_Created (Root1 As B4XView)
 	Root = Root1
 	Root.LoadLayout("PageespecificacionesHome")
-	B4XPages.SetTitle(Me, "Agregar piezas")
+	B4XPages.SetTitle(Me, Mensajes.TITULO_PIEZA)
+	presentador.Initialize
 
 	InitializePageContainer
 	UI.AplicarTema(Root)
+	UI.CampoDeBusqueda(TextTipoTrabajo, "BuscarTipoTrabajo")
+	UI.CampoDeBusqueda(TextMaterial, "BuscarMaterial")
+	UI.CampoDeBusqueda(TextAcabado, "BuscarAcabado")
+	ventana.Initialize(Root)
 
-	
 	navegacion = Array As B4XView(BtnDetalles, BtnCamera, BtnCroquis)
+	PintarMedidas
 End Sub
+
+Public Sub NuevaPieza
+	pendienteLimpiar = True
+	pendienteEditar = False
+End Sub
+
+Public Sub EditarPieza (p As Pieza)
+	pendienteLimpiar = True
+	pendienteEditar = True
+	piezaEditar = p
+End Sub
+
+Private Sub B4XPage_Appear
+	If pendienteLimpiar = False Then Return
+	pendienteLimpiar = False
+	Limpiar
+	If pendienteEditar Then
+		pendienteEditar = False
+		CargarPieza(piezaEditar)
+		B4XPages.SetTitle(Me, Mensajes.TITULO_EDITAR_PIEZA)
+	Else
+		B4XPages.SetTitle(Me, Mensajes.TITULO_PIEZA)
+	End If
+End Sub
+
+Private Sub PintarCatalogos
+	TextTipoTrabajo.Text = presentador.TextoTipoTrabajo
+	TextMaterial.Text = presentador.TextoTipoMaterial
+	TextAcabado.Text = presentador.TextoAcabado
+End Sub
+
+Private Sub BuscarTipoTrabajo_Click
+	Wait For (ventana.Elegir(TextTipoTrabajo.mBase, Mensajes.ELEGIR_TIPO_TRABAJO, Mensajes.AYUDA_BUSCAR_NOMBRE, presentador.OpcionesTiposTrabajo)) Complete (Valor As Object)
+	If Valor = Null Then Return
+	presentador.ElegirTipoTrabajo(Valor)
+	PintarCatalogos
+End Sub
+
+Private Sub BuscarMaterial_Click
+	Wait For (ventana.Elegir(TextMaterial.mBase, Mensajes.ELEGIR_MATERIAL, Mensajes.AYUDA_BUSCAR_NOMBRE, presentador.OpcionesTiposMaterial)) Complete (Valor As Object)
+	If Valor = Null Then Return
+	presentador.ElegirTipoMaterial(Valor)
+	PintarCatalogos
+End Sub
+
+Private Sub BuscarAcabado_Click
+	Wait For (ventana.Elegir(TextAcabado.mBase, Mensajes.ELEGIR_ACABADO, Mensajes.AYUDA_BUSCAR_NOMBRE, presentador.OpcionesAcabados)) Complete (Valor As Object)
+	If Valor = Null Then Return
+	presentador.ElegirAcabado(Valor)
+	PintarCatalogos
+End Sub
+Private Sub CargarPieza (p As Pieza)
+	presentador.EditarPieza(p)
+	TextNombrePieza.Text = p.Nombre
+	PintarCatalogos
+	CargarCroquis(p.CroquisJson)
+	For Each archivo As String In presentador.Fotos
+		CvFoto.Add(CrearMiniatura(archivo), archivo)
+	Next
+	PintarMedidas
+End Sub
+
 Private Sub B4XPage_Disappear
 	CerrarCamara
+End Sub
+
+Private Sub B4XPage_Background
+	CerrarCamara
+End Sub
+
+Private Sub B4XPage_Foreground
+	If AHViewEspecificaciones.CurrentPage = PageFOTOS Then AbrirCamara
+End Sub
+
+Private Sub Limpiar
+	presentador.Nuevo
+	TextNombrePieza.Text = ""
+	PintarCatalogos
+	If ASDrawIso1.IsInitialized Then ASDrawIso1.Limpiar
+	CvFoto.Clear
+	PintarMedidas
+	AHViewEspecificaciones.GotoPage(PageDetalles, False)
 End Sub
 
 #Region pageEspecificacionesHome
@@ -115,11 +206,32 @@ Private Sub BtnCamera_Click
 End Sub
 
 Private Sub BtnCancelar_Click
-	
+	Dim pregunta As String = Mensajes.DESCARTAR_PIEZA
+	If presentador.Editando Then pregunta = Mensajes.DESCARTAR_CAMBIOS_PIEZA
+	Dim sf As Object = xui.Msgbox2Async(pregunta, Mensajes.TITULO, Mensajes.SI, "", Mensajes.NO, Null)
+	Wait For (sf) Msgbox_Result (Respuesta As Int)
+	If Respuesta <> xui.DialogResponse_Positive Then Return
+	presentador.DescartarFotos
+	Limpiar
+	B4XPages.ClosePage(Me)
 End Sub
 
 Private Sub BtnGuardar_Click
-	
+	Dim editando As Boolean = presentador.Editando
+	Dim r As Resultado = presentador.ArmarPieza(TextNombrePieza.Text, ObtenerCroquisJSON, getMedidasCroquis)
+	If r.Ok = False Then
+		AHViewEspecificaciones.GotoPage(PageDetalles, True)
+		xui.MsgboxAsync(r.Mensaje, Mensajes.TITULO)
+		Return
+	End If
+	Dim cotizacion As B4XCotizacion = B4XPages.GetPage(Layouts.PAGINA_COTIZACION)
+	If editando Then
+		cotizacion.ReemplazarPieza(r.Datos)
+	Else
+		cotizacion.AgregarPieza(r.Datos)
+	End If
+	Limpiar
+	B4XPages.ClosePage(Me)
 End Sub
 #End Region
 
@@ -137,6 +249,7 @@ Private Sub AHViewEspecificaciones_PageChanged (Position As Int)
 	Else
 		CerrarCamara
 	End If
+	If Position = PageDetalles Then PintarMedidas
 	If Position = PageCROQUIS Then
 		InicializarCroquis
 		If Not( menu.IsInitialized) Then 
@@ -189,6 +302,98 @@ End Sub
 
 #End Region
 
+#End Region
+
+#Region Medidas
+Private Sub PintarMedidas
+	CvMedidas.Clear
+	Dim medidas As List = getMedidasCroquis
+	If medidas.Size = 0 Then
+		CvMedidas.Add(CrearAvisoMedidas, Null)
+		Return
+	End If
+	For Each m As Map In medidas
+		CvMedidas.Add(CrearCardMedida(m), m.Get("id"))
+	Next
+End Sub
+
+Private Sub CrearCardMedida (m As Map) As B4XView
+	Dim ancho As Int = CvMedidas.AsView.Width
+	Dim item As B4XView = xui.CreatePanel("")
+	item.Tag = Utils.TAG_RAW
+	item.Color = xui.Color_Transparent
+	item.SetLayoutAnimated(0, 0, 0, ancho, 64dip)
+
+	Dim card As B4XView = xui.CreatePanel("")
+	card.Tag = Utils.TAG_CARD
+	item.AddView(card, 0, 4dip, ancho, 56dip)
+
+	Dim letra As Label
+	letra.Initialize("")
+	letra.Tag = Utils.TAG_CHIP
+	letra.Text = m.Get("etiqueta")
+	letra.TextSize = 13
+	letra.Gravity = Gravity.CENTER
+	card.AddView(letra, 12dip, 12dip, 32dip, 32dip)
+
+	Dim tipo As Label
+	tipo.Initialize("")
+	tipo.Tag = Utils.TAG_TIT
+	tipo.Text = m.Get("medida")
+	tipo.TextSize = 14
+	tipo.Gravity = Bit.Or(Gravity.LEFT, Gravity.CENTER_VERTICAL)
+	card.AddView(tipo, 56dip, 6dip, ancho - 100dip, 22dip)
+
+	Dim valor As Double = m.Get("valor")
+	Dim detalle As Label
+	detalle.Initialize("")
+	detalle.Tag = Utils.TAG_SUB
+	detalle.TextSize = 12
+	detalle.Gravity = Bit.Or(Gravity.LEFT, Gravity.CENTER_VERTICAL)
+	card.AddView(detalle, 56dip, 28dip, ancho - 100dip, 20dip)
+
+	Dim editar As Label
+	editar.Initialize("")
+	editar.Tag = Utils.TAG_RAW
+	editar.Typeface = Typeface.FONTAWESOME
+	editar.Text = Chr(0xF040)
+	editar.TextSize = 14
+	editar.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
+	editar.Gravity = Gravity.CENTER
+	card.AddView(editar, ancho - 40dip, 12dip, 28dip, 32dip)
+
+	UI.AplicarTema(item)
+	If valor > 0 Then
+		detalle.Text = Mensajes.DetalleMedida(valor, m.Get("unidad"), m.Get("cantidad"))
+	Else
+		detalle.Text = Mensajes.MEDIDA_SIN_VALOR
+		detalle.TextColor = Colores.COLOR_ADVERTENCIA
+	End If
+	Return item
+End Sub
+
+Private Sub CrearAvisoMedidas As B4XView
+	Dim ancho As Int = CvMedidas.AsView.Width
+	Dim item As B4XView = xui.CreatePanel("")
+	item.Tag = Utils.TAG_RAW
+	item.Color = xui.Color_Transparent
+	item.SetLayoutAnimated(0, 0, 0, ancho, 56dip)
+	Dim aviso As Label
+	aviso.Initialize("")
+	aviso.Tag = Utils.TAG_SUB
+	aviso.Text = Mensajes.SIN_MEDIDAS
+	aviso.TextSize = 12
+	aviso.Gravity = Gravity.CENTER
+	item.AddView(aviso, 12dip, 0, ancho - 24dip, 56dip)
+	UI.AplicarTema(item)
+	Return item
+End Sub
+
+Private Sub CvMedidas_ItemClick (Index As Int, Value As Object)
+	If Value = Null Then Return
+	Wait For (PedirMedida(Value)) Complete (Listo As Boolean)
+	PintarMedidas
+End Sub
 #End Region
 
 #Region pageEspecificacionesCroquis
@@ -320,43 +525,43 @@ Private Sub ConstruirMenu
 	menu.Clear
 	Dim m As String = ASDrawIso1.getModo
 
-	menu.AddTitle("HERRAMIENTAS", 26dip)
-	menu.AddItem(Fila(Chr(0xF192), "Puntos",      m = "puntos",  False), "puntos")
-	menu.AddItem(Fila(Chr(0xF068), "Línea recta", m = "linea",   False), "linea")
-	menu.AddItem(Fila(Chr(0xF192), "Agujero",     m = "agujero", False), "agujero")
-	menu.AddItem(Fila(Chr(0xF10C), "Círculo",     m = "circulo", False), "circulo")
-	menu.AddItem(Fila(Chr(0xF1CE), "Arco",        m = "arco",    False), "arco")
-	menu.AddItem(Fila(Chr(0xF031), "Texto",       m = "texto",   False), "texto")
-	menu.AddItem(Fila(Chr(0xF1DB), "Marcar abertura", m = "hueco", False), "hueco")
+	menu.AddTitle(Mensajes.CROQUIS_HERRAMIENTAS, 26dip)
+	menu.AddItem(Fila(Chr(0xF192), Mensajes.CROQUIS_PUNTOS, m = "puntos",  False), "puntos")
+	menu.AddItem(Fila(Chr(0xF068), Mensajes.CROQUIS_LINEA, m = "linea",   False), "linea")
+	menu.AddItem(Fila(Chr(0xF192), Mensajes.CROQUIS_AGUJERO, m = "agujero", False), "agujero")
+	menu.AddItem(Fila(Chr(0xF10C), Mensajes.CROQUIS_CIRCULO, m = "circulo", False), "circulo")
+	menu.AddItem(Fila(Chr(0xF1CE), Mensajes.CROQUIS_ARCO, m = "arco",    False), "arco")
+	menu.AddItem(Fila(Chr(0xF031), Mensajes.CROQUIS_TEXTO, m = "texto",   False), "texto")
+	menu.AddItem(Fila(Chr(0xF1DB), Mensajes.CROQUIS_ABERTURA, m = "hueco", False), "hueco")
 
 	menu.AddSeparator
-	menu.AddTitle("MEDIDAS", 26dip)
-	menu.AddItem(Fila(Chr(0xF07E), "Cota",        m = "cota",    False), "cota")
-	menu.AddItem(Fila(Chr(0xF1FE), "Ángulo",      m = "angulo",  False), "angulo")
+	menu.AddTitle(Mensajes.CROQUIS_MEDIDAS, 26dip)
+	menu.AddItem(Fila(Chr(0xF07E), Mensajes.CROQUIS_COTA, m = "cota",    False), "cota")
+	menu.AddItem(Fila(Chr(0xF1FE), Mensajes.CROQUIS_ANGULO, m = "angulo",  False), "angulo")
 	Dim faltan As Int = ASDrawIso1.getMedidasPendientes
-	menu.AddItem(Fila(Chr(0xF044), "Llenar medidas (" & faltan & ")", False, faltan = 0), "llenar")
+	menu.AddItem(Fila(Chr(0xF044), Mensajes.CroquisLlenar(faltan), False, faltan = 0), "llenar")
 
 	menu.AddSeparator
-	menu.AddTitle("FIGURA", 26dip)
-	menu.AddItem(Fila(Chr(0xF00C), "Terminar figura", False, _
+	menu.AddTitle(Mensajes.CROQUIS_FIGURA, 26dip)
+	menu.AddItem(Fila(Chr(0xF00C), Mensajes.CROQUIS_TERMINAR, False, _
 		Not(ASDrawIso1.EnCadena)), "terminar")
-	menu.AddItem(Fila(Chr(0xF096), "Cerrar figura", False, _
+	menu.AddItem(Fila(Chr(0xF096), Mensajes.CROQUIS_CERRAR, False, _
 		Not(ASDrawIso1.PuedeCerrar)), "cerrar")
-	menu.AddItem(Fila(Chr(0xF00D), "Descartar figura", False, _
+	menu.AddItem(Fila(Chr(0xF00D), Mensajes.CROQUIS_DESCARTAR, False, _
 		Not(ASDrawIso1.EnCadena Or ASDrawIso1.TrazoPendiente)), "descartar")
 
 	menu.AddSeparator
-	menu.AddTitle("VISTA", 26dip)
-	menu.AddItem(Fila(Chr(0xF00A), "Rejilla", ASDrawIso1.Rejilla, False), "rejilla")
-	menu.AddItem(Fila(Chr(0xF0CE), "Rejilla cuadrada", ASDrawIso1.getTipoRejilla = "cuadrada", False), "tipo_rejilla")
-	menu.AddItem(Fila(Chr(0xF1B2), "Cara: " & NOMBRES_PLANO(idxPlano), False, False), "plano")
-	menu.AddItem(Fila(Chr(0xF076), "Imán",    ASDrawIso1.Iman,    False), "iman")
-	menu.AddItem(Fila(Chr(0xF02B), "Medidas", ASDrawIso1.Rotulos, False), "rotulos")
+	menu.AddTitle(Mensajes.CROQUIS_VISTA, 26dip)
+	menu.AddItem(Fila(Chr(0xF00A), Mensajes.CROQUIS_REJILLA, ASDrawIso1.Rejilla, False), "rejilla")
+	menu.AddItem(Fila(Chr(0xF0CE), Mensajes.CROQUIS_REJILLA_CUADRADA, ASDrawIso1.getTipoRejilla = "cuadrada", False), "tipo_rejilla")
+	menu.AddItem(Fila(Chr(0xF1B2), Mensajes.CroquisCara(idxPlano), False, False), "plano")
+	menu.AddItem(Fila(Chr(0xF076), Mensajes.CROQUIS_IMAN, ASDrawIso1.Iman,    False), "iman")
+	menu.AddItem(Fila(Chr(0xF02B), Mensajes.CROQUIS_ROTULOS, ASDrawIso1.Rotulos, False), "rotulos")
 
 	menu.AddSeparator
-	menu.AddItem(Fila(Chr(0xF111), "Trazo: " & NOMBRES_GROSOR(idxGrosor), _
+	menu.AddItem(Fila(Chr(0xF111), Mensajes.CroquisTrazo(idxGrosor), _
 		False, False), "grosor")
-	menu.AddItem(Fila(Chr(0xF1F8), "Limpiar todo", False, _
+	menu.AddItem(Fila(Chr(0xF1F8), Mensajes.CROQUIS_LIMPIAR, False, _
 		ASDrawIso1.Vacio), "limpiar")
 End Sub
 
@@ -417,7 +622,6 @@ Private Sub InicializarCroquis
 		Colores.COLOR_ERROR)
 
 	GROSORES = Array As Float(2dip, 4dip, 7dip)
-	NOMBRES_GROSOR = Array As String("Fino", "Medio", "Grueso")
 
 	herramientas = Array As B4XView(BtnLapiz, btnborrador)
 
@@ -457,8 +661,8 @@ Private Sub Refrescar
 	UI.Habilitar(BtnDeshacer, ASDrawIso1.PuedeUndo)
 End Sub
 Private Sub ConfirmarLimpiar
-	Wait For (xui.Msgbox2Async("¿Borrar todo el croquis?", "Confirmar", _
-		"Borrar", "", "Cancelar", Null)) Msgbox_Result (Resultado As Int)
+	Wait For (xui.Msgbox2Async(Mensajes.BORRAR_CROQUIS, Mensajes.CONFIRMAR, _
+		Mensajes.BORRAR, "", Mensajes.CANCELAR, Null)) Msgbox_Result (Resultado As Int)
 	If Resultado = xui.DialogResponse_Positive Then ASDrawIso1.Limpiar
 End Sub
 
@@ -467,7 +671,7 @@ Private Sub PrepararDialogos
 	dlgCroquis.Initialize(Root)
 	UI.EstilizarDialogo(dlgCroquis)
 	plantillaTexto.Initialize
-	plantillaTexto.lblTitle.Text = "Nota"
+	plantillaTexto.lblTitle.Text = Mensajes.NOTA
 	UI.EstilizarPlantillaTexto(plantillaTexto)
 
 	pnlMedida = xui.CreatePanel("")
@@ -478,7 +682,7 @@ Private Sub PrepararDialogos
 	spnMedida.Tag = Utils.TAG_RAW
 	spnMedida.TextColor = Colores.COLOR_TEXTO_PRIMARIO
 	spnMedida.DropdownBackgroundColor = Colores.COLOR_SUPERFICIE
-	spnMedida.AddAll(TIPOS_MEDIDA)
+	spnMedida.AddAll(Mensajes.TiposMedida)
 	spnUnidad.Initialize("")
 	spnUnidad.Tag = Utils.TAG_RAW
 	spnUnidad.TextColor = Colores.COLOR_TEXTO_PRIMARIO
@@ -491,12 +695,12 @@ Private Sub PrepararDialogos
 	txtCantidad.InputType = txtCantidad.INPUT_TYPE_NUMBERS
 	txtCantidad.SingleLine = True
 
-	AgregarRotulo("Tipo de medida", 12dip)
+	AgregarRotulo(Mensajes.ROTULO_TIPO_MEDIDA, 12dip)
 	pnlMedida.AddView(spnMedida, 16dip, 32dip, 268dip, 44dip)
-	AgregarRotulo("Valor", 84dip)
+	AgregarRotulo(Mensajes.ROTULO_VALOR, 84dip)
 	pnlMedida.AddView(txtValor, 16dip, 104dip, 156dip, 44dip)
 	pnlMedida.AddView(spnUnidad, 184dip, 104dip, 100dip, 44dip)
-	AgregarRotulo("Cantidad de piezas iguales", 156dip)
+	AgregarRotulo(Mensajes.ROTULO_CANTIDAD_IGUALES, 156dip)
 	pnlMedida.AddView(txtCantidad, 16dip, 176dip, 100dip, 44dip)
 	UI.AplicarTema(pnlMedida)
 End Sub
@@ -519,8 +723,11 @@ Private Sub PedirMedida (Id As Int) As ResumableSub
 	Dim valor As Double = m.Get("valor")
 	If valor > 0 Then txtValor.Text = NumberFormat2(valor, 1, 2, 0, False) Else txtValor.Text = ""
 	txtCantidad.Text = m.Get("cantidad")
-	dlgCroquis.Title = "Medida " & m.Get("etiqueta")
-	Wait For (dlgCroquis.ShowCustom(pnlMedida, "Guardar", "Quitar", "Cancelar")) Complete (Resultado As Int)
+	dlgCroquis.Title = Mensajes.TituloMedida(m.Get("etiqueta"))
+	Dim rs As Object = dlgCroquis.ShowCustom(pnlMedida, Mensajes.GUARDAR, Mensajes.QUITAR, Mensajes.CANCELAR)
+	UI.AjustarBarraTitulo(dlgCroquis)
+	UI.CentrarDialogo(dlgCroquis)
+	Wait For (rs) Complete (Resultado As Int)
 	If Resultado = xui.DialogResponse_Negative Then
 		ASDrawIso1.QuitarTrazo(Id)
 		Return True
@@ -528,7 +735,7 @@ Private Sub PedirMedida (Id As Int) As ResumableSub
 	If Resultado <> xui.DialogResponse_Positive Then Return False
 	Dim texto As String = txtValor.Text.Trim.Replace(",", ".")
 	If IsNumber(texto) = False Or texto = "" Then
-		xui.MsgboxAsync("Escriba el valor de la medida.", "Medida " & m.Get("etiqueta"))
+		xui.MsgboxAsync(Mensajes.FALTA_VALOR_MEDIDA, Mensajes.TituloMedida(m.Get("etiqueta")))
 		Return False
 	End If
 	Dim cantidad As Int = 1
@@ -551,9 +758,12 @@ Private Sub PedirTexto (Id As Int) As ResumableSub
 	PrepararDialogos
 	plantillaTexto.Text = ASDrawIso1.getTextoDe(Id)
 	Dim borrar As String = ""
-	If Id > 0 Then borrar = "Borrar"
-	dlgCroquis.Title = "Nota del croquis"
-	Wait For (dlgCroquis.ShowTemplate(plantillaTexto, "Guardar", borrar, "Cancelar")) Complete (Resultado As Int)
+	If Id > 0 Then borrar = Mensajes.BORRAR
+	dlgCroquis.Title = Mensajes.NOTA_CROQUIS
+	Dim rs As Object = dlgCroquis.ShowTemplate(plantillaTexto, Mensajes.GUARDAR, borrar, Mensajes.CANCELAR)
+	UI.AjustarBarraTitulo(dlgCroquis)
+	UI.CentrarDialogo(dlgCroquis)
+	Wait For (rs) Complete (Resultado As Int)
 	If Resultado = xui.DialogResponse_Positive Then ASDrawIso1.PonerTexto(Id, plantillaTexto.Text)
 	If Resultado = xui.DialogResponse_Negative Then ASDrawIso1.PonerTexto(Id, "")
 	Return True
@@ -675,7 +885,7 @@ Private Sub AbrirCamara
 	End If
 
 	rp.CheckAndRequest(rp.PERMISSION_CAMERA)
-	Wait For Activity_PermissionResult (Permission As String, Result As Boolean)
+	Wait For B4XPage_PermissionResult (Permission As String, Result As Boolean)
 	If Permission <> rp.PERMISSION_CAMERA Then Return
 
 	If Result Then
@@ -726,34 +936,30 @@ Private Sub SinCamara (motivo As String)
 		Case Adjuntos.ESTADO_SIN_HARDWARE
 			lblSinCamIcono.Text = Chr(0xF030)
 			lblSinCamIcono.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
-			lblSinCamTitulo.Text = "Este equipo no tiene cámara"
-			lblSinCamTexto.Text = "Podés seguir usando el croquis y adjuntar " & _
-				"fotografías desde la galería."
+			lblSinCamTitulo.Text = Mensajes.CAMARA_SIN_EQUIPO
+			lblSinCamTexto.Text = Mensajes.CAMARA_SEGUIR
 			BtnPermitirCamara.Visible = False    'no hay nada que reintentar
 
 		Case Adjuntos.ESTADO_BLOQUEADO
 			lblSinCamIcono.Text = Chr(0xF023)
 			lblSinCamIcono.TextColor = Colores.COLOR_ERROR
-			lblSinCamTitulo.Text = "Permiso bloqueado"
-			lblSinCamTexto.Text = "El permiso de cámara está bloqueado. Podés " & _
-				"activarlo desde los ajustes del sistema."
-			BtnPermitirCamara.Text = "Abrir ajustes"
+			lblSinCamTitulo.Text = Mensajes.CAMARA_BLOQUEADA
+			lblSinCamTexto.Text = Mensajes.CAMARA_BLOQUEADA_TEXTO
+			BtnPermitirCamara.Text = Mensajes.ABRIR_AJUSTES
 
 		Case Adjuntos.ESTADO_FALLO
 			lblSinCamIcono.Text = Chr(0xF071)
 			lblSinCamIcono.TextColor = Colores.COLOR_ERROR
-			lblSinCamTitulo.Text = "No se pudo abrir la cámara"
-			lblSinCamTexto.Text = "Puede que otra aplicación la esté usando. " & _
-				"Cerrala e intentá de nuevo."
-			BtnPermitirCamara.Text = "Reintentar"
+			lblSinCamTitulo.Text = Mensajes.CAMARA_FALLO
+			lblSinCamTexto.Text = Mensajes.CAMARA_FALLO_TEXTO
+			BtnPermitirCamara.Text = Mensajes.REINTENTAR
 
 		Case Else                                'ESTADO_DENEGADO
 			lblSinCamIcono.Text = Chr(0xF030)
 			lblSinCamIcono.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
-			lblSinCamTitulo.Text = "Cámara no disponible"
-			lblSinCamTexto.Text = "Podés seguir usando el croquis y adjuntar " & _
-				"fotografías desde la galería."
-			BtnPermitirCamara.Text = "Permitir cámara"
+			lblSinCamTitulo.Text = Mensajes.CAMARA_NO_DISPONIBLE
+			lblSinCamTexto.Text = Mensajes.CAMARA_SEGUIR
+			BtnPermitirCamara.Text = Mensajes.PERMITIR_CAMARA
 	End Select
 End Sub
 
@@ -778,7 +984,7 @@ Private Sub AbrirAjustesApp
 		StartActivity(i)
 	Catch
 		Log("AbrirAjustesApp: " & LastException.Message)
-		xui.MsgboxAsync("No se pudieron abrir los ajustes de la aplicación.", "Anovo")
+		xui.MsgboxAsync(Mensajes.SIN_AJUSTES, Mensajes.TITULO)
 	End Try
 End Sub
 
@@ -792,11 +998,9 @@ Sub CamEx_Ready (Success As Boolean)
 		camEx.CommitParameters
 		camEx.StartPreview
 
-		'El flash se consulta al hardware una sola vez por apertura: la lista
-		'no cambia mientras la instancia viva. Si el equipo no lo soporta el
-		'boton queda deshabilitado, no oculto, para que se vea que existe.
 		conFlash = False
-		tieneFlash = (camEx.GetSupportedFlashModes.IndexOf("on") > -1)
+		Dim modosFlash As List = camEx.GetSupportedFlashModes
+		tieneFlash = modosFlash.IsInitialized And modosFlash.IndexOf("on") > -1
 		UI.Habilitar(BtnFlash, tieneFlash)
 		UI.MarcarGrupo(Array As B4XView(BtnFlash), -1)
 
@@ -806,12 +1010,74 @@ Sub CamEx_Ready (Success As Boolean)
 End Sub
 
 Sub CamEx_PictureTaken (Data() As Byte)
-'	Adjuntos.Guardar(Data)
-
 	disparando = False
 	UI.Habilitar(BtnDisparar, True)
-
 	If camaraLista Then camEx.StartPreview
+
+	If presentador.PuedeAgregarFoto = False Then
+		xui.MsgboxAsync(Mensajes.FOTOS_MAXIMO, Mensajes.TITULO)
+		Return
+	End If
+	Dim archivo As String = presentador.AgregarFoto(Data)
+	If archivo = "" Then
+		xui.MsgboxAsync(Mensajes.FOTO_NO_GUARDADA, Mensajes.TITULO)
+		Return
+	End If
+	CvFoto.Add(CrearMiniatura(archivo), archivo)
+	CvFoto.JumpToItem(CvFoto.Size - 1)
+End Sub
+
+Private Sub BtnGaleria_Click
+	If presentador.PuedeAgregarFoto = False Then
+		xui.MsgboxAsync(Mensajes.FOTOS_MAXIMO, Mensajes.TITULO)
+		Return
+	End If
+	Dim selector As ContentChooser
+	selector.Initialize("selector")
+	selector.Show(TIPO_IMAGEN, Mensajes.ELEGIR_FOTO)
+	Wait For selector_Result (Success As Boolean, Dir As String, FileName As String)
+	If Success = False Then Return
+	Dim archivo As String = presentador.AgregarFotoDeGaleria(Dir, FileName)
+	If archivo = "" Then
+		xui.MsgboxAsync(Mensajes.FOTO_NO_VALIDA, Mensajes.TITULO)
+		Return
+	End If
+	CvFoto.Add(CrearMiniatura(archivo), archivo)
+	CvFoto.JumpToItem(CvFoto.Size - 1)
+End Sub
+
+Private Sub CrearMiniatura (Archivo As String) As B4XView
+	Dim lado As Int = CvFoto.AsView.Height
+	Dim item As B4XView = xui.CreatePanel("")
+	item.Tag = Utils.TAG_RAW
+	item.Color = xui.Color_Transparent
+	item.SetLayoutAnimated(0, 0, 0, lado, lado)
+
+	Dim imagen As ImageView
+	imagen.Initialize("")
+	imagen.Tag = Utils.TAG_RAW
+	item.AddView(imagen, 4dip, 4dip, lado - 8dip, lado - 8dip)
+	Dim vi As B4XView = imagen
+	vi.SetBitmap(xui.LoadBitmapResize(presentador.CarpetaFotos, Archivo, lado, lado, True))
+
+	Dim quitar As Label
+	quitar.Initialize("QuitarFoto")
+	quitar.Tag = Archivo
+	quitar.Typeface = Typeface.FONTAWESOME
+	quitar.Text = Chr(0xF00D)
+	quitar.TextSize = 14
+	quitar.TextColor = Colores.COLOR_TEXTO_SOBRE_PRIMARIO
+	quitar.Gravity = Gravity.CENTER
+	item.AddView(quitar, lado - 32dip, 8dip, 24dip, 24dip)
+	Dim vq As B4XView = quitar
+	vq.SetColorAndBorder(Colores.COLOR_ERROR, 0, Colores.COLOR_ERROR, 12dip)
+	Return item
+End Sub
+
+Private Sub QuitarFoto_Click
+	Dim v As B4XView = Sender
+	Dim i As Int = presentador.QuitarFoto(v.Tag)
+	If i >= 0 Then CvFoto.RemoveAt(i)
 End Sub
 #End Region
 

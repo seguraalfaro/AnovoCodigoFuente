@@ -95,7 +95,10 @@ End Sub
 
 Private Sub PedirServidor As ResumableSub
 	plantillaServidor.Text = Api.UrlServidor
-	Wait For (dlgServidor.ShowTemplate(plantillaServidor, Mensajes.GUARDAR, "", Mensajes.CANCELAR)) Complete (Respuesta As Int)
+	Dim rs As Object = dlgServidor.ShowTemplate(plantillaServidor, Mensajes.GUARDAR, "", Mensajes.CANCELAR)
+	UI.AjustarBarraTitulo(dlgServidor)
+	UI.CentrarDialogo(dlgServidor)
+	Wait For (rs) Complete (Respuesta As Int)
 	If Respuesta <> xui.DialogResponse_Positive Then Return False
 	Dim r As Resultado = presentador.GuardarServidor(plantillaServidor.Text)
 	If r.Ok = False Then

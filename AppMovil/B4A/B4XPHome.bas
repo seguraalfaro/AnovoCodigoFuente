@@ -13,7 +13,6 @@ Sub Class_Globals
 	Private AHViewHOme As AHViewPager
 	Private pagecont As AHPageContainer
 
-	Private BtnNuevo As Button
 	Private ClvClientes As CustomListView
 	Private lblVacioIcono As Label
 	Private lblVacioTexto As Label
@@ -25,7 +24,6 @@ Sub Class_Globals
 	Private Const HOJA_CLIENTES As Int = 1
 	Private Const HOJA_COTIZACIONES As Int = 3
 	Private Const HOJA_PERFIL As Int = 4
-	Private HOJAS() As String = Array As String("itemvacio", "Pageclientes", "PageCotizacion3", "PageEspecificaciones", "PageNuevoCliente")
 End Sub
 
 Public Sub Initialize As Object
@@ -54,7 +52,7 @@ End Sub
 
 Private Sub MostrarVacio (Mostrar As Boolean, Glifo As String, Titulo As String, Texto As String)
 	If pnvacio.NumberOfViews = 0 Then
-		pnvacio.LoadLayout(Layouts.ItemVacio)
+		pnvacio.LoadLayout("ItemVacio")
 		UI.AplicarTema(pnvacio)
 	End If
 	lblVacioIcono.Text = Glifo
@@ -82,7 +80,13 @@ Private Sub CrearHoja (Indice As Int) As B4XView
 	Dim hoja As B4XView = xui.CreatePanel("")
 	hoja.Height = AHViewHOme.Height
 	hoja.Width = AHViewHOme.Width
-	hoja.LoadLayout(HOJAS(Indice))
+	Select Indice
+		Case 0: hoja.LoadLayout("itemvacio")
+		Case 1: hoja.LoadLayout("Pageclientes")
+		Case 2: hoja.LoadLayout("PageCotizacion3")
+		Case 3: hoja.LoadLayout("PageEspecificaciones")
+		Case 4: hoja.LoadLayout("PageNuevoCliente")
+	End Select
 	UI.AplicarTema(hoja)
 	Return hoja
 End Sub

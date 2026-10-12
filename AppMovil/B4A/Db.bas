@@ -16,6 +16,7 @@ End Sub
 Public Sub Inicializar
 	kvsBorradores.Initialize(File.DirInternal, "borradores.dat")
 	DbSQL = DbEsquema.Abrir
+	DbPrueba.Cargar
 End Sub
 
 'Tipo: "cliente" | "cotizacion" | "encargado" ...

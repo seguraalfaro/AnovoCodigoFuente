@@ -34,7 +34,6 @@ Sub Class_Globals
 
 	Private PnContactos As B4XView
 	Private CvContactos As CustomListView
-	Private BtnAgregar As Button
 	Private TextContactos As B4XFloatTextField
 	Private TextPuesto As B4XFloatTextField
 	Private TextNumeros As B4XFloatTextField
@@ -64,7 +63,13 @@ Private Sub B4XPage_Created (Root1 As B4XView)
 	B4XPages.SetTitle(Me, Mensajes.TITULO_CLIENTE)
 	presentador.Initialize
 	UI.CargarIndicadorPasos(Pasos, Layouts.ClienteClaves, Layouts.ClienteTitulos)
-	UI.CargarPaginasContainer(Layouts.ClienteLayouts, AHView, pagecont)
+	Dim datos As B4XView = UI.PaginaVacia(AHView)
+	datos.LoadLayout("PageClienteDatos")
+	Dim contactos As B4XView = UI.PaginaVacia(AHView)
+	contactos.LoadLayout("PageClienteContactos")
+	Dim permiso As B4XView = UI.PaginaVacia(AHView)
+	permiso.LoadLayout("PageClienteConsentimiento")
+	UI.CargarContenedor(AHView, pagecont, Array As B4XView(datos, contactos, permiso))
 	UI.ConfigurarMemo(TextDireccion, Mensajes.AYUDA_DIRECCION)
 	Utils.AsignarItemsCombo(CbTipoIdentificacion, Utils.TiposIdent)
 	IME1.Initialize("IME1")
@@ -230,7 +235,7 @@ End Sub
 Private Sub CrearItem (c As Contacto) As B4XView
 	Dim p As B4XView = xui.CreatePanel("")
 	p.SetLayoutAnimated(0, 0, 0, CvContactos.AsView.Width, UI.GetCardHeight)
-	p.LoadLayout(Layouts.ItemContacto)
+	p.LoadLayout("ItemContacto")
 	UI.AplicarTema(p)
 	LblNombre.Text = c.Nombre
 	LblDatos.Text = presentador.DetalleContacto(c)

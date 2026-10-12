@@ -13,6 +13,7 @@ Sub Process_Globals
 	Public Const ANCHO_FOTO As Int = 1600
 	Public Const ANCHO_MINI As Int = 128
 	Public Const CALIDAD    As Int = 85
+	Private Const CARPETA_FOTOS As String = "fotos"
 
 	Type Foto (Archivo As String, Miniatura As String, Sincronizada As Boolean)
 
@@ -78,6 +79,51 @@ Private Sub DetectarPorFeatures
 		Log("DetectarPorFeatures: " & LastException.Message)
 		hayTrasera = True     'ante la duda, que decida CamEx_Ready
 	End Try
+End Sub
+
+Public Sub CarpetaFotos As String
+	If File.Exists(File.DirInternal, CARPETA_FOTOS) = False Then File.MakeDir(File.DirInternal, CARPETA_FOTOS)
+	Return File.Combine(File.DirInternal, CARPETA_FOTOS)
+End Sub
+
+Public Sub BorrarFotos (Nombres As List)
+	If Nombres.IsInitialized = False Then Return
+	For Each nombre As String In Nombres
+		If File.Exists(CarpetaFotos, nombre) Then File.Delete(CarpetaFotos, nombre)
+	Next
+End Sub
+
+Public Sub CopiarImagen (Dir As String, Archivo As String, Nombre As String) As Boolean
+	Try
+		Dim imagen As B4XBitmap = xui.LoadBitmapResize(Dir, Archivo, ANCHO_FOTO, ANCHO_FOTO, True)
+		Dim grados As Int = GradosExif(Dir, Archivo)
+		If grados <> 0 Then imagen = imagen.Rotate(grados)
+		Dim salida As OutputStream = File.OpenOutput(CarpetaFotos, Nombre, False)
+		imagen.WriteToStream(salida, CALIDAD, "JPEG")
+		salida.Close
+		Return True
+	Catch
+		Log("Adjuntos.CopiarImagen: " & LastException.Message)
+		Return False
+	End Try
+End Sub
+
+Private Sub GradosExif (Dir As String, Archivo As String) As Int
+	Try
+		Dim entrada As InputStream = File.OpenInput(Dir, Archivo)
+		Dim exif As JavaObject
+		exif.InitializeNewInstance("android.media.ExifInterface", Array(entrada))
+		Dim orientacion As Int = exif.RunMethod("getAttributeInt", Array("Orientation", 1))
+		entrada.Close
+		Select orientacion
+			Case 6: Return 90
+			Case 3: Return 180
+			Case 8: Return 270
+		End Select
+	Catch
+		Log("Adjuntos.GradosExif: " & LastException.Message)
+	End Try
+	Return 0
 End Sub
 
 Public Sub getTieneCamara As Boolean

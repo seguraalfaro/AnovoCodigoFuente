@@ -666,6 +666,29 @@ Public Sub ConfigurarMemo (Campo As EditText, Ayuda As String)
 	Campo.ForceDoneButton = False
 	Campo.Padding = Array As Int(10dip, 8dip, 10dip, 8dip)
 End Sub
+
+Public Sub CampoDeBusqueda (Campo As B4XFloatTextField, Evento As String)
+	Dim et As EditText = Campo.TextField
+	et.InputType = et.INPUT_TYPE_NONE
+	Dim jo As JavaObject = et
+	jo.RunMethod("setFocusable", Array As Object(False))
+	Dim p() As Int = et.Padding
+	et.Padding = Array As Int(12dip, p(1), 40dip, p(3))
+	Dim lupa As Label
+	lupa.Initialize("")
+	lupa.Tag = Utils.TAG_RAW
+	lupa.Typeface = Typeface.FONTAWESOME
+	lupa.Text = Chr(0xF002)
+	lupa.TextSize = 14
+	lupa.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
+	lupa.Gravity = Gravity.CENTER
+	Dim tf As B4XView = Campo.TextField
+	Campo.mBase.AddView(lupa, tf.Left + tf.Width - 36dip, tf.Top, 28dip, tf.Height)
+	Dim capa As B4XView = xui.CreatePanel(Evento)
+	capa.Tag = Utils.TAG_RAW
+	capa.Color = xui.Color_Transparent
+	Campo.mBase.AddView(capa, 0, 0, Campo.mBase.Width, Campo.mBase.Height)
+End Sub
 #End Region
 
 #Region Etiquetas
@@ -759,25 +782,22 @@ End Sub
 
 #Region Cargar Paginas PageContainer
 
-Public Sub  CargarPaginasContainer(Layout() As String, AHView As AHViewPager, pagecont As AHPageContainer)
-	pagecont.Initialize
-
-	For i = 0 To Layout.Length - 1
-		pagecont.AddPage(CrearPagina(Layout(i), AHView), "page" & i)
-	Next
-
-	AHView.PageContainer = pagecont
-	AHView.PagingEnabled = False
-	AHView.CurrentPage = 0
+Public Sub PaginaVacia (AHView As AHViewPager) As B4XView
+	Dim pagina As B4XView = xui.CreatePanel("")
+	pagina.Height = AHView.Height
+	pagina.Width = AHView.Width
+	Return pagina
 End Sub
 
-Private Sub CrearPagina(NombreLayout As String, AHView As AHViewPager) As B4XView
-	Dim page As B4XView = xui.CreatePanel("")
-	page.Height = AHView.Height
-	page.Width = AHView.Width
-	page.LoadLayout(NombreLayout)
-	AplicarTema(page)
-	Return page
+Public Sub CargarContenedor (AHView As AHViewPager, Contenedor As AHPageContainer, Paginas() As B4XView)
+	Contenedor.Initialize
+	For i = 0 To Paginas.Length - 1
+		AplicarTema(Paginas(i))
+		Contenedor.AddPage(Paginas(i), "page" & i)
+	Next
+	AHView.PageContainer = Contenedor
+	AHView.PagingEnabled = False
+	AHView.CurrentPage = 0
 End Sub
 
 
@@ -864,6 +884,23 @@ End Sub
 
 #End Region
 #Region Dialogos
+
+Public Sub CentrarDialogo (Dialogo As B4XDialog)
+	Dim b As B4XView = Dialogo.Base
+	Dim arriba As Int = Max(0, (Dialogo.mParent.Height - b.Height) / 2)
+	b.SetLayoutAnimated(0, b.Left, arriba, b.Width, b.Height)
+End Sub
+
+Public Sub AjustarBarraTitulo (Dialogo As B4XDialog)
+	If Dialogo.TitleBar.IsInitialized = False Then Return
+	Dim altoVisible As Int = Dialogo.TitleBar.Top + Dialogo.TitleBar.Height
+	Dim radio As Int = Dialogo.BorderCornersRadius
+	Dialogo.TitleBar.SetLayoutAnimated(0, 0, 0, Dialogo.Base.Width, altoVisible + radio)
+	Dialogo.TitleBar.SetColorAndBorder(Dialogo.TitleBarColor, 0, Dialogo.TitleBarColor, radio)
+	If Dialogo.TitleBar.NumberOfViews > 0 Then
+		Dialogo.TitleBar.GetView(0).SetLayoutAnimated(0, 0, 0, Dialogo.Base.Width, altoVisible)
+	End If
+End Sub
 
 Public Sub EstilizarDialogo (Dialogo As B4XDialog)
 	Dialogo.BackgroundColor = Colores.COLOR_SUPERFICIE
