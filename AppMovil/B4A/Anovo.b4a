@@ -97,6 +97,8 @@ Module33=Utils
 Module34=Validacion
 Module35=VentanaBuscar
 Module36=WaitIndicator
+Module37=CamaraPieza
+Module38=EditorCroquis
 Module4=ASBuscador
 Module5=ASDrawIso
 Module6=ASDrawSteps
@@ -105,7 +107,7 @@ Module8=B4XCotizacion
 Module9=B4XEspecificaciones
 NumberOfFiles=22
 NumberOfLibraries=22
-NumberOfModules=36
+NumberOfModules=38
 Version=14
 @EndOfDesignText@
 #Region  Project Attributes 

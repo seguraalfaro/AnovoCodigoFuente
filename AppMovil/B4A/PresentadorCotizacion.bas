@@ -49,6 +49,9 @@ Public Sub DescartarBorrador
 		Adjuntos.BorrarFotos(p.ListaFotos)
 	Next
 	Db.BorrarBorrador(TIPO_BORRADOR)
+	Dim piezaSinTerminar As PresentadorEspecificaciones
+	piezaSinTerminar.Initialize
+	piezaSinTerminar.DescartarBorrador
 	Nuevo
 End Sub
 

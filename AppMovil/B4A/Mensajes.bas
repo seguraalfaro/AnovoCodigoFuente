@@ -57,6 +57,8 @@ Sub Process_Globals
 	Public Const GUARDAR_COTIZACION As String = "Guardar cotización"
 	Public Const AYUDA_OBSERVACIONES As String = "Observaciones del proyecto"
 	Public Const RETOMAR_COTIZACION As String = "Tiene una cotización sin terminar. ¿Desea retomarla?"
+	Public Const RETOMAR_PIEZA As String = "Hay una pieza sin terminar. ¿Desea retomarla?"
+	Public Const RETOMAR_PIEZA_NOMBRE As String = "La pieza «$1» quedó sin terminar. ¿Desea retomarla?"
 	Public Const SIN_PIEZAS As String = "Agregue al menos una pieza."
 	Public Const SIN_PIEZAS_TITULO As String = "Todavía no hay piezas"
 	Public Const SIN_PIEZAS_TEXTO As String = "Toque «Nueva pieza» para registrar la primera. Cada pieza lleva medidas, cantidad, croquis y fotos."
@@ -162,6 +164,11 @@ End Sub
 
 Public Sub CroquisTrazo (IndiceGrosor As Int) As String
 	Return CROQUIS_TRAZO.Replace("$1", NombreGrosor(IndiceGrosor))
+End Sub
+
+Public Sub RetomarPieza (Nombre As String) As String
+	If Nombre.Trim = "" Then Return RETOMAR_PIEZA
+	Return RETOMAR_PIEZA_NOMBRE.Replace("$1", Nombre.Trim)
 End Sub
 
 Public Sub TituloMedida (Etiqueta As String) As String

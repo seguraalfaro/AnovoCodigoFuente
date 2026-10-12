@@ -4,8 +4,8 @@ ModulesStructureVersion=1
 Type=Class
 Version=13.7
 @EndOfDesignText@
-' Presentador de la pieza en tres partes (datos, croquis y fotos): opciones de los
-' catalogos, fotos y armado de la Pieza, nueva o en edicion, que vuelve a la cotizacion.
+' Presentador de la pieza en tres partes (datos, croquis y fotos): catalogos, fotos,
+' borrador en KVS mientras se captura y armado de la Pieza que vuelve a la cotizacion.
 Sub Class_Globals
 	Private Const EXTENSION_FOTO As String = ".jpg"
 	Private Const CLAVE_ETIQUETA As String = "etiqueta"
@@ -13,6 +13,17 @@ Sub Class_Globals
 	Private Const CLAVE_VALOR As String = "valor"
 	Private Const CLAVE_UNIDAD As String = "unidad"
 	Private Const CLAVE_CANTIDAD As String = "cantidad"
+	Private Const TIPO_BORRADOR As String = "pieza"
+	Private Const CLAVE_UUID As String = "uuid"
+	Private Const CLAVE_NOMBRE As String = "nombre"
+	Private Const CLAVE_TRABAJO As String = "trabajo"
+	Private Const CLAVE_MATERIAL As String = "material"
+	Private Const CLAVE_ACABADO As String = "acabado"
+	Private Const CLAVE_CROQUIS As String = "croquis"
+	Private Const CLAVE_FOTOS As String = "fotos"
+	Private Const CLAVE_ORIGINALES As String = "originales"
+	Private Const CLAVE_QUITADAS As String = "quitadas"
+	Private Const CLAVE_PAGINA As String = "pagina"
 
 	Private mTiposTrabajo As List
 	Private mTiposMaterial As List
@@ -24,6 +35,9 @@ Sub Class_Globals
 	Private mTrabajoId As Int
 	Private mMaterialId As Int
 	Private mAcabadoId As Int
+	Private mNombre As String
+	Private mCroquisJson As String
+	Private mPagina As Int
 End Sub
 
 Public Sub Initialize
@@ -38,6 +52,9 @@ Public Sub Nuevo
 	mTrabajoId = 0
 	mMaterialId = 0
 	mAcabadoId = 0
+	mNombre = ""
+	mCroquisJson = ""
+	mPagina = 0
 	mFotos.Initialize
 	mOriginales.Initialize
 	mQuitadas.Initialize
@@ -49,6 +66,8 @@ Public Sub EditarPieza (p As Pieza)
 	mTrabajoId = p.TipoTrabajoId
 	mMaterialId = p.TipoMaterialId
 	mAcabadoId = p.AcabadoId
+	mNombre = p.Nombre
+	mCroquisJson = p.CroquisJson
 	If p.ListaFotos.IsInitialized Then
 		mFotos.AddAll(p.ListaFotos)
 		mOriginales.AddAll(p.ListaFotos)
@@ -57,6 +76,66 @@ End Sub
 
 Public Sub getEditando As Boolean
 	Return mUuid <> ""
+End Sub
+
+Public Sub getNombre As String
+	Return mNombre
+End Sub
+
+Public Sub getCroquisJson As String
+	Return mCroquisJson
+End Sub
+
+Public Sub getPagina As Int
+	Return mPagina
+End Sub
+
+Public Sub getHayBorrador As Boolean
+	Return Db.HayBorrador(TIPO_BORRADOR)
+End Sub
+
+Public Sub getNombreBorrador As String
+	Return Db.LeerBorrador(TIPO_BORRADOR).GetDefault(CLAVE_NOMBRE, "")
+End Sub
+
+Public Sub GuardarBorrador (NombrePieza As String, Croquis As String, Hoja As Int)
+	mNombre = NombrePieza
+	mCroquisJson = Croquis
+	mPagina = Hoja
+	If mUuid = "" And NombrePieza.Trim = "" And Croquis = "" And mFotos.Size = 0 And _
+		mTrabajoId = 0 And mMaterialId = 0 And mAcabadoId = 0 Then
+		Db.BorrarBorrador(TIPO_BORRADOR)
+		Return
+	End If
+	Db.GuardarBorrador(TIPO_BORRADOR, CreateMap(CLAVE_UUID: mUuid, CLAVE_NOMBRE: mNombre, _
+		CLAVE_TRABAJO: mTrabajoId, CLAVE_MATERIAL: mMaterialId, CLAVE_ACABADO: mAcabadoId, _
+		CLAVE_CROQUIS: mCroquisJson, CLAVE_FOTOS: mFotos, CLAVE_ORIGINALES: mOriginales, _
+		CLAVE_QUITADAS: mQuitadas, CLAVE_PAGINA: mPagina))
+End Sub
+
+Public Sub Restaurar As Boolean
+	Dim b As Map = Db.LeerBorrador(TIPO_BORRADOR)
+	If b.ContainsKey(CLAVE_FOTOS) = False Then
+		Db.BorrarBorrador(TIPO_BORRADOR)
+		Return False
+	End If
+	Nuevo
+	mUuid = b.GetDefault(CLAVE_UUID, "")
+	mNombre = b.GetDefault(CLAVE_NOMBRE, "")
+	mTrabajoId = b.GetDefault(CLAVE_TRABAJO, 0)
+	mMaterialId = b.GetDefault(CLAVE_MATERIAL, 0)
+	mAcabadoId = b.GetDefault(CLAVE_ACABADO, 0)
+	mCroquisJson = b.GetDefault(CLAVE_CROQUIS, "")
+	mPagina = b.GetDefault(CLAVE_PAGINA, 0)
+	mFotos.AddAll(b.Get(CLAVE_FOTOS))
+	mOriginales.AddAll(b.GetDefault(CLAVE_ORIGINALES, mOriginales))
+	mQuitadas.AddAll(b.GetDefault(CLAVE_QUITADAS, mQuitadas))
+	Return True
+End Sub
+
+Public Sub DescartarBorrador
+	If Restaurar Then DescartarFotos
+	Db.BorrarBorrador(TIPO_BORRADOR)
 End Sub
 
 Public Sub getOpcionesTiposTrabajo As List
@@ -110,35 +189,35 @@ End Sub
 Public Sub AgregarFoto (Datos() As Byte) As String
 	If getPuedeAgregarFoto = False Then Return ""
 	Dim carpeta As String = Adjuntos.CarpetaFotos
-	Dim nombre As String = Db.NuevoUuid & EXTENSION_FOTO
+	Dim archivo As String = Db.NuevoUuid & EXTENSION_FOTO
 	Try
-		Dim salida As OutputStream = File.OpenOutput(carpeta, nombre, False)
+		Dim salida As OutputStream = File.OpenOutput(carpeta, archivo, False)
 		salida.WriteBytes(Datos, 0, Datos.Length)
 		salida.Close
 	Catch
 		Log("PresentadorEspecificaciones.AgregarFoto: " & LastException.Message)
 		Return ""
 	End Try
-	mFotos.Add(nombre)
-	Return nombre
+	mFotos.Add(archivo)
+	Return archivo
 End Sub
 
 Public Sub AgregarFotoDeGaleria (Dir As String, Archivo As String) As String
 	If getPuedeAgregarFoto = False Then Return ""
-	Dim nombre As String = Db.NuevoUuid & EXTENSION_FOTO
-	If Adjuntos.CopiarImagen(Dir, Archivo, nombre) = False Then Return ""
-	mFotos.Add(nombre)
-	Return nombre
+	Dim destino As String = Db.NuevoUuid & EXTENSION_FOTO
+	If Adjuntos.CopiarImagen(Dir, Archivo, destino) = False Then Return ""
+	mFotos.Add(destino)
+	Return destino
 End Sub
 
-Public Sub QuitarFoto (Nombre As String) As Int
-	Dim i As Int = mFotos.IndexOf(Nombre)
+Public Sub QuitarFoto (Archivo As String) As Int
+	Dim i As Int = mFotos.IndexOf(Archivo)
 	If i < 0 Then Return -1
 	mFotos.RemoveAt(i)
-	If mOriginales.IndexOf(Nombre) >= 0 Then
-		mQuitadas.Add(Nombre)
+	If mOriginales.IndexOf(Archivo) >= 0 Then
+		mQuitadas.Add(Archivo)
 	Else
-		Adjuntos.BorrarFotos(Array As String(Nombre))
+		Adjuntos.BorrarFotos(Array As String(Archivo))
 	End If
 	Return i
 End Sub
@@ -146,26 +225,27 @@ End Sub
 Public Sub DescartarFotos
 	Dim nuevas As List
 	nuevas.Initialize
-	For Each nombre As String In mFotos
-		If mOriginales.IndexOf(nombre) < 0 Then nuevas.Add(nombre)
+	For Each archivo As String In mFotos
+		If mOriginales.IndexOf(archivo) < 0 Then nuevas.Add(archivo)
 	Next
 	Adjuntos.BorrarFotos(nuevas)
+	Db.BorrarBorrador(TIPO_BORRADOR)
 	Nuevo
 End Sub
 
-Public Sub ArmarPieza (Nombre As String, CroquisJson As String, MedidasCroquis As List) As Resultado
-	If Nombre.Trim = "" Then Return Tipos.Falla(Mensajes.FALTA_NOMBRE_PIEZA)
+Public Sub ArmarPieza (NombrePieza As String, Croquis As String, MedidasCroquis As List) As Resultado
+	If NombrePieza.Trim = "" Then Return Tipos.Falla(Mensajes.FALTA_NOMBRE_PIEZA)
 	Dim p As Pieza = Tipos.PiezaVacia
 	p.UuidLocal = mUuid
-	p.Nombre = Nombre.Trim
+	p.Nombre = NombrePieza.Trim
 	p.TipoTrabajoId = mTrabajoId
 	p.TipoTrabajo = getTextoTipoTrabajo
 	p.TipoMaterialId = mMaterialId
 	p.Material = getTextoTipoMaterial
 	p.AcabadoId = mAcabadoId
 	p.Acabado = getTextoAcabado
-	p.CroquisJson = CroquisJson
-	p.Croquis = CroquisJson <> ""
+	p.CroquisJson = Croquis
+	p.Croquis = Croquis <> ""
 	For i = 0 To MedidasCroquis.Size - 1
 		p.ListaMedidas.Add(MedidaDe(MedidasCroquis.Get(i), i))
 	Next
@@ -173,6 +253,7 @@ Public Sub ArmarPieza (Nombre As String, CroquisJson As String, MedidasCroquis A
 	p.ListaFotos.AddAll(mFotos)
 	p.Fotos = mFotos.Size
 	Adjuntos.BorrarFotos(mQuitadas)
+	Db.BorrarBorrador(TIPO_BORRADOR)
 	Nuevo
 	Return Tipos.Correcto(p)
 End Sub

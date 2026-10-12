@@ -94,6 +94,7 @@ Private Sub B4XPage_Appear
 		If visible = False Then Return
 		If Respuesta = xui.DialogResponse_Positive And presentador.Restaurar Then
 			Pintar
+			OfrecerPieza
 			Return
 		End If
 		presentador.DescartarBorrador
@@ -115,6 +116,18 @@ End Sub
 Private Sub Persistir
 	If restaurando Then Return
 	presentador.GuardarBorrador(TextNombreProyecto.Text.Trim, txtObservaciones.Text.Trim, AHView.CurrentPage)
+End Sub
+
+Private Sub OfrecerPieza
+	Dim especificaciones As B4XEspecificaciones = B4XPages.GetPage(Layouts.PAGINA_ESPECIFICACIONES)
+	If especificaciones.HayPiezaSinTerminar = False Then Return
+	Dim sf As Object = xui.Msgbox2Async(Mensajes.RetomarPieza(especificaciones.NombrePiezaSinTerminar), Mensajes.TITULO, Mensajes.SI, "", Mensajes.NO, Null)
+	Wait For (sf) Msgbox_Result (Respuesta As Int)
+	If visible = False Or Respuesta <> xui.DialogResponse_Positive Then Return
+	Persistir
+	enPieza = True
+	especificaciones.RetomarPieza
+	B4XPages.ShowPage(Layouts.PAGINA_ESPECIFICACIONES)
 End Sub
 
 Private Sub Pintar
