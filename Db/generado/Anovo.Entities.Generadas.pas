@@ -961,11 +961,18 @@ type
     fAmbito: String;
     [MVCTableField('FECHA_CREACION')]
     fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('ACTIVO')]
+    [MVCRequired]
+    fActivo: Boolean;
+    [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
+    fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
   public
     property RolId: Int32 read fRolId write fRolId;
     property PermisoId: Int32 read fPermisoId write fPermisoId;
     property Ambito: String read fAmbito write fAmbito;
     property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
+    property Activo: Boolean read fActivo write fActivo;
+    property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -1281,6 +1288,11 @@ type
     fMotivo: String;
     [MVCTableField('FECHA_CREACION')]
     fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('ACTIVO')]
+    [MVCRequired]
+    fActivo: Boolean;
+    [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
+    fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
   public
     property UsuarioId: Int32 read fUsuarioId write fUsuarioId;
     property PermisoId: Int32 read fPermisoId write fPermisoId;
@@ -1288,6 +1300,8 @@ type
     property Tipo: String read fTipo write fTipo;
     property Motivo: String read fMotivo write fMotivo;
     property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
+    property Activo: Boolean read fActivo write fActivo;
+    property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
   end;
 
   [MVCNameCase(ncSnakeCase)]

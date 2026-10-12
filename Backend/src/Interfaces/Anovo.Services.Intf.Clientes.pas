@@ -23,6 +23,7 @@ type
     procedure Actualizar(const AId: Integer; const ADto: TClienteEdicionDTO);
 
     procedure Inactivar(const AId: Integer);
+    procedure Anonimizar(const AId: Integer; const AMotivo: string);
 
     function RegistrarCompleto(const ADto: TClienteRegistroCompletoDTO)
       : Integer;

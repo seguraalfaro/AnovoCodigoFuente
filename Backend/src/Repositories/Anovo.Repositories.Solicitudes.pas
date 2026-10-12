@@ -67,6 +67,8 @@ type
     function CroquisDe(const ASolicitudId: Integer)
       : TObjectList<TSolicitudAdjuntos>;
     function ObtenerPorUuidLocal(const AUuid: string): TSolicitudAdjuntos;
+    function DeCliente(const AClienteId: Integer)
+      : TObjectList<TSolicitudAdjuntos>;
   end;
 
 implementation
@@ -188,6 +190,12 @@ function TSolicitudAdjuntoRepository.CroquisDe(const ASolicitudId: Integer)
   : TObjectList<TSolicitudAdjuntos>;
 begin
   Result := GetWhere(CROQUIS_DE_SOLICITUD, [ASolicitudId]);
+end;
+
+function TSolicitudAdjuntoRepository.DeCliente(const AClienteId: Integer)
+  : TObjectList<TSolicitudAdjuntos>;
+begin
+  Result := GetWhere(ADJUNTOS_DE_CLIENTE, [AClienteId]);
 end;
 
 function TSolicitudAdjuntoRepository.ObtenerPorUuidLocal(const AUuid: string)

@@ -67,6 +67,8 @@ type
     function CroquisDe(const ASolicitudId: Integer)
       : TObjectList<TSolicitudAdjuntos>;
     function ObtenerPorUuidLocal(const AUuid: string): TSolicitudAdjuntos;
+    function DeCliente(const AClienteId: Integer)
+      : TObjectList<TSolicitudAdjuntos>;
   end;
 
 implementation

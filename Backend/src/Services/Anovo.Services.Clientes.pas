@@ -1,7 +1,7 @@
 unit Anovo.Services.Clientes;
 
-// Servicio de clientes: registro con contactos, consentimiento
-// y reglas que miran la base.
+// Servicio de clientes: registro con contactos, consentimiento,
+// anonimizacion (Ley 8968) y reglas que miran la base.
 
 interface
 
@@ -14,6 +14,7 @@ uses
   Anovo.DTOs.Clientes,
   Anovo.Entities.Clientes,
   Anovo.Repositories.Intf.Clientes,
+  Anovo.Repositories.Intf.Solicitudes,
   Anovo.Services.Intf.Clientes;
 
 type
@@ -22,15 +23,24 @@ type
     fRepo: IClienteRepository;
     fContactos: IClienteContactoRepository;
     fConsentimientos: IConsentimientoRepository;
+    fAdjuntos: ISolicitudAdjuntoRepository;
     function TraerVigente(const AId: Integer): TClientes;
     function TraerContacto(const AId, AContactoId: Integer): TClienteContactos;
     function ValidarUuidLocal(const AUuid: NullableString): Integer;
     function VerificarImagen(const ABase64: string): Boolean;
+    procedure EstadoInicial(const ACliente: TClientes); overload;
+    procedure EstadoInicial(const AContacto: TClienteContactos); overload;
+    procedure CopiarEstado(const AOrigen, ADestino: TClientes); overload;
+    procedure CopiarEstado(const AOrigen, ADestino: TClienteContactos); overload;
+    procedure ExigirPersonaFisica(const ACliente: TClientes);
+    procedure AnonimizarContactos(const AClienteId: Integer);
+    procedure AnonimizarAdjuntos(const AClienteId: Integer);
   public
     [MVCInject]
     constructor Create(ARepo: IClienteRepository;
       AContactos: IClienteContactoRepository;
-      AConsentimientos: IConsentimientoRepository); reintroduce;
+      AConsentimientos: IConsentimientoRepository;
+      AAdjuntos: ISolicitudAdjuntoRepository); reintroduce;
 
     function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
       const AIncluirInactivos: Boolean; const AConsentimiento: string;
@@ -39,6 +49,7 @@ type
     function Crear(const ADto: TClienteNuevoDTO): Integer;
     procedure Actualizar(const AId: Integer; const ADto: TClienteEdicionDTO);
     procedure Inactivar(const AId: Integer);
+    procedure Anonimizar(const AId: Integer; const AMotivo: string);
     function RegistrarCompleto(const ADto: TClienteRegistroCompletoDTO)
       : Integer;
 
@@ -63,6 +74,7 @@ uses
   MVCFramework.Repository,
   Anovo.Auditoria.Contexto,
   Anovo.Entities.Consultas,
+  Anovo.Entities.Solicitudes,
   Anovo.Errors,
   Anovo.Textos;
 
@@ -71,15 +83,20 @@ const
   CONSENTIMIENTO_FIRMADO = 'firmado';
   CONSENTIMIENTO_REVOCADO = 'revocado';
   ACCION_REVOCADO = 'revocado';
+  ACCION_OTORGADO = 'otorgado';
+  TIPO_IDENT_FISICA = 1;
+  TIPO_IDENT_DIMEX = 3;
 
 constructor TClienteService.Create(ARepo: IClienteRepository;
   AContactos: IClienteContactoRepository;
-  AConsentimientos: IConsentimientoRepository);
+  AConsentimientos: IConsentimientoRepository;
+  AAdjuntos: ISolicitudAdjuntoRepository);
 begin
   inherited Create;
   fRepo := ARepo;
   fContactos := AContactos;
   fConsentimientos := AConsentimientos;
+  fAdjuntos := AAdjuntos;
 end;
 
 function TClienteService.TraerVigente(const AId: Integer): TClientes;
@@ -105,6 +122,97 @@ end;
 function TClienteService.VerificarImagen(const ABase64: string): Boolean;
 begin
   Result := Length(TNetEncoding.Base64.DecodeStringToBytes(ABase64)) > 0;
+end;
+
+procedure TClienteService.EstadoInicial(const ACliente: TClientes);
+begin
+  ACliente.Activo := True;
+  ACliente.ConsentimientoEstado := CONSENTIMIENTO_PENDIENTE;
+  ACliente.ConsentimientoFecha := nil;
+  ACliente.ConsentimientoVersion := nil;
+  ACliente.Anonimizado := False;
+end;
+
+procedure TClienteService.EstadoInicial(const AContacto: TClienteContactos);
+begin
+  AContacto.Activo := True;
+  AContacto.ConsentimientoEstado := CONSENTIMIENTO_PENDIENTE;
+  AContacto.ConsentimientoFecha := nil;
+  AContacto.ConsentimientoVersion := nil;
+  AContacto.Anonimizado := False;
+end;
+
+procedure TClienteService.CopiarEstado(const AOrigen, ADestino: TClientes);
+begin
+  ADestino.UuidLocal := AOrigen.UuidLocal;
+  ADestino.Activo := AOrigen.Activo;
+  ADestino.ConsentimientoEstado := AOrigen.ConsentimientoEstado;
+  ADestino.ConsentimientoFecha := AOrigen.ConsentimientoFecha;
+  ADestino.ConsentimientoVersion := AOrigen.ConsentimientoVersion;
+  ADestino.Anonimizado := AOrigen.Anonimizado;
+end;
+
+procedure TClienteService.CopiarEstado(const AOrigen,
+  ADestino: TClienteContactos);
+begin
+  ADestino.UuidLocal := AOrigen.UuidLocal;
+  ADestino.Activo := AOrigen.Activo;
+  ADestino.ConsentimientoEstado := AOrigen.ConsentimientoEstado;
+  ADestino.ConsentimientoFecha := AOrigen.ConsentimientoFecha;
+  ADestino.ConsentimientoVersion := AOrigen.ConsentimientoVersion;
+  ADestino.Anonimizado := AOrigen.Anonimizado;
+end;
+
+procedure TClienteService.ExigirPersonaFisica(const ACliente: TClientes);
+begin
+  if not ACliente.TipoIdentificacion.HasValue then
+    raise EDatoInvalido.Create(SAnonimizarSinTipo);
+  if (ACliente.TipoIdentificacion.Value <> TIPO_IDENT_FISICA) and
+    (ACliente.TipoIdentificacion.Value <> TIPO_IDENT_DIMEX) then
+    raise EDatoInvalido.Create(SAnonimizarSoloFisica);
+end;
+
+procedure TClienteService.AnonimizarContactos(const AClienteId: Integer);
+var
+  lContactos: TObjectList<TClienteContactos>;
+  lContacto: TClienteContactos;
+begin
+  lContactos := fContactos.TodosDe(AClienteId);
+  try
+    for lContacto in lContactos do
+    begin
+      lContacto.Nombre := SContactoAnonimizadoNombre;
+      lContacto.Area := nil;
+      lContacto.Telefono := nil;
+      lContacto.Celular := nil;
+      lContacto.Correo := nil;
+      lContacto.Anonimizado := True;
+      lContacto.Activo := False;
+      fContactos.Update(lContacto);
+    end;
+  finally
+    lContactos.Free;
+  end;
+end;
+
+procedure TClienteService.AnonimizarAdjuntos(const AClienteId: Integer);
+var
+  lAdjuntos: TObjectList<TSolicitudAdjuntos>;
+  lAdjunto: TSolicitudAdjuntos;
+begin
+  lAdjuntos := fAdjuntos.DeCliente(AClienteId);
+  try
+    for lAdjunto in lAdjuntos do
+    begin
+      lAdjunto.Contenido.Size := 0;
+      lAdjunto.ContenidoJson := nil;
+      lAdjunto.TamanoBytes := 0;
+      lAdjunto.Activo := False;
+      fAdjuntos.Update(lAdjunto);
+    end;
+  finally
+    lAdjuntos.Free;
+  end;
 end;
 
 function TClienteService.Buscar(const ATexto: string;
@@ -151,6 +259,7 @@ begin
 
   if ADto.UuidLocal.HasValue and not ADto.UuidLocal.Value.IsEmpty then
   begin
+    ExigirLargoUuid(ADto.UuidLocal.Value);
     Result := ValidarUuidLocal(ADto.UuidLocal);
     if Result > 0 then
       Exit;
@@ -159,6 +268,7 @@ begin
   lCliente := TClientes.Create;
   try
     TMapeo.Copiar(ADto, lCliente);
+    EstadoInicial(lCliente);
     FijarDetalle(Format(SDetalleRegistroCliente, [ADto.Nombre]));
     fRepo.Insert(lCliente);
     Result := lCliente.ID.ValueOrDefault;
@@ -170,7 +280,7 @@ end;
 procedure TClienteService.Actualizar(const AId: Integer;
   const ADto: TClienteEdicionDTO);
 var
-  lCliente: TClientes;
+  lCliente, lAntes: TClientes;
 begin
   var
   lTx := TMVCRepository.UseTransactionContext;
@@ -179,6 +289,7 @@ begin
     raise EDatoInvalido.Create(Format(SFaltaVersion, [SRecursoCliente]));
 
   lCliente := TraerVigente(AId);
+  lAntes := TClientes.Create;
   try
     if lCliente.Anonimizado then
       raise EConflictoDeEstado.Create('CLIENTE_ANONIMIZADO',
@@ -187,7 +298,9 @@ begin
     if lCliente.ObjVersion <> ADto.ObjVersion.Value then
       raise EVersionVencida.Create(SRecursoCliente, AId);
 
+    CopiarEstado(lCliente, lAntes);
     TMapeo.Copiar(ADto, lCliente);
+    CopiarEstado(lAntes, lCliente);
     FijarDetalle(SDetalleEdicionCliente);
     try
       fRepo.Update(lCliente);
@@ -196,6 +309,7 @@ begin
         raise EVersionVencida.Create(SRecursoCliente, AId);
     end;
   finally
+    lAntes.Free;
     lCliente.Free;
   end;
 end;
@@ -220,6 +334,46 @@ begin
   end;
 end;
 
+procedure TClienteService.Anonimizar(const AId: Integer;
+  const AMotivo: string);
+var
+  lCliente: TClientes;
+begin
+  var
+  lTx := TMVCRepository.UseTransactionContext;
+
+  if AMotivo.Trim.IsEmpty then
+    raise EDatoInvalido.Create(SMotivoFalta);
+
+  lCliente := TraerVigente(AId);
+  try
+    if lCliente.Anonimizado then
+      raise EConflictoDeEstado.Create('CLIENTE_ANONIMIZADO',
+        SClienteAnonimizado);
+    ExigirPersonaFisica(lCliente);
+
+    FijarDetalle(Format(SDetalleAnonimizacionCliente, [AId, AMotivo.Trim]));
+    lCliente.Nombre := Format(SClienteAnonimizadoNombre, [AId]);
+    lCliente.Identificacion := nil;
+    lCliente.Contacto := nil;
+    lCliente.Telefono := nil;
+    lCliente.Correo := nil;
+    lCliente.Direccion := nil;
+    lCliente.Latitud := nil;
+    lCliente.Longitud := nil;
+    lCliente.Exonerado := False;
+    lCliente.CodigoExoneracion := nil;
+    lCliente.Anonimizado := True;
+    lCliente.Activo := False;
+    fRepo.Update(lCliente);
+
+    AnonimizarContactos(AId);
+    AnonimizarAdjuntos(AId);
+  finally
+    lCliente.Free;
+  end;
+end;
+
 function TClienteService.RegistrarCompleto(const ADto
   : TClienteRegistroCompletoDTO): Integer;
 var
@@ -236,6 +390,11 @@ begin
   if not ADto.Cliente.UuidLocal.HasValue or ADto.Cliente.UuidLocal.Value.IsEmpty
   then
     raise EDatoInvalido.Create(SFaltaUuidLocal);
+
+  ExigirLargoUuid(ADto.Cliente.UuidLocal.Value);
+  for lDatos in ADto.Contactos do
+    if lDatos.UuidLocal.HasValue then
+      ExigirLargoUuid(lDatos.UuidLocal.Value);
 
   lId := ValidarUuidLocal(ADto.Cliente.UuidLocal);
   if lId > 0 then
@@ -256,6 +415,16 @@ begin
     try
       lCliente := TClientes.Create;
       TMapeo.Copiar(ADto.Cliente, lCliente);
+      EstadoInicial(lCliente);
+      if ADto.Firma.Accion = ACCION_OTORGADO then
+      begin
+        lCliente.ConsentimientoEstado := CONSENTIMIENTO_FIRMADO;
+        lCliente.ConsentimientoVersion := ADto.Firma.VersionTexto;
+        if ADto.Firma.Fecha.HasValue then
+          lCliente.ConsentimientoFecha := ADto.Firma.Fecha.Value
+        else
+          lCliente.ConsentimientoFecha := Now;
+      end;
       FijarDetalle(SDetalleRegistroCompletoMovil);
       fRepo.Insert(lCliente);
       lId := lCliente.ID.Value;
@@ -264,6 +433,15 @@ begin
       begin
         lContacto := TClienteContactos.Create;
         TMapeo.Copiar(lDatos, lContacto);
+        EstadoInicial(lContacto);
+        if (ADto.Firma.Accion = ACCION_OTORGADO) and
+          ADto.Firma.ClienteContactoUuid.HasValue and lDatos.UuidLocal.HasValue
+          and (ADto.Firma.ClienteContactoUuid.Value = lDatos.UuidLocal.Value) then
+        begin
+          lContacto.ConsentimientoEstado := CONSENTIMIENTO_FIRMADO;
+          lContacto.ConsentimientoVersion := ADto.Firma.VersionTexto;
+          lContacto.ConsentimientoFecha := lCliente.ConsentimientoFecha;
+        end;
         lContacto.ClienteId := lId;
         fContactos.Insert(lContacto);
         FreeAndNil(lContacto);
@@ -312,9 +490,13 @@ begin
   var
   lTx := TMVCRepository.UseTransactionContext;
 
+  if ADto.UuidLocal.HasValue then
+    ExigirLargoUuid(ADto.UuidLocal.Value);
+
   lContacto := TClienteContactos.Create;
   try
     TMapeo.Copiar(ADto, lContacto);
+    EstadoInicial(lContacto);
     lContacto.ClienteId := AId;
     FijarDetalle(Format(SDetalleContactoNuevo, [AId]));
     fContactos.Insert(lContacto);
@@ -327,7 +509,7 @@ end;
 procedure TClienteService.ActualizarContacto(const AId, AContactoId: Integer;
   const ADto: TContactoEdicionDTO);
 var
-  lContacto: TClienteContactos;
+  lContacto, lAntes: TClienteContactos;
 begin
   var
   lTx := TMVCRepository.UseTransactionContext;
@@ -336,11 +518,14 @@ begin
     raise EDatoInvalido.Create(Format(SFaltaVersion, [SRecursoContacto]));
 
   lContacto := TraerContacto(AId, AContactoId);
+  lAntes := TClienteContactos.Create;
   try
     if lContacto.ObjVersion.ValueOrDefault <> ADto.ObjVersion.Value then
       raise EVersionVencida.Create(SRecursoContacto, AContactoId);
 
+    CopiarEstado(lContacto, lAntes);
     TMapeo.Copiar(ADto, lContacto);
+    CopiarEstado(lAntes, lContacto);
     lContacto.ClienteId := AId;
     FijarDetalle(Format(SDetalleEdicionContacto, [AContactoId]));
     try
@@ -350,6 +535,7 @@ begin
         raise EVersionVencida.Create(SRecursoContacto, AContactoId);
     end;
   finally
+    lAntes.Free;
     lContacto.Free;
   end;
 end;

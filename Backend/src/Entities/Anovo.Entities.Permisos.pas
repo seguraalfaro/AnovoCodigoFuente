@@ -60,12 +60,21 @@ type
     fAmbito: String;
     [MVCTableField('FECHA_CREACION', [foDoNotInsert, foDoNotUpdate, foRefresh])]
     fFechaCreacion: NullableTDateTime ;
+    [MVCTableField('ACTIVO')]
+    [MVCRequired]
+    fActivo: Boolean;
+    [MVCTableField('FECHA_MODIFICACION', [foDoNotInsert, foDoNotUpdate,
+      foRefresh])]
+    fFechaModificacion: NullableTDateTime;
   public
     property RolId: Int32 read fRolId write fRolId;
     property PermisoId: Int32 read fPermisoId write fPermisoId;
     property Ambito: String read fAmbito write fAmbito;
     property FechaCreacion: NullableTDateTime
       read fFechaCreacion write fFechaCreacion;
+    property Activo: Boolean read fActivo write fActivo;
+    property FechaModificacion: NullableTDateTime
+      read fFechaModificacion write fFechaModificacion;
   end;
 
 implementation

@@ -56,7 +56,11 @@ type
     constructor Create(const AMinutos: Integer); reintroduce;
   end;
 
+const
+  LARGO_UUID_LOCAL = 36;
+
 function ManejadorDeErrores: TMVCExceptionHandlerProc;
+procedure ExigirLargoUuid(const AUuid: string);
 
 implementation
 
@@ -117,6 +121,12 @@ constructor EDemasiadosIntentos.Create(const AMinutos: Integer);
 begin
   inherited Create('INGRESO_BLOQUEADO', Format(SIngresoBloqueado, [AMinutos]),
     HTTP_STATUS.TooManyRequests);
+end;
+
+procedure ExigirLargoUuid(const AUuid: string);
+begin
+  if AUuid.Length > LARGO_UUID_LOCAL then
+    raise EDatoInvalido.Create(Format(SUuidLocalLargo, [LARGO_UUID_LOCAL]));
 end;
 
 function ManejadorDeErrores: TMVCExceptionHandlerProc;

@@ -34,7 +34,9 @@ type
     procedure ValidarClaveTemporal(const AClave: string);
     procedure GuardarClave(const AUsuarioId: Integer;
       const ANombre, AClave: string);
-    procedure BorrarExcepciones(const AUsuario: TUsuarios);
+    procedure InactivarExcepciones(const AUsuario: TUsuarios);
+    procedure LlenarExcepcion(const AExcepcion: TUsuariosPermisos;
+      const AAmbito, ATipo, AMotivo: string);
     procedure GuardarEdicion(const AId: Integer;
       const ADto: TUsuarioEdicionDTO);
     procedure CambiarEstado(const AId: Integer; const AActivo: Boolean);
@@ -169,7 +171,7 @@ begin
   end;
 end;
 
-procedure TUsuarioService.BorrarExcepciones(const AUsuario: TUsuarios);
+procedure TUsuarioService.InactivarExcepciones(const AUsuario: TUsuarios);
 var
   lFilas: TObjectList<TUsuariosPermisos>;
   lFila: TUsuariosPermisos;
@@ -180,10 +182,22 @@ begin
       Exit;
     FijarDetalle(Format(SDetalleExcepcionesPorCambioRol, [AUsuario.Nombre]));
     for lFila in lFilas do
-      fExcepciones.Delete(lFila);
+    begin
+      lFila.Activo := False;
+      fExcepciones.Update(lFila);
+    end;
   finally
     lFilas.Free;
   end;
+end;
+
+procedure TUsuarioService.LlenarExcepcion(const AExcepcion: TUsuariosPermisos;
+  const AAmbito, ATipo, AMotivo: string);
+begin
+  AExcepcion.Ambito := AAmbito;
+  AExcepcion.Tipo := ATipo;
+  AExcepcion.Motivo := AMotivo;
+  AExcepcion.Activo := True;
 end;
 
 function TUsuarioService.Buscar(const ATexto, AEstado: string;
@@ -293,7 +307,7 @@ begin
       try
         lAnterior := TraerRol(lUsuario.RolId);
         try
-          BorrarExcepciones(lUsuario);
+          InactivarExcepciones(lUsuario);
           FijarDetalle(Format(SDetalleUsuarioCambioRol, [lUsuario.Nombre,
             lAnterior.Nombre, lNuevo.Nombre]));
         finally
@@ -425,7 +439,7 @@ procedure TUsuarioService.AplicarExcepcion(const AUsuario: TUsuarios;
   const AMotivo: string);
 var
   lPermiso: TPermisos;
-  lActual, lNueva: TUsuariosPermisos;
+  lActual: TUsuariosPermisos;
   lTipo: string;
   lRolLoTiene: Boolean;
 begin
@@ -442,7 +456,7 @@ begin
       raise EDatoInvalido.Create(Format(SPermisoFueraDeAmbito,
         [lPermiso.Nombre, ARol.Nombre]));
 
-    lRolLoTiene := fPermisos.Exists([ARol.ID, lPermiso.ID]);
+    lRolLoTiene := fPermisos.Asignado(ARol.ID, lPermiso.ID);
     if (lTipo = TIPO_OTORGADO) and lRolLoTiene then
       raise EDatoInvalido.Create(Format(SExcepcionSinEfecto,
         [ARol.Nombre, SRolYaTiene, lPermiso.Nombre]));
@@ -452,37 +466,43 @@ begin
 
     lActual := fExcepciones.Una(AUsuario.ID.Value, lPermiso.ID);
     try
-      if (lActual <> nil) and (lActual.Tipo = lTipo) then
-        Exit;
-      if lActual <> nil then
+      if lTipo.IsEmpty then
       begin
-        FijarDetalle(Format(SDetalleBorraExcepcionUsuario,
-          [lPermiso.Nombre, AUsuario.Nombre, AMotivo]));
-        fExcepciones.Delete(lActual);
+        if (lActual <> nil) and lActual.Activo then
+        begin
+          FijarDetalle(Format(SDetalleRetiraExcepcionUsuario,
+            [lPermiso.Nombre, AUsuario.Nombre, AMotivo]));
+          lActual.Activo := False;
+          fExcepciones.Update(lActual);
+        end;
+        Exit;
       end;
-    finally
-      lActual.Free;
-    end;
 
-    if lTipo.IsEmpty then
-      Exit;
+      if (lActual <> nil) and lActual.Activo and (lActual.Tipo = lTipo) then
+        Exit;
 
-    lNueva := TUsuariosPermisos.Create;
-    try
-      lNueva.UsuarioId := AUsuario.ID.Value;
-      lNueva.PermisoId := lPermiso.ID;
-      lNueva.Ambito := AUsuario.Ambito;
-      lNueva.Tipo := lTipo;
-      lNueva.Motivo := AMotivo;
       if lTipo = TIPO_OTORGADO then
         FijarDetalle(Format(SDetalleOtorgaPermisoUsuario,
           [lPermiso.Nombre, AUsuario.Nombre, AMotivo]))
       else
         FijarDetalle(Format(SDetalleQuitaPermisoUsuario,
           [lPermiso.Nombre, AUsuario.Nombre, AMotivo]));
-      fExcepciones.Insert(lNueva);
+
+      if lActual = nil then
+      begin
+        lActual := TUsuariosPermisos.Create;
+        lActual.UsuarioId := AUsuario.ID.Value;
+        lActual.PermisoId := lPermiso.ID;
+        LlenarExcepcion(lActual, AUsuario.Ambito, lTipo, AMotivo);
+        fExcepciones.Insert(lActual);
+      end
+      else
+      begin
+        LlenarExcepcion(lActual, AUsuario.Ambito, lTipo, AMotivo);
+        fExcepciones.Update(lActual);
+      end;
     finally
-      lNueva.Free;
+      lActual.Free;
     end;
   finally
     lPermiso.Free;

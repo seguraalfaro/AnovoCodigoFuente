@@ -1,6 +1,6 @@
 unit Anovo.SQL.Usuarios;
 
-// Consultas de usuarios y claves.
+// Consultas de usuarios, claves y permisos.
 
 interface
 
@@ -18,9 +18,14 @@ const
 
   USUARIOS_DE_ROL = 'ROL_ID = ?';
 
-  EXCEPCIONES_DE_USUARIO = 'USUARIO_ID = ?';
+  EXCEPCIONES_DE_USUARIO = 'USUARIO_ID = ? AND ACTIVO = TRUE';
 
   EXCEPCION_DE_USUARIO = 'USUARIO_ID = ? AND PERMISO_ID = ?';
+
+  ASIGNACION_DE_ROL = 'ROL_ID = ? AND PERMISO_ID = ?';
+
+  ASIGNACION_ACTIVA_DE_ROL =
+    'ROL_ID = ? AND PERMISO_ID = ? AND ACTIVO = TRUE';
 
 implementation
 

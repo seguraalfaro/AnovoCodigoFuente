@@ -37,6 +37,7 @@ type
       : TObjectList<TClienteContactos>;
     function ContactoDe(const AClienteId, AContactoId: Integer)
       : TClienteContactos;
+    function TodosDe(const AClienteId: Integer): TObjectList<TClienteContactos>;
   end;
 
   TConsentimientoRepository = class
@@ -119,6 +120,12 @@ function TClienteContactoRepository.ContactoDe(const AClienteId,
 begin
   Result := GetOneByWhere(CONTACTO_DE_CLIENTE,
     [AContactoId, AClienteId], False);
+end;
+
+function TClienteContactoRepository.TodosDe(const AClienteId: Integer)
+  : TObjectList<TClienteContactos>;
+begin
+  Result := GetWhere(CONTACTOS_DE_CLIENTE_TODOS, [AClienteId]);
 end;
 
 function TClienteContactoRepository.ContactosDe(const AClienteId: Integer)

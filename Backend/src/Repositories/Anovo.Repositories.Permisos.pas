@@ -1,7 +1,7 @@
 unit Anovo.Repositories.Permisos;
 
 // Repositorios de permisos: la matriz rol-permiso, de V_PERMISOS_ROLES,
-// y el catalogo de PERMISOS.
+// sus filas de ROLES_PERMISOS y el catalogo de PERMISOS.
 
 interface
 
@@ -18,6 +18,8 @@ type
   public
     function Matriz: TArray<TRolPermiso>;
     function Excepciones: TArray<TExcepcionPermiso>;
+    function Asignacion(const ARolId, APermisoId: Integer): TRolesPermisos;
+    function Asignado(const ARolId, APermisoId: Integer): Boolean;
   end;
 
   TPermisoCatalogoRepository = class(TAnovoRepository<TPermisos>,
@@ -27,6 +29,9 @@ type
   end;
 
 implementation
+
+uses
+  Anovo.SQL.Usuarios;
 
 function TPermisoCatalogoRepository.Catalogo: TObjectList<TCatalogoPermisos>;
 begin
@@ -51,6 +56,18 @@ begin
   finally
     lFilas.Free;
   end;
+end;
+
+function TPermisoRepository.Asignacion(const ARolId,
+  APermisoId: Integer): TRolesPermisos;
+begin
+  Result := GetOneByWhere(ASIGNACION_DE_ROL, [ARolId, APermisoId], False);
+end;
+
+function TPermisoRepository.Asignado(const ARolId,
+  APermisoId: Integer): Boolean;
+begin
+  Result := ContarPorFiltro(ASIGNACION_ACTIVA_DE_ROL, [ARolId, APermisoId]) > 0;
 end;
 
 function TPermisoRepository.Excepciones: TArray<TExcepcionPermiso>;

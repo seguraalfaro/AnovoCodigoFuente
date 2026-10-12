@@ -33,6 +33,7 @@ type
       : TObjectList<TClienteContactos>;
     function ContactoDe(const AClienteId, AContactoId: Integer)
       : TClienteContactos;
+    function TodosDe(const AClienteId: Integer): TObjectList<TClienteContactos>;
   end;
 
   IConsentimientoRepository = interface

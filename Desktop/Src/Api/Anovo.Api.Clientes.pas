@@ -25,6 +25,7 @@ type
     function Crear(const ADto: TClienteNuevoDTO): Integer;
     function CrearContacto(const AId: Integer;
       const ADto: TContactoNuevoDTO): Integer;
+    procedure Anonimizar(const AId: Integer; const AMotivo: string);
   end;
 
 implementation
@@ -32,7 +33,8 @@ implementation
 uses
   System.SysUtils,
   JsonDataObjects,
-  MVCFramework.RESTClient.Intf;
+  MVCFramework.RESTClient.Intf,
+  Anovo.DTOs.Cotizaciones;
 
 const
   RUTA_CLIENTES = '/api/clientes';
@@ -164,6 +166,24 @@ begin
       Result := NuevoCliente.AddBody(ADto, False)
         .Post(Format('%s/%d/contactos', [RUTA_CLIENTES, AId]));
     end));
+end;
+
+procedure TApiClientes.Anonimizar(const AId: Integer; const AMotivo: string);
+var
+  lDto: TMotivoDTO;
+begin
+  lDto := TMotivoDTO.Create;
+  try
+    lDto.Motivo := AMotivo;
+    Ejecutar(
+      function: IMVCRESTResponse
+      begin
+        Result := NuevoCliente.AddBody(lDto, False)
+          .Post(Format('%s/%d/anonimizacion', [RUTA_CLIENTES, AId]));
+      end);
+  finally
+    lDto.Free;
+  end;
 end;
 
 end.

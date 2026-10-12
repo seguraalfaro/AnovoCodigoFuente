@@ -29,6 +29,8 @@ type
       APuedeVerCotizaciones: Boolean; const AContacto: TAccionesContacto;
       const ACotizacion: TAccionesCotizacionCliente);
     procedure MostrarModoEdicion(const AActivo: Boolean);
+    procedure MostrarAnonimizacion(const AVisible, AHabilitado: Boolean);
+    function PedirMotivoAnonimizacion(out AMotivo: string): Boolean;
   end;
 
 implementation

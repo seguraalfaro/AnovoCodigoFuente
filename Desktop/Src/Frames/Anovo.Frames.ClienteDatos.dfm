@@ -146,6 +146,17 @@ object fraClienteDatos: TfraClienteDatos
             RightOf = tjIdentificacion
           end
           item
+            Control = btnAnonimizar
+            AlignBottomWithPanel = False
+            AlignHorizontalCenterWithPanel = False
+            AlignLeftWithPanel = False
+            AlignRightWithPanel = False
+            AlignTopWithPanel = False
+            AlignVerticalCenterWithPanel = False
+            Below = tjUbicacion
+            LeftOf = btnEditarCliente
+          end
+          item
             Control = btnEditarCliente
             AlignBottomWithPanel = False
             AlignHorizontalCenterWithPanel = False
@@ -476,6 +487,22 @@ object fraClienteDatos: TfraClienteDatos
           StyleElements = []
           OnClick = btnCancelarEdicionClick
           Kind = fkSecondary
+        end
+        object btnAnonimizar: TPlanoBotonWin
+          AlignWithMargins = True
+          Left = 358
+          Top = 383
+          Width = 160
+          Height = 30
+          Cursor = crHandPoint
+          Anchors = []
+          Caption = 'Anonimizar cliente'
+          Enabled = False
+          TabOrder = 5
+          Visible = False
+          StyleElements = []
+          OnClick = btnAnonimizarClick
+          Kind = fkDanger
         end
       end
     end

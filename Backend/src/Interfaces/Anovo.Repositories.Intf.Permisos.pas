@@ -31,6 +31,8 @@ type
 
     function Matriz: TArray<TRolPermiso>;
     function Excepciones: TArray<TExcepcionPermiso>;
+    function Asignacion(const ARolId, APermisoId: Integer): TRolesPermisos;
+    function Asignado(const ARolId, APermisoId: Integer): Boolean;
   end;
 
   IPermisoCatalogoRepository = interface(IMVCRepository<TPermisos>)

@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS solicitudes (
 
 CREATE INDEX IF NOT EXISTS idx_solicitudes_cliente ON solicitudes (cliente_uuid);
 
--- Una fila por pieza de la solicitud (migracion 37 de Firebird). El tipo de trabajo,
+-- Una fila por pieza de la solicitud (migracion 38 de Firebird). El tipo de trabajo,
 -- el tipo de material y el acabado son id_servidor de los catalogos locales.
 CREATE TABLE IF NOT EXISTS piezas (
   uuid_local        TEXT PRIMARY KEY,

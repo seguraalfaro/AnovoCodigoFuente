@@ -25,7 +25,7 @@ type
     fExcepciones: IUsuarioPermisoRepository;
     fCache: IPermisoCache;
     function RolDeQuienCambia: Integer;
-    procedure BorrarExcepcionesSobrantes(const ARol: TRoles;
+    procedure InactivarExcepcionesSobrantes(const ARol: TRoles;
       const APermiso: TPermisos; const AAsignado: Boolean);
     procedure AplicarCambios(const ADto: TCambiosMatrizDTO);
     procedure AplicarCambio(const ACambio: TCambioPermisoDTO;
@@ -118,7 +118,7 @@ begin
   end;
 end;
 
-procedure TRolService.BorrarExcepcionesSobrantes(const ARol: TRoles;
+procedure TRolService.InactivarExcepcionesSobrantes(const ARol: TRoles;
   const APermiso: TPermisos; const AAsignado: Boolean);
 var
   lUsuarios: TObjectList<TUsuarios>;
@@ -137,11 +137,13 @@ begin
     begin
       lExcepcion := fExcepciones.Una(lUsuario.ID.Value, APermiso.ID);
       try
-        if (lExcepcion <> nil) and (lExcepcion.Tipo = lSobrante) then
+        if (lExcepcion <> nil) and lExcepcion.Activo and
+          (lExcepcion.Tipo = lSobrante) then
         begin
-          FijarDetalle(Format(SDetalleBorraExcepcionPorRol,
+          FijarDetalle(Format(SDetalleExcepcionSobrante,
             [APermiso.Nombre, ARol.Nombre]));
-          fExcepciones.Delete(lExcepcion);
+          lExcepcion.Activo := False;
+          fExcepciones.Update(lExcepcion);
         end;
       finally
         lExcepcion.Free;
@@ -198,31 +200,36 @@ begin
         raise EDatoInvalido.Create(Format(SPermisoFueraDeAmbito,
           [lPermiso.Nombre, lRol.Nombre]));
 
-      if fPermisos.Exists([ACambio.RolId, ACambio.PermisoId]) = ACambio.Asignado
-      then
-        Exit;
-
-      lFila := TRolesPermisos.Create;
+      lFila := fPermisos.Asignacion(ACambio.RolId, ACambio.PermisoId);
       try
-        lFila.RolId := ACambio.RolId;
-        lFila.PermisoId := ACambio.PermisoId;
-        lFila.Ambito := lRol.Ambito;
+        if ((lFila <> nil) and lFila.Activo) = ACambio.Asignado then
+          Exit;
+
         if ACambio.Asignado then
-        begin
           FijarDetalle(Format(SDetalleOtorgaPermisoRol,
+            [lPermiso.Nombre, lRol.Nombre, AMotivo]))
+        else
+          FijarDetalle(Format(SDetalleQuitaPermisoRol,
             [lPermiso.Nombre, lRol.Nombre, AMotivo]));
+
+        if lFila = nil then
+        begin
+          lFila := TRolesPermisos.Create;
+          lFila.RolId := ACambio.RolId;
+          lFila.PermisoId := ACambio.PermisoId;
+          lFila.Ambito := lRol.Ambito;
+          lFila.Activo := True;
           fPermisos.Insert(lFila);
         end
         else
         begin
-          FijarDetalle(Format(SDetalleQuitaPermisoRol,
-            [lPermiso.Nombre, lRol.Nombre, AMotivo]));
-          fPermisos.Delete(lFila);
+          lFila.Activo := ACambio.Asignado;
+          fPermisos.Update(lFila);
         end;
       finally
         lFila.Free;
       end;
-      BorrarExcepcionesSobrantes(lRol, lPermiso, ACambio.Asignado);
+      InactivarExcepcionesSobrantes(lRol, lPermiso, ACambio.Asignado);
     finally
       lPermiso.Free;
     end;

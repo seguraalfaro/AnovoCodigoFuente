@@ -19,6 +19,8 @@ type
     FApi: IApiClientes;
     FClienteId: Integer;
     FCargadas: set of TPestanaCliente;
+    FPersonaFisica: Boolean;
+    FAnonimizado: Boolean;
     procedure CargarDatosCliente;
     procedure CargarContactos;
     procedure CargarConsentimientos;
@@ -31,7 +33,9 @@ type
     procedure AbrirPestana(const APestana: TPestanaCliente);
     procedure Refrescar(const APestana: TPestanaCliente);
     procedure Guardar(const ADto: TClienteEdicionDTO);
+    procedure Anonimizar;
     class function PuedeEditar: Boolean;
+    class function PuedeAnonimizar: Boolean;
     class function PuedeRevocar: Boolean;
     class function PuedeVerCotizaciones: Boolean;
     class function AccionesContacto: TAccionesContacto;
@@ -46,6 +50,10 @@ uses
   Anovo.Sesion,
   Anovo.Textos;
 
+const
+  TIPO_IDENT_FISICA = 1;
+  TIPO_IDENT_DIMEX = 3;
+
 constructor TPresentadorClienteDatos.Create(const AVista: IVistaClienteDatos;
   const AApi: IApiClientes; const AClienteId: Integer);
 begin
@@ -58,6 +66,11 @@ end;
 class function TPresentadorClienteDatos.PuedeEditar: Boolean;
 begin
   Result := TSesion.Tiene(PERMISO_CLIENTES_EDITAR);
+end;
+
+class function TPresentadorClienteDatos.PuedeAnonimizar: Boolean;
+begin
+  Result := TSesion.Tiene(PERMISO_CLIENTES_INACTIVAR);
 end;
 
 class function TPresentadorClienteDatos.PuedeRevocar: Boolean;
@@ -150,6 +163,33 @@ begin
     end);
 end;
 
+procedure TPresentadorClienteDatos.Anonimizar;
+var
+  lApi: IApiClientes;
+  lId: Integer;
+  lMotivo: string;
+begin
+  if not PuedeAnonimizar or FAnonimizado or not FPersonaFisica then
+    Exit;
+  if not FVista.PedirMotivoAnonimizacion(lMotivo) then
+    Exit;
+
+  lApi := FApi;
+  lId := FClienteId;
+
+  Ejecutar(SAccionAnonimizar,
+    procedure
+    begin
+      lApi.Anonimizar(lId, lMotivo);
+    end,
+    procedure
+    begin
+      Refrescar(pcDatos);
+      if pcContactos in FCargadas then
+        Refrescar(pcContactos);
+    end, MostrarError, MostrarCargando);
+end;
+
 procedure TPresentadorClienteDatos.CargarDatosCliente;
 var
   lApi: IApiClientes;
@@ -165,7 +205,13 @@ begin
     end,
     procedure(ACliente: TClienteDTO)
     begin
+      FPersonaFisica := ACliente.TipoIdentificacion.HasValue and
+        ((ACliente.TipoIdentificacion.Value = TIPO_IDENT_FISICA) or
+        (ACliente.TipoIdentificacion.Value = TIPO_IDENT_DIMEX));
+      FAnonimizado := ACliente.Anonimizado;
       FVista.MostrarCliente(ACliente);
+      FVista.MostrarAnonimizacion(PuedeAnonimizar,
+        FPersonaFisica and not FAnonimizado);
     end, MostrarError, MostrarCargando);
 end;
 

@@ -72,16 +72,19 @@ type
     rDBLabel1: TrDBLabel;
     Label1: TLabel;
     separador: TPanel;
+    btnAnonimizar: TPlanoBotonWin;
     procedure AcRegregsarExecute(Sender: TObject);
     procedure btnEditarClienteClick(Sender: TObject);
     procedure btnGuardarClienteClick(Sender: TObject);
     procedure btnCancelarEdicionClick(Sender: TObject);
     procedure pstClienteChange(Sender: TObject);
     procedure btnNuevoClick(Sender: TObject);
+    procedure btnAnonimizarClick(Sender: TObject);
   private
     FOnRegresar: TNotifyEvent;
     FPresentador: TPresentadorClienteDatos;
     FPuedeEditar: Boolean;
+    FPuedeAnonimizar: Boolean;
     FClienteId: Integer;
     function ClienteEditado: TClienteEdicionDTO;
     procedure BotonesDeEdicion(const AEdicion: Boolean);
@@ -95,6 +98,8 @@ type
       APuedeVerCotizaciones: Boolean; const AContacto: TAccionesContacto;
       const ACotizacion: TAccionesCotizacionCliente);
     procedure MostrarModoEdicion(const AActivo: Boolean);
+    procedure MostrarAnonimizacion(const AVisible, AHabilitado: Boolean);
+    function PedirMotivoAnonimizacion(out AMotivo: string): Boolean;
     procedure AccionContacto(Sender: TObject; const AClave: string);
     procedure AccionCotizacion(Sender: TObject; const AClave: string);
     procedure PrepararRejilla(const AGrid: TrDBGrid;
@@ -115,6 +120,7 @@ uses
   Anovo.Formato,
   Anovo.Api.Clientes,
   Anovo.Forms.ContactoNuevo,
+  Anovo.Forms.Motivo,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
   Anovo.Textos;
@@ -206,6 +212,7 @@ begin
   btnGuardarCliente.Visible := FPuedeEditar;
   btnCancelarEdicion.Visible := FPuedeEditar;
   btnEditarCliente.Enabled := not AEdicion;
+  btnAnonimizar.Enabled := FPuedeAnonimizar and not AEdicion;
   btnGuardarCliente.Enabled := AEdicion;
   btnCancelarEdicion.Enabled := AEdicion;
   pstCliente.Enabled := not AEdicion;
@@ -215,6 +222,26 @@ procedure TfraClienteDatos.MostrarModoEdicion(const AActivo: Boolean);
 begin
   BotonesDeEdicion(AActivo);
 
+end;
+
+procedure TfraClienteDatos.MostrarAnonimizacion(const AVisible,
+  AHabilitado: Boolean);
+begin
+  FPuedeAnonimizar := AHabilitado;
+  btnAnonimizar.Visible := AVisible;
+  btnAnonimizar.Enabled := AHabilitado;
+end;
+
+function TfraClienteDatos.PedirMotivoAnonimizacion(out AMotivo: string)
+  : Boolean;
+begin
+  Result := TfrmMotivo.Pedir(Self, SAnonimizarTitulo, SAnonimizarAyuda,
+    SAnonimizarBoton, AMotivo);
+end;
+
+procedure TfraClienteDatos.btnAnonimizarClick(Sender: TObject);
+begin
+  FPresentador.Anonimizar;
 end;
 
 procedure TfraClienteDatos.btnEditarClienteClick(Sender: TObject);

@@ -298,6 +298,7 @@ begin
 
   if ADto.UuidLocal.IsEmpty then
     raise EDatoInvalido.Create(SFaltaIdLocalSolicitud);
+  ExigirLargoUuid(ADto.UuidLocal);
 
   Result := fRepo.ExisteUuidLocal(ADto.UuidLocal);
   if Result > 0 then
@@ -457,6 +458,7 @@ var
 begin
   if ADto.UuidLocal.HasValue and not ADto.UuidLocal.Value.IsEmpty then
   begin
+    ExigirLargoUuid(ADto.UuidLocal.Value);
     lExistente := fMedidas.ObtenerPorUuidLocal(ADto.UuidLocal.Value);
     if lExistente <> nil then
       try
@@ -608,6 +610,7 @@ var
 begin
   if ADto.UuidLocal.IsEmpty then
     raise EDatoInvalido.Create(SFaltaIdLocalAdjunto);
+  ExigirLargoUuid(ADto.UuidLocal);
 
   if (ADto.Tipo <> ADJUNTO_CROQUIS) and (ADto.Tipo <> ADJUNTO_FOTO) then
     raise EDatoInvalido.Create(STipoAdjuntoInvalido);

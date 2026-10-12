@@ -12,6 +12,7 @@ uses
   MVCFramework.Swagger.Commons,
   Anovo.Auth.Permisos,
   Anovo.DTOs.Clientes,
+  Anovo.DTOs.Cotizaciones,
   Anovo.Services.Intf.Clientes,
   Anovo.Permisos;
 
@@ -111,6 +112,23 @@ type
     [MVCSwagResponses(404, 'No existe un cliente con ese numero')]
     function Inactivar([MVCInject] AServicio: IClienteService;
       const AId: Integer): IMVCResponse;
+
+    [MVCPath('/($AId)/anonimizacion')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_CLIENTES_INACTIVAR)]
+    [MVCSwagSummary('Clientes',
+      'Anonimiza a un cliente persona fisica (derecho de supresion, Ley 8968)',
+      'anonimizarCliente')]
+    [MVCSwagParam(plPath, 'AId', 'Numero del cliente', ptInteger, True)]
+    [MVCSwagParam(plBody, 'Motivo', 'Motivo de la supresion', TMotivoDTO)]
+    [MVCSwagResponses(204, 'Anonimizado: datos personales, contactos, croquis y fotos')]
+    [MVCSwagResponses(401, 'Sin token o token vencido')]
+    [MVCSwagResponses(403, 'El rol no tiene el permiso para esta operacion')]
+    [MVCSwagResponses(404, 'No existe un cliente con ese numero')]
+    [MVCSwagResponses(409, 'El cliente ya estaba anonimizado')]
+    [MVCSwagResponses(422, 'Sin motivo, cedula juridica o sin tipo de identificacion')]
+    function Anonimizar([MVCInject] AServicio: IClienteService;
+      const AId: Integer; [MVCFromBody] const ADto: TMotivoDTO): IMVCResponse;
 
     [MVCPath('/registro-completo')]
     [MVCHTTPMethods([httpPOST])]
@@ -273,6 +291,13 @@ function TClientesController.Inactivar(AServicio: IClienteService;
   const AId: Integer): IMVCResponse;
 begin
   AServicio.Inactivar(AId);
+  Result := NoContentResponse;
+end;
+
+function TClientesController.Anonimizar(AServicio: IClienteService;
+  const AId: Integer; const ADto: TMotivoDTO): IMVCResponse;
+begin
+  AServicio.Anonimizar(AId, ADto.Motivo);
   Result := NoContentResponse;
 end;
 

@@ -1,5 +1,5 @@
 /* ============================================================================
-   Anovo - Migracion 37: piezas de la solicitud
+   Anovo - Migracion 38: piezas de la solicitud
    ----------------------------------------------------------------------------
    En la revision del flujo de la nueva solicitud se encontro que el modelo no
    tenia piezas: las medidas y los adjuntos colgaban de la solicitud, y el
@@ -35,7 +35,7 @@ SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID',
   (SELECT ID FROM USUARIOS WHERE CORREO = 'sistema@anovo.local'))
   FROM RDB$DATABASE;
 SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE',
-  'migracion 37: piezas de la solicitud') FROM RDB$DATABASE;
+  'migracion 38: piezas de la solicitud') FROM RDB$DATABASE;
 
 /* ----------------------------------------------------------------------------
    1. Catalogos
@@ -223,7 +223,7 @@ GRANT SELECT ON V_SOLICITUD_MEDIDAS TO ROL_BACKEND;
 GRANT SELECT ON V_SOLICITUD_PIEZAS TO ROL_BACKEND;
 
 INSERT INTO ESQUEMA_MIGRACIONES (NUMERO, NOMBRE)
-  VALUES (37, '37_piezas_de_la_solicitud');
+  VALUES (38, '38_piezas_de_la_solicitud');
 
 SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE', NULL) FROM RDB$DATABASE;
 SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID', NULL) FROM RDB$DATABASE;
@@ -243,5 +243,5 @@ COMMIT;
       WHERE RDB$RELATION_NAME = 'SOLICITUDES'
         AND RDB$FIELD_NAME = 'TIPO_TRABAJO_ID';              -- ninguna fila
      SELECT * FROM V_SOLICITUD_PIEZAS;
-     SELECT * FROM V_VERSION_ESQUEMA;                        -- 37
+     SELECT * FROM V_VERSION_ESQUEMA;                        -- 38
    ---------------------------------------------------------------------------- */

@@ -28,7 +28,8 @@ uses
   System.Generics.Collections,
   MVCFramework.Commons,
   Anovo.Entities.Consultas,
-  Anovo.Repositories.Intf.Usuarios;
+  Anovo.Repositories.Intf.Usuarios,
+  Anovo.Services.Intf.Sesion;
 
 type
   TEstadoCuenta = record
@@ -116,7 +117,8 @@ begin
   end;
 
   Result := lEstado.Existe and lEstado.Activo and
-    SameText(lEstado.Rol, ARol) and
+    (SameText(lEstado.Rol, ARol) or (lEstado.DebeCambiar and
+    SameText(ARol, ROL_CLAVE_VENCIDA))) and
     (lEstado.FechaClave <= IncSecond(AEmitido, SEGUNDOS_TOLERANCIA)) and
     (ADebeCambiar or not lEstado.DebeCambiar);
 end;

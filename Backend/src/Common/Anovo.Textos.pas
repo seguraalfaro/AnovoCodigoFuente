@@ -122,9 +122,24 @@ resourcestring
     'pendiente, firmado o revocado.';
   SFaltaVersion = 'Falta la versión del registro. Recargue %s y vuelva a ' +
     'intentarlo.';
-  SClienteAnonimizado = 'Este cliente fue anonimizado por la política de ' +
-    'retención de datos y ya no admite cambios.';
+  SClienteAnonimizado = 'Este cliente fue anonimizado (Ley 8968) y ya no ' +
+    'admite cambios.';
+  SClienteAnonimizadoNombre = 'Cliente anonimizado %d';
+  SContactoAnonimizadoNombre = 'Contacto anonimizado';
+  SAnonimizarSoloFisica = 'La anonimización solo aplica a personas físicas: ' +
+    'este cliente tiene cédula jurídica.';
+  SAnonimizarSinTipo = 'Indique primero el tipo de identificación del ' +
+    'cliente: la anonimización solo aplica a personas físicas.';
+  SDetalleAnonimizacionCliente = 'Se anonimizó el cliente %d (Ley 8968): %s';
+  SAccionAnonimizar = 'anonimizar al cliente';
+  SAnonimizarTitulo = 'Anonimizar al cliente (derecho de supresión)';
+  SAnonimizarAyuda = 'Borra los datos personales del cliente y de sus ' +
+    'contactos, y vacía sus croquis y fotografías. Las cotizaciones quedan ' +
+    'con sus montos, sin el nombre del titular. No se puede deshacer.';
+  SAnonimizarBoton = 'Anonimizar';
   SFaltaUuidLocal = 'El registro no trae su identificador local (uuid_local).';
+  SUuidLocalLargo = 'El identificador local (uuid_local) no puede pasar de %d ' +
+    'caracteres.';
   SRegistroNoGuardado = 'No se pudo guardar el registro de %s: %s';
   SConsentimientoYaRevocado = 'El consentimiento de este cliente ya estaba ' +
     'revocado.';
@@ -276,7 +291,7 @@ resourcestring
   SAccionPermisosPropioRol = 'cambiar los permisos de su propio rol';
   SDetalleOtorgaPermisoRol = 'Se otorgó «%s» al rol %s: %s';
   SDetalleQuitaPermisoRol = 'Se quitó «%s» al rol %s: %s';
-  SDetalleBorraExcepcionPorRol = 'La excepción de «%s» quedó de más: el rol %s ' +
+  SDetalleExcepcionSobrante = 'La excepción de «%s» quedó de más: el rol %s ' +
     'ya lo decide.';
   SAccionPermisosPropios = 'cambiar sus propios permisos';
   SAccionCambiarPropioRol = 'cambiar su propio rol';
@@ -300,7 +315,7 @@ resourcestring
   SDetalleUsuarioCreado = 'Se registró la cuenta de %s con el rol %s.';
   SDetalleUsuarioEditado = 'Se actualizaron los datos de %s.';
   SDetalleUsuarioCambioRol = 'Cambio de rol de %s: %s a %s.';
-  SDetalleExcepcionesPorCambioRol = 'Se borraron las excepciones de %s ' +
+  SDetalleExcepcionesPorCambioRol = 'Se inactivaron las excepciones de %s ' +
     'por el cambio de rol.';
   SDetalleUsuarioInactivado = 'Se inactivó la cuenta de %s.';
   SDetalleUsuarioActivado = 'Se activó la cuenta de %s.';
@@ -312,7 +327,7 @@ resourcestring
     'próximo ingreso.';
   SDetalleOtorgaPermisoUsuario = 'Se otorgó «%s» a %s: %s';
   SDetalleQuitaPermisoUsuario = 'Se quitó «%s» a %s: %s';
-  SDetalleBorraExcepcionUsuario = 'Se borró la excepción de «%s» de %s: %s';
+  SDetalleRetiraExcepcionUsuario = 'Se retiró la excepción de «%s» de %s: %s';
   SAjustePorcentaje = 'Ajuste %s %%';
   SIvaPorcentaje = 'IVA %s %%';
   SAccionRevisar = 'Revisar';
