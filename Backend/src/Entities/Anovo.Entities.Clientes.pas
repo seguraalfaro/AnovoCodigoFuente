@@ -167,6 +167,9 @@ type
     fFechaCreacion: NullableTDateTime ;
     [MVCTableField('OBJVERSION')]
     fObjversion: NullableInt32;
+    [MVCTableField('FECHA_MODIFICACION', [foDoNotInsert, foDoNotUpdate,
+      foRefresh])]
+    fFechaModificacion: NullableTDateTime;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -189,6 +192,8 @@ type
     property FechaCreacion: NullableTDateTime
       read fFechaCreacion write fFechaCreacion;
     property ObjVersion: NullableInt32 read fObjversion write fObjversion;
+    property FechaModificacion: NullableTDateTime read fFechaModificacion
+      write fFechaModificacion;
   end;
 
   [MVCNameCase(ncSnakeCase)]

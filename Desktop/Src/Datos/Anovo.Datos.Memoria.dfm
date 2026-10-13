@@ -2467,6 +2467,12 @@ object dmMemoria: TdmMemoria
     UpdateOptions.AutoCommitUpdates = True
     Left = 1056
     Top = 248
+    object mtMedidasPIEZA_NOMBRE: TStringField
+      DisplayLabel = 'Pieza'
+      DisplayWidth = 18
+      FieldName = 'PIEZA_NOMBRE'
+      Size = 120
+    end
     object mtMedidasETIQUETA: TStringField
       DisplayLabel = 'Etiqueta'
       FieldName = 'ETIQUETA'

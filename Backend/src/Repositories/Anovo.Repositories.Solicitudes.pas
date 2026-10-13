@@ -1,6 +1,6 @@
 unit Anovo.Repositories.Solicitudes;
 
-// Repositorios de solicitudes, medidas y adjuntos.
+// Repositorios de solicitudes, piezas, medidas y adjuntos.
 
 interface
 
@@ -49,12 +49,21 @@ type
     ISolicitudMedidaRepository)
   public
     function MedidasDe(const ASolicitudId: Integer)
-      : TObjectList<TSolicitudMedidas>;
+      : TObjectList<TMedidasDeSolicitud>;
     function MedidaDe(const ASolicitudId, AMedidaId: Integer)
       : TSolicitudMedidas;
     function MedidasDeCroquis(const ACroquisId: Integer)
       : TObjectList<TSolicitudMedidas>;
     function ObtenerPorUuidLocal(const AUuid: string): TSolicitudMedidas;
+  end;
+
+  TSolicitudPiezaRepository = class(TAnovoRepository<TSolicitudPiezas>,
+    ISolicitudPiezaRepository)
+  public
+    function PiezasDe(const ASolicitudId: Integer)
+      : TObjectList<TPiezasDeSolicitud>;
+    function PiezaDe(const ASolicitudId, APiezaId: Integer): TSolicitudPiezas;
+    function ObtenerPorUuidLocal(const AUuid: string): TSolicitudPiezas;
   end;
 
   TSolicitudAdjuntoRepository = class(TAnovoRepository<TSolicitudAdjuntos>,
@@ -148,9 +157,29 @@ begin
 end;
 
 function TSolicitudMedidaRepository.MedidasDe(const ASolicitudId: Integer)
-  : TObjectList<TSolicitudMedidas>;
+  : TObjectList<TMedidasDeSolicitud>;
 begin
-  Result := GetWhere(MEDIDAS_DE_SOLICITUD, [ASolicitudId]);
+  Result := ListarConsulta<TMedidasDeSolicitud>(CONSULTA_DE_SOLICITUD,
+    [ASolicitudId], SIN_LIMITE);
+end;
+
+function TSolicitudPiezaRepository.PiezasDe(const ASolicitudId: Integer)
+  : TObjectList<TPiezasDeSolicitud>;
+begin
+  Result := ListarConsulta<TPiezasDeSolicitud>(CONSULTA_DE_SOLICITUD,
+    [ASolicitudId], SIN_LIMITE);
+end;
+
+function TSolicitudPiezaRepository.PiezaDe(const ASolicitudId,
+  APiezaId: Integer): TSolicitudPiezas;
+begin
+  Result := GetOneByWhere(PIEZA_DE_SOLICITUD, [APiezaId, ASolicitudId], False);
+end;
+
+function TSolicitudPiezaRepository.ObtenerPorUuidLocal(const AUuid: string)
+  : TSolicitudPiezas;
+begin
+  Result := GetOneByWhere(PIEZAS_POR_UUID_LOCAL, [AUuid], False);
 end;
 
 function TSolicitudMedidaRepository.MedidaDe(const ASolicitudId,

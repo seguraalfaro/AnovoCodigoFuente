@@ -1,7 +1,7 @@
 unit Anovo.Services.Solicitudes;
 
-// Servicio de solicitudes: captura idempotente desde el movil,
-// alcance por asesor y cambios de estado.
+// Servicio de solicitudes: captura idempotente desde el movil con sus
+// piezas, alcance por asesor y cambios de estado.
 
 interface
 
@@ -38,10 +38,14 @@ type
   TSolicitudService = class(TInterfacedObject, ISolicitudService)
   private
     fRepo: ISolicitudRepository;
+    fPiezas: ISolicitudPiezaRepository;
     fMedidas: ISolicitudMedidaRepository;
     fAdjuntos: ISolicitudAdjuntoRepository;
     fClientes: IClienteRepository;
+    fContactos: IClienteContactoRepository;
     fTipos: ITipoTrabajoRepository;
+    fTiposMaterial: ITipoMaterialRepository;
+    fAcabados: IAcabadoRepository;
     fPermisos: IPermisoService;
 
     function TraerVigente(const AId: Integer): TSolicitudes;
@@ -56,18 +60,27 @@ type
     function ADto(const ASolicitud: TSolicitudes): TSolicitudDTO;
     procedure ValidarTransicion(const ADesde, AHacia: string);
     procedure ValidarCliente(const AClienteId: Integer);
-    procedure ValidarTipoTrabajo(const ATipoId, AActual: NullableInt32);
-    function InsertarMedida(const ASolicitudId: Integer;
+    function ResolverCliente(const ADto: TSolicitudNuevaDTO): Integer;
+    function ResolverContacto(const ADto: TSolicitudNuevaDTO;
+      const AClienteId: Integer): NullableInt32;
+    function ResolverPieza(const ASolicitudId: Integer;
+      const APiezaId: NullableInt32; const APiezaUuid: NullableString): Integer;
+    procedure ValidarCatalogos(const ADto: TPiezaNuevaDTO);
+    function InsertarPieza(const ASolicitudId: Integer;
+      const ADto: TPiezaNuevaDTO): Integer;
+    function InsertarMedida(const APiezaId: Integer;
       const ADto: TMedidaNuevaDTO): Integer;
-    function InsertarAdjunto(const ASolicitudId: Integer;
+    function InsertarAdjunto(const APiezaId: Integer;
       const ADto: TAdjuntoNuevoDTO): Integer;
   public
     [MVCInject]
     constructor Create(ARepo: ISolicitudRepository;
+      APiezas: ISolicitudPiezaRepository;
       AMedidas: ISolicitudMedidaRepository;
       AAdjuntos: ISolicitudAdjuntoRepository;
-      AClientes: IClienteRepository; ATipos: ITipoTrabajoRepository;
-      APermisos: IPermisoService); reintroduce;
+      AClientes: IClienteRepository; AContactos: IClienteContactoRepository;
+      ATipos: ITipoTrabajoRepository; ATiposMaterial: ITipoMaterialRepository;
+      AAcabados: IAcabadoRepository; APermisos: IPermisoService); reintroduce;
 
     function Buscar(const ATexto, AEstado: string;
       const ADesde, AHasta: TDateTime; const ARoles: TArray<string>;
@@ -88,6 +101,8 @@ type
     function EnTrabajo(const AUsuarioId: Integer; const ATexto: string;
       const APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TSolicitudEnTrabajoDTO>;
+    function Piezas(const AId: Integer; const AUsuarioId: Integer;
+      const ARoles: TArray<string>): TObjectList<TPiezaDTO>;
     function Medidas(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>): TObjectList<TMedidaDTO>;
     function AgregarMedida(const AId: Integer;
       const ADto: TMedidaNuevaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
@@ -123,35 +138,125 @@ uses
   Anovo.Entities.Consultas;
 
 constructor TSolicitudService.Create(ARepo: ISolicitudRepository;
-  AMedidas: ISolicitudMedidaRepository;
+  APiezas: ISolicitudPiezaRepository; AMedidas: ISolicitudMedidaRepository;
   AAdjuntos: ISolicitudAdjuntoRepository; AClientes: IClienteRepository;
-  ATipos: ITipoTrabajoRepository; APermisos: IPermisoService);
+  AContactos: IClienteContactoRepository; ATipos: ITipoTrabajoRepository;
+  ATiposMaterial: ITipoMaterialRepository; AAcabados: IAcabadoRepository;
+  APermisos: IPermisoService);
 begin
   inherited Create;
   fRepo := ARepo;
+  fPiezas := APiezas;
   fMedidas := AMedidas;
   fAdjuntos := AAdjuntos;
   fClientes := AClientes;
+  fContactos := AContactos;
   fTipos := ATipos;
+  fTiposMaterial := ATiposMaterial;
+  fAcabados := AAcabados;
   fPermisos := APermisos;
 end;
 
-procedure TSolicitudService.ValidarTipoTrabajo(const ATipoId,
-  AActual: NullableInt32);
+procedure TSolicitudService.ValidarCatalogos(const ADto: TPiezaNuevaDTO);
 var
   lTipo: TTiposTrabajo;
+  lMaterial: TTiposMaterial;
+  lAcabado: TAcabados;
 begin
-  if not ATipoId.HasValue then
-    Exit;
-  if AActual.HasValue and (AActual.Value = ATipoId.Value) then
-    Exit;
+  if ADto.TipoTrabajoId.HasValue then
+  begin
+    lTipo := fTipos.GetByPK(ADto.TipoTrabajoId.Value, False);
+    try
+      if (lTipo = nil) or not lTipo.Activo.ValueOrDefault then
+        raise EDatoInvalido.Create(STipoTrabajoNoDisponible);
+    finally
+      lTipo.Free;
+    end;
+  end;
+  if ADto.TipoMaterialId.HasValue then
+  begin
+    lMaterial := fTiposMaterial.GetByPK(ADto.TipoMaterialId.Value, False);
+    try
+      if (lMaterial = nil) or not lMaterial.Activo.ValueOrDefault then
+        raise EDatoInvalido.Create(STipoMaterialNoDisponible);
+    finally
+      lMaterial.Free;
+    end;
+  end;
+  if ADto.AcabadoId.HasValue then
+  begin
+    lAcabado := fAcabados.GetByPK(ADto.AcabadoId.Value, False);
+    try
+      if (lAcabado = nil) or not lAcabado.Activo.ValueOrDefault then
+        raise EDatoInvalido.Create(SAcabadoNoDisponible);
+    finally
+      lAcabado.Free;
+    end;
+  end;
+end;
 
-  lTipo := fTipos.GetByPK(ATipoId.Value, False);
+function TSolicitudService.ResolverCliente(const ADto: TSolicitudNuevaDTO)
+  : Integer;
+begin
+  Result := ADto.ClienteId;
+  if (Result = 0) and ADto.ClienteUuid.HasValue and
+    not ADto.ClienteUuid.Value.IsEmpty then
+    Result := fClientes.ExitsUuidLocal(ADto.ClienteUuid.Value);
+  if Result = 0 then
+    raise EDatoInvalido.Create(SClienteNoExiste);
+  ValidarCliente(Result);
+end;
+
+function TSolicitudService.ResolverContacto(const ADto: TSolicitudNuevaDTO;
+  const AClienteId: Integer): NullableInt32;
+var
+  lContacto: TClienteContactos;
+begin
+  Result := nil;
+  if ADto.ClienteContactoId.HasValue then
+    lContacto := fContactos.ContactoDe(AClienteId, ADto.ClienteContactoId.Value)
+  else if ADto.ClienteContactoUuid.HasValue and
+    not ADto.ClienteContactoUuid.Value.IsEmpty then
+    lContacto := fContactos.PorUuidLocal(ADto.ClienteContactoUuid.Value)
+  else
+    Exit;
   try
-    if (lTipo = nil) or not lTipo.Activo.ValueOrDefault then
-      raise EDatoInvalido.Create(STipoTrabajoNoDisponible);
+    if (lContacto = nil) or (lContacto.ClienteId <> AClienteId) then
+      raise EDatoInvalido.Create(SContactoNoEsDelCliente);
+    Result := lContacto.ID.Value;
   finally
-    lTipo.Free;
+    lContacto.Free;
+  end;
+end;
+
+function TSolicitudService.ResolverPieza(const ASolicitudId: Integer;
+  const APiezaId: NullableInt32; const APiezaUuid: NullableString): Integer;
+var
+  lPieza: TSolicitudPiezas;
+  lPiezas: TObjectList<TPiezasDeSolicitud>;
+begin
+  if APiezaId.HasValue then
+    lPieza := fPiezas.PiezaDe(ASolicitudId, APiezaId.Value)
+  else if APiezaUuid.HasValue and not APiezaUuid.Value.IsEmpty then
+    lPieza := fPiezas.ObtenerPorUuidLocal(APiezaUuid.Value)
+  else
+  begin
+    lPiezas := fPiezas.PiezasDe(ASolicitudId);
+    try
+      if lPiezas.Count <> 1 then
+        raise EDatoInvalido.Create(SFaltaPieza);
+      Exit(lPiezas[0].ID.Value);
+    finally
+      lPiezas.Free;
+    end;
+  end;
+  try
+    if (lPieza = nil) or (lPieza.SolicitudId <> ASolicitudId) then
+      raise ERecursoNoEncontrado.Create(SRecursoPieza,
+        APiezaId.ValueOrDefault);
+    Result := lPieza.ID.Value;
+  finally
+    lPieza.Free;
   end;
 end;
 
@@ -292,6 +397,7 @@ end;
 function TSolicitudService.Crear(const ADto: TSolicitudNuevaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
 var
   lSolicitud: TSolicitudes;
+  lClienteId: Integer;
 begin
   var
   lTx := TMVCRepository.UseTransactionContext;
@@ -304,12 +410,13 @@ begin
   if Result > 0 then
     Exit;
 
-  ValidarCliente(ADto.ClienteId);
-  ValidarTipoTrabajo(ADto.TipoTrabajoId, nil);
+  lClienteId := ResolverCliente(ADto);
 
   lSolicitud := TSolicitudes.Create;
   try
     TMapeo.Copiar(ADto, lSolicitud);
+    lSolicitud.ClienteId := lClienteId;
+    lSolicitud.ClienteContactoId := ResolverContacto(ADto, lClienteId);
     if not fPermisos.TieneAlguno(AUsuarioId, ARoles,
       [PERMISO_SOLICITUDES_VER_TODAS]) then
       lSolicitud.AsesorId := AUsuarioId;
@@ -349,7 +456,6 @@ begin
     if lSolicitud.Objversion.ValueOrDefault <> ADto.ObjVersion.Value then
       raise EVersionVencida.Create(SRecursoSolicitud, AId);
 
-    ValidarTipoTrabajo(ADto.TipoTrabajoId, lSolicitud.TipoTrabajoId);
     TMapeo.Copiar(ADto, lSolicitud);
     FijarDetalle(Format(SDetalleCambioSolicitud, [AId]));
     fRepo.Update(lSolicitud);
@@ -361,19 +467,71 @@ end;
 function TSolicitudService.RegistrarCompleta(const ADto
   : TSolicitudCompletaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
 var
+  lPieza: TPiezaNuevaDTO;
   lMedida: TMedidaNuevaDTO;
   lAdjunto: TAdjuntoNuevoDTO;
+  lPiezaId: Integer;
 begin
   var
   lTx := TMVCRepository.UseTransactionContext;
 
+  if ADto.Piezas.Count = 0 then
+    raise EDatoInvalido.Create(SSolicitudSinPiezas);
+
   Result := Crear(ADto.Solicitud, AUsuarioId, ARoles);
 
-  for lMedida in ADto.Medidas do
-    InsertarMedida(Result, lMedida);
+  for lPieza in ADto.Piezas do
+  begin
+    lPiezaId := InsertarPieza(Result, lPieza);
+    for lMedida in lPieza.Medidas do
+      InsertarMedida(lPiezaId, lMedida);
+    for lAdjunto in lPieza.Adjuntos do
+      InsertarAdjunto(lPiezaId, lAdjunto);
+  end;
+end;
 
-  for lAdjunto in ADto.Adjuntos do
-    InsertarAdjunto(Result, lAdjunto);
+function TSolicitudService.InsertarPieza(const ASolicitudId: Integer;
+  const ADto: TPiezaNuevaDTO): Integer;
+var
+  lPieza: TSolicitudPiezas;
+begin
+  if ADto.UuidLocal.IsEmpty then
+    raise EDatoInvalido.Create(SFaltaUuidLocal);
+  ExigirLargoUuid(ADto.UuidLocal);
+
+  lPieza := fPiezas.ObtenerPorUuidLocal(ADto.UuidLocal);
+  if lPieza <> nil then
+    try
+      Exit(lPieza.ID.Value);
+    finally
+      lPieza.Free;
+    end;
+
+  ValidarCatalogos(ADto);
+  lPieza := TSolicitudPiezas.Create;
+  try
+    TMapeo.Copiar(ADto, lPieza);
+    lPieza.SolicitudId := ASolicitudId;
+    lPieza.Activo := True;
+    fPiezas.Insert(lPieza);
+    Result := lPieza.ID.Value;
+  finally
+    lPieza.Free;
+  end;
+end;
+
+function TSolicitudService.Piezas(const AId: Integer; const AUsuarioId: Integer;
+  const ARoles: TArray<string>): TObjectList<TPiezaDTO>;
+var
+  lFilas: TObjectList<TPiezasDeSolicitud>;
+begin
+  ExigirAlcanceDe(AId, AUsuarioId, ARoles, PERMISO_SOLICITUDES_VER_TODAS);
+  lFilas := fPiezas.PiezasDe(AId);
+  try
+    Result := TMapeo.AListaDto<TPiezasDeSolicitud, TPiezaDTO>(lFilas);
+  finally
+    lFilas.Free;
+  end;
 end;
 
 procedure TSolicitudService.MarcarRecibida(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>);
@@ -433,12 +591,12 @@ end;
 
 function TSolicitudService.Medidas(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>): TObjectList<TMedidaDTO>;
 var
-  lFilas: TObjectList<TSolicitudMedidas>;
+  lFilas: TObjectList<TMedidasDeSolicitud>;
 begin
   ExigirAlcanceDe(AId, AUsuarioId, ARoles, PERMISO_SOLICITUDES_VER_TODAS);
   lFilas := fMedidas.MedidasDe(AId);
   try
-    Result := TMapeo.AListaDto<TSolicitudMedidas, TMedidaDTO>(lFilas);
+    Result := TMapeo.AListaDto<TMedidasDeSolicitud, TMedidaDTO>(lFilas);
   finally
     lFilas.Free;
   end;
@@ -450,7 +608,7 @@ begin
     raise EDatoInvalido.Create(SCantidadMedidaInvalida);
 end;
 
-function TSolicitudService.InsertarMedida(const ASolicitudId: Integer;
+function TSolicitudService.InsertarMedida(const APiezaId: Integer;
   const ADto: TMedidaNuevaDTO): Integer;
 var
   lMedida: TSolicitudMedidas;
@@ -472,7 +630,8 @@ begin
   lMedida := TSolicitudMedidas.Create;
   try
     TMapeo.Copiar(ADto, lMedida);
-    lMedida.SolicitudId := ASolicitudId;
+    lMedida.PiezaId := APiezaId;
+    lMedida.Activo := True;
     fMedidas.Insert(lMedida);
     Result := lMedida.ID.ValueOrDefault;
   finally
@@ -493,7 +652,8 @@ begin
     ExigirAlcance(lSolicitud, AUsuarioId, ARoles,
       PERMISO_SOLICITUDES_EDITAR_TODAS);
     FijarDetalle(Format(SDetalleMedidaAgregada, [AId]));
-    Result := InsertarMedida(AId, ADto);
+    Result := InsertarMedida(ResolverPieza(AId, ADto.PiezaId, ADto.PiezaUuid),
+      ADto);
   finally
     lSolicitud.Free;
   end;
@@ -503,6 +663,7 @@ procedure TSolicitudService.ActualizarMedida(const AId, AMedidaId: Integer;
   const ADto: TMedidaNuevaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>);
 var
   lMedida: TSolicitudMedidas;
+  lPiezaId: Integer;
 begin
   var
   lTx := TMVCRepository.UseTransactionContext;
@@ -511,8 +672,10 @@ begin
   ValidarCantidad(ADto);
   lMedida := TraerMedida(AId, AMedidaId);
   try
+    lPiezaId := lMedida.PiezaId;
     TMapeo.Copiar(ADto, lMedida);
-    lMedida.SolicitudId := AId;
+    lMedida.PiezaId := lPiezaId;
+    lMedida.Activo := True;
     FijarDetalle(Format(SDetalleCambioMedida, [AId]));
     fMedidas.Update(lMedida);
   finally
@@ -531,7 +694,8 @@ begin
   lMedida := TraerMedida(AId, AMedidaId);
   try
     FijarDetalle(Format(SDetalleMedidaEliminada, [AId]));
-    fMedidas.Delete(lMedida);
+    lMedida.Activo := False;
+    fMedidas.Update(lMedida);
   finally
     lMedida.Free;
   end;
@@ -600,7 +764,7 @@ begin
   end;
 end;
 
-function TSolicitudService.InsertarAdjunto(const ASolicitudId: Integer;
+function TSolicitudService.InsertarAdjunto(const APiezaId: Integer;
   const ADto: TAdjuntoNuevoDTO): Integer;
 var
   lAdjunto: TSolicitudAdjuntos;
@@ -625,7 +789,7 @@ begin
 
   lAdjunto := TSolicitudAdjuntos.Create;
   try
-    lAdjunto.SolicitudId := ASolicitudId;
+    lAdjunto.PiezaId := APiezaId;
     lAdjunto.UuidLocal := ADto.UuidLocal;
     lAdjunto.Tipo := ADto.Tipo;
     lAdjunto.NombreArchivo := ADto.NombreArchivo;
@@ -679,7 +843,8 @@ begin
     ExigirAlcance(lSolicitud, AUsuarioId, ARoles,
       PERMISO_SOLICITUDES_EDITAR_TODAS);
     FijarDetalle(Format(SDetalleAdjuntoAgregado, [AId]));
-    Result := InsertarAdjunto(AId, ADto);
+    Result := InsertarAdjunto(ResolverPieza(AId, ADto.PiezaId, ADto.PiezaUuid),
+      ADto);
   finally
     lSolicitud.Free;
   end;

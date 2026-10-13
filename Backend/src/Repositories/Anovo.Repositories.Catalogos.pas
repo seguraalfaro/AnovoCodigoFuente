@@ -124,6 +124,13 @@ type
       const AExcluirId: Integer = 0): Boolean;
   end;
 
+  TTipoMaterialRepository = class(TAnovoRepository<TTiposMaterial>,
+    ITipoMaterialRepository)
+  end;
+
+  TAcabadoRepository = class(TAnovoRepository<TAcabados>, IAcabadoRepository)
+  end;
+
 implementation
 
 uses

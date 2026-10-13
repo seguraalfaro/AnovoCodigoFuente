@@ -41,6 +41,8 @@ type
       const APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TSolicitudEnTrabajoDTO>;
 
+    function Piezas(const AId: Integer; const AUsuarioId: Integer;
+      const ARoles: TArray<string>): TObjectList<TPiezaDTO>;
     function Medidas(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>): TObjectList<TMedidaDTO>;
     function AgregarMedida(const AId: Integer;
       const ADto: TMedidaNuevaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;

@@ -100,6 +100,14 @@ resourcestring
   SMagnitudUnidades = 'Unidades';
 
   SClienteNoExiste = 'El cliente indicado no existe.';
+  SContactoNoEsDelCliente = 'El contacto indicado no existe o no es de ese ' +
+    'cliente.';
+  SSolicitudSinPiezas = 'La solicitud no trae ninguna pieza.';
+  SFaltaPieza = 'Indique a qué pieza de la solicitud pertenece.';
+  SRecursoPieza = 'la pieza';
+  STipoMaterialNoDisponible = 'El tipo de material indicado no existe o ' +
+    'está inactivo.';
+  SAcabadoNoDisponible = 'El acabado indicado no existe o está inactivo.';
   SRegistroSinContacto = 'El registro debe traer al menos un contacto.';
   SFirmaVacia = 'La imagen de la firma viene vacía.';
 
@@ -771,7 +779,7 @@ resourcestring
   SDetalleCambioEstadoSolicitud = 'Cambio de estado de la solicitud %d a %s';
   SDetalleMedidaAgregada = 'Medida agregada a la solicitud %d';
   SDetalleCambioMedida = 'Cambio en una medida de la solicitud %d';
-  SDetalleMedidaEliminada = 'Medida eliminada de la solicitud %d';
+  SDetalleMedidaEliminada = 'Medida quitada (inactivada) de la solicitud %d';
   SDetalleAdjuntoAgregado = 'Adjunto agregado a la solicitud %d';
   SDetalleAdjuntoInactivado = 'Adjunto inactivado en la solicitud %d';
 

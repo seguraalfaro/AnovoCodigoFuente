@@ -184,6 +184,15 @@ type
       const AId: Integer;
       const [MVCFromBody] ADto: TCambioEstadoDTO): IMVCResponse;
 
+    [MVCPath('/($AId)/piezas')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCSwagSummary('Solicitudes', 'Las piezas activas de la solicitud, ' +
+      'con sus catalogos y cuantas medidas, fotos y croquis tiene cada una',
+      'listarPiezas')]
+    [MVCSwagResponses(200, 'Las piezas, en orden')]
+    function Piezas([MVCInject] AServicio: ISolicitudService;
+      const AId: Integer): IMVCResponse;
+
     [MVCPath('/($AId)/medidas')]
     [MVCHTTPMethods([httpGET])]
     [MVCSwagSummary('Solicitudes', 'Las medidas de la solicitud',
@@ -326,6 +335,12 @@ function TSolicitudesController.CambiarEstado(AServicio: ISolicitudService;
 begin
   AServicio.CambiarEstado(AId, ADto, UsuarioId, Roles);
   Result := NoContentResponse;
+end;
+
+function TSolicitudesController.Piezas(AServicio: ISolicitudService;
+  const AId: Integer): IMVCResponse;
+begin
+  Result := OKResponse(AServicio.Piezas(AId, UsuarioId, Roles));
 end;
 
 function TSolicitudesController.Medidas(AServicio: ISolicitudService;

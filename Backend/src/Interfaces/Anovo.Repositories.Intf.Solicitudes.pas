@@ -1,7 +1,7 @@
 unit Anovo.Repositories.Intf.Solicitudes;
 
 // Contratos de los repositorios de solicitudes,
-// medidas y adjuntos.
+// piezas, medidas y adjuntos.
 
 interface
 
@@ -47,12 +47,21 @@ type
     ['{4F8A61D3-9C27-4E50-B6A9-2D73E05C1F86}']
 
     function MedidasDe(const ASolicitudId: Integer)
-      : TObjectList<TSolicitudMedidas>;
+      : TObjectList<TMedidasDeSolicitud>;
     function MedidaDe(const ASolicitudId, AMedidaId: Integer)
       : TSolicitudMedidas;
     function MedidasDeCroquis(const ACroquisId: Integer)
       : TObjectList<TSolicitudMedidas>;
     function ObtenerPorUuidLocal(const AUuid: string): TSolicitudMedidas;
+  end;
+
+  ISolicitudPiezaRepository = interface(IMVCRepository<TSolicitudPiezas>)
+    ['{9A3E5C21-6B84-4F0D-A7E2-31C58D90B4F7}']
+
+    function PiezasDe(const ASolicitudId: Integer)
+      : TObjectList<TPiezasDeSolicitud>;
+    function PiezaDe(const ASolicitudId, APiezaId: Integer): TSolicitudPiezas;
+    function ObtenerPorUuidLocal(const AUuid: string): TSolicitudPiezas;
   end;
 
   ISolicitudAdjuntoRepository = interface(IMVCRepository<TSolicitudAdjuntos>)

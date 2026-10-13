@@ -1,6 +1,6 @@
 unit Anovo.DTOs.Solicitudes;
 
-// DTOs de solicitudes, medidas y adjuntos.
+// DTOs de solicitudes, piezas, medidas y adjuntos.
 // Compartidos con el escritorio.
 
 interface
@@ -28,7 +28,8 @@ type
     fEstado: string;
     fFechaModificacion: NullableTDateTime;
     fObjVersion: Integer;
-    fTipoTrabajoId: NullableInt32;
+    fClienteContactoId: NullableInt32;
+    fNombreProyecto: NullableString;
   public
     property ID: Integer read fID write fID;
     property UuidLocal: string read fUuidLocal write fUuidLocal;
@@ -46,8 +47,10 @@ type
       write fFechaModificacion;
     [MVCNameAs('objversion')]
     property ObjVersion: Integer read fObjVersion write fObjVersion;
-    property TipoTrabajoId: NullableInt32 read fTipoTrabajoId
-      write fTipoTrabajoId;
+    property ClienteContactoId: NullableInt32 read fClienteContactoId
+      write fClienteContactoId;
+    property NombreProyecto: NullableString read fNombreProyecto
+      write fNombreProyecto;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -59,18 +62,26 @@ type
     fDescripcion: string;
     fObservaciones: NullableString;
     fFechaCaptura: NullableTDateTime;
-    fTipoTrabajoId: NullableInt32;
+    fClienteUuid: NullableString;
+    fClienteContactoId: NullableInt32;
+    fClienteContactoUuid: NullableString;
+    fNombreProyecto: NullableString;
   public
     property UuidLocal: string read fUuidLocal write fUuidLocal;
     property ClienteId: Integer read fClienteId write fClienteId;
+    property ClienteUuid: NullableString read fClienteUuid write fClienteUuid;
+    property ClienteContactoId: NullableInt32 read fClienteContactoId
+      write fClienteContactoId;
+    property ClienteContactoUuid: NullableString read fClienteContactoUuid
+      write fClienteContactoUuid;
     property AsesorId: Integer read fAsesorId write fAsesorId;
     property Descripcion: string read fDescripcion write fDescripcion;
+    property NombreProyecto: NullableString read fNombreProyecto
+      write fNombreProyecto;
     property Observaciones: NullableString read fObservaciones
       write fObservaciones;
     property FechaCaptura: NullableTDateTime read fFechaCaptura
       write fFechaCaptura;
-    property TipoTrabajoId: NullableInt32 read fTipoTrabajoId
-      write fTipoTrabajoId;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -79,13 +90,13 @@ type
     fDescripcion: string;
     fObservaciones: NullableString;
     fObjVersion: NullableInt32;
-    fTipoTrabajoId: NullableInt32;
+    fNombreProyecto: NullableString;
   public
     property Descripcion: string read fDescripcion write fDescripcion;
     property Observaciones: NullableString read fObservaciones
       write fObservaciones;
-    property TipoTrabajoId: NullableInt32 read fTipoTrabajoId
-      write fTipoTrabajoId;
+    property NombreProyecto: NullableString read fNombreProyecto
+      write fNombreProyecto;
     [MVCNameAs('objversion')]
     property ObjVersion: NullableInt32 read fObjVersion write fObjVersion;
   end;
@@ -106,6 +117,8 @@ type
     fID: Integer;
     fUuidLocal: NullableString;
     fSolicitudId: Integer;
+    fPiezaId: Integer;
+    fPiezaNombre: string;
     fCroquisId: NullableInt32;
     fEtiqueta: NullableString;
     fTipoMedida: string;
@@ -118,6 +131,8 @@ type
     property ID: Integer read fID write fID;
     property UuidLocal: NullableString read fUuidLocal write fUuidLocal;
     property SolicitudId: Integer read fSolicitudId write fSolicitudId;
+    property PiezaId: Integer read fPiezaId write fPiezaId;
+    property PiezaNombre: string read fPiezaNombre write fPiezaNombre;
     property CroquisId: NullableInt32 read fCroquisId write fCroquisId;
     property Etiqueta: NullableString read fEtiqueta write fEtiqueta;
     property TipoMedida: string read fTipoMedida write fTipoMedida;
@@ -132,6 +147,8 @@ type
   TMedidaNuevaDTO = class
   private
     fUuidLocal: NullableString;
+    fPiezaId: NullableInt32;
+    fPiezaUuid: NullableString;
     fCroquisId: NullableInt32;
     fEtiqueta: NullableString;
     fTipoMedida: string;
@@ -143,6 +160,8 @@ type
   public
     constructor Create;
     property UuidLocal: NullableString read fUuidLocal write fUuidLocal;
+    property PiezaId: NullableInt32 read fPiezaId write fPiezaId;
+    property PiezaUuid: NullableString read fPiezaUuid write fPiezaUuid;
     property CroquisId: NullableInt32 read fCroquisId write fCroquisId;
     property Etiqueta: NullableString read fEtiqueta write fEtiqueta;
     property TipoMedida: string read fTipoMedida write fTipoMedida;
@@ -159,6 +178,8 @@ type
     fID: Integer;
     fUuidLocal: string;
     fSolicitudId: Integer;
+    fPiezaId: Integer;
+    fPiezaNombre: string;
     fTipo: string;
     fNombreArchivo: NullableString;
     fMime: NullableString;
@@ -169,6 +190,8 @@ type
     property ID: Integer read fID write fID;
     property UuidLocal: string read fUuidLocal write fUuidLocal;
     property SolicitudId: Integer read fSolicitudId write fSolicitudId;
+    property PiezaId: Integer read fPiezaId write fPiezaId;
+    property PiezaNombre: string read fPiezaNombre write fPiezaNombre;
     property Tipo: string read fTipo write fTipo;
     property NombreArchivo: NullableString read fNombreArchivo
       write fNombreArchivo;
@@ -194,6 +217,8 @@ type
   TAdjuntoNuevoDTO = class
   private
     fUuidLocal: string;
+    fPiezaId: NullableInt32;
+    fPiezaUuid: NullableString;
     fTipo: string;
     fNombreArchivo: NullableString;
     fMime: NullableString;
@@ -201,6 +226,8 @@ type
     fContenidoJson: NullableString;
   public
     property UuidLocal: string read fUuidLocal write fUuidLocal;
+    property PiezaId: NullableInt32 read fPiezaId write fPiezaId;
+    property PiezaUuid: NullableString read fPiezaUuid write fPiezaUuid;
     property Tipo: string read fTipo write fTipo;
     property NombreArchivo: NullableString read fNombreArchivo
       write fNombreArchivo;
@@ -211,19 +238,85 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
-  TSolicitudCompletaDTO = class
+  TPiezaDTO = class
   private
-    fSolicitud: TSolicitudNuevaDTO;
+    fID: Integer;
+    fSolicitudId: Integer;
+    fUuidLocal: string;
+    fNombre: string;
+    fOrden: Integer;
+    fTipoTrabajoId: NullableInt32;
+    fTipoTrabajoNombre: NullableString;
+    fTipoMaterialId: NullableInt32;
+    fTipoMaterialNombre: NullableString;
+    fAcabadoId: NullableInt32;
+    fAcabadoNombre: NullableString;
+    fMedidas: Integer;
+    fFotos: Integer;
+    fCroquis: Integer;
+  public
+    property ID: Integer read fID write fID;
+    property SolicitudId: Integer read fSolicitudId write fSolicitudId;
+    property UuidLocal: string read fUuidLocal write fUuidLocal;
+    property Nombre: string read fNombre write fNombre;
+    property Orden: Integer read fOrden write fOrden;
+    property TipoTrabajoId: NullableInt32 read fTipoTrabajoId
+      write fTipoTrabajoId;
+    property TipoTrabajoNombre: NullableString read fTipoTrabajoNombre
+      write fTipoTrabajoNombre;
+    property TipoMaterialId: NullableInt32 read fTipoMaterialId
+      write fTipoMaterialId;
+    property TipoMaterialNombre: NullableString read fTipoMaterialNombre
+      write fTipoMaterialNombre;
+    property AcabadoId: NullableInt32 read fAcabadoId write fAcabadoId;
+    property AcabadoNombre: NullableString read fAcabadoNombre
+      write fAcabadoNombre;
+    property Medidas: Integer read fMedidas write fMedidas;
+    property Fotos: Integer read fFotos write fFotos;
+    property Croquis: Integer read fCroquis write fCroquis;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TPiezaNuevaDTO = class
+  private
+    fUuidLocal: string;
+    fNombre: string;
+    fOrden: Integer;
+    fTipoTrabajoId: NullableInt32;
+    fTipoMaterialId: NullableInt32;
+    fAcabadoId: NullableInt32;
     fMedidas: TObjectList<TMedidaNuevaDTO>;
     fAdjuntos: TObjectList<TAdjuntoNuevoDTO>;
   public
     constructor Create; virtual;
     destructor Destroy; override;
-    property Solicitud: TSolicitudNuevaDTO read fSolicitud write fSolicitud;
+    property UuidLocal: string read fUuidLocal write fUuidLocal;
+    property Nombre: string read fNombre write fNombre;
+    property Orden: Integer read fOrden write fOrden;
+    property TipoTrabajoId: NullableInt32 read fTipoTrabajoId
+      write fTipoTrabajoId;
+    property TipoMaterialId: NullableInt32 read fTipoMaterialId
+      write fTipoMaterialId;
+    property AcabadoId: NullableInt32 read fAcabadoId write fAcabadoId;
+    [MVCListOf(TMedidaNuevaDTO)]
     property Medidas: TObjectList<TMedidaNuevaDTO> read fMedidas
       write fMedidas;
+    [MVCListOf(TAdjuntoNuevoDTO)]
     property Adjuntos: TObjectList<TAdjuntoNuevoDTO> read fAdjuntos
       write fAdjuntos;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TSolicitudCompletaDTO = class
+  private
+    fSolicitud: TSolicitudNuevaDTO;
+    fPiezas: TObjectList<TPiezaNuevaDTO>;
+  public
+    constructor Create; virtual;
+    destructor Destroy; override;
+    property Solicitud: TSolicitudNuevaDTO read fSolicitud write fSolicitud;
+    [MVCListOf(TPiezaNuevaDTO)]
+    property Piezas: TObjectList<TPiezaNuevaDTO> read fPiezas write fPiezas;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -337,19 +430,31 @@ begin
   fCantidad := CANTIDAD_POR_DEFECTO;
 end;
 
+constructor TPiezaNuevaDTO.Create;
+begin
+  inherited Create;
+  fMedidas := TObjectList<TMedidaNuevaDTO>.Create(True);
+  fAdjuntos := TObjectList<TAdjuntoNuevoDTO>.Create(True);
+end;
+
+destructor TPiezaNuevaDTO.Destroy;
+begin
+  fMedidas.Free;
+  fAdjuntos.Free;
+  inherited;
+end;
+
 constructor TSolicitudCompletaDTO.Create;
 begin
   inherited Create;
   fSolicitud := TSolicitudNuevaDTO.Create;
-  fMedidas := TObjectList<TMedidaNuevaDTO>.Create(True);
-  fAdjuntos := TObjectList<TAdjuntoNuevoDTO>.Create(True);
+  fPiezas := TObjectList<TPiezaNuevaDTO>.Create(True);
 end;
 
 destructor TSolicitudCompletaDTO.Destroy;
 begin
   fSolicitud.Free;
-  fMedidas.Free;
-  fAdjuntos.Free;
+  fPiezas.Free;
   inherited;
 end;
 

@@ -43,6 +43,7 @@ type
     fRepo: ICotizacionRepository;
     fDetalle: ICotizacionDetalleRepository;
     fSolicitudes: ISolicitudRepository;
+    fPiezas: ISolicitudPiezaRepository;
     fClientes: IClienteRepository;
     fMateriales: IMaterialPrecioRepository;
     fManoObra: IManoObraPrecioRepository;
@@ -65,12 +66,13 @@ type
     function PrecioDeCatalogo(const ADto: TLineaNuevaDTO): Currency;
     function IvaPara(const AClienteId: Integer): Currency;
     procedure ValidarTipoTrabajo(const ATipoId, AActual: NullableInt32);
+    function TipoTrabajoDePiezas(const ASolicitudId: Integer): NullableInt32;
   public
     [MVCInject]
     constructor Create(ARepo: ICotizacionRepository;
       ADetalle: ICotizacionDetalleRepository;
-      ASolicitudes: ISolicitudRepository; AClientes: IClienteRepository;
-      AMateriales: IMaterialPrecioRepository;
+      ASolicitudes: ISolicitudRepository; APiezas: ISolicitudPiezaRepository;
+      AClientes: IClienteRepository; AMateriales: IMaterialPrecioRepository;
       AManoObra: IManoObraPrecioRepository;
       AMaquinas: IMaquinaPrecioRepository; ATipos: ITipoTrabajoRepository;
       AEmpresa: IEmpresaRepository; APermisos: IPermisoService); reintroduce;
@@ -129,7 +131,8 @@ uses
 
 constructor TCotizacionService.Create(ARepo: ICotizacionRepository;
   ADetalle: ICotizacionDetalleRepository; ASolicitudes: ISolicitudRepository;
-  AClientes: IClienteRepository; AMateriales: IMaterialPrecioRepository;
+  APiezas: ISolicitudPiezaRepository; AClientes: IClienteRepository;
+  AMateriales: IMaterialPrecioRepository;
   AManoObra: IManoObraPrecioRepository; AMaquinas: IMaquinaPrecioRepository;
   ATipos: ITipoTrabajoRepository; AEmpresa: IEmpresaRepository;
   APermisos: IPermisoService);
@@ -138,6 +141,7 @@ begin
   fRepo := ARepo;
   fDetalle := ADetalle;
   fSolicitudes := ASolicitudes;
+  fPiezas := APiezas;
   fClientes := AClientes;
   fMateriales := AMateriales;
   fManoObra := AManoObra;
@@ -145,6 +149,23 @@ begin
   fTipos := ATipos;
   fEmpresa := AEmpresa;
   fPermisos := APermisos;
+end;
+
+function TCotizacionService.TipoTrabajoDePiezas(const ASolicitudId: Integer)
+  : NullableInt32;
+var
+  lPiezas: TObjectList<TPiezasDeSolicitud>;
+  lPieza: TPiezasDeSolicitud;
+begin
+  Result := nil;
+  lPiezas := fPiezas.PiezasDe(ASolicitudId);
+  try
+    for lPieza in lPiezas do
+      if lPieza.TipoTrabajoId.HasValue then
+        Exit(lPieza.TipoTrabajoId);
+  finally
+    lPiezas.Free;
+  end;
 end;
 
 procedure TCotizacionService.CopiarCondiciones(const ACotizacion
@@ -514,7 +535,8 @@ begin
       if ADto.TipoTrabajoId.HasValue then
         lCotizacion.TipoTrabajoId := ADto.TipoTrabajoId
       else
-        lCotizacion.TipoTrabajoId := lSolicitud.TipoTrabajoId;
+        lCotizacion.TipoTrabajoId :=
+          TipoTrabajoDePiezas(lSolicitud.ID.ValueOrDefault);
 
       if ADto.DescripcionTrabajo.IsEmpty then
         lCotizacion.DescripcionTrabajo := lSolicitud.Descripcion

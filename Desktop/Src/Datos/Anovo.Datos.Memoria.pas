@@ -484,6 +484,7 @@ type
     mtTiposTrabajoListaNOMBRE: TStringField;
     dsTiposTrabajoLista: TDataSource;
     mtMedidas: TFDMemTable;
+    mtMedidasPIEZA_NOMBRE: TStringField;
     mtMedidasETIQUETA: TStringField;
     mtMedidasTIPO_MEDIDA: TStringField;
     mtMedidasUNIDAD_MEDIDA: TStringField;

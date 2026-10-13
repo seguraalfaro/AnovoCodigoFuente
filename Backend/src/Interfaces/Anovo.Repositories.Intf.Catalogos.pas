@@ -104,6 +104,14 @@ type
       const AExcluirId: Integer = 0): Boolean;
   end;
 
+  ITipoMaterialRepository = interface(IMVCRepository<TTiposMaterial>)
+    ['{3D7B1E90-5A42-4C68-9F13-B2E06C85A1D4}']
+  end;
+
+  IAcabadoRepository = interface(IMVCRepository<TAcabados>)
+    ['{E58C2A17-0B93-4D6F-8A41-7F2D96C3B05E}']
+  end;
+
   IUnidadMedidaRepository = interface(IMVCRepository<TUnidadesMedida>)
     ['{9E801450-401D-40E7-9417-C11223CD9A02}']
 

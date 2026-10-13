@@ -38,6 +38,7 @@ type
     function ContactoDe(const AClienteId, AContactoId: Integer)
       : TClienteContactos;
     function TodosDe(const AClienteId: Integer): TObjectList<TClienteContactos>;
+    function PorUuidLocal(const AUuid: string): TClienteContactos;
   end;
 
   TConsentimientoRepository = class
@@ -120,6 +121,12 @@ function TClienteContactoRepository.ContactoDe(const AClienteId,
 begin
   Result := GetOneByWhere(CONTACTO_DE_CLIENTE,
     [AContactoId, AClienteId], False);
+end;
+
+function TClienteContactoRepository.PorUuidLocal(const AUuid: string)
+  : TClienteContactos;
+begin
+  Result := GetOneByWhere(CONTACTO_POR_UUID_LOCAL, [AUuid], False);
 end;
 
 function TClienteContactoRepository.TodosDe(const AClienteId: Integer)

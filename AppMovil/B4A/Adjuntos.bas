@@ -108,6 +108,21 @@ Public Sub CopiarImagen (Dir As String, Archivo As String, Nombre As String) As 
 	End Try
 End Sub
 
+Public Sub GuardarFoto (Datos() As Byte, Nombre As String) As Boolean
+	Dim temporal As String = "camara_" & Nombre
+	Try
+		Dim salida As OutputStream = File.OpenOutput(File.DirInternalCache, temporal, False)
+		salida.WriteBytes(Datos, 0, Datos.Length)
+		salida.Close
+	Catch
+		Log("Adjuntos.GuardarFoto: " & LastException.Message)
+		Return False
+	End Try
+	Dim listo As Boolean = CopiarImagen(File.DirInternalCache, temporal, Nombre)
+	If File.Exists(File.DirInternalCache, temporal) Then File.Delete(File.DirInternalCache, temporal)
+	Return listo
+End Sub
+
 Private Sub GradosExif (Dir As String, Archivo As String) As Int
 	Try
 		Dim entrada As InputStream = File.OpenInput(Dir, Archivo)

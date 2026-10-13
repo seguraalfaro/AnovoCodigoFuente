@@ -188,16 +188,8 @@ End Sub
 
 Public Sub AgregarFoto (Datos() As Byte) As String
 	If getPuedeAgregarFoto = False Then Return ""
-	Dim carpeta As String = Adjuntos.CarpetaFotos
 	Dim archivo As String = Db.NuevoUuid & EXTENSION_FOTO
-	Try
-		Dim salida As OutputStream = File.OpenOutput(carpeta, archivo, False)
-		salida.WriteBytes(Datos, 0, Datos.Length)
-		salida.Close
-	Catch
-		Log("PresentadorEspecificaciones.AgregarFoto: " & LastException.Message)
-		Return ""
-	End Try
+	If Adjuntos.GuardarFoto(Datos, archivo) = False Then Return ""
 	mFotos.Add(archivo)
 	Return archivo
 End Sub

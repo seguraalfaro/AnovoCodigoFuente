@@ -1,0 +1,69 @@
+/* ============================================================================
+   Anovo - Migracion 39: fecha de modificacion para la sincronizacion
+   ----------------------------------------------------------------------------
+   El movil baja clientes, contactos y catalogos por fecha: pide lo modificado
+   desde su ultima sincronizacion (plan de sincronizacion del 12/10/2026, fase
+   0). CLIENTES ya tiene FECHA_MODIFICACION y TIPOS_MATERIAL y ACABADOS la
+   traen desde la 38. Faltaban CLIENTE_CONTACTOS y TIPOS_TRABAJO.
+
+   - FECHA_MODIFICACION en las dos, con la hora de la migracion en las filas
+     que ya existen (la primera sincronizacion baja todo de todos modos).
+   - TR_<TABLA>_BU la mantiene; TR_<TABLA>_BI_DEF la rellena al insertar.
+
+   No rompe el contrato: las entidades ganan una columna de solo lectura.
+
+   Todo en ASCII.
+   ============================================================================ */
+
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID',
+  (SELECT ID FROM USUARIOS WHERE CORREO = 'sistema@anovo.local'))
+  FROM RDB$DATABASE;
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE',
+  'migracion 39: fechas para sincronizar') FROM RDB$DATABASE;
+
+ALTER TABLE CLIENTE_CONTACTOS ADD FECHA_MODIFICACION D_TIMESTAMP;
+ALTER TABLE TIPOS_TRABAJO     ADD FECHA_MODIFICACION D_TIMESTAMP;
+
+COMMIT;
+
+SET TERM ^ ;
+
+CREATE OR ALTER TRIGGER TR_CLIENTE_CONTACTOS_BI_DEF FOR CLIENTE_CONTACTOS ACTIVE BEFORE INSERT POSITION 0 AS
+BEGIN
+  IF (NEW.ACTIVO IS NULL) THEN NEW.ACTIVO = TRUE;
+  IF (NEW.FECHA_CREACION IS NULL) THEN NEW.FECHA_CREACION = CURRENT_TIMESTAMP;
+  IF (NEW.FECHA_MODIFICACION IS NULL) THEN NEW.FECHA_MODIFICACION = CURRENT_TIMESTAMP;
+  IF (NEW.OBJVERSION IS NULL) THEN NEW.OBJVERSION = 0;
+END^
+
+CREATE TRIGGER TR_CLIENTE_CONTACTOS_BU FOR CLIENTE_CONTACTOS ACTIVE BEFORE UPDATE POSITION 0 AS
+BEGIN NEW.FECHA_MODIFICACION = CURRENT_TIMESTAMP; END^
+
+CREATE OR ALTER TRIGGER TR_TIPOS_TRABAJO_BI_DEF FOR TIPOS_TRABAJO ACTIVE BEFORE INSERT POSITION 0 AS
+BEGIN
+  IF (NEW.ACTIVO IS NULL) THEN NEW.ACTIVO = TRUE;
+  IF (NEW.FECHA_CREACION IS NULL) THEN NEW.FECHA_CREACION = CURRENT_TIMESTAMP;
+  IF (NEW.FECHA_MODIFICACION IS NULL) THEN NEW.FECHA_MODIFICACION = CURRENT_TIMESTAMP;
+END^
+
+CREATE TRIGGER TR_TIPOS_TRABAJO_BU FOR TIPOS_TRABAJO ACTIVE BEFORE UPDATE POSITION 0 AS
+BEGIN NEW.FECHA_MODIFICACION = CURRENT_TIMESTAMP; END^
+
+SET TERM ; ^
+
+INSERT INTO ESQUEMA_MIGRACIONES (NUMERO, NOMBRE)
+  VALUES (39, '39_fechas_para_sincronizar');
+
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE', NULL) FROM RDB$DATABASE;
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID', NULL) FROM RDB$DATABASE;
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   Verificacion:
+     SELECT COUNT(*) FROM CLIENTE_CONTACTOS WHERE FECHA_MODIFICACION IS NULL;  -- 0
+     SELECT COUNT(*) FROM TIPOS_TRABAJO     WHERE FECHA_MODIFICACION IS NULL;  -- 0
+     SELECT TRIM(RDB$TRIGGER_NAME) FROM RDB$TRIGGERS
+      WHERE RDB$TRIGGER_NAME IN ('TR_CLIENTE_CONTACTOS_BU', 'TR_TIPOS_TRABAJO_BU');  -- 2
+     SELECT * FROM V_VERSION_ESQUEMA;                                            -- 39
+   ---------------------------------------------------------------------------- */

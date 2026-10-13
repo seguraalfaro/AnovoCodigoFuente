@@ -105,6 +105,10 @@ begin
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TTipoTrabajoRepository, ITipoTrabajoRepository,
     TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TTipoMaterialRepository, ITipoMaterialRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TAcabadoRepository, IAcabadoRepository,
+    TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TUnidadMedidaRepository, IUnidadMedidaRepository,
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TPrecioProgramadoRepository,
@@ -133,6 +137,8 @@ begin
     ISolicitudMedidaRepository, TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TSolicitudAdjuntoRepository,
     ISolicitudAdjuntoRepository, TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TSolicitudPiezaRepository,
+    ISolicitudPiezaRepository, TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TSolicitudService, ISolicitudService,
     TRegistrationType.SingletonPerRequest);
 

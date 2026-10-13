@@ -524,6 +524,11 @@ type
     fID: NullableInt32;
     [MVCTableField('SOLICITUD_ID')]
     fSolicitudId: NullableInt32;
+    [MVCTableField('PIEZA_ID')]
+    fPiezaId: NullableInt32;
+    [MVCTableField('PIEZA_NOMBRE')]
+    [MVCMaxLength(120)]
+    fPiezaNombre: NullableString;
     [MVCTableField('UUID_LOCAL')]
     [MVCMaxLength(36)]
     fUuidLocal: NullableString;
@@ -545,6 +550,8 @@ type
   public
     property ID: NullableInt32 read fID write fID;
     property SolicitudId: NullableInt32 read fSolicitudId write fSolicitudId;
+    property PiezaId: NullableInt32 read fPiezaId write fPiezaId;
+    property PiezaNombre: NullableString read fPiezaNombre write fPiezaNombre;
     property UuidLocal: NullableString read fUuidLocal write fUuidLocal;
     property Tipo: NullableString read fTipo write fTipo;
     property NombreArchivo: NullableString read fNombreArchivo write fNombreArchivo;
@@ -552,6 +559,124 @@ type
     property TamanoBytes: NullableInt32 read fTamanoBytes write fTamanoBytes;
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_SOLICITUD_MEDIDAS')]
+  TVSolicitudMedidas = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ID')]
+    fID: NullableInt32;
+    [MVCTableField('SOLICITUD_ID')]
+    fSolicitudId: NullableInt32;
+    [MVCTableField('PIEZA_ID')]
+    fPiezaId: NullableInt32;
+    [MVCTableField('PIEZA_NOMBRE')]
+    [MVCMaxLength(120)]
+    fPiezaNombre: NullableString;
+    [MVCTableField('UUID_LOCAL')]
+    [MVCMaxLength(36)]
+    fUuidLocal: NullableString;
+    [MVCTableField('CROQUIS_ID')]
+    fCroquisId: NullableInt32;
+    [MVCTableField('ETIQUETA')]
+    [MVCMaxLength(5)]
+    fEtiqueta: NullableString;
+    [MVCTableField('TIPO_MEDIDA')]
+    [MVCMaxLength(30)]
+    fTipoMedida: NullableString;
+    [MVCTableField('VALOR')]
+    fValor: NullableCurrency;
+    [MVCTableField('UNIDAD_MEDIDA')]
+    [MVCMaxLength(10)]
+    fUnidadMedida: NullableString;
+    [MVCTableField('CANTIDAD')]
+    fCantidad: NullableInt16;
+    [MVCTableField('OBSERVACION')]
+    [MVCMaxLength(500)]
+    fObservacion: NullableString;
+    [MVCTableField('ORDEN')]
+    fOrden: NullableInt16;
+    [MVCTableField('FECHA_CREACION')]
+    fFechaCreacion: NullableTDateTime;
+  public
+    property ID: NullableInt32 read fID write fID;
+    property SolicitudId: NullableInt32 read fSolicitudId write fSolicitudId;
+    property PiezaId: NullableInt32 read fPiezaId write fPiezaId;
+    property PiezaNombre: NullableString read fPiezaNombre write fPiezaNombre;
+    property UuidLocal: NullableString read fUuidLocal write fUuidLocal;
+    property CroquisId: NullableInt32 read fCroquisId write fCroquisId;
+    property Etiqueta: NullableString read fEtiqueta write fEtiqueta;
+    property TipoMedida: NullableString read fTipoMedida write fTipoMedida;
+    property Valor: NullableCurrency read fValor write fValor;
+    property UnidadMedida: NullableString read fUnidadMedida write fUnidadMedida;
+    property Cantidad: NullableInt16 read fCantidad write fCantidad;
+    property Observacion: NullableString read fObservacion write fObservacion;
+    property Orden: NullableInt16 read fOrden write fOrden;
+    property FechaCreacion: NullableTDateTime read fFechaCreacion write fFechaCreacion;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_SOLICITUD_PIEZAS')]
+  TVSolicitudPiezas = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ID')]
+    fID: NullableInt32;
+    [MVCTableField('SOLICITUD_ID')]
+    fSolicitudId: NullableInt32;
+    [MVCTableField('UUID_LOCAL')]
+    [MVCMaxLength(36)]
+    fUuidLocal: NullableString;
+    [MVCTableField('NOMBRE')]
+    [MVCMaxLength(120)]
+    fNombre: NullableString;
+    [MVCTableField('ORDEN')]
+    fOrden: NullableInt16;
+    [MVCTableField('TIPO_TRABAJO_ID')]
+    fTipoTrabajoId: NullableInt32;
+    [MVCTableField('TIPO_TRABAJO_NOMBRE')]
+    [MVCMaxLength(120)]
+    fTipoTrabajoNombre: NullableString;
+    [MVCTableField('TIPO_MATERIAL_ID')]
+    fTipoMaterialId: NullableInt32;
+    [MVCTableField('TIPO_MATERIAL_NOMBRE')]
+    [MVCMaxLength(120)]
+    fTipoMaterialNombre: NullableString;
+    [MVCTableField('ACABADO_ID')]
+    fAcabadoId: NullableInt32;
+    [MVCTableField('ACABADO_NOMBRE')]
+    [MVCMaxLength(120)]
+    fAcabadoNombre: NullableString;
+    [MVCTableField('MEDIDAS')]
+    fMedidas: NullableInt32;
+    [MVCTableField('FOTOS')]
+    fFotos: NullableInt32;
+    [MVCTableField('CROQUIS')]
+    fCroquis: NullableInt32;
+    [MVCTableField('ACTIVO')]
+    fActivo: NullableBoolean;
+    [MVCTableField('FECHA_CREACION')]
+    fFechaCreacion: NullableTDateTime;
+    [MVCTableField('FECHA_MODIFICACION')]
+    fFechaModificacion: NullableTDateTime;
+  public
+    property ID: NullableInt32 read fID write fID;
+    property SolicitudId: NullableInt32 read fSolicitudId write fSolicitudId;
+    property UuidLocal: NullableString read fUuidLocal write fUuidLocal;
+    property Nombre: NullableString read fNombre write fNombre;
+    property Orden: NullableInt16 read fOrden write fOrden;
+    property TipoTrabajoId: NullableInt32 read fTipoTrabajoId write fTipoTrabajoId;
+    property TipoTrabajoNombre: NullableString read fTipoTrabajoNombre write fTipoTrabajoNombre;
+    property TipoMaterialId: NullableInt32 read fTipoMaterialId write fTipoMaterialId;
+    property TipoMaterialNombre: NullableString read fTipoMaterialNombre write fTipoMaterialNombre;
+    property AcabadoId: NullableInt32 read fAcabadoId write fAcabadoId;
+    property AcabadoNombre: NullableString read fAcabadoNombre write fAcabadoNombre;
+    property Medidas: NullableInt32 read fMedidas write fMedidas;
+    property Fotos: NullableInt32 read fFotos write fFotos;
+    property Croquis: NullableInt32 read fCroquis write fCroquis;
+    property Activo: NullableBoolean read fActivo write fActivo;
+    property FechaCreacion: NullableTDateTime read fFechaCreacion write fFechaCreacion;
+    property FechaModificacion: NullableTDateTime read fFechaModificacion write fFechaModificacion;
   end;
 
   [MVCNameCase(ncSnakeCase)]

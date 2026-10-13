@@ -204,6 +204,22 @@ type
 
   [MVCNameCase(ncSnakeCase)]
   [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_SOLICITUD_MEDIDAS')]
+  [MVCNamedRQLQuery(CONSULTA_DE_SOLICITUD,
+    'eq(SolicitudId,%d);sort(+PiezaId,+Orden,+ID)')]
+  TMedidasDeSolicitud = class(TVSolicitudMedidas)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_SOLICITUD_PIEZAS')]
+  [MVCNamedRQLQuery(CONSULTA_DE_SOLICITUD,
+    'and(eq(SolicitudId,%d),eq(Activo,true));sort(+Orden,+ID)')]
+  TPiezasDeSolicitud = class(TVSolicitudPiezas)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
   [MVCTable('V_CONSENTIMIENTOS')]
   [MVCNamedRQLQuery(CONSULTA_DE_CLIENTE,
     'eq(ClienteId,%d);sort(-Fecha,-ID)')]
