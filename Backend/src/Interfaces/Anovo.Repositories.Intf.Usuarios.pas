@@ -44,6 +44,13 @@ type
     function Resumen: TObjectList<TRolesOrdenados>;
   end;
 
+  IDispositivoRepository = interface(IMVCRepository<TUsuariosDispositivos>)
+    ['{5E9C2B71-4A3D-4F86-8B12-D7A06E3C9F24}']
+    function ActivosDe(const AUuidDispositivo: string)
+      : TObjectList<TUsuariosDispositivos>;
+    function PorLlaveAnterior(const ALlaveHash: string): TUsuariosDispositivos;
+  end;
+
   IUsuarioPermisoRepository = interface(IMVCRepository<TUsuariosPermisos>)
     ['{8B1F4E62-3C9A-4D07-A5E8-6F2B0C71D493}']
     function ExcepcionesDe(const AUsuarioId: Integer)

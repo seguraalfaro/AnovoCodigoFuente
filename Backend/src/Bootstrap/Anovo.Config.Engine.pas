@@ -28,6 +28,8 @@ uses
   Anovo.Controllers.Usuarios,
   Anovo.Controllers.Empresa,
   Anovo.Controllers.Correo,
+  Anovo.Controllers.Dispositivos,
+  Anovo.Auth.Token,
   Anovo.Red,
   Anovo.Middleware.Documentacion,
   Anovo.Middleware.Token,
@@ -75,6 +77,7 @@ begin
   AEngine.AddController(TUsuariosController);
   AEngine.AddController(TEmpresaController);
   AEngine.AddController(TCorreoController);
+  AEngine.AddController(TDispositivosController);
 
   AEngine.SetExceptionHandler(ManejadorDeErrores());
 
@@ -94,11 +97,7 @@ begin
 
   LJWTClaimsSetup := procedure(const JWT: TJWT)
     begin
-      JWT.Claims.Issuer := dotEnv.Env('JWT_ISSUER', 'AnovoAPI');
-      JWT.Claims.ExpirationTime := Now + OneHour;
-      JWT.Claims.NotBefore := Now - OneMinute * 5;
-      JWT.Claims.IssuedAt := Now;
-      JWT.CustomClaims['app'] := 'AnovoAPI';
+      ConfigurarClaims(JWT);
     end;
 
   LSwaggerInfo.Title := 'Anovo - API de Cotizaciones';
@@ -146,10 +145,10 @@ begin
 
 
   LJWTMiddleware := UseJWTMiddleware(TAuthentication.Create,
-    LJWTClaimsSetup, dotEnv.Env('JWT_SECRET'),
+    LJWTClaimsSetup, SecretoJWT,
     '/api/auth/login',
     [TJWTCheckableClaim.ExpirationTime, TJWTCheckableClaim.NotBefore,
-    TJWTCheckableClaim.IssuedAt], 300
+    TJWTCheckableClaim.IssuedAt], JWT_LEEWAY_SEGUNDOS
     );
   (LJWTMiddleware as TMVCJWTAuthenticationMiddleware)
     .AuthorizationAccessTokenParamName := '';

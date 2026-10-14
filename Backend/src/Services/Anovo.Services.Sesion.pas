@@ -8,6 +8,7 @@ interface
 uses
   MVCFramework,
   Anovo.DTOs.Sesion,
+  Anovo.Entities.Usuarios,
   Anovo.Repositories.Intf.Usuarios,
   Anovo.Repositories.Intf.Empresa,
   Anovo.Services.Intf.Sesion,
@@ -25,6 +26,7 @@ type
     procedure ValidarClaveNueva(const AClave: string);
     procedure GuardarCambioClave(const AUsuarioId: Integer;
       const ADto: TCambioClaveDTO);
+    function DatosDe(const AUsuario: TUsuarios): TAutenticacion;
   public
     [MVCInject]
     constructor Create(AUsuarios: IUsuarioRepository;
@@ -36,6 +38,7 @@ type
       const ADto: TCambioClaveDTO);
     function Versiones: TVersionDTO;
     function Autenticar(const ACorreo, AClave: string): TAutenticacion;
+    function SesionDe(const AUsuarioId: Integer): TAutenticacion;
   end;
 
 implementation
@@ -50,7 +53,6 @@ uses
   MVCFramework.Repository,
   MVCFramework.Logger,
   Anovo.Auditoria.Contexto,
-  Anovo.Entities.Usuarios,
   Anovo.Errors,
   Anovo.Textos;
 
@@ -76,7 +78,6 @@ function TSesionService.Autenticar(const ACorreo, AClave: string)
 var
   lUsuario: TUsuarios;
   lFila: TUsuariosClaves;
-  lRol: TRoles;
 begin
   Result := Default(TAutenticacion);
 
@@ -129,27 +130,53 @@ begin
       lFila.Free;
     end;
 
-    lRol := fRoles.GetByPK(lUsuario.RolID, False);
-    if lRol = nil then
-    begin
-      LogE(Format('Usuario %d con ROL_ID %d inexistente', [lUsuario.ID.Value,
-        lUsuario.RolID]));
-      Exit;
-    end;
+    Result := DatosDe(lUsuario);
+    if Result.Valido then
+      LogI(Format('Login correcto, usuario %d', [lUsuario.ID.Value]));
+  finally
+    lUsuario.Free;
+  end;
+end;
 
-    try
-      Result.Rol := lRol.Codigo;
-    finally
-      lRol.Free;
-    end;
+function TSesionService.DatosDe(const AUsuario: TUsuarios): TAutenticacion;
+var
+  lRol: TRoles;
+begin
+  Result := Default(TAutenticacion);
+  lRol := fRoles.GetByPK(AUsuario.RolID, False);
+  if lRol = nil then
+  begin
+    LogE(Format('Usuario %d con ROL_ID %d inexistente', [AUsuario.ID.Value,
+      AUsuario.RolID]));
+    Exit;
+  end;
 
-    if lUsuario.DebeCambiarClave then
-      Result.Rol := ROL_CLAVE_VENCIDA;
-    Result.UsuarioId := lUsuario.ID.Value;
-    Result.Nombre := lUsuario.Nombre;
-    Result.DebeCambiarClave := lUsuario.DebeCambiarClave;
-    Result.Valido := True;
-    LogI(Format('Login correcto, usuario %d', [lUsuario.ID.Value]));
+  try
+    Result.Rol := lRol.Codigo;
+  finally
+    lRol.Free;
+  end;
+
+  if AUsuario.DebeCambiarClave then
+    Result.Rol := ROL_CLAVE_VENCIDA;
+  Result.UsuarioId := AUsuario.ID.Value;
+  Result.Correo := AUsuario.Correo;
+  Result.Nombre := AUsuario.Nombre;
+  Result.DebeCambiarClave := AUsuario.DebeCambiarClave;
+  Result.Valido := True;
+end;
+
+function TSesionService.SesionDe(const AUsuarioId: Integer): TAutenticacion;
+var
+  lUsuario: TUsuarios;
+begin
+  Result := Default(TAutenticacion);
+  lUsuario := fUsuarios.GetByPK(AUsuarioId, False);
+  if lUsuario = nil then
+    Exit;
+  try
+    if lUsuario.Activo.ValueOrDefault then
+      Result := DatosDe(lUsuario);
   finally
     lUsuario.Free;
   end;

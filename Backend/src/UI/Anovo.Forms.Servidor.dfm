@@ -140,7 +140,7 @@ object frmServidor: TfrmServidor
     object lblCorreo: TLabel
       Left = 420
       Top = 12
-      Width = 90
+      Width = 115
       Height = 15
       Caption = 'Correo: sin configurar'
     end

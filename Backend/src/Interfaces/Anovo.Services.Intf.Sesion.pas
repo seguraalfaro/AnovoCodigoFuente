@@ -14,6 +14,7 @@ type
   TAutenticacion = record
     Valido: Boolean;
     UsuarioId: Integer;
+    Correo: string;
     Nombre: string;
     Rol: string;
     DebeCambiarClave: Boolean;
@@ -29,6 +30,8 @@ type
     function Versiones: TVersionDTO;
 
     function Autenticar(const ACorreo, AClave: string): TAutenticacion;
+
+    function SesionDe(const AUsuarioId: Integer): TAutenticacion;
   end;
 
 implementation

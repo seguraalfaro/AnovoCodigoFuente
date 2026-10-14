@@ -434,6 +434,8 @@ resourcestring
   SAdjuntoFormatoInvalido = 'El adjunto debe ser una imagen JPEG o PNG.';
   SAdjuntoJsonInvalido = 'El croquis no tiene un formato válido.';
   SSesionRevocada = 'Su cuenta cambió (estado, rol o clave). Vuelva a ingresar.';
+  SDispositivoInvalido = 'La sesión de este teléfono ya no es válida. Ingrese con su clave.';
+  SFaltaUuidDispositivo = 'Falta el identificador del teléfono.';
   SDocsTitulo = 'Documentación de la API';
   SDocsSubtitulo = 'Acceso solo para el personal de TI de Anovo.';
   SDocsCorreo = 'Correo';

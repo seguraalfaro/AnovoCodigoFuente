@@ -41,13 +41,13 @@ uses
   Anovo.Auth.EstadoUsuarios,
   Anovo.Auth.Intentos,
   Anovo.Auth.Permisos,
+  Anovo.Auth.Token,
   Anovo.Errors,
   Anovo.Red,
   Anovo.Services.Intf.Sesion,
   Anovo.Textos;
 
 const
-  DATO_DEBE_CAMBIAR_CLAVE = 'DEBE_CAMBIAR_CLAVE';
   CONTROLLER_CUENTA_PROPIA = 'Anovo.Controllers.Sesion.TSesionController';
 
 constructor TAuthentication.Create;
@@ -130,7 +130,7 @@ begin
 
   UserRoles.Add(lResultado.Rol);
   SessionData.AddOrSetValue(DATO_USUARIO_ID, lResultado.UsuarioId.ToString);
-  SessionData.AddOrSetValue('NOMBRE', lResultado.Nombre);
+  SessionData.AddOrSetValue(DATO_NOMBRE, lResultado.Nombre);
   SessionData.AddOrSetValue(DATO_DEBE_CAMBIAR_CLAVE,
     BoolToStr(lResultado.DebeCambiarClave, True));
   IsValid := True;

@@ -40,6 +40,14 @@ type
     function Resumen: TObjectList<TRolesOrdenados>;
   end;
 
+  TDispositivoRepository = class(TAnovoRepository<TUsuariosDispositivos>,
+    IDispositivoRepository)
+  public
+    function ActivosDe(const AUuidDispositivo: string)
+      : TObjectList<TUsuariosDispositivos>;
+    function PorLlaveAnterior(const ALlaveHash: string): TUsuariosDispositivos;
+  end;
+
   TUsuarioPermisoRepository = class(TAnovoRepository<TUsuariosPermisos>,
     IUsuarioPermisoRepository)
   public
@@ -172,6 +180,18 @@ end;
 function TUsuarioRepository.PorCorreo(const ACorreo: string): TUsuarios;
 begin
   Result := GetOneByWhere(USUARIO_POR_CORREO, [ACorreo], False);
+end;
+
+function TDispositivoRepository.ActivosDe(const AUuidDispositivo: string)
+  : TObjectList<TUsuariosDispositivos>;
+begin
+  Result := GetWhere(DISPOSITIVOS_ACTIVOS, [AUuidDispositivo]);
+end;
+
+function TDispositivoRepository.PorLlaveAnterior(const ALlaveHash: string)
+  : TUsuariosDispositivos;
+begin
+  Result := GetOneByWhere(DISPOSITIVO_POR_LLAVE_ANTERIOR, [ALlaveHash], False);
 end;
 
 function TUsuarioRepository.IdSistema: Integer;

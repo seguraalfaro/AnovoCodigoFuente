@@ -66,7 +66,9 @@ uses
   Anovo.Services.Intf.Roles,
   Anovo.Services.Roles,
   Anovo.Services.Intf.Usuarios,
-  Anovo.Services.Usuarios;
+  Anovo.Services.Usuarios,
+  Anovo.Services.Intf.Dispositivos,
+  Anovo.Services.Dispositivos;
 
 procedure RegisterServices(Container: IMVCServiceContainer);
 begin
@@ -182,6 +184,10 @@ begin
   Container.RegisterType(TUsuarioPermisoRepository, IUsuarioPermisoRepository,
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TUsuarioService, IUsuarioService,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TDispositivoRepository, IDispositivoRepository,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TDispositivoService, IDispositivoService,
     TRegistrationType.SingletonPerRequest);
 end;
 
