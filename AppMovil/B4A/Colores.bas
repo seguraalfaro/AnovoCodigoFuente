@@ -48,6 +48,9 @@ Sub Process_Globals
 	Public COLOR_ERROR_CLARO    As Int = 0xFFD14A42
 	Public COLOR_ADVERTENCIA       As Int = 0xFFBA7517
 	Public COLOR_ADVERTENCIA_TENUE As Int = 0xFFFAEEDA
+	Public COLOR_ERROR_TENUE       As Int = 0xFFFCE8E6
+	Public COLOR_EXITO             As Int = 0xFF1E7B3C
+	Public COLOR_EXITO_TENUE       As Int = 0xFFE6F4EA
 	'--- Estado "en revisión": NO está en el vocabulario acordado ---
 	'(borrador · pendiente · aprobada · rechazada · enviada). Ver
 	'componentes-b4x-anovo.md, pendiente #7. Mientras no se confirme con
@@ -63,6 +66,39 @@ Sub Process_Globals
 	Public Const COLOR_TEXTO_SOBRE_PRIMARIO As Int = 0xFFFFFFFF
 	Public Const COLOR_BORDE                As Int = 0xFFD9DEE4
 	Public Const COLOR_DESHABILITADO        As Int = 0xFFB0B8C1
+End Sub
+
+Public Sub TintaPastilla (Estado As String) As Int
+	Select Estado
+		Case DbSync.ESTADO_ERROR
+			Return COLOR_ERROR
+		Case DbSync.ESTADO_PENDIENTE
+			Return COLOR_ADVERTENCIA
+		Case Else
+			Return COLOR_EXITO
+	End Select
+End Sub
+
+Public Sub FondoPastilla (Estado As String) As Int
+	Select Estado
+		Case DbSync.ESTADO_ERROR
+			Return COLOR_ERROR_TENUE
+		Case DbSync.ESTADO_PENDIENTE
+			Return COLOR_ADVERTENCIA_TENUE
+		Case Else
+			Return COLOR_EXITO_TENUE
+	End Select
+End Sub
+
+Public Sub ColorDeSync (Estado As String) As Int
+	Select Estado
+		Case DbSync.ESTADO_ERROR
+			Return COLOR_ERROR
+		Case DbSync.ESTADO_PENDIENTE
+			Return COLOR_ADVERTENCIA
+		Case Else
+			Return COLOR_MEDIO
+	End Select
 End Sub
 
 'Etiqueta de estado -> color, para pintar chips en listas de cotizaciones.

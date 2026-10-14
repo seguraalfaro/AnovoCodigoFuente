@@ -21,8 +21,12 @@ Sub Class_Globals
 	Private PCotizacion As B4XCotizacion
 	Private PEspecificaciones As B4XEspecificaciones
 	Private PCLientes As B4XClientes
+	Private PClienteDetalle As B4XClienteDetalle
 
 	Private presentador As PresentadorIngreso
+	Private huella As Desbloqueo
+	Private lblDesbloqueo As B4XView
+	Private ofrecido As Boolean
 	Private visible As Boolean
 	Private indicator As WaitIndicator
 	Private TextUsername As B4XFloatTextField
@@ -30,8 +34,6 @@ Sub Class_Globals
 	Private lblServidor As B4XView
 	Private dlgServidor As B4XDialog
 	Private plantillaServidor As B4XInputTemplate
-	Private Const MARGEN As Int = 16dip
-	Private Const ALTO_SERVIDOR As Int = 40dip
 End Sub
 
 Public Sub Initialize
@@ -47,19 +49,37 @@ Private Sub B4XPage_Created (Root1 As B4XView)
 	InicializarPaginas
 	Root.LoadLayout("PageLogin")
 	CrearOpcionServidor
+	CrearOpcionDesbloqueo
 	UI.AplicarTema(Root)
 End Sub
 
 Private Sub B4XPage_Appear
 	visible = True
+	lblDesbloqueo.Visible = presentador.PuedeDesbloquear
+	If lblDesbloqueo.Visible And ofrecido = False Then
+		ofrecido = True
+		Desbloquear
+	End If
+End Sub
+
+Private Sub CrearOpcionDesbloqueo
+	huella.Initialize
+	lblDesbloqueo.Text = Mensajes.DESBLOQUEO_ENTRAR
+End Sub
+
+Private Sub lblDesbloqueo_Click
+	Desbloquear
+End Sub
+
+Private Sub Desbloquear
+	Wait For (huella.Pedir(Mensajes.DESBLOQUEO_TITULO, presentador.NombreGuardado)) Complete (Identificado As Boolean)
+	If visible = False Or Identificado = False Then Return
+	presentador.AbrirSinConexion
+	B4XPages.ShowPageAndRemovePreviousPages(Layouts.PAGINA_INICIO)
 End Sub
 
 Private Sub B4XPage_Disappear
 	visible = False
-End Sub
-
-Private Sub B4XPage_Resize (Width As Int, Height As Int)
-	If lblServidor.IsInitialized Then lblServidor.SetLayoutAnimated(0, MARGEN, Height - ALTO_SERVIDOR - MARGEN, Width - 2 * MARGEN, ALTO_SERVIDOR)
 End Sub
 
 Private Sub InicializarPaginas
@@ -67,19 +87,15 @@ Private Sub InicializarPaginas
 	PCotizacion.Initialize
 	PEspecificaciones.Initialize
 	PCLientes.Initialize
+	PClienteDetalle.Initialize
 	B4XPages.AddPageAndCreate(Layouts.PAGINA_INICIO, Phome)
 	B4XPages.AddPageAndCreate(Layouts.PAGINA_COTIZACION, PCotizacion)
 	B4XPages.AddPageAndCreate(Layouts.PAGINA_ESPECIFICACIONES, PEspecificaciones)
 	B4XPages.AddPageAndCreate(Layouts.PAGINA_CLIENTES, PCLientes)
+	B4XPages.AddPageAndCreate(Layouts.PAGINA_CLIENTE_DETALLE, PClienteDetalle)
 End Sub
 
 Private Sub CrearOpcionServidor
-	Dim l As Label
-	l.Initialize("lblServidor")
-	lblServidor = l
-	lblServidor.Tag = Utils.TAG_LINK
-	lblServidor.SetTextAlignment("CENTER", "CENTER")
-	Root.AddView(lblServidor, MARGEN, Root.Height - ALTO_SERVIDOR - MARGEN, Root.Width - 2 * MARGEN, ALTO_SERVIDOR)
 	lblServidor.Text = presentador.TextoServidor
 	dlgServidor.Initialize(Root)
 	UI.EstilizarDialogo(dlgServidor)

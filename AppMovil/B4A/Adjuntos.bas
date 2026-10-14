@@ -108,6 +108,12 @@ Public Sub CopiarImagen (Dir As String, Archivo As String, Nombre As String) As 
 	End Try
 End Sub
 
+Public Sub LeerBase64 (Ruta As String) As String
+	If Ruta = "" Or File.Exists("", Ruta) = False Then Return ""
+	Dim su As StringUtils
+	Return su.EncodeBase64(File.ReadBytes("", Ruta))
+End Sub
+
 Public Sub GuardarFoto (Datos() As Byte, Nombre As String) As Boolean
 	Dim temporal As String = "camara_" & Nombre
 	Try

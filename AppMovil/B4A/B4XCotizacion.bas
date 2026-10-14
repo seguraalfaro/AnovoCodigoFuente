@@ -13,6 +13,9 @@ Sub Class_Globals
 	Private visible As Boolean
 	Private restaurando As Boolean
 	Private enPieza As Boolean
+	Private directo As Boolean
+	Private clientePedido As Cliente
+	Private hayPedido As Boolean
 	Private Const ULTIMO As Int = 2
 	Private Const PASO_CLIENTE As Int = 0
 	Private Const PASO_DETALLES As Int = 1
@@ -42,8 +45,12 @@ Sub Class_Globals
 	Private LblEliminar As Label
 
 	Private txtObservaciones As EditText
-	Private LblcantidaPiezas As Label
-	Private LblcantidaFotos As Label
+	Private lblRevisionTitulo, lblRevisionSubtitulo, lblRevClienteTitulo, lblCambiar As B4XView
+	Private lblRevClienteRot, lblRevCliente, lblRevContactoRot, lblRevContacto As B4XView
+	Private lblRevProyectoRot, lblRevProyecto, lblRevUbicacionRot, lblRevUbicacion As B4XView
+	Private lblResumenTitulo, lblRes1Valor, lblRes2Valor, lblRes3Valor, lblRes4Valor As B4XView
+	Private lblRes1Titulo, lblRes2Titulo, lblRes3Titulo, lblRes4Titulo As B4XView
+	Private lblObservacionesRot, lblContadorObs As B4XView
 	Private ime As IME
 End Sub
 
@@ -65,6 +72,7 @@ Private Sub B4XPage_Created (Root1 As B4XView)
 	revision.LoadLayout("PageCotizacion3")
 	UI.CargarContenedor(AHView, pagecont, Array As B4XView(general, detalle, revision))
 	UI.ConfigurarMemo(txtObservaciones, Mensajes.AYUDA_OBSERVACIONES)
+	PrepararRevision
 	ime.Initialize("IME")
 	ime.AddHandleActionEvent(txtObservaciones)
 	UI.AplicarTema(Root)
@@ -88,11 +96,17 @@ Private Sub B4XPage_Appear
 		enPieza = False
 		Return
 	End If
+	Dim aceptar As Boolean = directo
+	directo = False
 	If presentador.HayBorrador Then
-		Dim sf As Object = xui.Msgbox2Async(Mensajes.RETOMAR_COTIZACION, Mensajes.TITULO, Mensajes.SI, "", Mensajes.NO, Null)
-		Wait For (sf) Msgbox_Result (Respuesta As Int)
-		If visible = False Then Return
-		If Respuesta = xui.DialogResponse_Positive And presentador.Restaurar Then
+		If aceptar = False Then
+			Dim sf As Object = xui.Msgbox2Async(Mensajes.RETOMAR_COTIZACION, Mensajes.TITULO, Mensajes.SI, "", Mensajes.NO, Null)
+			Wait For (sf) Msgbox_Result (Respuesta As Int)
+			If visible = False Then Return
+			aceptar = (Respuesta = xui.DialogResponse_Positive)
+		End If
+		If aceptar And presentador.Restaurar Then
+			hayPedido = False
 			Pintar
 			OfrecerPieza
 			Return
@@ -102,6 +116,21 @@ Private Sub B4XPage_Appear
 		presentador.Nuevo
 	End If
 	Limpiar
+	If hayPedido Then
+		hayPedido = False
+		presentador.ElegirCliente(clientePedido)
+		PintarCliente
+		Persistir
+	End If
+End Sub
+
+Public Sub RetomarBorrador
+	directo = True
+End Sub
+
+Public Sub NuevaConCliente (c As Cliente)
+	clientePedido = c
+	hayPedido = True
 End Sub
 
 Private Sub B4XPage_Disappear
@@ -291,6 +320,7 @@ Private Sub Confirmar
 		Return
 	End If
 	Limpiar
+	Sincronizacion.Pedir
 	Wait For (xui.MsgboxAsync(Mensajes.SOLICITUD_GUARDADA, Mensajes.TITULO)) Msgbox_Result (Respuesta As Int)
 	B4XPages.ClosePage(Me)
 End Sub
@@ -307,8 +337,7 @@ Private Sub AHView_PageChanged (Position As Int)
 	Pasos.CurrentIndex = Position
 	If Position = PASO_DETALLES Then PrepararVacio
 	If Position = ULTIMO Then
-		LblcantidaPiezas.Text = presentador.Piezas.Size
-		LblcantidaFotos.Text = presentador.TotalFotos
+		PintarRevision
 		BtnSiguiente.Text = Mensajes.GUARDAR_COTIZACION
 	Else
 		BtnSiguiente.Text = Mensajes.SIGUIENTE
@@ -316,8 +345,43 @@ Private Sub AHView_PageChanged (Position As Int)
 End Sub
 
 Private Sub txtObservaciones_TextChanged (Old As String, New As String)
-	If restaurando Then Return
-	If presentador.ObservacionesExcedidas(New) Then txtObservaciones.Text = Old
+	If restaurando = False And presentador.ObservacionesExcedidas(New) Then txtObservaciones.Text = Old
+	lblContadorObs.Text = Mensajes.Contador(txtObservaciones.Text.Length, presentador.MaxObservaciones)
+End Sub
+
+Private Sub PrepararRevision
+	lblRevisionTitulo.Text = Mensajes.REVISION_TITULO
+	lblRevisionSubtitulo.Text = Mensajes.REVISION_SUBTITULO
+	lblRevClienteTitulo.Text = Mensajes.REVISION_CLIENTE
+	lblCambiar.Text = Mensajes.REVISION_CAMBIAR
+	lblRevClienteRot.Text = Mensajes.ROTULO_CLIENTE
+	lblRevContactoRot.Text = Mensajes.ROTULO_CONTACTO
+	lblRevProyectoRot.Text = Mensajes.ROTULO_PROYECTO
+	lblRevUbicacionRot.Text = Mensajes.ROTULO_UBICACION
+	lblResumenTitulo.Text = Mensajes.REVISION_RESUMEN
+	lblRes1Titulo.Text = Mensajes.RESUMEN_PIEZAS
+	lblRes2Titulo.Text = Mensajes.RESUMEN_MEDIDAS
+	lblRes3Titulo.Text = Mensajes.RESUMEN_FOTOS
+	lblRes4Titulo.Text = Mensajes.RESUMEN_CROQUIS
+	lblObservacionesRot.Text = Mensajes.OBSERVACIONES_OPCIONAL
+End Sub
+
+Private Sub PintarRevision
+	lblRevCliente.Text = presentador.TextoCliente
+	lblRevContacto.Text = presentador.TextoContacto
+	lblRevProyecto.Text = presentador.Proyecto
+	lblRevUbicacion.Text = presentador.TextoUbicacion
+	Dim valores() As Int = Array As Int(presentador.Piezas.Size, presentador.TotalMedidas, presentador.TotalFotos, presentador.TotalCroquis)
+	Dim etiquetas() As B4XView = Array As B4XView(lblRes1Valor, lblRes2Valor, lblRes3Valor, lblRes4Valor)
+	For i = 0 To etiquetas.Length - 1
+		etiquetas(i).Text = valores(i)
+		etiquetas(i).TextColor = Colores.ColorDeConteo(valores(i))
+	Next
+	lblContadorObs.Text = Mensajes.Contador(txtObservaciones.Text.Length, presentador.MaxObservaciones)
+End Sub
+
+Private Sub lblCambiar_Click
+	AHView.GotoPage(PASO_CLIENTE, True)
 End Sub
 
 Private Sub txtObservaciones_FocusChanged (HasFocus As Boolean)

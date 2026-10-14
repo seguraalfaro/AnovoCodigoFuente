@@ -15,6 +15,7 @@ Sub Process_Globals
 	Public Const ROL_ADMIN As String = "admin"
 	Private mToken As String
 	Private mVence As Long
+	Private mLocal As Boolean
 End Sub
 
 Public Sub Abrir (TokenRecibido As String) As Boolean
@@ -57,14 +58,30 @@ Public Sub Token As String
 End Sub
 
 Public Sub Iniciada As Boolean
-	Return mToken <> ""
+	Return mToken <> "" Or mLocal
+End Sub
+
+Public Sub AbrirLocal (p As PerfilLocal)
+	mToken = ""
+	mVence = 0
+	mLocal = True
+	UsuarioId = p.UsuarioId
+	Correo = p.Correo
+	Nombre = p.Nombre
+	Rol = p.Rol
+	DebeCambiarClave = False
 End Sub
 
 Public Sub Vigente As Boolean
 	Return Iniciada And DateTime.Now < mVence
 End Sub
 
+Public Sub VigentePor (Segundos As Int) As Boolean
+	Return Iniciada And DateTime.Now + Segundos * DateTime.TicksPerSecond < mVence
+End Sub
+
 Public Sub Cerrar
+	mLocal = False
 	mToken = ""
 	mVence = 0
 	UsuarioId = 0

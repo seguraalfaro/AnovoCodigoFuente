@@ -51,6 +51,10 @@ Sub Class_Globals
 	Private TextCedulaConsentimiento As B4XFloatTextField
 	Private SignPad As SignPad
 	Private IME1 As IME
+	Private gps As Ubicacion
+	Private PnUbicacion, lblUbicacionIcono, lblUbicacion, lblUbicacionAccion As B4XView
+	Private Const ESPERA_GPS As Int = 20000
+	Private Const RADIO_UBICACION As Int = 10dip
 End Sub
 
 Public Sub Initialize As Object
@@ -62,6 +66,7 @@ Private Sub B4XPage_Created (Root1 As B4XView)
 	Root.LoadLayout("PageIngresoDatos")
 	B4XPages.SetTitle(Me, Mensajes.TITULO_CLIENTE)
 	presentador.Initialize
+	gps.Initialize
 	UI.CargarIndicadorPasos(Pasos, Layouts.ClienteClaves, Layouts.ClienteTitulos)
 	Dim datos As B4XView = UI.PaginaVacia(AHView)
 	datos.LoadLayout("PageClienteDatos")
@@ -86,6 +91,7 @@ Private Sub B4XPage_Appear
 		If visible = False Then Return
 		If Respuesta = xui.DialogResponse_Positive And presentador.Restaurar Then
 			Pintar
+			PintarUbicacion
 			Return
 		End If
 		presentador.DescartarBorrador
@@ -93,6 +99,42 @@ Private Sub B4XPage_Appear
 		presentador.Nuevo
 	End If
 	Limpiar
+	CapturarUbicacion
+End Sub
+
+Private Sub CapturarUbicacion
+	presentador.BuscandoUbicacion
+	PintarUbicacion
+	Dim rp As RuntimePermissions
+	If rp.Check(rp.PERMISSION_ACCESS_FINE_LOCATION) = False Then
+		rp.CheckAndRequest(rp.PERMISSION_ACCESS_FINE_LOCATION)
+		Wait For B4XPage_PermissionResult (Permission As String, Result As Boolean)
+		If Result = False Then
+			presentador.FijarUbicacion(Tipos.UbicacionVacia)
+			PintarUbicacion
+			Return
+		End If
+	End If
+	Wait For (gps.Pedir(ESPERA_GPS)) Complete (Lugar As UbicacionGps)
+	presentador.FijarUbicacion(Lugar)
+	If visible = False Then Return
+	PintarUbicacion
+	Persistir
+End Sub
+
+Private Sub PintarUbicacion
+	Dim f As FranjaSync = presentador.FranjaUbicacion
+	PnUbicacion.SetColorAndBorder(f.Fondo, 1dip, f.Tinta, RADIO_UBICACION)
+	lblUbicacionIcono.Text = f.Glifo
+	lblUbicacionIcono.TextColor = f.Tinta
+	lblUbicacion.Text = f.Texto
+	lblUbicacion.TextColor = Colores.COLOR_TEXTO_PRIMARIO
+	lblUbicacionAccion.Text = f.Accion
+	lblUbicacionAccion.TextColor = f.Tinta
+End Sub
+
+Private Sub lblUbicacionAccion_Click
+	If presentador.PuedeReintentarUbicacion Then CapturarUbicacion
 End Sub
 
 Private Sub B4XPage_Disappear
@@ -268,6 +310,7 @@ Private Sub Confirmar
 		Return
 	End If
 	Limpiar
+	Sincronizacion.Pedir
 	xui.MsgboxAsync(Mensajes.CLIENTE_GUARDADO, Mensajes.TITULO)
 End Sub
 

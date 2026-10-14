@@ -37,7 +37,6 @@ Sub Class_Globals
 	Private GROSORES() As Float
 	Private idxPlano As Int
 	Private idxGrosor As Int = 1
-	Private idxColor As Int
 	Private mPreparado As Boolean
 End Sub
 
@@ -90,7 +89,6 @@ End Sub
 
 Public Sub ElegirColor (Indice As Int)
 	If COLORES_LAPIZ.Length = 0 Then Return
-	idxColor = Indice
 	For i = 0 To mColores.Length - 1
 		Dim borde As Int = 0
 		If i = Indice Then borde = 3dip

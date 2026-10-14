@@ -98,6 +98,31 @@ Public Sub getPagina As Int
 	Return mPagina
 End Sub
 
+Public Sub getTotalMedidas As Int
+	Dim total As Int
+	For Each p As Pieza In mPiezas
+		total = total + p.Medidas
+	Next
+	Return total
+End Sub
+
+Public Sub getTotalCroquis As Int
+	Dim total As Int
+	For Each p As Pieza In mPiezas
+		If p.Croquis Then total = total + 1
+	Next
+	Return total
+End Sub
+
+Public Sub getMaxObservaciones As Int
+	Return MAX_OBSERVACIONES
+End Sub
+
+Public Sub getTextoUbicacion As String
+	If getHayCliente = False Then Return Mensajes.UBICACION_SIN
+	Return Mensajes.Coordenadas(DbClientes.UbicacionDe(mCliente.UuidLocal))
+End Sub
+
 Public Sub getTotalFotos As Int
 	Dim total As Int
 	For Each p As Pieza In mPiezas

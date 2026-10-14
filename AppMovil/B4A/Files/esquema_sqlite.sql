@@ -175,7 +175,10 @@ CREATE TABLE IF NOT EXISTS cola_sync (
   objversion        INTEGER NOT NULL DEFAULT 0,
   intentos          INTEGER NOT NULL DEFAULT 0,
   ultimo_error      TEXT,
-  fecha_encolado    TEXT NOT NULL
+  fecha_encolado    TEXT NOT NULL,
+  estado            TEXT NOT NULL DEFAULT 'pendiente'
+                      CHECK (estado IN ('pendiente','error')),
+  proximo_intento   TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_cola_entidad ON cola_sync (entidad);

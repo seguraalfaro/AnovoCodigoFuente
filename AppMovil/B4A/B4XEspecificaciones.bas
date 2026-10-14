@@ -37,6 +37,10 @@ Sub Class_Globals
 	Private BtnDetalles As Button
 	Private BtnCamera As Button
 	Private CvMedidas As CustomListView
+	Private lblMedidaLetra, lblMedidaNombre, lblMedidaDetalle, lblSeccion As B4XView
+	Private ivFoto, lblQuitarFoto As B4XView
+	Private Const ALTO_MEDIDA As Int = 64dip
+	Private Const ALTO_AVISO As Int = 36dip
 
 	Private ASDrawIso1 As ASDrawIso
 	Private BtnLapiz As Button
@@ -274,52 +278,29 @@ Private Sub PintarMedidas
 End Sub
 
 Private Sub CrearCardMedida (m As Map) As B4XView
-	Dim ancho As Int = CvMedidas.AsView.Width
 	Dim item As B4XView = xui.CreatePanel("")
-	item.Tag = Utils.TAG_RAW
-	item.Color = xui.Color_Transparent
-	item.SetLayoutAnimated(0, 0, 0, ancho, 64dip)
-	Dim card As B4XView = xui.CreatePanel("")
-	card.Tag = Utils.TAG_CARD
-	item.AddView(card, 0, 4dip, ancho, 56dip)
-	card.AddView(Etiqueta(m.Get("etiqueta"), Utils.TAG_CHIP, 13, Gravity.CENTER), 12dip, 12dip, 32dip, 32dip)
-	card.AddView(Etiqueta(m.Get("medida"), Utils.TAG_TIT, 14, Bit.Or(Gravity.LEFT, Gravity.CENTER_VERTICAL)), 56dip, 6dip, ancho - 100dip, 22dip)
-	Dim detalle As Label = Etiqueta("", Utils.TAG_SUB, 12, Bit.Or(Gravity.LEFT, Gravity.CENTER_VERTICAL))
-	card.AddView(detalle, 56dip, 28dip, ancho - 100dip, 20dip)
-	Dim editar As Label = Etiqueta(Chr(0xF040), Utils.TAG_RAW, 14, Gravity.CENTER)
-	editar.Typeface = Typeface.FONTAWESOME
-	editar.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
-	card.AddView(editar, ancho - 40dip, 12dip, 28dip, 32dip)
-	UI.AplicarTema(item)
+	item.SetLayoutAnimated(0, 0, 0, CvMedidas.AsView.Width, ALTO_MEDIDA)
+	item.LoadLayout("ItemMedida")
+	lblMedidaLetra.Text = m.Get("etiqueta")
+	lblMedidaNombre.Text = m.Get("medida")
 	Dim valor As Double = m.Get("valor")
 	If valor > 0 Then
-		detalle.Text = Mensajes.DetalleMedida(valor, m.Get("unidad"), m.Get("cantidad"))
+		lblMedidaDetalle.Text = Mensajes.DetalleMedida(valor, m.Get("unidad"), m.Get("cantidad"))
 	Else
-		detalle.Text = Mensajes.MEDIDA_SIN_VALOR
-		detalle.TextColor = Colores.COLOR_ADVERTENCIA
+		lblMedidaDetalle.Text = Mensajes.MEDIDA_SIN_VALOR
+		lblMedidaDetalle.TextColor = Colores.COLOR_ADVERTENCIA
 	End If
 	Return item
 End Sub
 
 Private Sub CrearAvisoMedidas As B4XView
-	Dim ancho As Int = CvMedidas.AsView.Width
 	Dim item As B4XView = xui.CreatePanel("")
-	item.Tag = Utils.TAG_RAW
-	item.Color = xui.Color_Transparent
-	item.SetLayoutAnimated(0, 0, 0, ancho, 56dip)
-	item.AddView(Etiqueta(Mensajes.SIN_MEDIDAS, Utils.TAG_SUB, 12, Gravity.CENTER), 12dip, 0, ancho - 24dip, 56dip)
-	UI.AplicarTema(item)
+	item.SetLayoutAnimated(0, 0, 0, CvMedidas.AsView.Width, ALTO_AVISO)
+	item.LoadLayout("ItemSeccion")
+	lblSeccion.Text = Mensajes.SIN_MEDIDAS
+	lblSeccion.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
+	lblSeccion.Font = xui.CreateDefaultFont(12)
 	Return item
-End Sub
-
-Private Sub Etiqueta (Texto As String, Marca As String, Tamano As Float, Gravedad As Int) As Label
-	Dim l As Label
-	l.Initialize("")
-	l.Tag = Marca
-	l.Text = Texto
-	l.TextSize = Tamano
-	l.Gravity = Gravedad
-	Return l
 End Sub
 
 Private Sub CvMedidas_ItemClick (Index As Int, Value As Object)
@@ -440,26 +421,10 @@ End Sub
 Private Sub CrearMiniatura (Archivo As String) As B4XView
 	Dim lado As Int = CvFoto.AsView.Height
 	Dim item As B4XView = xui.CreatePanel("")
-	item.Tag = Utils.TAG_RAW
-	item.Color = xui.Color_Transparent
 	item.SetLayoutAnimated(0, 0, 0, lado, lado)
-	Dim imagen As ImageView
-	imagen.Initialize("")
-	imagen.Tag = Utils.TAG_RAW
-	item.AddView(imagen, 4dip, 4dip, lado - 8dip, lado - 8dip)
-	Dim vi As B4XView = imagen
-	vi.SetBitmap(xui.LoadBitmapResize(presentador.CarpetaFotos, Archivo, lado, lado, True))
-	Dim quitar As Label
-	quitar.Initialize("QuitarFoto")
-	quitar.Tag = Archivo
-	quitar.Typeface = Typeface.FONTAWESOME
-	quitar.Text = Chr(0xF00D)
-	quitar.TextSize = 14
-	quitar.TextColor = Colores.COLOR_TEXTO_SOBRE_PRIMARIO
-	quitar.Gravity = Gravity.CENTER
-	item.AddView(quitar, lado - 32dip, 8dip, 24dip, 24dip)
-	Dim vq As B4XView = quitar
-	vq.SetColorAndBorder(Colores.COLOR_ERROR, 0, Colores.COLOR_ERROR, 12dip)
+	item.LoadLayout("ItemFoto")
+	ivFoto.SetBitmap(xui.LoadBitmapResize(presentador.CarpetaFotos, Archivo, lado, lado, True))
+	lblQuitarFoto.Tag = Archivo
 	Return item
 End Sub
 

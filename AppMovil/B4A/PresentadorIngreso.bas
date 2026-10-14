@@ -9,16 +9,18 @@ Version=13.7
 Sub Class_Globals
 	Public Const PROBAR_SIN_SERVIDOR As Boolean = True
 	Private Const ESTADO_NO_AUTORIZADO As Int = 401
+	Private remota As SesionRemota
 End Sub
 
 Public Sub Initialize
+	remota.Initialize
 End Sub
 
 Public Sub Ingresar (Correo As String, Clave As String) As ResumableSub
 	If Correo.Trim = "" Or Clave = "" Then Return Tipos.Falla(Mensajes.FALTAN_CREDENCIALES)
 	If Api.UrlServidor = "" Then Return Tipos.Falla(Mensajes.URL_VACIA)
 
-	Wait For (ApiAutenticacion.IniciarSesion(Correo, Clave)) Complete (Respuesta As RestRespuesta)
+	Wait For (ApiAutenticacion.IniciarSesion(Correo, Clave).Enviar) Complete (Respuesta As RestRespuesta)
 	If Respuesta.Success = False Then
 		If Respuesta.StatusCode = ESTADO_NO_AUTORIZADO Then Return Tipos.Falla(Mensajes.CREDENCIALES_INVALIDAS)
 		Return Tipos.Falla(Api.MensajeDe(Respuesta))
@@ -33,8 +35,24 @@ Public Sub Ingresar (Correo As String, Clave As String) As ResumableSub
 		Sesion.Cerrar
 		Return Tipos.Falla(Mensajes.CLAVE_TEMPORAL)
 	End If
+	LlaveDispositivo.GuardarPerfil(Sesion.UsuarioId, Sesion.Correo, Sesion.Nombre, Sesion.Rol)
+	Wait For (remota.RegistrarTelefono) Complete (Registrado As Boolean)
 	Return Tipos.Correcto(Null)
 End Sub
+
+Public Sub getPuedeDesbloquear As Boolean
+	Return LlaveDispositivo.PuedeDesbloquear
+End Sub
+
+Public Sub getNombreGuardado As String
+	Return LlaveDispositivo.Perfil.Nombre
+End Sub
+
+Public Sub AbrirSinConexion
+	Sesion.AbrirLocal(LlaveDispositivo.Perfil)
+End Sub
+
+
 
 Public Sub getFaltaServidor As Boolean
 	Return Api.UrlServidor = ""

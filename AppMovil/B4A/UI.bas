@@ -140,6 +140,19 @@ Public Sub AplicarTema (Padre As B4XView)
 End Sub
 
 'Aplica el tema a una sola vista.
+Public Sub Etiqueta (Texto As String, Tamano As Float, Tinta As Int, Negrita As Boolean) As B4XView
+	Dim l As Label
+	l.Initialize("")
+	l.Tag = Utils.TAG_RAW
+	l.SingleLine = True
+	l.Ellipsize = "END"
+	Dim v As B4XView = l
+	v.Text = Texto
+	v.TextColor = Tinta
+	If Negrita Then v.Font = xui.CreateDefaultBoldFont(Tamano) Else v.Font = xui.CreateDefaultFont(Tamano)
+	Return v
+End Sub
+
 Public Sub AplicarVista (v As B4XView)
 	If ColoresTexto.IsInitialized = False Then ColoresTexto.Initialize
 

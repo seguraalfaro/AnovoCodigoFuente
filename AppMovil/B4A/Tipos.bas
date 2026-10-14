@@ -22,6 +22,15 @@ Sub Process_Globals
 	Type OpcionBusqueda (Titulo As String, Detalle As String, Valor As Object)
 	Type Solicitud (UuidLocal As String, ClienteUuid As String, ContactoUuid As String, _
 		NombreProyecto As String, Descripcion As String, Observaciones As String)
+	Type UnidadSync (Clase As String, Uuid As String, Paquete As Map, SolicitudId As Int, Ruta As String)
+	Type ResumenSync (Subidos As Int, ConError As Int, Pendientes As Int, SinConexion As Boolean, _
+		SesionVencida As Boolean, Mensaje As String)
+	Type FranjaSync (Texto As String, Accion As String, Glifo As String, Tinta As Int, Fondo As Int)
+	Type SolicitudReciente (Proyecto As String, Cliente As String, Fecha As String, EstadoSync As String)
+	Type ClienteFila (Datos As Cliente, EstadoSync As String)
+	Type PerfilLocal (UsuarioId As Int, Correo As String, Nombre As String, Rol As String)
+	Type UbicacionGps (Ok As Boolean, Latitud As Double, Longitud As Double, Precision As Double)
+	Type PermisoCliente (Accion As String, Firmante As String, Fecha As String, Version As String)
 End Sub
 
 Public Sub Correcto (Datos As Object) As Resultado
@@ -74,6 +83,13 @@ Public Sub ContactoVacio As Contacto
 	k.Celular = ""
 	k.Correo = ""
 	Return k
+End Sub
+
+Public Sub UbicacionVacia As UbicacionGps
+	Dim u As UbicacionGps
+	u.Initialize
+	u.Ok = False
+	Return u
 End Sub
 
 Public Sub Opcion (Titulo As String, Detalle As String, Valor As Object) As OpcionBusqueda

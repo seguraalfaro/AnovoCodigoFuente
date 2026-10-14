@@ -16,8 +16,10 @@ Version=13.7
 Sub Process_Globals
 	Public Const FORMATO_BD      As String = "yyyy-MM-dd HH:mm:ss"   ' columnas TEXT de fecha en SQLite
 	Public Const FORMATO_API     As String = "yyyy-MM-dd HH:mm:ss.SSS" ' ajustar al confirmar el del backend
+	Public Const FORMATO_ENVIO   As String = "yyyy-MM-dd'T'HH:mm:ss"
 	Public Const FORMATO_DISPLAY As String = "dd/MM/yyyy HH:mm"
 	Public Const FORMATO_CORTA   As String = "dd/MM/yyyy"
+	Public Const FORMATO_LARGA   As String = "EEEE d 'de' MMMM"
 
 	Public Const LARGO_IDENT_FISICA   As Int = 9
 	Public Const LARGO_IDENT_JURIDICA As Int = 10
@@ -172,6 +174,17 @@ Public Sub AhoraBd As String
 	Return Formatear(DateTime.Now, FORMATO_BD)
 End Sub
 
+Public Sub Iniciales (Nombre As String) As String
+	Dim sb As StringBuilder
+	sb.Initialize
+	For Each palabra As String In Regex.Split("\s+", Nombre.Trim)
+		If Regex.IsMatch("[A-Za-zÁÉÍÓÚÑáéíóúñ].*", palabra) = False Then Continue
+		sb.Append(palabra.CharAt(0))
+		If sb.Length = 2 Then Exit
+	Next
+	Return sb.ToString.ToUpperCase
+End Sub
+
 'Fecha guardada en la base -> texto para mostrar al usuario.
 Public Sub BdADisplay (FechaBd As String) As String
 	Dim f As Long = Parsear(FechaBd, FORMATO_BD)
@@ -220,7 +233,7 @@ End Sub
 Public Sub BdAApi (FechaBd As String) As String
 	Dim f As Long = Parsear(FechaBd, FORMATO_BD)
 	If f = 0 Then Return ""
-	Return Formatear(f, FORMATO_API).Replace(" ", "T") & "Z"
+	Return Formatear(f, FORMATO_ENVIO)
 End Sub
 
 #End Region

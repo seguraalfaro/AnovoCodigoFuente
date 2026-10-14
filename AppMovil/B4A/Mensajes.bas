@@ -45,6 +45,12 @@ Sub Process_Globals
 	Public Const CLIENTE_NO_GUARDADO As String = "No se pudo guardar el cliente en el teléfono. Intente de nuevo."
 	Public Const CLIENTE_GUARDADO As String = "Cliente guardado."
 	Public Const MENU_SINCRONIZAR As String = "Sincronizar"
+	Public Const SYNC_TITULO As String = "Anovo: sincronización"
+	Public Const SYNC_SUBIENDO As String = "Subiendo lo capturado en el teléfono…"
+	Public Const SYNC_LISTO As String = "Todo lo capturado quedó en el servidor."
+	Public Const SYNC_CON_ERRORES As String = "Algunos registros no se pudieron subir: revíselos en Inicio."
+	Public Const SYNC_SIN_CONEXION As String = "Sin conexión con el servidor. Se reintenta más tarde."
+	Public Const SYNC_SESION As String = "La sesión venció. Ingrese de nuevo para terminar de subir."
 	Public Const MENU_CERRAR_SESION As String = "Cerrar sesión"
 	Public Const TAB_INICIO As String = "Inicio"
 	Public Const TAB_CLIENTES As String = "Clientes"
@@ -59,6 +65,88 @@ Sub Process_Globals
 	Public Const RETOMAR_COTIZACION As String = "Tiene una cotización sin terminar. ¿Desea retomarla?"
 	Public Const RETOMAR_PIEZA As String = "Hay una pieza sin terminar. ¿Desea retomarla?"
 	Public Const RETOMAR_PIEZA_NOMBRE As String = "La pieza «$1» quedó sin terminar. ¿Desea retomarla?"
+	Public Const INICIO_RETOMAR_TITULO As String = "Cotización sin terminar"
+	Public Const INICIO_RETOMAR_VACIA As String = "Todavía sin cliente ni piezas"
+	Public Const INICIO_RETOMAR As String = "Retomar"
+	Public Const INICIO_DESCARTAR As String = "Descartar"
+	Public Const INICIO_CONFIRMAR_DESCARTE As String = "¿Descartar la cotización sin terminar? Se pierden sus piezas y fotos."
+	Public Const INICIO_ULTIMAS As String = "Mis últimas solicitudes"
+	Public Const INICIO_SIN_RECIENTES As String = "No hay solicitudes de los últimos 7 días."
+	Public Const KPI_SIN_DATO As String = "—"
+	Public Const SYNC_AL_DIA As String = "Todo está en el servidor"
+	Public Const SYNC_REINTENTAR As String = "Reintentar"
+	Public Const ESTADO_POR_SUBIR As String = "Por subir"
+	Public Const ESTADO_SUBIDA As String = "Subida"
+	Public Const ESTADO_CON_ERROR As String = "Con error"
+	Public Const ESTADO_SUBIDO As String = "Subido"
+	Public Const TITULO_CLIENTE As String = "Cliente"
+	Public Const NUEVA_SOLICITUD As String = "+  Nueva solicitud"
+	Public Const FICHA_COBROS As String = "Contacto de cobros"
+	Public Const ROTULO_TELEFONO As String = "Teléfono"
+	Public Const UBICACION_BUSCANDO As String = "Buscando la ubicación del cliente..."
+	Public Const UBICACION_SIN As String = "Sin ubicación: no hay permiso o señal."
+	Public Const REVISION_TITULO As String = "Revisión final"
+	Public Const REVISION_SUBTITULO As String = "Revise antes de guardar. Queda en el teléfono y sube al sincronizar."
+	Public Const REVISION_CLIENTE As String = "Cliente y proyecto"
+	Public Const REVISION_CAMBIAR As String = "Cambiar ›"
+	Public Const ROTULO_CLIENTE As String = "Cliente"
+	Public Const ROTULO_CONTACTO As String = "Contacto"
+	Public Const ROTULO_PROYECTO As String = "Proyecto"
+	Public Const ROTULO_UBICACION As String = "Ubicación"
+	Public Const REVISION_RESUMEN As String = "Resumen"
+	Public Const RESUMEN_PIEZAS As String = "Piezas"
+	Public Const RESUMEN_MEDIDAS As String = "Medidas"
+	Public Const RESUMEN_FOTOS As String = "Fotos"
+	Public Const RESUMEN_CROQUIS As String = "Croquis"
+	Public Const OBSERVACIONES_OPCIONAL As String = "Observaciones (opcional)"
+	Public Const ROTULO_DIRECCION As String = "Dirección"
+	Public Const ROTULO_COBROS As String = "Cobros"
+	Public Const FICHA_SIN_CONTACTOS As String = "Sin contactos registrados"
+	Public Const FICHA_PRINCIPAL As String = "Principal"
+	Public Const FICHA_PERMISO As String = "Permiso de datos (Ley 8968)"
+	Public Const MIS_CLIENTES As String = "Mis clientes"
+	Public Const DESBLOQUEO_TITULO As String = "Entrar a Anovo"
+	Public Const PERFIL_TITULO As String = "Perfil"
+	Public Const PERFIL_SUBTITULO As String = "Su cuenta, la conexión y el ingreso sin conexión"
+	Public Const PERFIL_MI_CUENTA As String = "Mi cuenta"
+	Public Const PERFIL_CONEXION As String = "Conexión"
+	Public Const PERFIL_ACERCA_DE As String = "Acerca de"
+	Public Const ROTULO_NOMBRE As String = "Nombre"
+	Public Const ROTULO_CORREO As String = "Correo"
+	Public Const ROTULO_ROL As String = "Rol"
+	Public Const ROTULO_PERMISOS As String = "Permisos propios"
+	Public Const ROTULO_CLAVE As String = "Clave cambiada"
+	Public Const ROTULO_SERVIDOR As String = "Servidor"
+	Public Const ROTULO_ESTADO As String = "Estado"
+	Public Const ROTULO_RESPUESTA As String = "Respuesta"
+	Public Const ROTULO_APP As String = "App instalada"
+	Public Const ROTULO_MOVIL_DISPONIBLE As String = "Móvil disponible"
+	Public Const ROTULO_BASE As String = "Base de datos"
+	Public Const ROTULO_AVISO As String = "Aviso de privacidad"
+	Public Const CAMBIAR_MI_CLAVE As String = "Cambiar mi clave"
+	Public Const PROBAR_CONEXION As String = "Probar conexión"
+	Public Const PROBANDO As String = "Probando..."
+	Public Const CONECTADO As String = "Conectado"
+	Public Const SIN_RESPUESTA As String = "Sin respuesta"
+	Public Const CLAVE_ACTUAL As String = "Clave actual"
+	Public Const CLAVE_NUEVA As String = "Clave nueva"
+	Public Const CLAVE_REPETIR As String = "Repetir clave nueva"
+	Public Const FALTA_CLAVE_ACTUAL As String = "Escriba su clave actual."
+	Public Const CLAVE_SIN_LETRAS_NUMEROS As String = "La clave nueva debe tener letras y números."
+	Public Const CLAVE_NO_COINCIDE As String = "La clave nueva y su repetición no coinciden."
+	Public Const CLAVE_IGUAL As String = "La clave nueva debe ser distinta de la actual."
+	Public Const CLAVE_SIN_CONEXION As String = "Para cambiar la clave se necesita conexión con el servidor."
+	Public Const CLAVE_CAMBIADA As String = "Su clave quedó cambiada."
+	Public Const CLAVE_CAMBIADA_REINGRESO As String = "Su clave quedó cambiada. Vuelva a ingresar con la clave nueva."
+	Public Const DESBLOQUEO_ENTRAR As String = "Entrar con huella o PIN"
+	Public Const DESBLOQUEO_ACTIVAR As String = "Confirme que es usted para activar el ingreso sin conexión"
+	Public Const PERFIL_SIN_CONEXION_TITULO As String = "Entrar sin conexión"
+	Public Const PERFIL_SIN_CONEXION_TEXTO As String = "Con esto activado, la app se abre con su huella o el PIN del teléfono aunque no haya internet. Deja de servir si pasan 30 días sin conectarse."
+	Public Const PERFIL_SIN_REGISTRO As String = "Ingrese una vez con conexión para registrar este teléfono."
+	Public Const PERFIL_SIN_BLOQUEO As String = "El teléfono no tiene huella ni bloqueo de pantalla. Configure uno en Ajustes, Seguridad."
+	Public Const PERFIL_NO_SOPORTADO As String = "Este teléfono no permite entrar con huella o PIN."
+	Public Const CONFIRMAR_CIERRE As String = "¿Cerrar la sesión en este teléfono? Lo que falte por subir queda guardado y sube cuando vuelva a ingresar."
+	Public Const BUSCAR_CLIENTES As String = "Buscar por nombre o cédula"
 	Public Const SIN_PIEZAS As String = "Agregue al menos una pieza."
 	Public Const SIN_PIEZAS_TITULO As String = "Todavía no hay piezas"
 	Public Const SIN_PIEZAS_TEXTO As String = "Toque «Nueva pieza» para registrar la primera. Cada pieza lleva medidas, cantidad, croquis y fotos."
@@ -130,6 +218,37 @@ Sub Process_Globals
 	Private Const ERROR_SERVIDOR As String = "El servidor respondió con un error ($1)."
 	Private Const PIEZA_MEDIDAS As String = "$1 medidas"
 	Private Const PIEZA_ADJUNTOS As String = "Croquis · $1 fotos"
+	Private Const INICIO_SALUDO As String = "Hola"
+	Private Const INICIO_SALUDO_NOMBRE As String = "Hola, $1"
+	Private Const SYNC_POR_SUBIR_UNO As String = "1 registro por subir"
+	Private Const SYNC_POR_SUBIR As String = "$1 registros por subir"
+	Private Const SYNC_CON_ERROR_UNO As String = "1 registro con error"
+	Private Const SYNC_CON_ERROR As String = "$1 registros con error"
+	Private Const PIEZAS_UNA As String = "1 pieza"
+	Private Const PIEZAS_VARIAS As String = "$1 piezas"
+	Private Const FICHA_CONTACTOS As String = "Contactos ($1)"
+	Private Const CLIENTES_UNO As String = "1 cliente"
+	Private Const UBICACION_CAPTURADA As String = "Ubicación capturada (± $1 m)"
+	Private Const UBICACION_COORDENADAS As String = "$1, $2"
+	Private Const TEXTO_CONTADOR As String = "$1/$2"
+	Private Const DESBLOQUEO_ACTIVADO As String = "Activado"
+	Private Const PERMISOS_SOLO_ROL As String = "Solo los del rol"
+	Private Const PERMISOS_PROPIOS As String = "$1 adicionales · $2 quitados"
+	Private Const TEXTO_MILISEGUNDOS As String = "$1 ms"
+	Private Const CLAVE_CORTA As String = "Mínimo $1 caracteres, con letras y números."
+	Private Const DESBLOQUEO_DESACTIVADO As String = "Desactivado"
+	Private Const DESBLOQUEO_ACCION_ACTIVAR As String = "Activar"
+	Private Const DESBLOQUEO_ACCION_DESACTIVAR As String = "Desactivar"
+	Private Const CLIENTES_VARIOS As String = "$1 clientes"
+	Private Const PASTILLA_SUBIDO As String = "✓ Subido"
+	Private Const PASTILLA_POR_SUBIR As String = "↑ Por subir"
+	Private Const PASTILLA_ERROR As String = "! Con error"
+	Private Const PASTILLA_SUBIDA As String = "✓ Subida"
+	Private Const PERMISO_OTORGADO As String = "Otorgado por $1"
+	Private Const PERMISO_REVOCADO As String = "Revocado por $1"
+	Private Const PERMISO_SIN_FIRMANTE As String = "Otorgado"
+	Private Const PERMISO_NINGUNO As String = "Sin permiso registrado"
+	Private Const PERMISO_DETALLE As String = "$1 · texto $2"
 End Sub
 
 Public Sub ErrorServidor (Codigo As Int) As String
@@ -183,4 +302,152 @@ End Sub
 
 Public Sub PiezaAdjuntos (Fotos As Int) As String
 	Return PIEZA_ADJUNTOS.Replace("$1", Fotos)
+End Sub
+
+Public Sub Saludo (Nombre As String) As String
+	If Nombre = "" Then Return INICIO_SALUDO
+	Return INICIO_SALUDO_NOMBRE.Replace("$1", Nombre)
+End Sub
+
+Public Sub SyncPorSubir (Cantidad As Int) As String
+	If Cantidad = 1 Then Return SYNC_POR_SUBIR_UNO
+	Return SYNC_POR_SUBIR.Replace("$1", Cantidad)
+End Sub
+
+Public Sub SyncConError (Cantidad As Int) As String
+	If Cantidad = 1 Then Return SYNC_CON_ERROR_UNO
+	Return SYNC_CON_ERROR.Replace("$1", Cantidad)
+End Sub
+
+Public Sub CuentaPiezas (Cantidad As Int) As String
+	If Cantidad = 1 Then Return PIEZAS_UNA
+	Return PIEZAS_VARIAS.Replace("$1", Cantidad)
+End Sub
+
+Public Sub EstadoSolicitud (Estado As String) As String
+	Select Estado
+		Case DbSync.ESTADO_ERROR
+			Return PASTILLA_ERROR
+		Case DbSync.ESTADO_PENDIENTE
+			Return PASTILLA_POR_SUBIR
+		Case Else
+			Return PASTILLA_SUBIDA
+	End Select
+End Sub
+
+Public Sub EstadoCliente (Estado As String) As String
+	Select Estado
+		Case DbSync.ESTADO_ERROR
+			Return ESTADO_CON_ERROR
+		Case DbSync.ESTADO_PENDIENTE
+			Return ESTADO_POR_SUBIR
+		Case Else
+			Return ESTADO_SUBIDO
+	End Select
+End Sub
+
+Public Sub EstadoDesbloqueo (Activo As Boolean) As String
+	If Activo Then Return DESBLOQUEO_ACTIVADO
+	Return DESBLOQUEO_DESACTIVADO
+End Sub
+
+Public Sub AccionDesbloqueo (Activo As Boolean) As String
+	If Activo Then Return DESBLOQUEO_ACCION_DESACTIVAR
+	Return DESBLOQUEO_ACCION_ACTIVAR
+End Sub
+
+Public Sub NombreDeRol (Codigo As String) As String
+	Select Codigo
+		Case "asesor"
+			Return "Asesor comercial"
+		Case "asistente"
+			Return "Asistente de cotizaciones"
+		Case "supervisor"
+			Return "Supervisor"
+		Case "gerencia"
+			Return "Gerencia"
+		Case "admin"
+			Return "Administrador del sistema"
+		Case Else
+			Return "Sin rol"
+	End Select
+End Sub
+
+Public Sub PermisosPropios (Adicionales As Int, Quitados As Int) As String
+	If Adicionales = 0 And Quitados = 0 Then Return PERMISOS_SOLO_ROL
+	Return PERMISOS_PROPIOS.Replace("$1", Adicionales).Replace("$2", Quitados)
+End Sub
+
+Public Sub Milisegundos (Cantidad As Long) As String
+	Return TEXTO_MILISEGUNDOS.Replace("$1", Cantidad)
+End Sub
+
+Public Sub ClaveCorta (Largo As Int) As String
+	Return CLAVE_CORTA.Replace("$1", Largo)
+End Sub
+
+Public Sub RolVisible (Rol As String) As String
+	If Rol = "" Then Return ""
+	Return Rol.SubString2(0, 1).ToUpperCase & Rol.SubString(1)
+End Sub
+
+Public Sub UbicacionCapturada (Metros As Int) As String
+	Return UBICACION_CAPTURADA.Replace("$1", Metros)
+End Sub
+
+Public Sub Coordenadas (u As UbicacionGps) As String
+	If u.Ok = False Then Return UBICACION_SIN
+	Return UBICACION_COORDENADAS.Replace("$1", NumberFormat2(u.Latitud, 1, 5, 5, False)).Replace("$2", NumberFormat2(u.Longitud, 1, 5, 5, False))
+End Sub
+
+Public Sub Contador (Cantidad As Int, Maximo As Int) As String
+	Return TEXTO_CONTADOR.Replace("$1", Cantidad).Replace("$2", Maximo)
+End Sub
+
+Public Sub CuentaClientes (Cantidad As Int) As String
+	If Cantidad = 1 Then Return CLIENTES_UNO
+	Return CLIENTES_VARIOS.Replace("$1", Cantidad)
+End Sub
+
+Public Sub PastillaCliente (Estado As String) As String
+	Select Estado
+		Case DbSync.ESTADO_ERROR
+			Return PASTILLA_ERROR
+		Case DbSync.ESTADO_PENDIENTE
+			Return PASTILLA_POR_SUBIR
+		Case Else
+			Return PASTILLA_SUBIDO
+	End Select
+End Sub
+
+Public Sub TipoCorto (Indice As Int) As String
+	Select Indice
+		Case 0
+			Return "Física"
+		Case 1
+			Return "Jurídica"
+		Case 2
+			Return "DIMEX"
+		Case Else
+			Return ""
+	End Select
+End Sub
+
+Public Sub FichaContactos (Cantidad As Int) As String
+	Return FICHA_CONTACTOS.Replace("$1", Cantidad)
+End Sub
+
+Public Sub TextoPermiso (Accion As String, Firmante As String) As String
+	If Accion = "" Then Return PERMISO_NINGUNO
+	If Accion = "revocado" Then Return PERMISO_REVOCADO.Replace("$1", Firmante)
+	If Firmante = "" Then Return PERMISO_SIN_FIRMANTE
+	Return PERMISO_OTORGADO.Replace("$1", Firmante)
+End Sub
+
+Public Sub PermisoDetalle (Fecha As String, Version As String) As String
+	Return PERMISO_DETALLE.Replace("$1", Fecha).Replace("$2", Version)
+End Sub
+
+Public Sub KpisAsesor As List
+	Return Array("Solicitudes del mes", "Esperando cotización", "Aprobadas del mes", "Monto aprobado")
 End Sub

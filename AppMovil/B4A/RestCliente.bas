@@ -4,8 +4,8 @@ ModulesStructureVersion=1
 Type=Class
 Version=13.7
 @EndOfDesignText@
-' Cliente REST al estilo de TMVCRESTClient de DMVC: se configura encadenando
-' llamadas y termina en un verbo resumible. Por dentro, OkHttpUtils2 con Wait For.
+' Cliente REST al estilo de TMVCRESTClient de DMVC: se configura encadenando llamadas y termina
+' en un verbo resumible, o se arma con Preparar* en un modulo y quien llama espera Enviar.
 Sub Class_Globals
 	Private mBaseUrl As String
 	Private mEncabezados As Map
@@ -13,6 +13,8 @@ Sub Class_Globals
 	Private mConsulta As List
 	Private mCuerpo As String
 	Private mTiempoMs As Int
+	Private mMetodo As String
+	Private mRecurso As String
 	Private su As StringUtils
 	Private Const CODIFICACION As String = "UTF8"
 	Private Const TIPO_JSON As String = "application/json"
@@ -72,6 +74,29 @@ Public Sub AddBody (Cuerpo As Object) As RestCliente
 		mCuerpo = Cuerpo
 	End If
 	Return Me
+End Sub
+
+Public Sub PrepararGet (Recurso As String) As RestCliente
+	Return Preparar("GET", Recurso)
+End Sub
+
+Public Sub PrepararPost (Recurso As String) As RestCliente
+	Return Preparar("POST", Recurso)
+End Sub
+
+Public Sub PrepararPut (Recurso As String) As RestCliente
+	Return Preparar("PUT", Recurso)
+End Sub
+
+Private Sub Preparar (Metodo As String, Recurso As String) As RestCliente
+	mMetodo = Metodo
+	mRecurso = Recurso
+	Return Me
+End Sub
+
+Public Sub Enviar As ResumableSub
+	Wait For (Ejecutar(mMetodo, mRecurso)) Complete (Respuesta As RestRespuesta)
+	Return Respuesta
 End Sub
 
 Public Sub Get (Recurso As String) As ResumableSub
