@@ -2471,6 +2471,7 @@ object dmMemoria: TdmMemoria
       DisplayLabel = 'Pieza'
       DisplayWidth = 18
       FieldName = 'PIEZA_NOMBRE'
+      Visible = False
       Size = 120
     end
     object mtMedidasETIQUETA: TStringField
@@ -2505,6 +2506,47 @@ object dmMemoria: TdmMemoria
     DataSet = mtMedidas
     Left = 1160
     Top = 248
+  end
+  object mtPiezas: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1280
+    Top = 568
+    object mtPiezasID: TIntegerField
+      FieldName = 'ID'
+      Visible = False
+    end
+    object mtPiezasNOMBRE: TStringField
+      DisplayLabel = 'Pieza'
+      FieldName = 'NOMBRE'
+      Size = 120
+    end
+    object mtPiezasTIPO_TRABAJO_NOMBRE: TStringField
+      DisplayLabel = 'Trabajo'
+      FieldName = 'TIPO_TRABAJO_NOMBRE'
+      Size = 100
+    end
+    object mtPiezasTIPO_MATERIAL_NOMBRE: TStringField
+      DisplayLabel = 'Material'
+      FieldName = 'TIPO_MATERIAL_NOMBRE'
+      Size = 100
+    end
+    object mtPiezasACABADO_NOMBRE: TStringField
+      DisplayLabel = 'Acabado'
+      FieldName = 'ACABADO_NOMBRE'
+      Size = 100
+    end
+  end
+  object dsPiezas: TDataSource
+    AutoEdit = False
+    DataSet = mtPiezas
+    Left = 1384
+    Top = 568
   end
   object mtItemsLinea: TFDMemTable
     FetchOptions.AssignedValues = [evMode]

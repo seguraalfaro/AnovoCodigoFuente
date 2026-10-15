@@ -1,7 +1,8 @@
 unit Anovo.Frames.Cotizacion;
 
 // Cotizacion abierta (HU-04): encabezado, lineas, ajuste y totales a la
-// derecha, y a la izquierda el croquis, las fotos y las medidas del asesor.
+// derecha; a la izquierda la solicitud, sus piezas y el croquis, las fotos
+// y las medidas de la pieza elegida.
 
 interface
 
@@ -36,15 +37,19 @@ type
     lblAviso: TLabel;
     pnlCuerpo: TPanel;
     pnlEvidencia: TPanel;
+    tjSolicitud: TPlanoTarjeta;
+    lblProyectoRot: TLabel;
+    lblProyecto: TLabel;
+    lblContactoRot: TLabel;
+    lblContacto: TLabel;
+    tjPiezas: TPlanoTarjeta;
+    grPiezas: TrDBGrid;
     tjCroquis: TPlanoTarjeta;
     pbCroquis: TPaintBox;
     lblSinCroquis: TLabel;
     tjFotos: TPlanoTarjeta;
-    imgFoto1: TrImageZoom;
-    imgFoto2: TrImageZoom;
-    imgFoto3: TrImageZoom;
-    imgFoto4: TrImageZoom;
     lblSinFotos: TLabel;
+    sbFotos: TScrollBox;
     tjMedidas: TPlanoTarjeta;
     grMedidas: TrDBGrid;
     pnlDerecha: TPanel;
@@ -101,11 +106,16 @@ type
     procedure btnMaquinaClick(Sender: TObject);
     procedure btnNotaClick(Sender: TObject);
     procedure btnNuevoTipoClick(Sender: TObject);
+    procedure grPiezasCellClick(Column: TColumn);
+    procedure grPiezasKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure FrameResize(Sender: TObject);
   private
     FPresentador: TPresentadorCotizacion;
     FOnRegresar: TNotifyEvent;
     FCroquis: string;
-    FFotos: array [0 .. 3] of TrImageZoom;
+    procedure ElegirPieza;
+    procedure PonerFotos(const AFotos: TList<TBytes>);
     procedure Accion(Sender: TObject; const AClave: string);
     procedure AbrirLinea(const AModo: TModoLinea; const ALinea: TLineaDTO);
     function DatosEscritos: TCotizacionEdicionDTO;
@@ -123,10 +133,12 @@ type
       const AAcciones: TAccionesLinea);
     procedure MostrarLineas(const ALineas: TObjectList<TLineaDTO>);
     procedure MostrarTiposTrabajo(const ATipos: TObjectList<TTipoTrabajoDTO>);
-    procedure MostrarMedidas(const AMedidas: TObjectList<TMedidaDTO>);
-    procedure MostrarCroquis(const AJson: string);
-    procedure MostrarFoto(const AIndice, ATotal: Integer;
-      const AImagen: TBytes);
+    procedure MostrarSolicitud(const AProyecto, AContacto: string);
+    procedure MostrarPiezas(const APiezas: TObjectList<TPiezaDTO>);
+    procedure MostrarMedidas(const APieza: string;
+      const AMedidas: TObjectList<TMedidaDTO>);
+    procedure MostrarEvidencia(const APieza, ACroquis: string;
+      const AFotos: TList<TBytes>; const ACargando: Boolean);
     procedure Regresar;
   public
     constructor Crear(AOwner: TComponent; const AId: Integer);
@@ -139,6 +151,7 @@ implementation
 {$R *.dfm}
 
 uses
+  System.Math,
   Anovo.UI.Vista,
   Anovo.UI.Tema,
   Anovo.UI.DBGridExtend,
@@ -147,6 +160,7 @@ uses
   Anovo.Api.Cotizaciones,
   Anovo.Api.Solicitudes,
   Anovo.Api.Catalogos,
+  Anovo.Api.Clientes,
   Anovo.Forms.LineaCotizacion,
   Anovo.Forms.AjusteCotizacion,
   Anovo.Forms.ItemCatalogo,
@@ -168,6 +182,12 @@ const
     Rotulo: SAccionEditar), (Clave: 'quitar'; Rotulo: SAccionQuitar));
   ANCHO_CROQUIS = 1000;
   ALTO_CROQUIS = 700;
+  LADO_MINIATURA = 64;
+  SEPARACION_MINIATURA = 6;
+  FONDO_MINIATURA = TColor($F1EAE6);
+  PORCENTAJE_EVIDENCIA = 35;
+  ANCHO_EVIDENCIA_MINIMO = 330;
+  ANCHO_EVIDENCIA_MAXIMO = 420;
 
 constructor TfraCotizacion.Crear(AOwner: TComponent; const AId: Integer);
 var
@@ -175,11 +195,8 @@ var
 begin
   inherited Create(AOwner);
   AplicarTemaGrid(grLineas);
+  AplicarTemaGrid(grPiezas);
   AplicarTemaGrid(grMedidas);
-  FFotos[0] := imgFoto1;
-  FFotos[1] := imgFoto2;
-  FFotos[2] := imgFoto3;
-  FFotos[3] := imgFoto4;
   lblSinCroquis.Caption := SSinCroquis;
   lblSinFotos.Caption := SSinFotos;
 
@@ -188,7 +205,7 @@ begin
   lRejilla.OnAccion := Accion;
 
   FPresentador := TPresentadorCotizacion.Create(Self, TApiCotizaciones.Create,
-    TApiSolicitudes.Create, TApiCatalogos.Create);
+    TApiSolicitudes.Create, TApiCatalogos.Create, TApiClientes.Create);
   FPresentador.Iniciar(AId);
 end;
 
@@ -199,6 +216,7 @@ begin
   dmMemoria.mtLineasCotizacion.Close;
   dmMemoria.mtCotizacionEdicion.Close;
   dmMemoria.mtMedidas.Close;
+  dmMemoria.mtPiezas.Close;
   dmMemoria.mtTiposTrabajoLista.Close;
   inherited;
 end;
@@ -315,41 +333,129 @@ begin
     dmMemoria.mtTiposTrabajoLista);
 end;
 
-procedure TfraCotizacion.MostrarMedidas(const AMedidas
-  : TObjectList<TMedidaDTO>);
+procedure TfraCotizacion.MostrarSolicitud(const AProyecto, AContacto: string);
 begin
+  lblProyecto.Caption := AProyecto;
+  lblContacto.Caption := AContacto;
+end;
+
+procedure TfraCotizacion.MostrarPiezas(const APiezas: TObjectList<TPiezaDTO>);
+begin
+  tjPiezas.Caption := Format(SPiezasTotal, [APiezas.Count]);
+  TMapeoDatos.AListaTabla<TPiezaDTO>(APiezas, dmMemoria.mtPiezas);
+  dmMemoria.mtPiezas.First;
+  TDBGridExtend.De(grPiezas).AjustarColumnas;
+end;
+
+procedure TfraCotizacion.MostrarMedidas(const APieza: string;
+  const AMedidas: TObjectList<TMedidaDTO>);
+begin
+  tjMedidas.Caption := Format(SMedidasDePieza, [APieza]);
   TMapeoDatos.AListaTabla<TMedidaDTO>(AMedidas, dmMemoria.mtMedidas);
   TDBGridExtend.De(grMedidas).AjustarColumnas;
 end;
 
-procedure TfraCotizacion.MostrarCroquis(const AJson: string);
+procedure TfraCotizacion.MostrarEvidencia(const APieza, ACroquis: string;
+  const AFotos: TList<TBytes>; const ACargando: Boolean);
+var
+  lTotal: Integer;
 begin
-  FCroquis := AJson;
-  lblSinCroquis.Visible := AJson.IsEmpty;
-  pbCroquis.Visible := not AJson.IsEmpty;
+  lTotal := 0;
+  if AFotos <> nil then
+    lTotal := AFotos.Count;
+  if not APieza.IsEmpty then
+  begin
+    tjCroquis.Caption := Format(SCroquisDePieza, [APieza]);
+    tjFotos.Caption := Format(SFotografiasDePieza, [APieza, lTotal]);
+  end
+  else
+    tjFotos.Caption := Format(SFotografias, [lTotal]);
+
+  if ACargando then
+  begin
+    lblSinCroquis.Caption := SCargandoEvidencia;
+    lblSinFotos.Caption := SCargandoEvidencia;
+  end
+  else
+  begin
+    lblSinCroquis.Caption := SSinCroquis;
+    lblSinFotos.Caption := SSinFotos;
+  end;
+
+  FCroquis := ACroquis;
+  lblSinCroquis.Visible := ACroquis.IsEmpty;
+  pbCroquis.Visible := not ACroquis.IsEmpty;
   pbCroquis.Invalidate;
+
+  PonerFotos(AFotos);
+  lblSinFotos.Visible := lTotal = 0;
+  sbFotos.Visible := lTotal > 0;
 end;
 
-procedure TfraCotizacion.MostrarFoto(const AIndice, ATotal: Integer;
-  const AImagen: TBytes);
+procedure TfraCotizacion.PonerFotos(const AFotos: TList<TBytes>);
 var
+  I: Integer;
+  lMiniatura: TrImageZoom;
   lFlujo: TBytesStream;
   lImagen: TWICImage;
 begin
-  tjFotos.Caption := Format(SFotografias, [ATotal]);
-  lblSinFotos.Visible := ATotal = 0;
-  if (AIndice < 0) or (AIndice > High(FFotos)) then
+  while sbFotos.ControlCount > 0 do
+    sbFotos.Controls[0].Free;
+  sbFotos.HorzScrollBar.Position := 0;
+  if AFotos = nil then
     Exit;
 
-  lFlujo := TBytesStream.Create(AImagen);
-  lImagen := TWICImage.Create;
-  try
-    lImagen.LoadFromStream(lFlujo);
-    FFotos[AIndice].Picture.Assign(lImagen);
-  finally
-    lImagen.Free;
-    lFlujo.Free;
+  for I := 0 to AFotos.Count - 1 do
+  begin
+    lMiniatura := TrImageZoom.Create(Self);
+    lMiniatura.Parent := sbFotos;
+    lMiniatura.Tag := TAG_RAW;
+    lMiniatura.SetBounds(I * (LADO_MINIATURA + SEPARACION_MINIATURA), 0,
+      LADO_MINIATURA, LADO_MINIATURA);
+    lMiniatura.Cursor := crHandPoint;
+    lMiniatura.EnlargeToFit := True;
+    lMiniatura.ReduceToFit := True;
+    lMiniatura.DragAndMove := False;
+    lMiniatura.BorderColor := clSilver;
+    lMiniatura.BackgroundColor := FONDO_MINIATURA;
+    lMiniatura.ShowEditor := ieNone;
+    lMiniatura.ShowPopupMenu := False;
+    lMiniatura.ReadOnly := True;
+    lMiniatura.OnClick := imgFotoClick;
+
+    lFlujo := TBytesStream.Create(AFotos[I]);
+    lImagen := TWICImage.Create;
+    try
+      lImagen.LoadFromStream(lFlujo);
+      lMiniatura.Picture.Assign(lImagen);
+    finally
+      lImagen.Free;
+      lFlujo.Free;
+    end;
   end;
+end;
+
+procedure TfraCotizacion.ElegirPieza;
+begin
+  if not dmMemoria.mtPiezas.IsEmpty then
+    FPresentador.ElegirPieza(dmMemoria.mtPiezasID.AsInteger);
+end;
+
+procedure TfraCotizacion.FrameResize(Sender: TObject);
+begin
+  pnlEvidencia.Width := EnsureRange(ClientWidth * PORCENTAJE_EVIDENCIA div 100,
+    ScaleValue(ANCHO_EVIDENCIA_MINIMO), ScaleValue(ANCHO_EVIDENCIA_MAXIMO));
+end;
+
+procedure TfraCotizacion.grPiezasCellClick(Column: TColumn);
+begin
+  ElegirPieza;
+end;
+
+procedure TfraCotizacion.grPiezasKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  ElegirPieza;
 end;
 
 procedure TfraCotizacion.pbCroquisPaint(Sender: TObject);

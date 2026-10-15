@@ -4,6 +4,7 @@ object fraCotizacion: TfraCotizacion
   Width = 1180
   Height = 720
   Align = alTop
+  OnResize = FrameResize
   TabOrder = 0
   object pnlEncabezado: TPanel
     Tag = 2
@@ -202,215 +203,211 @@ object fraCotizacion: TfraCotizacion
       Tag = 2
       Left = 20
       Top = 6
-      Width = 330
+      Width = 420
       Height = 595
       Align = alLeft
       BevelOuter = bvNone
       TabOrder = 0
-      object tjCroquis: TPlanoTarjeta
+      object tjSolicitud: TPlanoTarjeta
         Tag = 3
         Left = 0
         Top = 0
-        Width = 330
-        Height = 230
-        Caption = 'Croquis'
+        Width = 420
+        Height = 84
+        Caption = 'Solicitud'
         Align = alTop
         Padding.Left = 12
-        Padding.Top = 40
+        Padding.Top = 4
         Padding.Right = 12
         Padding.Bottom = 12
         TabOrder = 0
+        object lblProyectoRot: TLabel
+          Tag = 13
+          Left = 16
+          Top = 40
+          Width = 64
+          Height = 15
+          AutoSize = False
+          Caption = 'Proyecto'
+        end
+        object lblProyecto: TLabel
+          Tag = 25
+          Left = 84
+          Top = 40
+          Width = 320
+          Height = 15
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          EllipsisPosition = epEndEllipsis
+          ShowAccelChar = False
+        end
+        object lblContactoRot: TLabel
+          Tag = 13
+          Left = 16
+          Top = 60
+          Width = 64
+          Height = 15
+          AutoSize = False
+          Caption = 'Contacto'
+        end
+        object lblContacto: TLabel
+          Left = 84
+          Top = 60
+          Width = 320
+          Height = 15
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          EllipsisPosition = epEndEllipsis
+          ShowAccelChar = False
+        end
+      end
+      object tjPiezas: TPlanoTarjeta
+        Tag = 3
+        AlignWithMargins = True
+        Left = 0
+        Top = 94
+        Width = 420
+        Height = 128
+        Margins.Left = 0
+        Margins.Top = 10
+        Margins.Right = 0
+        Margins.Bottom = 0
+        Caption = 'Piezas'
+        Align = alTop
+        Padding.Left = 12
+        Padding.Top = 4
+        Padding.Right = 12
+        Padding.Bottom = 10
+        TabOrder = 1
+        object grPiezas: TrDBGrid
+          Left = 12
+          Top = 40
+          Width = 396
+          Height = 78
+          Align = alClient
+          BorderStyle = bsNone
+          DataSource = dmMemoria.dsPiezas
+          DefaultDrawing = False
+          Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect]
+          ReadOnly = True
+          TabOrder = 0
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -11
+          TitleFont.Name = 'Tahoma'
+          TitleFont.Style = []
+          StyleElements = [seFont]
+          OnCellClick = grPiezasCellClick
+          OnKeyUp = grPiezasKeyUp
+        end
+      end
+      object tjCroquis: TPlanoTarjeta
+        Tag = 3
+        AlignWithMargins = True
+        Left = 0
+        Top = 232
+        Width = 420
+        Height = 32
+        Margins.Left = 0
+        Margins.Top = 10
+        Margins.Right = 0
+        Margins.Bottom = 0
+        Caption = 'Croquis'
+        Align = alClient
+        Padding.Left = 12
+        Padding.Top = 4
+        Padding.Right = 12
+        Padding.Bottom = 12
+        TabOrder = 2
         object pbCroquis: TPaintBox
           Left = 12
-          Top = 76
-          Width = 306
-          Height = 142
+          Top = 40
+          Width = 396
+          Height = 118
           Cursor = crHandPoint
           Align = alClient
           OnClick = imgFotoClick
           OnPaint = pbCroquisPaint
-          ExplicitTop = 40
-          ExplicitHeight = 178
         end
         object lblSinCroquis: TLabel
           Tag = 13
           Left = 12
-          Top = 76
-          Width = 306
-          Height = 142
+          Top = 40
+          Width = 396
+          Height = 118
           Align = alClient
           Alignment = taCenter
           AutoSize = False
           Layout = tlCenter
           Visible = False
-          ExplicitTop = 40
-          ExplicitHeight = 178
         end
       end
       object tjFotos: TPlanoTarjeta
         Tag = 3
         AlignWithMargins = True
         Left = 0
-        Top = 240
-        Width = 330
-        Height = 124
+        Top = 307
+        Width = 420
+        Height = 128
         Margins.Left = 0
         Margins.Top = 10
         Margins.Right = 0
         Margins.Bottom = 0
         Caption = 'Fotograf'#237'as'
-        Align = alTop
+        Align = alBottom
         Padding.Left = 12
-        Padding.Top = 40
+        Padding.Top = 4
         Padding.Right = 12
-        Padding.Bottom = 12
-        TabOrder = 1
+        Padding.Bottom = 6
+        TabOrder = 3
         object lblSinFotos: TLabel
           Tag = 13
           Left = 12
-          Top = 76
-          Width = 306
-          Height = 36
+          Top = 40
+          Width = 396
+          Height = 82
           Align = alClient
           Alignment = taCenter
           AutoSize = False
           Layout = tlCenter
           Visible = False
-          ExplicitTop = 40
-          ExplicitHeight = 72
         end
-        object imgFoto1: TrImageZoom
-          Tag = 1
+        object sbFotos: TScrollBox
+          Tag = 3
           Left = 12
-          Top = 42
-          Width = 70
-          Height = 70
-          Cursor = crHandPoint
-          DragCursor = crSizeAll
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clGray
-          Font.Height = -11
-          Font.Name = 'Segoe UI'
-          Font.Style = []
-          ParentFont = False
-          ParentColor = False
-          OnClick = imgFotoClick
-          EnlargeToFit = True
-          ReduceToFit = True
-          DragAndMove = False
-          BorderColor = clSilver
-          BackgroundColor = 15854566
-          BackgroundText = 'Sin foto'
-          ShowEditor = ieNone
-          ShowPopupMenu = False
-          SaveInJPG = False
-          ReadOnly = True
-        end
-        object imgFoto2: TrImageZoom
-          Tag = 1
-          Left = 88
-          Top = 42
-          Width = 70
-          Height = 70
-          Cursor = crHandPoint
-          DragCursor = crSizeAll
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clGray
-          Font.Height = -11
-          Font.Name = 'Segoe UI'
-          Font.Style = []
-          ParentFont = False
-          ParentColor = False
-          OnClick = imgFotoClick
-          EnlargeToFit = True
-          ReduceToFit = True
-          DragAndMove = False
-          BorderColor = clSilver
-          BackgroundColor = 15854566
-          BackgroundText = 'Sin foto'
-          ShowEditor = ieNone
-          ShowPopupMenu = False
-          SaveInJPG = False
-          ReadOnly = True
-        end
-        object imgFoto3: TrImageZoom
-          Tag = 1
-          Left = 164
-          Top = 42
-          Width = 70
-          Height = 70
-          Cursor = crHandPoint
-          DragCursor = crSizeAll
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clGray
-          Font.Height = -11
-          Font.Name = 'Segoe UI'
-          Font.Style = []
-          ParentFont = False
-          ParentColor = False
-          OnClick = imgFotoClick
-          EnlargeToFit = True
-          ReduceToFit = True
-          DragAndMove = False
-          BorderColor = clSilver
-          BackgroundColor = 15854566
-          BackgroundText = 'Sin foto'
-          ShowEditor = ieNone
-          ShowPopupMenu = False
-          SaveInJPG = False
-          ReadOnly = True
-        end
-        object imgFoto4: TrImageZoom
-          Tag = 1
-          Left = 240
-          Top = 42
-          Width = 70
-          Height = 70
-          Cursor = crHandPoint
-          DragCursor = crSizeAll
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clGray
-          Font.Height = -11
-          Font.Name = 'Segoe UI'
-          Font.Style = []
-          ParentFont = False
-          ParentColor = False
-          OnClick = imgFotoClick
-          EnlargeToFit = True
-          ReduceToFit = True
-          DragAndMove = False
-          BorderColor = clSilver
-          BackgroundColor = 15854566
-          BackgroundText = 'Sin foto'
-          ShowEditor = ieNone
-          ShowPopupMenu = False
-          SaveInJPG = False
-          ReadOnly = True
+          Top = 40
+          Width = 396
+          Height = 82
+          HorzScrollBar.Tracking = True
+          VertScrollBar.Visible = False
+          Align = alClient
+          BorderStyle = bsNone
+          TabOrder = 0
         end
       end
       object tjMedidas: TPlanoTarjeta
         Tag = 3
         AlignWithMargins = True
         Left = 0
-        Top = 374
-        Width = 330
-        Height = 221
+        Top = 445
+        Width = 420
+        Height = 150
         Margins.Left = 0
         Margins.Top = 10
         Margins.Right = 0
         Margins.Bottom = 0
         Caption = 'Medidas tomadas en sitio'
-        Align = alClient
+        Align = alBottom
         Padding.Left = 12
-        Padding.Top = 40
+        Padding.Top = 4
         Padding.Right = 12
         Padding.Bottom = 12
-        TabOrder = 2
+        TabOrder = 4
         object grMedidas: TrDBGrid
           Left = 12
-          Top = 76
-          Width = 306
-          Height = 133
+          Top = 40
+          Width = 396
+          Height = 98
           Align = alClient
           BorderStyle = bsNone
           DataSource = dmMemoria.dsMedidas
@@ -430,9 +427,9 @@ object fraCotizacion: TfraCotizacion
     object pnlDerecha: TPanel
       Tag = 2
       AlignWithMargins = True
-      Left = 364
+      Left = 454
       Top = 6
-      Width = 796
+      Width = 706
       Height = 595
       Margins.Left = 14
       Margins.Top = 0

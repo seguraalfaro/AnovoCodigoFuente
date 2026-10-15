@@ -9,11 +9,13 @@ uses
   System.SysUtils,
   System.Generics.Collections,
   Anovo.Api.Intf.Catalogos,
+  Anovo.Api.Intf.Clientes,
   Anovo.Api.Intf.Cotizaciones,
   Anovo.Api.Intf.Solicitudes,
   Anovo.DTOs.Catalogos,
   Anovo.DTOs.Cotizaciones,
   Anovo.DTOs.Documento,
+  Anovo.DTOs.Solicitudes,
   Anovo.Presentadores.Base,
   Anovo.Vistas.Intf.Cotizacion,
   Anovo.Textos;
@@ -25,9 +27,16 @@ type
     FApi: IApiCotizaciones;
     FSolicitudes: IApiSolicitudes;
     FCatalogos: IApiCatalogos;
+    FClientes: IApiClientes;
     FId: Integer;
     FNumero: Integer;
     FSolicitudId: Integer;
+    FPiezaId: Integer;
+    FMedidas: TObjectList<TMedidaDTO>;
+    FAdjuntos: TObjectList<TAdjuntoDTO>;
+    FNombresPieza: TDictionary<Integer, string>;
+    FCroquis: TDictionary<Integer, string>;
+    FFotos: TObjectDictionary<Integer, TList<TBytes>>;
     FObjVersion: Integer;
     FEstado: string;
     FCosto: Currency;
@@ -38,6 +47,7 @@ type
     FEvidenciaPedida: Boolean;
     procedure Cargar(const AConEncabezado: Boolean);
     procedure CargarEvidencia;
+    procedure DescargarPieza(const APiezaId: Integer; const ANombre: string);
     procedure TomarCotizacion(const ACotizacion: TCotizacionDTO);
     procedure PublicarBotones;
     function Editable: Boolean;
@@ -46,9 +56,10 @@ type
   public
     constructor Create(const AVista: IVistaCotizacion;
       const AApi: IApiCotizaciones; const ASolicitudes: IApiSolicitudes;
-      const ACatalogos: IApiCatalogos);
+      const ACatalogos: IApiCatalogos; const AClientes: IApiClientes);
     destructor Destroy; override;
     procedure Iniciar(const AId: Integer);
+    procedure ElegirPieza(const APiezaId: Integer);
     procedure Recargar;
     procedure RecargarTipos;
     procedure Guardar(const ADatos: TCotizacionEdicionDTO);
@@ -117,7 +128,7 @@ implementation
 
 uses
   System.NetEncoding,
-  Anovo.DTOs.Solicitudes,
+  Anovo.DTOs.Clientes,
   Anovo.Mensajes,
   Anovo.Permisos,
   Anovo.Sesion;
@@ -131,25 +142,80 @@ const
   ESTADO_RECHAZADA = 'rechazada';
   ADJUNTO_CROQUIS = 'croquis';
   ADJUNTO_FOTO = 'foto';
-  MAXIMO_FOTOS = 4;
   ITEMS_POR_BUSQUEDA = 50;
   UNIDAD_HORA = 'h';
 
+type
+  TEvidenciaPieza = class
+  private
+    FCroquis: string;
+    FFotos: TList<TBytes>;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property Croquis: string read FCroquis write FCroquis;
+    property Fotos: TList<TBytes> read FFotos;
+  end;
+
+constructor TEvidenciaPieza.Create;
+begin
+  inherited Create;
+  FFotos := TList<TBytes>.Create;
+end;
+
+destructor TEvidenciaPieza.Destroy;
+begin
+  FFotos.Free;
+  inherited;
+end;
+
+function TextoContacto(const AContactos: TObjectList<TContactoDTO>;
+  const AId: Integer): string;
+var
+  lContacto: TContactoDTO;
+  lTelefono, lCorreo: string;
+begin
+  for lContacto in AContactos do
+    if lContacto.ID = AId then
+    begin
+      Result := lContacto.Nombre;
+      lTelefono := lContacto.Celular.ValueOrDefault.Trim;
+      if lTelefono.IsEmpty then
+        lTelefono := lContacto.Telefono.ValueOrDefault.Trim;
+      if not lTelefono.IsEmpty then
+        Result := Result + SImpSeparador + lTelefono;
+      lCorreo := lContacto.Correo.ValueOrDefault.Trim;
+      if not lCorreo.IsEmpty then
+        Result := Result + SImpSeparador + lCorreo;
+      Exit;
+    end;
+  Result := SContactoInactivo;
+end;
+
 constructor TPresentadorCotizacion.Create(const AVista: IVistaCotizacion;
   const AApi: IApiCotizaciones; const ASolicitudes: IApiSolicitudes;
-  const ACatalogos: IApiCatalogos);
+  const ACatalogos: IApiCatalogos; const AClientes: IApiClientes);
 begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
   FSolicitudes := ASolicitudes;
   FCatalogos := ACatalogos;
+  FClientes := AClientes;
   FLineas := TObjectList<TLineaDTO>.Create(True);
+  FNombresPieza := TDictionary<Integer, string>.Create;
+  FCroquis := TDictionary<Integer, string>.Create;
+  FFotos := TObjectDictionary<Integer, TList<TBytes>>.Create([doOwnsValues]);
 end;
 
 destructor TPresentadorCotizacion.Destroy;
 begin
   FLineas.Free;
+  FMedidas.Free;
+  FAdjuntos.Free;
+  FNombresPieza.Free;
+  FCroquis.Free;
+  FFotos.Free;
   inherited;
 end;
 
@@ -287,82 +353,173 @@ end;
 procedure TPresentadorCotizacion.CargarEvidencia;
 var
   lSolicitudes: IApiSolicitudes;
+  lClientes: IApiClientes;
   lSolicitudId: Integer;
+  lSolicitud: TSolicitudDTO;
+  lPiezas: TObjectList<TPiezaDTO>;
   lMedidas: TObjectList<TMedidaDTO>;
-  lCroquis: string;
-  lFotos: TList<TBytes>;
+  lAdjuntos: TObjectList<TAdjuntoDTO>;
+  lContacto: string;
 begin
   if FEvidenciaPedida or (FSolicitudId = 0) then
     Exit;
   FEvidenciaPedida := True;
   lSolicitudes := FSolicitudes;
+  lClientes := FClientes;
   lSolicitudId := FSolicitudId;
+  lSolicitud := nil;
+  lPiezas := nil;
   lMedidas := nil;
-  lCroquis := '';
-  lFotos := TList<TBytes>.Create;
+  lAdjuntos := nil;
+  lContacto := SSinContacto;
 
   Ejecutar(SAccionCargarCotizacion,
     procedure
     var
-      lAdjuntos: TObjectList<TAdjuntoDTO>;
-      lAdjunto: TAdjuntoDTO;
-      lContenido: TAdjuntoContenidoDTO;
+      lContactos: TObjectList<TContactoDTO>;
     begin
+      lSolicitud := lSolicitudes.Obtener(lSolicitudId);
+      lPiezas := lSolicitudes.Piezas(lSolicitudId);
       lMedidas := lSolicitudes.Medidas(lSolicitudId);
       lAdjuntos := lSolicitudes.Adjuntos(lSolicitudId);
-      try
-        for lAdjunto in lAdjuntos do
-        begin
-          if not lAdjunto.Activo then
-            Continue;
-          if (lAdjunto.Tipo = ADJUNTO_CROQUIS) and lCroquis.IsEmpty then
-          begin
-            lContenido := lSolicitudes.Adjunto(lSolicitudId, lAdjunto.ID);
-            try
-              lCroquis := lContenido.ContenidoJson.ValueOrDefault;
-            finally
-              lContenido.Free;
-            end;
-          end
-          else if (lAdjunto.Tipo = ADJUNTO_FOTO) and
-            (lFotos.Count < MAXIMO_FOTOS) then
-          begin
-            lContenido := lSolicitudes.Adjunto(lSolicitudId, lAdjunto.ID);
-            try
-              if lContenido.Contenido.HasValue then
-                lFotos.Add(TNetEncoding.Base64.DecodeStringToBytes
-                  (lContenido.Contenido.Value));
-            finally
-              lContenido.Free;
-            end;
-          end;
+      if lSolicitud.ClienteContactoId.HasValue then
+      begin
+        lContactos := lClientes.Contactos(lSolicitud.ClienteId);
+        try
+          lContacto := TextoContacto(lContactos,
+            lSolicitud.ClienteContactoId.Value);
+        finally
+          lContactos.Free;
         end;
-      finally
-        lAdjuntos.Free;
       end;
     end,
     procedure
     var
-      I: Integer;
+      lProyecto: string;
+      lPieza: TPiezaDTO;
     begin
-      FVista.MostrarMedidas(lMedidas);
-      FVista.MostrarCroquis(lCroquis);
-      for I := 0 to lFotos.Count - 1 do
-        FVista.MostrarFoto(I, lFotos.Count, lFotos[I]);
-      if lFotos.Count = 0 then
-        FVista.MostrarFoto(-1, 0, nil);
+      lProyecto := lSolicitud.NombreProyecto.ValueOrDefault.Trim;
+      if lProyecto.IsEmpty then
+        lProyecto := SSinProyecto;
+      FVista.MostrarSolicitud(lProyecto, lContacto);
+      FVista.MostrarPiezas(lPiezas);
+      for lPieza in lPiezas do
+        FNombresPieza.AddOrSetValue(lPieza.ID, lPieza.Nombre);
+      FMedidas := lMedidas;
+      lMedidas := nil;
+      FAdjuntos := lAdjuntos;
+      lAdjuntos := nil;
+      if lPiezas.Count > 0 then
+        ElegirPieza(lPiezas[0].ID)
+      else
+        FVista.MostrarEvidencia('', '', nil, False);
     end,
     procedure(AMensaje: string)
     begin
-      FVista.MostrarCroquis('');
-      FVista.MostrarFoto(-1, 0, nil);
+      FVista.MostrarEvidencia('', '', nil, False);
       FVista.MostrarError(AMensaje);
     end, nil,
     procedure
     begin
+      lSolicitud.Free;
+      lPiezas.Free;
       lMedidas.Free;
-      lFotos.Free;
+      lAdjuntos.Free;
     end);
+end;
+
+procedure TPresentadorCotizacion.ElegirPieza(const APiezaId: Integer);
+var
+  lNombre: string;
+  lMedidas: TObjectList<TMedidaDTO>;
+  lMedida: TMedidaDTO;
+begin
+  if (APiezaId = FPiezaId) or not FNombresPieza.TryGetValue(APiezaId, lNombre)
+  then
+    Exit;
+  FPiezaId := APiezaId;
+
+  lMedidas := TObjectList<TMedidaDTO>.Create(False);
+  try
+    for lMedida in FMedidas do
+      if lMedida.PiezaId = APiezaId then
+        lMedidas.Add(lMedida);
+    FVista.MostrarMedidas(lNombre, lMedidas);
+  finally
+    lMedidas.Free;
+  end;
+
+  if FCroquis.ContainsKey(APiezaId) then
+    FVista.MostrarEvidencia(lNombre, FCroquis[APiezaId], FFotos[APiezaId],
+      False)
+  else
+    DescargarPieza(APiezaId, lNombre);
+end;
+
+procedure TPresentadorCotizacion.DescargarPieza(const APiezaId: Integer;
+  const ANombre: string);
+var
+  lSolicitudes: IApiSolicitudes;
+  lSolicitudId: Integer;
+  lIds: TArray<Integer>;
+  lTipos: TArray<string>;
+  lAdjunto: TAdjuntoDTO;
+begin
+  FVista.MostrarEvidencia(ANombre, '', nil, True);
+  for lAdjunto in FAdjuntos do
+    if lAdjunto.Activo and (lAdjunto.PiezaId = APiezaId) and
+      ((lAdjunto.Tipo = ADJUNTO_CROQUIS) or (lAdjunto.Tipo = ADJUNTO_FOTO)) then
+    begin
+      lIds := lIds + [lAdjunto.ID];
+      lTipos := lTipos + [lAdjunto.Tipo];
+    end;
+  lSolicitudes := FSolicitudes;
+  lSolicitudId := FSolicitudId;
+
+  EjecutarUltima<TEvidenciaPieza>(SAccionCargarCotizacion,
+    function: TEvidenciaPieza
+    var
+      I: Integer;
+      lContenido: TAdjuntoContenidoDTO;
+    begin
+      Result := TEvidenciaPieza.Create;
+      try
+        for I := 0 to High(lIds) do
+        begin
+          if (lTipos[I] = ADJUNTO_CROQUIS) and not Result.Croquis.IsEmpty then
+            Continue;
+          lContenido := lSolicitudes.Adjunto(lSolicitudId, lIds[I]);
+          try
+            if lTipos[I] = ADJUNTO_CROQUIS then
+              Result.Croquis := lContenido.ContenidoJson.ValueOrDefault
+            else if lContenido.Contenido.HasValue then
+              Result.Fotos.Add(TNetEncoding.Base64.DecodeStringToBytes
+                (lContenido.Contenido.Value));
+          finally
+            lContenido.Free;
+          end;
+        end;
+      except
+        Result.Free;
+        raise;
+      end;
+    end,
+    procedure(AEvidencia: TEvidenciaPieza)
+    var
+      lFotos: TList<TBytes>;
+    begin
+      lFotos := TList<TBytes>.Create(AEvidencia.Fotos);
+      FCroquis.AddOrSetValue(APiezaId, AEvidencia.Croquis);
+      FFotos.AddOrSetValue(APiezaId, lFotos);
+      if FPiezaId = APiezaId then
+        FVista.MostrarEvidencia(ANombre, AEvidencia.Croquis, lFotos, False);
+    end,
+    procedure(AMensaje: string)
+    begin
+      if FPiezaId = APiezaId then
+        FVista.MostrarEvidencia(ANombre, '', nil, False);
+      FVista.MostrarError(AMensaje);
+    end, nil);
 end;
 
 procedure TPresentadorCotizacion.Guardar(const ADatos: TCotizacionEdicionDTO);

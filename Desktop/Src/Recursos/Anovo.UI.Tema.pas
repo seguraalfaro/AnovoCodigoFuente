@@ -472,6 +472,16 @@ end;
 
 procedure AplicarEstiloPropio(AControl: TControl); forward;
 
+procedure AplicarTemaCajaDesplazable(ACaja: TScrollBox);
+begin
+  ACaja.ParentColor := False;
+  ACaja.StyleElements := [seFont, seBorder];
+  if ACaja.Tag = TAG_FONDO then
+    ACaja.Color := clAnovoFondo
+  else
+    ACaja.Color := clAnovoTarjeta;
+end;
+
 procedure AplicarTemaControl(AControl: TControl);
 begin
 
@@ -496,6 +506,8 @@ begin
     AplicarTemaListView(TListView(AControl))
   else if AControl is TPlanoTarjeta then
     AplicarTemaTarjeta(TPlanoTarjeta(AControl))
+  else if AControl is TScrollBox then
+    AplicarTemaCajaDesplazable(TScrollBox(AControl))
   else if AControl is TCustomEdit then
     AplicarCampo(TCustomEdit(AControl))
   else

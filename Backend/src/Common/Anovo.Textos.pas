@@ -803,8 +803,16 @@ resourcestring
   SIvaExonerado = 'Cliente exonerado: IVA 0 %';
   SSinAjuste = 'Sin ajuste';
   SFotografias = 'Fotografías · %d';
-  SSinCroquis = 'La solicitud no tiene croquis';
+  SSinCroquis = 'La pieza no tiene croquis';
   SSinFotos = 'Sin fotografías';
+  SCargandoEvidencia = 'Cargando...';
+  SPiezasTotal = 'Piezas · %d';
+  SCroquisDePieza = 'Croquis · %s';
+  SFotografiasDePieza = 'Fotografías · %s · %d';
+  SMedidasDePieza = 'Medidas · %s';
+  SSinProyecto = 'Sin nombre de proyecto';
+  SSinContacto = 'Sin contacto';
+  SContactoInactivo = 'El contacto ya no está activo';
   SAbrirEnVisor = 'Abrir en el visor de Windows';
   SConfirmarQuitarLinea = '¿Quitar la línea «%s»?';
   SConfirmarPresentar = '¿Enviar la cotización Nº %d a revisión? ' +

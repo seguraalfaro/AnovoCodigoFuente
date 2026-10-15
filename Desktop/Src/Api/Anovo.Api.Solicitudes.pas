@@ -24,6 +24,7 @@ type
       const APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TSolicitudEnTrabajoDTO>;
     function Obtener(const AId: Integer): TSolicitudDTO;
+    function Piezas(const AId: Integer): TObjectList<TPiezaDTO>;
     function Medidas(const AId: Integer): TObjectList<TMedidaDTO>;
     function Adjuntos(const AId: Integer): TObjectList<TAdjuntoDTO>;
     function Adjunto(const AId, AAdjuntoId: Integer): TAdjuntoContenidoDTO;
@@ -46,6 +47,7 @@ const
   RUTA_COLA = '/api/solicitudes/cola';
   RUTA_EN_TRABAJO = '/api/solicitudes/en-trabajo';
   RUTA_SOLICITUD = '/api/solicitudes/%d';
+  RUTA_PIEZAS = '/api/solicitudes/%d/piezas';
   RUTA_MEDIDAS = '/api/solicitudes/%d/medidas';
   RUTA_ADJUNTOS = '/api/solicitudes/%d/adjuntos';
   RUTA_ADJUNTO = '/api/solicitudes/%d/adjuntos/%d';
@@ -135,6 +137,18 @@ begin
   Result := TSolicitudDTO.Create;
   try
     Leer(Format(RUTA_SOLICITUD, [AId])).BodyFor(Result, CAMPO_DATOS);
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
+function TApiSolicitudes.Piezas(const AId: Integer): TObjectList<TPiezaDTO>;
+begin
+  Result := TObjectList<TPiezaDTO>.Create(True);
+  try
+    Leer(Format(RUTA_PIEZAS, [AId])).BodyForListOf(Result, TPiezaDTO,
+      CAMPO_DATOS);
   except
     Result.Free;
     raise;

@@ -491,6 +491,13 @@ type
     mtMedidasVALOR: TCurrencyField;
     mtMedidasCANTIDAD: TIntegerField;
     dsMedidas: TDataSource;
+    mtPiezas: TFDMemTable;
+    mtPiezasID: TIntegerField;
+    mtPiezasNOMBRE: TStringField;
+    mtPiezasTIPO_TRABAJO_NOMBRE: TStringField;
+    mtPiezasTIPO_MATERIAL_NOMBRE: TStringField;
+    mtPiezasACABADO_NOMBRE: TStringField;
+    dsPiezas: TDataSource;
     mtItemsLinea: TFDMemTable;
     mtItemsLineaID: TIntegerField;
     mtItemsLineaCODIGO: TStringField;

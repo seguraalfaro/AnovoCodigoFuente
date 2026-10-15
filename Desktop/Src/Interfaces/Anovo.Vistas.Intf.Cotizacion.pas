@@ -60,10 +60,12 @@ type
       const AAcciones: TAccionesLinea);
     procedure MostrarLineas(const ALineas: TObjectList<TLineaDTO>);
     procedure MostrarTiposTrabajo(const ATipos: TObjectList<TTipoTrabajoDTO>);
-    procedure MostrarMedidas(const AMedidas: TObjectList<TMedidaDTO>);
-    procedure MostrarCroquis(const AJson: string);
-    procedure MostrarFoto(const AIndice, ATotal: Integer;
-      const AImagen: TBytes);
+    procedure MostrarSolicitud(const AProyecto, AContacto: string);
+    procedure MostrarPiezas(const APiezas: TObjectList<TPiezaDTO>);
+    procedure MostrarMedidas(const APieza: string;
+      const AMedidas: TObjectList<TMedidaDTO>);
+    procedure MostrarEvidencia(const APieza, ACroquis: string;
+      const AFotos: TList<TBytes>; const ACargando: Boolean);
     procedure Regresar;
   end;
 
