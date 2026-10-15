@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Fachada de la API como TApiBase del escritorio: arma el RestCliente con la URL
 ' y el token, y traduce cada respuesta fallida a un mensaje para la persona.
+
 Sub Process_Globals
 	Private xui As XUI
 	Private kvs As KeyValueStore
@@ -19,6 +20,7 @@ Sub Process_Globals
 	Private Const PAGINA_INGRESO As String = "MainPage"
 End Sub
 
+#Region Servidor
 Private Sub Configuracion As KeyValueStore
 	If kvs.IsInitialized = False Then kvs.Initialize(File.DirInternal, ARCHIVO_CONFIGURACION)
 	Return kvs
@@ -37,7 +39,9 @@ End Sub
 Public Sub GuardarUrl (Url As String)
 	Configuracion.Put(LLAVE_URL, Url.Trim)
 End Sub
+#End Region
 
+#Region Cliente REST
 Public Sub NuevoCliente (ConToken As Boolean) As RestCliente
 	Dim cliente As RestCliente
 	cliente.Initialize
@@ -45,7 +49,9 @@ Public Sub NuevoCliente (ConToken As Boolean) As RestCliente
 	If ConToken Then cliente.SetBearerAuthorization(Sesion.Token)
 	Return cliente
 End Sub
+#End Region
 
+#Region Errores y sesión
 Public Sub SesionVencida (Respuesta As RestRespuesta) As Boolean
 	Return Respuesta.StatusCode = ESTADO_NO_AUTORIZADO
 End Sub
@@ -67,3 +73,4 @@ Public Sub VolverAlIngreso (Mensaje As String)
 	B4XPages.ShowPageAndRemovePreviousPages(PAGINA_INGRESO)
 	If Mensaje <> "" Then xui.MsgboxAsync(Mensaje, Mensajes.TITULO)
 End Sub
+#End Region

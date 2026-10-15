@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Pantalla de sincronizacion: carga PageSincronizacion y arma la lista con la conexion, lo que
 ' falta subir, los errores, el boton y el historial. Se repinta al terminar cada sincronizacion.
+
 Sub Class_Globals
 	Private Root As B4XView
 	Private xui As XUI
@@ -13,13 +14,14 @@ Sub Class_Globals
 	Private visible As Boolean
 	Private ClvSync As CustomListView
 	Private lblSyncConTitulo, lblSyncConEstado, lblSyncServidorRot, lblSyncServidor, lblSyncUltimaRot, lblSyncUltima As B4XView
+	Private lblSyncActualizadoRot, lblSyncActualizado As B4XView
 	Private lblSyncPendTitulo, lblPend1Valor, lblPend2Valor, lblPend3Valor, lblPend1Titulo, lblPend2Titulo, lblPend3Titulo As B4XView
 	Private pnPend1, pnPend2, pnPend3 As B4XView
 	Private lblSyncErrorTitulo, lblSyncErrorMensaje, lblSyncReintentar As B4XView
 	Private pnSyncAlDia, lblSyncAlDia, BtnSincronizarAhora As B4XView
 	Private lblIntentoIcono, lblIntentoResultado, lblIntentoFecha, lblIntentoDetalle As B4XView
 	Private lblSeccion As B4XView
-	Private Const ALTO_CONEXION As Int = 108dip
+	Private Const ALTO_CONEXION As Int = 132dip
 	Private Const ALTO_PENDIENTES As Int = 116dip
 	Private Const ALTO_ERROR As Int = 82dip
 	Private Const ALTO_ACCION As Int = 108dip
@@ -36,6 +38,7 @@ Public Sub Initialize As Object
 	Return Me
 End Sub
 
+#Region Ciclo de la página
 Private Sub B4XPage_Created (Root1 As B4XView)
 	Root = Root1
 	Root.LoadLayout("PageSincronizacion")
@@ -61,7 +64,9 @@ Public Sub SincronizacionTerminada (Resultado As ResumenSync)
 	End If
 	If visible Then Pintar
 End Sub
+#End Region
 
+#Region Pintar
 Private Sub Pintar
 	presentador.Actualizar
 	ClvSync.Clear
@@ -96,6 +101,8 @@ Private Sub CrearConexion (Ancho As Int) As B4XView
 	lblSyncServidor.Text = presentador.Servidor
 	lblSyncUltimaRot.Text = Mensajes.SYNC_ULTIMA_EXITOSA
 	lblSyncUltima.Text = presentador.UltimaExitosa
+	lblSyncActualizadoRot.Text = Mensajes.SYNC_ACTUALIZADO
+	lblSyncActualizado.Text = presentador.Actualizado
 	PintarEstadoConexion
 	Return p
 End Sub
@@ -178,10 +185,12 @@ Private Sub CrearSeccion (Ancho As Int, Texto As String, Tinta As Int, Negrita A
 	p.LoadLayout("ItemSeccion")
 	lblSeccion.Text = Texto
 	lblSeccion.TextColor = Tinta
-	If Negrita = False Then lblSeccion.Font = xui.CreateDefaultFont(12)
+	If Negrita = False Then lblSeccion.Font = xui.CreateDefaultFont(14)
 	Return p
 End Sub
+#End Region
 
+#Region Eventos
 Private Sub BtnSincronizarAhora_Click
 	presentador.Sincronizar
 	Pintar
@@ -192,3 +201,4 @@ Private Sub lblSyncReintentar_Click
 	presentador.Reintentar(v.Tag)
 	Pintar
 End Sub
+#End Region

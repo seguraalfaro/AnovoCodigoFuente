@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Presentador de la pantalla de sincronizacion (P10): conexion, pendientes por tipo, registros
 ' con error e historial de intentos (RNF-012). No conoce vistas.
+
 Sub Class_Globals
 	Private Const LIMITE_HISTORIAL As Int = 20
 	Private Const SIN_DATO As String = "-"
@@ -29,22 +30,16 @@ Public Sub Initialize
 	mPendientes = Array As Int(0, 0, 0)
 End Sub
 
+#Region Estado
 Public Sub Actualizar
 	mPendientes = Array As Int(DbSync.PendientesDe(DbSync.CLASE_CLIENTE), DbSync.PendientesDe(DbSync.CLASE_SOLICITUD), DbSync.PendientesDe(DbSync.CLASE_FOTO))
 	mErrores = DbSync.Errores
 	mHistorial = DbSync.Historial(LIMITE_HISTORIAL)
 	mUltima = DbSync.UltimaExitosa
 End Sub
+#End Region
 
-Public Sub Probar As ResumableSub
-	mProbando = True
-	Wait For (ApiSesion.Version.Enviar) Complete (Respuesta As RestRespuesta)
-	mProbando = False
-	mProbado = True
-	mEnLinea = Respuesta.Success
-	Return mEnLinea
-End Sub
-
+#Region Lo que pinta la página
 Public Sub getServidor As String
 	If Api.UrlServidor = "" Then Return SIN_DATO
 	Return Api.UrlServidor
@@ -74,6 +69,12 @@ Public Sub getUltimaExitosa As String
 	Return Utils.BdADisplay(mUltima)
 End Sub
 
+Public Sub getActualizado As String
+	Dim hora As String = DbBajada.Hora
+	If hora = "" Then Return Mensajes.SYNC_NUNCA
+	Return Utils.BdADisplay(hora)
+End Sub
+
 Public Sub getPendientes As Int()
 	Return mPendientes
 End Sub
@@ -94,12 +95,34 @@ Public Sub getErrores As List
 	Return mErrores
 End Sub
 
-Public Sub TituloError (e As ErrorSync) As String
-	Return Mensajes.TituloErrorSync(e.Entidad, e.Titulo)
-End Sub
-
 Public Sub getHistorial As List
 	Return mHistorial
+End Sub
+#End Region
+
+#Region Acciones
+Public Sub Probar As ResumableSub
+	mProbando = True
+	Wait For (ApiSesion.Version.Enviar) Complete (Respuesta As RestRespuesta)
+	mProbando = False
+	mProbado = True
+	mEnLinea = Respuesta.Success
+	Return mEnLinea
+End Sub
+
+Public Sub Sincronizar
+	Sincronizacion.Forzar
+End Sub
+
+Public Sub Reintentar (e As ErrorSync)
+	DbSync.ReintentarUno(e.Entidad, e.Uuid)
+	Sincronizacion.Pedir
+End Sub
+#End Region
+
+#Region Textos de cada fila
+Public Sub TituloError (e As ErrorSync) As String
+	Return Mensajes.TituloErrorSync(e.Entidad, e.Titulo)
 End Sub
 
 Public Sub ResultadoDe (i As IntentoSync) As String
@@ -111,7 +134,7 @@ Public Sub FechaDe (i As IntentoSync) As String
 End Sub
 
 Public Sub DetalleDe (i As IntentoSync) As String
-	Return Mensajes.DetalleIntento(i.Subidos, i.ConError, i.Pendientes)
+	Return Mensajes.DetalleIntento(i.Subidos, i.Bajados, i.ConError, i.Pendientes)
 End Sub
 
 Public Sub IconoDe (i As IntentoSync) As FranjaSync
@@ -137,12 +160,4 @@ Public Sub IconoDe (i As IntentoSync) As FranjaSync
 	End Select
 	Return f
 End Sub
-
-Public Sub Sincronizar
-	Sincronizacion.Forzar
-End Sub
-
-Public Sub Reintentar (e As ErrorSync)
-	DbSync.ReintentarUno(e.Entidad, e.Uuid)
-	Sincronizacion.Pedir
-End Sub
+#End Region

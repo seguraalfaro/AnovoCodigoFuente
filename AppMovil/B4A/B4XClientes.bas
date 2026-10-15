@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Registro de cliente en tres pasos: datos, contactos y permiso. La pagina lee
 ' los campos y pinta; el borrador, las reglas y el guardado son del presentador.
+
 Sub Class_Globals
 	Private Root As B4XView
 	Private xui As XUI
@@ -61,6 +62,7 @@ Public Sub Initialize As Object
 	Return Me
 End Sub
 
+#Region Ciclo y borrador
 Private Sub B4XPage_Created (Root1 As B4XView)
 	Root = Root1
 	Root.LoadLayout("PageIngresoDatos")
@@ -102,41 +104,6 @@ Private Sub B4XPage_Appear
 	CapturarUbicacion
 End Sub
 
-Private Sub CapturarUbicacion
-	presentador.BuscandoUbicacion
-	PintarUbicacion
-	Dim rp As RuntimePermissions
-	If rp.Check(rp.PERMISSION_ACCESS_FINE_LOCATION) = False Then
-		rp.CheckAndRequest(rp.PERMISSION_ACCESS_FINE_LOCATION)
-		Wait For B4XPage_PermissionResult (Permission As String, Result As Boolean)
-		If Result = False Then
-			presentador.FijarUbicacion(Tipos.UbicacionVacia)
-			PintarUbicacion
-			Return
-		End If
-	End If
-	Wait For (gps.Pedir(ESPERA_GPS)) Complete (Lugar As UbicacionGps)
-	presentador.FijarUbicacion(Lugar)
-	If visible = False Then Return
-	PintarUbicacion
-	Persistir
-End Sub
-
-Private Sub PintarUbicacion
-	Dim f As FranjaSync = presentador.FranjaUbicacion
-	PnUbicacion.SetColorAndBorder(f.Fondo, 1dip, f.Tinta, RADIO_UBICACION)
-	lblUbicacionIcono.Text = f.Glifo
-	lblUbicacionIcono.TextColor = f.Tinta
-	lblUbicacion.Text = f.Texto
-	lblUbicacion.TextColor = Colores.COLOR_TEXTO_PRIMARIO
-	lblUbicacionAccion.Text = f.Accion
-	lblUbicacionAccion.TextColor = f.Tinta
-End Sub
-
-Private Sub lblUbicacionAccion_Click
-	If presentador.PuedeReintentarUbicacion Then CapturarUbicacion
-End Sub
-
 Private Sub B4XPage_Disappear
 	visible = False
 	Persistir
@@ -144,16 +111,6 @@ End Sub
 
 Private Sub B4XPage_Background
 	Persistir
-End Sub
-
-Private Sub EditText_TextChanged (Old As String, New As String)
-	If restaurando Then Return
-	Formato.EventoCambioText(Sender, Old, New)
-End Sub
-
-Private Sub EditText_FocusChanged (HasFocus As Boolean)
-	If HasFocus Or restaurando Then Return
-	If Formato.EventoCambioFocusText(Sender) Then Persistir
 End Sub
 
 Private Sub Persistir
@@ -223,6 +180,108 @@ Private Sub Limpiar
 	AHView.GotoPage(PASO_DATOS, True)
 End Sub
 
+Private Sub IME1_HeightChanged (NewHeight As Int, OldHeight As Int)
+	If Root.Parent.IsInitialized = False Then Return
+	If NewHeight > OldHeight Then UI.SoltarFoco(TextDireccion)
+End Sub
+#End Region
+
+#Region Paso 1: datos
+Private Sub EditText_TextChanged (Old As String, New As String)
+	If restaurando Then Return
+	Formato.EventoCambioText(Sender, Old, New)
+End Sub
+
+Private Sub EditText_FocusChanged (HasFocus As Boolean)
+	If HasFocus Or restaurando Then Return
+	If Formato.EventoCambioFocusText(Sender) Then Persistir
+End Sub
+
+Private Sub CbTipoIdentificacion_SelectedIndexChanged (Index As Int)
+	If restaurando Then Return
+	Formato.SetTipoIdentificacion(Index, TextIdentificacion)
+End Sub
+#End Region
+
+#Region Ubicación
+Private Sub CapturarUbicacion
+	presentador.BuscandoUbicacion
+	PintarUbicacion
+	Dim rp As RuntimePermissions
+	If rp.Check(rp.PERMISSION_ACCESS_FINE_LOCATION) = False Then
+		rp.CheckAndRequest(rp.PERMISSION_ACCESS_FINE_LOCATION)
+		Wait For B4XPage_PermissionResult (Permission As String, Result As Boolean)
+		If Result = False Then
+			presentador.FijarUbicacion(Tipos.UbicacionVacia)
+			PintarUbicacion
+			Return
+		End If
+	End If
+	Wait For (gps.Pedir(ESPERA_GPS)) Complete (Lugar As UbicacionGps)
+	presentador.FijarUbicacion(Lugar)
+	If visible = False Then Return
+	PintarUbicacion
+	Persistir
+End Sub
+
+Private Sub PintarUbicacion
+	Dim f As FranjaSync = presentador.FranjaUbicacion
+	PnUbicacion.SetColorAndBorder(f.Fondo, 1dip, f.Tinta, RADIO_UBICACION)
+	lblUbicacionIcono.Text = f.Glifo
+	lblUbicacionIcono.TextColor = f.Tinta
+	lblUbicacion.Text = f.Texto
+	lblUbicacion.TextColor = Colores.COLOR_TEXTO_PRIMARIO
+	lblUbicacionAccion.Text = f.Accion
+	lblUbicacionAccion.TextColor = f.Tinta
+End Sub
+
+Private Sub lblUbicacionAccion_Click
+	If presentador.PuedeReintentarUbicacion Then CapturarUbicacion
+End Sub
+#End Region
+
+#Region Paso 2: contactos
+Private Sub BtnAgregar_Click
+	If UI.ValidarFormulario(PnContactos) = False Then Return
+	Dim c As Contacto = presentador.AgregarContacto(LeerContacto)
+	CvContactos.Add(CrearItem(c), c.UuidLocal)
+	UI.LimpiarFormulario(PnContactos)
+	Persistir
+End Sub
+
+Private Sub CrearItem (c As Contacto) As B4XView
+	Dim p As B4XView = xui.CreatePanel("")
+	p.SetLayoutAnimated(0, 0, 0, CvContactos.AsView.Width, UI.GetCardHeight)
+	p.LoadLayout("ItemContacto")
+	UI.AplicarTema(p)
+	LblNombre.Text = c.Nombre
+	LblDatos.Text = presentador.DetalleContacto(c)
+	LblChip.Visible = c.Principal
+	LBlEliminar.Tag = c.UuidLocal
+	Return p
+End Sub
+
+Private Sub LBlEliminar_Click
+	Dim v As B4XView = Sender
+	Dim i As Int = presentador.QuitarContacto(v.Tag)
+	If i < 0 Then Return
+	CvContactos.RemoveAt(i)
+	Persistir
+End Sub
+#End Region
+
+#Region Paso 3: consentimiento
+Private Sub SignPad_onSigned (sign As Object)
+	HayFirma = True
+End Sub
+
+Private Sub lblBorrar_Click
+	SignPad.clear
+	HayFirma = False
+End Sub
+#End Region
+
+#Region Navegación entre pasos
 Private Sub BtnSiguiente_Click
 	Dim actual As Int = AHView.CurrentPage
 	Dim completos As Boolean = True
@@ -261,48 +320,6 @@ Private Sub Pasos_StepClick (Index As Int, Id As String)
 	If Index < AHView.CurrentPage Then AHView.GotoPage(Index, True)
 End Sub
 
-Private Sub CbTipoIdentificacion_SelectedIndexChanged (Index As Int)
-	If restaurando Then Return
-	Formato.SetTipoIdentificacion(Index, TextIdentificacion)
-End Sub
-
-Private Sub BtnAgregar_Click
-	If UI.ValidarFormulario(PnContactos) = False Then Return
-	Dim c As Contacto = presentador.AgregarContacto(LeerContacto)
-	CvContactos.Add(CrearItem(c), c.UuidLocal)
-	UI.LimpiarFormulario(PnContactos)
-	Persistir
-End Sub
-
-Private Sub CrearItem (c As Contacto) As B4XView
-	Dim p As B4XView = xui.CreatePanel("")
-	p.SetLayoutAnimated(0, 0, 0, CvContactos.AsView.Width, UI.GetCardHeight)
-	p.LoadLayout("ItemContacto")
-	UI.AplicarTema(p)
-	LblNombre.Text = c.Nombre
-	LblDatos.Text = presentador.DetalleContacto(c)
-	LblChip.Visible = c.Principal
-	LBlEliminar.Tag = c.UuidLocal
-	Return p
-End Sub
-
-Private Sub LBlEliminar_Click
-	Dim v As B4XView = Sender
-	Dim i As Int = presentador.QuitarContacto(v.Tag)
-	If i < 0 Then Return
-	CvContactos.RemoveAt(i)
-	Persistir
-End Sub
-
-Private Sub SignPad_onSigned (sign As Object)
-	HayFirma = True
-End Sub
-
-Private Sub lblBorrar_Click
-	SignPad.clear
-	HayFirma = False
-End Sub
-
 Private Sub Confirmar
 	Dim r As Resultado = presentador.Guardar(LeerPermiso)
 	If r.Ok = False Then
@@ -316,8 +333,4 @@ End Sub
 
 Private Sub BtnCancelar_Click
 End Sub
-
-Private Sub IME1_HeightChanged (NewHeight As Int, OldHeight As Int)
-	If Root.Parent.IsInitialized = False Then Return
-	If NewHeight > OldHeight Then UI.SoltarFoco(TextDireccion)
-End Sub
+#End Region

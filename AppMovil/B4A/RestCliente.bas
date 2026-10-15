@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Cliente REST al estilo de TMVCRESTClient de DMVC: se configura encadenando llamadas y termina
 ' en un verbo resumible, o se arma con Preparar* en un modulo y quien llama espera Enviar.
+
 Sub Class_Globals
 	Private mBaseUrl As String
 	Private mEncabezados As Map
@@ -29,6 +30,7 @@ Public Sub Initialize
 	mTiempoMs = TIEMPO_POR_DEFECTO_MS
 End Sub
 
+#Region Configuración
 Public Sub BaseUrl (Url As String) As RestCliente
 	mBaseUrl = Url.Trim
 	Do While mBaseUrl.EndsWith("/")
@@ -57,6 +59,11 @@ Public Sub AddPathParam (Nombre As String, Valor As String) As RestCliente
 	Return Me
 End Sub
 
+Public Sub AddQueryStringParam (Nombre As String, Valor As String) As RestCliente
+	mConsulta.Add(Array As String(Nombre, Valor))
+	Return Me
+End Sub
+
 Public Sub AddBody (Cuerpo As Object) As RestCliente
 	Dim generador As JSONGenerator
 	If Cuerpo Is Map Then
@@ -70,7 +77,9 @@ Public Sub AddBody (Cuerpo As Object) As RestCliente
 	End If
 	Return Me
 End Sub
+#End Region
 
+#Region Preparar y enviar
 Public Sub PrepararGet (Recurso As String) As RestCliente
 	Return Preparar("GET", Recurso)
 End Sub
@@ -93,7 +102,9 @@ Public Sub Enviar As ResumableSub
 	Wait For (Ejecutar(mMetodo, mRecurso)) Complete (Respuesta As RestRespuesta)
 	Return Respuesta
 End Sub
+#End Region
 
+#Region Verbos
 Public Sub Get (Recurso As String) As ResumableSub
 	Wait For (Ejecutar("GET", Recurso)) Complete (Respuesta As RestRespuesta)
 	Return Respuesta
@@ -118,7 +129,9 @@ Public Sub Delete (Recurso As String) As ResumableSub
 	Wait For (Ejecutar("DELETE", Recurso)) Complete (Respuesta As RestRespuesta)
 	Return Respuesta
 End Sub
+#End Region
 
+#Region Internos
 Private Sub ArmarUrl (Recurso As String) As String
 	Dim ruta As String = Recurso
 	For Each nombre As String In mRuta.Keys
@@ -163,3 +176,4 @@ Private Sub Ejecutar (Metodo As String, Recurso As String) As ResumableSub
 	j.Release
 	Return respuesta
 End Sub
+#End Region

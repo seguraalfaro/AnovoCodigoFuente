@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Presentador de la pieza en tres partes (datos, croquis y fotos): catalogos, fotos,
 ' borrador en KVS mientras se captura y armado de la Pieza que vuelve a la cotizacion.
+
 Sub Class_Globals
 	Private Const EXTENSION_FOTO As String = ".jpg"
 	Private Const CLAVE_ETIQUETA As String = "etiqueta"
@@ -47,6 +48,7 @@ Public Sub Initialize
 	Nuevo
 End Sub
 
+#Region Estado
 Public Sub Nuevo
 	mUuid = ""
 	mTrabajoId = 0
@@ -76,18 +78,6 @@ End Sub
 
 Public Sub getEditando As Boolean
 	Return mUuid <> ""
-End Sub
-
-Public Sub getNombre As String
-	Return mNombre
-End Sub
-
-Public Sub getCroquisJson As String
-	Return mCroquisJson
-End Sub
-
-Public Sub getPagina As Int
-	Return mPagina
 End Sub
 
 Public Sub getHayBorrador As Boolean
@@ -137,6 +127,20 @@ Public Sub DescartarBorrador
 	If Restaurar Then DescartarFotos
 	Db.BorrarBorrador(TIPO_BORRADOR)
 End Sub
+#End Region
+
+#Region Lo que pinta la página
+Public Sub getNombre As String
+	Return mNombre
+End Sub
+
+Public Sub getCroquisJson As String
+	Return mCroquisJson
+End Sub
+
+Public Sub getPagina As Int
+	Return mPagina
+End Sub
 
 Public Sub getOpcionesTiposTrabajo As List
 	Return mTiposTrabajo
@@ -148,18 +152,6 @@ End Sub
 
 Public Sub getOpcionesAcabados As List
 	Return mAcabados
-End Sub
-
-Public Sub ElegirTipoTrabajo (Id As Int)
-	mTrabajoId = Id
-End Sub
-
-Public Sub ElegirTipoMaterial (Id As Int)
-	mMaterialId = Id
-End Sub
-
-Public Sub ElegirAcabado (Id As Int)
-	mAcabadoId = Id
 End Sub
 
 Public Sub getTextoTipoTrabajo As String
@@ -184,6 +176,20 @@ End Sub
 
 Public Sub getPuedeAgregarFoto As Boolean
 	Return mFotos.Size < Adjuntos.MAX_FOTOS
+End Sub
+#End Region
+
+#Region Acciones
+Public Sub ElegirTipoTrabajo (Id As Int)
+	mTrabajoId = Id
+End Sub
+
+Public Sub ElegirTipoMaterial (Id As Int)
+	mMaterialId = Id
+End Sub
+
+Public Sub ElegirAcabado (Id As Int)
+	mAcabadoId = Id
 End Sub
 
 Public Sub AgregarFoto (Datos() As Byte) As String
@@ -252,7 +258,9 @@ Public Sub ArmarPieza (NombrePieza As String, Croquis As String, MedidasCroquis 
 	Nuevo
 	Return Tipos.Correcto(p)
 End Sub
+#End Region
 
+#Region Ayudantes
 Private Sub MedidaDe (m As Map, Orden As Int) As MedidaPieza
 	Dim r As MedidaPieza
 	r.Initialize
@@ -272,3 +280,4 @@ Private Sub NombreDe (Opciones As List, Id As Int) As String
 	Next
 	Return ""
 End Sub
+#End Region

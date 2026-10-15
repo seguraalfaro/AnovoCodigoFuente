@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Presentador del Perfil, como TPresentadorConfiguracion del escritorio: la cuenta, la prueba
 ' de conexion, las versiones y el cambio de clave, que vuelve a entrar con la clave nueva.
+
 Sub Class_Globals
 	Private Const LARGO_MINIMO As Int = 10
 	Private Const ESTADO_OK As Int = 200
@@ -36,6 +37,7 @@ Public Sub Initialize
 	Limpiar
 End Sub
 
+#Region Estado
 Private Sub Limpiar
 	mPermisos = SIN_DATO
 	mClave = SIN_DATO
@@ -45,6 +47,28 @@ Private Sub Limpiar
 	mVersionAviso = SIN_DATO
 End Sub
 
+Public Sub Cargar As ResumableSub
+	mCargando = True
+	Wait For (Probar) Complete (Hecho As Boolean)
+	If mConectado Then
+		Wait For (remota.AsegurarSesion) Complete (Estado As Int)
+		If Estado = ESTADO_OK Then
+			Wait For (ApiSesion.Cuenta.Enviar) Complete (Respuesta As RestRespuesta)
+			If Respuesta.Success Then LeerCuenta(Respuesta.DatosMap)
+		End If
+	End If
+	mCargando = False
+	Return True
+End Sub
+
+Private Sub LeerCuenta (d As Map)
+	mPermisos = Mensajes.PermisosPropios(d.GetDefault(CAMPO_ADICIONALES, 0), d.GetDefault(CAMPO_QUITADOS, 0))
+	Dim fecha As String = Utils.ApiADisplay(d.GetDefault(CAMPO_CLAVE, ""))
+	mClave = Texto(fecha)
+End Sub
+#End Region
+
+#Region Lo que pinta la página
 Public Sub getIniciales As String
 	Return Utils.Iniciales(Sesion.Nombre)
 End Sub
@@ -110,21 +134,9 @@ End Sub
 Public Sub getVersionAviso As String
 	Return mVersionAviso
 End Sub
+#End Region
 
-Public Sub Cargar As ResumableSub
-	mCargando = True
-	Wait For (Probar) Complete (Hecho As Boolean)
-	If mConectado Then
-		Wait For (remota.AsegurarSesion) Complete (Estado As Int)
-		If Estado = ESTADO_OK Then
-			Wait For (ApiSesion.Cuenta.Enviar) Complete (Respuesta As RestRespuesta)
-			If Respuesta.Success Then LeerCuenta(Respuesta.DatosMap)
-		End If
-	End If
-	mCargando = False
-	Return True
-End Sub
-
+#Region Acciones
 Public Sub Probar As ResumableSub
 	mCargando = True
 	Dim inicio As Long = DateTime.Now
@@ -141,17 +153,6 @@ Public Sub Probar As ResumableSub
 	End If
 	mCargando = False
 	Return mConectado
-End Sub
-
-Private Sub LeerCuenta (d As Map)
-	mPermisos = Mensajes.PermisosPropios(d.GetDefault(CAMPO_ADICIONALES, 0), d.GetDefault(CAMPO_QUITADOS, 0))
-	Dim fecha As String = Utils.ApiADisplay(d.GetDefault(CAMPO_CLAVE, ""))
-	mClave = Texto(fecha)
-End Sub
-
-Private Sub Texto (Valor As Object) As String
-	If Valor = Null Or Valor = "" Then Return SIN_DATO
-	Return Valor
 End Sub
 
 Public Sub CambiarClave (Actual As String, Nueva As String, Repetida As String) As ResumableSub
@@ -177,3 +178,11 @@ Private Sub ValidarClave (Actual As String, Nueva As String, Repetida As String)
 	If Nueva = Actual Then Return Mensajes.CLAVE_IGUAL
 	Return ""
 End Sub
+#End Region
+
+#Region Ayudantes
+Private Sub Texto (Valor As Object) As String
+	If Valor = Null Or Valor = "" Then Return SIN_DATO
+	Return Valor
+End Sub
+#End Region

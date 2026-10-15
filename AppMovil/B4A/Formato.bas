@@ -13,6 +13,7 @@ Version=13.7
 '  el nombre. Las funciones de mascara son puras: se prueban sin
 '  interfaz y las reusa Validacion.
 ' ============================================================
+
 Sub Process_Globals
 	Private MascaraEnCurso As Boolean
 
@@ -28,7 +29,7 @@ Sub Process_Globals
 	
 End Sub
 
-#Region Evento de Entrada
+#Region Evento de entrada
 'Traduce el ItemIndex de Utils.TiposIdent al vocabulario de mascaras.
 'El orden del combo es cosa de la pantalla y no debe ser el contrato.
 'se corrige error de implementecion se deside cambiar el tag al componete en ejecucion
@@ -50,6 +51,7 @@ Public Sub SetTipoIdentificacion (indice As Int, Campo As B4XFloatTextField)
 	UI.ConfigurarIdentificacion(Campo, Enmascarar(tag))
 
 End Sub
+
 Private Sub TagIdentPorIndice (indice As Int) As String
 	Select indice
 		Case 0
@@ -62,6 +64,7 @@ Private Sub TagIdentPorIndice (indice As Int) As String
 			Return Utils.TAG_FTF_NOMBRE
 	End Select
 End Sub
+
 Private Sub TagIdentActual (t As String) As String
 
 	If t.Contains(Utils.TAG_FTF_CEDULA_JURIDICA) Then Return Utils.TAG_FTF_CEDULA_JURIDICA
@@ -69,6 +72,7 @@ Private Sub TagIdentActual (t As String) As String
 	If t.Contains(Utils.TAG_FTF_CEDULA)          Then Return Utils.TAG_FTF_CEDULA
 	Return ""
 End Sub
+
 public Sub EventoCambioText(Remitente As Object ,Old As String, New As String)
 	If MascaraEnCurso Then Return
 
@@ -123,7 +127,7 @@ Private Sub Enmascarar (t As String) As Int
 End Sub
 #End Region
 
-#Region Mascaras
+#Region Máscaras
 'Publicas y puras: se prueban sin interfaz y las reusa Validacion.
 Public Sub MascaraIdentificacion (Texto As String, Tipo As Int) As String
 	Select Tipo
@@ -170,7 +174,7 @@ Public Sub MascaraTelefonoExt (Texto As String) As String
 End Sub
 #End Region
 
-#Region ValidacioLinea
+#Region Validación al salir del campo
 'Normaliza segun el campo: SoloAlfanum se come la arroba y el punto,
 'asi que el correo va por NormalizarCorreo o ninguna validacion pasa.
 Public Sub EventoCambioFocusText(Remitente As Object)As Boolean

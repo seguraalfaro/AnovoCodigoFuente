@@ -40,6 +40,7 @@ Public Sub Initialize (Callback As Object, EventName As String)
 	mCallBack = Callback
 End Sub
 
+#Region Designer
 Public Sub DesignerCreateView (Base As Object, Lbl As Label, Props As Map)
 	mBase = Base
 	Tag = mBase.Tag
@@ -88,7 +89,9 @@ Private Sub Pintar
 	mBase.SetColorAndBorder(fondo, 1dip, Colores.COLOR_BORDE, RADIO)
 	txt.Enabled = mHabilitado
 End Sub
+#End Region
 
+#Region Propiedades
 Public Sub getTexto As String
 	Return txt.Text
 End Sub
@@ -105,7 +108,9 @@ Public Sub setHabilitado (Valor As Boolean)
 	mHabilitado = Valor
 	Pintar
 End Sub
+#End Region
 
+#Region Eventos
 Private Sub capa_Click
 	If xui.SubExists(mCallBack, mEventName & SUFIJO_OPCIONES, 0) = False Then Return
 	Dim opciones As Object = CallSub(mCallBack, mEventName & SUFIJO_OPCIONES)
@@ -115,3 +120,4 @@ Private Sub capa_Click
 	If Valor = Null Then Return
 	CallSub2(mCallBack, mEventName & SUFIJO_ELEGIDO, Valor)
 End Sub
+#End Region

@@ -6,6 +6,7 @@ interface
 
 uses
   System.Generics.Collections,
+  MVCFramework.Nullables,
   Anovo.Repositories.Base,
   Anovo.Repositories.Intf.Solicitudes,
   Anovo.Entities.Solicitudes,
@@ -35,6 +36,8 @@ type
       : TObjectList<TSeguimientoAsesor>;
     function ContarSeguimiento(const AAsesorId: Integer; const ATexto: string;
       const ADesde, AHasta: TDateTime): Int64;
+    function SeguimientoParaBajar(const AAsesorId: Integer;
+      const ADesde: NullableTDateTime): TObjectList<TSeguimientoAsesor>;
     function Cola(const ATexto: string; const APagina, APorPagina: Integer)
       : TObjectList<TColaSolicitudes>;
     function ContarCola(const ATexto: string): Int64;
@@ -229,6 +232,17 @@ begin
     Result := ListarConsulta<TSeguimientoAsesor>(CONSULTA_DE_ASESOR,
       [AAsesorId, TextoParaRQL(ATexto), TextoParaRQL(ATexto),
       (APagina - 1) * APorPagina, APorPagina]);
+end;
+
+function TSolicitudRepository.SeguimientoParaBajar(const AAsesorId: Integer;
+  const ADesde: NullableTDateTime): TObjectList<TSeguimientoAsesor>;
+begin
+  if ADesde.HasValue then
+    Result := ListarConsulta<TSeguimientoAsesor>(CONSULTA_BAJADA_DESDE,
+      [AAsesorId, FechaHoraParaRQL(ADesde.Value)], SIN_LIMITE)
+  else
+    Result := ListarConsulta<TSeguimientoAsesor>(CONSULTA_BAJADA, [AAsesorId],
+      SIN_LIMITE);
 end;
 
 function TSolicitudRepository.ContarSeguimiento(const AAsesorId: Integer;

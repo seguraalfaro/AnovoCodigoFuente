@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Ficha del cliente, solo consulta: carga PageClienteDetalle y arma la lista con los layouts
 ' ItemClienteDatos, ItemSeccion, ItemContactoFicha e ItemPermiso. El boton empieza una solicitud.
+
 Sub Class_Globals
 	Private Root As B4XView
 	Private xui As XUI
@@ -30,6 +31,7 @@ Public Sub Initialize As Object
 	Return Me
 End Sub
 
+#Region Ciclo de la página
 Private Sub B4XPage_Created (Root1 As B4XView)
 	Root = Root1
 	Root.LoadLayout("PageClienteDetalle")
@@ -49,7 +51,9 @@ End Sub
 Private Sub B4XPage_Resize (Width As Int, Height As Int)
 	Pintar
 End Sub
+#End Region
 
+#Region Pintar
 Private Sub Pintar
 	ClvFicha.Clear
 	Dim ancho As Int = ClvFicha.AsView.Width
@@ -121,9 +125,12 @@ Private Sub CrearPermiso (Ancho As Int) As B4XView
 	lblPermisoDetalle.Text = presentador.DetallePermiso
 	Return p
 End Sub
+#End Region
 
+#Region Eventos
 Private Sub BtnNuevaSolicitud_Click
 	Dim cotizacion As B4XCotizacion = B4XPages.GetPage(Layouts.PAGINA_COTIZACION)
 	cotizacion.NuevaConCliente(presentador.ClienteActual)
 	B4XPages.ShowPage(Layouts.PAGINA_COTIZACION)
 End Sub
+#End Region

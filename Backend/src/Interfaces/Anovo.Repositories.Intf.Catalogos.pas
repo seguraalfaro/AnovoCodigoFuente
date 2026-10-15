@@ -7,6 +7,7 @@ interface
 
 uses
   System.Generics.Collections,
+  MVCFramework.Nullables,
   MVCFramework.Repository,
   Anovo.Entities.Catalogos,
   Anovo.Entities.Vistas.Lectura,
@@ -102,14 +103,20 @@ type
 
     function ExisteNombre(const ANombre: string;
       const AExcluirId: Integer = 0): Boolean;
+    function ParaBajar(const ADesde: NullableTDateTime;
+      const AConUuid: Boolean = False): TObjectList<TTiposTrabajo>;
   end;
 
   ITipoMaterialRepository = interface(IMVCRepository<TTiposMaterial>)
     ['{3D7B1E90-5A42-4C68-9F13-B2E06C85A1D4}']
+    function ParaBajar(const ADesde: NullableTDateTime;
+      const AConUuid: Boolean = False): TObjectList<TTiposMaterial>;
   end;
 
   IAcabadoRepository = interface(IMVCRepository<TAcabados>)
     ['{E58C2A17-0B93-4D6F-8A41-7F2D96C3B05E}']
+    function ParaBajar(const ADesde: NullableTDateTime;
+      const AConUuid: Boolean = False): TObjectList<TAcabados>;
   end;
 
   IUnidadMedidaRepository = interface(IMVCRepository<TUnidadesMedida>)

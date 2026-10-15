@@ -13,6 +13,7 @@ Version=13.7
 '  (TAG_*), los InputType y los hints. UI y Mascara leen de aqui para
 '  no mantener dos listas del mismo tag.
 ' ============================================================
+
 Sub Process_Globals
 	Public Const FORMATO_BD      As String = "yyyy-MM-dd HH:mm:ss"   ' columnas TEXT de fecha en SQLite
 	Public Const FORMATO_API     As String = "yyyy-MM-dd HH:mm:ss.SSS" ' ajustar al confirmar el del backend
@@ -103,28 +104,7 @@ Sub Process_Globals
 	#End Region
 End Sub
 
-#Region Cadenas
-Public Sub EstaVacio (Valor As Object) As Boolean
-	If Valor = Null Then Return True
-	Return Valor.As(String).Trim = ""
-End Sub
-
-'Une los trozos no vacios con el separador. Evita quedarse con " ·  · " sueltos.
-Public Sub Unir (Separador As String, Partes() As String) As String
-	Dim sb As StringBuilder
-	sb.Initialize
-	For Each p As String In Partes
-		If EstaVacio(p) Then Continue
-		If sb.Length > 0 Then sb.Append(Separador)
-		sb.Append(p.Trim)
-	Next
-	Return sb.ToString
-End Sub
-
-#End Region
-
 #Region Fechas
-
 'Formatea la fecha (DateTime.Now o lo que devuelva Parsear). "" si falla.
 Public Sub Formatear (Fecha As Long, FormatoDate As String) As String
 	Dim previo As String = DateTime.DateFormat
@@ -159,17 +139,6 @@ Public Sub AhoraBd As String
 	Return Formatear(DateTime.Now, FORMATO_BD)
 End Sub
 
-Public Sub Iniciales (Nombre As String) As String
-	Dim sb As StringBuilder
-	sb.Initialize
-	For Each palabra As String In Regex.Split("\s+", Nombre.Trim)
-		If Regex.IsMatch("[A-Za-zÁÉÍÓÚÑáéíóúñ].*", palabra) = False Then Continue
-		sb.Append(palabra.CharAt(0))
-		If sb.Length = 2 Then Exit
-	Next
-	Return sb.ToString.ToUpperCase
-End Sub
-
 'Fecha guardada en la base -> texto para mostrar al usuario.
 Public Sub BdADisplay (FechaBd As String) As String
 	Dim f As Long = Parsear(FechaBd, FORMATO_BD)
@@ -183,10 +152,6 @@ Public Sub BdACorta (FechaBd As String) As String
 	If f = 0 Then Return ""
 	Return Formatear(f, FORMATO_CORTA)
 End Sub
-
-#End Region
-
-#Region API
 
 'ISO del servidor (2026-08-30T14:05:33.123Z) -> fecha. 0 si no se pudo.
 'Tolera la T, la Z, los nanosegundos de mas y que venga sin milisegundos.
@@ -213,10 +178,37 @@ Public Sub BdAApi (FechaBd As String) As String
 	If f = 0 Then Return ""
 	Return Formatear(f, FORMATO_ENVIO)
 End Sub
-
 #End Region
 
 #Region Texto
+Public Sub EstaVacio (Valor As Object) As Boolean
+	If Valor = Null Then Return True
+	Return Valor.As(String).Trim = ""
+End Sub
+
+'Une los trozos no vacios con el separador. Evita quedarse con " ·  · " sueltos.
+Public Sub Unir (Separador As String, Partes() As String) As String
+	Dim sb As StringBuilder
+	sb.Initialize
+	For Each p As String In Partes
+		If EstaVacio(p) Then Continue
+		If sb.Length > 0 Then sb.Append(Separador)
+		sb.Append(p.Trim)
+	Next
+	Return sb.ToString
+End Sub
+
+Public Sub Iniciales (Nombre As String) As String
+	Dim sb As StringBuilder
+	sb.Initialize
+	For Each palabra As String In Regex.Split("\s+", Nombre.Trim)
+		If Regex.IsMatch("[A-Za-zÁÉÍÓÚÑáéíóúñ].*", palabra) = False Then Continue
+		sb.Append(palabra.CharAt(0))
+		If sb.Length = 2 Then Exit
+	Next
+	Return sb.ToString.ToUpperCase
+End Sub
+
 'Deja solo digitos. La usan las mascaras para reconstruir el texto desde
 'cero en vez de insertar separadores sobre lo que hay.
 Public Sub SoloDigitos (s As String) As String
@@ -240,6 +232,7 @@ Public Sub SoloAlfanum (s As String) As String
 	Next
 	Return sb.ToString
 End Sub
+
 Public Sub ProporcionVocales (s As String) As Float
 	Dim letras As Int = 0
 	Dim vocales As Int = 0
@@ -253,6 +246,7 @@ Public Sub ProporcionVocales (s As String) As Float
 	If letras = 0 Then Return 0
 	Return vocales / letras
 End Sub
+
 'Lo que se guarda y se envia a la API. Si el movil manda con guiones y el
 'escritorio sin ellos, el cotejo al sincronizar duplica clientes.
 'Solo para identificaciones y telefonos: se come la arroba y el punto.
@@ -267,12 +261,9 @@ Public Sub NormalizarCorreo (Texto As String) As String
 End Sub
 #End Region
 
-
-#Region AsignarDatosCombox
-
+#Region Combos
 Public Sub AsignarItemsCombo (cd As B4XComboBox, items() As String)
 	cd.SetItems(items)
 	cd.SelectedIndex = 0
 End Sub
-
 #End Region

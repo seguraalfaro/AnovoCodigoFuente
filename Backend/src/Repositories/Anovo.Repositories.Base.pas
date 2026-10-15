@@ -9,6 +9,7 @@ uses
   System.SysUtils,
   System.Generics.Collections,
   MVCFramework.ActiveRecord,
+  MVCFramework.Nullables,
   MVCFramework.Repository;
 
 const
@@ -34,11 +35,31 @@ type
       const ANombre: string; const AValores: array of const): V;
     function LeerVistaUnica<V: TMVCActiveRecord, constructor>: V;
   public
+    function ParaBajar(const ADesde: NullableTDateTime;
+      const AConUuid: Boolean = False): TObjectList<T>;
     class function TextoParaRQL(const ATexto: string): string; static;
     class function FechaParaRQL(const AFecha: TDateTime): string; static;
+    class function FechaHoraParaRQL(const AFecha: TDateTime): string; static;
   end;
 
 implementation
+
+uses
+  Anovo.SQL.Sincronizacion;
+
+function TAnovoRepository<T>.ParaBajar(const ADesde: NullableTDateTime;
+  const AConUuid: Boolean): TObjectList<T>;
+var
+  lPrefijo: string;
+begin
+  lPrefijo := '';
+  if AConUuid then
+    lPrefijo := BAJADA_CON_UUID;
+  if ADesde.HasValue then
+    Result := GetWhere(lPrefijo + BAJADA_DESDE, [ADesde.Value])
+  else
+    Result := GetWhere(lPrefijo + BAJADA_COMPLETA, []);
+end;
 
 function TAnovoRepository<T>.ContarPorFiltro(const AFiltro: string;
   const AParams: array of Variant): Int64;
@@ -96,6 +117,11 @@ end;
 class function TAnovoRepository<T>.FechaParaRQL(const AFecha: TDateTime): string;
 begin
   Result := FormatDateTime('yyyy-mm-dd', AFecha);
+end;
+
+class function TAnovoRepository<T>.FechaHoraParaRQL(const AFecha: TDateTime): string;
+begin
+  Result := FormatDateTime('yyyy-mm-dd hh:nn:ss', AFecha);
 end;
 
 class function TAnovoRepository<T>.TextoParaRQL(const ATexto: string): string;

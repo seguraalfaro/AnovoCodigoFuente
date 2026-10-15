@@ -4,8 +4,9 @@ ModulesStructureVersion=1
 Type=Class
 Version=13.7
 @EndOfDesignText@
-' Pagina principal con el menu de cinco pestanas. La hoja de Inicio pinta lo que le da
-' PresentadorInicio; las demas hojas solo navegan.
+' Pagina principal con el menu de cinco pestanas: Inicio, Clientes y Solicitudes pintan lo que
+' les dan sus presentadores; Nueva abre la captura y Perfil va en su propia hoja.
+
 Sub Class_Globals
 	Private Root As B4XView
 	Private xui As XUI
@@ -22,6 +23,11 @@ Sub Class_Globals
 	Private Label1 As B4XView
 	Private BuscadorClientes As ASBuscador
 	Private clientes As PresentadorClientes
+	Private solicitudes As PresentadorSolicitudes
+	Private ClvSolicitudes As CustomListView
+	Private BuscadorSolicitudes As ASBuscador
+	Private lblSolTitulo, lblSolTotal, lblFiltroMes, lblFiltroTodas As B4XView
+	Private Const RADIO_FILTRO As Int = 8dip
 	Private perfil As HojaPerfil
 	Private panelPerfil As B4XView
 
@@ -58,7 +64,7 @@ Sub Class_Globals
 	Private Const PESTANAS As Int = 5
 	Private Const HOJA_INICIO As Int = 0
 	Private Const HOJA_CLIENTES As Int = 1
-	Private Const HOJA_COTIZACIONES As Int = 3
+	Private Const HOJA_SOLICITUDES As Int = 3
 	Private Const HOJA_PERFIL As Int = 4
 End Sub
 
@@ -66,6 +72,7 @@ Public Sub Initialize As Object
 	Return Me
 End Sub
 
+#Region Ciclo de la página
 Private Sub B4XPage_Created (Root1 As B4XView)
 	Root = Root1
 	Root.LoadLayout("PageHome")
@@ -74,11 +81,13 @@ Private Sub B4XPage_Created (Root1 As B4XView)
 	B4XPages.AddMenuItem(Me, Mensajes.MENU_CERRAR_SESION)
 	inicio.Initialize
 	clientes.Initialize
+	solicitudes.Initialize
 	InicializarHojas
 	perfil.Initialize(panelPerfil, Me, Root)
 	InicializarMenu
 	PrepararInicio
 	PrepararClientes
+	PrepararSolicitudes
 	PedirPermisoAvisos
 End Sub
 
@@ -98,6 +107,7 @@ End Sub
 Private Sub Refrescar
 	PintarInicio
 	PintarClientes
+	PintarSolicitudes
 End Sub
 
 Private Sub B4XPage_Disappear
@@ -108,48 +118,73 @@ Private Sub B4XPage_Foreground
 	Sincronizacion.Pedir
 	Refrescar
 End Sub
+#End Region
 
+#Region Menú y navegación
 Private Sub B4XPage_MenuClick (Tag As String)
 	If Tag = Mensajes.MENU_SINCRONIZAR Then AbrirSincronizacion
 	If Tag = Mensajes.MENU_CERRAR_SESION Then CerrarSesion
 End Sub
 
-Public Sub CerrarSesion
-	Dim sf As Object = xui.Msgbox2Async(Mensajes.CONFIRMAR_CIERRE, Mensajes.TITULO, Mensajes.SI, "", Mensajes.NO, Null)
-	Wait For (sf) Msgbox_Result (Respuesta As Int)
-	If Respuesta <> xui.DialogResponse_Positive Then Return
-	If LlaveDispositivo.HayLlave Then
-		Wait For (ApiAutenticacion.CerrarDispositivo(LlaveDispositivo.Uuid, LlaveDispositivo.Leer).Enviar) Complete (Cierre As RestRespuesta)
-	End If
-	LlaveDispositivo.BorrarTodo
-	Api.VolverAlIngreso("")
+Private Sub InicializarMenu
+	Menu.SetTabTextIcon(1, Mensajes.TAB_INICIO, Chr(0xF015), Typeface.FONTAWESOME)
+	Menu.SetTabTextIcon(2, Mensajes.TAB_CLIENTES, Chr(0xF0C0), Typeface.FONTAWESOME)
+	Menu.SetTabTextIcon(3, Mensajes.TAB_NUEVA, Chr(0xF067), Typeface.FONTAWESOME)
+	Menu.SetTabTextIcon(4, Mensajes.TAB_SOLICITUDES, Chr(0xF15C), Typeface.FONTAWESOME)
+	Menu.SetTabTextIcon(5, Mensajes.TAB_PERFIL, Chr(0xF007), Typeface.FONTAWESOME)
+	Menu.SetCurrentTab2(1, False)
 End Sub
 
-Public Sub SincronizacionTerminada (Resultado As ResumenSync)
-	If Resultado.SesionVencida Then
-		Api.VolverAlIngreso(Resultado.Mensaje)
-		Return
-	End If
-	Refrescar
+Private Sub InicializarHojas
+	pagecont.Initialize
+	For i = 0 To PESTANAS - 1
+		pagecont.AddPage(CrearHoja(i), "page" & i)
+	Next
+	AHViewHOme.PageContainer = pagecont
+	AHViewHOme.PagingEnabled = False
+	AHViewHOme.CurrentPage = HOJA_INICIO
 End Sub
 
-Private Sub Sincronizar
-	Sincronizacion.Forzar
+Private Sub CrearHoja (Indice As Int) As B4XView
+	Dim hoja As B4XView = xui.CreatePanel("")
+	hoja.Height = AHViewHOme.Height
+	hoja.Width = AHViewHOme.Width
+	Select Indice
+		Case 0: hoja.LoadLayout("PageInicio")
+		Case 1: hoja.LoadLayout("Pageclientes")
+		Case 3: hoja.LoadLayout("PageSolicitudes")
+		Case 4: panelPerfil = hoja
+	End Select
+	UI.AplicarTema(hoja)
+	Return hoja
+End Sub
+
+Private Sub Menu_Tab1Click
+	AHViewHOme.GotoPage(HOJA_INICIO, True)
 	PintarInicio
 End Sub
 
-Private Sub AbrirSincronizacion
-	B4XPages.ShowPage(Layouts.PAGINA_SINCRONIZACION)
+Private Sub Menu_Tab2Click
+	AHViewHOme.GotoPage(HOJA_CLIENTES, True)
+	PintarClientes
 End Sub
 
-Private Sub pnSync_Click
-	AbrirSincronizacion
+Private Sub Menu_Tab3Click
+	B4XPages.ShowPage(Layouts.PAGINA_COTIZACION)
 End Sub
 
-Private Sub lblSync_Click
-	AbrirSincronizacion
+Private Sub Menu_Tab4Click
+	AHViewHOme.GotoPage(HOJA_SOLICITUDES, True)
+	PintarSolicitudes
 End Sub
 
+Private Sub Menu_Tab5Click
+	AHViewHOme.GotoPage(HOJA_PERFIL, True)
+	perfil.Mostrar
+End Sub
+#End Region
+
+#Region Inicio
 Private Sub PrepararInicio
 	lblRetomarTitulo.Text = Mensajes.INICIO_RETOMAR_TITULO
 	BtnRetomar.Text = Mensajes.INICIO_RETOMAR
@@ -212,7 +247,7 @@ Private Sub PintarRecientes
 	ClvUltimas.Clear
 	Dim ancho As Int = ClvUltimas.AsView.Width
 	If inicio.Recientes.Size = 0 Then
-		ClvUltimas.Add(CrearVacio(ancho), Null)
+		ClvUltimas.Add(CrearAviso(ancho, Mensajes.INICIO_SIN_RECIENTES), Null)
 		Return
 	End If
 	For Each r As SolicitudReciente In inicio.Recientes
@@ -232,23 +267,39 @@ Private Sub CrearTarjetaSolicitud (Ancho As Int, r As SolicitudReciente) As B4XV
 	Return item
 End Sub
 
-Private Sub CrearVacio (Ancho As Int) As B4XView
+Private Sub CrearAviso (Ancho As Int, Texto As String) As B4XView
 	Dim item As B4XView = xui.CreatePanel("")
 	item.SetLayoutAnimated(0, 0, 0, Ancho, ALTO_SECCION)
 	item.LoadLayout("ItemSeccion")
-	lblSeccion.Text = Mensajes.INICIO_SIN_RECIENTES
+	lblSeccion.Text = Texto
 	lblSeccion.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
-	lblSeccion.Font = xui.CreateDefaultFont(13)
+	lblSeccion.Font = xui.CreateDefaultFont(14)
 	Return item
 End Sub
 
+Private Sub BtnRetomar_Click
+	Dim cotizacion As B4XCotizacion = B4XPages.GetPage(Layouts.PAGINA_COTIZACION)
+	cotizacion.RetomarBorrador
+	B4XPages.ShowPage(Layouts.PAGINA_COTIZACION)
+End Sub
+
+Private Sub BtnDescartar_Click
+	Dim sf As Object = xui.Msgbox2Async(Mensajes.INICIO_CONFIRMAR_DESCARTE, Mensajes.TITULO, Mensajes.SI, "", Mensajes.NO, Null)
+	Wait For (sf) Msgbox_Result (Respuesta As Int)
+	If visible = False Or Respuesta <> xui.DialogResponse_Positive Then Return
+	inicio.DescartarBorrador
+	PintarInicio
+End Sub
+#End Region
+
+#Region Clientes
 Private Sub PrepararClientes
 	BuscadorClientes.Comparar(Me, "TextoFilaCliente")
 	Label1.Text = Mensajes.MIS_CLIENTES
-	Label1.Font = xui.CreateDefaultBoldFont(15)
+	Label1.Font = xui.CreateDefaultBoldFont(16)
 	Label1.TextColor = Colores.COLOR_TEXTO_PRIMARIO
 	lblTotal.SetTextAlignment("CENTER", "CENTER")
-	lblTotal.Font = xui.CreateDefaultBoldFont(11)
+	lblTotal.Font = xui.CreateDefaultBoldFont(12)
 	lblTotal.TextColor = Colores.COLOR_PRIMARIO
 End Sub
 
@@ -304,33 +355,6 @@ Private Sub AbrirCliente (c As Cliente)
 	B4XPages.ShowPage(Layouts.PAGINA_CLIENTE_DETALLE)
 End Sub
 
-Private Sub lblSincronizar_Click
-	Sincronizar
-End Sub
-
-Private Sub BtnRetomar_Click
-	Dim cotizacion As B4XCotizacion = B4XPages.GetPage(Layouts.PAGINA_COTIZACION)
-	cotizacion.RetomarBorrador
-	B4XPages.ShowPage(Layouts.PAGINA_COTIZACION)
-End Sub
-
-Private Sub BtnDescartar_Click
-	Dim sf As Object = xui.Msgbox2Async(Mensajes.INICIO_CONFIRMAR_DESCARTE, Mensajes.TITULO, Mensajes.SI, "", Mensajes.NO, Null)
-	Wait For (sf) Msgbox_Result (Respuesta As Int)
-	If visible = False Or Respuesta <> xui.DialogResponse_Positive Then Return
-	inicio.DescartarBorrador
-	PintarInicio
-End Sub
-
-Private Sub InicializarMenu
-	Menu.SetTabTextIcon(1, Mensajes.TAB_INICIO, Chr(0xF015), Typeface.FONTAWESOME)
-	Menu.SetTabTextIcon(2, Mensajes.TAB_CLIENTES, Chr(0xF0C0), Typeface.FONTAWESOME)
-	Menu.SetTabTextIcon(3, Mensajes.TAB_NUEVA, Chr(0xF067), Typeface.FONTAWESOME)
-	Menu.SetTabTextIcon(4, Mensajes.TAB_COTIZACIONES, Chr(0xF15C), Typeface.FONTAWESOME)
-	Menu.SetTabTextIcon(5, Mensajes.TAB_PERFIL, Chr(0xF007), Typeface.FONTAWESOME)
-	Menu.SetCurrentTab2(1, False)
-End Sub
-
 Private Sub MostrarVacio (Mostrar As Boolean, Glifo As String, Titulo As String, Texto As String)
 	If pnvacio.NumberOfViews = 0 Then
 		pnvacio.LoadLayout("ItemVacio")
@@ -346,51 +370,117 @@ End Sub
 Private Sub BtnNuevo_Click
 	B4XPages.ShowPage(Layouts.PAGINA_CLIENTES)
 End Sub
+#End Region
 
-Private Sub InicializarHojas
-	pagecont.Initialize
-	For i = 0 To PESTANAS - 1
-		pagecont.AddPage(CrearHoja(i), "page" & i)
+#Region Solicitudes
+Private Sub PrepararSolicitudes
+	BuscadorSolicitudes.Comparar(Me, "TextoFilaSolicitud")
+	lblSolTitulo.Text = Mensajes.MIS_SOLICITUDES
+	lblSolTitulo.Font = xui.CreateDefaultBoldFont(16)
+	lblSolTitulo.TextColor = Colores.COLOR_TEXTO_PRIMARIO
+	lblSolTotal.SetTextAlignment("CENTER", "CENTER")
+	lblSolTotal.Font = xui.CreateDefaultBoldFont(12)
+	lblSolTotal.TextColor = Colores.COLOR_PRIMARIO
+	lblFiltroMes.Text = Mensajes.FILTRO_MES
+	lblFiltroTodas.Text = Mensajes.FILTRO_TODAS
+End Sub
+
+Private Sub PintarSolicitudes
+	solicitudes.Actualizar
+	lblSolTotal.Text = solicitudes.TotalTexto
+	lblSolTotal.SetColorAndBorder(Colores.COLOR_PRIMARIO_TENUE, 0, Colores.COLOR_PRIMARIO_TENUE, lblSolTotal.Height / 2)
+	PintarFiltro(lblFiltroMes, solicitudes.SoloMes)
+	PintarFiltro(lblFiltroTodas, Not(solicitudes.SoloMes))
+	BuscadorSolicitudes.setFuente(solicitudes.Filas)
+End Sub
+
+Private Sub PintarFiltro (Etiqueta As B4XView, Activo As Boolean)
+	If Activo Then
+		Etiqueta.SetColorAndBorder(Colores.COLOR_PRIMARIO, 0, Colores.COLOR_PRIMARIO, RADIO_FILTRO)
+		Etiqueta.TextColor = Colores.COLOR_TEXTO_SOBRE_PRIMARIO
+	Else
+		Etiqueta.SetColorAndBorder(Colores.COLOR_SUPERFICIE, 1dip, Colores.COLOR_BORDE, RADIO_FILTRO)
+		Etiqueta.TextColor = Colores.COLOR_TEXTO_PRIMARIO
+	End If
+End Sub
+
+Private Sub lblFiltroMes_Click
+	solicitudes.SoloMes = True
+	PintarSolicitudes
+End Sub
+
+Private Sub lblFiltroTodas_Click
+	solicitudes.SoloMes = False
+	PintarSolicitudes
+End Sub
+
+Private Sub BuscadorSolicitudes_Filtrado (Resultado As List)
+	ClvSolicitudes.Clear
+	Dim ancho As Int = ClvSolicitudes.AsView.Width
+	If Resultado.Size = 0 Then
+		ClvSolicitudes.Add(CrearAviso(ancho, solicitudes.TextoVacio), Null)
+		Return
+	End If
+	For Each f As SeguimientoFila In Resultado
+		ClvSolicitudes.Add(CrearTarjetaSeguimiento(ancho, f), f)
 	Next
-	AHViewHOme.PageContainer = pagecont
-	AHViewHOme.PagingEnabled = False
-	AHViewHOme.CurrentPage = HOJA_INICIO
 End Sub
 
-Private Sub CrearHoja (Indice As Int) As B4XView
-	Dim hoja As B4XView = xui.CreatePanel("")
-	hoja.Height = AHViewHOme.Height
-	hoja.Width = AHViewHOme.Width
-	Select Indice
-		Case 0: hoja.LoadLayout("PageInicio")
-		Case 1: hoja.LoadLayout("Pageclientes")
-		Case 2: hoja.LoadLayout("PageCotizacion3")
-		Case 3: hoja.LoadLayout("PageEspecificaciones")
-		Case 4: panelPerfil = hoja
-	End Select
-	UI.AplicarTema(hoja)
-	Return hoja
+Private Sub TextoFilaSolicitud (o As Object) As String 'ignore
+	Return solicitudes.TextoBusqueda(o)
 End Sub
 
-Private Sub Menu_Tab1Click
-	AHViewHOme.GotoPage(HOJA_INICIO, True)
+Private Sub CrearTarjetaSeguimiento (Ancho As Int, f As SeguimientoFila) As B4XView
+	Dim item As B4XView = xui.CreatePanel("")
+	item.SetLayoutAnimated(0, 0, 0, Ancho, ALTO_SOLICITUD)
+	item.LoadLayout("ItemSolicitud")
+	lblSolicitudTitulo.Text = solicitudes.TituloDe(f)
+	lblSolicitudDetalle.Text = solicitudes.DetalleDe(f)
+	lblSolicitudEstado.Text = solicitudes.EstadoDe(f)
+	lblSolicitudEstado.TextColor = solicitudes.TintaDe(f)
+	lblSolicitudEstado.SetColorAndBorder(solicitudes.FondoDe(f), 0, solicitudes.FondoDe(f), RADIO_PASTILLA)
+	Return item
+End Sub
+#End Region
+
+#Region Sincronización y sesión
+Public Sub CerrarSesion
+	Dim sf As Object = xui.Msgbox2Async(Mensajes.CONFIRMAR_CIERRE, Mensajes.TITULO, Mensajes.SI, "", Mensajes.NO, Null)
+	Wait For (sf) Msgbox_Result (Respuesta As Int)
+	If Respuesta <> xui.DialogResponse_Positive Then Return
+	If LlaveDispositivo.HayLlave Then
+		Wait For (ApiAutenticacion.CerrarDispositivo(LlaveDispositivo.Uuid, LlaveDispositivo.Leer).Enviar) Complete (Cierre As RestRespuesta)
+	End If
+	LlaveDispositivo.BorrarTodo
+	Api.VolverAlIngreso("")
+End Sub
+
+Public Sub SincronizacionTerminada (Resultado As ResumenSync)
+	If Resultado.SesionVencida Then
+		Api.VolverAlIngreso(Resultado.Mensaje)
+		Return
+	End If
+	Refrescar
+End Sub
+
+Private Sub Sincronizar
+	Sincronizacion.Forzar
 	PintarInicio
 End Sub
 
-Private Sub Menu_Tab2Click
-	AHViewHOme.GotoPage(HOJA_CLIENTES, True)
-	PintarClientes
+Private Sub AbrirSincronizacion
+	B4XPages.ShowPage(Layouts.PAGINA_SINCRONIZACION)
 End Sub
 
-Private Sub Menu_Tab3Click
-	B4XPages.ShowPage(Layouts.PAGINA_COTIZACION)
+Private Sub pnSync_Click
+	AbrirSincronizacion
 End Sub
 
-Private Sub Menu_Tab4Click
-	AHViewHOme.GotoPage(HOJA_COTIZACIONES, True)
+Private Sub lblSync_Click
+	AbrirSincronizacion
 End Sub
 
-Private Sub Menu_Tab5Click
-	AHViewHOme.GotoPage(HOJA_PERFIL, True)
-	perfil.Mostrar
+Private Sub lblSincronizar_Click
+	Sincronizar
 End Sub
+#End Region

@@ -9,6 +9,7 @@ Version=13.7
 '  Sin versiones. Si cambia el esquema: se reemplaza el .sql y se
 '  pone BORRAR_BASE = True una vez (borra y recrea con datos de prueba).
 ' ============================================================
+
 Sub Process_Globals
 	Public Const DB_NOMBRE   As String = "anovo.db"
 	Public Const DB_ESQUEMA  As String = "esquema_sqlite.sql"
@@ -18,9 +19,10 @@ Sub Process_Globals
         "clientes", "cliente_contactos", "consentimiento_firmas", _
         "solicitudes", "piezas", "adjuntos", "medidas", _
         "tipos_trabajo", "tipos_material", "acabados", _
-        "cotizaciones_estado", "cola_sync", "config")
+        "seguimiento", "cola_sync", "config")
 End Sub
 
+#Region Apertura
 ' Abre (o crea) la base y devuelve la conexión lista.
 Public Sub Abrir As SQL
 	If BORRAR_BASE Then BorrarBase
@@ -47,6 +49,7 @@ Public Sub Abrir As SQL
 	Log("DbEsquema: base lista.")
 	Return s
 End Sub
+
 Private Sub BorrarBase
 	For Each nombre As String In Array As String(DB_NOMBRE, DB_NOMBRE & "-wal", DB_NOMBRE & "-shm")
 		If File.Exists(File.DirInternal, nombre) Then File.Delete(File.DirInternal, nombre)
@@ -67,7 +70,9 @@ Private Sub AplicarPragmas(s As SQL)
 		Log("DbEsquema: claves foraneas NO activas.")
 	End If
 End Sub
+#End Region
 
+#Region Creación del esquema
 Private Sub CrearEsquema (s As SQL)
 	s.BeginTransaction
 	Try
@@ -107,6 +112,7 @@ Private Sub LeerSentencias (NombreArchivo As String) As List
 	Next
 	Return res
 End Sub
+#End Region
 
 Private Sub  ValidarEsquema(s As SQL)
 	Dim faltan As List

@@ -1964,6 +1964,16 @@ type
     fCotizacionId: NullableInt32;
     [MVCTableField('MONTO_APROBADO')]
     fMontoAprobado: NullableCurrency;
+    [MVCTableField('UUID_LOCAL')]
+    [MVCMaxLength(36)]
+    fUuidLocal: NullableString;
+    [MVCTableField('NOMBRE_PROYECTO')]
+    [MVCMaxLength(120)]
+    fNombreProyecto: NullableString;
+    [MVCTableField('COTIZACION_NUMERO')]
+    fCotizacionNumero: NullableInt32;
+    [MVCTableField('FECHA_CAMBIO')]
+    fFechaCambio: NullableTDateTime {dtDateTimeStamp};
   public
     property ID: NullableInt32 read fID write fID;
     property AsesorId: NullableInt32 read fAsesorId write fAsesorId;
@@ -1973,6 +1983,10 @@ type
     property Estado: NullableString read fEstado write fEstado;
     property CotizacionId: NullableInt32 read fCotizacionId write fCotizacionId;
     property MontoAprobado: NullableCurrency read fMontoAprobado write fMontoAprobado;
+    property UuidLocal: NullableString read fUuidLocal write fUuidLocal;
+    property NombreProyecto: NullableString read fNombreProyecto write fNombreProyecto;
+    property CotizacionNumero: NullableInt32 read fCotizacionNumero write fCotizacionNumero;
+    property FechaCambio: NullableTDateTime {dtDateTimeStamp} read fFechaCambio write fFechaCambio;
   end;
 
   [MVCNameCase(ncSnakeCase)]

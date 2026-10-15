@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Presentador de la ficha del cliente: datos, estado de subida, contactos y el
 ' ultimo permiso de datos. Solo consulta. No conoce vistas.
+
 Sub Class_Globals
 	Private Const SEPARADOR As String = " · "
 	Private Const TIPO_JURIDICA As Int = 1
@@ -21,13 +22,16 @@ Public Sub Initialize
 	mContactos.Initialize
 End Sub
 
+#Region Estado
 Public Sub Cargar (c As Cliente)
 	mCliente = c
 	mEstado = DbClientes.EstadoDe(c.UuidLocal)
 	mContactos = DbClientes.ContactosDe(c.UuidLocal)
 	mPermiso = DbClientes.UltimoPermiso(c.UuidLocal)
 End Sub
+#End Region
 
+#Region Lo que pinta la página
 Public Sub getClienteActual As Cliente
 	Return mCliente
 End Sub
@@ -70,17 +74,8 @@ Public Sub getFondoEstado As Int
 	Return Colores.FondoPastilla(mEstado)
 End Sub
 
-Private Sub ConGuion (Texto As String) As String
-	If Texto = Null Or Texto.Trim = "" Then Return SIN_DATO
-	Return Texto
-End Sub
-
 Public Sub getContactos As List
 	Return mContactos
-End Sub
-
-Public Sub DetalleContacto (k As Contacto) As String
-	Return Utils.Unir(SEPARADOR, Array As String(k.Puesto, k.Celular, k.Telefono, k.Correo))
 End Sub
 
 Public Sub getPermiso As String
@@ -91,3 +86,17 @@ Public Sub getDetallePermiso As String
 	If mPermiso.Accion = "" Then Return ""
 	Return Mensajes.PermisoDetalle(Utils.BdADisplay(mPermiso.Fecha), mPermiso.Version)
 End Sub
+#End Region
+
+#Region Textos de cada fila
+Public Sub DetalleContacto (k As Contacto) As String
+	Return Utils.Unir(SEPARADOR, Array As String(k.Puesto, k.Celular, k.Telefono, k.Correo))
+End Sub
+#End Region
+
+#Region Ayudantes
+Private Sub ConGuion (Texto As String) As String
+	If Texto = Null Or Texto.Trim = "" Then Return SIN_DATO
+	Return Texto
+End Sub
+#End Region

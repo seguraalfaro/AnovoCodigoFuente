@@ -4,7 +4,9 @@ ModulesStructureVersion=1
 Type=StaticCode
 Version=13.7
 @EndOfDesignText@
-' Textos para la persona, iguales a los del escritorio (Anovo.Textos).
+' Textos para la persona, iguales a los del escritorio (Anovo.Textos). Las subs arman los que
+' llevan datos y van agrupadas por pantalla.
+
 Sub Process_Globals
 	Public Const TITULO As String = "Anovo"
 	Public Const SIN_CONEXION As String = "No se pudo conectar con el servidor de Anovo. Revise la red o avise al administrador."
@@ -19,7 +21,7 @@ Sub Process_Globals
 	Public Const SIN_ACCESO_MOVIL As String = "Su usuario no usa la aplicación móvil."
 	Public Const CLAVE_TEMPORAL As String = "Su clave es temporal. Cámbiela en la aplicación de escritorio y vuelva a ingresar."
 	Public Const TITULO_SERVIDOR As String = "Dirección del servidor"
-	Public Const ROTULO_SERVIDOR As String = "Servidor: "
+	Public Const SERVIDOR_EN As String = "Servidor: "
 	Public Const SERVIDOR_SIN_CONFIGURAR As String = "Configurar el servidor"
 	Public Const GUARDAR As String = "Guardar"
 	Public Const CANCELAR As String = "Cancelar"
@@ -55,7 +57,18 @@ Sub Process_Globals
 	Public Const TAB_INICIO As String = "Inicio"
 	Public Const TAB_CLIENTES As String = "Clientes"
 	Public Const TAB_NUEVA As String = "Nueva"
-	Public Const TAB_COTIZACIONES As String = "Cotizaciones"
+	Public Const TAB_SOLICITUDES As String = "Solicitudes"
+	Public Const MIS_SOLICITUDES As String = "Mis solicitudes"
+	Public Const FILTRO_MES As String = "Este mes"
+	Public Const FILTRO_TODAS As String = "Todas"
+	Public Const SIN_SOLICITUDES_MES As String = "No hay solicitudes este mes."
+	Public Const SIN_SOLICITUDES As String = "Todavía no hay solicitudes."
+	Public Const SEG_POR_SUBIR As String = "Por subir"
+	Public Const SEG_ESPERANDO As String = "Esperando cotización"
+	Public Const SEG_ELABORACION As String = "En elaboración"
+	Public Const SEG_ENVIADA As String = "Enviada al cliente"
+	Public Const SEG_APROBADA As String = "Aprobada"
+	Public Const SEG_RECHAZADA As String = "Rechazada"
 	Public Const TAB_PERFIL As String = "Perfil"
 	Public Const SIN_CLIENTES_TITULO As String = "Sin clientes"
 	Public Const SIN_CLIENTES_TEXTO As String = "Todavía no hay clientes registrados."
@@ -83,6 +96,7 @@ Sub Process_Globals
 	Public Const SYNC_FUERA_DE_LINEA As String = "○ Sin conexión"
 	Public Const SYNC_NUNCA As String = "Todavía no"
 	Public Const SYNC_ULTIMA_EXITOSA As String = "Última exitosa"
+	Public Const SYNC_ACTUALIZADO As String = "Actualizado"
 	Public Const SYNC_POR_SUBIR_TITULO As String = "Por subir"
 	Public Const SYNC_CLIENTES As String = "Clientes"
 	Public Const SYNC_SOLICITUDES As String = "Solicitudes"
@@ -234,6 +248,7 @@ Sub Process_Globals
 	Private Const RESULTADO_SIN_CONEXION As String = "Sin conexión"
 	Private Const RESULTADO_SESION As String = "Sesión vencida"
 	Private Const INTENTO_SUBIDOS As String = "$1 subidos"
+	Private Const INTENTO_BAJADOS As String = "$1 actualizados"
 	Private Const INTENTO_ERRORES As String = "$1 con error"
 	Private Const INTENTO_PENDIENTES As String = "$1 pendientes"
 	Private Const UBICACION_CAPTURADA As String = "Ubicación capturada (± $1 m)"
@@ -259,90 +274,13 @@ Sub Process_Globals
 	Private Const PERMISO_DETALLE As String = "$1 · texto $2"
 End Sub
 
+#Region Generales
 Public Sub ErrorServidor (Codigo As Int) As String
 	Return ERROR_SERVIDOR.Replace("$1", Codigo)
 End Sub
+#End Region
 
-Public Sub PiezaMedidas (Cantidad As Int) As String
-	Return PIEZA_MEDIDAS.Replace("$1", Cantidad)
-End Sub
-
-Public Sub TiposMedida As List
-	Return Array As String("Largo", "Ancho", "Alto", "Profundidad", "Diámetro", "Radio", "Espesor", "Ángulo")
-End Sub
-
-Public Sub NombrePlano (Indice As Int) As String
-	Dim nombres() As String = Array As String("automática", "arriba", "izquierda", "derecha", "de frente")
-	Return nombres(Indice)
-End Sub
-
-Public Sub NombreGrosor (Indice As Int) As String
-	Dim nombres() As String = Array As String("Fino", "Medio", "Grueso")
-	Return nombres(Indice)
-End Sub
-
-Public Sub CroquisLlenar (Faltan As Int) As String
-	Return CROQUIS_LLENAR.Replace("$1", Faltan)
-End Sub
-
-Public Sub CroquisCara (IndicePlano As Int) As String
-	Return CROQUIS_CARA.Replace("$1", NombrePlano(IndicePlano))
-End Sub
-
-Public Sub CroquisTrazo (IndiceGrosor As Int) As String
-	Return CROQUIS_TRAZO.Replace("$1", NombreGrosor(IndiceGrosor))
-End Sub
-
-Public Sub RetomarPieza (Nombre As String) As String
-	If Nombre.Trim = "" Then Return RETOMAR_PIEZA
-	Return RETOMAR_PIEZA_NOMBRE.Replace("$1", Nombre.Trim)
-End Sub
-
-Public Sub TituloMedida (Etiqueta As String) As String
-	Return TITULO_MEDIDA.Replace("$1", Etiqueta)
-End Sub
-
-Public Sub DetalleMedida (Valor As Double, Unidad As String, Cantidad As Int) As String
-	Dim texto As String = NumberFormat2(Valor, 1, 2, 0, False) & " " & Unidad
-	If Cantidad > 1 Then texto = texto & MEDIDA_CANTIDAD.Replace("$1", Cantidad)
-	Return texto
-End Sub
-
-Public Sub PiezaAdjuntos (Fotos As Int) As String
-	Return PIEZA_ADJUNTOS.Replace("$1", Fotos)
-End Sub
-
-Public Sub Saludo (Nombre As String) As String
-	If Nombre = "" Then Return INICIO_SALUDO
-	Return INICIO_SALUDO_NOMBRE.Replace("$1", Nombre)
-End Sub
-
-Public Sub SyncPorSubir (Cantidad As Int) As String
-	If Cantidad = 1 Then Return SYNC_POR_SUBIR_UNO
-	Return SYNC_POR_SUBIR.Replace("$1", Cantidad)
-End Sub
-
-Public Sub SyncConError (Cantidad As Int) As String
-	If Cantidad = 1 Then Return SYNC_CON_ERROR_UNO
-	Return SYNC_CON_ERROR.Replace("$1", Cantidad)
-End Sub
-
-Public Sub CuentaPiezas (Cantidad As Int) As String
-	If Cantidad = 1 Then Return PIEZAS_UNA
-	Return PIEZAS_VARIAS.Replace("$1", Cantidad)
-End Sub
-
-Public Sub EstadoSolicitud (Estado As String) As String
-	Select Estado
-		Case DbSync.ESTADO_ERROR
-			Return PASTILLA_ERROR
-		Case DbSync.ESTADO_PENDIENTE
-			Return PASTILLA_POR_SUBIR
-		Case Else
-			Return PASTILLA_SUBIDA
-	End Select
-End Sub
-
+#Region Ingreso y perfil
 Public Sub EstadoDesbloqueo (Activo As Boolean) As String
 	If Activo Then Return DESBLOQUEO_ACTIVADO
 	Return DESBLOQUEO_DESACTIVADO
@@ -382,61 +320,33 @@ End Sub
 Public Sub ClaveCorta (Largo As Int) As String
 	Return CLAVE_CORTA.Replace("$1", Largo)
 End Sub
+#End Region
 
-Public Sub SyncErrores (Cantidad As Int) As String
-	Return SYNC_ERRORES.Replace("$1", Cantidad)
+#Region Inicio
+Public Sub Saludo (Nombre As String) As String
+	If Nombre = "" Then Return INICIO_SALUDO
+	Return INICIO_SALUDO_NOMBRE.Replace("$1", Nombre)
 End Sub
 
-Public Sub TituloErrorSync (Entidad As String, Asunto As String) As String
-	Select Entidad
-		Case "cliente"
-			Return SYNC_ERROR_CLIENTE.Replace("$1", Asunto)
-		Case "solicitud"
-			Return SYNC_ERROR_SOLICITUD.Replace("$1", Asunto)
+Public Sub EstadoSolicitud (Estado As String) As String
+	Select Estado
+		Case DbSync.ESTADO_ERROR
+			Return PASTILLA_ERROR
+		Case DbSync.ESTADO_PENDIENTE
+			Return PASTILLA_POR_SUBIR
 		Case Else
-			Return SYNC_ERROR_FOTO.Replace("$1", Asunto)
+			Return PASTILLA_SUBIDA
 	End Select
 End Sub
 
-Public Sub ResultadoSync (Resultado As String) As String
-	Select Resultado
-		Case DbSync.RESULTADO_EXITOSA
-			Return RESULTADO_EXITOSA
-		Case DbSync.RESULTADO_PARCIAL
-			Return RESULTADO_PARCIAL
-		Case DbSync.RESULTADO_SESION
-			Return RESULTADO_SESION
-		Case Else
-			Return RESULTADO_SIN_CONEXION
-	End Select
+Public Sub KpisAsesor As List
+	Return Array("Solicitudes del mes", "Esperando cotización", "Aprobadas del mes", "Monto aprobado")
 End Sub
+#End Region
 
-Public Sub DetalleIntento (Subidos As Int, ConError As Int, Pendientes As Int) As String
-	Dim partes As List
-	partes.Initialize
-	partes.Add(INTENTO_SUBIDOS.Replace("$1", Subidos))
-	If ConError > 0 Then partes.Add(INTENTO_ERRORES.Replace("$1", ConError))
-	If Pendientes > 0 Then partes.Add(INTENTO_PENDIENTES.Replace("$1", Pendientes))
-	Dim sb As StringBuilder
-	sb.Initialize
-	For Each p As String In partes
-		If sb.Length > 0 Then sb.Append(" · ")
-		sb.Append(p)
-	Next
-	Return sb.ToString
-End Sub
-
+#Region Clientes
 Public Sub UbicacionCapturada (Metros As Int) As String
 	Return UBICACION_CAPTURADA.Replace("$1", Metros)
-End Sub
-
-Public Sub Coordenadas (u As UbicacionGps) As String
-	If u.Ok = False Then Return UBICACION_SIN
-	Return UBICACION_COORDENADAS.Replace("$1", NumberFormat2(u.Latitud, 1, 5, 5, False)).Replace("$2", NumberFormat2(u.Longitud, 1, 5, 5, False))
-End Sub
-
-Public Sub Contador (Cantidad As Int, Maximo As Int) As String
-	Return TEXTO_CONTADOR.Replace("$1", Cantidad).Replace("$2", Maximo)
 End Sub
 
 Public Sub CuentaClientes (Cantidad As Int) As String
@@ -482,7 +392,138 @@ End Sub
 Public Sub PermisoDetalle (Fecha As String, Version As String) As String
 	Return PERMISO_DETALLE.Replace("$1", Fecha).Replace("$2", Version)
 End Sub
+#End Region
 
-Public Sub KpisAsesor As List
-	Return Array("Solicitudes del mes", "Esperando cotización", "Aprobadas del mes", "Monto aprobado")
+#Region Solicitud y piezas
+Public Sub PiezaMedidas (Cantidad As Int) As String
+	Return PIEZA_MEDIDAS.Replace("$1", Cantidad)
 End Sub
+
+Public Sub TiposMedida As List
+	Return Array As String("Largo", "Ancho", "Alto", "Profundidad", "Diámetro", "Radio", "Espesor", "Ángulo")
+End Sub
+
+Public Sub RetomarPieza (Nombre As String) As String
+	If Nombre.Trim = "" Then Return RETOMAR_PIEZA
+	Return RETOMAR_PIEZA_NOMBRE.Replace("$1", Nombre.Trim)
+End Sub
+
+Public Sub TituloMedida (Etiqueta As String) As String
+	Return TITULO_MEDIDA.Replace("$1", Etiqueta)
+End Sub
+
+Public Sub DetalleMedida (Valor As Double, Unidad As String, Cantidad As Int) As String
+	Dim texto As String = NumberFormat2(Valor, 1, 2, 0, False) & " " & Unidad
+	If Cantidad > 1 Then texto = texto & MEDIDA_CANTIDAD.Replace("$1", Cantidad)
+	Return texto
+End Sub
+
+Public Sub PiezaAdjuntos (Fotos As Int) As String
+	Return PIEZA_ADJUNTOS.Replace("$1", Fotos)
+End Sub
+
+Public Sub CuentaPiezas (Cantidad As Int) As String
+	If Cantidad = 1 Then Return PIEZAS_UNA
+	Return PIEZAS_VARIAS.Replace("$1", Cantidad)
+End Sub
+#End Region
+
+#Region Croquis
+Public Sub NombrePlano (Indice As Int) As String
+	Dim nombres() As String = Array As String("automática", "arriba", "izquierda", "derecha", "de frente")
+	Return nombres(Indice)
+End Sub
+
+Public Sub NombreGrosor (Indice As Int) As String
+	Dim nombres() As String = Array As String("Fino", "Medio", "Grueso")
+	Return nombres(Indice)
+End Sub
+
+Public Sub CroquisLlenar (Faltan As Int) As String
+	Return CROQUIS_LLENAR.Replace("$1", Faltan)
+End Sub
+
+Public Sub CroquisCara (IndicePlano As Int) As String
+	Return CROQUIS_CARA.Replace("$1", NombrePlano(IndicePlano))
+End Sub
+
+Public Sub CroquisTrazo (IndiceGrosor As Int) As String
+	Return CROQUIS_TRAZO.Replace("$1", NombreGrosor(IndiceGrosor))
+End Sub
+#End Region
+
+#Region Sincronización
+Public Sub SyncPorSubir (Cantidad As Int) As String
+	If Cantidad = 1 Then Return SYNC_POR_SUBIR_UNO
+	Return SYNC_POR_SUBIR.Replace("$1", Cantidad)
+End Sub
+
+Public Sub SyncConError (Cantidad As Int) As String
+	If Cantidad = 1 Then Return SYNC_CON_ERROR_UNO
+	Return SYNC_CON_ERROR.Replace("$1", Cantidad)
+End Sub
+
+Public Sub SyncErrores (Cantidad As Int) As String
+	Return SYNC_ERRORES.Replace("$1", Cantidad)
+End Sub
+
+Public Sub TituloErrorSync (Entidad As String, Asunto As String) As String
+	Select Entidad
+		Case "cliente"
+			Return SYNC_ERROR_CLIENTE.Replace("$1", Asunto)
+		Case "solicitud"
+			Return SYNC_ERROR_SOLICITUD.Replace("$1", Asunto)
+		Case Else
+			Return SYNC_ERROR_FOTO.Replace("$1", Asunto)
+	End Select
+End Sub
+
+Public Sub ResultadoSync (Resultado As String) As String
+	Select Resultado
+		Case DbSync.RESULTADO_EXITOSA
+			Return RESULTADO_EXITOSA
+		Case DbSync.RESULTADO_PARCIAL
+			Return RESULTADO_PARCIAL
+		Case DbSync.RESULTADO_SESION
+			Return RESULTADO_SESION
+		Case Else
+			Return RESULTADO_SIN_CONEXION
+	End Select
+End Sub
+
+Public Sub SyncAlDia (Hora As String) As String
+	If Hora = "" Then Return SYNC_AL_DIA
+	Return SYNC_AL_DIA & " · actualizado " & Hora
+End Sub
+
+Public Sub DetalleIntento (Subidos As Int, Bajados As Int, ConError As Int, Pendientes As Int) As String
+	Dim partes As List
+	partes.Initialize
+	partes.Add(INTENTO_SUBIDOS.Replace("$1", Subidos))
+	If Bajados > 0 Then partes.Add(INTENTO_BAJADOS.Replace("$1", Bajados))
+	If ConError > 0 Then partes.Add(INTENTO_ERRORES.Replace("$1", ConError))
+	If Pendientes > 0 Then partes.Add(INTENTO_PENDIENTES.Replace("$1", Pendientes))
+	Dim sb As StringBuilder
+	sb.Initialize
+	For Each p As String In partes
+		If sb.Length > 0 Then sb.Append(" · ")
+		sb.Append(p)
+	Next
+	Return sb.ToString
+End Sub
+#End Region
+
+#Region Formatos
+Public Sub Coordenadas (u As UbicacionGps) As String
+	If u.Ok = False Then Return UBICACION_SIN
+	Return UBICACION_COORDENADAS.Replace("$1", NumberFormat2(u.Latitud, 1, 5, 5, False)).Replace("$2", NumberFormat2(u.Longitud, 1, 5, 5, False))
+End Sub
+
+Public Sub Contador (Cantidad As Int, Maximo As Int) As String
+	Return TEXTO_CONTADOR.Replace("$1", Cantidad).Replace("$2", Maximo)
+End Sub
+
+Public Sub Colones (Monto As Double) As String
+	Return "₡ " & NumberFormat2(Monto, 1, 0, 0, True)
+End Sub
+#End Region

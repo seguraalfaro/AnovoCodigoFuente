@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Unico modulo que lee y escribe la cola de sincronizacion en SQLite: arma cada unidad
 ' (cliente, solicitud con sus piezas, foto), confirma lo aceptado y marca errores y reintentos.
+
 Sub Process_Globals
 	Public Const CLASE_CLIENTE As String = "cliente"
 	Public Const CLASE_SOLICITUD As String = "solicitud"
@@ -21,9 +22,9 @@ Sub Process_Globals
 	Private Const SQL_PENDIENTES_FOTOS As String = "SELECT count(*) FROM cola_sync q JOIN adjuntos a ON a.uuid_local = q.uuid_local WHERE q.entidad = 'adjunto' AND a.tipo = 'foto' AND q.estado = 'pendiente'"
 	Private Const SQL_ERRORES As String = "SELECT q.entidad, q.uuid_local, COALESCE(q.ultimo_error, '') AS mensaje, COALESCE(c.nombre, NULLIF(TRIM(s.nombre_proyecto), ''), s.descripcion, p.nombre, '') AS titulo FROM cola_sync q LEFT JOIN clientes c ON q.entidad = 'cliente' AND c.uuid_local = q.uuid_local LEFT JOIN solicitudes s ON q.entidad = 'solicitud' AND s.uuid_local = q.uuid_local LEFT JOIN adjuntos a ON q.entidad = 'adjunto' AND a.uuid_local = q.uuid_local LEFT JOIN piezas p ON p.uuid_local = a.pieza_uuid WHERE q.estado = 'error' AND (q.entidad IN ('cliente', 'solicitud') OR (q.entidad = 'adjunto' AND a.tipo = 'foto')) ORDER BY q.id"
 	Private Const SQL_REINTENTAR_UNO As String = "UPDATE cola_sync SET estado = 'pendiente', proximo_intento = NULL WHERE entidad = ? AND uuid_local = ?"
-	Private Const SQL_INTENTO As String = "INSERT INTO sync_historial (fecha, resultado, subidos, con_error, pendientes) VALUES (?, ?, ?, ?, ?)"
+	Private Const SQL_INTENTO As String = "INSERT INTO sync_historial (fecha, resultado, subidos, bajados, con_error, pendientes) VALUES (?, ?, ?, ?, ?, ?)"
 	Private Const SQL_PODAR_HISTORIAL As String = "DELETE FROM sync_historial WHERE id NOT IN (SELECT id FROM sync_historial ORDER BY id DESC LIMIT ?)"
-	Private Const SQL_HISTORIAL As String = "SELECT fecha, resultado, subidos, con_error, pendientes FROM sync_historial ORDER BY id DESC LIMIT ?"
+	Private Const SQL_HISTORIAL As String = "SELECT fecha, resultado, subidos, bajados, con_error, pendientes FROM sync_historial ORDER BY id DESC LIMIT ?"
 	Private Const SQL_ULTIMA_EXITOSA As String = "SELECT fecha FROM sync_historial WHERE resultado = 'exitosa' ORDER BY id DESC LIMIT 1"
 	Private Const ENTIDAD_ADJUNTO As String = "adjunto"
 	Private Const ORIGEN_MOVIL As String = "movil"
@@ -61,6 +62,7 @@ Sub Process_Globals
 	Private Const SQL_LIBERAR_ESPERAS As String = "UPDATE cola_sync SET proximo_intento = NULL WHERE estado = 'pendiente'"
 End Sub
 
+#Region Contadores y errores
 Public Sub Pendientes As Int
 	Return Db.DbSQL.ExecQuerySingleResult2(SQL_PENDIENTES, Array As String("pendiente"))
 End Sub
@@ -90,11 +92,9 @@ Public Sub Errores As List
 	rs.Close
 	Return res
 End Sub
+#End Region
 
-Public Sub ReintentarUno (Entidad As String, UuidLocal As String)
-	Db.DbSQL.ExecNonQuery2(SQL_REINTENTAR_UNO, Array As String(Entidad, UuidLocal))
-End Sub
-
+#Region Historial
 Public Sub RegistrarIntento (r As ResumenSync)
 	Dim resultado As String = RESULTADO_EXITOSA
 	If r.SesionVencida Then
@@ -104,7 +104,7 @@ Public Sub RegistrarIntento (r As ResumenSync)
 	Else If r.ConError > 0 Or r.Pendientes > 0 Then
 		resultado = RESULTADO_PARCIAL
 	End If
-	Db.DbSQL.ExecNonQuery2(SQL_INTENTO, Array As Object(Utils.AhoraBd, resultado, r.Subidos, r.ConError, r.Pendientes))
+	Db.DbSQL.ExecNonQuery2(SQL_INTENTO, Array As Object(Utils.AhoraBd, resultado, r.Subidos, r.Bajados, r.ConError, r.Pendientes))
 	Db.DbSQL.ExecNonQuery2(SQL_PODAR_HISTORIAL, Array As Object(HISTORIAL_MAXIMO))
 End Sub
 
@@ -118,6 +118,7 @@ Public Sub Historial (Limite As Int) As List
 		i.Fecha = rs.GetString("fecha")
 		i.Resultado = rs.GetString("resultado")
 		i.Subidos = rs.GetInt("subidos")
+		i.Bajados = rs.GetInt("bajados")
 		i.ConError = rs.GetInt("con_error")
 		i.Pendientes = rs.GetInt("pendientes")
 		res.Add(i)
@@ -131,12 +132,9 @@ Public Sub UltimaExitosa As String
 	If fecha = Null Then Return ""
 	Return fecha
 End Sub
+#End Region
 
-Public Sub ReintentarTodo
-	Db.DbSQL.ExecNonQuery(SQL_REINTENTAR_ERRORES)
-	Db.DbSQL.ExecNonQuery(SQL_LIBERAR_ESPERAS)
-End Sub
-
+#Region Armado de la cola
 Public Sub Listas (Clase As String) As List
 	Dim res As List
 	res.Initialize
@@ -281,6 +279,17 @@ Private Sub CroquisDe (Pieza As String) As List
 	rs.Close
 	Return res
 End Sub
+#End Region
+
+#Region Confirmación y reintentos
+Public Sub ReintentarUno (Entidad As String, UuidLocal As String)
+	Db.DbSQL.ExecNonQuery2(SQL_REINTENTAR_UNO, Array As String(Entidad, UuidLocal))
+End Sub
+
+Public Sub ReintentarTodo
+	Db.DbSQL.ExecNonQuery(SQL_REINTENTAR_ERRORES)
+	Db.DbSQL.ExecNonQuery(SQL_LIBERAR_ESPERAS)
+End Sub
 
 Public Sub Confirmar (u As UnidadSync, IdServidor As Int)
 	Dim s As SQL = Db.DbSQL
@@ -319,7 +328,9 @@ Public Sub Reprogramar (u As UnidadSync)
 	Dim proximo As String = Utils.Formatear(DateTime.Now + minutos * DateTime.TicksPerMinute, Utils.FORMATO_BD)
 	Db.DbSQL.ExecNonQuery2(SQL_REPROGRAMAR, Array As Object(proximo, EntidadDe(u), u.Uuid))
 End Sub
+#End Region
 
+#Region Ayudantes de lectura
 Private Sub EntidadDe (u As UnidadSync) As String
 	If u.Clase = CLASE_FOTO Then Return ENTIDAD_ADJUNTO
 	Return u.Clase
@@ -353,3 +364,4 @@ Private Sub NombreDe (Ruta As String) As String
 	If i < 0 Then Return Ruta
 	Return Ruta.SubString(i + 1)
 End Sub
+#End Region

@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Manejo de vista de la camara de la pieza: vista previa, flash, rotar, disparo y aviso
 ' cuando no hay camara. El permiso lo pide la pagina; la foto le llega como evento _Foto.
+
 Sub Class_Globals
 	Private xui As XUI
 	Private Const FLASH_SI As String = "on"
@@ -44,6 +45,7 @@ Public Sub Initialize (Callback As Object, Evento As String, Preview As Panel, S
 	mPermitir = BotonPermitir
 End Sub
 
+#Region Apertura y cierre
 Public Sub getLista As Boolean
 	Return mLista
 End Sub
@@ -82,6 +84,20 @@ Public Sub Cerrar
 	mLista = False
 End Sub
 
+Public Sub AbrirAjustes
+	Dim i As Intent
+	i.Initialize(AJUSTES_APP, "package:" & Application.PackageName)
+	i.Flags = NUEVA_TAREA
+	Try
+		StartActivity(i)
+	Catch
+		Log("CamaraPieza.AbrirAjustes: " & LastException.Message)
+		xui.MsgboxAsync(Mensajes.SIN_AJUSTES, Mensajes.TITULO)
+	End Try
+End Sub
+#End Region
+
+#Region Controles
 Public Sub Rotar
 	If mLista = False Or Adjuntos.getPuedeRotar = False Then Return
 	Cerrar
@@ -108,18 +124,6 @@ Public Sub Disparar
 	mDisparando = True
 	UI.Habilitar(mDisparar, False)
 	camEx.TakePicture
-End Sub
-
-Public Sub AbrirAjustes
-	Dim i As Intent
-	i.Initialize(AJUSTES_APP, "package:" & Application.PackageName)
-	i.Flags = NUEVA_TAREA
-	Try
-		StartActivity(i)
-	Catch
-		Log("CamaraPieza.AbrirAjustes: " & LastException.Message)
-		xui.MsgboxAsync(Mensajes.SIN_AJUSTES, Mensajes.TITULO)
-	End Try
 End Sub
 
 Private Sub Avisar (Motivo As String)
@@ -154,7 +158,9 @@ Private Sub PintarAviso (Glifo As String, Color As Int, Titulo As String, Texto 
 	mTexto.Text = Texto
 	If Boton <> "" Then mPermitir.Text = Boton
 End Sub
+#End Region
 
+#Region Eventos de la cámara
 Sub CamEx_Ready (Success As Boolean)
 	If Success = False Then
 		Avisar(Adjuntos.ESTADO_FALLO)
@@ -180,3 +186,4 @@ Sub CamEx_PictureTaken (Data() As Byte)
 	If mLista Then camEx.StartPreview
 	CallSub2(mCallback, mEvento & "_Foto", Data)
 End Sub
+#End Region

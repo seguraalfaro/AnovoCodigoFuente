@@ -4,12 +4,15 @@ ModulesStructureVersion=1
 Type=StaticCode
 Version=13.7
 @EndOfDesignText@
-' Rutas de subida al backend, una por unidad: cliente con contactos y firma, solicitud con
-' sus piezas, y cada foto aparte. Devuelve el RestCliente armado; quien llama espera Enviar.
+' Rutas de sincronizacion: subida por unidad (cliente con contactos y firma, solicitud con sus
+' piezas, cada foto) y la bajada. Devuelve el RestCliente armado; quien llama espera Enviar.
 Sub Process_Globals
 	Private Const RUTA_CLIENTE As String = "/api/clientes/registro-completo"
 	Private Const RUTA_SOLICITUD As String = "/api/solicitudes/completa"
 	Private Const RUTA_FOTO As String = "/api/solicitudes/($id)/adjuntos"
+	Private Const RUTA_BAJADA As String = "/api/sincronizacion/bajada"
+	Private Const RUTA_INDICADORES As String = "/api/dashboard/asesor"
+	Private Const PARAM_DESDE As String = "desde"
 	Private Const PARAM_ID As String = "id"
 	Private Const ENCABEZADO_UBICACION As String = "Location"
 End Sub
@@ -24,6 +27,16 @@ End Sub
 
 Public Sub SubirFoto (SolicitudId As Int, Paquete As Map) As RestCliente
 	Return Api.NuevoCliente(True).AddPathParam(PARAM_ID, SolicitudId).AddBody(Paquete).PrepararPost(RUTA_FOTO)
+End Sub
+
+Public Sub Bajar (Desde As String) As RestCliente
+	Dim r As RestCliente = Api.NuevoCliente(True)
+	If Desde <> "" Then r.AddQueryStringParam(PARAM_DESDE, Desde)
+	Return r.PrepararGet(RUTA_BAJADA)
+End Sub
+
+Public Sub Indicadores As RestCliente
+	Return Api.NuevoCliente(True).PrepararGet(RUTA_INDICADORES)
 End Sub
 
 Public Sub IdCreado (Respuesta As RestRespuesta) As Int

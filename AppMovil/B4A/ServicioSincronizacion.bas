@@ -19,6 +19,7 @@ Sub Process_Globals
 	Public Ultimo As ResumenSync
 End Sub
 
+#Region Ciclo del servicio
 Sub Service_Create
 	motor.Initialize
 End Sub
@@ -40,18 +41,23 @@ Private Sub Correr
 	StopService(Me)
 End Sub
 
+Sub Service_Timeout (Params As Map)
+	Corriendo = False
+	Service.StopForeground(ID_AVISO)
+	StopService(Me)
+End Sub
+
+Sub Service_Destroy
+End Sub
+#End Region
+
+#Region Avisos
 Private Sub Avisar (Resultado As ResumenSync)
 	Try
 		B4XPages.GetManager.RaiseEvent(B4XPages.GetManager.GetTopPage, PAGINA_TERMINADA, Array(Resultado))
 	Catch
 		Log("ServicioSincronizacion.Avisar: " & LastException.Message)
 	End Try
-End Sub
-
-Sub Service_Timeout (Params As Map)
-	Corriendo = False
-	Service.StopForeground(ID_AVISO)
-	StopService(Me)
 End Sub
 
 Private Sub Aviso (Texto As String, Importante As Boolean) As Notification
@@ -62,6 +68,4 @@ Private Sub Aviso (Texto As String, Importante As Boolean) As Notification
 	n.SetInfo(Mensajes.SYNC_TITULO, Texto, Main)
 	Return n
 End Sub
-
-Sub Service_Destroy
-End Sub
+#End Region

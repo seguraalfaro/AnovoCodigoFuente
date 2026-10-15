@@ -7,6 +7,7 @@ interface
 
 uses
   System.Generics.Collections,
+  MVCFramework.Nullables,
   MVCFramework.Repository,
   Anovo.Entities.Solicitudes,
   Anovo.Entities.Vistas.Lectura,
@@ -33,6 +34,8 @@ type
       : TObjectList<TSeguimientoAsesor>;
     function ContarSeguimiento(const AAsesorId: Integer; const ATexto: string;
       const ADesde, AHasta: TDateTime): Int64;
+    function SeguimientoParaBajar(const AAsesorId: Integer;
+      const ADesde: NullableTDateTime): TObjectList<TSeguimientoAsesor>;
     function Cola(const ATexto: string; const APagina, APorPagina: Integer)
       : TObjectList<TColaSolicitudes>;
     function ContarCola(const ATexto: string): Int64;

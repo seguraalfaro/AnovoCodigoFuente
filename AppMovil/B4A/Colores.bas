@@ -41,6 +41,8 @@ Sub Process_Globals
 	Public COLOR_ERROR_TENUE       As Int = 0xFFFCE8E6
 	Public COLOR_EXITO             As Int = 0xFF1E7B3C
 	Public COLOR_EXITO_TENUE       As Int = 0xFFE6F4EA
+	Public COLOR_PROCESO           As Int = 0xFF534AB7
+	Public COLOR_PROCESO_TENUE     As Int = 0xFFEEEDFE
 	'--- Estado "en revisión": NO está en el vocabulario acordado ---
 	'(borrador · pendiente · aprobada · rechazada · enviada). Ver
 	'componentes-b4x-anovo.md, pendiente #7. Mientras no se confirme con

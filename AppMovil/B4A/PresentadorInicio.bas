@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Presentador de la hoja de Inicio: saludo, franja de sincronizacion, cotizacion sin
 ' terminar, indicadores y ultimas solicitudes. Todo sale de SQLite y del KVS. No conoce vistas.
+
 Sub Class_Globals
 	Private Const DIAS_RECIENTES As Int = 7
 	Private Const GLIFO_SUBIENDO As Int = 0xF021
@@ -13,6 +14,8 @@ Sub Class_Globals
 	Private Const GLIFO_PENDIENTE As Int = 0xF0EE
 	Private Const GLIFO_AL_DIA As Int = 0xF00C
 	Private Const SEPARADOR As String = " · "
+	Private Const FORMATO_HORA As String = "HH:mm"
+	Private Const FORMATO_DIA_HORA As String = "dd/MM HH:mm"
 
 	Private cotizacion As PresentadorCotizacion
 	Private mFranja As FranjaSync
@@ -26,6 +29,7 @@ Public Sub Initialize
 	mRecientes.Initialize
 End Sub
 
+#Region Estado
 Public Sub Actualizar
 	mFranja = ArmarFranja(DbSync.Pendientes, DbSync.ConError, Sincronizacion.getEnCurso)
 	Dim desde As Long = DateTime.Add(DateTime.Now, 0, 0, -DIAS_RECIENTES)
@@ -34,7 +38,9 @@ Public Sub Actualizar
 	mDetalleBorrador = ""
 	If mHayBorrador Then mDetalleBorrador = ArmarDetalleBorrador
 End Sub
+#End Region
 
+#Region Lo que pinta la página
 Public Sub getSaludo As String
 	Dim nombre As String = Sesion.Nombre.Trim
 	If nombre.Contains(" ") Then nombre = nombre.SubString2(0, nombre.IndexOf(" "))
@@ -59,24 +65,31 @@ Public Sub getDetalleBorrador As String
 	Return mDetalleBorrador
 End Sub
 
-Public Sub DescartarBorrador
-	cotizacion.DescartarBorrador
-	mHayBorrador = False
-	mDetalleBorrador = ""
-End Sub
-
 Public Sub getKpiTitulos As List
 	Return Mensajes.KpisAsesor
 End Sub
 
 Public Sub getKpiValores As List
-	Return Array(Mensajes.KPI_SIN_DATO, Mensajes.KPI_SIN_DATO, Mensajes.KPI_SIN_DATO, Mensajes.KPI_SIN_DATO)
+	Dim d As Map = DbInicio.Indicadores
+	If d.Size = 0 Then Return Array(Mensajes.KPI_SIN_DATO, Mensajes.KPI_SIN_DATO, Mensajes.KPI_SIN_DATO, Mensajes.KPI_SIN_DATO)
+	Return Array(Cantidad(d, "solicitudes_mes"), Cantidad(d, "esperando_cotizacion"), Cantidad(d, "aprobadas_mes"), _
+		Mensajes.Colones(d.GetDefault("monto_aprobado_mes", 0)))
 End Sub
 
 Public Sub getRecientes As List
 	Return mRecientes
 End Sub
+#End Region
 
+#Region Acciones
+Public Sub DescartarBorrador
+	cotizacion.DescartarBorrador
+	mHayBorrador = False
+	mDetalleBorrador = ""
+End Sub
+#End Region
+
+#Region Textos de cada fila
 Public Sub TituloDe (r As SolicitudReciente) As String
 	Return r.Proyecto
 End Sub
@@ -95,6 +108,13 @@ End Sub
 
 Public Sub FondoDe (r As SolicitudReciente) As Int
 	Return Colores.FondoPastilla(r.EstadoSync)
+End Sub
+#End Region
+
+#Region Ayudantes
+Private Sub Cantidad (d As Map, Llave As String) As String
+	Dim v As Int = d.GetDefault(Llave, 0)
+	Return v
 End Sub
 
 Private Sub ArmarFranja (Pendientes As Int, Errores As Int, EnCurso As Boolean) As FranjaSync
@@ -118,12 +138,20 @@ Private Sub ArmarFranja (Pendientes As Int, Errores As Int, EnCurso As Boolean) 
 		f.Tinta = Colores.COLOR_ADVERTENCIA
 		f.Fondo = Colores.COLOR_ADVERTENCIA_TENUE
 	Else
-		f.Texto = Mensajes.SYNC_AL_DIA
+		f.Texto = Mensajes.SyncAlDia(HoraActualizado)
 		f.Glifo = Chr(GLIFO_AL_DIA)
 		f.Tinta = Colores.COLOR_EXITO
 		f.Fondo = Colores.COLOR_EXITO_TENUE
 	End If
 	Return f
+End Sub
+
+Private Sub HoraActualizado As String
+	Dim hora As String = DbBajada.Hora
+	If hora = "" Then Return ""
+	Dim momento As Long = Utils.Parsear(hora, Utils.FORMATO_BD)
+	If DateTime.Date(momento) = DateTime.Date(DateTime.Now) Then Return Utils.Formatear(momento, FORMATO_HORA)
+	Return Utils.Formatear(momento, FORMATO_DIA_HORA)
 End Sub
 
 Private Sub ArmarDetalleBorrador As String
@@ -145,3 +173,4 @@ Private Sub Unir (Partes() As String) As String
 	Next
 	Return sb.ToString
 End Sub
+#End Region

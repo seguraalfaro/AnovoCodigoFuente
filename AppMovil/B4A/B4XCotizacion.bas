@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Nueva cotizacion en tres pasos: cliente, detalles y revision. La pagina lee
 ' los campos y pinta; el borrador, las piezas y las reglas son del presentador.
+
 Sub Class_Globals
 	Private Root As B4XView
 	Private xui As XUI
@@ -57,6 +58,7 @@ Public Sub Initialize As Object
 	Return Me
 End Sub
 
+#Region Ciclo y borrador
 Private Sub B4XPage_Created (Root1 As B4XView)
 	Root = Root1
 	Root.LoadLayout("PageIngresoDatos")
@@ -75,15 +77,6 @@ Private Sub B4XPage_Created (Root1 As B4XView)
 	ime.Initialize("IME")
 	ime.AddHandleActionEvent(txtObservaciones)
 	UI.AplicarTema(Root)
-End Sub
-
-Private Sub PrepararVacio
-	If pnVacio.NumberOfViews > 0 Then Return
-	pnVacio.LoadLayout("ItemVacio")
-	UI.AplicarTema(pnVacio)
-	lblVacioIcono.Text = Chr(0xF0AD)
-	lblVacioTitulo.Text = Mensajes.SIN_PIEZAS_TITULO
-	lblVacioTexto.Text = Mensajes.SIN_PIEZAS_TEXTO
 End Sub
 
 Private Sub B4XPage_Appear
@@ -174,7 +167,9 @@ Private Sub Limpiar
 	restaurando = False
 	AHView.GotoPage(PASO_CLIENTE, True)
 End Sub
+#End Region
 
+#Region Paso 1: cliente
 Private Sub PintarCliente
 	CampoCliente.Texto = presentador.TextoCliente
 	CampoContacto.Texto = presentador.TextoContacto
@@ -209,6 +204,17 @@ Private Sub CampoContacto_Elegido (Valor As Object)
 	presentador.ElegirContacto(Valor)
 	PintarCliente
 	Persistir
+End Sub
+#End Region
+
+#Region Paso 2: piezas
+Private Sub PrepararVacio
+	If pnVacio.NumberOfViews > 0 Then Return
+	pnVacio.LoadLayout("ItemVacio")
+	UI.AplicarTema(pnVacio)
+	lblVacioIcono.Text = Chr(0xF0AD)
+	lblVacioTitulo.Text = Mensajes.SIN_PIEZAS_TITULO
+	lblVacioTexto.Text = Mensajes.SIN_PIEZAS_TEXTO
 End Sub
 
 Private Sub PintarPiezas
@@ -299,53 +305,9 @@ Private Sub BtnAgregarPieza_Click
 	especificaciones.NuevaPieza
 	B4XPages.ShowPage(Layouts.PAGINA_ESPECIFICACIONES)
 End Sub
+#End Region
 
-Private Sub BtnSiguiente_Click
-	Dim actual As Int = AHView.CurrentPage
-	Dim r As Resultado = presentador.ValidarPaso(actual)
-	If r.Ok = False Then
-		xui.MsgboxAsync(r.Mensaje, Mensajes.TITULO)
-		Return
-	End If
-	If actual < ULTIMO Then
-		Persistir
-		AHView.GotoPage(actual + 1, True)
-	Else
-		Confirmar
-	End If
-End Sub
-
-Private Sub Confirmar
-	Dim r As Resultado = presentador.Guardar(TextNombreProyecto.Text, txtObservaciones.Text)
-	If r.Ok = False Then
-		xui.MsgboxAsync(r.Mensaje, Mensajes.TITULO)
-		Return
-	End If
-	Limpiar
-	Sincronizacion.Pedir
-	Wait For (xui.MsgboxAsync(Mensajes.SOLICITUD_GUARDADA, Mensajes.TITULO)) Msgbox_Result (Respuesta As Int)
-	B4XPages.ClosePage(Me)
-End Sub
-
-Private Sub BtnAtras_sec_Click
-	If AHView.CurrentPage > 0 Then AHView.GotoPage(AHView.CurrentPage - 1, True)
-End Sub
-
-Private Sub Pasos_StepClick (Index As Int, Id As String)
-	If Index < AHView.CurrentPage Then AHView.GotoPage(Index, True)
-End Sub
-
-Private Sub AHView_PageChanged (Position As Int)
-	Pasos.CurrentIndex = Position
-	If Position = PASO_DETALLES Then PrepararVacio
-	If Position = ULTIMO Then
-		PintarRevision
-		BtnSiguiente.Text = Mensajes.GUARDAR_COTIZACION
-	Else
-		BtnSiguiente.Text = Mensajes.SIGUIENTE
-	End If
-End Sub
-
+#Region Paso 3: revisión
 Private Sub txtObservaciones_TextChanged (Old As String, New As String)
 	If restaurando = False And presentador.ObservacionesExcedidas(New) Then txtObservaciones.Text = Old
 	lblContadorObs.Text = Mensajes.Contador(txtObservaciones.Text.Length, presentador.MaxObservaciones)
@@ -391,3 +353,52 @@ Private Sub txtObservaciones_FocusChanged (HasFocus As Boolean)
 	ime.HideKeyboard
 	Persistir
 End Sub
+#End Region
+
+#Region Navegación entre pasos
+Private Sub BtnSiguiente_Click
+	Dim actual As Int = AHView.CurrentPage
+	Dim r As Resultado = presentador.ValidarPaso(actual)
+	If r.Ok = False Then
+		xui.MsgboxAsync(r.Mensaje, Mensajes.TITULO)
+		Return
+	End If
+	If actual < ULTIMO Then
+		Persistir
+		AHView.GotoPage(actual + 1, True)
+	Else
+		Confirmar
+	End If
+End Sub
+
+Private Sub Confirmar
+	Dim r As Resultado = presentador.Guardar(TextNombreProyecto.Text, txtObservaciones.Text)
+	If r.Ok = False Then
+		xui.MsgboxAsync(r.Mensaje, Mensajes.TITULO)
+		Return
+	End If
+	Limpiar
+	Sincronizacion.Pedir
+	Wait For (xui.MsgboxAsync(Mensajes.SOLICITUD_GUARDADA, Mensajes.TITULO)) Msgbox_Result (Respuesta As Int)
+	B4XPages.ClosePage(Me)
+End Sub
+
+Private Sub BtnAtras_sec_Click
+	If AHView.CurrentPage > 0 Then AHView.GotoPage(AHView.CurrentPage - 1, True)
+End Sub
+
+Private Sub Pasos_StepClick (Index As Int, Id As String)
+	If Index < AHView.CurrentPage Then AHView.GotoPage(Index, True)
+End Sub
+
+Private Sub AHView_PageChanged (Position As Int)
+	Pasos.CurrentIndex = Position
+	If Position = PASO_DETALLES Then PrepararVacio
+	If Position = ULTIMO Then
+		PintarRevision
+		BtnSiguiente.Text = Mensajes.GUARDAR_COTIZACION
+	Else
+		BtnSiguiente.Text = Mensajes.SIGUIENTE
+	End If
+End Sub
+#End Region

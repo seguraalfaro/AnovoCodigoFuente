@@ -6,7 +6,8 @@ unit Anovo.Controllers.Base;
 interface
 
 uses
-  MVCFramework;
+  MVCFramework,
+  MVCFramework.Nullables;
 
 type
   TControllerBase = class(TMVCController)
@@ -17,12 +18,14 @@ type
     function ComoFecha(const ATexto: string;
       const APorDefecto: TDateTime = 0): TDateTime;
     function HastaFinDelDia(const AFecha: TDateTime): TDateTime;
+    function ComoFechaHora(const ATexto: string): NullableTDateTime;
   end;
 
 implementation
 
 uses
   System.SysUtils,
+  MVCFramework.Serializer.Commons,
   Anovo.Auth.Permisos,
   Anovo.Errors,
   Anovo.Textos;
@@ -68,6 +71,20 @@ begin
   Result := AFecha;
   if AFecha > 0 then
     Result := Trunc(AFecha) + 1 - (1 / SecsPerDay);
+end;
+
+function TControllerBase.ComoFechaHora(const ATexto: string)
+  : NullableTDateTime;
+begin
+  Result.Clear;
+  if ATexto.Trim.IsEmpty then
+    Exit;
+  try
+    Result := ISOTimeStampToDateTime(ATexto.Trim);
+  except
+    on Exception do
+      raise EDatoInvalido.Create(Format(SFechaHoraInvalida, [ATexto]));
+  end;
 end;
 
 end.

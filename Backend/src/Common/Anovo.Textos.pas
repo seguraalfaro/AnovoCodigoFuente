@@ -131,6 +131,8 @@ resourcestring
   SRevisarPropia = 'Una cotización no la puede revisar quien la elaboró.';
   SSolicitudTomada = 'Esta solicitud ya la tomó otro usuario.';
   SFechaInvalida = 'La fecha %s no tiene la forma aaaa-mm-dd.';
+  SFechaHoraInvalida = 'La fecha %s no tiene la forma ISO 8601 ' +
+    '(aaaa-mm-ddThh:mm:ss).';
   SFiltroConsentimientoInvalido = 'El filtro de consentimiento debe ser ' +
     'pendiente, firmado o revocado.';
   SFaltaVersion = 'Falta la versión del registro. Recargue %s y vuelva a ' +

@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Presentador de la nueva cotizacion en tres pasos (cliente, detalles, revision):
 ' lleva el borrador, el cliente, el contacto y las piezas, y valida cada paso. No conoce vistas.
+
 Sub Class_Globals
 	Private Const TIPO_BORRADOR As String = "cotizacion"
 	Private Const CLAVE_CLIENTE As String = "cliente"
@@ -31,6 +32,7 @@ Public Sub Initialize
 	Nuevo
 End Sub
 
+#Region Estado
 Public Sub getHayBorrador As Boolean
 	Return Db.HayBorrador(TIPO_BORRADOR)
 End Sub
@@ -70,6 +72,21 @@ Public Sub Restaurar As Boolean
 	Return True
 End Sub
 
+Public Sub GuardarBorrador (NombreProyecto As String, TextoObservaciones As String, Hoja As Int)
+	mProyecto = NombreProyecto
+	mObservaciones = TextoObservaciones
+	mPagina = Hoja
+	If getHayCliente = False And NombreProyecto = "" And TextoObservaciones = "" And mPiezas.Size = 0 Then
+		Db.BorrarBorrador(TIPO_BORRADOR)
+		Return
+	End If
+	Db.GuardarBorrador(TIPO_BORRADOR, CreateMap(CLAVE_CLIENTE: mCliente, CLAVE_CONTACTO: mContacto, _
+		CLAVE_PROYECTO: mProyecto, CLAVE_PIEZAS: mPiezas, CLAVE_OBSERVACIONES: mObservaciones, _
+		CLAVE_PAGINA: mPagina))
+End Sub
+#End Region
+
+#Region Lo que pinta la página
 Public Sub getHayCliente As Boolean
 	Return mCliente.UuidLocal <> ""
 End Sub
@@ -149,7 +166,9 @@ Public Sub OpcionesContactos As List
 	Next
 	Return res
 End Sub
+#End Region
 
+#Region Acciones
 Public Sub ElegirCliente (c As Cliente)
 	If c.UuidLocal = mCliente.UuidLocal Then Return
 	mCliente = c
@@ -158,19 +177,6 @@ End Sub
 
 Public Sub ElegirContacto (k As Contacto)
 	mContacto = k
-End Sub
-
-Public Sub GuardarBorrador (NombreProyecto As String, TextoObservaciones As String, Hoja As Int)
-	mProyecto = NombreProyecto
-	mObservaciones = TextoObservaciones
-	mPagina = Hoja
-	If getHayCliente = False And NombreProyecto = "" And TextoObservaciones = "" And mPiezas.Size = 0 Then
-		Db.BorrarBorrador(TIPO_BORRADOR)
-		Return
-	End If
-	Db.GuardarBorrador(TIPO_BORRADOR, CreateMap(CLAVE_CLIENTE: mCliente, CLAVE_CONTACTO: mContacto, _
-		CLAVE_PROYECTO: mProyecto, CLAVE_PIEZAS: mPiezas, CLAVE_OBSERVACIONES: mObservaciones, _
-		CLAVE_PAGINA: mPagina))
 End Sub
 
 Public Sub Guardar (NombreProyecto As String, TextoObservaciones As String) As Resultado
@@ -193,16 +199,6 @@ Public Sub Guardar (NombreProyecto As String, TextoObservaciones As String) As R
 	Return Tipos.Correcto(uuid)
 End Sub
 
-Private Sub DescripcionDe (NombreProyecto As String) As String
-	If NombreProyecto <> "" Then Return NombreProyecto
-	Dim nombres(mPiezas.Size) As String
-	For i = 0 To mPiezas.Size - 1
-		Dim p As Pieza = mPiezas.Get(i)
-		nombres(i) = p.Nombre
-	Next
-	Return Unir(nombres)
-End Sub
-
 Public Sub ValidarPaso (Paso As Int) As Resultado
 	If Paso = PASO_CLIENTE And getHayCliente = False Then Return Tipos.Falla(Mensajes.FALTA_CLIENTE)
 	If Paso = PASO_CLIENTE And mContacto.UuidLocal = "" Then Return Tipos.Falla(Mensajes.FALTA_CONTACTO)
@@ -220,25 +216,10 @@ Public Sub AgregarPieza (p As Pieza) As Pieza
 	Return p
 End Sub
 
-Public Sub PiezaPorUuid (Uuid As String) As Pieza
-	Dim i As Int = IndicePieza(Uuid)
-	If i < 0 Then Return Tipos.PiezaVacia
-	Return mPiezas.Get(i)
-End Sub
-
 Public Sub ReemplazarPieza (p As Pieza) As Int
 	Dim i As Int = IndicePieza(p.UuidLocal)
 	If i >= 0 Then mPiezas.Set(i, p)
 	Return i
-End Sub
-
-Private Sub IndicePieza (Uuid As String) As Int
-	If Uuid = "" Then Return -1
-	For i = 0 To mPiezas.Size - 1
-		Dim p As Pieza = mPiezas.Get(i)
-		If p.UuidLocal = Uuid Then Return i
-	Next
-	Return -1
 End Sub
 
 Public Sub QuitarPieza (Uuid As String) As Int
@@ -252,7 +233,9 @@ Public Sub QuitarPieza (Uuid As String) As Int
 	Next
 	Return -1
 End Sub
+#End Region
 
+#Region Textos de cada fila
 Public Sub DetallePieza (p As Pieza) As String
 	Dim partes As List
 	partes.Initialize
@@ -275,6 +258,33 @@ Public Sub EstadoPieza (p As Pieza) As String
 	If p.Fotos = 0 Then Return Mensajes.PIEZA_SIN_FOTOS
 	Return Mensajes.PiezaAdjuntos(p.Fotos)
 End Sub
+#End Region
+
+#Region Ayudantes
+Private Sub DescripcionDe (NombreProyecto As String) As String
+	If NombreProyecto <> "" Then Return NombreProyecto
+	Dim nombres(mPiezas.Size) As String
+	For i = 0 To mPiezas.Size - 1
+		Dim p As Pieza = mPiezas.Get(i)
+		nombres(i) = p.Nombre
+	Next
+	Return Unir(nombres)
+End Sub
+
+Public Sub PiezaPorUuid (Uuid As String) As Pieza
+	Dim i As Int = IndicePieza(Uuid)
+	If i < 0 Then Return Tipos.PiezaVacia
+	Return mPiezas.Get(i)
+End Sub
+
+Private Sub IndicePieza (Uuid As String) As Int
+	If Uuid = "" Then Return -1
+	For i = 0 To mPiezas.Size - 1
+		Dim p As Pieza = mPiezas.Get(i)
+		If p.UuidLocal = Uuid Then Return i
+	Next
+	Return -1
+End Sub
 
 Private Sub Unir (Valores() As String) As String
 	Dim sb As StringBuilder
@@ -286,3 +296,4 @@ Private Sub Unir (Valores() As String) As String
 	Next
 	Return sb.ToString
 End Sub
+#End Region

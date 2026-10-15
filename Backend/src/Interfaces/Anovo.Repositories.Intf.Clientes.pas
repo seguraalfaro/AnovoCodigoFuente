@@ -7,6 +7,7 @@ interface
 
 uses
   System.Generics.Collections,
+  MVCFramework.Nullables,
   MVCFramework.Repository,
   Anovo.Entities.Clientes,
   Anovo.Entities.Consultas;
@@ -24,6 +25,8 @@ type
 
     function ObtenerPorUuidLocal(const AUuid: string): TClientes;
     function ExitsUuidLocal(const AUuid: string): Integer;
+    function ParaBajar(const ADesde: NullableTDateTime;
+      const AConUuid: Boolean = False): TObjectList<TClientes>;
   end;
 
   IClienteContactoRepository = interface(IMVCRepository<TClienteContactos>)
@@ -35,6 +38,8 @@ type
       : TClienteContactos;
     function TodosDe(const AClienteId: Integer): TObjectList<TClienteContactos>;
     function PorUuidLocal(const AUuid: string): TClienteContactos;
+    function ParaBajar(const ADesde: NullableTDateTime;
+      const AConUuid: Boolean = False): TObjectList<TClienteContactos>;
   end;
 
   IConsentimientoRepository = interface

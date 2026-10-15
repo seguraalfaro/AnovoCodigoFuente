@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Unico modulo que lee y escribe clientes, contactos y firmas de consentimiento
 ' en SQLite. Las escrituras van en una transaccion: si algo falla, no queda nada a medias.
+
 Sub Process_Globals
 	Public Const CONSENT_VERSION As String = "v1"
 	Private Const SQL_CLIENTE As String = "INSERT INTO clientes (uuid_local, nombre, identificacion, tipo_identificacion, telefono, correo, contacto, direccion, latitud, longitud, estado_sync) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pendiente')"
@@ -15,11 +16,12 @@ Sub Process_Globals
 	Private Const SQL_FIRMA As String = "INSERT INTO consentimiento_firmas (uuid_local, cliente_uuid, cliente_contacto_uuid, accion, version_texto, fecha, firmante_nombre, firmante_identificacion, firma, mime, estado_sync) VALUES (?, ?, ?, 'otorgado', ?, ?, ?, ?, ?, 'image/png', 'pendiente')"
 	Private Const SQL_ESTADO As String = "SELECT CASE WHEN EXISTS (SELECT 1 FROM cola_sync q WHERE q.entidad = 'cliente' AND q.uuid_local = c.uuid_local AND q.estado = 'error') THEN 'error' WHEN c.estado_sync <> 'confirmado' THEN 'pendiente' ELSE 'confirmado' END FROM clientes c WHERE c.uuid_local = ?"
 	Private Const SQL_PERMISO As String = "SELECT accion, COALESCE(firmante_nombre, '') AS firmante, fecha, version_texto FROM consentimiento_firmas WHERE cliente_uuid = ? ORDER BY fecha DESC LIMIT 1"
-	Private Const SQL_LISTA As String = "SELECT uuid_local, nombre, identificacion, tipo_identificacion, telefono, direccion, contacto, correo FROM clientes ORDER BY nombre COLLATE NOCASE"
-	Private Const SQL_CONTACTOS_DE As String = "SELECT uuid_local, nombre, area, telefono, celular, correo, principal FROM cliente_contactos WHERE cliente_uuid = ? ORDER BY principal DESC, nombre COLLATE NOCASE"
+	Private Const SQL_LISTA As String = "SELECT uuid_local, nombre, identificacion, tipo_identificacion, telefono, direccion, contacto, correo FROM clientes WHERE activo = 1 ORDER BY nombre COLLATE NOCASE"
+	Private Const SQL_CONTACTOS_DE As String = "SELECT uuid_local, nombre, area, telefono, celular, correo, principal FROM cliente_contactos WHERE cliente_uuid = ? AND activo = 1 ORDER BY principal DESC, nombre COLLATE NOCASE"
 	Private Const TIPOS_IDENTIFICACION As Int = 3
 End Sub
 
+#Region Lectura
 Public Sub Lista As List
 	Dim res As List
 	res.Initialize
@@ -89,12 +91,6 @@ Public Sub UbicacionDe (ClienteUuid As String) As UbicacionGps
 	Return u
 End Sub
 
-Private Sub Coordenada (Lugar As UbicacionGps, EsLatitud As Boolean) As Object
-	If Lugar.IsInitialized = False Or Lugar.Ok = False Then Return Null
-	If EsLatitud Then Return Lugar.Latitud
-	Return Lugar.Longitud
-End Sub
-
 Public Sub ContactosDe (ClienteUuid As String) As List
 	Dim res As List
 	res.Initialize
@@ -115,11 +111,17 @@ Public Sub ContactosDe (ClienteUuid As String) As List
 	Return res
 End Sub
 
-Private Sub Texto (Valor As String) As String
-	If Valor = Null Then Return ""
-	Return Valor
+Private Sub UuidDeFirmante (Contactos As List, Nombre As String) As Object
+	Dim buscado As String = Nombre.Trim.ToLowerCase
+	If buscado = "" Then Return Null
+	For Each k As Contacto In Contactos
+		If k.Nombre.Trim.ToLowerCase = buscado Then Return k.UuidLocal
+	Next
+	Return Null
 End Sub
+#End Region
 
+#Region Escritura
 Public Sub Guardar (c As Cliente, Contactos As List, Permiso As Consentimiento, Lugar As UbicacionGps) As String
 	Dim s As SQL = Db.DbSQL
 	Dim ahora As String = Utils.AhoraBd
@@ -155,17 +157,22 @@ Public Sub Guardar (c As Cliente, Contactos As List, Permiso As Consentimiento, 
 	If ok = False Then Return ""
 	Return c.UuidLocal
 End Sub
+#End Region
 
-Private Sub UuidDeFirmante (Contactos As List, Nombre As String) As Object
-	Dim buscado As String = Nombre.Trim.ToLowerCase
-	If buscado = "" Then Return Null
-	For Each k As Contacto In Contactos
-		If k.Nombre.Trim.ToLowerCase = buscado Then Return k.UuidLocal
-	Next
-	Return Null
+#Region Ayudantes
+Private Sub Coordenada (Lugar As UbicacionGps, EsLatitud As Boolean) As Object
+	If Lugar.IsInitialized = False Or Lugar.Ok = False Then Return Null
+	If EsLatitud Then Return Lugar.Latitud
+	Return Lugar.Longitud
+End Sub
+
+Private Sub Texto (Valor As String) As String
+	If Valor = Null Then Return ""
+	Return Valor
 End Sub
 
 Private Sub TipoIdentificacion (IndiceCombo As Int) As Object
 	If IndiceCombo < 0 Or IndiceCombo >= TIPOS_IDENTIFICACION Then Return Null
 	Return IndiceCombo + 1
 End Sub
+#End Region

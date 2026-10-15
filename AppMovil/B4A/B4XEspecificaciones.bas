@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Pagina de la pieza en tres partes (datos, croquis y fotos). Lee los campos y pinta;
 ' reglas, fotos y borrador son del presentador; croquis y camara, de sus clases de vista.
+
 Sub Class_Globals
 	Private Root As B4XView 'ignore
 	Private xui As XUI 'ignore
@@ -64,6 +65,7 @@ Public Sub Initialize As Object
 	Return Me
 End Sub
 
+#Region Ciclo y borrador
 Private Sub B4XPage_Created (Root1 As B4XView)
 	Root = Root1
 	Root.LoadLayout("PageespecificacionesHome")
@@ -101,7 +103,6 @@ Private Sub CrearPagina (Indice As Int) As B4XView
 	Return page
 End Sub
 
-#Region Ciclo de la pagina y borrador
 Public Sub NuevaPieza
 	pendiente = PENDIENTE_NUEVA
 End Sub
@@ -298,7 +299,7 @@ Private Sub CrearAvisoMedidas As B4XView
 	item.LoadLayout("ItemSeccion")
 	lblSeccion.Text = Mensajes.SIN_MEDIDAS
 	lblSeccion.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
-	lblSeccion.Font = xui.CreateDefaultFont(12)
+	lblSeccion.Font = xui.CreateDefaultFont(14)
 	Return item
 End Sub
 

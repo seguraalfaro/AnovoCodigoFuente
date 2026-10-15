@@ -26,8 +26,10 @@ Sub Class_Globals
 
 	Private presentador As PresentadorIngreso
 	Private huella As Desbloqueo
-	Private lblDesbloqueo As B4XView
-	Private ofrecido As Boolean
+	Private pnDesbloqueo, lblHuella, lblDesbloqueo, lblDesbloqueoNombre As B4XView
+	Private Const GLIFO_HUELLA As Int = 0xE90D
+	Private Const TAMANO_HUELLA As Int = 30
+	Private entrarPendiente As Boolean
 	Private visible As Boolean
 	Private indicator As WaitIndicator
 	Private TextUsername As B4XFloatTextField
@@ -40,6 +42,7 @@ End Sub
 Public Sub Initialize
 End Sub
 
+#Region Ciclo de la página
 Private Sub B4XPage_Created (Root1 As B4XView)
 	Root = Root1
 	presentador.Initialize
@@ -56,27 +59,12 @@ End Sub
 
 Private Sub B4XPage_Appear
 	visible = True
-	lblDesbloqueo.Visible = presentador.PuedeDesbloquear
-	If lblDesbloqueo.Visible And ofrecido = False Then
-		ofrecido = True
-		Desbloquear
+	If entrarPendiente Then
+		Entrar
+		Return
 	End If
-End Sub
-
-Private Sub CrearOpcionDesbloqueo
-	huella.Initialize
-	lblDesbloqueo.Text = Mensajes.DESBLOQUEO_ENTRAR
-End Sub
-
-Private Sub lblDesbloqueo_Click
-	Desbloquear
-End Sub
-
-Private Sub Desbloquear
-	Wait For (huella.Pedir(Mensajes.DESBLOQUEO_TITULO, presentador.NombreGuardado)) Complete (Identificado As Boolean)
-	If visible = False Or Identificado = False Then Return
-	presentador.AbrirSinConexion
-	B4XPages.ShowPageAndRemovePreviousPages(Layouts.PAGINA_INICIO)
+	pnDesbloqueo.Visible = presentador.PuedeDesbloquear
+	lblDesbloqueoNombre.Text = presentador.NombreGuardado
 End Sub
 
 Private Sub B4XPage_Disappear
@@ -98,6 +86,30 @@ Private Sub InicializarPaginas
 	B4XPages.AddPageAndCreate(Layouts.PAGINA_SINCRONIZACION, PSincronizacion)
 End Sub
 
+Private Sub SetTopBarColorAndTitle (BackgroundColor As Int, TitleColor As String, Title As String)
+	Dim top As B4XView = xui.CreatePanel("")
+	top.Color = BackgroundColor
+	Dim act As Activity = B4XPages.GetNativeParent(Me)
+	Dim r As Rect = ime.GetContentRect
+	act.AddView(top, 0, 0, act.Width, r.Top)
+	Dim cs As CSBuilder
+	cs.Initialize.Color(TitleColor).Append(Title).Pop
+	B4XPages.SetTitle(Me, cs)
+End Sub
+#End Region
+
+#Region Pintar
+Private Sub CrearOpcionDesbloqueo
+	huella.Initialize
+	lblHuella.Font = xui.CreateMaterialIcons(TAMANO_HUELLA)
+	lblHuella.Text = Chr(GLIFO_HUELLA)
+	lblHuella.TextColor = Colores.COLOR_PRIMARIO
+	lblHuella.SetColorAndBorder(xui.Color_Transparent, 2dip, Colores.COLOR_PRIMARIO, lblHuella.Height / 2)
+	lblDesbloqueo.Text = Mensajes.DESBLOQUEO_ENTRAR
+	lblDesbloqueo.TextColor = Colores.COLOR_TEXTO_PRIMARIO
+	lblDesbloqueoNombre.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
+End Sub
+
 Private Sub CrearOpcionServidor
 	lblServidor.Text = presentador.TextoServidor
 	dlgServidor.Initialize(Root)
@@ -107,28 +119,27 @@ Private Sub CrearOpcionServidor
 	plantillaServidor.lblTitle.Text = Mensajes.TITULO_SERVIDOR
 	UI.EstilizarPlantillaTexto(plantillaServidor)
 End Sub
+#End Region
+
+#Region Eventos
+Private Sub pnDesbloqueo_Click
+	Desbloquear
+End Sub
+
+Private Sub lblHuella_Click
+	Desbloquear
+End Sub
+
+Private Sub lblDesbloqueo_Click
+	Desbloquear
+End Sub
 
 Private Sub lblServidor_Click
 	PedirServidor
 End Sub
 
-Private Sub PedirServidor As ResumableSub
-	plantillaServidor.Text = Api.UrlServidor
-	Dim rs As Object = dlgServidor.ShowTemplate(plantillaServidor, Mensajes.GUARDAR, "", Mensajes.CANCELAR)
-	UI.AjustarBarraTitulo(dlgServidor)
-	UI.CentrarDialogo(dlgServidor)
-	Wait For (rs) Complete (Respuesta As Int)
-	If Respuesta <> xui.DialogResponse_Positive Then Return False
-	Dim r As Resultado = presentador.GuardarServidor(plantillaServidor.Text)
-	If r.Ok = False Then
-		xui.MsgboxAsync(r.Mensaje, Mensajes.TITULO)
-		Return False
-	End If
-	lblServidor.Text = presentador.TextoServidor
-	Return True
-End Sub
-
 Private Sub btnIngresar_Click
+	ime.HideKeyboard
 	If presentador.PROBAR_SIN_SERVIDOR Then
 		B4XPages.ShowPageAndRemovePreviousPages(Layouts.PAGINA_INICIO)
 		Return
@@ -148,14 +159,37 @@ Private Sub btnIngresar_Click
 	Textpassword.Text = ""
 	B4XPages.ShowPageAndRemovePreviousPages(Layouts.PAGINA_INICIO)
 End Sub
+#End Region
 
-Private Sub SetTopBarColorAndTitle (BackgroundColor As Int, TitleColor As String, Title As String)
-	Dim top As B4XView = xui.CreatePanel("")
-	top.Color = BackgroundColor
-	Dim act As Activity = B4XPages.GetNativeParent(Me)
-	Dim r As Rect = ime.GetContentRect
-	act.AddView(top, 0, 0, act.Width, r.Top)
-	Dim cs As CSBuilder
-	cs.Initialize.Color(TitleColor).Append(Title).Pop
-	B4XPages.SetTitle(Me, cs)
+#Region Acciones
+Private Sub Desbloquear
+	ime.HideKeyboard
+	Wait For (huella.Pedir(Mensajes.DESBLOQUEO_TITULO, presentador.NombreGuardado)) Complete (Identificado As Boolean)
+	If Identificado = False Then Return
+	presentador.AbrirSinConexion
+	entrarPendiente = True
+	If visible Then Entrar
 End Sub
+
+Private Sub Entrar
+	entrarPendiente = False
+	ime.HideKeyboard
+	B4XPages.ShowPageAndRemovePreviousPages(Layouts.PAGINA_INICIO)
+End Sub
+
+Private Sub PedirServidor As ResumableSub
+	plantillaServidor.Text = Api.UrlServidor
+	Dim rs As Object = dlgServidor.ShowTemplate(plantillaServidor, Mensajes.GUARDAR, "", Mensajes.CANCELAR)
+	UI.AjustarBarraTitulo(dlgServidor)
+	UI.CentrarDialogo(dlgServidor)
+	Wait For (rs) Complete (Respuesta As Int)
+	If Respuesta <> xui.DialogResponse_Positive Then Return False
+	Dim r As Resultado = presentador.GuardarServidor(plantillaServidor.Text)
+	If r.Ok = False Then
+		xui.MsgboxAsync(r.Mensaje, Mensajes.TITULO)
+		Return False
+	End If
+	lblServidor.Text = presentador.TextoServidor
+	Return True
+End Sub
+#End Region

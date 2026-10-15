@@ -6,19 +6,22 @@ Version=13.7
 @EndOfDesignText@
 'Code module
 'Subs in this code module will be accessible from all modules.
+
 Sub Process_Globals
 	Private kvsBorradores As KeyValueStore
 	Public DbSQL As SQL
 End Sub
 
-#Region Persistencia KVs
+#Region Apertura
 'Llamado una vez desde Main.B4XPage_Created / arranque
 Public Sub Inicializar
 	kvsBorradores.Initialize(File.DirInternal, "borradores.dat")
 	DbSQL = DbEsquema.Abrir
 	DbPrueba.Cargar
 End Sub
+#End Region
 
+#Region Borradores
 'Tipo: "cliente" | "cotizacion" | "encargado" ...
 Public Sub HayBorrador (Tipo As String) As Boolean
 	Return kvsBorradores.ContainsKey(Tipo)
@@ -36,18 +39,9 @@ End Sub
 Public Sub BorrarBorrador (Tipo As String)
 	If kvsBorradores.ContainsKey(Tipo) Then kvsBorradores.Remove(Tipo)
 End Sub
-
 #End Region
 
-#Region Utilidades comunes
-
-'Identificador local de cada fila. El servidor asigna despues su id_servidor.
-Public Sub NuevoUuid As String
-	Dim ju As JavaObject
-	ju.InitializeStatic("java.util.UUID")
-	Return ju.RunMethod("randomUUID", Null)
-End Sub
-
+#Region Cola de sincronización
 'Marca una fila como pendiente de enviar al servidor.
 'Entidad: cliente|contacto|firma|solicitud|adjunto|medida (CHECK de cola_sync).
 Public Sub Encolar (Entidad As String, Uuid As String)
@@ -69,6 +63,15 @@ Public Sub EncolarVarios (Entidad As String, Uuids As List)
 		filas.Add(CreateMap("entidad": Entidad, "uuid_local": u, "fecha_encolado": ahora))
 	Next
 	extDBUtils.InsertMapsIn(DbSQL, "cola_sync", filas)
+End Sub
+#End Region
+
+#Region Utilidades
+'Identificador local de cada fila. El servidor asigna despues su id_servidor.
+Public Sub NuevoUuid As String
+	Dim ju As JavaObject
+	ju.InitializeStatic("java.util.UUID")
+	Return ju.RunMethod("randomUUID", Null)
 End Sub
 
 'Solo depuracion: copia la base a Descargas, donde el explorador del propio
@@ -101,6 +104,4 @@ Public Sub ExportarADescargas As String
 		Return ""
 	End Try
 End Sub
-
-
 #End Region

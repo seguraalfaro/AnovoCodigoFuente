@@ -23,14 +23,15 @@ Sub Process_Globals
 	Type Solicitud (UuidLocal As String, ClienteUuid As String, ContactoUuid As String, _
 		NombreProyecto As String, Descripcion As String, Observaciones As String)
 	Type UnidadSync (Clase As String, Uuid As String, Paquete As Map, SolicitudId As Int, Ruta As String)
-	Type ResumenSync (Subidos As Int, ConError As Int, Pendientes As Int, SinConexion As Boolean, _
+	Type ResumenSync (Subidos As Int, Bajados As Int, ConError As Int, Pendientes As Int, SinConexion As Boolean, _
 		SesionVencida As Boolean, Mensaje As String)
 	Type FranjaSync (Texto As String, Accion As String, Glifo As String, Tinta As Int, Fondo As Int)
 	Type SolicitudReciente (Proyecto As String, Cliente As String, Fecha As String, EstadoSync As String)
+	Type SeguimientoFila (Uuid As String, Proyecto As String, Cliente As String, Fecha As String, Estado As String, Monto As Double)
 	Type ClienteFila (Datos As Cliente, EstadoSync As String)
 	Type PerfilLocal (UsuarioId As Int, Correo As String, Nombre As String, Rol As String)
 	Type UbicacionGps (Ok As Boolean, Latitud As Double, Longitud As Double, Precision As Double)
-	Type IntentoSync (Fecha As String, Resultado As String, Subidos As Int, ConError As Int, Pendientes As Int)
+	Type IntentoSync (Fecha As String, Resultado As String, Subidos As Int, Bajados As Int, ConError As Int, Pendientes As Int)
 	Type ErrorSync (Entidad As String, Uuid As String, Titulo As String, Mensaje As String)
 	Type PermisoCliente (Accion As String, Firmante As String, Fecha As String, Version As String)
 End Sub

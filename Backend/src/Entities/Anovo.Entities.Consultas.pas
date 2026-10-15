@@ -31,6 +31,8 @@ const
   CONSULTA_BUSCAR_INACTIVOS = 'BuscarInactivos';
   CONSULTA_BUSCAR_CLAVE_PENDIENTE = 'BuscarClavePendiente';
   CONSULTA_BUSCAR_CON_ADICIONALES = 'BuscarConAdicionales';
+  CONSULTA_BAJADA = 'Bajada';
+  CONSULTA_BAJADA_DESDE = 'BajadaDesde';
 
   RQL_PAGINA = ';limit(%d,%d)';
   RQL_TEXTO_USUARIO = 'or(contains(Nombre,"%s"),contains(Correo,"%s"))';
@@ -173,6 +175,9 @@ type
     'and(eq(AsesorId,%d),ge(FechaCaptura,"%s"),' +
     'lt(FechaCaptura,"%s"),' + RQL_TEXTO_SOLICITUD +
     ');sort(-FechaCaptura,-ID)' + RQL_PAGINA)]
+  [MVCNamedRQLQuery(CONSULTA_BAJADA, 'eq(AsesorId,%d);sort(+ID)')]
+  [MVCNamedRQLQuery(CONSULTA_BAJADA_DESDE,
+    'and(eq(AsesorId,%d),gt(FechaCambio,"%s"));sort(+ID)')]
   TSeguimientoAsesor = class(TVSeguimientoAsesor)
   end;
 

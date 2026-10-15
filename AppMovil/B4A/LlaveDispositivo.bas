@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Identidad del telefono y su llave para renovar la sesion. La llave se guarda cifrada
 ' con una clave AES del Keystore de Android, que no sale del telefono; nunca en claro.
+
 Sub Process_Globals
 	Private kvs As KeyValueStore
 	Private Const ARCHIVO As String = "dispositivo.dat"
@@ -21,6 +22,7 @@ Sub Process_Globals
 	Private Const DIAS_SIN_CONEXION As Int = 30
 End Sub
 
+#Region Identidad del teléfono
 Private Sub Almacen As KeyValueStore
 	If kvs.IsInitialized = False Then kvs.Initialize(File.DirInternal, ARCHIVO)
 	Return kvs
@@ -39,7 +41,9 @@ Public Sub NombreTelefono As String
 	Dim p As Phone
 	Return (p.Manufacturer & " " & p.Model).Trim
 End Sub
+#End Region
 
+#Region Llave cifrada
 Public Sub HayLlave As Boolean
 	Return Almacen.ContainsKey(CLAVE_LLAVE)
 End Sub
@@ -75,7 +79,9 @@ Public Sub BorrarTodo
 		Almacen.Remove(c)
 	Next
 End Sub
+#End Region
 
+#Region Perfil guardado
 Public Sub GuardarPerfil (Id As Int, CorreoUsuario As String, NombreUsuario As String, RolUsuario As String)
 	If Id <> Almacen.GetDefault(CLAVE_USUARIO, 0) Then Almacen.Remove(CLAVE_ACTIVO)
 	Almacen.Put(CLAVE_USUARIO, Id)
@@ -98,7 +104,9 @@ End Sub
 Public Sub MarcarContacto
 	Almacen.Put(CLAVE_CONTACTO, DateTime.Now)
 End Sub
+#End Region
 
+#Region Desbloqueo
 Public Sub DesbloqueoActivo As Boolean
 	Return Almacen.GetDefault(CLAVE_ACTIVO, False)
 End Sub
@@ -113,12 +121,15 @@ Public Sub PuedeDesbloquear As Boolean
 	Dim ultimo As Long = Almacen.GetDefault(CLAVE_CONTACTO, 0)
 	Return DateTime.Now - ultimo < DIAS_SIN_CONEXION * DateTime.TicksPerDay
 End Sub
+#End Region
 
+#Region Java nativo
 Private Sub Nativo As JavaObject
 	Dim jo As JavaObject
 	jo.InitializeStatic(Application.PackageName & CLASE_JAVA)
 	Return jo
 End Sub
+#End Region
 
 #If JAVA
 import java.security.KeyStore;

@@ -61,7 +61,7 @@ End Sub
 Public Sub getTextoServidor As String
 	Dim url As String = Api.UrlServidor
 	If url = "" Then Return Mensajes.SERVIDOR_SIN_CONFIGURAR
-	Return Mensajes.ROTULO_SERVIDOR & url
+	Return Mensajes.SERVIDOR_EN & url
 End Sub
 
 Public Sub GuardarServidor (Url As String) As Resultado

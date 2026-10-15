@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS clientes (
   consentimiento_estado   TEXT NOT NULL DEFAULT 'pendiente'
                             CHECK (consentimiento_estado IN ('pendiente','firmado','revocado')),
   objversion              INTEGER NOT NULL DEFAULT 0,
+  activo                  INTEGER NOT NULL DEFAULT 1,
   estado_sync             TEXT NOT NULL DEFAULT 'pendiente'
                             CHECK (estado_sync IN ('pendiente','enviando','confirmado','error','conflicto'))
 );
@@ -43,6 +44,7 @@ CREATE TABLE IF NOT EXISTS cliente_contactos (
   consentimiento_version  TEXT,
   consentimiento_fecha    TEXT,
   objversion              INTEGER NOT NULL DEFAULT 0,
+  activo                  INTEGER NOT NULL DEFAULT 1,
   estado_sync             TEXT NOT NULL DEFAULT 'pendiente'
 );
 
@@ -159,12 +161,18 @@ CREATE TABLE IF NOT EXISTS acabados (
   activo            INTEGER NOT NULL DEFAULT 1
 );
 
-CREATE TABLE IF NOT EXISTS cotizaciones_estado (
-  id_servidor       INTEGER PRIMARY KEY,
-  numero            INTEGER NOT NULL,
+-- Seguimiento de las solicitudes del asesor (HU-03), tal como lo baja el servidor:
+-- estado de la solicitud o de su ultima cotizacion. La fecha va en el formato de la base.
+CREATE TABLE IF NOT EXISTS seguimiento (
+  uuid_local        TEXT PRIMARY KEY,
+  id_servidor       INTEGER,
+  nombre_proyecto   TEXT,
+  descripcion       TEXT,
+  cliente_nombre    TEXT,
+  fecha_captura     TEXT,
   estado            TEXT NOT NULL,
-  monto_total       TEXT,
-  fecha_ultima_sync TEXT NOT NULL
+  cotizacion_numero INTEGER,
+  monto_aprobado    REAL
 );
 
 CREATE TABLE IF NOT EXISTS cola_sync (
@@ -196,6 +204,7 @@ CREATE TABLE IF NOT EXISTS sync_historial (
   resultado         TEXT NOT NULL
                       CHECK (resultado IN ('exitosa','parcial','sin_conexion','sesion_vencida')),
   subidos           INTEGER NOT NULL DEFAULT 0,
+  bajados           INTEGER NOT NULL DEFAULT 0,
   con_error         INTEGER NOT NULL DEFAULT 0,
   pendientes        INTEGER NOT NULL DEFAULT 0
 );

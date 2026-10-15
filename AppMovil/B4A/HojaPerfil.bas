@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Hoja de Perfil: carga PagePerfil y, dentro del ScrollView, PerfilContenido, con las tarjetas
 ' de Configuracion del escritorio. La pagina le pasa su raiz y recibe CerrarSesion.
+
 Sub Class_Globals
 	Private xui As XUI
 	Private mRaiz As B4XView
@@ -45,6 +46,7 @@ Public Sub Initialize (Raiz As B4XView, Pagina As Object, RaizPagina As B4XView)
 	PonerTextos
 End Sub
 
+#Region Pintar
 Private Sub PonerTextos
 	lblCuentaTitulo.Text = Mensajes.PERFIL_MI_CUENTA
 	lblPermisosRot.Text = Mensajes.ROTULO_PERMISOS
@@ -104,7 +106,9 @@ Private Sub Pintar
 	lblBase.Text = presentador.VersionBase
 	lblAviso.Text = presentador.VersionAviso
 End Sub
+#End Region
 
+#Region Eventos
 Private Sub BtnProbar_Click
 	Wait For (presentador.Probar) Complete (Hecho As Boolean)
 	Pintar
@@ -126,16 +130,12 @@ Private Sub BtnDesbloqueo_Click
 		Return
 	End If
 	Wait For (huella.Pedir(Mensajes.DESBLOQUEO_TITULO, Mensajes.DESBLOQUEO_ACTIVAR)) Complete (Identificado As Boolean)
-	If Identificado = False Then Return
+	If Identificado = False Then
+		If huella.UltimoMensaje <> "" Then xui.MsgboxAsync(huella.UltimoMensaje, Mensajes.TITULO)
+		Return
+	End If
 	LlaveDispositivo.ActivarDesbloqueo(True)
 	Pintar
-End Sub
-
-Private Sub PorQueNo As String
-	If LlaveDispositivo.HayLlave = False Then Return Mensajes.PERFIL_SIN_REGISTRO
-	If huella.Estado = huella.SIN_BLOQUEO Then Return Mensajes.PERFIL_SIN_BLOQUEO
-	If huella.Estado <> huella.DISPONIBLE Then Return Mensajes.PERFIL_NO_SOPORTADO
-	Return ""
 End Sub
 
 Private Sub BtnCambiarClave_Click
@@ -167,3 +167,13 @@ Private Sub BtnCambiarClave_Click
 	End If
 	Pintar
 End Sub
+#End Region
+
+#Region Acciones
+Private Sub PorQueNo As String
+	If LlaveDispositivo.HayLlave = False Then Return Mensajes.PERFIL_SIN_REGISTRO
+	If huella.Estado = huella.SIN_BLOQUEO Then Return Mensajes.PERFIL_SIN_BLOQUEO
+	If huella.Estado <> huella.DISPONIBLE Then Return Mensajes.PERFIL_NO_SOPORTADO
+	Return ""
+End Sub
+#End Region

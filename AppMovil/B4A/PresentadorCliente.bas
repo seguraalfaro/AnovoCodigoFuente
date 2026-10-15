@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Presentador del registro de cliente en tres pasos (datos, contactos, permiso):
 ' lleva el borrador, valida cada paso y guarda. No conoce vistas.
+
 Sub Class_Globals
 	Private Const TIPO_BORRADOR As String = "cliente"
 	Private Const CLAVE_CLIENTE As String = "cliente"
@@ -31,6 +32,7 @@ Public Sub Initialize
 	Nuevo
 End Sub
 
+#Region Estado
 Public Sub getHayBorrador As Boolean
 	Return Db.HayBorrador(TIPO_BORRADOR)
 End Sub
@@ -65,15 +67,25 @@ Public Sub Restaurar As Boolean
 	Return True
 End Sub
 
-Public Sub BuscandoUbicacion
-	mBuscando = True
+Public Sub GuardarBorrador (DatosCliente As Cliente, PermisoActual As Consentimiento, Hoja As Int)
+	DatosCliente.UuidLocal = mCliente.UuidLocal
+	mCliente = DatosCliente
+	mConsentimiento = PermisoActual
+	mPagina = Hoja
+	If DatosCliente.Nombre = "" And mContactos.Size = 0 Then
+		Db.BorrarBorrador(TIPO_BORRADOR)
+		Return
+	End If
+	Dim sinFirma As Consentimiento = Tipos.ConsentimientoVacio
+	sinFirma.Acepta = PermisoActual.Acepta
+	sinFirma.Firmante = PermisoActual.Firmante
+	sinFirma.CedulaFirmante = PermisoActual.CedulaFirmante
+	Db.GuardarBorrador(TIPO_BORRADOR, CreateMap(CLAVE_CLIENTE: mCliente, CLAVE_CONTACTOS: mContactos, _
+		CLAVE_CONSENTIMIENTO: sinFirma, CLAVE_PAGINA: mPagina, CLAVE_UBICACION: mUbicacion))
 End Sub
+#End Region
 
-Public Sub FijarUbicacion (u As UbicacionGps)
-	mUbicacion = u
-	mBuscando = False
-End Sub
-
+#Region Lo que pinta la página
 Public Sub getPuedeReintentarUbicacion As Boolean
 	Return mBuscando = False And mUbicacion.Ok = False
 End Sub
@@ -116,21 +128,26 @@ Public Sub getPagina As Int
 	Return mPagina
 End Sub
 
-Public Sub GuardarBorrador (DatosCliente As Cliente, PermisoActual As Consentimiento, Hoja As Int)
-	DatosCliente.UuidLocal = mCliente.UuidLocal
-	mCliente = DatosCliente
-	mConsentimiento = PermisoActual
-	mPagina = Hoja
-	If DatosCliente.Nombre = "" And mContactos.Size = 0 Then
-		Db.BorrarBorrador(TIPO_BORRADOR)
-		Return
-	End If
-	Dim sinFirma As Consentimiento = Tipos.ConsentimientoVacio
-	sinFirma.Acepta = PermisoActual.Acepta
-	sinFirma.Firmante = PermisoActual.Firmante
-	sinFirma.CedulaFirmante = PermisoActual.CedulaFirmante
-	Db.GuardarBorrador(TIPO_BORRADOR, CreateMap(CLAVE_CLIENTE: mCliente, CLAVE_CONTACTOS: mContactos, _
-		CLAVE_CONSENTIMIENTO: sinFirma, CLAVE_PAGINA: mPagina, CLAVE_UBICACION: mUbicacion))
+Public Sub getFirmantes As List
+	Dim nombres As List
+	nombres.Initialize
+	nombres.Add("")
+	For Each c As Contacto In mContactos
+		Dim n As String = c.Nombre.Trim
+		If n <> "" And nombres.IndexOf(n) < 0 Then nombres.Add(n)
+	Next
+	Return nombres
+End Sub
+#End Region
+
+#Region Acciones
+Public Sub BuscandoUbicacion
+	mBuscando = True
+End Sub
+
+Public Sub FijarUbicacion (u As UbicacionGps)
+	mUbicacion = u
+	mBuscando = False
 End Sub
 
 Public Sub ValidarPaso (Paso As Int, CamposCompletos As Boolean) As Resultado
@@ -156,6 +173,18 @@ Public Sub QuitarContacto (Uuid As String) As Int
 	Return -1
 End Sub
 
+Public Sub Guardar (PermisoActual As Consentimiento) As Resultado
+	If PermisoActual.Acepta = False Then Return Tipos.Falla(Mensajes.FALTA_ACEPTAR)
+	If PermisoActual.Firma.Length = 0 Then Return Tipos.Falla(Mensajes.FALTA_FIRMA)
+	Dim uuid As String = DbClientes.Guardar(mCliente, mContactos, PermisoActual, mUbicacion)
+	If uuid = "" Then Return Tipos.Falla(Mensajes.CLIENTE_NO_GUARDADO)
+	Db.BorrarBorrador(TIPO_BORRADOR)
+	Nuevo
+	Return Tipos.Correcto(uuid)
+End Sub
+#End Region
+
+#Region Textos de cada fila
 Public Sub DetalleContacto (c As Contacto) As String
 	Dim partes As List
 	partes.Initialize
@@ -170,24 +199,4 @@ Public Sub DetalleContacto (c As Contacto) As String
 	Next
 	Return sb.ToString
 End Sub
-
-Public Sub getFirmantes As List
-	Dim nombres As List
-	nombres.Initialize
-	nombres.Add("")
-	For Each c As Contacto In mContactos
-		Dim n As String = c.Nombre.Trim
-		If n <> "" And nombres.IndexOf(n) < 0 Then nombres.Add(n)
-	Next
-	Return nombres
-End Sub
-
-Public Sub Guardar (PermisoActual As Consentimiento) As Resultado
-	If PermisoActual.Acepta = False Then Return Tipos.Falla(Mensajes.FALTA_ACEPTAR)
-	If PermisoActual.Firma.Length = 0 Then Return Tipos.Falla(Mensajes.FALTA_FIRMA)
-	Dim uuid As String = DbClientes.Guardar(mCliente, mContactos, PermisoActual, mUbicacion)
-	If uuid = "" Then Return Tipos.Falla(Mensajes.CLIENTE_NO_GUARDADO)
-	Db.BorrarBorrador(TIPO_BORRADOR)
-	Nuevo
-	Return Tipos.Correcto(uuid)
-End Sub
+#End Region

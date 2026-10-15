@@ -271,6 +271,11 @@
         <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Dispositivos.pas"/>
         <DCCReference Include="src\Services\Anovo.Services.Dispositivos.pas"/>
         <DCCReference Include="src\Controllers\Anovo.Controllers.Dispositivos.pas"/>
+        <DCCReference Include="src\SQL\Anovo.SQL.Sincronizacion.pas"/>
+        <DCCReference Include="src\DTOs\Anovo.DTOs.Sincronizacion.pas"/>
+        <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Sincronizacion.pas"/>
+        <DCCReference Include="src\Services\Anovo.Services.Sincronizacion.pas"/>
+        <DCCReference Include="src\Controllers\Anovo.Controllers.Sincronizacion.pas"/>
         <DCCReference Include="src\Auth\Anovo.Auth.EstadoUsuarios.pas"/>
         <DCCReference Include="src\Middleware\Anovo.Middleware.Documentacion.pas"/>
         <DCCReference Include="src\Middleware\Anovo.Middleware.Token.pas"/>

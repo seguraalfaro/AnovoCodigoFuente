@@ -7,6 +7,7 @@ Version=13.7
 ' Ventana generica para elegir un elemento de una lista con busqueda. Se arma por
 ' codigo con ASBuscador y una lista de dos lineas, se abre debajo del campo que la
 ' llama (o encima si no cabe, contando el teclado) y devuelve el Valor elegido.
+
 Sub Class_Globals
 	Private xui As XUI
 	Private mPadre As B4XView
@@ -32,6 +33,7 @@ Public Sub Initialize (Padre As B4XView)
 	mPadre = Padre
 End Sub
 
+#Region Mostrar y elegir
 Public Sub Elegir (Ancla As B4XView, Titulo As String, Ayuda As String, Opciones As List) As ResumableSub
 	Preparar(Ancla.Width)
 	mAncla = Ancla
@@ -60,10 +62,57 @@ Public Sub TextoOpcion (o As Object) As String
 	Return op.Titulo & " " & op.Detalle
 End Sub
 
-Private Sub ime_HeightChanged (NewHeight As Int, OldHeight As Int)
-	If abierta Then Ubicar
+Private Sub Preparar (Ancho As Int)
+	If pnl.IsInitialized Then Return
+	dlg.Initialize(mPadre)
+	UI.EstilizarDialogo(dlg)
+	ime.Initialize("ime")
+	ime.AddHeightChangedEvent
+
+	Dim altoBuscador As Int = DipToCurrent(ALTO_BUSCADOR)
+	Dim alto As Int = DipToCurrent(ALTO_MAXIMO)
+	pnl = xui.CreatePanel("")
+	pnl.Tag = Utils.TAG_RAW
+	pnl.Color = Colores.COLOR_SUPERFICIE
+	pnl.SetLayoutAnimated(0, 0, 0, Ancho, alto)
+
+	Dim base As B4XView = xui.CreatePanel("")
+	base.SetLayoutAnimated(0, 0, 0, Ancho - 24dip, altoBuscador)
+	pnl.AddView(base, 12dip, 8dip, Ancho - 24dip, altoBuscador)
+	Dim lbl As Label
+	lbl.Initialize("")
+	buscador.Initialize(Me, "buscador")
+	buscador.DesignerCreateView(base, lbl, PropiedadesBuscador)
+	buscador.Comparar(Me, "TextoOpcion")
+
+	lista.Initialize("lista")
+	lista.Color = Colores.COLOR_SUPERFICIE
+	lista.TwoLinesLayout.ItemHeight = DipToCurrent(ALTO_FILA)
+	lista.TwoLinesLayout.Label.TextColor = Colores.COLOR_TEXTO_PRIMARIO
+	lista.TwoLinesLayout.Label.TextSize = 14
+	lista.TwoLinesLayout.Label.Typeface = Typeface.DEFAULT_BOLD
+	lista.TwoLinesLayout.SecondLabel.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
+	lista.TwoLinesLayout.SecondLabel.TextSize = 12
+	Dim arriba As Int = altoBuscador + 16dip
+	pnl.AddView(lista, 0, arriba, Ancho, alto - arriba)
+
+	lblVacio.Initialize("")
+	lblVacio.Text = Mensajes.SIN_RESULTADOS
+	lblVacio.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
+	lblVacio.TextSize = 13
+	lblVacio.Gravity = Gravity.CENTER_HORIZONTAL
+	pnl.AddView(lblVacio, 12dip, arriba + 16dip, Ancho - 24dip, 40dip)
 End Sub
 
+Private Sub PropiedadesBuscador As Map
+	Return CreateMap("Hint": "", "ConLupa": True, "ConLimpiar": True, "RetardoMs": 150, _
+		"MinCaracteres": 1, "IgnorarAcentos": True, "ColorFondo": Colores.COLOR_SUPERFICIE, _
+		"ColorBorde": Colores.COLOR_BORDE, "ColorTexto": Colores.COLOR_TEXTO_PRIMARIO, _
+		"ColorIcono": Colores.COLOR_TEXTO_SECUNDARIO, "Radio": 8, "TamanoTexto": 14)
+End Sub
+#End Region
+
+#Region Posición y tamaño
 Private Sub UbicarLuego
 	Sleep(ESPERA_TECLADO)
 	If abierta Then Ubicar
@@ -122,54 +171,11 @@ Private Sub Dimensionar (Alto As Int)
 	Dim vl As B4XView = lista
 	vl.SetLayoutAnimated(0, 0, arriba, pnl.Width, Alto - arriba)
 End Sub
+#End Region
 
-Private Sub Preparar (Ancho As Int)
-	If pnl.IsInitialized Then Return
-	dlg.Initialize(mPadre)
-	UI.EstilizarDialogo(dlg)
-	ime.Initialize("ime")
-	ime.AddHeightChangedEvent
-
-	Dim altoBuscador As Int = DipToCurrent(ALTO_BUSCADOR)
-	Dim alto As Int = DipToCurrent(ALTO_MAXIMO)
-	pnl = xui.CreatePanel("")
-	pnl.Tag = Utils.TAG_RAW
-	pnl.Color = Colores.COLOR_SUPERFICIE
-	pnl.SetLayoutAnimated(0, 0, 0, Ancho, alto)
-
-	Dim base As B4XView = xui.CreatePanel("")
-	base.SetLayoutAnimated(0, 0, 0, Ancho - 24dip, altoBuscador)
-	pnl.AddView(base, 12dip, 8dip, Ancho - 24dip, altoBuscador)
-	Dim lbl As Label
-	lbl.Initialize("")
-	buscador.Initialize(Me, "buscador")
-	buscador.DesignerCreateView(base, lbl, PropiedadesBuscador)
-	buscador.Comparar(Me, "TextoOpcion")
-
-	lista.Initialize("lista")
-	lista.Color = Colores.COLOR_SUPERFICIE
-	lista.TwoLinesLayout.ItemHeight = DipToCurrent(ALTO_FILA)
-	lista.TwoLinesLayout.Label.TextColor = Colores.COLOR_TEXTO_PRIMARIO
-	lista.TwoLinesLayout.Label.TextSize = 14
-	lista.TwoLinesLayout.Label.Typeface = Typeface.DEFAULT_BOLD
-	lista.TwoLinesLayout.SecondLabel.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
-	lista.TwoLinesLayout.SecondLabel.TextSize = 12
-	Dim arriba As Int = altoBuscador + 16dip
-	pnl.AddView(lista, 0, arriba, Ancho, alto - arriba)
-
-	lblVacio.Initialize("")
-	lblVacio.Text = Mensajes.SIN_RESULTADOS
-	lblVacio.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
-	lblVacio.TextSize = 13
-	lblVacio.Gravity = Gravity.CENTER_HORIZONTAL
-	pnl.AddView(lblVacio, 12dip, arriba + 16dip, Ancho - 24dip, 40dip)
-End Sub
-
-Private Sub PropiedadesBuscador As Map
-	Return CreateMap("Hint": "", "ConLupa": True, "ConLimpiar": True, "RetardoMs": 150, _
-		"MinCaracteres": 1, "IgnorarAcentos": True, "ColorFondo": Colores.COLOR_SUPERFICIE, _
-		"ColorBorde": Colores.COLOR_BORDE, "ColorTexto": Colores.COLOR_TEXTO_PRIMARIO, _
-		"ColorIcono": Colores.COLOR_TEXTO_SECUNDARIO, "Radio": 8, "TamanoTexto": 14)
+#Region Eventos
+Private Sub ime_HeightChanged (NewHeight As Int, OldHeight As Int)
+	If abierta Then Ubicar
 End Sub
 
 Private Sub buscador_Filtrado (Resultado As List)
@@ -184,3 +190,4 @@ Private Sub lista_ItemClick (Position As Int, Value As Object)
 	elegido = Value
 	dlg.Close(xui.DialogResponse_Positive)
 End Sub
+#End Region

@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 ' Manejo de vista del croquis de la pieza: herramientas, colores, menu de opciones y
 ' dialogos de medida y nota sobre ASDrawIso. La pagina solo le pasa sus eventos.
+
 Sub Class_Globals
 	Private xui As XUI
 	Private Const MODO_LIBRE As String = "libre"
@@ -50,6 +51,7 @@ Public Sub Initialize (Raiz As B4XView, Dibujo As ASDrawIso, BotonLapiz As B4XVi
 	mHerramientas = Array As B4XView(BotonLapiz, BotonBorrador)
 End Sub
 
+#Region Herramientas
 Public Sub Preparar
 	If mPreparado Then
 		Refrescar
@@ -109,7 +111,9 @@ Public Sub Limpiar
 	mDibujo.Limpiar
 	Refrescar
 End Sub
+#End Region
 
+#Region Carga y guardado
 Public Sub getJson As String
 	mDibujo.TerminarCadena(False)
 	If mDibujo.Vacio Then Return ""
@@ -126,7 +130,75 @@ End Sub
 Public Sub getMedidas As List
 	Return mDibujo.Medidas
 End Sub
+#End Region
 
+#Region Medidas y rótulos
+Private Sub AgregarRotulo (Texto As String, Arriba As Int)
+	Dim l As Label
+	l.Initialize("")
+	l.Tag = Utils.TAG_SUB
+	l.Text = Texto
+	l.TextSize = 12
+	pnlMedida.AddView(l, 16dip, Arriba, 268dip, 20dip)
+End Sub
+
+Public Sub PedirMedida (Id As Int) As ResumableSub
+	Dim m As Map = mDibujo.getMedida(Id)
+	If m.Size = 0 Then Return False
+	PrepararDialogos
+	spnMedida.SelectedIndex = Max(0, spnMedida.IndexOf(m.Get("medida")))
+	spnUnidad.SelectedIndex = Max(0, spnUnidad.IndexOf(m.Get("unidad")))
+	Dim valor As Double = m.Get("valor")
+	If valor > 0 Then txtValor.Text = NumberFormat2(valor, 1, 2, 0, False) Else txtValor.Text = ""
+	txtCantidad.Text = m.Get("cantidad")
+	dialogo.Title = Mensajes.TituloMedida(m.Get("etiqueta"))
+	Dim rs As Object = dialogo.ShowCustom(pnlMedida, Mensajes.GUARDAR, Mensajes.QUITAR, Mensajes.CANCELAR)
+	UI.AjustarBarraTitulo(dialogo)
+	UI.CentrarDialogo(dialogo)
+	Wait For (rs) Complete (Resultado As Int)
+	If Resultado = xui.DialogResponse_Negative Then
+		mDibujo.QuitarTrazo(Id)
+		Return True
+	End If
+	If Resultado <> xui.DialogResponse_Positive Then Return False
+	Dim texto As String = txtValor.Text.Trim.Replace(",", ".")
+	If texto = "" Or IsNumber(texto) = False Then
+		xui.MsgboxAsync(Mensajes.FALTA_VALOR_MEDIDA, Mensajes.TituloMedida(m.Get("etiqueta")))
+		Return False
+	End If
+	Dim cantidad As Int = 1
+	If IsNumber(txtCantidad.Text.Trim) Then cantidad = Max(1, txtCantidad.Text.Trim)
+	mDibujo.FijarMedida(Id, spnMedida.SelectedItem, texto, spnUnidad.SelectedItem, cantidad)
+	Return True
+End Sub
+
+Public Sub PedirTexto (Id As Int) As ResumableSub
+	PrepararDialogos
+	plantillaTexto.Text = mDibujo.getTextoDe(Id)
+	Dim borrar As String = ""
+	If Id > 0 Then borrar = Mensajes.BORRAR
+	dialogo.Title = Mensajes.NOTA_CROQUIS
+	Dim rs As Object = dialogo.ShowTemplate(plantillaTexto, Mensajes.GUARDAR, borrar, Mensajes.CANCELAR)
+	UI.AjustarBarraTitulo(dialogo)
+	UI.CentrarDialogo(dialogo)
+	Wait For (rs) Complete (Resultado As Int)
+	If Resultado = xui.DialogResponse_Positive Then mDibujo.PonerTexto(Id, plantillaTexto.Text)
+	If Resultado = xui.DialogResponse_Negative Then mDibujo.PonerTexto(Id, "")
+	Return True
+End Sub
+
+Private Sub LlenarPendientes
+	For Each m As Map In mDibujo.getMedidas
+		Dim valor As Double = m.Get("valor")
+		If valor > 0 Then Continue
+		Wait For (PedirMedida(m.Get("id"))) Complete (Listo As Boolean)
+		If Listo = False Then Exit
+	Next
+	Refrescar
+End Sub
+#End Region
+
+#Region Menú
 Public Sub AbrirMenu
 	ConstruirMenu
 	menu.OpenMenuOnView(mOpciones, ANCHO_MENU, ALTO_MENU)
@@ -251,7 +323,9 @@ Private Sub ConfirmarLimpiar
 	If Resultado = xui.DialogResponse_Positive Then mDibujo.Limpiar
 	Refrescar
 End Sub
+#End Region
 
+#Region Diálogos
 Private Sub PrepararDialogos
 	If dialogo.IsInitialized Then Return
 	dialogo.Initialize(mRaiz)
@@ -292,67 +366,4 @@ Private Sub NuevoCombo (Valores As List) As Spinner
 	s.AddAll(Valores)
 	Return s
 End Sub
-
-Private Sub AgregarRotulo (Texto As String, Arriba As Int)
-	Dim l As Label
-	l.Initialize("")
-	l.Tag = Utils.TAG_SUB
-	l.Text = Texto
-	l.TextSize = 12
-	pnlMedida.AddView(l, 16dip, Arriba, 268dip, 20dip)
-End Sub
-
-Public Sub PedirMedida (Id As Int) As ResumableSub
-	Dim m As Map = mDibujo.getMedida(Id)
-	If m.Size = 0 Then Return False
-	PrepararDialogos
-	spnMedida.SelectedIndex = Max(0, spnMedida.IndexOf(m.Get("medida")))
-	spnUnidad.SelectedIndex = Max(0, spnUnidad.IndexOf(m.Get("unidad")))
-	Dim valor As Double = m.Get("valor")
-	If valor > 0 Then txtValor.Text = NumberFormat2(valor, 1, 2, 0, False) Else txtValor.Text = ""
-	txtCantidad.Text = m.Get("cantidad")
-	dialogo.Title = Mensajes.TituloMedida(m.Get("etiqueta"))
-	Dim rs As Object = dialogo.ShowCustom(pnlMedida, Mensajes.GUARDAR, Mensajes.QUITAR, Mensajes.CANCELAR)
-	UI.AjustarBarraTitulo(dialogo)
-	UI.CentrarDialogo(dialogo)
-	Wait For (rs) Complete (Resultado As Int)
-	If Resultado = xui.DialogResponse_Negative Then
-		mDibujo.QuitarTrazo(Id)
-		Return True
-	End If
-	If Resultado <> xui.DialogResponse_Positive Then Return False
-	Dim texto As String = txtValor.Text.Trim.Replace(",", ".")
-	If texto = "" Or IsNumber(texto) = False Then
-		xui.MsgboxAsync(Mensajes.FALTA_VALOR_MEDIDA, Mensajes.TituloMedida(m.Get("etiqueta")))
-		Return False
-	End If
-	Dim cantidad As Int = 1
-	If IsNumber(txtCantidad.Text.Trim) Then cantidad = Max(1, txtCantidad.Text.Trim)
-	mDibujo.FijarMedida(Id, spnMedida.SelectedItem, texto, spnUnidad.SelectedItem, cantidad)
-	Return True
-End Sub
-
-Public Sub PedirTexto (Id As Int) As ResumableSub
-	PrepararDialogos
-	plantillaTexto.Text = mDibujo.getTextoDe(Id)
-	Dim borrar As String = ""
-	If Id > 0 Then borrar = Mensajes.BORRAR
-	dialogo.Title = Mensajes.NOTA_CROQUIS
-	Dim rs As Object = dialogo.ShowTemplate(plantillaTexto, Mensajes.GUARDAR, borrar, Mensajes.CANCELAR)
-	UI.AjustarBarraTitulo(dialogo)
-	UI.CentrarDialogo(dialogo)
-	Wait For (rs) Complete (Resultado As Int)
-	If Resultado = xui.DialogResponse_Positive Then mDibujo.PonerTexto(Id, plantillaTexto.Text)
-	If Resultado = xui.DialogResponse_Negative Then mDibujo.PonerTexto(Id, "")
-	Return True
-End Sub
-
-Private Sub LlenarPendientes
-	For Each m As Map In mDibujo.getMedidas
-		Dim valor As Double = m.Get("valor")
-		If valor > 0 Then Continue
-		Wait For (PedirMedida(m.Get("id"))) Complete (Listo As Boolean)
-		If Listo = False Then Exit
-	Next
-	Refrescar
-End Sub
+#End Region

@@ -68,7 +68,9 @@ uses
   Anovo.Services.Intf.Usuarios,
   Anovo.Services.Usuarios,
   Anovo.Services.Intf.Dispositivos,
-  Anovo.Services.Dispositivos;
+  Anovo.Services.Dispositivos,
+  Anovo.Services.Intf.Sincronizacion,
+  Anovo.Services.Sincronizacion;
 
 procedure RegisterServices(Container: IMVCServiceContainer);
 begin
@@ -188,6 +190,8 @@ begin
   Container.RegisterType(TDispositivoRepository, IDispositivoRepository,
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TDispositivoService, IDispositivoService,
+    TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TSincronizacionService, ISincronizacionService,
     TRegistrationType.SingletonPerRequest);
 end;
 

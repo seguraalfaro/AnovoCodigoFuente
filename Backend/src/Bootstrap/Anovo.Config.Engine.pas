@@ -29,6 +29,7 @@ uses
   Anovo.Controllers.Empresa,
   Anovo.Controllers.Correo,
   Anovo.Controllers.Dispositivos,
+  Anovo.Controllers.Sincronizacion,
   Anovo.Auth.Token,
   Anovo.Red,
   Anovo.Middleware.Documentacion,
@@ -78,6 +79,7 @@ begin
   AEngine.AddController(TEmpresaController);
   AEngine.AddController(TCorreoController);
   AEngine.AddController(TDispositivosController);
+  AEngine.AddController(TSincronizacionController);
 
   AEngine.SetExceptionHandler(ManejadorDeErrores());
 

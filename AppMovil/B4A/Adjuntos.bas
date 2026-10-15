@@ -6,6 +6,7 @@ Version=13.7
 @EndOfDesignText@
 'Code module
 'Subs in this code module will be accessible from all modules.
+
 Sub Process_Globals
 	Private xui As XUI 'ignore
 
@@ -25,6 +26,7 @@ Sub Process_Globals
 	Private hayTrasera, hayFrontal, detectadas As Boolean
 End Sub
 
+#Region Cámara del equipo
 'El hardware no cambia mientras el proceso vive: se consulta una sola vez
 'y el resultado queda cacheado. No requiere permiso de camara.
 Private Sub DetectarCamaras
@@ -79,6 +81,28 @@ Private Sub DetectarPorFeatures
 	End Try
 End Sub
 
+Public Sub getTieneCamara As Boolean
+	DetectarCamaras
+	Return hayTrasera Or hayFrontal
+End Sub
+
+Public Sub getPuedeRotar As Boolean
+	DetectarCamaras
+	Return hayTrasera And hayFrontal
+End Sub
+
+Public Sub getHayTrasera As Boolean
+	DetectarCamaras
+	Return hayTrasera
+End Sub
+
+Public Sub getHayFrontal As Boolean
+	DetectarCamaras
+	Return hayFrontal
+End Sub
+#End Region
+
+#Region Fotos en disco
 Public Sub CarpetaFotos As String
 	If File.Exists(File.DirInternal, CARPETA_FOTOS) = False Then File.MakeDir(File.DirInternal, CARPETA_FOTOS)
 	Return File.Combine(File.DirInternal, CARPETA_FOTOS)
@@ -144,27 +168,9 @@ Private Sub GradosExif (Dir As String, Archivo As String) As Int
 	End Try
 	Return 0
 End Sub
+#End Region
 
-Public Sub getTieneCamara As Boolean
-	DetectarCamaras
-	Return hayTrasera Or hayFrontal
-End Sub
-
-Public Sub getPuedeRotar As Boolean
-	DetectarCamaras
-	Return hayTrasera And hayFrontal
-End Sub
-
-Public Sub getHayTrasera As Boolean
-	DetectarCamaras
-	Return hayTrasera
-End Sub
-
-Public Sub getHayFrontal As Boolean
-	DetectarCamaras
-	Return hayFrontal
-End Sub
-
+#Region Permisos
 'Distingue un permiso simplemente denegado de uno bloqueado de forma
 'permanente ("no volver a preguntar").
 'PRECONDICION: llamar solo DESPUES de una denegacion. Antes de la primera
@@ -179,3 +185,4 @@ Public Sub PermisoBloqueado (permiso As String) As Boolean
 		Return False
 	End Try
 End Sub
+#End Region

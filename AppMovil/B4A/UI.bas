@@ -220,11 +220,9 @@ Private Sub UnificarEvento (Campo As B4XFloatTextField)
 	r.Target = Campo
 	r.SetField2("_meventname", EVENTO_CAMPO)
 End Sub
-
-
 #End Region
 
-#Region Identificacion
+#Region Identificación por Tag
 'Un Tag que no sea texto (por ejemplo la instancia de un custom view) da "".
 Private Sub TagDeObjeto (o As Object) As String
 	Try
@@ -278,9 +276,7 @@ Public Sub ListarTags (Padre As B4XView)
 	Next
 	Log("--- fin ---")
 End Sub
-#End Region
 
-#Region Clasificadores
 Private Sub ClasificarBoton (t As String) As String
 	If t.Contains(Utils.TAG_ICON)    Then Return CAT_ICONO
 	If t.Contains(Utils.TAG_SEC)     Then Return CAT_SECUNDARIO
@@ -332,7 +328,9 @@ Private Sub CategoriaActiva (t As String) As String
 			Return CAT_PRIMARIO
 	End Select
 End Sub
+#End Region
 
+#Region Botones
 'Devuelve los cinco valores de una categoria de boton.
 'Salida: Array(fondo, fondoPresionado, texto, borde, anchoBorde)
 Private Sub PaletaBoton (categoria As String) As Int()
@@ -383,9 +381,7 @@ Private Sub RadioDe (v As B4XView, t As String) As Int
 	If t.Contains(Utils.TAG_PILL)    Then Return v.Height / 2
 	Return RADIO_BOTON
 End Sub
-#End Region
 
-#Region Botones reales
 Private Sub EstilizarBoton (v As B4XView, categoria As String, t As String)
 	Dim p() As Int = PaletaBoton(categoria)
 
@@ -416,9 +412,7 @@ Private Sub CrearFondoBoton (fondo As Int, fondoPress As Int, borde As Int, anch
 	sld.AddCatchAllState(normal)
 	Return sld
 End Sub
-#End Region
 
-#Region Labels que hacen de boton
 'Un Label admite StateListDrawable igual que un Button,
 'pero hay que marcarlo como clickable para que Android
 'le pase el estado presionado.
@@ -434,61 +428,6 @@ Private Sub EstilizarBotonLabel (v As B4XView, categoria As String, t As String)
 	jo.RunMethod("setClickable", Array As Object(True))
 
 	ColoresTexto.Put(ClaveDe(v), p(2))
-End Sub
-#End Region
-
-#Region Grupos con un elemento activo
-'Repinta un boton con una categoria distinta a la de su Tag.
-Public Sub Recategorizar (v As B4XView, categoria As String)
-	Dim t As String = ObtenerTag(v)
-	Dim o As Object = v
-	If o Is Button Then
-		EstilizarBoton(v, categoria, t)
-	Else If o Is Label Then
-		EstilizarBotonLabel(v, categoria, t)
-	End If
-End Sub
-
-'Marca uno de un grupo como activo. Los demas vuelven a la categoria que
-'les corresponde por su Tag. indice = -1 deja a todos inactivos, util
-'cuando la seleccion se hizo desde un menu y ningun boton la representa.
-Public Sub MarcarGrupo (botones() As B4XView, indice As Int)
-	If ColoresTexto.IsInitialized = False Then ColoresTexto.Initialize
-
-	For i = 0 To botones.Length - 1
-		Dim t As String = ObtenerTag(botones(i))
-		If i = indice Then
-			Recategorizar(botones(i), CategoriaActiva(t))
-		Else
-			Recategorizar(botones(i), ClasificarBoton(t))
-		End If
-	Next
-End Sub
-#End Region
-
-#Region Estado habilitado
-'Habilita o deshabilita un boton ajustando tambien el color del texto.
-'Usar esto en vez de asignar .Enabled directamente.
-Public Sub Habilitar (v As B4XView, activo As Boolean)
-	v.Enabled = activo
-
-	If activo = False Then
-		v.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
-		Return
-	End If
-
-	Dim k As String = ClaveDe(v)
-	If ColoresTexto.IsInitialized And ColoresTexto.ContainsKey(k) Then
-		v.TextColor = ColoresTexto.Get(k)
-	Else
-		v.TextColor = Colores.COLOR_TEXTO_SOBRE_PRIMARIO
-	End If
-End Sub
-
-'Clave unica por instancia de vista, independiente del Tag.
-Private Sub ClaveDe (v As B4XView) As String
-	Dim o As Object = v
-	Return o
 End Sub
 #End Region
 
@@ -554,6 +493,7 @@ Private Sub EstilizarCampoFlotante (Campo As B4XFloatTextField, v As B4XView, ca
 			PonerHint(Campo, Utils.HINT_NOMBRE)
 	End Select
 End Sub
+
 'Se usa al limpiar un error: restaurar sin repintar el teclado.
 Public Sub HintPorTag (Campo As B4XFloatTextField) As String
 	Dim categoria As String = ClasificarFloatTextField(TagDelPadre(Campo.TextField))
@@ -577,6 +517,7 @@ Public Sub HintPorTag (Campo As B4XFloatTextField) As String
 	End Select
 	Return ""
 End Sub
+
 'Reconfigura el campo generico de identificacion cuando cambia el combo.
 'Recibe la constante de Mascara, no el indice del combo.
 Public Sub ConfigurarIdentificacion (Campo As B4XFloatTextField, Tipo As Int)
@@ -603,6 +544,7 @@ Public Sub RetornarTextField (Remitente As Object) As EditText
 	If Remitente Is EditText Then Return Remitente
 	Return Null
 End Sub
+
 'Sin Update el label flotante se queda con el texto anterior.
 Private Sub PonerHint (Campo As B4XFloatTextField, hint As String)
 	Campo.HintText = hint
@@ -672,9 +614,62 @@ Public Sub ConfigurarMemo (Campo As EditText, Ayuda As String)
 	Campo.Padding = Array As Int(10dip, 8dip, 10dip, 8dip)
 End Sub
 
+Public Sub LimpiarFormulario (Padre As B4XView)
+	For Each v As B4XView In Padre.GetAllViewsRecursive
+		Dim o As Object = v
+
+		If o Is EditText Then
+			If Not (Utils.EstaVacio( v.Text)) Then v.Text = ""
+		Else If o Is CheckBox Then
+			Dim cb As CheckBox = v
+			cb.Checked = False
+
+		Else If o Is RadioButton Then
+			Dim rb As RadioButton = v
+			rb.Checked = False
+
+		Else If o Is Spinner Then
+			Dim sp As Spinner = v
+			If sp.Size > 0 Then sp.SelectedIndex = 0
+		End If
+	Next
+End Sub
+
+Public Sub ValidarFormulario (Padre As B4XView) As Boolean
+	Dim ok As Boolean = True
+	For Each v As B4XView In Padre.GetAllViewsRecursive
+		If Obligatorio(v) = False Then Continue
+		Dim o As Object = v
+		Dim vacio As Boolean
+		If o Is EditText Then
+			vacio = Utils.EstaVacio(v.Text)
+		Else If o Is Spinner Then
+			Dim sp As Spinner = v
+			vacio = Utils.EstaVacio(sp.SelectedItem)
+		Else If o Is CheckBox Then
+			Dim cb As CheckBox = v
+			vacio = (cb.Checked = False)
+		Else
+			Continue
+		End If
+		If vacio Then
+			ok = False
+			MarcarError(v)
+		Else
+			MarcarNormal(v)
+		End If
+	Next
+	Return ok
+End Sub
+
+Private Sub Obligatorio (v As B4XView) As Boolean
+	Dim t As String = TagDelPadre(v)
+	If t = "" Then t = ObtenerTag(v)
+	Return t.Contains(TAG_OBLIGATORIO)
+End Sub
 #End Region
 
-#Region Etiquetas
+#Region Etiquetas y paneles
 Private Sub EstilizarEtiqueta (v As B4XView, categoria As String)
 	Select categoria
 		Case CAT_TITULO
@@ -709,9 +704,7 @@ Private Sub EstilizarChip (v As B4XView, fondo As Int, value As Int)
 	v.SetColorAndBorder(fondo, 0, Colors.Transparent, v.Height / 2)
 	v.TextColor = value
 End Sub
-#End Region
 
-#Region Paneles
 Private Sub EstilizarPanel (v As B4XView, categoria As String)
 	Select categoria
 		Case CAT_FONDO
@@ -753,121 +746,60 @@ Private Sub EstilizarPanel (v As B4XView, categoria As String)
 End Sub
 #End Region
 
-#Region Utilidades de pantalla
-Public Sub GetCardHeight As Int
-	If GetDeviceLayoutValues.ApproximateScreenSize < SMALL_SCREEN_SIZE Then
-		Return SMALL_SCREEN_CARD_HEIGHT
-	Else
-		Return CARD_HEIGHT
+#Region Estado y grupos
+'Repinta un boton con una categoria distinta a la de su Tag.
+Public Sub Recategorizar (v As B4XView, categoria As String)
+	Dim t As String = ObtenerTag(v)
+	Dim o As Object = v
+	If o Is Button Then
+		EstilizarBoton(v, categoria, t)
+	Else If o Is Label Then
+		EstilizarBotonLabel(v, categoria, t)
 	End If
 End Sub
-#End Region
 
-#Region Cargar Paginas PageContainer
+'Marca uno de un grupo como activo. Los demas vuelven a la categoria que
+'les corresponde por su Tag. indice = -1 deja a todos inactivos, util
+'cuando la seleccion se hizo desde un menu y ningun boton la representa.
+Public Sub MarcarGrupo (botones() As B4XView, indice As Int)
+	If ColoresTexto.IsInitialized = False Then ColoresTexto.Initialize
 
-Public Sub PaginaVacia (AHView As AHViewPager) As B4XView
-	Dim pagina As B4XView = xui.CreatePanel("")
-	pagina.Height = AHView.Height
-	pagina.Width = AHView.Width
-	Return pagina
-End Sub
-
-Public Sub CargarContenedor (AHView As AHViewPager, Contenedor As AHPageContainer, Paginas() As B4XView)
-	Contenedor.Initialize
-	For i = 0 To Paginas.Length - 1
-		AplicarTema(Paginas(i))
-		Contenedor.AddPage(Paginas(i), "page" & i)
-	Next
-	AHView.PageContainer = Contenedor
-	AHView.PagingEnabled = False
-	AHView.CurrentPage = 0
-End Sub
-
-
-#End Region
-
-#Region Indicador de pasos
-
-Public Sub CargarIndicadorPasos(Indicador As ASDrawSteps, Claves() As String, Titulos() As String)
-	AplicarTemaIndicador(Indicador)
-	Indicador.SetSteps(Claves, Titulos)
-	Indicador.CurrentIndex = 0
-End Sub
-
-Private Sub AplicarTemaIndicador(Indicador As ASDrawSteps)
-	Indicador.BackgroundColor   = Colores.COLOR_FONDO_PANTALLA
-	Indicador.ActiveColor       = Colores.COLOR_PRIMARIO
-	Indicador.InactiveColor     = Colores.COLOR_DESHABILITADO
-	Indicador.LineColor         = Colores.COLOR_BORDE
-	Indicador.CircleTextColor   = Colores.COLOR_TEXTO_SOBRE_PRIMARIO
-	Indicador.PendingTextColor  = Colores.COLOR_TEXTO_SECUNDARIO
-	Indicador.LabelColor        = Colores.COLOR_TEXTO_SECUNDARIO
-End Sub
-
-#End Region
-
-
-#Region Formularios
-Public Sub LimpiarFormulario (Padre As B4XView)
-	For Each v As B4XView In Padre.GetAllViewsRecursive
-		Dim o As Object = v
-
-		If o Is EditText Then
-			If Not (Utils.EstaVacio( v.Text)) Then v.Text = ""
-		Else If o Is CheckBox Then
-			Dim cb As CheckBox = v
-			cb.Checked = False
-
-		Else If o Is RadioButton Then
-			Dim rb As RadioButton = v
-			rb.Checked = False
-
-		Else If o Is Spinner Then
-			Dim sp As Spinner = v
-			If sp.Size > 0 Then sp.SelectedIndex = 0
-		End If
-	Next
-End Sub
-
-#End Region
-#Region Formularios
-
-Public Sub ValidarFormulario (Padre As B4XView) As Boolean
-	Dim ok As Boolean = True
-	For Each v As B4XView In Padre.GetAllViewsRecursive
-		If Obligatorio(v) = False Then Continue
-		Dim o As Object = v
-		Dim vacio As Boolean
-		If o Is EditText Then
-			vacio = Utils.EstaVacio(v.Text)
-		Else If o Is Spinner Then
-			Dim sp As Spinner = v
-			vacio = Utils.EstaVacio(sp.SelectedItem)
-		Else If o Is CheckBox Then
-			Dim cb As CheckBox = v
-			vacio = (cb.Checked = False)
+	For i = 0 To botones.Length - 1
+		Dim t As String = ObtenerTag(botones(i))
+		If i = indice Then
+			Recategorizar(botones(i), CategoriaActiva(t))
 		Else
-			Continue
-		End If
-		If vacio Then
-			ok = False
-			MarcarError(v)
-		Else
-			MarcarNormal(v)
+			Recategorizar(botones(i), ClasificarBoton(t))
 		End If
 	Next
-	Return ok
 End Sub
 
-Private Sub Obligatorio (v As B4XView) As Boolean
-	Dim t As String = TagDelPadre(v)
-	If t = "" Then t = ObtenerTag(v)
-	Return t.Contains(TAG_OBLIGATORIO)
+'Habilita o deshabilita un boton ajustando tambien el color del texto.
+'Usar esto en vez de asignar .Enabled directamente.
+Public Sub Habilitar (v As B4XView, activo As Boolean)
+	v.Enabled = activo
+
+	If activo = False Then
+		v.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
+		Return
+	End If
+
+	Dim k As String = ClaveDe(v)
+	If ColoresTexto.IsInitialized And ColoresTexto.ContainsKey(k) Then
+		v.TextColor = ColoresTexto.Get(k)
+	Else
+		v.TextColor = Colores.COLOR_TEXTO_SOBRE_PRIMARIO
+	End If
 End Sub
 
+'Clave unica por instancia de vista, independiente del Tag.
+Private Sub ClaveDe (v As B4XView) As String
+	Dim o As Object = v
+	Return o
+End Sub
 #End Region
-#Region Dialogos
 
+#Region Diálogos
 Public Sub CentrarDialogo (Dialogo As B4XDialog)
 	Dim b As B4XView = Dialogo.Base
 	Dim arriba As Int = Max(0, (Dialogo.mParent.Height - b.Height) / 2)
@@ -910,10 +842,53 @@ Public Sub EstilizarPlantillaTexto (Plantilla As B4XInputTemplate)
 	Plantilla.TextField1.TextColor = Colores.COLOR_TEXTO_PRIMARIO
 	Plantilla.SetBorderColor(Colores.COLOR_BORDE, Colores.COLOR_RECHAZADA_ERROR)
 End Sub
-
 #End Region
-#Region Teclado
 
+#Region Páginas y contenedores
+Public Sub GetCardHeight As Int
+	If GetDeviceLayoutValues.ApproximateScreenSize < SMALL_SCREEN_SIZE Then
+		Return SMALL_SCREEN_CARD_HEIGHT
+	Else
+		Return CARD_HEIGHT
+	End If
+End Sub
+
+Public Sub PaginaVacia (AHView As AHViewPager) As B4XView
+	Dim pagina As B4XView = xui.CreatePanel("")
+	pagina.Height = AHView.Height
+	pagina.Width = AHView.Width
+	Return pagina
+End Sub
+
+Public Sub CargarContenedor (AHView As AHViewPager, Contenedor As AHPageContainer, Paginas() As B4XView)
+	Contenedor.Initialize
+	For i = 0 To Paginas.Length - 1
+		AplicarTema(Paginas(i))
+		Contenedor.AddPage(Paginas(i), "page" & i)
+	Next
+	AHView.PageContainer = Contenedor
+	AHView.PagingEnabled = False
+	AHView.CurrentPage = 0
+End Sub
+
+Public Sub CargarIndicadorPasos(Indicador As ASDrawSteps, Claves() As String, Titulos() As String)
+	AplicarTemaIndicador(Indicador)
+	Indicador.SetSteps(Claves, Titulos)
+	Indicador.CurrentIndex = 0
+End Sub
+
+Private Sub AplicarTemaIndicador(Indicador As ASDrawSteps)
+	Indicador.BackgroundColor   = Colores.COLOR_FONDO_PANTALLA
+	Indicador.ActiveColor       = Colores.COLOR_PRIMARIO
+	Indicador.InactiveColor     = Colores.COLOR_DESHABILITADO
+	Indicador.LineColor         = Colores.COLOR_BORDE
+	Indicador.CircleTextColor   = Colores.COLOR_TEXTO_SOBRE_PRIMARIO
+	Indicador.PendingTextColor  = Colores.COLOR_TEXTO_SECUNDARIO
+	Indicador.LabelColor        = Colores.COLOR_TEXTO_SECUNDARIO
+End Sub
+#End Region
+
+#Region Teclado y pantalla
 Public Sub SoltarFoco (Campo As B4XView)
 	If Campo.IsInitialized = False Then Return
 
@@ -928,5 +903,4 @@ Public Sub SoltarFoco (Campo As B4XView)
 
 	jc.RunMethod("clearFocus", Null)
 End Sub
-
 #End Region
