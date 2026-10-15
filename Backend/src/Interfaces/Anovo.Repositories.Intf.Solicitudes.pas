@@ -50,8 +50,6 @@ type
       : TObjectList<TMedidasDeSolicitud>;
     function MedidaDe(const ASolicitudId, AMedidaId: Integer)
       : TSolicitudMedidas;
-    function MedidasDeCroquis(const ACroquisId: Integer)
-      : TObjectList<TSolicitudMedidas>;
     function ObtenerPorUuidLocal(const AUuid: string): TSolicitudMedidas;
   end;
 
@@ -73,8 +71,6 @@ type
     function AdjuntoDe(const ASolicitudId, AAdjuntoId: Integer)
       : TSolicitudAdjuntos;
 
-    function CroquisDe(const ASolicitudId: Integer)
-      : TObjectList<TSolicitudAdjuntos>;
     function ObtenerPorUuidLocal(const AUuid: string): TSolicitudAdjuntos;
     function DeCliente(const AClienteId: Integer)
       : TObjectList<TSolicitudAdjuntos>;

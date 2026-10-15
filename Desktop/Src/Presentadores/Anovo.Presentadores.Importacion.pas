@@ -55,7 +55,6 @@ type
     procedure ElegirHoja(const AIndice: Integer);
     procedure Emparejar(const ACampo, AColumna: Integer);
     procedure CambiarFila(const AFila: TFilaCarga);
-    procedure QuitarFila(const ANumero: Integer);
     procedure Aprobar;
   end;
 
@@ -362,17 +361,6 @@ begin
   lFila.Categoria := Trim(AFila.Categoria);
   lFila.Costo := Trim(AFila.Costo);
   lFila.Precio := Trim(AFila.Precio);
-  Revisar;
-end;
-
-procedure TPresentadorImportacion.QuitarFila(const ANumero: Integer);
-var
-  lFila: TFilaCarga;
-begin
-  lFila := FilaDe(ANumero);
-  if lFila = nil then
-    Exit;
-  FFilas.Remove(lFila);
   Revisar;
 end;
 

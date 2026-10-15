@@ -163,35 +163,33 @@ var
   lMaterial: TTiposMaterial;
   lAcabado: TAcabados;
 begin
-  if ADto.TipoTrabajoId.HasValue then
-  begin
-    lTipo := fTipos.GetByPK(ADto.TipoTrabajoId.Value, False);
-    try
-      if (lTipo = nil) or not lTipo.Activo.ValueOrDefault then
-        raise EDatoInvalido.Create(STipoTrabajoNoDisponible);
-    finally
-      lTipo.Free;
-    end;
+  if not ADto.TipoTrabajoId.HasValue then
+    raise EDatoInvalido.Create(SFaltaTipoTrabajo);
+  if not ADto.TipoMaterialId.HasValue then
+    raise EDatoInvalido.Create(SFaltaTipoMaterial);
+  if not ADto.AcabadoId.HasValue then
+    raise EDatoInvalido.Create(SFaltaAcabado);
+
+  lTipo := fTipos.GetByPK(ADto.TipoTrabajoId.Value, False);
+  try
+    if (lTipo = nil) or not lTipo.Activo.ValueOrDefault then
+      raise EDatoInvalido.Create(STipoTrabajoNoDisponible);
+  finally
+    lTipo.Free;
   end;
-  if ADto.TipoMaterialId.HasValue then
-  begin
-    lMaterial := fTiposMaterial.GetByPK(ADto.TipoMaterialId.Value, False);
-    try
-      if (lMaterial = nil) or not lMaterial.Activo.ValueOrDefault then
-        raise EDatoInvalido.Create(STipoMaterialNoDisponible);
-    finally
-      lMaterial.Free;
-    end;
+  lMaterial := fTiposMaterial.GetByPK(ADto.TipoMaterialId.Value, False);
+  try
+    if (lMaterial = nil) or not lMaterial.Activo.ValueOrDefault then
+      raise EDatoInvalido.Create(STipoMaterialNoDisponible);
+  finally
+    lMaterial.Free;
   end;
-  if ADto.AcabadoId.HasValue then
-  begin
-    lAcabado := fAcabados.GetByPK(ADto.AcabadoId.Value, False);
-    try
-      if (lAcabado = nil) or not lAcabado.Activo.ValueOrDefault then
-        raise EDatoInvalido.Create(SAcabadoNoDisponible);
-    finally
-      lAcabado.Free;
-    end;
+  lAcabado := fAcabados.GetByPK(ADto.AcabadoId.Value, False);
+  try
+    if (lAcabado = nil) or not lAcabado.Activo.ValueOrDefault then
+      raise EDatoInvalido.Create(SAcabadoNoDisponible);
+  finally
+    lAcabado.Free;
   end;
 end;
 
@@ -471,6 +469,8 @@ var
   lMedida: TMedidaNuevaDTO;
   lAdjunto: TAdjuntoNuevoDTO;
   lPiezaId: Integer;
+  lAdjuntos: TDictionary<string, Integer>;
+  lCroquisId: Integer;
 begin
   var
   lTx := TMVCRepository.UseTransactionContext;
@@ -480,13 +480,29 @@ begin
 
   Result := Crear(ADto.Solicitud, AUsuarioId, ARoles);
 
-  for lPieza in ADto.Piezas do
-  begin
-    lPiezaId := InsertarPieza(Result, lPieza);
-    for lMedida in lPieza.Medidas do
-      InsertarMedida(lPiezaId, lMedida);
-    for lAdjunto in lPieza.Adjuntos do
-      InsertarAdjunto(lPiezaId, lAdjunto);
+  lAdjuntos := TDictionary<string, Integer>.Create;
+  try
+    for lPieza in ADto.Piezas do
+    begin
+      lPiezaId := InsertarPieza(Result, lPieza);
+      lAdjuntos.Clear;
+      for lAdjunto in lPieza.Adjuntos do
+        lAdjuntos.AddOrSetValue(lAdjunto.UuidLocal,
+          InsertarAdjunto(lPiezaId, lAdjunto));
+      for lMedida in lPieza.Medidas do
+      begin
+        if lMedida.CroquisUuid.HasValue then
+        begin
+          if not lAdjuntos.TryGetValue(lMedida.CroquisUuid.Value, lCroquisId)
+          then
+            raise EDatoInvalido.Create(SCroquisNoEsDeLaPieza);
+          lMedida.CroquisId := lCroquisId;
+        end;
+        InsertarMedida(lPiezaId, lMedida);
+      end;
+    end;
+  finally
+    lAdjuntos.Free;
   end;
 end;
 

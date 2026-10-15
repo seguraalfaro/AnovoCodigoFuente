@@ -73,14 +73,6 @@ Public Sub DatosMap As Map
 	Return vacio
 End Sub
 
-Public Sub DatosLista As List
-	Dim d As Object = mJson.Get("data")
-	If d Is List Then Return d
-	Dim vacia As List
-	vacia.Initialize
-	Return vacia
-End Sub
-
 Public Sub HeaderValue (Nombre As String) As String
 	For Each llave As String In mEncabezados.Keys
 		If llave.EqualsIgnoreCase(Nombre) Then

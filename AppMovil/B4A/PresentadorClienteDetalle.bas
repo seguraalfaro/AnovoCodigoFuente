@@ -75,14 +75,6 @@ Private Sub ConGuion (Texto As String) As String
 	Return Texto
 End Sub
 
-Public Sub getEstado As String
-	Return Mensajes.EstadoCliente(mEstado)
-End Sub
-
-Public Sub getColorEstado As Int
-	Return Colores.ColorDeSync(mEstado)
-End Sub
-
 Public Sub getContactos As List
 	Return mContactos
 End Sub

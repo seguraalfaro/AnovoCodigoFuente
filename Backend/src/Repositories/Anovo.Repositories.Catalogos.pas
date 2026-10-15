@@ -40,12 +40,6 @@ type
   TPrecioProgramadoRepository = class(TAnovoRepository<TPreciosProgramados>,
     IPrecioProgramadoRepository)
   public
-    function PendientesDeMaterial(const AMaterialId: Integer)
-      : TObjectList<TPreciosProgramados>;
-    function PendientesDeManoObra(const AManoObraId: Integer)
-      : TObjectList<TPreciosProgramados>;
-    function PendientesDeMaquina(const AMaquinaId: Integer)
-      : TObjectList<TPreciosProgramados>;
     function PorAplicar: TObjectList<TPreciosProgramados>;
   end;
 
@@ -205,24 +199,6 @@ begin
   lTexto := TextoParaRQL(ATexto);
   Result := ContarConsulta<TCatalogoTodos>(NombreBusqueda(AIncluirInactivos),
     [lTexto, lTexto, lTexto, 0, 0]);
-end;
-
-function TPrecioProgramadoRepository.PendientesDeMaterial
-  (const AMaterialId: Integer): TObjectList<TPreciosProgramados>;
-begin
-  Result := GetWhere(PROGRAMADOS_DE_MATERIAL, [AMaterialId]);
-end;
-
-function TPrecioProgramadoRepository.PendientesDeManoObra
-  (const AManoObraId: Integer): TObjectList<TPreciosProgramados>;
-begin
-  Result := GetWhere(PROGRAMADOS_DE_MANO_OBRA, [AManoObraId]);
-end;
-
-function TPrecioProgramadoRepository.PendientesDeMaquina
-  (const AMaquinaId: Integer): TObjectList<TPreciosProgramados>;
-begin
-  Result := GetWhere(PROGRAMADOS_DE_MAQUINA, [AMaquinaId]);
 end;
 
 function TPrecioProgramadoRepository.PorAplicar

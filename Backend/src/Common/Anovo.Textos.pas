@@ -108,6 +108,11 @@ resourcestring
   STipoMaterialNoDisponible = 'El tipo de material indicado no existe o ' +
     'está inactivo.';
   SAcabadoNoDisponible = 'El acabado indicado no existe o está inactivo.';
+  SFaltaTipoTrabajo = 'Indique el tipo de trabajo de la pieza.';
+  SFaltaTipoMaterial = 'Indique el tipo de material de la pieza.';
+  SFaltaAcabado = 'Indique el acabado de la pieza.';
+  SCroquisNoEsDeLaPieza = 'La medida apunta a un croquis que no viene en ' +
+    'la misma pieza.';
   SRegistroSinContacto = 'El registro debe traer al menos un contacto.';
   SFirmaVacia = 'La imagen de la firma viene vacía.';
 

@@ -12,6 +12,7 @@ Sub Process_Globals
 	Private Const ARCHIVO_CONFIGURACION As String = "configuracion.dat"
 	Private Const LLAVE_URL As String = "url_servidor"
 	Private Const PREFIJO_HTTPS As String = "https://"
+	Private Const URL_POR_DEFECTO As String = "https://api.anovoms.com"
 	Private Const TIEMPO_MS As Int = 30000
 	Private Const ESTADO_NO_AUTORIZADO As Int = 401
 	Private Const ESTADO_DEMASIADAS As Int = 429
@@ -24,7 +25,7 @@ Private Sub Configuracion As KeyValueStore
 End Sub
 
 Public Sub UrlServidor As String
-	Return Configuracion.GetDefault(LLAVE_URL, "")
+	Return Configuracion.GetDefault(LLAVE_URL, URL_POR_DEFECTO)
 End Sub
 
 Public Sub ValidarUrl (Url As String) As String

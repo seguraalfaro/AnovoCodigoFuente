@@ -150,6 +150,7 @@ type
     fPiezaId: NullableInt32;
     fPiezaUuid: NullableString;
     fCroquisId: NullableInt32;
+    fCroquisUuid: NullableString;
     fEtiqueta: NullableString;
     fTipoMedida: string;
     fValor: NullableCurrency;
@@ -163,6 +164,7 @@ type
     property PiezaId: NullableInt32 read fPiezaId write fPiezaId;
     property PiezaUuid: NullableString read fPiezaUuid write fPiezaUuid;
     property CroquisId: NullableInt32 read fCroquisId write fCroquisId;
+    property CroquisUuid: NullableString read fCroquisUuid write fCroquisUuid;
     property Etiqueta: NullableString read fEtiqueta write fEtiqueta;
     property TipoMedida: string read fTipoMedida write fTipoMedida;
     property Valor: NullableCurrency read fValor write fValor;

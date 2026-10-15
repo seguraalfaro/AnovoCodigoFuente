@@ -32,8 +32,6 @@ type
       const ADesde: TDateTime = 0; const AHasta: TDateTime = 0): Int64;
     function ObtenerPorNumero(const ANumero: Integer): TCotizaciones;
     function SiguienteNumero: Integer;
-    function DeSolicitud(const ASolicitudId: Integer)
-      : TObjectList<TCotizaciones>;
     function EnviadasSinRespuesta(const ADias: Integer)
       : TObjectList<TCotizaciones>;
     function Bandeja(const AUsuarioId: Integer; const ATexto: string;
@@ -172,12 +170,6 @@ end;
 function TCotizacionRepository.SiguienteNumero: Integer;
 begin
   Result := GetConnection.ExecSQLScalar(COTIZACIONES_SIGUIENTE_NUMERO);
-end;
-
-function TCotizacionRepository.DeSolicitud(const ASolicitudId: Integer)
-  : TObjectList<TCotizaciones>;
-begin
-  Result := GetWhere(COTIZACIONES_DE_SOLICITUD, [ASolicitudId]);
 end;
 
 function TCotizacionRepository.EnviadasSinRespuesta(const ADias: Integer)

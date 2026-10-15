@@ -22,6 +22,7 @@ Sub Class_Globals
 	Private PEspecificaciones As B4XEspecificaciones
 	Private PCLientes As B4XClientes
 	Private PClienteDetalle As B4XClienteDetalle
+	Private PSincronizacion As B4XSincronizacion
 
 	Private presentador As PresentadorIngreso
 	Private huella As Desbloqueo
@@ -88,11 +89,13 @@ Private Sub InicializarPaginas
 	PEspecificaciones.Initialize
 	PCLientes.Initialize
 	PClienteDetalle.Initialize
+	PSincronizacion.Initialize
 	B4XPages.AddPageAndCreate(Layouts.PAGINA_INICIO, Phome)
 	B4XPages.AddPageAndCreate(Layouts.PAGINA_COTIZACION, PCotizacion)
 	B4XPages.AddPageAndCreate(Layouts.PAGINA_ESPECIFICACIONES, PEspecificaciones)
 	B4XPages.AddPageAndCreate(Layouts.PAGINA_CLIENTES, PCLientes)
 	B4XPages.AddPageAndCreate(Layouts.PAGINA_CLIENTE_DETALLE, PClienteDetalle)
+	B4XPages.AddPageAndCreate(Layouts.PAGINA_SINCRONIZACION, PSincronizacion)
 End Sub
 
 Private Sub CrearOpcionServidor

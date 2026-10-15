@@ -18,8 +18,6 @@ type
       const AEntidad, AAccion, ATexto: string;
       const APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TAuditoriaDTO>;
-    function DeLaEntidad(const AEntidad: string; const AEntidadId: Integer)
-      : TObjectList<TAuditoriaDTO>;
   end;
 
 implementation
@@ -82,27 +80,6 @@ begin
     finally
       lJson.Free;
     end;
-  except
-    Result.Free;
-    raise;
-  end;
-end;
-
-function TApiAuditoria.DeLaEntidad(const AEntidad: string;
-  const AEntidadId: Integer): TObjectList<TAuditoriaDTO>;
-var
-  lRespuesta: IMVCRESTResponse;
-begin
-  lRespuesta := Ejecutar(
-    function: IMVCRESTResponse
-    begin
-      Result := NuevoCliente.Get(Format('%s/%s/%d',
-        [RUTA_AUDITORIA, AEntidad, AEntidadId]));
-    end);
-
-  Result := TObjectList<TAuditoriaDTO>.Create(True);
-  try
-    lRespuesta.BodyForListOf(Result, TAuditoriaDTO, 'data');
   except
     Result.Free;
     raise;

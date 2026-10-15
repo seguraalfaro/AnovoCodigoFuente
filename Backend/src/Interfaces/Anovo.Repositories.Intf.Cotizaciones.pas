@@ -29,8 +29,6 @@ type
 
     function SiguienteNumero: Integer;
 
-    function DeSolicitud(const ASolicitudId: Integer)
-      : TObjectList<TCotizaciones>;
 
     function EnviadasSinRespuesta(const ADias: Integer)
       : TObjectList<TCotizaciones>;

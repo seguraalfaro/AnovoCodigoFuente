@@ -21,7 +21,6 @@ procedure EditarCasillas(AGrid: TrDBGrid);
 
 procedure AjustarColumnas(AGrid: TrDBGrid);
 
-procedure AlinearDerecha(AGrid: TrDBGrid; const ACampos: array of string);
 
 procedure OcultarScrollVertical(AGrid: TrDBGrid);
 
@@ -707,21 +706,6 @@ begin
   AGrid.Anchors := [akLeft, akTop, akRight, akBottom];
   AGrid.SetBounds(0, 0, AGrid.Parent.ClientWidth + lBarra,
     AGrid.Parent.ClientHeight);
-end;
-
-procedure AlinearDerecha(AGrid: TrDBGrid; const ACampos: array of string);
-var
-  i, j: Integer;
-begin
-  if AGrid = nil then
-    Exit;
-  for i := 0 to AGrid.Columns.Count - 1 do
-    for j := Low(ACampos) to High(ACampos) do
-      if SameText(AGrid.Columns[i].FieldName, ACampos[j]) then
-      begin
-        AGrid.Columns[i].Alignment := taRightJustify;
-        AGrid.Columns[i].Title.Alignment := taRightJustify;
-      end;
 end;
 
 end.

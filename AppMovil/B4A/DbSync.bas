@@ -12,7 +12,19 @@ Sub Process_Globals
 	Public Const CLASE_FOTO As String = "foto"
 	Public Const ESTADO_PENDIENTE As String = "pendiente"
 	Public Const ESTADO_ERROR As String = "error"
-	Public Const ESTADO_CONFIRMADO As String = "confirmado"
+	Public Const RESULTADO_EXITOSA As String = "exitosa"
+	Public Const RESULTADO_PARCIAL As String = "parcial"
+	Public Const RESULTADO_SIN_CONEXION As String = "sin_conexion"
+	Public Const RESULTADO_SESION As String = "sesion_vencida"
+	Private Const HISTORIAL_MAXIMO As Int = 50
+	Private Const SQL_PENDIENTES_ENTIDAD As String = "SELECT count(*) FROM cola_sync WHERE entidad = ? AND estado = 'pendiente'"
+	Private Const SQL_PENDIENTES_FOTOS As String = "SELECT count(*) FROM cola_sync q JOIN adjuntos a ON a.uuid_local = q.uuid_local WHERE q.entidad = 'adjunto' AND a.tipo = 'foto' AND q.estado = 'pendiente'"
+	Private Const SQL_ERRORES As String = "SELECT q.entidad, q.uuid_local, COALESCE(q.ultimo_error, '') AS mensaje, COALESCE(c.nombre, NULLIF(TRIM(s.nombre_proyecto), ''), s.descripcion, p.nombre, '') AS titulo FROM cola_sync q LEFT JOIN clientes c ON q.entidad = 'cliente' AND c.uuid_local = q.uuid_local LEFT JOIN solicitudes s ON q.entidad = 'solicitud' AND s.uuid_local = q.uuid_local LEFT JOIN adjuntos a ON q.entidad = 'adjunto' AND a.uuid_local = q.uuid_local LEFT JOIN piezas p ON p.uuid_local = a.pieza_uuid WHERE q.estado = 'error' AND (q.entidad IN ('cliente', 'solicitud') OR (q.entidad = 'adjunto' AND a.tipo = 'foto')) ORDER BY q.id"
+	Private Const SQL_REINTENTAR_UNO As String = "UPDATE cola_sync SET estado = 'pendiente', proximo_intento = NULL WHERE entidad = ? AND uuid_local = ?"
+	Private Const SQL_INTENTO As String = "INSERT INTO sync_historial (fecha, resultado, subidos, con_error, pendientes) VALUES (?, ?, ?, ?, ?)"
+	Private Const SQL_PODAR_HISTORIAL As String = "DELETE FROM sync_historial WHERE id NOT IN (SELECT id FROM sync_historial ORDER BY id DESC LIMIT ?)"
+	Private Const SQL_HISTORIAL As String = "SELECT fecha, resultado, subidos, con_error, pendientes FROM sync_historial ORDER BY id DESC LIMIT ?"
+	Private Const SQL_ULTIMA_EXITOSA As String = "SELECT fecha FROM sync_historial WHERE resultado = 'exitosa' ORDER BY id DESC LIMIT 1"
 	Private Const ENTIDAD_ADJUNTO As String = "adjunto"
 	Private Const ORIGEN_MOVIL As String = "movil"
 	Private Const NOMBRE_CROQUIS As String = "croquis.json"
@@ -28,7 +40,7 @@ Sub Process_Globals
 	Private Const SQL_FIRMA As String = "SELECT cliente_contacto_uuid, accion, version_texto, fecha, firmante_nombre, firmante_identificacion, firma, mime FROM consentimiento_firmas WHERE cliente_uuid = ? ORDER BY fecha DESC LIMIT 1"
 	Private Const SQL_SOLICITUD As String = "SELECT uuid_local, cliente_uuid, cliente_contacto_uuid, nombre_proyecto, descripcion, observaciones, fecha_captura FROM solicitudes WHERE uuid_local = ?"
 	Private Const SQL_PIEZAS As String = "SELECT uuid_local, nombre, orden, tipo_trabajo_id, tipo_material_id, acabado_id FROM piezas WHERE solicitud_uuid = ? ORDER BY orden"
-	Private Const SQL_MEDIDAS As String = "SELECT uuid_local, etiqueta, tipo_medida, valor, unidad_medida, cantidad, orden FROM medidas WHERE pieza_uuid = ? ORDER BY orden"
+	Private Const SQL_MEDIDAS As String = "SELECT uuid_local, croquis_uuid, etiqueta, tipo_medida, valor, unidad_medida, cantidad, orden FROM medidas WHERE pieza_uuid = ? ORDER BY orden"
 	Private Const SQL_CROQUIS As String = "SELECT uuid_local, contenido_json FROM adjuntos WHERE pieza_uuid = ? AND tipo = 'croquis'"
 
 	Private Const SQL_CONFIRMAR_CLIENTE As String = "UPDATE clientes SET id_servidor = ?, estado_sync = 'confirmado' WHERE uuid_local = ?"
@@ -55,6 +67,69 @@ End Sub
 
 Public Sub ConError As Int
 	Return Db.DbSQL.ExecQuerySingleResult2(SQL_PENDIENTES, Array As String("error"))
+End Sub
+
+Public Sub PendientesDe (Clase As String) As Int
+	If Clase = CLASE_FOTO Then Return Db.DbSQL.ExecQuerySingleResult(SQL_PENDIENTES_FOTOS)
+	Return Db.DbSQL.ExecQuerySingleResult2(SQL_PENDIENTES_ENTIDAD, Array As String(Clase))
+End Sub
+
+Public Sub Errores As List
+	Dim res As List
+	res.Initialize
+	Dim rs As ResultSet = Db.DbSQL.ExecQuery(SQL_ERRORES)
+	Do While rs.NextRow
+		Dim e As ErrorSync
+		e.Initialize
+		e.Entidad = rs.GetString("entidad")
+		e.Uuid = rs.GetString("uuid_local")
+		e.Mensaje = rs.GetString("mensaje")
+		e.Titulo = rs.GetString("titulo")
+		res.Add(e)
+	Loop
+	rs.Close
+	Return res
+End Sub
+
+Public Sub ReintentarUno (Entidad As String, UuidLocal As String)
+	Db.DbSQL.ExecNonQuery2(SQL_REINTENTAR_UNO, Array As String(Entidad, UuidLocal))
+End Sub
+
+Public Sub RegistrarIntento (r As ResumenSync)
+	Dim resultado As String = RESULTADO_EXITOSA
+	If r.SesionVencida Then
+		resultado = RESULTADO_SESION
+	Else If r.SinConexion And r.Subidos = 0 Then
+		resultado = RESULTADO_SIN_CONEXION
+	Else If r.ConError > 0 Or r.Pendientes > 0 Then
+		resultado = RESULTADO_PARCIAL
+	End If
+	Db.DbSQL.ExecNonQuery2(SQL_INTENTO, Array As Object(Utils.AhoraBd, resultado, r.Subidos, r.ConError, r.Pendientes))
+	Db.DbSQL.ExecNonQuery2(SQL_PODAR_HISTORIAL, Array As Object(HISTORIAL_MAXIMO))
+End Sub
+
+Public Sub Historial (Limite As Int) As List
+	Dim res As List
+	res.Initialize
+	Dim rs As ResultSet = Db.DbSQL.ExecQuery2(SQL_HISTORIAL, Array As String(Limite))
+	Do While rs.NextRow
+		Dim i As IntentoSync
+		i.Initialize
+		i.Fecha = rs.GetString("fecha")
+		i.Resultado = rs.GetString("resultado")
+		i.Subidos = rs.GetInt("subidos")
+		i.ConError = rs.GetInt("con_error")
+		i.Pendientes = rs.GetInt("pendientes")
+		res.Add(i)
+	Loop
+	rs.Close
+	Return res
+End Sub
+
+Public Sub UltimaExitosa As String
+	Dim fecha As String = Db.DbSQL.ExecQuerySingleResult(SQL_ULTIMA_EXITOSA)
+	If fecha = Null Then Return ""
+	Return fecha
 End Sub
 
 Public Sub ReintentarTodo
@@ -186,7 +261,8 @@ Private Sub MedidasDe (Pieza As String) As List
 	res.Initialize
 	Dim rs As ResultSet = Db.DbSQL.ExecQuery2(SQL_MEDIDAS, Array As String(Pieza))
 	Do While rs.NextRow
-		res.Add(CreateMap("uuid_local": rs.GetString("uuid_local"), "etiqueta": rs.GetString("etiqueta"), _
+		res.Add(CreateMap("uuid_local": rs.GetString("uuid_local"), "croquis_uuid": TextoONulo(rs, "croquis_uuid"), _
+			"etiqueta": rs.GetString("etiqueta"), _
 			"tipo_medida": rs.GetString("tipo_medida"), "valor": rs.GetDouble("valor"), _
 			"unidad_medida": rs.GetString("unidad_medida"), "cantidad": rs.GetInt("cantidad"), "orden": rs.GetInt("orden")))
 	Loop
@@ -259,6 +335,12 @@ Private Sub Real (rs As ResultSet, Columna As String) As Object
 	Dim v As String = rs.GetString(Columna)
 	If v = Null Or v = "" Then Return Null
 	Return rs.GetDouble(Columna)
+End Sub
+
+Private Sub TextoONulo (rs As ResultSet, Columna As String) As Object
+	Dim v As String = rs.GetString(Columna)
+	If v = Null Or v = "" Then Return Null
+	Return v
 End Sub
 
 Private Sub Texto (Valor As String) As String

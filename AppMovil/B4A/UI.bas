@@ -609,14 +609,6 @@ Private Sub PonerHint (Campo As B4XFloatTextField, hint As String)
 	Campo.Update
 End Sub
 
-'Ya no hace falta llamarlo: AplicarTema alcanza los campos flotantes por
-'el Tag del contenedor. Se conserva por compatibilidad con las paginas viejas.
-Public Sub EstilizarCampos (Campos() As B4XFloatTextField)
-	For Each c As B4XFloatTextField In Campos
-		CampoNormal(c)
-	Next
-End Sub
-
 'Estos dos si se siguen usando: se llaman durante la validacion, cuando
 'ya se tiene el objeto B4XFloatTextField a mano.
 Public Sub CampoError (Campo As B4XFloatTextField,hint As String=Null)
@@ -680,28 +672,6 @@ Public Sub ConfigurarMemo (Campo As EditText, Ayuda As String)
 	Campo.Padding = Array As Int(10dip, 8dip, 10dip, 8dip)
 End Sub
 
-Public Sub CampoDeBusqueda (Campo As B4XFloatTextField, Evento As String)
-	Dim et As EditText = Campo.TextField
-	et.InputType = et.INPUT_TYPE_NONE
-	Dim jo As JavaObject = et
-	jo.RunMethod("setFocusable", Array As Object(False))
-	Dim p() As Int = et.Padding
-	et.Padding = Array As Int(12dip, p(1), 40dip, p(3))
-	Dim lupa As Label
-	lupa.Initialize("")
-	lupa.Tag = Utils.TAG_RAW
-	lupa.Typeface = Typeface.FONTAWESOME
-	lupa.Text = Chr(0xF002)
-	lupa.TextSize = 14
-	lupa.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
-	lupa.Gravity = Gravity.CENTER
-	Dim tf As B4XView = Campo.TextField
-	Campo.mBase.AddView(lupa, tf.Left + tf.Width - 36dip, tf.Top, 28dip, tf.Height)
-	Dim capa As B4XView = xui.CreatePanel(Evento)
-	capa.Tag = Utils.TAG_RAW
-	capa.Color = xui.Color_Transparent
-	Campo.mBase.AddView(capa, 0, 0, Campo.mBase.Width, Campo.mBase.Height)
-End Sub
 #End Region
 
 #Region Etiquetas

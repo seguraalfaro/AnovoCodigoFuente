@@ -7,7 +7,7 @@ Version=13.7
 ' Presentador del login, como TPresentadorLogin del escritorio: valida, pide el
 ' token, decide si la persona usa el movil y guarda la direccion del servidor.
 Sub Class_Globals
-	Public Const PROBAR_SIN_SERVIDOR As Boolean = True
+	Public Const PROBAR_SIN_SERVIDOR As Boolean = False
 	Private Const ESTADO_NO_AUTORIZADO As Int = 401
 	Private remota As SesionRemota
 End Sub

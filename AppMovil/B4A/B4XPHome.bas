@@ -20,8 +20,7 @@ Sub Class_Globals
 	Private pnvacio As Panel
 	Private lblTotal As B4XView
 	Private Label1 As B4XView
-	Private TextBuscar As B4XFloatTextField
-	Private ventana As VentanaBuscar
+	Private BuscadorClientes As ASBuscador
 	Private clientes As PresentadorClientes
 	Private perfil As HojaPerfil
 	Private panelPerfil As B4XView
@@ -79,9 +78,7 @@ Private Sub B4XPage_Created (Root1 As B4XView)
 	perfil.Initialize(panelPerfil, Me, Root)
 	InicializarMenu
 	PrepararInicio
-	UI.CampoDeBusqueda(TextBuscar, "BuscarCliente")
 	PrepararClientes
-	ventana.Initialize(Root)
 	PedirPermisoAvisos
 End Sub
 
@@ -113,7 +110,7 @@ Private Sub B4XPage_Foreground
 End Sub
 
 Private Sub B4XPage_MenuClick (Tag As String)
-	If Tag = Mensajes.MENU_SINCRONIZAR Then Sincronizar
+	If Tag = Mensajes.MENU_SINCRONIZAR Then AbrirSincronizacion
 	If Tag = Mensajes.MENU_CERRAR_SESION Then CerrarSesion
 End Sub
 
@@ -139,6 +136,18 @@ End Sub
 Private Sub Sincronizar
 	Sincronizacion.Forzar
 	PintarInicio
+End Sub
+
+Private Sub AbrirSincronizacion
+	B4XPages.ShowPage(Layouts.PAGINA_SINCRONIZACION)
+End Sub
+
+Private Sub pnSync_Click
+	AbrirSincronizacion
+End Sub
+
+Private Sub lblSync_Click
+	AbrirSincronizacion
 End Sub
 
 Private Sub PrepararInicio
@@ -234,8 +243,7 @@ Private Sub CrearVacio (Ancho As Int) As B4XView
 End Sub
 
 Private Sub PrepararClientes
-	TextBuscar.HintText = Mensajes.BUSCAR_CLIENTES
-	TextBuscar.Update
+	BuscadorClientes.Comparar(Me, "TextoFilaCliente")
 	Label1.Text = Mensajes.MIS_CLIENTES
 	Label1.Font = xui.CreateDefaultBoldFont(15)
 	Label1.TextColor = Colores.COLOR_TEXTO_PRIMARIO
@@ -249,11 +257,19 @@ Private Sub PintarClientes
 	lblTotal.Text = clientes.TotalTexto
 	lblTotal.SetColorAndBorder(Colores.COLOR_PRIMARIO_TENUE, 0, Colores.COLOR_PRIMARIO_TENUE, lblTotal.Height / 2)
 	MostrarVacio(clientes.Total = 0, Chr(0xF0C0), Mensajes.SIN_CLIENTES_TITULO, Mensajes.SIN_CLIENTES_TEXTO)
+	BuscadorClientes.setFuente(clientes.Filas)
+End Sub
+
+Private Sub BuscadorClientes_Filtrado (Resultado As List)
 	ClvClientes.Clear
 	Dim ancho As Int = ClvClientes.AsView.Width
-	For Each f As ClienteFila In clientes.Filas
+	For Each f As ClienteFila In Resultado
 		ClvClientes.Add(CrearTarjetaCliente(ancho, f), f)
 	Next
+End Sub
+
+Private Sub TextoFilaCliente (o As Object) As String 'ignore
+	Return clientes.TextoBusqueda(o)
 End Sub
 
 Private Sub CrearTarjetaCliente (Ancho As Int, f As ClienteFila) As B4XView
@@ -280,12 +296,6 @@ End Sub
 Private Sub ClvClientes_ItemClick (Index As Int, Value As Object)
 	Dim f As ClienteFila = Value
 	AbrirCliente(f.Datos)
-End Sub
-
-Private Sub BuscarCliente_Click
-	Wait For (ventana.Elegir(TextBuscar.mBase, Mensajes.ELEGIR_CLIENTE, Mensajes.AYUDA_BUSCAR_CLIENTE, clientes.Opciones)) Complete (Valor As Object)
-	If visible = False Or Valor = Null Then Return
-	AbrirCliente(Valor)
 End Sub
 
 Private Sub AbrirCliente (c As Cliente)

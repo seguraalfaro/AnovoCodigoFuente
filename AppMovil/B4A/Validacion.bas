@@ -10,14 +10,6 @@ Sub Process_Globals
 	Public Const PATRON_CORREO As String = "(?i)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])"
 End Sub
 
-Public Sub TextoMinimo (Valor As String, Minimo As Int) As Boolean
-	Return Valor.Trim.Length >= Minimo
-End Sub
-
-Public Sub AlgunoConValor (A As String, B As String) As Boolean
-	Return A.Trim <> "" Or B.Trim <> ""
-End Sub
-
 Public Sub EsCorreo (Texto As String) As Boolean
 	Return Regex.Matcher(PATRON_CORREO, Texto).Find
 End Sub

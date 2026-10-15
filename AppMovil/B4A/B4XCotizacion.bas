@@ -25,13 +25,12 @@ Sub Class_Globals
 	Private pagecont As AHPageContainer
 	Private BtnSiguiente As Button
 	Private BtnAtras_sec As Button
-	Private ventana As VentanaBuscar
 
-	Private TextClient As B4XFloatTextField
-	Private TextContacto As B4XFloatTextField
+	Private CampoCliente, CampoContacto As CampoBusqueda
 	Private TextNombreProyecto As B4XFloatTextField
 
 	Private CvPiezas As CustomListView
+	Private Const ALTO_PIEZA As Int = 96dip
 	Private lblContador_chip As Label
 	Private pnVacio As B4XView
 	Private lblVacioIcono As Label
@@ -76,9 +75,6 @@ Private Sub B4XPage_Created (Root1 As B4XView)
 	ime.Initialize("IME")
 	ime.AddHandleActionEvent(txtObservaciones)
 	UI.AplicarTema(Root)
-	UI.CampoDeBusqueda(TextClient, "BuscarCliente")
-	UI.CampoDeBusqueda(TextContacto, "BuscarContacto")
-	ventana.Initialize(Root)
 End Sub
 
 Private Sub PrepararVacio
@@ -180,14 +176,17 @@ Private Sub Limpiar
 End Sub
 
 Private Sub PintarCliente
-	TextClient.Text = presentador.TextoCliente
-	TextContacto.Text = presentador.TextoContacto
-	TextContacto.TextField.Enabled = presentador.HayCliente
+	CampoCliente.Texto = presentador.TextoCliente
+	CampoContacto.Texto = presentador.TextoContacto
+	CampoContacto.Habilitado = presentador.HayCliente
 End Sub
 
-Private Sub BuscarCliente_Click
-	Wait For (ventana.Elegir(TextClient.mBase, Mensajes.ELEGIR_CLIENTE, Mensajes.AYUDA_BUSCAR_CLIENTE, presentador.OpcionesClientes)) Complete (Valor As Object)
-	If visible = False Or Valor = Null Then Return
+Private Sub CampoCliente_Opciones As List
+	Return presentador.OpcionesClientes
+End Sub
+
+Private Sub CampoCliente_Elegido (Valor As Object)
+	If visible = False Then Return
 	presentador.ElegirCliente(Valor)
 	PintarCliente
 	Persistir
@@ -197,13 +196,16 @@ Private Sub TextNombreProyecto_FocusChanged (HasFocus As Boolean)
 	If HasFocus = False Then Persistir
 End Sub
 
-Private Sub BuscarContacto_Click
+Private Sub CampoContacto_Opciones As List
 	If presentador.HayCliente = False Then
 		xui.MsgboxAsync(Mensajes.FALTA_CLIENTE, Mensajes.TITULO)
-		Return
+		Return Null
 	End If
-	Wait For (ventana.Elegir(TextContacto.mBase, Mensajes.ELEGIR_CONTACTO, Mensajes.AYUDA_BUSCAR_CONTACTO, presentador.OpcionesContactos)) Complete (Valor As Object)
-	If visible = False Or Valor = Null Then Return
+	Return presentador.OpcionesContactos
+End Sub
+
+Private Sub CampoContacto_Elegido (Valor As Object)
+	If visible = False Then Return
 	presentador.ElegirContacto(Valor)
 	PintarCliente
 	Persistir
@@ -228,7 +230,7 @@ End Sub
 
 Private Sub CrearItem (p As Pieza, Numero As Int) As B4XView
 	Dim item As B4XView = xui.CreatePanel("")
-	item.SetLayoutAnimated(0, 0, 0, CvPiezas.AsView.Width, 84dip)
+	item.SetLayoutAnimated(0, 0, 0, CvPiezas.AsView.Width, ALTO_PIEZA)
 	item.LoadLayout("ItemPieza")
 	UI.AplicarTema(item)
 	LblNumero.Text = Numero

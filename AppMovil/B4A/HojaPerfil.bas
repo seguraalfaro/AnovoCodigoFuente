@@ -16,13 +16,13 @@ Sub Class_Globals
 	Private dialogo As B4XDialog
 	Private txtClaveActual, txtClaveNueva, txtClaveRepetir As B4XFloatTextField
 	Private lblClaveNota As B4XView
-	Private Const ALTO_CONTENIDO As Int = 882dip
 	Private Const ALTO_DIALOGO As Int = 216dip
 	Private Const ANCHO_DIALOGO As Int = 320dip
 	Private Const LARGO_CLAVE As Int = 10
 	Private Const EVENTO_CERRAR As String = "CerrarSesion"
 
 	Private svPerfil As ScrollView
+	Private pnContenido As B4XView
 	Private lblIniciales, lblNombre, lblCorreo, lblRol As B4XView
 	Private lblCuentaTitulo, lblPermisosRot, lblPermisos, lblClaveRot, lblClave As B4XView
 	Private lblConexionTitulo, lblServidorRot, lblServidor, lblEstadoRot, lblEstado, lblRespuestaRot, lblRespuesta As B4XView
@@ -39,8 +39,8 @@ Public Sub Initialize (Raiz As B4XView, Pagina As Object, RaizPagina As B4XView)
 	presentador.Initialize
 	huella.Initialize
 	mRaiz.LoadLayout("PagePerfil")
-	svPerfil.Panel.Height = ALTO_CONTENIDO
 	svPerfil.Panel.LoadLayout("PerfilContenido")
+	svPerfil.Panel.Height = pnContenido.Height
 	UI.AplicarTema(mRaiz)
 	PonerTextos
 End Sub
@@ -75,6 +75,8 @@ End Sub
 
 Private Sub Pintar
 	lblIniciales.Text = presentador.Iniciales
+	lblIniciales.SetColorAndBorder(Colores.COLOR_PRIMARIO_TENUE, 0, Colores.COLOR_PRIMARIO_TENUE, lblIniciales.Height / 2)
+	lblRol.SetColorAndBorder(Colores.COLOR_PRIMARIO_TENUE, 0, Colores.COLOR_PRIMARIO_TENUE, lblRol.Height / 2)
 	lblNombre.Text = presentador.Nombre
 	lblCorreo.Text = presentador.Correo
 	lblRol.Text = presentador.Rol

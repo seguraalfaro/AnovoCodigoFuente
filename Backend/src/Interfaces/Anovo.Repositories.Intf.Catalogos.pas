@@ -135,12 +135,6 @@ type
     (IMVCRepository<TPreciosProgramados>)
     ['{BDF59790-0698-43C4-B4F5-10F9874A86CA}']
 
-    function PendientesDeMaterial(const AMaterialId: Integer)
-      : TObjectList<TPreciosProgramados>;
-    function PendientesDeManoObra(const AManoObraId: Integer)
-      : TObjectList<TPreciosProgramados>;
-    function PendientesDeMaquina(const AMaquinaId: Integer)
-      : TObjectList<TPreciosProgramados>;
     function PorAplicar: TObjectList<TPreciosProgramados>;
   end;
 

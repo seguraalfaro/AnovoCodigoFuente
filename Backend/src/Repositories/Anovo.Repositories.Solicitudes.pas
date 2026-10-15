@@ -52,8 +52,6 @@ type
       : TObjectList<TMedidasDeSolicitud>;
     function MedidaDe(const ASolicitudId, AMedidaId: Integer)
       : TSolicitudMedidas;
-    function MedidasDeCroquis(const ACroquisId: Integer)
-      : TObjectList<TSolicitudMedidas>;
     function ObtenerPorUuidLocal(const AUuid: string): TSolicitudMedidas;
   end;
 
@@ -73,8 +71,6 @@ type
       : TObjectList<TAdjuntosDeSolicitud>;
     function AdjuntoDe(const ASolicitudId, AAdjuntoId: Integer)
       : TSolicitudAdjuntos;
-    function CroquisDe(const ASolicitudId: Integer)
-      : TObjectList<TSolicitudAdjuntos>;
     function ObtenerPorUuidLocal(const AUuid: string): TSolicitudAdjuntos;
     function DeCliente(const AClienteId: Integer)
       : TObjectList<TSolicitudAdjuntos>;
@@ -189,12 +185,6 @@ begin
     False);
 end;
 
-function TSolicitudMedidaRepository.MedidasDeCroquis(const ACroquisId: Integer)
-  : TObjectList<TSolicitudMedidas>;
-begin
-  Result := GetWhere(MEDIDAS_DE_CROQUIS, [ACroquisId]);
-end;
-
 function TSolicitudMedidaRepository.ObtenerPorUuidLocal(const AUuid: string)
   : TSolicitudMedidas;
 begin
@@ -213,12 +203,6 @@ function TSolicitudAdjuntoRepository.AdjuntoDe(const ASolicitudId,
 begin
   Result := GetOneByWhere(ADJUNTO_DE_SOLICITUD, [AAdjuntoId, ASolicitudId],
     False);
-end;
-
-function TSolicitudAdjuntoRepository.CroquisDe(const ASolicitudId: Integer)
-  : TObjectList<TSolicitudAdjuntos>;
-begin
-  Result := GetWhere(CROQUIS_DE_SOLICITUD, [ASolicitudId]);
 end;
 
 function TSolicitudAdjuntoRepository.DeCliente(const AClienteId: Integer)

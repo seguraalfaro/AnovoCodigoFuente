@@ -27,7 +27,6 @@ type
     function BuscarMateriales(const ATexto: string;
       const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
       out ATotal: Int64): TObjectList<TMaterialDTO>;
-    function ObtenerMaterial(const AId: Integer): TMaterialDTO;
     function CrearMaterial(const ADto: TMaterialNuevoDTO): Integer;
     procedure ActualizarMaterial(const AId: Integer;
       const ADto: TMaterialEdicionDTO);
@@ -41,7 +40,6 @@ type
       const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
       const ACategoriaId: Integer; out ATotal: Int64)
       : TObjectList<TManoObraDTO>;
-    function ObtenerManoObra(const AId: Integer): TManoObraDTO;
     function CrearManoObra(const ADto: TManoObraNuevaDTO): Integer;
     procedure ActualizarManoObra(const AId: Integer;
       const ADto: TManoObraEdicionDTO);
@@ -61,7 +59,6 @@ type
     function BuscarMaquinas(const ATexto: string;
       const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
       out ATotal: Int64): TObjectList<TMaquinaDTO>;
-    function ObtenerMaquina(const AId: Integer): TMaquinaDTO;
     function CrearMaquina(const ADto: TMaquinaNuevaDTO): Integer;
     procedure ActualizarMaquina(const AId: Integer;
       const ADto: TMaquinaEdicionDTO);
@@ -207,25 +204,6 @@ begin
     APorPagina, AIncluirInactivos, 0, ATotal);
 end;
 
-function TApiCatalogos.ObtenerMaterial(const AId: Integer): TMaterialDTO;
-var
-  lRespuesta: IMVCRESTResponse;
-begin
-  lRespuesta := Ejecutar(
-    function: IMVCRESTResponse
-    begin
-      Result := NuevoCliente.Get(Format(SUB_ID, [RUTA_MATERIALES, AId]));
-    end);
-
-  Result := TMaterialDTO.Create;
-  try
-    lRespuesta.BodyFor(Result, 'data');
-  except
-    Result.Free;
-    raise;
-  end;
-end;
-
 function TApiCatalogos.CrearMaterial(const ADto: TMaterialNuevoDTO): Integer;
 begin
   Result := IdDeLocation(Ejecutar(
@@ -269,25 +247,6 @@ function TApiCatalogos.BuscarManoObra(const ATexto: string;
 begin
   Result := PaginaDe<TManoObraDTO>(RUTA_MANO_OBRA, ATexto, APagina,
     APorPagina, AIncluirInactivos, ACategoriaId, ATotal);
-end;
-
-function TApiCatalogos.ObtenerManoObra(const AId: Integer): TManoObraDTO;
-var
-  lRespuesta: IMVCRESTResponse;
-begin
-  lRespuesta := Ejecutar(
-    function: IMVCRESTResponse
-    begin
-      Result := NuevoCliente.Get(Format(SUB_ID, [RUTA_MANO_OBRA, AId]));
-    end);
-
-  Result := TManoObraDTO.Create;
-  try
-    lRespuesta.BodyFor(Result, 'data');
-  except
-    Result.Free;
-    raise;
-  end;
 end;
 
 function TApiCatalogos.CrearManoObra(const ADto: TManoObraNuevaDTO): Integer;
@@ -370,25 +329,6 @@ function TApiCatalogos.BuscarMaquinas(const ATexto: string;
 begin
   Result := PaginaDe<TMaquinaDTO>(RUTA_MAQUINAS, ATexto, APagina, APorPagina,
     AIncluirInactivos, 0, ATotal);
-end;
-
-function TApiCatalogos.ObtenerMaquina(const AId: Integer): TMaquinaDTO;
-var
-  lRespuesta: IMVCRESTResponse;
-begin
-  lRespuesta := Ejecutar(
-    function: IMVCRESTResponse
-    begin
-      Result := NuevoCliente.Get(Format(SUB_ID, [RUTA_MAQUINAS, AId]));
-    end);
-
-  Result := TMaquinaDTO.Create;
-  try
-    lRespuesta.BodyFor(Result, 'data');
-  except
-    Result.Free;
-    raise;
-  end;
 end;
 
 function TApiCatalogos.CrearMaquina(const ADto: TMaquinaNuevaDTO): Integer;

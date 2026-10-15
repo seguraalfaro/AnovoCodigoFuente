@@ -27,10 +27,10 @@ Public Sub SubirFoto (SolicitudId As Int, Paquete As Map) As RestCliente
 End Sub
 
 Public Sub IdCreado (Respuesta As RestRespuesta) As Int
-	Dim ubicacion As String = Respuesta.HeaderValue(ENCABEZADO_UBICACION)
-	Dim i As Int = ubicacion.LastIndexOf("/")
+	Dim destino As String = Respuesta.HeaderValue(ENCABEZADO_UBICACION)
+	Dim i As Int = destino.LastIndexOf("/")
 	If i < 0 Then Return 0
-	Dim id As String = ubicacion.SubString(i + 1)
+	Dim id As String = destino.SubString(i + 1)
 	If IsNumber(id) Then Return id
 	Return 0
 End Sub

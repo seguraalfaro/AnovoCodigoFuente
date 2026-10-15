@@ -17,6 +17,7 @@ Sub Process_Globals
 	Public Const PAGINA_ESPECIFICACIONES As String = "PEspecificaciones"
 	Public Const PAGINA_CLIENTES As String = "PCLientes"
 	Public Const PAGINA_CLIENTE_DETALLE As String = "PClienteDetalle"
+	Public Const PAGINA_SINCRONIZACION As String = "PSincronizacion"
 End Sub
 
 Public Sub Inicializar

@@ -40,13 +40,8 @@ Public Sub EsJuridica (f As ClienteFila) As Boolean
 	Return f.Datos.TipoIdentificacion = TIPO_JURIDICA
 End Sub
 
-Public Sub Opciones As List
-	Dim res As List
-	res.Initialize
-	For Each f As ClienteFila In mFilas
-		res.Add(Tipos.Opcion(f.Datos.Nombre, DetalleDe(f), f.Datos))
-	Next
-	Return res
+Public Sub TextoBusqueda (f As ClienteFila) As String
+	Return f.Datos.Nombre & " " & f.Datos.Identificacion & " " & f.Datos.Telefono
 End Sub
 
 Public Sub TituloDe (f As ClienteFila) As String

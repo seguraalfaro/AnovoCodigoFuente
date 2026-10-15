@@ -11,14 +11,12 @@ Sub Process_Globals
 
 	Public Const MAX_FOTOS  As Int = 20
 	Public Const ANCHO_FOTO As Int = 1600
-	Public Const ANCHO_MINI As Int = 128
 	Public Const CALIDAD    As Int = 85
 	Private Const CARPETA_FOTOS As String = "fotos"
 
 	Type Foto (Archivo As String, Miniatura As String, Sincronizada As Boolean)
 
 	'--- deteccion de camaras ---
-	Public Const ESTADO_OK           As String = "ok"
 	Public Const ESTADO_SIN_HARDWARE As String = "sin_hardware"
 	Public Const ESTADO_BLOQUEADO    As String = "bloqueado"
 	Public Const ESTADO_DENEGADO     As String = "denegado"

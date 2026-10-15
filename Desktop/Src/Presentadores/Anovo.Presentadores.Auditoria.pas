@@ -38,7 +38,6 @@ type
     procedure PaginaSiguiente;
     procedure PaginaAnterior;
     class function PuedeVerTodo: Boolean;
-    class function PuedeVerCuentas: Boolean;
   end;
 
 const
@@ -83,11 +82,6 @@ end;
 class function TPresentadorAuditoria.PuedeVerTodo: Boolean;
 begin
   Result := TSesion.Tiene(PERMISO_AUDITORIA_VER_TODA);
-end;
-
-class function TPresentadorAuditoria.PuedeVerCuentas: Boolean;
-begin
-  Result := TSesion.Tiene(PERMISO_AUDITORIA_VER_CUENTAS);
 end;
 
 function TPresentadorAuditoria.Rotulos: TArray<string>;

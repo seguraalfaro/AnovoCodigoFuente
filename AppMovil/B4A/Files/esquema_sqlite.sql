@@ -187,3 +187,15 @@ CREATE TABLE IF NOT EXISTS config (
   clave  TEXT PRIMARY KEY,
   valor  TEXT
 );
+
+-- Historial local de los intentos de sincronizacion (RNF-012): fecha, resultado y cuantos
+-- registros subieron, fallaron o quedaron pendientes. Se guardan los ultimos 50.
+CREATE TABLE IF NOT EXISTS sync_historial (
+  id                INTEGER PRIMARY KEY AUTOINCREMENT,
+  fecha             TEXT NOT NULL,
+  resultado         TEXT NOT NULL
+                      CHECK (resultado IN ('exitosa','parcial','sin_conexion','sesion_vencida')),
+  subidos           INTEGER NOT NULL DEFAULT 0,
+  con_error         INTEGER NOT NULL DEFAULT 0,
+  pendientes        INTEGER NOT NULL DEFAULT 0
+);

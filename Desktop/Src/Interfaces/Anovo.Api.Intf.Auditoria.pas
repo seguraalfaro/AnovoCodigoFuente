@@ -18,8 +18,6 @@ type
       const APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TAuditoriaDTO>;
 
-    function DeLaEntidad(const AEntidad: string; const AEntidadId: Integer)
-      : TObjectList<TAuditoriaDTO>;
   end;
 
 implementation

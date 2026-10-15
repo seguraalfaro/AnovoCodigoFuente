@@ -21,15 +21,12 @@ Sub Class_Globals
 	Private presentador As PresentadorEspecificaciones
 	Private croquis As EditorCroquis
 	Private camara As CamaraPieza
-	Private ventana As VentanaBuscar
 	Private pendiente As Int
 	Private piezaEditar As Pieza
 	Private enCaptura As Boolean
 
 	Private TextNombrePieza As B4XFloatTextField
-	Private TextTipoTrabajo As B4XFloatTextField
-	Private TextMaterial As B4XFloatTextField
-	Private TextAcabado As B4XFloatTextField
+	Private CampoTipoTrabajo, CampoMaterial, CampoAcabado As CampoBusqueda
 	Private pagecont As AHPageContainer
 	Private AHViewEspecificaciones As AHViewPager
 	Private navegacion() As B4XView
@@ -86,10 +83,6 @@ Private Sub B4XPage_Created (Root1 As B4XView)
 	AHViewEspecificaciones.CurrentPage = PageDetalles
 	UI.MarcarGrupo(navegacion, PageDetalles)
 	UI.AplicarTema(Root)
-	UI.CampoDeBusqueda(TextTipoTrabajo, "BuscarTipoTrabajo")
-	UI.CampoDeBusqueda(TextMaterial, "BuscarMaterial")
-	UI.CampoDeBusqueda(TextAcabado, "BuscarAcabado")
-	ventana.Initialize(Root)
 	PintarMedidas
 End Sub
 
@@ -193,28 +186,34 @@ End Sub
 
 #Region Datos de la pieza
 Private Sub PintarCatalogos
-	TextTipoTrabajo.Text = presentador.TextoTipoTrabajo
-	TextMaterial.Text = presentador.TextoTipoMaterial
-	TextAcabado.Text = presentador.TextoAcabado
+	CampoTipoTrabajo.Texto = presentador.TextoTipoTrabajo
+	CampoMaterial.Texto = presentador.TextoTipoMaterial
+	CampoAcabado.Texto = presentador.TextoAcabado
 End Sub
 
-Private Sub BuscarTipoTrabajo_Click
-	Wait For (ventana.Elegir(TextTipoTrabajo.mBase, Mensajes.ELEGIR_TIPO_TRABAJO, Mensajes.AYUDA_BUSCAR_NOMBRE, presentador.OpcionesTiposTrabajo)) Complete (Valor As Object)
-	If Valor = Null Then Return
+Private Sub CampoTipoTrabajo_Opciones As List
+	Return presentador.OpcionesTiposTrabajo
+End Sub
+
+Private Sub CampoTipoTrabajo_Elegido (Valor As Object)
 	presentador.ElegirTipoTrabajo(Valor)
 	PintarCatalogos
 End Sub
 
-Private Sub BuscarMaterial_Click
-	Wait For (ventana.Elegir(TextMaterial.mBase, Mensajes.ELEGIR_MATERIAL, Mensajes.AYUDA_BUSCAR_NOMBRE, presentador.OpcionesTiposMaterial)) Complete (Valor As Object)
-	If Valor = Null Then Return
+Private Sub CampoMaterial_Opciones As List
+	Return presentador.OpcionesTiposMaterial
+End Sub
+
+Private Sub CampoMaterial_Elegido (Valor As Object)
 	presentador.ElegirTipoMaterial(Valor)
 	PintarCatalogos
 End Sub
 
-Private Sub BuscarAcabado_Click
-	Wait For (ventana.Elegir(TextAcabado.mBase, Mensajes.ELEGIR_ACABADO, Mensajes.AYUDA_BUSCAR_NOMBRE, presentador.OpcionesAcabados)) Complete (Valor As Object)
-	If Valor = Null Then Return
+Private Sub CampoAcabado_Opciones As List
+	Return presentador.OpcionesAcabados
+End Sub
+
+Private Sub CampoAcabado_Elegido (Valor As Object)
 	presentador.ElegirAcabado(Valor)
 	PintarCatalogos
 End Sub

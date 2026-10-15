@@ -61,6 +61,7 @@ Public Sub Ejecutar As ResumableSub
 	r.Pendientes = DbSync.Pendientes
 	r.ConError = DbSync.ConError
 	r.Mensaje = Resumen(r)
+	DbSync.RegistrarIntento(r)
 	mCorriendo = False
 	Return r
 End Sub

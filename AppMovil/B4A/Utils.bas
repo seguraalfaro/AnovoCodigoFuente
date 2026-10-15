@@ -56,12 +56,10 @@ Sub Process_Globals
 	' | TYPE_TEXT_VARIATION_EMAIL_ADDRESS (0x20)
 	Public Const INPUT_CORREO As Int = 33
 	' | TYPE_TEXT_VARIATION_VISIBLE_PASSWORD (0x80), saca la fila de numeros sin shift
-	Public Const INPUT_ALFANUMERICO As Int = 145
 	' | VISIBLE_PASSWORD | TYPE_TEXT_FLAG_CAP_CHARACTERS (0x1000)
 	Public Const INPUT_ALFANUMERICO_MAY As Int = 4241
 	' TYPE_CLASS_PHONE. INPUT_SOLO_DIGITOS es el mismo valor, separado por legibilidad
 	' en los campos de identificacion.
-	Public Const INPUT_TELEFONO     As Int = 3
 	Public Const INPUT_SOLO_DIGITOS As Int = 3
 	#End Region
 
@@ -109,19 +107,6 @@ End Sub
 Public Sub EstaVacio (Valor As Object) As Boolean
 	If Valor = Null Then Return True
 	Return Valor.As(String).Trim = ""
-End Sub
-
-Public Sub ValorPorDefecto (Valor As String, ValorDefecto As String) As String
-	If EstaVacio(Valor) Then Return ValorDefecto
-	Return Valor
-End Sub
-
-'Corta el texto y le pone puntos suspensivos si no cabe.Esto fue hecho
-'primera vez aplicacion de mantenimiento recortar texto en las card
-Public Sub Truncar (Valor As String, LongitudMaxima As Int) As String
-	If EstaVacio(Valor) Then Return ""
-	If Valor.Length <= LongitudMaxima Then Return Valor
-	Return Valor.SubString2(0, LongitudMaxima - 3) & "..."
 End Sub
 
 'Une los trozos no vacios con el separador. Evita quedarse con " ·  · " sueltos.
@@ -218,13 +203,6 @@ Public Sub ApiADisplay (FechaApi As String) As String
 	Dim f As Long = ApiAFecha(FechaApi)
 	If f = 0 Then Return ""
 	Return Formatear(f, FORMATO_DISPLAY)
-End Sub
-
-'Lo que llega del servidor -> como se guarda en SQLite (al bajar datos).
-Public Sub ApiABd (FechaApi As String) As String
-	Dim f As Long = ApiAFecha(FechaApi)
-	If f = 0 Then Return ""
-	Return Formatear(f, FORMATO_BD)
 End Sub
 
 'Lo que hay en SQLite -> lo que se manda al servidor (al subir la cola).

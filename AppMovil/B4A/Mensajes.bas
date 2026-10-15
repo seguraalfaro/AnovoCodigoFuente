@@ -75,14 +75,22 @@ Sub Process_Globals
 	Public Const KPI_SIN_DATO As String = "—"
 	Public Const SYNC_AL_DIA As String = "Todo está en el servidor"
 	Public Const SYNC_REINTENTAR As String = "Reintentar"
-	Public Const ESTADO_POR_SUBIR As String = "Por subir"
-	Public Const ESTADO_SUBIDA As String = "Subida"
-	Public Const ESTADO_CON_ERROR As String = "Con error"
-	Public Const ESTADO_SUBIDO As String = "Subido"
 	Public Const TITULO_CLIENTE As String = "Cliente"
 	Public Const NUEVA_SOLICITUD As String = "+  Nueva solicitud"
-	Public Const FICHA_COBROS As String = "Contacto de cobros"
 	Public Const ROTULO_TELEFONO As String = "Teléfono"
+	Public Const SYNC_PANTALLA As String = "Sincronización"
+	Public Const SYNC_EN_LINEA As String = "● En línea"
+	Public Const SYNC_FUERA_DE_LINEA As String = "○ Sin conexión"
+	Public Const SYNC_NUNCA As String = "Todavía no"
+	Public Const SYNC_ULTIMA_EXITOSA As String = "Última exitosa"
+	Public Const SYNC_POR_SUBIR_TITULO As String = "Por subir"
+	Public Const SYNC_CLIENTES As String = "Clientes"
+	Public Const SYNC_SOLICITUDES As String = "Solicitudes"
+	Public Const SYNC_HISTORIAL As String = "Historial"
+	Public Const SYNC_SIN_HISTORIAL As String = "Todavía no hay intentos de sincronización."
+	Public Const SYNC_TODO_AL_DIA As String = "✓  Todo lo capturado está en el servidor"
+	Public Const SYNC_AHORA As String = "Sincronizar ahora"
+	Public Const SYNC_SINCRONIZANDO As String = "Sincronizando..."
 	Public Const UBICACION_BUSCANDO As String = "Buscando la ubicación del cliente..."
 	Public Const UBICACION_SIN As String = "Sin ubicación: no hay permiso o señal."
 	Public Const REVISION_TITULO As String = "Revisión final"
@@ -106,14 +114,9 @@ Sub Process_Globals
 	Public Const FICHA_PERMISO As String = "Permiso de datos (Ley 8968)"
 	Public Const MIS_CLIENTES As String = "Mis clientes"
 	Public Const DESBLOQUEO_TITULO As String = "Entrar a Anovo"
-	Public Const PERFIL_TITULO As String = "Perfil"
-	Public Const PERFIL_SUBTITULO As String = "Su cuenta, la conexión y el ingreso sin conexión"
 	Public Const PERFIL_MI_CUENTA As String = "Mi cuenta"
 	Public Const PERFIL_CONEXION As String = "Conexión"
 	Public Const PERFIL_ACERCA_DE As String = "Acerca de"
-	Public Const ROTULO_NOMBRE As String = "Nombre"
-	Public Const ROTULO_CORREO As String = "Correo"
-	Public Const ROTULO_ROL As String = "Rol"
 	Public Const ROTULO_PERMISOS As String = "Permisos propios"
 	Public Const ROTULO_CLAVE As String = "Clave cambiada"
 	Public Const ROTULO_SERVIDOR As String = "Servidor"
@@ -146,7 +149,6 @@ Sub Process_Globals
 	Public Const PERFIL_SIN_BLOQUEO As String = "El teléfono no tiene huella ni bloqueo de pantalla. Configure uno en Ajustes, Seguridad."
 	Public Const PERFIL_NO_SOPORTADO As String = "Este teléfono no permite entrar con huella o PIN."
 	Public Const CONFIRMAR_CIERRE As String = "¿Cerrar la sesión en este teléfono? Lo que falte por subir queda guardado y sube cuando vuelva a ingresar."
-	Public Const BUSCAR_CLIENTES As String = "Buscar por nombre o cédula"
 	Public Const SIN_PIEZAS As String = "Agregue al menos una pieza."
 	Public Const SIN_PIEZAS_TITULO As String = "Todavía no hay piezas"
 	Public Const SIN_PIEZAS_TEXTO As String = "Toque «Nueva pieza» para registrar la primera. Cada pieza lleva medidas, cantidad, croquis y fotos."
@@ -154,23 +156,18 @@ Sub Process_Globals
 	Public Const PIEZA_SIN_CROQUIS As String = "Sin croquis"
 	Public Const PIEZA_SIN_FOTOS As String = "Sin fotos"
 	Public Const SIN_RESULTADOS As String = "No hay coincidencias."
-	Public Const ELEGIR_CLIENTE As String = "Elegir cliente"
-	Public Const ELEGIR_CONTACTO As String = "Elegir contacto"
-	Public Const AYUDA_BUSCAR_CLIENTE As String = "Nombre o cédula"
-	Public Const AYUDA_BUSCAR_CONTACTO As String = "Nombre del contacto"
 	Public Const FALTA_CLIENTE As String = "Elija el cliente."
 	Public Const FALTA_CONTACTO As String = "Elija el contacto del proyecto."
 	Public Const SIN_MEDIDAS As String = "Las cotas que dibuje en el croquis aparecen aquí."
 	Public Const TITULO_PIEZA As String = "Agregar pieza"
 	Public Const TITULO_EDITAR_PIEZA As String = "Editar pieza"
-	Public Const ELEGIR_TIPO_TRABAJO As String = "Elegir tipo de trabajo"
-	Public Const ELEGIR_MATERIAL As String = "Elegir material"
-	Public Const ELEGIR_ACABADO As String = "Elegir acabado"
-	Public Const AYUDA_BUSCAR_NOMBRE As String = "Nombre"
 	Public Const DESCARTAR_CAMBIOS_PIEZA As String = "¿Descartar los cambios de esta pieza? La pieza queda como estaba."
 	Public Const SOLICITUD_GUARDADA As String = "Solicitud guardada en el teléfono. Se enviará a Anovo al sincronizar."
 	Public Const SOLICITUD_NO_GUARDADA As String = "No se pudo guardar la solicitud en el teléfono. Intente de nuevo."
 	Public Const FALTA_NOMBRE_PIEZA As String = "Escriba el nombre de la pieza."
+	Public Const FALTA_TIPO_TRABAJO As String = "Elija el tipo de trabajo."
+	Public Const FALTA_MATERIAL As String = "Elija el tipo de material."
+	Public Const FALTA_ACABADO As String = "Elija el acabado."
 	Public Const FOTOS_MAXIMO As String = "Llegó al máximo de fotos para esta pieza."
 	Public Const ELEGIR_FOTO As String = "Elegir foto"
 	Public Const FOTO_NO_VALIDA As String = "No se pudo leer la imagen elegida. Elija otra."
@@ -228,6 +225,17 @@ Sub Process_Globals
 	Private Const PIEZAS_VARIAS As String = "$1 piezas"
 	Private Const FICHA_CONTACTOS As String = "Contactos ($1)"
 	Private Const CLIENTES_UNO As String = "1 cliente"
+	Private Const SYNC_ERRORES As String = "Con error ($1)"
+	Private Const SYNC_ERROR_CLIENTE As String = "Cliente · $1"
+	Private Const SYNC_ERROR_SOLICITUD As String = "Solicitud · $1"
+	Private Const SYNC_ERROR_FOTO As String = "Foto · $1"
+	Private Const RESULTADO_EXITOSA As String = "Exitosa"
+	Private Const RESULTADO_PARCIAL As String = "Parcial"
+	Private Const RESULTADO_SIN_CONEXION As String = "Sin conexión"
+	Private Const RESULTADO_SESION As String = "Sesión vencida"
+	Private Const INTENTO_SUBIDOS As String = "$1 subidos"
+	Private Const INTENTO_ERRORES As String = "$1 con error"
+	Private Const INTENTO_PENDIENTES As String = "$1 pendientes"
 	Private Const UBICACION_CAPTURADA As String = "Ubicación capturada (± $1 m)"
 	Private Const UBICACION_COORDENADAS As String = "$1, $2"
 	Private Const TEXTO_CONTADOR As String = "$1/$2"
@@ -335,17 +343,6 @@ Public Sub EstadoSolicitud (Estado As String) As String
 	End Select
 End Sub
 
-Public Sub EstadoCliente (Estado As String) As String
-	Select Estado
-		Case DbSync.ESTADO_ERROR
-			Return ESTADO_CON_ERROR
-		Case DbSync.ESTADO_PENDIENTE
-			Return ESTADO_POR_SUBIR
-		Case Else
-			Return ESTADO_SUBIDO
-	End Select
-End Sub
-
 Public Sub EstadoDesbloqueo (Activo As Boolean) As String
 	If Activo Then Return DESBLOQUEO_ACTIVADO
 	Return DESBLOQUEO_DESACTIVADO
@@ -386,9 +383,47 @@ Public Sub ClaveCorta (Largo As Int) As String
 	Return CLAVE_CORTA.Replace("$1", Largo)
 End Sub
 
-Public Sub RolVisible (Rol As String) As String
-	If Rol = "" Then Return ""
-	Return Rol.SubString2(0, 1).ToUpperCase & Rol.SubString(1)
+Public Sub SyncErrores (Cantidad As Int) As String
+	Return SYNC_ERRORES.Replace("$1", Cantidad)
+End Sub
+
+Public Sub TituloErrorSync (Entidad As String, Asunto As String) As String
+	Select Entidad
+		Case "cliente"
+			Return SYNC_ERROR_CLIENTE.Replace("$1", Asunto)
+		Case "solicitud"
+			Return SYNC_ERROR_SOLICITUD.Replace("$1", Asunto)
+		Case Else
+			Return SYNC_ERROR_FOTO.Replace("$1", Asunto)
+	End Select
+End Sub
+
+Public Sub ResultadoSync (Resultado As String) As String
+	Select Resultado
+		Case DbSync.RESULTADO_EXITOSA
+			Return RESULTADO_EXITOSA
+		Case DbSync.RESULTADO_PARCIAL
+			Return RESULTADO_PARCIAL
+		Case DbSync.RESULTADO_SESION
+			Return RESULTADO_SESION
+		Case Else
+			Return RESULTADO_SIN_CONEXION
+	End Select
+End Sub
+
+Public Sub DetalleIntento (Subidos As Int, ConError As Int, Pendientes As Int) As String
+	Dim partes As List
+	partes.Initialize
+	partes.Add(INTENTO_SUBIDOS.Replace("$1", Subidos))
+	If ConError > 0 Then partes.Add(INTENTO_ERRORES.Replace("$1", ConError))
+	If Pendientes > 0 Then partes.Add(INTENTO_PENDIENTES.Replace("$1", Pendientes))
+	Dim sb As StringBuilder
+	sb.Initialize
+	For Each p As String In partes
+		If sb.Length > 0 Then sb.Append(" · ")
+		sb.Append(p)
+	Next
+	Return sb.ToString
 End Sub
 
 Public Sub UbicacionCapturada (Metros As Int) As String

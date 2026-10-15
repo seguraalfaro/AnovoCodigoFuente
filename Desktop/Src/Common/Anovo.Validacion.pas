@@ -18,9 +18,6 @@ type
     class function Identificacion(const ATipo: TTipoIdentificacion;
       const ATexto: string): Boolean; static;
     class function Texto(const ATexto: string): Boolean; static;
-    class function TextoMinimo(const ATexto: string;
-      const AMinimo: Integer): Boolean; static;
-    class function AlgunoConValor(const A, B: string): Boolean; static;
     class function Normalizar(const ATexto: string): string; static;
   end;
 
@@ -119,17 +116,6 @@ begin
   lTexto := Trim(ATexto);
   Result := (Length(lTexto) >= LARGO_MINIMO_TEXTO) and
     (ProporcionVocales(lTexto) >= VOCALES_MINIMO);
-end;
-
-class function TValidacion.TextoMinimo(const ATexto: string;
-  const AMinimo: Integer): Boolean;
-begin
-  Result := Length(Trim(ATexto)) >= AMinimo;
-end;
-
-class function TValidacion.AlgunoConValor(const A, B: string): Boolean;
-begin
-  Result := (Trim(A) <> '') or (Trim(B) <> '');
 end;
 
 end.

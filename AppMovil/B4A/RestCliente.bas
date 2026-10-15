@@ -57,11 +57,6 @@ Public Sub AddPathParam (Nombre As String, Valor As String) As RestCliente
 	Return Me
 End Sub
 
-Public Sub AddQueryStringParam (Nombre As String, Valor As String) As RestCliente
-	mConsulta.Add(Array As String(Nombre, Valor))
-	Return Me
-End Sub
-
 Public Sub AddBody (Cuerpo As Object) As RestCliente
 	Dim generador As JSONGenerator
 	If Cuerpo Is Map Then

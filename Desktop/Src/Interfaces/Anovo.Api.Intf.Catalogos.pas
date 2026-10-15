@@ -16,7 +16,6 @@ type
     function BuscarMateriales(const ATexto: string;
       const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
       out ATotal: Int64): TObjectList<TMaterialDTO>;
-    function ObtenerMaterial(const AId: Integer): TMaterialDTO;
     function CrearMaterial(const ADto: TMaterialNuevoDTO): Integer;
     procedure ActualizarMaterial(const AId: Integer;
       const ADto: TMaterialEdicionDTO);
@@ -30,7 +29,6 @@ type
       const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
       const ACategoriaId: Integer; out ATotal: Int64)
       : TObjectList<TManoObraDTO>;
-    function ObtenerManoObra(const AId: Integer): TManoObraDTO;
     function CrearManoObra(const ADto: TManoObraNuevaDTO): Integer;
     procedure ActualizarManoObra(const AId: Integer;
       const ADto: TManoObraEdicionDTO);
@@ -50,7 +48,6 @@ type
     function BuscarMaquinas(const ATexto: string;
       const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
       out ATotal: Int64): TObjectList<TMaquinaDTO>;
-    function ObtenerMaquina(const AId: Integer): TMaquinaDTO;
     function CrearMaquina(const ADto: TMaquinaNuevaDTO): Integer;
     procedure ActualizarMaquina(const AId: Integer;
       const ADto: TMaquinaEdicionDTO);

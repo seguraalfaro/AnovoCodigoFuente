@@ -25,26 +25,16 @@ Version=13.7
 'un color de la paleta no puede cambiarse por accidente en tiempo de ejecución.
 
 Sub Process_Globals
-	'--- Paleta base (nombres tal como aparecen en la Figura 25) ---
-	Public Const AZUL_INSTITUCIONAL As Int = 0xFF1A3A5C
-	Public Const AZUL_SECUNDARIO    As Int = 0xFF2960A0
-	Public Const AZUL_CLARO         As Int = 0xFFD0DCE8
-	Public Const VERDE_EXITO        As Int = 0xFF22C55E
-	Public Const AMBAR              As Int = 0xFFF59E0B
-	Public Const ROJO_ERROR         As Int = 0xFFEF4444
-
 	'--- Roles funcionales — usar estos en el código, no los de arriba ---
 	Public Const COLOR_PRIMARIO            As Int = 0xFF1A3A5C   'barras, encabezados, botón de acción principal
 	Public COLOR_PRIMARIO_CLARO  As Int = 0xFF2E5C8A   'presionado de botones sólidos
 	Public COLOR_PRIMARIO_TENUE  As Int = 0xFFD6E4F5   'fondo de iconos
 	Public COLOR_PRIMARIO_SUAVE  As Int = 0xFFB8D0EC   'presionado de iconos
 	Public Const COLOR_MEDIO               As Int = 0xFF2960A0   'iconos activos, borde de campo con foco, enlaces
-	Public Const COLOR_FONDO_SUAVE         As Int = 0xFFD0DCE8   'fondos de sección, chips inactivos, separadores
 	Public Const COLOR_APROBADA            As Int = 0xFF22C55E   'cotizaciones aprobadas
 	Public Const COLOR_BORRADOR_PENDIENTE  As Int = 0xFFF59E0B   'borradores y pendientes
 	Public Const COLOR_RECHAZADA_ERROR     As Int = 0xFFEF4444   'rechazadas y errores de sincronización
 	Public COLOR_ERROR As Int = 0xFFB3261E
-	Public COLOR_PRIMARIO_CLARO As Int = 0xFF2E5C8A
 	Public COLOR_ERROR_CLARO    As Int = 0xFFD14A42
 	Public COLOR_ADVERTENCIA       As Int = 0xFFBA7517
 	Public COLOR_ADVERTENCIA_TENUE As Int = 0xFFFAEEDA
@@ -90,17 +80,6 @@ Public Sub FondoPastilla (Estado As String) As Int
 	End Select
 End Sub
 
-Public Sub ColorDeSync (Estado As String) As Int
-	Select Estado
-		Case DbSync.ESTADO_ERROR
-			Return COLOR_ERROR
-		Case DbSync.ESTADO_PENDIENTE
-			Return COLOR_ADVERTENCIA
-		Case Else
-			Return COLOR_MEDIO
-	End Select
-End Sub
-
 'Etiqueta de estado -> color, para pintar chips en listas de cotizaciones.
 'Uso: Colores.ColorDeEstado("aprobada")
 Public Sub ColorDeEstado (Estado As String) As Int
@@ -119,13 +98,6 @@ Public Sub ColorDeEstado (Estado As String) As Int
 			Log("Colores.ColorDeEstado: estado desconocido -> " & Estado)
 			Return COLOR_TEXTO_SECUNDARIO
 	End Select
-End Sub
-
-'True si el estado se pinta con un color provisional, pendiente de confirmar
-'con Anovo. La interfaz lo usa para agregar el borde rojo que lo marca como tal.
-'Sin esto, el marcado dependía de que alguien recordara el comentario.
-Public Sub EsProvisional (Estado As String) As Boolean
-	Return Estado = "en_revision_provisional"
 End Sub
 
 'Color de un valor numérico en resúmenes: apagado cuando es cero, para que se

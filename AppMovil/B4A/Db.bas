@@ -37,12 +37,6 @@ Public Sub BorrarBorrador (Tipo As String)
 	If kvsBorradores.ContainsKey(Tipo) Then kvsBorradores.Remove(Tipo)
 End Sub
 
-Public Sub BorrarTodosLosBorradores      ' para el cierre de sesión
-	kvsBorradores.Initialize(File.DirInternal, "borradores.dat")
-	For Each k As String In kvsBorradores.ListKeys
-		kvsBorradores.Remove(k)
-	Next
-End Sub
 #End Region
 
 #Region Utilidades comunes
@@ -63,18 +57,6 @@ Public Sub Encolar (Entidad As String, Uuid As String)
 	EncolarVarios(Entidad, uno)
 End Sub
 
-'Igual, pero tomando el uuid_local de las propias filas que acabas de insertar.
-'Sirve para contactos, adjuntos, medidas... cualquier entidad.
-Public Sub EncolarFilas (Entidad As String, Filas As List)
-	If Filas.IsInitialized = False Or Filas.Size = 0 Then Return
-	Dim uuids As List
-	uuids.Initialize
-	For Each f As Map In Filas
-		uuids.Add(f.Get("uuid_local"))
-	Next
-	EncolarVarios(Entidad, uuids)
-End Sub
-
 'Varias filas de la misma entidad en una sola pasada.
 'Usa InsertMapsIn (sin transaccion propia) para poder ir dentro de la
 'transaccion del alta y revertirse con ella si algo falla.
@@ -89,10 +71,6 @@ Public Sub EncolarVarios (Entidad As String, Uuids As List)
 	extDBUtils.InsertMapsIn(DbSQL, "cola_sync", filas)
 End Sub
 
-'Cuantas filas quedan sin enviar (para el indicador de la pantalla de inicio).
-Public Sub PendientesDeSync As Int
-	Return DbSQL.ExecQuerySingleResult("SELECT count(*) FROM cola_sync")
-End Sub
 'Solo depuracion: copia la base a Descargas, donde el explorador del propio
 'tablet la ve. Requiere el permiso de escritura ya concedido.
 'Devuelve la ruta completa, o "" si fallo.

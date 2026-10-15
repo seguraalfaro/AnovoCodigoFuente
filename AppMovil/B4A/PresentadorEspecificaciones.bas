@@ -227,6 +227,9 @@ End Sub
 
 Public Sub ArmarPieza (NombrePieza As String, Croquis As String, MedidasCroquis As List) As Resultado
 	If NombrePieza.Trim = "" Then Return Tipos.Falla(Mensajes.FALTA_NOMBRE_PIEZA)
+	If mTrabajoId <= 0 Then Return Tipos.Falla(Mensajes.FALTA_TIPO_TRABAJO)
+	If mMaterialId <= 0 Then Return Tipos.Falla(Mensajes.FALTA_MATERIAL)
+	If mAcabadoId <= 0 Then Return Tipos.Falla(Mensajes.FALTA_ACABADO)
 	Dim p As Pieza = Tipos.PiezaVacia
 	p.UuidLocal = mUuid
 	p.Nombre = NombrePieza.Trim

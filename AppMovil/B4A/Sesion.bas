@@ -72,10 +72,6 @@ Public Sub AbrirLocal (p As PerfilLocal)
 	DebeCambiarClave = False
 End Sub
 
-Public Sub Vigente As Boolean
-	Return Iniciada And DateTime.Now < mVence
-End Sub
-
 Public Sub VigentePor (Segundos As Int) As Boolean
 	Return Iniciada And DateTime.Now + Segundos * DateTime.TicksPerSecond < mVence
 End Sub
