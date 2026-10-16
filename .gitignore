@@ -59,3 +59,6 @@ desktop.ini
 # ============ NOTA ============
 # SI se versionan: .dpr .dproj .pas .dfm .b4a, la carpeta Files/ de B4A
 # (contiene los layouts .bal) y toda la carpeta db/ con los scripts SQL.
+
+# ============ PRUEBAS ============
+/Tests/bin/
