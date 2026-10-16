@@ -87,7 +87,7 @@ begin
   if AAsesorId > 0 then
     Result := Result + COTIZACIONES_DEL_ASESOR;
   if (ADesde > 0) and (AHasta > 0) then
-    Result := Result + COTIZACIONES_ENTRE_FECHAS;
+    Result := Result + COTIZACIONES_EN_PERIODO;
 end;
 
 function TCotizacionRepository.Parametros(const ATexto, AEstado: string;

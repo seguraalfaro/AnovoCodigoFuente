@@ -897,6 +897,7 @@ resourcestring
   SDetalleAdjuntoInactivado = 'Adjunto inactivado en la solicitud %d';
 
   SAccionAbrir = 'Abrir';
+  SAccionVerCotizacion = 'Ver cotizaci'#243'n';
   SAccionEnviarCotizacion = 'enviar la cotización';
   SAccionPresentarCotizacion = 'presentar la cotización';
   SAccionCargarCotizaciones = 'cargar las cotizaciones';

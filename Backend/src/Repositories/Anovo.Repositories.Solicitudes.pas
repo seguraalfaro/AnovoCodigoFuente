@@ -96,7 +96,7 @@ begin
   if AEstado <> '' then
     Result := Result + SOLICITUDES_POR_ESTADO;
   if (ADesde > 0) and (AHasta > 0) then
-    Result := Result + SOLICITUDES_ENTRE_FECHAS;
+    Result := Result + SOLICITUDES_EN_PERIODO;
 end;
 
 function TSolicitudRepository.Parametros(const ATexto: string;

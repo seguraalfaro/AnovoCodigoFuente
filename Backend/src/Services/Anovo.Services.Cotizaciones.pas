@@ -133,6 +133,7 @@ uses
   Anovo.Entities.Consultas,
   Anovo.Errors,
   Anovo.Mapeo,
+  Anovo.Periodo,
   Anovo.Permisos,
   Anovo.Textos;
 
@@ -458,6 +459,7 @@ function TCotizacionService.Buscar(const ATexto, AEstado: string;
   out ATotal: Int64): TObjectList<TCotizacionDTO>;
 var
   lFiltroUsuario: Integer;
+  lPeriodo: TPeriodo;
   lFilas: TObjectList<TCotizaciones>;
   lFila: TCotizaciones;
 begin
@@ -466,12 +468,13 @@ begin
     lFiltroUsuario := 0
   else
     lFiltroUsuario := AUsuarioId;
+  lPeriodo := TPeriodo.De(ADesde, AHasta);
 
   ATotal := fRepo.ContarBusqueda(ATexto, AEstado, AClienteId, lFiltroUsuario,
-    ADesde, AHasta);
+    lPeriodo.Inicio, lPeriodo.Fin);
 
   lFilas := fRepo.Buscar(ATexto, APagina, APorPagina, AEstado, AClienteId,
-    lFiltroUsuario, ADesde, AHasta);
+    lFiltroUsuario, lPeriodo.Inicio, lPeriodo.Fin);
   try
     Result := TObjectList<TCotizacionDTO>.Create(True);
     for lFila in lFilas do

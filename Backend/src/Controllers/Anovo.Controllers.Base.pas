@@ -17,7 +17,6 @@ type
     function Roles: TArray<string>;
     function ComoFecha(const ATexto: string;
       const APorDefecto: TDateTime = 0): TDateTime;
-    function HastaFinDelDia(const AFecha: TDateTime): TDateTime;
     function ComoFechaHora(const ATexto: string): NullableTDateTime;
   end;
 
@@ -64,13 +63,6 @@ begin
   lFormato.ShortDateFormat := FORMATO_FECHA;
   if not TryStrToDate(ATexto.Trim, Result, lFormato) then
     raise EDatoInvalido.Create(Format(SFechaInvalida, [ATexto]));
-end;
-
-function TControllerBase.HastaFinDelDia(const AFecha: TDateTime): TDateTime;
-begin
-  Result := AFecha;
-  if AFecha > 0 then
-    Result := Trunc(AFecha) + 1 - (1 / SecsPerDay);
 end;
 
 function TControllerBase.ComoFechaHora(const ATexto: string)

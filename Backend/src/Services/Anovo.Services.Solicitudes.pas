@@ -132,14 +132,12 @@ uses
   Anovo.Entities.Clientes,
   Anovo.Errors,
   Anovo.Mapeo,
+  Anovo.Periodo,
   Anovo.Permisos,
   Anovo.Textos,
   System.DateUtils,
   Anovo.Entities.Vistas.Lectura,
   Anovo.Entities.Consultas;
-
-const
-  FECHA_SIN_LIMITE_INICIO = 36526;
 
 constructor TSolicitudService.Create(ARepo: ISolicitudRepository;
   APiezas: ISolicitudPiezaRepository; AMedidas: ISolicitudMedidaRepository;
@@ -359,6 +357,7 @@ function TSolicitudService.Buscar(const ATexto, AEstado: string;
   : TObjectList<TSolicitudDTO>;
 var
   lFiltroAsesor: Integer;
+  lPeriodo: TPeriodo;
   lFilas: TObjectList<TSolicitudes>;
   lFila: TSolicitudes;
 begin
@@ -367,12 +366,13 @@ begin
     lFiltroAsesor := 0
   else
     lFiltroAsesor := AAsesorId;
+  lPeriodo := TPeriodo.De(ADesde, AHasta);
 
   ATotal := fRepo.ContarBusqueda(ATexto, lFiltroAsesor, AEstado,
-    ADesde, AHasta);
+    lPeriodo.Inicio, lPeriodo.Fin);
 
   lFilas := fRepo.Buscar(ATexto, APagina, APorPagina, lFiltroAsesor,
-    AEstado, ADesde, AHasta);
+    AEstado, lPeriodo.Inicio, lPeriodo.Fin);
   try
     Result := TObjectList<TSolicitudDTO>.Create(True);
     for lFila in lFilas do
@@ -943,23 +943,12 @@ function TSolicitudService.Seguimiento(const AAsesorId: Integer;
   out ATotal: Int64): TObjectList<TSolicitudAsesorDTO>;
 var
   lFilas: TObjectList<TSeguimientoAsesor>;
+  lPeriodo: TPeriodo;
 begin
-  ADesde := 0;
-  AHasta := 0;
-  if (AFiltroDesde > 0) and (AFiltroHasta > 0) and
-    (Trunc(AFiltroDesde) > Trunc(AFiltroHasta)) then
-    raise EDatoInvalido.Create(SPeriodoInvertido);
-
-  if (AFiltroDesde > 0) or (AFiltroHasta > 0) then
-  begin
-    ADesde := FECHA_SIN_LIMITE_INICIO;
-    if AFiltroDesde > 0 then
-      ADesde := Trunc(AFiltroDesde);
-    AHasta := IncYear(Date);
-    if AFiltroHasta > 0 then
-      AHasta := Trunc(AFiltroHasta) + 1;
-  end
-  else if ASoloMes then
+  lPeriodo := TPeriodo.De(AFiltroDesde, AFiltroHasta);
+  ADesde := lPeriodo.Inicio;
+  AHasta := lPeriodo.Fin;
+  if not lPeriodo.Activo and ASoloMes then
   begin
     ADesde := StartOfTheMonth(Date);
     AHasta := IncMonth(ADesde, 1);

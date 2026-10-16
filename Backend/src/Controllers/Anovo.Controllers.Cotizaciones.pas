@@ -169,10 +169,13 @@ type
 
     [MVCPath('/($AId)/documento')]
     [MVCHTTPMethods([httpGET])]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR + SEPARADOR_PERMISOS +
+      PERMISO_COTIZACIONES_APROBAR)]
     [MVCSwagSummary('Cotizaciones', 'Datos del documento que se envia al ' +
       'cliente: encabezado de la empresa, cliente, condiciones y totales',
       'obtenerDocumento')]
     [MVCSwagResponses(200, 'El documento de la cotizacion')]
+    [MVCSwagResponses(403, 'Solo quien elabora o aprueba cotizaciones')]
     [MVCSwagResponses(404, 'No existe o no es de las solicitudes del asesor')]
     function Documento([MVCInject] AServicio: ICotizacionDocumentoService;
       const AId: Integer): IMVCResponse;
@@ -286,16 +289,13 @@ function TCotizacionesController.Listar(AServicio: ICotizacionService;
 var
   lTotal: Int64;
   lPagina, lPorPagina: Integer;
-  lHasta: TDateTime;
   lDatos: TObjectList<TCotizacionDTO>;
 begin
   lPagina := Max(APagina, 1);
   lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
 
-  lHasta := HastaFinDelDia(ComoFecha(AHasta));
-
   lDatos := AServicio.Buscar(ABusqueda, AEstado, AClienteId,
-    ComoFecha(ADesde), lHasta, Roles, UsuarioId,
+    ComoFecha(ADesde), ComoFecha(AHasta), Roles, UsuarioId,
     lPagina, lPorPagina, lTotal);
 
   Result := TCotizacionesPaginaDTO.Create(lDatos, lTotal, lPagina, lPorPagina);

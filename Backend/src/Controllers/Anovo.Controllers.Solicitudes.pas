@@ -288,15 +288,13 @@ function TSolicitudesController.Listar(AServicio: ISolicitudService;
 var
   lTotal: Int64;
   lPagina, lPorPagina: Integer;
-  lHasta: TDateTime;
   lDatos: TObjectList<TSolicitudDTO>;
 begin
   lPagina := Max(APagina, 1);
   lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
 
-  lHasta := HastaFinDelDia(ComoFecha(AHasta));
-
-  lDatos := AServicio.Buscar(ABusqueda, AEstado, ComoFecha(ADesde), lHasta,
+  lDatos := AServicio.Buscar(ABusqueda, AEstado, ComoFecha(ADesde),
+    ComoFecha(AHasta),
     Roles, UsuarioId, lPagina, lPorPagina, lTotal);
 
   Result := TSolicitudesPaginaDTO.Create(lDatos, lTotal, lPagina, lPorPagina);
