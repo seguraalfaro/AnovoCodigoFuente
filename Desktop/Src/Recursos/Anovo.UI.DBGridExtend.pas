@@ -6,7 +6,7 @@ unit Anovo.UI.DBGridExtend;
 interface
 
 uses
-  System.Types, System.Classes, Vcl.Controls, Vcl.Forms, Vcl.Graphics,
+  Winapi.Messages, System.Types, System.Classes, Vcl.Controls, Vcl.Forms, Vcl.Graphics,
   Vcl.Grids, Vcl.DBGrids, rDBGrid, VclPlano.Paleta;
 
 const
@@ -48,6 +48,9 @@ type
     FCeldaAnterior: TDrawColumnCellEvent;
     FUpAnterior: TMouseEvent;
     FMoveAnterior: TMouseMoveEvent;
+    FVentanaAnterior: TWndMethod;
+    FAjusteAutomatico: Boolean;
+    FAjustePendiente: Boolean;
     FTopHover: Integer;
     FCoordHover: TGridCoord;
     FBotonHover: Integer;
@@ -70,8 +73,10 @@ type
     procedure Pulsar(Sender: TObject; AButton: TMouseButton;
       AShift: TShiftState; AX, AY: Integer);
     procedure Mover(Sender: TObject; AShift: TShiftState; AX, AY: Integer);
+    procedure Ventana(var AMensaje: TMessage);
   public
     constructor Crear(AGrid: TrDBGrid);
+    destructor Destroy; override;
 
     class function De(AGrid: TrDBGrid): TDBGridExtend;
 
@@ -88,6 +93,8 @@ type
     procedure AjustarColumnas;
 
     property CampoAcciones: string read FCampoAcciones;
+    property AjusteAutomatico: Boolean read FAjusteAutomatico
+      write FAjusteAutomatico;
     property OnAccion: TEventoAccion read FOnAccion write FOnAccion;
   end;
 
@@ -106,6 +113,7 @@ const
   SEPARACION_BOTONES = 6;
   RESPIRO_TITULO = 4;
   DESBORDE_TITULO = 3;
+  WM_AJUSTAR_ANCHOS = WM_USER + 401;
 
 type
   TRejillaAbierta = class(TrDBGrid);
@@ -157,6 +165,36 @@ begin
   FGrid.OnDrawColumnCellEnd := DibujarCelda;
   FGrid.OnMouseUp := Pulsar;
   FGrid.OnMouseMove := Mover;
+  FVentanaAnterior := FGrid.WindowProc;
+  FGrid.WindowProc := Ventana;
+end;
+
+destructor TDBGridExtend.Destroy;
+begin
+  if Assigned(FGrid) then
+    FGrid.WindowProc := FVentanaAnterior;
+  inherited;
+end;
+
+procedure TDBGridExtend.Ventana(var AMensaje: TMessage);
+begin
+  if AMensaje.Msg = WM_AJUSTAR_ANCHOS then
+  begin
+    FAjustePendiente := False;
+    if FAjusteAutomatico and FGrid.Showing and (FGrid.DataSource <> nil) and
+      (FGrid.DataSource.DataSet <> nil) and FGrid.DataSource.DataSet.Active then
+      Anovo.UI.DBGridExtend.AjustarAnchos(FGrid);
+    Exit;
+  end;
+  FVentanaAnterior(AMensaje);
+  if AMensaje.Msg = WM_DESTROY then
+    FAjustePendiente := False
+  else if (AMensaje.Msg = WM_SIZE) and FAjusteAutomatico and not FAjustePendiente and
+    FGrid.HandleAllocated then
+  begin
+    FAjustePendiente := True;
+    PostMessage(FGrid.Handle, WM_AJUSTAR_ANCHOS, 0, 0);
+  end;
 end;
 
 class function TDBGridExtend.De(AGrid: TrDBGrid): TDBGridExtend;
@@ -413,6 +451,9 @@ begin
 
   for I := 0 to High(FAcciones) do
   begin
+    lRotulo := RotuloDe(I);
+    if lRotulo = '' then
+      Continue;
     lBoton := RectDeBoton(ARect, I);
     if lBoton.Right > ARect.Right then
       Break;
@@ -432,7 +473,6 @@ begin
 
     FGrid.Canvas.Brush.Style := bsClear;
     FGrid.Canvas.Font.Color := lTexto;
-    lRotulo := RotuloDe(I);
     FGrid.Canvas.TextRect(lBoton, lRotulo,
       [tfCenter, tfVerticalCenter, tfSingleLine]);
     FGrid.Canvas.Brush.Style := bsSolid;
@@ -539,7 +579,7 @@ begin
   FuenteDeCelda(FGrid.Canvas, FGrid.Font);
 
   for I := 0 to High(FAcciones) do
-    if PtInRect(RectDeBoton(lCelda, I), Point(AX, AY)) then
+    if (RotuloDe(I) <> '') and PtInRect(RectDeBoton(lCelda, I), Point(AX, AY)) then
     begin
       Result := I;
       ATop := lCelda.Top;
@@ -704,6 +744,7 @@ begin
       Inc(lTotal, AGrid.Columns[I].Width);
   if lTotal <= AGrid.ClientWidth then
     AGrid.ColumnWidth := cwAutoWidth;
+  TDBGridExtend.De(AGrid).AjusteAutomatico := True;
 end;
 
 procedure AjustarColumnas(AGrid: TrDBGrid);

@@ -113,6 +113,8 @@ begin
     FTextoSoloTotal);
   pnclient.Visible := ATotal > 0;
   pnlSinRegistros.Visible := ATotal = 0;
+  if pnclient.Visible then
+    TDBGridExtend.De(grDatos).AjustarColumnas;
   lblSinRegistros.Caption := FTextoSinRegistros;
 end;
 

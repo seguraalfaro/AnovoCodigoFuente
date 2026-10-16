@@ -291,7 +291,9 @@ begin
     lGuarda.Free;
   end;
   TDBGridExtend.De(FGrid).AjustarAcciones;
-  if not Archivo.ReadBool(Seccion, CLAVE_ANCHOS_PROPIOS, False) then
+  if Archivo.ReadBool(Seccion, CLAVE_ANCHOS_PROPIOS, False) then
+    TDBGridExtend.De(FGrid).AjusteAutomatico := False
+  else
     AnchoAutomatico;
 end;
 
@@ -378,6 +380,7 @@ begin
     (AnchosActuales <> FAnchosAlPresionar) then
   begin
     FGrid.ColumnWidth := cwNone;
+    TDBGridExtend.De(FGrid).AjusteAutomatico := False;
     GuardarConAnchos(True);
   end;
 end;

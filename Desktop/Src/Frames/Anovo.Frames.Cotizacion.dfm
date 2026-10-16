@@ -730,7 +730,6 @@ object fraCotizacion: TfraCotizacion
             Top = 58
             Width = 218
             Height = 21
-            Anchors = [akLeft, akTop, akRight]
             DataField = 'FORMA_PAGO_ID'
             DataSource = dmMemoria.dsCotizacionEdicion
             DropDownRows = 10
@@ -766,7 +765,6 @@ object fraCotizacion: TfraCotizacion
             Top = 108
             Width = 140
             Height = 21
-            Anchors = [akLeft, akTop, akRight]
             DataField = 'PLAZO_ENTREGA_UNIDAD'
             DataSource = dmMemoria.dsCotizacionEdicion
             DropDownRows = 15
@@ -799,7 +797,6 @@ object fraCotizacion: TfraCotizacion
             Top = 158
             Width = 140
             Height = 21
-            Anchors = [akLeft, akTop, akRight]
             DataField = 'GARANTIA_UNIDAD'
             DataSource = dmMemoria.dsCotizacionEdicion
             DropDownRows = 15
