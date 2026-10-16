@@ -36,7 +36,7 @@ object frmServidor: TfrmServidor
     object lblTitulo: TLabel
       Left = 24
       Top = 14
-      Width = 136
+      Width = 133
       Height = 25
       Caption = 'Servidor Anovo'
       Font.Charset = DEFAULT_CHARSET
@@ -59,7 +59,7 @@ object frmServidor: TfrmServidor
         AlignWithMargins = True
         Left = 3
         Top = 3
-        Width = 120
+        Width = 114
         Height = 24
         Margins.Right = 8
         Status = fsDanger
@@ -73,9 +73,9 @@ object frmServidor: TfrmServidor
       end
       object pasTunel: TPlanoPastilla
         AlignWithMargins = True
-        Left = 134
+        Left = 128
         Top = 3
-        Width = 120
+        Width = 100
         Height = 24
         Margins.Right = 8
         Caption = 'T'#250'nel detenido'
@@ -88,9 +88,9 @@ object frmServidor: TfrmServidor
       end
       object pasCorreo: TPlanoPastilla
         AlignWithMargins = True
-        Left = 265
+        Left = 239
         Top = 3
-        Width = 140
+        Width = 131
         Height = 24
         Margins.Right = 8
         Caption = 'Correo sin configurar'
@@ -107,10 +107,12 @@ object frmServidor: TfrmServidor
       Top = 28
       Width = 100
       Height = 34
+      Cursor = crHandPoint
       Anchors = [akTop, akRight]
       Caption = 'Detener'
       Enabled = False
       TabOrder = 1
+      StyleElements = []
       OnClick = btnDetenerClick
       Kind = fkSecondary
     end
@@ -119,10 +121,12 @@ object frmServidor: TfrmServidor
       Top = 28
       Width = 100
       Height = 34
+      Cursor = crHandPoint
       Anchors = [akTop, akRight]
       Caption = 'Iniciar'
       Default = True
       TabOrder = 2
+      StyleElements = []
       OnClick = btnIniciarClick
     end
   end
@@ -179,15 +183,15 @@ object frmServidor: TfrmServidor
     TabOrder = 1
     object tjPeticiones: TPlanoTarjeta
       AlignWithMargins = True
-      Left = 24
-      Top = 15
-      Width = 251
-      Height = 94
+      Left = 40
+      Top = 27
+      Width = 219
+      Height = 82
       Margins.Left = 8
       Margins.Right = 8
-      Align = alClient
       TitleHeight = 30
       Caption = 'Peticiones'
+      Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = 7500395
       Font.Height = -12
@@ -198,8 +202,8 @@ object frmServidor: TfrmServidor
       object lblPeticiones: TLabel
         Left = 16
         Top = 28
-        Width = 13
-        Height = 35
+        Width = 14
+        Height = 36
         Caption = '0'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = 1973276
@@ -212,8 +216,8 @@ object frmServidor: TfrmServidor
       object lblPeticionesNota: TLabel
         Left = 16
         Top = 66
-        Width = 94
-        Height = 15
+        Width = 91
+        Height = 13
         Caption = 'servidor detenido'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = 7500395
@@ -226,15 +230,15 @@ object frmServidor: TfrmServidor
     end
     object tjErrores: TPlanoTarjeta
       AlignWithMargins = True
-      Left = 291
-      Top = 15
-      Width = 251
-      Height = 94
+      Left = 307
+      Top = 27
+      Width = 219
+      Height = 82
       Margins.Left = 8
       Margins.Right = 8
-      Align = alClient
       TitleHeight = 30
       Caption = 'Errores'
+      Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = 7500395
       Font.Height = -12
@@ -245,8 +249,8 @@ object frmServidor: TfrmServidor
       object lblErrores: TLabel
         Left = 16
         Top = 28
-        Width = 13
-        Height = 35
+        Width = 14
+        Height = 36
         Caption = '0'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = 1973276
@@ -259,8 +263,8 @@ object frmServidor: TfrmServidor
       object lblErroresNota: TLabel
         Left = 16
         Top = 66
-        Width = 103
-        Height = 15
+        Width = 96
+        Height = 13
         Caption = '0 en la '#250'ltima hora'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = 7500395
@@ -273,17 +277,17 @@ object frmServidor: TfrmServidor
     end
     object tjPermisos: TPlanoTarjeta
       AlignWithMargins = True
-      Left = 558
-      Top = 15
-      Width = 251
-      Height = 94
+      Left = 574
+      Top = 27
+      Width = 219
+      Height = 82
       Cursor = crHandPoint
       Hint = 'Clic para invalidar la cach'#233' de permisos'
       Margins.Left = 8
       Margins.Right = 8
-      Align = alClient
       TitleHeight = 30
       Caption = 'Permisos'
+      Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = 7500395
       Font.Height = -12
@@ -297,8 +301,8 @@ object frmServidor: TfrmServidor
       object lblPermisos: TLabel
         Left = 16
         Top = 28
-        Width = 112
-        Height = 35
+        Width = 119
+        Height = 36
         Cursor = crHandPoint
         Caption = 'Sin cargar'
         Font.Charset = DEFAULT_CHARSET
@@ -313,8 +317,8 @@ object frmServidor: TfrmServidor
       object lblPermisosNota: TLabel
         Left = 16
         Top = 66
-        Width = 103
-        Height = 15
+        Width = 91
+        Height = 13
         Cursor = crHandPoint
         Caption = 'Clic para invalidar'
         Font.Charset = DEFAULT_CHARSET
@@ -329,15 +333,15 @@ object frmServidor: TfrmServidor
     end
     object tjActivo: TPlanoTarjeta
       AlignWithMargins = True
-      Left = 825
-      Top = 15
-      Width = 251
-      Height = 94
+      Left = 841
+      Top = 27
+      Width = 219
+      Height = 82
       Margins.Left = 8
       Margins.Right = 8
-      Align = alClient
       TitleHeight = 30
       Caption = 'Activo desde'
+      Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = 7500395
       Font.Height = -12
@@ -348,8 +352,8 @@ object frmServidor: TfrmServidor
       object lblActivo: TLabel
         Left = 16
         Top = 28
-        Width = 13
-        Height = 35
+        Width = 10
+        Height = 36
         Caption = '-'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = 1973276
@@ -362,8 +366,8 @@ object frmServidor: TfrmServidor
       object lblActivoNota: TLabel
         Left = 16
         Top = 66
-        Width = 94
-        Height = 15
+        Width = 91
+        Height = 13
         Caption = 'servidor detenido'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = 7500395
@@ -408,9 +412,9 @@ object frmServidor: TfrmServidor
   object cpSecciones: TCardPanel
     AlignWithMargins = True
     Left = 16
-    Top = 268
+    Top = 256
     Width = 1068
-    Height = 456
+    Height = 468
     Margins.Left = 16
     Margins.Top = 0
     Margins.Right = 16
@@ -426,7 +430,7 @@ object frmServidor: TfrmServidor
       Left = 0
       Top = 0
       Width = 1068
-      Height = 456
+      Height = 468
       Caption = 'Registro'
       CardIndex = 0
       Color = clWhite
@@ -437,7 +441,7 @@ object frmServidor: TfrmServidor
         Left = 12
         Top = 12
         Width = 1044
-        Height = 432
+        Height = 444
         Margins.Left = 12
         Margins.Top = 12
         Margins.Right = 12
@@ -460,7 +464,7 @@ object frmServidor: TfrmServidor
       Left = 0
       Top = 0
       Width = 1068
-      Height = 456
+      Height = 468
       Caption = 'Actividad'
       CardIndex = 1
       Color = clWhite
@@ -494,15 +498,15 @@ object frmServidor: TfrmServidor
         ActiveFont.Height = -12
         ActiveFont.Name = 'Segoe UI Semibold'
         ActiveFont.Style = []
-        ParentFont = False
         OnChange = pstFiltroChange
+        ParentFont = False
       end
       object grActividad: TrDBGrid
         AlignWithMargins = True
         Left = 12
         Top = 52
         Width = 1044
-        Height = 392
+        Height = 404
         Margins.Left = 12
         Margins.Top = 4
         Margins.Right = 12
@@ -510,7 +514,7 @@ object frmServidor: TfrmServidor
         Align = alClient
         TabOrder = 1
         TitleFont.Charset = DEFAULT_CHARSET
-        TitleFont.Color = clWindowText
+        TitleFont.Color = 1973276
         TitleFont.Height = -12
         TitleFont.Name = 'Segoe UI'
         TitleFont.Style = []
@@ -565,7 +569,7 @@ object frmServidor: TfrmServidor
       Left = 0
       Top = 0
       Width = 1068
-      Height = 456
+      Height = 468
       Caption = 'Errores'
       CardIndex = 2
       Color = clWhite
@@ -576,7 +580,7 @@ object frmServidor: TfrmServidor
         Left = 12
         Top = 12
         Width = 1044
-        Height = 432
+        Height = 444
         Margins.Left = 12
         Margins.Top = 12
         Margins.Right = 12
@@ -584,7 +588,7 @@ object frmServidor: TfrmServidor
         Align = alClient
         TabOrder = 0
         TitleFont.Charset = DEFAULT_CHARSET
-        TitleFont.Color = clWindowText
+        TitleFont.Color = 1973276
         TitleFont.Height = -12
         TitleFont.Name = 'Segoe UI'
         TitleFont.Style = []
@@ -639,12 +643,13 @@ object frmServidor: TfrmServidor
       Left = 0
       Top = 0
       Width = 1068
-      Height = 456
+      Height = 468
       Caption = 'T'#250'nel'
       CardIndex = 3
       Color = clWhite
       ParentBackground = False
       TabOrder = 3
+      ExplicitHeight = 456
       object pnlTunelBarra: TPanel
         Left = 0
         Top = 0
@@ -661,7 +666,7 @@ object frmServidor: TfrmServidor
         object lblTunelRuta: TLabel
           Left = 16
           Top = 20
-          Width = 64
+          Width = 60
           Height = 15
           Caption = 'cloudflared'
           Font.Charset = DEFAULT_CHARSET
@@ -676,10 +681,12 @@ object frmServidor: TfrmServidor
           Top = 12
           Width = 126
           Height = 32
+          Cursor = crHandPoint
           Anchors = [akTop, akRight]
           Caption = 'Detener t'#250'nel'
           Enabled = False
           TabOrder = 0
+          StyleElements = []
           OnClick = btnDetenerTunelClick
           Kind = fkSecondary
         end
@@ -688,9 +695,11 @@ object frmServidor: TfrmServidor
           Top = 12
           Width = 126
           Height = 32
+          Cursor = crHandPoint
           Anchors = [akTop, akRight]
           Caption = 'Iniciar t'#250'nel'
           TabOrder = 1
+          StyleElements = []
           OnClick = btnIniciarTunelClick
         end
       end
@@ -699,7 +708,7 @@ object frmServidor: TfrmServidor
         Left = 12
         Top = 56
         Width = 1044
-        Height = 388
+        Height = 400
         Margins.Left = 12
         Margins.Top = 0
         Margins.Right = 12
@@ -724,30 +733,47 @@ object frmServidor: TfrmServidor
       Left = 0
       Top = 0
       Width = 1068
-      Height = 456
+      Height = 468
       Caption = 'Configuraci'#243'n'
       CardIndex = 4
       Color = clWhite
       ParentBackground = False
       TabOrder = 4
+      ExplicitHeight = 456
       object sbConfiguracion: TScrollBox
         Left = 0
         Top = 0
         Width = 1068
-        Height = 456
+        Height = 468
         Align = alClient
         BorderStyle = bsNone
         Color = clWhite
         ParentColor = False
         TabOrder = 0
+        ExplicitHeight = 456
+        object lblNotaConfig: TLabel
+          Left = 16
+          Top = 414
+          Width = 489
+          Height = 15
+          Caption = 
+            'Se guarda en el .env junto al ejecutable. Si el servidor est'#225' co' +
+            'rriendo, se reinicia para aplicarla.'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = 7500395
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+        end
         object tjServidor: TPlanoTarjeta
           Left = 16
           Top = 12
           Width = 500
           Height = 156
-          Caption = 'Servidor'
-          CardColor = 16447477
           BackColor = clWhite
+          CardColor = 16447477
+          Caption = 'Servidor'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = 10510377
           Font.Height = -13
@@ -758,7 +784,7 @@ object frmServidor: TfrmServidor
           object lblBase: TLabel
             Left = 16
             Top = 44
-            Width = 30
+            Width = 27
             Height = 15
             Caption = 'Base:'
             Font.Charset = DEFAULT_CHARSET
@@ -772,7 +798,7 @@ object frmServidor: TfrmServidor
           object lblUsuarioBase: TLabel
             Left = 16
             Top = 70
-            Width = 45
+            Width = 43
             Height = 15
             Caption = 'Usuario:'
             Font.Charset = DEFAULT_CHARSET
@@ -786,7 +812,7 @@ object frmServidor: TfrmServidor
           object lblPuerto: TLabel
             Left = 16
             Top = 96
-            Width = 39
+            Width = 38
             Height = 15
             Caption = 'Puerto:'
             Font.Charset = DEFAULT_CHARSET
@@ -800,7 +826,7 @@ object frmServidor: TfrmServidor
           object lblVersion: TLabel
             Left = 16
             Top = 122
-            Width = 64
+            Width = 62
             Height = 15
             Caption = 'Framework:'
             Font.Charset = DEFAULT_CHARSET
@@ -817,9 +843,9 @@ object frmServidor: TfrmServidor
           Top = 182
           Width = 500
           Height = 212
-          Caption = 'T'#250'nel de Cloudflare'
-          CardColor = 16447477
           BackColor = clWhite
+          CardColor = 16447477
+          Caption = 'T'#250'nel de Cloudflare'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = 10510377
           Font.Height = -13
@@ -832,7 +858,7 @@ object frmServidor: TfrmServidor
             Top = 62
             Width = 466
             Height = 23
-            EditLabel.Width = 141
+            EditLabel.Width = 133
             EditLabel.Height = 15
             EditLabel.Caption = 'Ejecutable de cloudflared'
             EditLabel.Font.Charset = DEFAULT_CHARSET
@@ -855,7 +881,7 @@ object frmServidor: TfrmServidor
             Top = 112
             Width = 466
             Height = 23
-            EditLabel.Width = 290
+            EditLabel.Width = 323
             EditLabel.Height = 15
             EditLabel.Caption = 'Archivo de configuraci'#243'n (vac'#237'o: el de la cuenta de Windows)'
             EditLabel.Font.Charset = DEFAULT_CHARSET
@@ -878,7 +904,7 @@ object frmServidor: TfrmServidor
             Top = 162
             Width = 230
             Height = 23
-            EditLabel.Width = 156
+            EditLabel.Width = 150
             EditLabel.Height = 15
             EditLabel.Caption = 'Nombre del t'#250'nel (opcional)'
             EditLabel.Font.Charset = DEFAULT_CHARSET
@@ -903,12 +929,12 @@ object frmServidor: TfrmServidor
             Height = 19
             Caption = 'Arrancar junto con el servidor'
             Color = 16447477
-            ParentColor = False
             Font.Charset = DEFAULT_CHARSET
             Font.Color = 1973276
             Font.Height = -12
             Font.Name = 'Segoe UI'
             Font.Style = []
+            ParentColor = False
             ParentFont = False
             TabOrder = 3
             OnClick = ConfigCambiada
@@ -919,9 +945,9 @@ object frmServidor: TfrmServidor
           Top = 12
           Width = 500
           Height = 340
-          Caption = 'Correo saliente'
-          CardColor = 16447477
           BackColor = clWhite
+          CardColor = 16447477
+          Caption = 'Correo saliente'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = 10510377
           Font.Height = -13
@@ -932,7 +958,7 @@ object frmServidor: TfrmServidor
           object lblModoCorreo: TLabel
             Left = 16
             Top = 44
-            Width = 31
+            Width = 32
             Height = 15
             Caption = 'Modo'
             Font.Charset = DEFAULT_CHARSET
@@ -946,7 +972,7 @@ object frmServidor: TfrmServidor
           object lblProveedor: TLabel
             Left = 262
             Top = 44
-            Width = 56
+            Width = 54
             Height = 15
             Caption = 'Proveedor'
             Font.Charset = DEFAULT_CHARSET
@@ -1012,7 +1038,7 @@ object frmServidor: TfrmServidor
             Top = 112
             Width = 230
             Height = 23
-            EditLabel.Width = 135
+            EditLabel.Width = 141
             EditLabel.Height = 15
             EditLabel.Caption = 'Cuenta que env'#237'a el correo'
             EditLabel.Font.Charset = DEFAULT_CHARSET
@@ -1058,7 +1084,7 @@ object frmServidor: TfrmServidor
             Top = 162
             Width = 230
             Height = 23
-            EditLabel.Width = 200
+            EditLabel.Width = 187
             EditLabel.Height = 15
             EditLabel.Caption = 'Contrase'#241'a de aplicaci'#243'n (16 letras)'
             EditLabel.Font.Charset = DEFAULT_CHARSET
@@ -1082,7 +1108,7 @@ object frmServidor: TfrmServidor
             Top = 162
             Width = 466
             Height = 23
-            EditLabel.Width = 47
+            EditLabel.Width = 45
             EditLabel.Height = 15
             EditLabel.Caption = 'Client ID'
             EditLabel.Font.Charset = DEFAULT_CHARSET
@@ -1105,7 +1131,7 @@ object frmServidor: TfrmServidor
             Top = 212
             Width = 466
             Height = 23
-            EditLabel.Width = 71
+            EditLabel.Width = 65
             EditLabel.Height = 15
             EditLabel.Caption = 'Client secret'
             EditLabel.Font.Charset = DEFAULT_CHARSET
@@ -1129,34 +1155,23 @@ object frmServidor: TfrmServidor
             Top = 286
             Width = 200
             Height = 32
+            Cursor = crHandPoint
             Caption = 'Autorizar correo'
             TabOrder = 7
+            StyleElements = []
             OnClick = btnAutorizarCorreoClick
           end
-        end
-        object lblNotaConfig: TLabel
-          Left = 16
-          Top = 414
-          Width = 520
-          Height = 15
-          Caption =
-            'Se guarda en el .env junto al ejecutable. Si el servidor est'#225' co' +
-            'rriendo, se reinicia para aplicarla.'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = 7500395
-          Font.Height = -12
-          Font.Name = 'Segoe UI'
-          Font.Style = []
-          ParentFont = False
         end
         object btnGuardarConfig: TPlanoBotonWin
           Left = 900
           Top = 406
           Width = 132
           Height = 32
+          Cursor = crHandPoint
           Caption = 'Guardar'
           Enabled = False
           TabOrder = 3
+          StyleElements = []
           OnClick = btnGuardarConfigClick
         end
       end

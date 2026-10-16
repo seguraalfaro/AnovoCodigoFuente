@@ -699,12 +699,11 @@ object fraLogin: TfraLogin
       Width = 145
       Height = 21
       Anchors = []
-      ItemIndex = 0
       TabOrder = 4
-      Text = 'asesor@anovo.test'#9
+      Text = 'asesor2@anovo.test'#9
       OnChange = ComboBox1Change
       Items.Strings = (
-        'asesor@anovo.test'#9
+        'asesor2@anovo.test'#9
         'asistente@anovo.test'#9
         'supervisor@anovo.test'#9
         'gerencia@anovo.test'#9
