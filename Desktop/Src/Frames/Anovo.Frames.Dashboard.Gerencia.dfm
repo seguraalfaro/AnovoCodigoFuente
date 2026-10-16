@@ -29,7 +29,8 @@ inherited fraDashboardGerencia: TfraDashboardGerencia
     end
   end
   inherited tjLista: TPlanoTarjeta
-    Height = 182
+    Width = 568
+    Margins.Right = 12
     Caption = 'Productividad por asesor'
     ExplicitHeight = 182
     inherited grLista: TrDBGrid
@@ -69,16 +70,16 @@ inherited fraDashboardGerencia: TfraDashboardGerencia
   object tjEstados: TPlanoTarjeta
     Tag = 3
     AlignWithMargins = True
-    Left = 20
-    Top = 380
-    Width = 920
-    Height = 220
-    Margins.Left = 20
-    Margins.Top = 0
+    Left = 600
+    Top = 178
+    Width = 340
+    Height = 422
+    Margins.Left = 0
+    Margins.Top = 8
     Margins.Right = 20
     Margins.Bottom = 20
     Caption = 'Cotizaciones por estado'
-    Align = alBottom
+    Align = alRight
     Font.Charset = ANSI_CHARSET
     Font.Color = 1973276
     Font.Height = -15

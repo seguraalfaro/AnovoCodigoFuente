@@ -70,34 +70,6 @@ inherited frmRevision: TfrmRevision
       Kind = fkSecondary
     end
   end
-  object pnlTrabajo: TPanel
-    Tag = 2
-    Left = 0
-    Top = 87
-    Width = 860
-    Height = 72
-    Align = alTop
-    BevelOuter = bvNone
-    TabOrder = 1
-    object lblTrabajoRot: TLabel
-      Tag = 12
-      Left = 20
-      Top = 6
-      Width = 45
-      Height = 15
-      Caption = 'Trabajo'
-    end
-    object lblTrabajo: TLabel
-      Left = 20
-      Top = 28
-      Width = 820
-      Height = 38
-      Anchors = [akLeft, akTop, akRight]
-      AutoSize = False
-      Caption = ''
-      WordWrap = True
-    end
-  end
   object pnlTotales: TPanel
     Tag = 2
     Left = 0
@@ -107,6 +79,51 @@ inherited frmRevision: TfrmRevision
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 3
+    object pnlTrabajo: TPanel
+      Tag = 2
+      Left = 0
+      Top = 0
+      Width = 460
+      Height = 162
+      Align = alLeft
+      BevelOuter = bvNone
+      TabOrder = 0
+      object lblTrabajoRot: TLabel
+        Tag = 12
+        Left = 20
+        Top = 8
+        Width = 45
+        Height = 15
+        Caption = 'Trabajo'
+      end
+      object lblTrabajo: TLabel
+        Left = 20
+        Top = 28
+        Width = 420
+        Height = 38
+        Anchors = [akLeft, akTop, akRight]
+        AutoSize = False
+        Caption = ''
+        WordWrap = True
+      end
+      object lblMotivoAjusteRot: TLabel
+        Tag = 12
+        Left = 20
+        Top = 76
+        Width = 100
+        Height = 15
+        Caption = 'Motivo del ajuste'
+      end
+      object lblMotivoAjuste: TLabel
+        Left = 20
+        Top = 96
+        Width = 420
+        Height = 38
+        AutoSize = False
+        Caption = ''
+        WordWrap = True
+      end
+    end
     object lblMaterialesRot: TLabel
       Tag = 13
       Left = 480

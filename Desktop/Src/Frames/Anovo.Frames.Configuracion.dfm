@@ -32,7 +32,7 @@ object fraConfiguracion: TfraConfiguracion
       Caption = 'Su cuenta, la conexi'#243'n, los datos de la empresa y los par'#225'metros del sistema'
     end
   end
-  object pnlCuerpo: TPanel
+  object pnlCuerpo: TGridPanel
     Tag = 2
     Left = 0
     Top = 62
@@ -40,6 +40,58 @@ object fraConfiguracion: TfraConfiguracion
     Height = 628
     Align = alClient
     BevelOuter = bvNone
+    ColumnCollection = <
+      item
+        Value = 33.333333333333330000
+      end
+      item
+        Value = 33.333333333333330000
+      end
+      item
+        Value = 33.333333333333340000
+      end>
+    ControlCollection = <
+      item
+        Column = 0
+        Control = tjCuenta
+        Row = 0
+      end
+      item
+        Column = 1
+        Control = tjConexion
+        Row = 0
+      end
+      item
+        Column = 2
+        Control = tjAcercaDe
+        Row = 0
+      end
+      item
+        Column = 0
+        ColumnSpan = 2
+        Control = tjEmpresa
+        Row = 1
+      end
+      item
+        Column = 2
+        Control = tjParametros
+        Row = 1
+      end>
+    Padding.Left = 20
+    Padding.Top = 8
+    Padding.Right = 8
+    RowCollection = <
+      item
+        SizeStyle = ssAbsolute
+        Value = 248.000000000000000000
+      end
+      item
+        SizeStyle = ssAbsolute
+        Value = 372.000000000000000000
+      end
+      item
+        Value = 100.000000000000000000
+      end>
     TabOrder = 1
     object tjCuenta: TPlanoTarjeta
       Tag = 3
@@ -47,9 +99,18 @@ object fraConfiguracion: TfraConfiguracion
       Top = 8
       Width = 300
       Height = 236
+      AlignWithMargins = True
       TitleHeight = 36
       Caption = 'Mi cuenta'
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Right = 12
+      Margins.Bottom = 12
       TabOrder = 0
+      Align = alClient
+      DesignSize = (
+        300
+        236)
       object lblNombreRot: TLabel
         Tag = 13
         Left = 16
@@ -62,6 +123,7 @@ object fraConfiguracion: TfraConfiguracion
         Top = 48
         Width = 160
         Height = 15
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Alignment = taRightJustify
         Caption = '-'
@@ -79,6 +141,7 @@ object fraConfiguracion: TfraConfiguracion
         Top = 76
         Width = 160
         Height = 15
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Alignment = taRightJustify
         Caption = '-'
@@ -96,6 +159,7 @@ object fraConfiguracion: TfraConfiguracion
         Top = 104
         Width = 160
         Height = 15
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Alignment = taRightJustify
         Caption = '-'
@@ -113,6 +177,7 @@ object fraConfiguracion: TfraConfiguracion
         Top = 132
         Width = 160
         Height = 15
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Alignment = taRightJustify
         Caption = '-'
@@ -130,6 +195,7 @@ object fraConfiguracion: TfraConfiguracion
         Top = 160
         Width = 160
         Height = 15
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Alignment = taRightJustify
         Caption = '-'
@@ -153,9 +219,18 @@ object fraConfiguracion: TfraConfiguracion
       Top = 8
       Width = 300
       Height = 236
+      AlignWithMargins = True
       TitleHeight = 36
       Caption = 'Conexi'#243'n'
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Right = 12
+      Margins.Bottom = 12
       TabOrder = 1
+      Align = alClient
+      DesignSize = (
+        300
+        236)
       object lblServidorRot: TLabel
         Tag = 13
         Left = 16
@@ -168,6 +243,7 @@ object fraConfiguracion: TfraConfiguracion
         Top = 48
         Width = 160
         Height = 15
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Alignment = taRightJustify
         Caption = '-'
@@ -185,6 +261,7 @@ object fraConfiguracion: TfraConfiguracion
         Top = 76
         Width = 160
         Height = 15
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Alignment = taRightJustify
         Caption = '-'
@@ -202,6 +279,7 @@ object fraConfiguracion: TfraConfiguracion
         Top = 104
         Width = 160
         Height = 15
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Alignment = taRightJustify
         Caption = '-'
@@ -238,9 +316,18 @@ object fraConfiguracion: TfraConfiguracion
       Top = 8
       Width = 300
       Height = 236
+      AlignWithMargins = True
       TitleHeight = 36
       Caption = 'Acerca de'
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Right = 12
+      Margins.Bottom = 12
       TabOrder = 2
+      Align = alClient
+      DesignSize = (
+        300
+        236)
       object lblVerEscritorioRot: TLabel
         Tag = 13
         Left = 16
@@ -253,6 +340,7 @@ object fraConfiguracion: TfraConfiguracion
         Top = 48
         Width = 160
         Height = 15
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Alignment = taRightJustify
         Caption = '-'
@@ -270,6 +358,7 @@ object fraConfiguracion: TfraConfiguracion
         Top = 76
         Width = 160
         Height = 15
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Alignment = taRightJustify
         Caption = '-'
@@ -287,6 +376,7 @@ object fraConfiguracion: TfraConfiguracion
         Top = 104
         Width = 160
         Height = 15
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Alignment = taRightJustify
         Caption = '-'
@@ -304,6 +394,7 @@ object fraConfiguracion: TfraConfiguracion
         Top = 132
         Width = 160
         Height = 15
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Alignment = taRightJustify
         Caption = '-'
@@ -321,6 +412,7 @@ object fraConfiguracion: TfraConfiguracion
         Top = 160
         Width = 160
         Height = 15
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Alignment = taRightJustify
         Caption = '-'
@@ -333,9 +425,18 @@ object fraConfiguracion: TfraConfiguracion
       Top = 256
       Width = 612
       Height = 360
+      AlignWithMargins = True
       TitleHeight = 36
       Caption = 'Datos de la empresa'
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Right = 12
+      Margins.Bottom = 12
       TabOrder = 3
+      Align = alClient
+      DesignSize = (
+        612
+        360)
       object edRazonSocial: TrDBEdit
         Left = 16
         Top = 62
@@ -499,6 +600,7 @@ object fraConfiguracion: TfraConfiguracion
         Top = 212
         Width = 580
         Height = 23
+        Anchors = [akLeft, akTop, akRight]
         DataField = 'DIRECCION'
         DataSource = dmMemoria.dsEmpresa
         Font.Charset = ANSI_CHARSET
@@ -614,6 +716,7 @@ object fraConfiguracion: TfraConfiguracion
         Top = 312
         Width = 108
         Height = 32
+        Anchors = [akTop, akRight]
         Cursor = crHandPoint
         Caption = 'Deshacer'
         TabOrder = 9
@@ -626,6 +729,7 @@ object fraConfiguracion: TfraConfiguracion
         Top = 312
         Width = 110
         Height = 32
+        Anchors = [akTop, akRight]
         Cursor = crHandPoint
         Caption = 'Guardar datos'
         TabOrder = 10
@@ -639,9 +743,18 @@ object fraConfiguracion: TfraConfiguracion
       Top = 256
       Width = 300
       Height = 360
+      AlignWithMargins = True
       TitleHeight = 36
       Caption = 'Par'#225'metros'
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Right = 12
+      Margins.Bottom = 12
       TabOrder = 4
+      Align = alClient
+      DesignSize = (
+        300
+        360)
       object edMinutos: TrDBEdit
         Left = 16
         Top = 62
@@ -674,6 +787,7 @@ object fraConfiguracion: TfraConfiguracion
         Top = 90
         Width = 268
         Height = 32
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = 'Preferencia de este equipo; se guarda en esta computadora.'
         WordWrap = True
@@ -710,6 +824,7 @@ object fraConfiguracion: TfraConfiguracion
         Top = 190
         Width = 268
         Height = 32
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = 'Cotizaciones enviadas que pasan este plazo sin respuesta. ''Lo cambia gerencia o TI.'
         WordWrap = True

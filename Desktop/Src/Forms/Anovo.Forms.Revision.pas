@@ -23,6 +23,8 @@ type
     pnlTrabajo: TPanel;
     lblTrabajoRot: TLabel;
     lblTrabajo: TLabel;
+    lblMotivoAjusteRot: TLabel;
+    lblMotivoAjuste: TLabel;
     pnlTotales: TPanel;
     lblMaterialesRot: TLabel;
     lblMateriales: TLabel;
@@ -136,9 +138,16 @@ begin
   lblMaquina.Caption :=
     TFormato.Colones(ACotizacion.SubtotalMaquina.ValueOrDefault);
   lblCosto.Caption := TFormato.Colones(ACotizacion.CostoTotal.ValueOrDefault);
-  lblAjusteRot.Caption := Format(SAjustePorcentaje,
-    [TFormato.Porcentaje(ACotizacion.PorcentajeAjuste)]);
-  lblAjuste.Caption := ACotizacion.MotivoAjuste.ValueOrDefault;
+  if ACotizacion.PorcentajeAjuste = 0 then
+    lblAjusteRot.Caption := SSinAjuste
+  else
+    lblAjusteRot.Caption := Format(SAjustePorcentaje,
+      [TFormato.Porcentaje(ACotizacion.PorcentajeAjuste)]);
+  lblAjuste.Caption := TFormato.Colones(ACotizacion.CostoTotal.ValueOrDefault *
+    ACotizacion.PorcentajeAjuste / 100);
+  lblMotivoAjuste.Caption := ACotizacion.MotivoAjuste.ValueOrDefault;
+  lblMotivoAjusteRot.Visible := not ACotizacion.MotivoAjuste.ValueOrDefault.IsEmpty;
+  lblMotivoAjuste.Visible := lblMotivoAjusteRot.Visible;
   lblIvaRot.Caption := Format(SIvaPorcentaje,
     [TFormato.Porcentaje(ACotizacion.PorcentajeIva)]);
   lblIva.Caption := TFormato.Colones(ACotizacion.MontoImpuesto.ValueOrDefault);

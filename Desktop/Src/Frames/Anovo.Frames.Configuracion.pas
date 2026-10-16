@@ -24,7 +24,7 @@ type
     pnlTitulo: TPanel;
     lblTitulo: TLabel;
     lblSubtitulo: TLabel;
-    pnlCuerpo: TPanel;
+    pnlCuerpo: TGridPanel;
     tjCuenta: TPlanoTarjeta;
     lblNombreRot: TLabel;
     lblNombre: TLabel;
@@ -289,12 +289,18 @@ begin
 end;
 
 procedure TfraConfiguracion.MostrarSeccionEmpresa(const AVisible: Boolean);
+var
+  lCeldas: TControlCollection;
 begin
   tjEmpresa.Visible := AVisible;
   edDias.Visible := AVisible;
   lblNotaDias.Visible := AVisible;
-  if not AVisible then
-    tjParametros.Left := tjEmpresa.Left;
+  lCeldas := pnlCuerpo.ControlCollection;
+  if not AVisible and (lCeldas[lCeldas.IndexOf(tjParametros)].Column <> 0) then
+  begin
+    lCeldas[lCeldas.IndexOf(tjEmpresa)].ColumnSpan := 1;
+    lCeldas[lCeldas.IndexOf(tjParametros)].Column := 0;
+  end;
 end;
 
 procedure TfraConfiguracion.MostrarFormasPago(const AFormas

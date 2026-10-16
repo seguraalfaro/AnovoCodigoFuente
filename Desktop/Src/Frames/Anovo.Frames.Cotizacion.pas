@@ -1,8 +1,8 @@
 unit Anovo.Frames.Cotizacion;
 
-// Cotizacion abierta (HU-04): encabezado, lineas, ajuste y totales a la
-// derecha; a la izquierda la solicitud, sus piezas y el croquis, las fotos
-// y las medidas de la pieza elegida.
+// Cotizacion abierta (HU-04): encabezado con la solicitud, lineas, ajuste y
+// totales a la derecha; a la izquierda las piezas y el croquis, las fotos y
+// las medidas de la pieza elegida; abajo los botones segun el estado.
 
 interface
 
@@ -25,6 +25,13 @@ type
     pnlEncabezado: TPanel;
     lblTitulo: TLabel;
     lblSubtitulo: TLabel;
+    pnlSolicitud: TPanel;
+    pnlBotones: TPanel;
+    pnlNavegacion: TRelativePanel;
+    pnlDocumento: TRelativePanel;
+    pnlEdicion: TRelativePanel;
+    pnlEnvio: TRelativePanel;
+    pnlRespuesta: TRelativePanel;
     btnVolver: TPlanoBotonWin;
     btnGuardar: TPlanoBotonWin;
     btnPresentar: TPlanoBotonWin;
@@ -37,18 +44,17 @@ type
     pnlAviso: TPanel;
     lblAviso: TLabel;
     pnlCuerpo: TPanel;
-    pnlEvidencia: TPanel;
-    tjSolicitud: TPlanoTarjeta;
+    pnlEvidencia: TGridPanel;
     lblProyectoRot: TLabel;
     lblProyecto: TLabel;
     lblContactoRot: TLabel;
     lblContacto: TLabel;
     tjPiezas: TPlanoTarjeta;
     grPiezas: TrDBGrid;
-    tjCroquis: TPlanoTarjeta;
+    tjEvidencia: TPlanoTarjeta;
+    pnlFotos: TPanel;
     pbCroquis: TPaintBox;
     lblSinCroquis: TLabel;
-    tjFotos: TPlanoTarjeta;
     lblSinFotos: TLabel;
     sbFotos: TScrollBox;
     tjMedidas: TPlanoTarjeta;
@@ -71,9 +77,6 @@ type
     lblAjuste: TLabel;
     lblIva: TLabel;
     lblTotal: TLabel;
-    tjAjuste: TPlanoTarjeta;
-    lblAjustePorcentaje: TLabel;
-    lblAjusteMotivo: TLabel;
     btnAjuste: TPlanoBotonWin;
     tjCondiciones: TPlanoTarjeta;
     cbFormaPago: TrDBLookupComboBox;
@@ -118,6 +121,8 @@ type
     FPresentador: TPresentadorCotizacion;
     FOnRegresar: TNotifyEvent;
     FCroquis: string;
+    FTituloCroquis: string;
+    FTituloFotos: string;
     procedure ElegirPieza;
     procedure PonerFotos(const AFotos: TList<TBytes>);
     procedure Accion(Sender: TObject; const AClave: string);
@@ -133,7 +138,7 @@ type
     procedure MostrarDocumento(const ADocumento: TCotizacionDocumentoDTO;
       const ARuta: string);
     procedure MostrarEnvio(const ADocumento: TCotizacionDocumentoDTO);
-    procedure AcomodarBotones;
+    procedure AcomodarPaneles;
     procedure MostrarBotones(const ABotones: TBotonesCotizacion;
       const AAcciones: TAccionesLinea);
     procedure MostrarLineas(const ALineas: TObjectList<TLineaDTO>);
@@ -184,8 +189,6 @@ uses
 const
   CAMPO_ACCIONES = 'ACCIONES';
   EXTENSION_PDF = 'pdf';
-  MARGEN_BOTONES = 20;
-  SEPARACION_BOTONES = 10;
   ACCIONES: array [TAccionLinea] of TAccionRejilla = ((Clave: 'editar';
     Rotulo: SAccionEditar), (Clave: 'quitar'; Rotulo: SAccionQuitar));
   ANCHO_CROQUIS = 1000;
@@ -274,17 +277,14 @@ begin
       [TFormato.Porcentaje(ACotizacion.PorcentajeIva)]);
 
   if ACotizacion.PorcentajeAjuste = 0 then
-  begin
-    lblAjusteRot.Caption := SSinAjuste;
-    lblAjustePorcentaje.Caption := SSinAjuste;
-  end
+    lblAjusteRot.Caption := SSinAjuste
   else
-  begin
     lblAjusteRot.Caption := Format(SAjustePorcentaje,
       [TFormato.Porcentaje(ACotizacion.PorcentajeAjuste)]);
-    lblAjustePorcentaje.Caption := lblAjusteRot.Caption;
-  end;
-  lblAjusteMotivo.Caption := ACotizacion.MotivoAjuste.ValueOrDefault;
+  lblAjusteRot.Hint := ACotizacion.MotivoAjuste.ValueOrDefault;
+  lblAjusteRot.ShowHint := not lblAjusteRot.Hint.IsEmpty;
+  lblAjuste.Hint := lblAjusteRot.Hint;
+  lblAjuste.ShowHint := lblAjusteRot.ShowHint;
 
   if AConEncabezado then
     TMapeoDatos.ATabla(ACotizacion, dmMemoria.mtCotizacionEdicion);
@@ -302,20 +302,18 @@ var
   lEditable: Boolean;
 begin
   lEditable := bcGuardar in ABotones;
-  btnGuardar.Visible := lEditable;
+  pnlEdicion.Visible := lEditable;
   btnPresentar.Visible := bcPresentar in ABotones;
-  btnEnviar.Visible := bcEnviar in ABotones;
-  btnClienteAprobo.Visible := bcRespuesta in ABotones;
-  btnClienteRechazo.Visible := bcRespuesta in ABotones;
+  pnlEnvio.Visible := bcEnviar in ABotones;
+  pnlRespuesta.Visible := bcRespuesta in ABotones;
+  pnlDocumento.Visible := bcDocumento in ABotones;
   btnAjuste.Visible := bcAjuste in ABotones;
   btnNuevoTipo.Visible := bcNuevoTipo in ABotones;
   btnMaterial.Visible := bcAgregarLinea in ABotones;
   btnManoObra.Visible := bcAgregarLinea in ABotones;
   btnMaquina.Visible := bcAgregarLinea in ABotones;
   btnNota.Visible := bcAgregarLinea in ABotones;
-  btnVistaPrevia.Visible := bcDocumento in ABotones;
-  btnGuardarPdf.Visible := bcDocumento in ABotones;
-  AcomodarBotones;
+  AcomodarPaneles;
   cbTipoTrabajo.ReadOnly := not lEditable;
   edDescripcion.ReadOnly := not lEditable;
   cbFormaPago.ReadOnly := not lEditable;
@@ -381,11 +379,12 @@ begin
     lTotal := AFotos.Count;
   if not APieza.IsEmpty then
   begin
-    tjCroquis.Caption := Format(SCroquisDePieza, [APieza]);
-    tjFotos.Caption := Format(SFotografiasDePieza, [APieza, lTotal]);
+    tjEvidencia.Caption := Format(SEvidenciaDePieza, [APieza]);
+    FTituloCroquis := Format(SCroquisDePieza, [APieza]);
+    FTituloFotos := Format(SFotografiasDePieza, [APieza, lTotal]);
   end
   else
-    tjFotos.Caption := Format(SFotografias, [lTotal]);
+    FTituloFotos := Format(SFotografias, [lTotal]);
 
   if ACargando then
   begin
@@ -417,7 +416,7 @@ var
 begin
   while sbFotos.ControlCount > 0 do
     sbFotos.Controls[0].Free;
-  sbFotos.HorzScrollBar.Position := 0;
+  sbFotos.VertScrollBar.Position := 0;
   if AFotos = nil then
     Exit;
 
@@ -426,7 +425,7 @@ begin
     lMiniatura := TrImageZoom.Create(Self);
     lMiniatura.Parent := sbFotos;
     lMiniatura.Tag := TAG_RAW;
-    lMiniatura.SetBounds(I * (LADO_MINIATURA + SEPARACION_MINIATURA), 0,
+    lMiniatura.SetBounds(0, I * (LADO_MINIATURA + SEPARACION_MINIATURA),
       LADO_MINIATURA, LADO_MINIATURA);
     lMiniatura.Cursor := crHandPoint;
     lMiniatura.EnlargeToFit := True;
@@ -494,7 +493,7 @@ begin
       lMapa.Canvas.FillRect(Rect(0, 0, ANCHO_CROQUIS, ALTO_CROQUIS));
       DibujarCroquis(lMapa.Canvas, Rect(0, 0, ANCHO_CROQUIS, ALTO_CROQUIS),
         FCroquis);
-      MostrarAmpliada(Self, lMapa, tjCroquis.Caption);
+      MostrarAmpliada(Self, lMapa, FTituloCroquis);
     finally
       lMapa.Free;
     end;
@@ -502,7 +501,7 @@ begin
   else if (Sender is TrImageZoom) and
     (TrImageZoom(Sender).Picture.Graphic <> nil) then
     MostrarAmpliada(Self, TrImageZoom(Sender).Picture.Graphic,
-      tjFotos.Caption);
+      FTituloFotos);
 end;
 
 function TfraCotizacion.DatosEscritos: TCotizacionEdicionDTO;
@@ -589,19 +588,23 @@ begin
     Regresar;
 end;
 
-procedure TfraCotizacion.AcomodarBotones;
+procedure TfraCotizacion.AcomodarPaneles;
 var
-  lBoton: TPlanoBotonWin;
+  lPanel: TRelativePanel;
   lDerecha: Integer;
 begin
-  lDerecha := pnlEncabezado.ClientWidth - MARGEN_BOTONES;
-  for lBoton in [btnClienteAprobo, btnClienteRechazo, btnEnviar, btnPresentar,
-    btnGuardar, btnGuardarPdf, btnVistaPrevia, btnHistorial, btnVolver] do
-    if lBoton.Visible then
-    begin
-      lBoton.Left := lDerecha - lBoton.Width;
-      lDerecha := lBoton.Left - SEPARACION_BOTONES;
-    end;
+  pnlBotones.DisableAlign;
+  try
+    lDerecha := pnlBotones.ClientWidth;
+    for lPanel in [pnlRespuesta, pnlEnvio, pnlEdicion, pnlDocumento] do
+      if lPanel.Visible then
+      begin
+        lPanel.Left := lDerecha - lPanel.Width;
+        lDerecha := lPanel.Left;
+      end;
+  finally
+    pnlBotones.EnableAlign;
+  end;
 end;
 
 procedure TfraCotizacion.btnVolverClick(Sender: TObject);

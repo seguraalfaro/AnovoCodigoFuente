@@ -914,6 +914,12 @@ resourcestring
   SCroquisDePieza = 'Croquis · %s';
   SFotografiasDePieza = 'Fotografías · %s · %d';
   SMedidasDePieza = 'Medidas · %s';
+  SEvidenciaDePieza = 'Croquis y fotografías · %s';
+  SMenuColumnas = 'Columnas…';
+  SMenuRestablecerColumnas = 'Restablecer columnas';
+  STituloColumnas = 'Columnas de la tabla';
+  SAyudaColumnas = 'Elija qué columnas ver, en qué orden y cómo se alinean.';
+  SColumnasFalta = 'Deje al menos una columna visible.';
   SSinProyecto = 'Sin nombre de proyecto';
   SSinContacto = 'Sin contacto';
   SContactoInactivo = 'El contacto ya no está activo';

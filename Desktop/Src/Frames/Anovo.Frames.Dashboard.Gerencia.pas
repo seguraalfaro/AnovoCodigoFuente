@@ -35,6 +35,7 @@ implementation
 {$R *.dfm}
 
 uses
+  System.Math,
   Anovo.UI.Tema,
   Anovo.UI.DBGridExtend,
   Anovo.Mapeo.Datos,
@@ -46,6 +47,9 @@ uses
 
 const
   CAMPO_ESTADO = 'ESTADO';
+  PORCENTAJE_ESTADOS = 38;
+  ANCHO_ESTADOS_MINIMO = 330;
+  ANCHO_ESTADOS_MAXIMO = 480;
 
 constructor TfraDashboardGerencia.Create(AOwner: TComponent);
 begin
@@ -71,6 +75,8 @@ end;
 procedure TfraDashboardGerencia.Resize;
 begin
   inherited;
+  tjEstados.Width := EnsureRange(ClientWidth * PORCENTAJE_ESTADOS div 100,
+    ScaleValue(ANCHO_ESTADOS_MINIMO), ScaleValue(ANCHO_ESTADOS_MAXIMO));
   Anovo.UI.DBGridExtend.AjustarColumnas(grEstados);
 end;
 
