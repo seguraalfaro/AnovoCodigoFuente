@@ -23,6 +23,8 @@ Sub Process_Globals
 	Private Const SQL_TIPO_MATERIAL As String = "UPDATE tipos_material SET nombre = ?, activo = ? WHERE id_servidor = ?"
 	Private Const SQL_NUEVO_ACABADO As String = "INSERT OR IGNORE INTO acabados (id_servidor, nombre) VALUES (?, ?)"
 	Private Const SQL_ACABADO As String = "UPDATE acabados SET nombre = ?, activo = ? WHERE id_servidor = ?"
+	Private Const SQL_BORRAR_TEXTO As String = "DELETE FROM consentimiento_texto"
+	Private Const SQL_TEXTO As String = "INSERT INTO consentimiento_texto (version, titulo, contenido) VALUES (?, ?, ?)"
 	Private Const SQL_SEGUIMIENTO As String = "INSERT OR REPLACE INTO seguimiento (uuid_local, id_servidor, nombre_proyecto, descripcion, cliente_nombre, fecha_captura, estado, cotizacion_numero, monto_aprobado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
 End Sub
 
@@ -82,6 +84,12 @@ Public Sub Aplicar (Datos As Map) As Object
 			m.Get("descripcion"), m.Get("cliente_nombre"), captura, m.Get("estado"), m.Get("cotizacion_numero"), _
 			m.Get("monto_aprobado")))
 	Next
+	Dim texto As Object = Datos.Get("consentimiento")
+	If texto Is Map Then
+		Dim vigente As Map = texto
+		s.AddNonQueryToBatch(SQL_BORRAR_TEXTO, Array())
+		s.AddNonQueryToBatch(SQL_TEXTO, Array(vigente.Get("version"), vigente.Get("titulo"), vigente.Get("contenido")))
+	End If
 	s.AddNonQueryToBatch(SQL_GUARDAR_DESDE, Array(CLAVE_DESDE, Datos.Get("servidor_ahora")))
 	s.AddNonQueryToBatch(SQL_GUARDAR_DESDE, Array(CLAVE_HORA, Utils.AhoraBd))
 	Return s.ExecNonQueryBatch(EVENTO_LOTE)

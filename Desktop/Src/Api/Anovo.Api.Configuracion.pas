@@ -5,8 +5,10 @@ unit Anovo.Api.Configuracion;
 interface
 
 uses
+  System.Generics.Collections,
   Anovo.Api.Base,
   Anovo.Api.Intf.Configuracion,
+  Anovo.DTOs.Clientes,
   Anovo.DTOs.Empresa,
   Anovo.DTOs.Sesion;
 
@@ -18,6 +20,8 @@ type
     function Version(const AUrl: string = ''): TVersionDTO;
     function Empresa: TEmpresaDTO;
     procedure GuardarEmpresa(const ADto: TEmpresaDTO);
+    function VersionesConsentimiento: TObjectList<TConsentimientoTextoDTO>;
+    procedure PublicarConsentimiento(const ADto: TConsentimientoTextoNuevoDTO);
   end;
 
 implementation
@@ -30,6 +34,7 @@ const
   RUTA_CLAVE = '/api/sesion/clave';
   RUTA_VERSION = '/api/version';
   RUTA_EMPRESA = '/api/empresa';
+  RUTA_CONSENTIMIENTOS = '/api/consentimiento/versiones';
 
 function TApiConfiguracion.Cuenta: TCuentaDTO;
 var
@@ -95,6 +100,36 @@ begin
     Result.Free;
     raise;
   end;
+end;
+
+function TApiConfiguracion.VersionesConsentimiento
+  : TObjectList<TConsentimientoTextoDTO>;
+var
+  lRespuesta: IMVCRESTResponse;
+begin
+  lRespuesta := Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.Get(RUTA_CONSENTIMIENTOS);
+    end);
+
+  Result := TObjectList<TConsentimientoTextoDTO>.Create(True);
+  try
+    lRespuesta.BodyForListOf(Result, TConsentimientoTextoDTO, 'data');
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
+procedure TApiConfiguracion.PublicarConsentimiento(const ADto
+  : TConsentimientoTextoNuevoDTO);
+begin
+  Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.AddBody(ADto, False).Post(RUTA_CONSENTIMIENTOS);
+    end);
 end;
 
 procedure TApiConfiguracion.GuardarEmpresa(const ADto: TEmpresaDTO);

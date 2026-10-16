@@ -208,6 +208,11 @@
         <DCCReference Include="Src\Forms\Anovo.Forms.DocumentoEmpresa.pas">
             <Form>frmDocumentoEmpresa</Form>
         </DCCReference>
+        <DCCReference Include="Src\Forms\Anovo.Forms.Consentimiento.pas">
+            <Form>frmConsentimiento</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Consentimiento.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Consentimiento.pas"/>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Correo.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.EnvioCotizacion.pas"/>
         <DCCReference Include="Src\Presentadores\Anovo.Presentadores.EnvioCotizacion.pas"/>

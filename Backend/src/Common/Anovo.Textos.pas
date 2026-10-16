@@ -150,6 +150,40 @@ resourcestring
     'admite cambios.';
   SClienteAnonimizadoNombre = 'Cliente anonimizado %d';
   SContactoAnonimizadoNombre = 'Contacto anonimizado';
+  SContactoYaAnonimizado = 'Este contacto ya fue anonimizado (Ley 8968).';
+  SSinTextoConsentimiento = 'Todavía no se ha publicado el texto del ' +
+    'consentimiento.';
+  SVersionConsentimientoInexistente = 'No existe la versión %s del texto del ' +
+    'consentimiento.';
+  SVersionConsentimientoInvalida = 'Indique la versión, de hasta %d caracteres.';
+  STituloConsentimientoInvalido = 'Indique el título, de hasta %d caracteres.';
+  SContenidoConsentimientoInvalido = 'Escriba el texto, de hasta %d ' +
+    'caracteres.';
+  SVersionConsentimientoRepetida = 'La versión %s ya existe. Una versión ' +
+    'publicada no se cambia: use otra.';
+  SDetallePublicacionConsentimiento = 'Publicación del texto del ' +
+    'consentimiento, versión %s';
+  SAccionCargarConsentimiento = 'cargar los textos del consentimiento';
+  SAccionPublicarConsentimiento = 'publicar el texto del consentimiento';
+  SFaltanDatosConsentimiento = 'Indique la versión, el título y el texto.';
+  SConfirmarPublicarConsentimiento = '¿Publicar la versión %s? Queda vigente ' +
+    'de inmediato, los teléfonos la reciben en su próxima sincronización y ' +
+    'ya no se podrá cambiar.';
+  SNotaNuevaVersion = 'Una versión publicada no se cambia nunca: cada firma ' +
+    'queda ligada al texto exacto que leyó el cliente. Para corregir algo, ' +
+    'publique una versión nueva.';
+  SBotonPublicar = 'Publicar';
+  SConsentimientoPublicado = 'La versión quedó publicada y vigente.';
+  SEstadoVigente = 'Vigente';
+  SEstadoAnterior = 'Anterior';
+  SDetalleAnonimizacionContacto = 'Se anonimizó el contacto %d del cliente ' +
+    '%d (Ley 8968): %s';
+  SAccionAnonimizarContacto = 'anonimizar al contacto';
+  SAccionAnonimizarFila = 'Anonimizar';
+  SAnonimizarContactoTitulo = 'Anonimizar al contacto (derecho de supresión)';
+  SAnonimizarContactoAyuda = 'Borra el nombre, el área, los teléfonos y el ' +
+    'correo de %s. El cliente y sus cotizaciones no cambian. Indique el ' +
+    'motivo o la solicitud de la persona.';
   SAnonimizarSoloFisica = 'La anonimización solo aplica a personas físicas: ' +
     'este cliente tiene cédula jurídica.';
   SAnonimizarSinTipo = 'Indique primero el tipo de identificación del ' +

@@ -26,6 +26,8 @@ type
     function CrearContacto(const AId: Integer;
       const ADto: TContactoNuevoDTO): Integer;
     procedure Anonimizar(const AId: Integer; const AMotivo: string);
+    procedure AnonimizarContacto(const AId, AContactoId: Integer;
+      const AMotivo: string);
   end;
 
 implementation
@@ -166,6 +168,26 @@ begin
       Result := NuevoCliente.AddBody(ADto, False)
         .Post(Format('%s/%d/contactos', [RUTA_CLIENTES, AId]));
     end));
+end;
+
+procedure TApiClientes.AnonimizarContacto(const AId, AContactoId: Integer;
+  const AMotivo: string);
+var
+  lDto: TMotivoDTO;
+begin
+  lDto := TMotivoDTO.Create;
+  try
+    lDto.Motivo := AMotivo;
+    Ejecutar(
+      function: IMVCRESTResponse
+      begin
+        Result := NuevoCliente.AddBody(lDto, False)
+          .Post(Format('%s/%d/contactos/%d/anonimizacion',
+          [RUTA_CLIENTES, AId, AContactoId]));
+      end);
+  finally
+    lDto.Free;
+  end;
 end;
 
 procedure TApiClientes.Anonimizar(const AId: Integer; const AMotivo: string);

@@ -187,6 +187,9 @@
         <DCCReference Include="src\Entities\Anovo.Entities.Usuarios.pas"/>
         <DCCReference Include="src\Common\Anovo.Textos.pas"/>
         <DCCReference Include="src\Common\Anovo.Condiciones.pas"/>
+        <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Consentimiento.pas"/>
+        <DCCReference Include="src\Services\Anovo.Services.Consentimiento.pas"/>
+        <DCCReference Include="src\Controllers\Anovo.Controllers.Consentimiento.pas"/>
         <DCCReference Include="src\Common\Anovo.Permisos.pas"/>
         <DCCReference Include="src\Common\Anovo.Errors.pas"/>
         <DCCReference Include="src\Interfaces\Anovo.Repositories.Intf.Clientes.pas"/>

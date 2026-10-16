@@ -25,6 +25,8 @@ type
     fTiposMaterial: ITipoMaterialRepository;
     fAcabados: IAcabadoRepository;
     fSolicitudes: ISolicitudRepository;
+    fTextos: IConsentimientoTextoRepository;
+    procedure LlenarConsentimiento(const ABajada: TBajadaDTO);
     function UuidsDe(const AClientes: TObjectList<TClientes>)
       : TDictionary<Integer, string>;
     function UuidDelCliente(const AUuids: TDictionary<Integer, string>;
@@ -42,7 +44,8 @@ type
       ATiposTrabajo: ITipoTrabajoRepository;
       ATiposMaterial: ITipoMaterialRepository;
       AAcabados: IAcabadoRepository;
-      ASolicitudes: ISolicitudRepository); reintroduce;
+      ASolicitudes: ISolicitudRepository;
+      ATextos: IConsentimientoTextoRepository); reintroduce;
     function Bajar(const AAsesorId: Integer;
       const ADesde: NullableTDateTime): TBajadaDTO;
   end;
@@ -62,9 +65,10 @@ const
 constructor TSincronizacionService.Create(AClientes: IClienteRepository;
   AContactos: IClienteContactoRepository; ATiposTrabajo: ITipoTrabajoRepository;
   ATiposMaterial: ITipoMaterialRepository; AAcabados: IAcabadoRepository;
-  ASolicitudes: ISolicitudRepository);
+  ASolicitudes: ISolicitudRepository; ATextos: IConsentimientoTextoRepository);
 begin
   inherited Create;
+  fTextos := ATextos;
   fClientes := AClientes;
   fContactos := AContactos;
   fTiposTrabajo := ATiposTrabajo;
@@ -87,9 +91,25 @@ begin
     LlenarClientes(Result, lDesde);
     LlenarCatalogos(Result, lDesde);
     LlenarSolicitudes(Result, AAsesorId, lDesde);
+    LlenarConsentimiento(Result);
   except
     Result.Free;
     raise;
+  end;
+end;
+
+procedure TSincronizacionService.LlenarConsentimiento(const ABajada
+  : TBajadaDTO);
+var
+  lVigente: TConsentimientoTextos;
+begin
+  lVigente := fTextos.Vigente;
+  if lVigente = nil then
+    Exit;
+  try
+    ABajada.Consentimiento := TMapeo.ADto<TConsentimientoBajadaDTO>(lVigente);
+  finally
+    lVigente.Free;
   end;
 end;
 

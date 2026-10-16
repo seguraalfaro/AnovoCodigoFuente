@@ -61,6 +61,8 @@ uses
   Anovo.Services.Importacion,
   Anovo.Services.Intf.Empresa,
   Anovo.Services.Empresa,
+  Anovo.Services.Consentimiento,
+  Anovo.Services.Intf.Consentimiento,
   Anovo.Services.Intf.Sesion,
   Anovo.Services.Sesion,
   Anovo.Services.Intf.Roles,
@@ -81,6 +83,10 @@ begin
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TClienteContactoRepository, IClienteContactoRepository,
     TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TConsentimientoTextoRepository,
+    IConsentimientoTextoRepository, TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TConsentimientoTextoService,
+    IConsentimientoTextoService, TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TConsentimientoRepository, IConsentimientoRepository,
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TClienteService, IClienteService,

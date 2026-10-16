@@ -193,6 +193,25 @@ type
       const AId, AContactoId: Integer;
       [MVCFromBody] const ADto: TContactoEdicionDTO): IMVCResponse;
 
+    [MVCPath('/($AId)/contactos/($AContactoId)/anonimizacion')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_CLIENTES_INACTIVAR)]
+    [MVCSwagSummary('Clientes',
+      'Anonimiza un contacto (derecho de supresion, Ley 8968) sin tocar al ' +
+      'cliente', 'anonimizarContacto')]
+    [MVCSwagParam(plPath, 'AId', 'Numero del cliente', ptInteger, True)]
+    [MVCSwagParam(plPath, 'AContactoId', 'Numero del contacto',
+      ptInteger, True)]
+    [MVCSwagParam(plBody, 'Motivo', 'Motivo de la supresion', TMotivoDTO)]
+    [MVCSwagResponses(204, 'Anonimizado: nombre, area, telefonos y correo')]
+    [MVCSwagResponses(403, 'El rol no tiene el permiso para esta operacion')]
+    [MVCSwagResponses(404, 'Ese cliente no tiene un contacto activo con ese ' +
+      'numero (tambien si ya se anonimizo)')]
+    [MVCSwagResponses(422, 'Sin motivo')]
+    function AnonimizarContacto([MVCInject] AServicio: IClienteService;
+      const AId, AContactoId: Integer;
+      const [MVCFromBody] ADto: TMotivoDTO): IMVCResponse;
+
     [MVCPath('/($AId)/contactos/($AContactoId)/inactivacion')]
     [MVCHTTPMethods([httpPOST])]
     [MVCRequiresPermiso(PERMISO_CLIENTES_EDITAR)]
@@ -326,6 +345,13 @@ function TClientesController.ActualizarContacto(AServicio: IClienteService;
   : IMVCResponse;
 begin
   AServicio.ActualizarContacto(AId, AContactoId, ADto);
+  Result := NoContentResponse;
+end;
+
+function TClientesController.AnonimizarContacto(AServicio: IClienteService;
+  const AId, AContactoId: Integer; const ADto: TMotivoDTO): IMVCResponse;
+begin
+  AServicio.AnonimizarContacto(AId, AContactoId, ADto.Motivo);
   Result := NoContentResponse;
 end;
 

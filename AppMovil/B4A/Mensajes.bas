@@ -44,6 +44,8 @@ Sub Process_Globals
 	Public Const SIN_CONTACTOS As String = "Agregue al menos un contacto."
 	Public Const FALTA_ACEPTAR As String = "Falta marcar que el cliente acepta el tratamiento de sus datos."
 	Public Const FALTA_FIRMA As String = "Falta la firma del cliente."
+	Public Const SIN_TEXTO_PERMISO As String = "El texto del permiso todavía no llegó a este teléfono. Sincronice con el servidor antes de registrar al cliente."
+	Private Const VERSION_TEXTO_PERMISO As String = "Versión del texto: $1"
 	Public Const CLIENTE_NO_GUARDADO As String = "No se pudo guardar el cliente en el teléfono. Intente de nuevo."
 	Public Const CLIENTE_GUARDADO As String = "Cliente guardado."
 	Public Const MENU_SINCRONIZAR As String = "Sincronizar"
@@ -387,6 +389,10 @@ Public Sub TextoPermiso (Accion As String, Firmante As String) As String
 	If Accion = "revocado" Then Return PERMISO_REVOCADO.Replace("$1", Firmante)
 	If Firmante = "" Then Return PERMISO_SIN_FIRMANTE
 	Return PERMISO_OTORGADO.Replace("$1", Firmante)
+End Sub
+
+Public Sub VersionTextoPermiso (Version As String) As String
+	Return VERSION_TEXTO_PERMISO.Replace("$1", Version)
 End Sub
 
 Public Sub PermisoDetalle (Fecha As String, Version As String) As String

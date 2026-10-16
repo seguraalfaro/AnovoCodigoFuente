@@ -50,6 +50,14 @@ type
       : TObjectList<TConsentimientosDeCliente>;
   end;
 
+  IConsentimientoTextoRepository = interface
+    (IMVCRepository<TConsentimientoTextos>)
+    ['{9B2E5F14-3C7A-4D68-A01B-6E8F2C4D9A37}']
+    function Todas: TObjectList<TConsentimientoTextos>;
+    function Vigente: TConsentimientoTextos;
+    function PorVersion(const AVersion: string): TConsentimientoTextos;
+  end;
+
 implementation
 
 end.

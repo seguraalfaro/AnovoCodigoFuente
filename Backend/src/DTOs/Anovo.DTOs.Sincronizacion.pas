@@ -129,8 +129,21 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
+  TConsentimientoBajadaDTO = class
+  private
+    fVersion: string;
+    fTitulo: string;
+    fContenido: string;
+  public
+    property Version: string read fVersion write fVersion;
+    property Titulo: string read fTitulo write fTitulo;
+    property Contenido: string read fContenido write fContenido;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
   TBajadaDTO = class
   private
+    fConsentimiento: TConsentimientoBajadaDTO;
     fServidorAhora: TDateTime;
     fCompleta: Boolean;
     fClientes: TObjectList<TClienteBajadaDTO>;
@@ -162,6 +175,8 @@ type
     [MVCListOf(TSolicitudBajadaDTO)]
     property Solicitudes: TObjectList<TSolicitudBajadaDTO> read fSolicitudes
       write fSolicitudes;
+    property Consentimiento: TConsentimientoBajadaDTO read fConsentimiento
+      write fConsentimiento;
   end;
 
 implementation
@@ -185,6 +200,7 @@ begin
   fTiposMaterial.Free;
   fAcabados.Free;
   fSolicitudes.Free;
+  fConsentimiento.Free;
   inherited;
 end;
 

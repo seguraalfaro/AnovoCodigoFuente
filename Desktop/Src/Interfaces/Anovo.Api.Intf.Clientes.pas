@@ -26,6 +26,8 @@ type
     function CrearContacto(const AId: Integer;
       const ADto: TContactoNuevoDTO): Integer;
     procedure Anonimizar(const AId: Integer; const AMotivo: string);
+    procedure AnonimizarContacto(const AId, AContactoId: Integer;
+      const AMotivo: string);
   end;
 
 implementation

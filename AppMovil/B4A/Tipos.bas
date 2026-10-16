@@ -12,7 +12,7 @@ Sub Process_Globals
 		Telefono As String, Direccion As String, ContactoCobro As String, CorreoCobro As String)
 	Type Contacto (UuidLocal As String, Nombre As String, Puesto As String, Telefono As String, _
 		Celular As String, Correo As String, Principal As Boolean)
-	Type Consentimiento (Acepta As Boolean, Firmante As String, CedulaFirmante As String, Firma() As Byte)
+	Type Consentimiento (Acepta As Boolean, Firmante As String, CedulaFirmante As String, Firma() As Byte, Version As String)
 	Type Pieza (UuidLocal As String, Nombre As String, TipoTrabajo As String, Material As String, _
 		Acabado As String, Medidas As Int, Fotos As Int, Croquis As Boolean, _
 		TipoTrabajoId As Int, TipoMaterialId As Int, AcabadoId As Int, CroquisJson As String, _
@@ -34,6 +34,7 @@ Sub Process_Globals
 	Type IntentoSync (Fecha As String, Resultado As String, Subidos As Int, Bajados As Int, ConError As Int, Pendientes As Int)
 	Type ErrorSync (Entidad As String, Uuid As String, Titulo As String, Mensaje As String)
 	Type PermisoCliente (Accion As String, Firmante As String, Fecha As String, Version As String)
+	Type TextoPermiso (Version As String, Titulo As String, Contenido As String)
 End Sub
 
 Public Sub Correcto (Datos As Object) As Resultado
@@ -71,6 +72,7 @@ Public Sub ConsentimientoVacio As Consentimiento
 	c.Initialize
 	c.Firmante = ""
 	c.CedulaFirmante = ""
+	c.Version = ""
 	Dim sinFirma(0) As Byte
 	c.Firma = sinFirma
 	Return c

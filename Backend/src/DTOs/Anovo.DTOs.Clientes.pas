@@ -324,6 +324,42 @@ type
     property PorPagina: Integer read fPorPagina write fPorPagina;
   end;
 
+  [MVCNameCase(ncSnakeCase)]
+  TConsentimientoTextoDTO = class
+  private
+    fID: Integer;
+    fVersion: string;
+    fTitulo: string;
+    fContenido: string;
+    fVigente: Boolean;
+    fVigenteDesde: NullableTDateTime;
+    fPublicadoPor: Integer;
+    fFechaCreacion: NullableTDateTime;
+  public
+    property ID: Integer read fID write fID;
+    property Version: string read fVersion write fVersion;
+    property Titulo: string read fTitulo write fTitulo;
+    property Contenido: string read fContenido write fContenido;
+    property Vigente: Boolean read fVigente write fVigente;
+    property VigenteDesde: NullableTDateTime read fVigenteDesde
+      write fVigenteDesde;
+    property PublicadoPor: Integer read fPublicadoPor write fPublicadoPor;
+    property FechaCreacion: NullableTDateTime read fFechaCreacion
+      write fFechaCreacion;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TConsentimientoTextoNuevoDTO = class
+  private
+    fVersion: string;
+    fTitulo: string;
+    fContenido: string;
+  public
+    property Version: string read fVersion write fVersion;
+    property Titulo: string read fTitulo write fTitulo;
+    property Contenido: string read fContenido write fContenido;
+  end;
+
 implementation
 
 constructor TClientesPaginaDTO.Create(const AData: TObjectList<TClienteDTO>;

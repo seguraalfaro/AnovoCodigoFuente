@@ -124,6 +124,10 @@ Public Sub getPermiso As Consentimiento
 	Return mConsentimiento
 End Sub
 
+Public Sub getTextoPermiso As TextoPermiso
+	Return DbClientes.TextoVigente
+End Sub
+
 Public Sub getPagina As Int
 	Return mPagina
 End Sub
@@ -174,6 +178,9 @@ Public Sub QuitarContacto (Uuid As String) As Int
 End Sub
 
 Public Sub Guardar (PermisoActual As Consentimiento) As Resultado
+	Dim texto As TextoPermiso = DbClientes.TextoVigente
+	If texto.Version = "" Then Return Tipos.Falla(Mensajes.SIN_TEXTO_PERMISO)
+	PermisoActual.Version = texto.Version
 	If PermisoActual.Acepta = False Then Return Tipos.Falla(Mensajes.FALTA_ACEPTAR)
 	If PermisoActual.Firma.Length = 0 Then Return Tipos.Falla(Mensajes.FALTA_FIRMA)
 	Dim uuid As String = DbClientes.Guardar(mCliente, mContactos, PermisoActual, mUbicacion)

@@ -68,6 +68,14 @@ CREATE TABLE IF NOT EXISTS consentimiento_firmas (
 
 CREATE INDEX IF NOT EXISTS idx_firmas_cliente ON consentimiento_firmas (cliente_uuid);
 
+-- Texto del consentimiento vigente (migracion 44 del servidor). Lo trae la bajada y se
+-- reemplaza entero: es una copia. La firma guarda su version.
+CREATE TABLE IF NOT EXISTS consentimiento_texto (
+  version   TEXT PRIMARY KEY,
+  titulo    TEXT NOT NULL,
+  contenido TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS solicitudes (
   uuid_local        TEXT PRIMARY KEY,
   id_servidor       INTEGER,

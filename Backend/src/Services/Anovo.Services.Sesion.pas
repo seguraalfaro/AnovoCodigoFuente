@@ -11,6 +11,7 @@ uses
   Anovo.Entities.Usuarios,
   Anovo.Repositories.Intf.Usuarios,
   Anovo.Repositories.Intf.Empresa,
+  Anovo.Repositories.Intf.Clientes,
   Anovo.Services.Intf.Sesion,
   Anovo.Services.Clave;
 
@@ -23,6 +24,7 @@ type
     fClave: IClaveService;
     fExcepciones: IUsuarioPermisoRepository;
     fEmpresa: IEmpresaRepository;
+    fTextos: IConsentimientoTextoRepository;
     procedure ValidarClaveNueva(const AClave: string);
     procedure GuardarCambioClave(const AUsuarioId: Integer;
       const ADto: TCambioClaveDTO);
@@ -32,7 +34,8 @@ type
     constructor Create(AUsuarios: IUsuarioRepository;
       AClaves: IUsuarioClaveRepository; ARoles: IRolRepository;
       AClave: IClaveService; AExcepciones: IUsuarioPermisoRepository;
-      AEmpresa: IEmpresaRepository); reintroduce;
+      AEmpresa: IEmpresaRepository;
+      ATextos: IConsentimientoTextoRepository); reintroduce;
     function Cuenta(const AUsuarioId: Integer; const ARol: string): TCuentaDTO;
     procedure CambiarClave(const AUsuarioId: Integer;
       const ADto: TCambioClaveDTO);
@@ -48,6 +51,7 @@ uses
   System.Character,
   System.Generics.Collections,
   Anovo.Repositories.Intf.Permisos,
+  Anovo.Services.Consentimiento,
   Anovo.Auth.EstadoUsuarios,
   MVCFramework.Commons,
   MVCFramework.Repository,
@@ -62,9 +66,10 @@ const
 constructor TSesionService.Create(AUsuarios: IUsuarioRepository;
   AClaves: IUsuarioClaveRepository; ARoles: IRolRepository;
   AClave: IClaveService; AExcepciones: IUsuarioPermisoRepository;
-  AEmpresa: IEmpresaRepository);
+  AEmpresa: IEmpresaRepository; ATextos: IConsentimientoTextoRepository);
 begin
   inherited Create;
+  fTextos := ATextos;
   fUsuarios := AUsuarios;
   fClaves := AClaves;
   fRoles := ARoles;
@@ -310,7 +315,7 @@ begin
   if GetProductVersion(ParamStr(0), lMayor, lMenor, lCompilacion) then
     Result.Servidor := Format('%d.%d.%d', [lMayor, lMenor, lCompilacion]);
   Result.Movil := dotEnv.Env('anovo.movil.version', '');
-  Result.AvisoPrivacidad := dotEnv.Env('anovo.aviso_privacidad.version', '1.1');
+  Result.AvisoPrivacidad := VersionAvisoVigente(fTextos);
   Result.BaseDatos := Format(SVersionBaseDatos, [fEmpresa.VersionEsquema]);
 end;
 

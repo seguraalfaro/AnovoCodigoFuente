@@ -21,6 +21,7 @@ type
     fClientes: IClienteRepository;
     fContactos: IClienteContactoRepository;
     fEmpresa: IEmpresaRepository;
+    fTextos: IConsentimientoTextoRepository;
     procedure LlenarEmpresa(const ADocumento: TCotizacionDocumentoDTO);
     procedure LlenarCliente(const ADocumento: TCotizacionDocumentoDTO;
       const AClienteId: Integer);
@@ -28,7 +29,8 @@ type
     [MVCInject]
     constructor Create(ACotizaciones: ICotizacionService;
       AClientes: IClienteRepository; AContactos: IClienteContactoRepository;
-      AEmpresa: IEmpresaRepository); reintroduce;
+      AEmpresa: IEmpresaRepository;
+      ATextos: IConsentimientoTextoRepository); reintroduce;
     function Documento(const AId, AUsuarioId: Integer;
       const ARoles: TArray<string>): TCotizacionDocumentoDTO;
   end;
@@ -42,16 +44,15 @@ uses
   Anovo.Condiciones,
   Anovo.DTOs.Cotizaciones,
   Anovo.Entities.Clientes,
-  Anovo.Entities.Empresa;
-
-const
-  AVISO_POR_DEFECTO = '1.1';
+  Anovo.Entities.Empresa,
+  Anovo.Services.Consentimiento;
 
 constructor TCotizacionDocumentoService.Create(ACotizaciones: ICotizacionService;
   AClientes: IClienteRepository; AContactos: IClienteContactoRepository;
-  AEmpresa: IEmpresaRepository);
+  AEmpresa: IEmpresaRepository; ATextos: IConsentimientoTextoRepository);
 begin
   inherited Create;
+  fTextos := ATextos;
   fCotizaciones := ACotizaciones;
   fClientes := AClientes;
   fContactos := AContactos;
@@ -134,8 +135,7 @@ begin
         lCotizacion.PlazoEntregaUnidad);
       Result.Garantia := TextoPlazo(lCotizacion.GarantiaCantidad,
         lCotizacion.GarantiaUnidad);
-      Result.AvisoPrivacidad := dotEnv.Env('anovo.aviso_privacidad.version',
-        AVISO_POR_DEFECTO);
+      Result.AvisoPrivacidad := VersionAvisoVigente(fTextos);
 
       lLinea := TLineaDocumentoDTO.Create;
       Result.Lineas.Add(lLinea);

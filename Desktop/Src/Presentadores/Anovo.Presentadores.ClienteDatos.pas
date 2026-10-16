@@ -35,6 +35,8 @@ type
     procedure Refrescar(const APestana: TPestanaCliente);
     procedure Guardar(const ADto: TClienteEdicionDTO);
     procedure Anonimizar;
+    procedure AnonimizarContacto(const AContactoId: Integer;
+      const ANombre: string);
     class function PuedeEditar: Boolean;
     class function PuedeAnonimizar: Boolean;
     class function PuedeRevocar: Boolean;
@@ -108,6 +110,8 @@ begin
   Result := [];
   if PuedeEditar then
     Result := [acoEditar, acoQuitar];
+  if PuedeAnonimizar then
+    Include(Result, acoAnonimizar);
 end;
 
 class function TPresentadorClienteDatos.AccionesCotizacion
@@ -206,6 +210,32 @@ begin
       Refrescar(pcDatos);
       if pcContactos in FCargadas then
         Refrescar(pcContactos);
+    end, MostrarError, MostrarCargando);
+end;
+
+procedure TPresentadorClienteDatos.AnonimizarContacto(const AContactoId: Integer;
+  const ANombre: string);
+var
+  lApi: IApiClientes;
+  lId: Integer;
+  lMotivo: string;
+begin
+  if not PuedeAnonimizar or (AContactoId = 0) then
+    Exit;
+  if not FVista.PedirMotivoContacto(ANombre, lMotivo) then
+    Exit;
+
+  lApi := FApi;
+  lId := FClienteId;
+
+  Ejecutar(SAccionAnonimizarContacto,
+    procedure
+    begin
+      lApi.AnonimizarContacto(lId, AContactoId, lMotivo);
+    end,
+    procedure
+    begin
+      Refrescar(pcContactos);
     end, MostrarError, MostrarCargando);
 end;
 

@@ -24,6 +24,8 @@ type
 
     procedure Inactivar(const AId: Integer);
     procedure Anonimizar(const AId: Integer; const AMotivo: string);
+    procedure AnonimizarContacto(const AId, AContactoId: Integer;
+      const AMotivo: string);
 
     function RegistrarCompleto(const ADto: TClienteRegistroCompletoDTO)
       : Integer;

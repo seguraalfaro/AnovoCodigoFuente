@@ -30,6 +30,7 @@ uses
   Anovo.Controllers.Correo,
   Anovo.Controllers.Dispositivos,
   Anovo.Controllers.Sincronizacion,
+  Anovo.Controllers.Consentimiento,
   Anovo.Auth.Token,
   Anovo.Red,
   Anovo.Middleware.Documentacion,
@@ -80,6 +81,7 @@ begin
   AEngine.AddController(TCorreoController);
   AEngine.AddController(TDispositivosController);
   AEngine.AddController(TSincronizacionController);
+  AEngine.AddController(TConsentimientoController);
 
   AEngine.SetExceptionHandler(ManejadorDeErrores());
 

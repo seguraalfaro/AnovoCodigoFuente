@@ -5,6 +5,8 @@ unit Anovo.Api.Intf.Configuracion;
 interface
 
 uses
+  System.Generics.Collections,
+  Anovo.DTOs.Clientes,
   Anovo.DTOs.Empresa,
   Anovo.DTOs.Sesion;
 
@@ -16,6 +18,8 @@ type
     function Version(const AUrl: string = ''): TVersionDTO;
     function Empresa: TEmpresaDTO;
     procedure GuardarEmpresa(const ADto: TEmpresaDTO);
+    function VersionesConsentimiento: TObjectList<TConsentimientoTextoDTO>;
+    procedure PublicarConsentimiento(const ADto: TConsentimientoTextoNuevoDTO);
   end;
 
 implementation

@@ -11,7 +11,7 @@ uses
 type
   TPestanaCliente = (pcDatos, pcContactos, pcConsentimiento, pcCotizaciones);
 
-  TAccionContacto = (acoEditar, acoQuitar);
+  TAccionContacto = (acoEditar, acoQuitar, acoAnonimizar);
   TAccionesContacto = set of TAccionContacto;
 
   TAccionCotizacionCliente = (accVer);
@@ -32,6 +32,8 @@ type
     procedure MostrarModoEdicion(const AActivo: Boolean);
     procedure MostrarAnonimizacion(const AVisible, AHabilitado: Boolean);
     function PedirMotivoAnonimizacion(out AMotivo: string): Boolean;
+    function PedirMotivoContacto(const ANombre: string;
+      out AMotivo: string): Boolean;
   end;
 
 implementation

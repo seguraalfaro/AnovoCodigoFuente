@@ -524,6 +524,20 @@ type
     mtTelefonosACTIVO: TBooleanField;
     mtTelefonosINACTIVAR: TBooleanField;
     dsTelefonos: TDataSource;
+    mtTextosConsentimiento: TFDMemTable;
+    mtTextosConsentimientoID: TIntegerField;
+    mtTextosConsentimientoVERSION: TStringField;
+    mtTextosConsentimientoTITULO: TStringField;
+    mtTextosConsentimientoVIGENTE_DESDE: TDateTimeField;
+    mtTextosConsentimientoESTADO: TStringField;
+    mtTextosConsentimientoVIGENTE: TBooleanField;
+    mtTextosConsentimientoCONTENIDO: TWideMemoField;
+    dsTextosConsentimiento: TDataSource;
+    mtConsentimientoNuevo: TFDMemTable;
+    mtConsentimientoNuevoVERSION: TStringField;
+    mtConsentimientoNuevoTITULO: TStringField;
+    mtConsentimientoNuevoCONTENIDO: TWideMemoField;
+    dsConsentimientoNuevo: TDataSource;
     mtItemsLinea: TFDMemTable;
     mtItemsLineaID: TIntegerField;
     mtItemsLineaCODIGO: TStringField;
@@ -625,6 +639,9 @@ type
     procedure CatalogoCalcFields(DataSet: TDataSet);
     procedure MotivoTelefonoGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
+    procedure TextosConsentimientoCalcFields(DataSet: TDataSet);
+    procedure EstadoConsentimientoGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
     procedure EstadoGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
     procedure TipoGetText(Sender: TField; var Text: string;
@@ -664,6 +681,7 @@ type
     procedure PrepararClienteNuevo;
     procedure PrepararContactoNuevo(const AClienteId: Integer);
     procedure PrepararUsuario;
+    procedure PrepararConsentimientoNuevo;
     procedure PrepararParametros(const AMinutosAvisos: Integer);
     procedure FijarDiasSinRespuesta(const ADias: Integer);
     procedure Preparar(const ATabla: TFDMemTable);
@@ -757,6 +775,23 @@ procedure TdmMemoria.mtContactoNuevoBeforePost(DataSet: TDataSet);
 begin
   mtContactoNuevoTELEFONO.AsString :=
     TFormato.TelefonoExt(mtContactoNuevoTELEFONO.AsString);
+end;
+
+procedure TdmMemoria.TextosConsentimientoCalcFields(DataSet: TDataSet);
+begin
+  if mtTextosConsentimientoVIGENTE.AsBoolean then
+    mtTextosConsentimientoESTADO.AsString := ESTADO_ACTIVO
+  else
+    mtTextosConsentimientoESTADO.AsString := ESTADO_INACTIVO;
+end;
+
+procedure TdmMemoria.EstadoConsentimientoGetText(Sender: TField;
+  var Text: string; DisplayText: Boolean);
+begin
+  if Sender.AsString = ESTADO_ACTIVO then
+    Text := SEstadoVigente
+  else
+    Text := SEstadoAnterior;
 end;
 
 procedure TdmMemoria.MotivoTelefonoGetText(Sender: TField; var Text: string;
@@ -1016,6 +1051,13 @@ begin
   ATabla.Close;
   ATabla.CreateDataSet;
   ATabla.Append;
+end;
+
+procedure TdmMemoria.PrepararConsentimientoNuevo;
+begin
+  mtConsentimientoNuevo.Close;
+  mtConsentimientoNuevo.CreateDataSet;
+  mtConsentimientoNuevo.Append;
 end;
 
 procedure TdmMemoria.PrepararUsuario;

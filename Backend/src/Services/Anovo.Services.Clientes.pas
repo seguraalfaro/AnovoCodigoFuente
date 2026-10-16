@@ -34,6 +34,7 @@ type
     procedure CopiarEstado(const AOrigen, ADestino: TClienteContactos); overload;
     procedure ExigirPersonaFisica(const ACliente: TClientes);
     procedure AnonimizarContactos(const AClienteId: Integer);
+    procedure VaciarContacto(const AContacto: TClienteContactos);
     procedure AnonimizarAdjuntos(const AClienteId: Integer);
   public
     [MVCInject]
@@ -50,6 +51,8 @@ type
     procedure Actualizar(const AId: Integer; const ADto: TClienteEdicionDTO);
     procedure Inactivar(const AId: Integer);
     procedure Anonimizar(const AId: Integer; const AMotivo: string);
+    procedure AnonimizarContacto(const AId, AContactoId: Integer;
+      const AMotivo: string);
     function RegistrarCompleto(const ADto: TClienteRegistroCompletoDTO)
       : Integer;
 
@@ -180,18 +183,45 @@ begin
   lContactos := fContactos.TodosDe(AClienteId);
   try
     for lContacto in lContactos do
-    begin
-      lContacto.Nombre := SContactoAnonimizadoNombre;
-      lContacto.Area := nil;
-      lContacto.Telefono := nil;
-      lContacto.Celular := nil;
-      lContacto.Correo := nil;
-      lContacto.Anonimizado := True;
-      lContacto.Activo := False;
-      fContactos.Update(lContacto);
-    end;
+      VaciarContacto(lContacto);
   finally
     lContactos.Free;
+  end;
+end;
+
+procedure TClienteService.VaciarContacto(const AContacto: TClienteContactos);
+begin
+  AContacto.Nombre := SContactoAnonimizadoNombre;
+  AContacto.Area := nil;
+  AContacto.Telefono := nil;
+  AContacto.Celular := nil;
+  AContacto.Correo := nil;
+  AContacto.Anonimizado := True;
+  AContacto.Activo := False;
+  fContactos.Update(AContacto);
+end;
+
+procedure TClienteService.AnonimizarContacto(const AId, AContactoId: Integer;
+  const AMotivo: string);
+var
+  lContacto: TClienteContactos;
+begin
+  var
+  lTx := TMVCRepository.UseTransactionContext;
+
+  if AMotivo.Trim.IsEmpty then
+    raise EDatoInvalido.Create(SMotivoFalta);
+
+  lContacto := TraerContacto(AId, AContactoId);
+  try
+    if lContacto.Anonimizado then
+      raise EConflictoDeEstado.Create('CONTACTO_ANONIMIZADO',
+        SContactoYaAnonimizado);
+    FijarDetalle(Format(SDetalleAnonimizacionContacto,
+      [AContactoId, AId, AMotivo.Trim]));
+    VaciarContacto(lContacto);
+  finally
+    lContacto.Free;
   end;
 end;
 

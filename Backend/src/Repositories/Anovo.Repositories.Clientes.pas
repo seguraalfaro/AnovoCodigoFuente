@@ -49,6 +49,14 @@ type
       : TObjectList<TConsentimientosDeCliente>;
   end;
 
+  TConsentimientoTextoRepository = class
+    (TAnovoRepository<TConsentimientoTextos>, IConsentimientoTextoRepository)
+  public
+    function Todas: TObjectList<TConsentimientoTextos>;
+    function Vigente: TConsentimientoTextos;
+    function PorVersion(const AVersion: string): TConsentimientoTextos;
+  end;
+
 implementation
 
 uses
@@ -139,6 +147,23 @@ function TClienteContactoRepository.ContactosDe(const AClienteId: Integer)
   : TObjectList<TClienteContactos>;
 begin
   Result := GetWhere(CONTACTOS_DE_CLIENTE, [AClienteId]);
+end;
+
+function TConsentimientoTextoRepository.Todas
+  : TObjectList<TConsentimientoTextos>;
+begin
+  Result := GetWhere(TEXTOS_CONSENTIMIENTO_TODOS, []);
+end;
+
+function TConsentimientoTextoRepository.Vigente: TConsentimientoTextos;
+begin
+  Result := GetOneByWhere(TEXTO_CONSENTIMIENTO_VIGENTE, [], False);
+end;
+
+function TConsentimientoTextoRepository.PorVersion(const AVersion: string)
+  : TConsentimientoTextos;
+begin
+  Result := GetOneByWhere(TEXTO_CONSENTIMIENTO_POR_VERSION, [AVersion], False);
 end;
 
 function TConsentimientoRepository.HistorialDe(const AClienteId: Integer)

@@ -69,6 +69,7 @@ type
     edIva: TrDBEdit;
     lblNotaIva: TLabel;
     btnDocumentoEmpresa: TPlanoBotonWin;
+    btnConsentimiento: TPlanoBotonWin;
     btnDeshacer: TPlanoBotonWin;
     btnGuardarEmpresa: TPlanoBotonWin;
     tjParametros: TPlanoTarjeta;
@@ -82,6 +83,7 @@ type
     procedure btnCambiarServidorClick(Sender: TObject);
     procedure btnDeshacerClick(Sender: TObject);
     procedure btnDocumentoEmpresaClick(Sender: TObject);
+    procedure btnConsentimientoClick(Sender: TObject);
     procedure btnGuardarEmpresaClick(Sender: TObject);
     procedure btnGuardarParametrosClick(Sender: TObject);
   private
@@ -120,6 +122,7 @@ uses
   Anovo.Forms.CambioClave,
   Anovo.Forms.Conexion,
   Anovo.Forms.DocumentoEmpresa,
+  Anovo.Forms.Consentimiento,
   Anovo.Datos.Memoria,
   Anovo.Mapeo.Datos,
   Anovo.Validacion,
@@ -183,6 +186,11 @@ procedure TfraConfiguracion.btnDocumentoEmpresaClick(Sender: TObject);
 begin
   if TfrmDocumentoEmpresa.Editar(Self) then
     btnGuardarEmpresaClick(Sender);
+end;
+
+procedure TfraConfiguracion.btnConsentimientoClick(Sender: TObject);
+begin
+  TfrmConsentimiento.Mostrar(Self);
 end;
 
 procedure TfraConfiguracion.btnDeshacerClick(Sender: TObject);

@@ -2697,6 +2697,90 @@ object dmMemoria: TdmMemoria
     Left = 1384
     Top = 792
   end
+  object mtTextosConsentimiento: TFDMemTable
+    OnCalcFields = TextosConsentimientoCalcFields
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1280
+    Top = 848
+    object mtTextosConsentimientoID: TIntegerField
+      FieldName = 'ID'
+      Visible = False
+    end
+    object mtTextosConsentimientoVERSION: TStringField
+      DisplayLabel = 'Versi'#243'n'
+      FieldName = 'VERSION'
+      Size = 10
+    end
+    object mtTextosConsentimientoTITULO: TStringField
+      DisplayLabel = 'T'#237'tulo'
+      FieldName = 'TITULO'
+      Size = 120
+    end
+    object mtTextosConsentimientoVIGENTE_DESDE: TDateTimeField
+      DisplayLabel = 'Rige desde'
+      FieldName = 'VIGENTE_DESDE'
+      DisplayFormat = 'dd/mm/yyyy hh:nn'
+    end
+    object mtTextosConsentimientoESTADO: TStringField
+      DisplayLabel = 'Estado'
+      FieldKind = fkCalculated
+      FieldName = 'ESTADO'
+      OnGetText = EstadoConsentimientoGetText
+      Size = 15
+      Calculated = True
+    end
+    object mtTextosConsentimientoVIGENTE: TBooleanField
+      FieldName = 'VIGENTE'
+      Visible = False
+    end
+    object mtTextosConsentimientoCONTENIDO: TWideMemoField
+      FieldName = 'CONTENIDO'
+      Visible = False
+      BlobType = ftWideMemo
+    end
+  end
+  object dsTextosConsentimiento: TDataSource
+    AutoEdit = False
+    DataSet = mtTextosConsentimiento
+    Left = 1384
+    Top = 848
+  end
+  object mtConsentimientoNuevo: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1280
+    Top = 904
+    object mtConsentimientoNuevoVERSION: TStringField
+      DisplayLabel = 'Versi'#243'n'
+      FieldName = 'VERSION'
+      Size = 10
+    end
+    object mtConsentimientoNuevoTITULO: TStringField
+      DisplayLabel = 'T'#237'tulo'
+      FieldName = 'TITULO'
+      Size = 120
+    end
+    object mtConsentimientoNuevoCONTENIDO: TWideMemoField
+      FieldName = 'CONTENIDO'
+      BlobType = ftWideMemo
+    end
+  end
+  object dsConsentimientoNuevo: TDataSource
+    DataSet = mtConsentimientoNuevo
+    Left = 1384
+    Top = 904
+  end
   object mtItemsLinea: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll

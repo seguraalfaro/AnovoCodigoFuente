@@ -8,7 +8,7 @@ Version=13.7
 ' en SQLite. Las escrituras van en una transaccion: si algo falla, no queda nada a medias.
 
 Sub Process_Globals
-	Public Const CONSENT_VERSION As String = "v1"
+	Private Const SQL_TEXTO_VIGENTE As String = "SELECT version, titulo, contenido FROM consentimiento_texto LIMIT 1"
 	Private Const SQL_CLIENTE As String = "INSERT INTO clientes (uuid_local, nombre, identificacion, tipo_identificacion, telefono, correo, contacto, direccion, latitud, longitud, estado_sync) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pendiente')"
 	Private Const SQL_UBICACION As String = "SELECT latitud, longitud FROM clientes WHERE uuid_local = ? AND latitud IS NOT NULL AND longitud IS NOT NULL"
 	Private Const SQL_CONTACTO As String = "INSERT INTO cliente_contactos (uuid_local, cliente_uuid, nombre, area, telefono, celular, correo, principal, consentimiento_estado, estado_sync) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendiente', 'pendiente')"
@@ -79,6 +79,19 @@ Public Sub UltimoPermiso (ClienteUuid As String) As PermisoCliente
 	Return p
 End Sub
 
+Public Sub TextoVigente As TextoPermiso
+	Dim t As TextoPermiso
+	t.Initialize
+	Dim rs As ResultSet = Db.DbSQL.ExecQuery(SQL_TEXTO_VIGENTE)
+	If rs.NextRow Then
+		t.Version = rs.GetString("version")
+		t.Titulo = rs.GetString("titulo")
+		t.Contenido = rs.GetString("contenido")
+	End If
+	rs.Close
+	Return t
+End Sub
+
 Public Sub UbicacionDe (ClienteUuid As String) As UbicacionGps
 	Dim u As UbicacionGps = Tipos.UbicacionVacia
 	Dim rs As ResultSet = Db.DbSQL.ExecQuery2(SQL_UBICACION, Array As String(ClienteUuid))
@@ -141,8 +154,8 @@ Public Sub Guardar (c As Cliente, Contactos As List, Permiso As Consentimiento, 
 				k.Telefono, k.Celular, k.Correo, IIf(k.Principal, 1, 0)))
 			uuids.Add(k.UuidLocal)
 		Next
-		If titular <> Null Then s.ExecNonQuery2(SQL_FIRMAR_CONTACTO, Array As Object(CONSENT_VERSION, ahora, titular))
-		s.ExecNonQuery2(SQL_FIRMA, Array As Object(uFirma, c.UuidLocal, titular, CONSENT_VERSION, ahora, _
+		If titular <> Null Then s.ExecNonQuery2(SQL_FIRMAR_CONTACTO, Array As Object(Permiso.Version, ahora, titular))
+		s.ExecNonQuery2(SQL_FIRMA, Array As Object(uFirma, c.UuidLocal, titular, Permiso.Version, ahora, _
 			Permiso.Firmante, Permiso.CedulaFirmante, Permiso.Firma))
 		Db.Encolar("cliente", c.UuidLocal)
 		Db.EncolarVarios("contacto", uuids)

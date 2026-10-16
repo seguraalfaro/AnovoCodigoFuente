@@ -587,7 +587,7 @@ object fraConfiguracion: TfraConfiguracion
         Tag = 21
         Left = 16
         Top = 312
-        Width = 200
+        Width = 175
         Height = 32
         Cursor = crHandPoint
         Caption = 'Documento de la cotizaci'#243'n'
@@ -596,10 +596,23 @@ object fraConfiguracion: TfraConfiguracion
         OnClick = btnDocumentoEmpresaClick
         Kind = fkSecondary
       end
-      object btnDeshacer: TPlanoBotonWin
-        Left = 288
+      object btnConsentimiento: TPlanoBotonWin
+        Tag = 21
+        Left = 199
         Top = 312
-        Width = 150
+        Width = 163
+        Height = 32
+        Cursor = crHandPoint
+        Caption = 'Texto del consentimiento'
+        TabOrder = 12
+        StyleElements = []
+        OnClick = btnConsentimientoClick
+        Kind = fkSecondary
+      end
+      object btnDeshacer: TPlanoBotonWin
+        Left = 370
+        Top = 312
+        Width = 108
         Height = 32
         Cursor = crHandPoint
         Caption = 'Deshacer'
@@ -609,9 +622,9 @@ object fraConfiguracion: TfraConfiguracion
         Kind = fkSecondary
       end
       object btnGuardarEmpresa: TPlanoBotonWin
-        Left = 446
+        Left = 486
         Top = 312
-        Width = 150
+        Width = 110
         Height = 32
         Cursor = crHandPoint
         Caption = 'Guardar datos'

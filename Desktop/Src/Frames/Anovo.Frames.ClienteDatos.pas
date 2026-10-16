@@ -106,6 +106,8 @@ type
     procedure MostrarModoEdicion(const AActivo: Boolean);
     procedure MostrarAnonimizacion(const AVisible, AHabilitado: Boolean);
     function PedirMotivoAnonimizacion(out AMotivo: string): Boolean;
+    function PedirMotivoContacto(const ANombre: string;
+      out AMotivo: string): Boolean;
     procedure AccionContacto(Sender: TObject; const AClave: string);
     procedure AccionCotizacion(Sender: TObject; const AClave: string);
     procedure PrepararRejilla(const AGrid: TrDBGrid;
@@ -140,7 +142,8 @@ const
 
   ACCIONES_CONTACTO: array [TAccionContacto] of TAccionRejilla =
     ((Clave: 'editar'; Rotulo: SAccionEditar), (Clave: 'quitar';
-    Rotulo: SAccionQuitar));
+    Rotulo: SAccionQuitar), (Clave: 'anonimizar';
+    Rotulo: SAccionAnonimizarFila));
 
   ACCIONES_COTIZACION: array [TAccionCotizacionCliente] of TAccionRejilla =
     ((Clave: 'ver'; Rotulo: SAccionVer));
@@ -247,6 +250,13 @@ begin
     SAnonimizarBoton, AMotivo);
 end;
 
+function TfraClienteDatos.PedirMotivoContacto(const ANombre: string;
+  out AMotivo: string): Boolean;
+begin
+  Result := TfrmMotivo.Pedir(Self, SAnonimizarContactoTitulo,
+    Format(SAnonimizarContactoAyuda, [ANombre]), SAnonimizarBoton, AMotivo);
+end;
+
 procedure TfraClienteDatos.btnAnonimizarClick(Sender: TObject);
 begin
   FPresentador.Anonimizar;
@@ -305,7 +315,11 @@ procedure TfraClienteDatos.AccionContacto(Sender: TObject;
 begin
   if dmMemoria.mtContactos.IsEmpty then
     Exit;
-  Informar(SOpcionPendiente);
+  if SameText(AClave, ACCIONES_CONTACTO[acoAnonimizar].Clave) then
+    FPresentador.AnonimizarContacto(dmMemoria.mtContactosID.AsInteger,
+      dmMemoria.mtContactosNOMBRE.AsString)
+  else
+    Informar(SOpcionPendiente);
 end;
 
 procedure TfraClienteDatos.AccionCotizacion(Sender: TObject;
