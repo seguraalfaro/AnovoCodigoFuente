@@ -19,9 +19,11 @@ type
   TfrmDocumentoEmpresa = class(TfrmEdicion)
     pnlCampos: TPanel;
     edFirmante: TrDBEdit;
-    edFormaPago: TrDBEdit;
+    cbFormaPago: TrDBLookupComboBox;
     edEntrega: TrDBEdit;
+    cbEntregaUnidad: TrDBLookupComboBox;
     edGarantia: TrDBEdit;
+    cbGarantiaUnidad: TrDBLookupComboBox;
     meCarta: TrDBMemo;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);

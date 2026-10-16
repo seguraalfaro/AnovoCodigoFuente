@@ -60,6 +60,7 @@ type
       const AAcciones: TAccionesLinea);
     procedure MostrarLineas(const ALineas: TObjectList<TLineaDTO>);
     procedure MostrarTiposTrabajo(const ATipos: TObjectList<TTipoTrabajoDTO>);
+    procedure MostrarFormasPago(const AFormas: TObjectList<TCatalogoSimpleDTO>);
     procedure MostrarSolicitud(const AProyecto, AContacto: string);
     procedure MostrarPiezas(const APiezas: TObjectList<TPiezaDTO>);
     procedure MostrarMedidas(const APieza: string;

@@ -54,15 +54,18 @@ type
     [MVCTableField('DIAS_SIN_RESPUESTA')]
     [MVCRequired]
     fDiasSinRespuesta: Int32;
-    [MVCTableField('FORMA_PAGO')]
-    [MVCMaxLength(120)]
-    fFormaPago: NullableString;
-    [MVCTableField('PLAZO_ENTREGA')]
-    [MVCMaxLength(120)]
-    fPlazoEntrega: NullableString;
-    [MVCTableField('GARANTIA')]
-    [MVCMaxLength(120)]
-    fGarantia: NullableString;
+    [MVCTableField('FORMA_PAGO_ID')]
+    fFormaPagoId: NullableInt32;
+    [MVCTableField('PLAZO_ENTREGA_CANTIDAD')]
+    fPlazoEntregaCantidad: NullableInt16;
+    [MVCTableField('PLAZO_ENTREGA_UNIDAD')]
+    [MVCMaxLength(15)]
+    fPlazoEntregaUnidad: NullableString;
+    [MVCTableField('GARANTIA_CANTIDAD')]
+    fGarantiaCantidad: NullableInt16;
+    [MVCTableField('GARANTIA_UNIDAD')]
+    [MVCMaxLength(15)]
+    fGarantiaUnidad: NullableString;
     [MVCTableField('FIRMANTE')]
     [MVCMaxLength(120)]
     fFirmante: NullableString;
@@ -82,9 +85,11 @@ type
     property FechaModificacion: NullableTDateTime  read fFechaModificacion write fFechaModificacion;
     property PorcentajeIva: Currency read fPorcentajeIva write fPorcentajeIva;
     property DiasSinRespuesta: Int32 read fDiasSinRespuesta write fDiasSinRespuesta;
-    property FormaPago: NullableString read fFormaPago write fFormaPago;
-    property PlazoEntrega: NullableString read fPlazoEntrega write fPlazoEntrega;
-    property Garantia: NullableString read fGarantia write fGarantia;
+    property FormaPagoId: NullableInt32 read fFormaPagoId write fFormaPagoId;
+    property PlazoEntregaCantidad: NullableInt16 read fPlazoEntregaCantidad write fPlazoEntregaCantidad;
+    property PlazoEntregaUnidad: NullableString read fPlazoEntregaUnidad write fPlazoEntregaUnidad;
+    property GarantiaCantidad: NullableInt16 read fGarantiaCantidad write fGarantiaCantidad;
+    property GarantiaUnidad: NullableString read fGarantiaUnidad write fGarantiaUnidad;
     property Firmante: NullableString read fFirmante write fFirmante;
     property CartaPresentacion: NullableString read fCartaPresentacion write fCartaPresentacion;
   end;

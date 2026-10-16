@@ -8,6 +8,7 @@ interface
 uses
   System.Generics.Collections,
   MVCFramework.Nullables,
+  MVCFramework.ActiveRecord,
   MVCFramework.Repository,
   Anovo.Entities.Catalogos,
   Anovo.Entities.Vistas.Lectura,
@@ -107,16 +108,29 @@ type
       const AConUuid: Boolean = False): TObjectList<TTiposTrabajo>;
   end;
 
-  ITipoMaterialRepository = interface(IMVCRepository<TTiposMaterial>)
+  ICatalogoSimpleRepository<T: TMVCActiveRecord, constructor> = interface
+    (IMVCRepository<T>)
+    function Todos(const AIncluirInactivos: Boolean = False;
+      const ATexto: string = ''): TObjectList<T>;
+    function ExisteNombre(const ANombre: string;
+      const AExcluirId: Integer = 0): Boolean;
+  end;
+
+  ITipoMaterialRepository = interface(ICatalogoSimpleRepository<TTiposMaterial>)
     ['{3D7B1E90-5A42-4C68-9F13-B2E06C85A1D4}']
     function ParaBajar(const ADesde: NullableTDateTime;
       const AConUuid: Boolean = False): TObjectList<TTiposMaterial>;
   end;
 
-  IAcabadoRepository = interface(IMVCRepository<TAcabados>)
+  IAcabadoRepository = interface(ICatalogoSimpleRepository<TAcabados>)
     ['{E58C2A17-0B93-4D6F-8A41-7F2D96C3B05E}']
     function ParaBajar(const ADesde: NullableTDateTime;
       const AConUuid: Boolean = False): TObjectList<TAcabados>;
+  end;
+
+  IFormaPagoRepository = interface(ICatalogoSimpleRepository<TFormasPago>)
+    ['{6B1F4D82-93A7-4E05-B8C3-2D9E71A6F4B0}']
+    function Activa(const AId: Integer): TFormasPago;
   end;
 
   IUnidadMedidaRepository = interface(IMVCRepository<TUnidadesMedida>)

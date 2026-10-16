@@ -83,6 +83,15 @@ resourcestring
   SNombreDuplicadoOtraManoObra = 'Ya existe otra mano de obra con ese nombre.';
   SNombreDuplicadoTipoTrabajo = 'Ya existe un tipo de trabajo con ese ' +
     'nombre.';
+  SNombreDuplicadoTipoMaterial = 'Ya existe un tipo de material con ese ' +
+    'nombre.';
+  SNombreDuplicadoOtroTipoMaterial = 'Ya existe otro tipo de material con ' +
+    'ese nombre.';
+  SNombreDuplicadoAcabado = 'Ya existe un acabado con ese nombre.';
+  SNombreDuplicadoOtroAcabado = 'Ya existe otro acabado con ese nombre.';
+  SNombreDuplicadoFormaPago = 'Ya existe una forma de pago con ese nombre.';
+  SNombreDuplicadoOtraFormaPago = 'Ya existe otra forma de pago con ese ' +
+    'nombre.';
   SNombreDuplicadoOtroTipoTrabajo = 'Ya existe otro tipo de trabajo con ese ' +
     'nombre.';
   SNombreDuplicadoUnidadMedida = 'Ya existe una unidad de medida con ese ' +
@@ -246,6 +255,25 @@ resourcestring
   SRecursoManoObra = 'la mano de obra';
   SRecursoMaquina = 'la máquina';
   SRecursoTipoTrabajo = 'el tipo de trabajo';
+  SRecursoTipoMaterial = 'el tipo de material';
+  SRecursoAcabado = 'el acabado';
+  SRecursoFormaPago = 'la forma de pago';
+  SFormaPagoNoDisponible = 'La forma de pago escogida no existe o está ' +
+    'inactiva.';
+  SPlazoEntregaInvalido = 'El plazo de entrega lleva una cantidad entre 1 y ' +
+    '%d y su unidad, o queda vacío.';
+  SGarantiaInvalida = 'La garantía lleva una cantidad entre 1 y %d y su ' +
+    'unidad, o queda vacía.';
+  SUnidadDia = 'día';
+  SUnidadDias = 'días';
+  SUnidadDiaHabil = 'día hábil';
+  SUnidadDiasHabiles = 'días hábiles';
+  SUnidadSemana = 'semana';
+  SUnidadSemanas = 'semanas';
+  SUnidadMes = 'mes';
+  SUnidadMeses = 'meses';
+  SUnidadAnio = 'año';
+  SUnidadAnios = 'años';
   SRecursoEmpresa = 'los datos de la empresa';
   STipoTrabajoNoDisponible =
     'El tipo de trabajo no existe o está inactivo.';
@@ -481,6 +509,9 @@ resourcestring
   SCatalogoMaquinas = 'Máquinas';
   SCatalogoTiposTrabajo = 'Tipos de trabajo';
   SCatalogoUnidadesMedida = 'Unidades de medida';
+  SCatalogoTiposMaterial = 'Tipos de material';
+  SCatalogoAcabados = 'Acabados';
+  SCatalogoFormasPago = 'Formas de pago';
 
   STipoMaterial = 'Material';
   STipoManoObra = 'Mano de obra';
@@ -491,6 +522,9 @@ resourcestring
   SItemManoObra = 'mano de obra';
   SItemMaquina = 'máquina';
   SItemTipoTrabajo = 'tipo de trabajo';
+  SItemTipoMaterial = 'tipo de material';
+  SItemAcabado = 'acabado';
+  SItemFormaPago = 'forma de pago';
   SItemUnidadMedida = 'unidad de medida';
 
   STituloNuevoItem = 'Nuevo %s';
@@ -501,6 +535,9 @@ resourcestring
   SNuevaManoObra = '+ Nueva mano de obra';
   SNuevaMaquina = '+ Nueva máquina';
   SNuevoTipoTrabajo = '+ Nuevo tipo de trabajo';
+  SNuevoTipoMaterial = '+ Nuevo tipo de material';
+  SNuevoAcabado = '+ Nuevo acabado';
+  SNuevaFormaPago = '+ Nueva forma de pago';
   SNuevaUnidadMedida = '+ Nueva unidad de medida';
 
   SPistaBusquedaItem = 'Código, nombre o descripción';
@@ -756,6 +793,15 @@ resourcestring
   SDetalleRegistroTipoTrabajo = 'Registro del tipo de trabajo %s';
   SDetalleCambioTipoTrabajo = 'Cambio en el tipo de trabajo %s';
   SDetalleInactivacionTipoTrabajo = 'Inactivación del tipo de trabajo %s';
+  SDetalleRegistroTipoMaterial = 'Registro del tipo de material %s';
+  SDetalleCambioTipoMaterial = 'Cambio en el tipo de material %s';
+  SDetalleInactivacionTipoMaterial = 'Inactivación del tipo de material %s';
+  SDetalleRegistroAcabado = 'Registro del acabado %s';
+  SDetalleCambioAcabado = 'Cambio en el acabado %s';
+  SDetalleInactivacionAcabado = 'Inactivación del acabado %s';
+  SDetalleRegistroFormaPago = 'Registro de la forma de pago %s';
+  SDetalleCambioFormaPago = 'Cambio en la forma de pago %s';
+  SDetalleInactivacionFormaPago = 'Inactivación de la forma de pago %s';
   SDetalleRegistroUnidadMedida = 'Registro de la unidad de medida %s';
   SDetalleCambioUnidadMedida = 'Cambio en la unidad de medida %s';
   SDetalleInactivacionUnidadMedida = 'Inactivación de la unidad de medida %s';

@@ -10,6 +10,8 @@ uses
   Anovo.DTOs.Importacion;
 
 type
+  TCatalogoSimple = (csTipoMaterial, csAcabado, csFormaPago);
+
   IApiCatalogos = interface
     ['{7A1D5E92-4C08-4B36-9F71-D2E560A8C314}']
 
@@ -63,6 +65,16 @@ type
     procedure ActualizarTipoTrabajo(const AId: Integer;
       const ADto: TTipoTrabajoNuevoDTO);
     procedure InactivarTipoTrabajo(const AId: Integer);
+
+    function Simples(const ACatalogo: TCatalogoSimple;
+      const AIncluirInactivos: Boolean; const ATexto: string = '')
+      : TObjectList<TCatalogoSimpleDTO>;
+    function CrearSimple(const ACatalogo: TCatalogoSimple;
+      const ADto: TCatalogoSimpleNuevoDTO): Integer;
+    procedure ActualizarSimple(const ACatalogo: TCatalogoSimple;
+      const AId: Integer; const ADto: TCatalogoSimpleNuevoDTO);
+    procedure InactivarSimple(const ACatalogo: TCatalogoSimple;
+      const AId: Integer);
 
     function UnidadesMedida(const AIncluirInactivas: Boolean;
       const ATexto: string = ''): TObjectList<TUnidadMedidaDTO>;

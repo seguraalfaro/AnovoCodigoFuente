@@ -8,6 +8,7 @@ interface
 uses
   MVCFramework,
   Anovo.DTOs.Empresa,
+  Anovo.Repositories.Intf.Catalogos,
   Anovo.Repositories.Intf.Empresa,
   Anovo.Services.Intf.Empresa;
 
@@ -15,10 +16,12 @@ type
   TEmpresaService = class(TInterfacedObject, IEmpresaService)
   private
     fRepo: IEmpresaRepository;
+    fFormasPago: IFormaPagoRepository;
     procedure Validar(const ADto: TEmpresaDTO);
   public
     [MVCInject]
-    constructor Create(ARepo: IEmpresaRepository); reintroduce;
+    constructor Create(ARepo: IEmpresaRepository;
+      AFormasPago: IFormaPagoRepository); reintroduce;
     function Obtener: TEmpresaDTO;
     procedure Actualizar(const ADto: TEmpresaDTO);
   end;
@@ -36,15 +39,19 @@ uses
   System.SysUtils,
   MVCFramework.Repository,
   Anovo.Auditoria.Contexto,
+  Anovo.Condiciones,
+  Anovo.Entities.Catalogos,
   Anovo.Entities.Empresa,
   Anovo.Errors,
   Anovo.Mapeo,
   Anovo.Textos;
 
-constructor TEmpresaService.Create(ARepo: IEmpresaRepository);
+constructor TEmpresaService.Create(ARepo: IEmpresaRepository;
+  AFormasPago: IFormaPagoRepository);
 begin
   inherited Create;
   fRepo := ARepo;
+  fFormasPago := AFormasPago;
 end;
 
 function TEmpresaService.Obtener: TEmpresaDTO;
@@ -62,6 +69,8 @@ begin
 end;
 
 procedure TEmpresaService.Validar(const ADto: TEmpresaDTO);
+var
+  lError: string;
 begin
   if Trim(ADto.RazonSocial).IsEmpty then
     raise EDatoInvalido.Create(SEmpresaFaltaRazonSocial);
@@ -79,11 +88,16 @@ begin
     (ADto.DiasSinRespuesta > DIAS_SIN_RESPUESTA_MAXIMO) then
     raise EDatoInvalido.Create(Format(SEmpresaDiasFueraDeRango,
       [DIAS_SIN_RESPUESTA_MINIMO, DIAS_SIN_RESPUESTA_MAXIMO]));
+  lError := ErrorDePlazos(ADto.PlazoEntregaCantidad, ADto.PlazoEntregaUnidad,
+    ADto.GarantiaCantidad, ADto.GarantiaUnidad);
+  if not lError.IsEmpty then
+    raise EDatoInvalido.Create(lError);
 end;
 
 procedure TEmpresaService.Actualizar(const ADto: TEmpresaDTO);
 var
   lEmpresa: TEmpresa;
+  lForma: TFormasPago;
 begin
   var
   lTx := TMVCRepository.UseTransactionContext;
@@ -95,7 +109,20 @@ begin
   try
     ADto.RazonSocial := Trim(ADto.RazonSocial);
     ADto.CedulaJuridica := Trim(ADto.CedulaJuridica);
+    if ADto.FormaPagoId.HasValue and
+      (lEmpresa.FormaPagoId.ValueOrDefault <> ADto.FormaPagoId.Value) then
+    begin
+      lForma := fFormasPago.Activa(ADto.FormaPagoId.Value);
+      if lForma = nil then
+        raise EDatoInvalido.Create(SFormaPagoNoDisponible);
+      lForma.Free;
+    end;
     TMapeo.Copiar(ADto, lEmpresa);
+    lEmpresa.FormaPagoId := ADto.FormaPagoId;
+    lEmpresa.PlazoEntregaCantidad := ACorto(ADto.PlazoEntregaCantidad);
+    lEmpresa.PlazoEntregaUnidad := UnidadONula(ADto.PlazoEntregaUnidad);
+    lEmpresa.GarantiaCantidad := ACorto(ADto.GarantiaCantidad);
+    lEmpresa.GarantiaUnidad := UnidadONula(ADto.GarantiaUnidad);
     FijarDetalle(SDetalleCambioEmpresa);
     fRepo.Update(lEmpresa);
   finally

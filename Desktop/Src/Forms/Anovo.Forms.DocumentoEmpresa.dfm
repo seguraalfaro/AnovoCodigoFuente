@@ -73,12 +73,12 @@ inherited frmDocumentoEmpresa: TfrmDocumentoEmpresa
       DBEditLabel.Font.Style = []
       DBEditLabel.ParentFont = False
     end
-    object edFormaPago: TrDBEdit
+    object cbFormaPago: TrDBLookupComboBox
       Left = 320
       Top = 26
       Width = 280
       Height = 23
-      DataField = 'FORMA_PAGO'
+      DataField = 'FORMA_PAGO_ID'
       DataSource = dmMemoria.dsEmpresa
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
@@ -86,8 +86,10 @@ inherited frmDocumentoEmpresa: TfrmDocumentoEmpresa
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
+      KeyField = 'ID'
+      ListField = 'NOMBRE'
+      ListSource = dmMemoria.dsFormasPagoLista
       TabOrder = 1
-      StyleElements = []
       ReadOnlyColor = 15987699
       DBEditLabel.AlignWithMargins = True
       DBEditLabel.Margins.Top = 5
@@ -98,13 +100,16 @@ inherited frmDocumentoEmpresa: TfrmDocumentoEmpresa
       DBEditLabel.Font.Name = 'Segoe UI'
       DBEditLabel.Font.Style = []
       DBEditLabel.ParentFont = False
+      EmptyDisplayValue = 'Sin especificar'
+      AllowLookupFilter = True
+      AutoDropDown = True
     end
     object edEntrega: TrDBEdit
       Left = 20
       Top = 76
-      Width = 280
+      Width = 70
       Height = 23
-      DataField = 'PLAZO_ENTREGA'
+      DataField = 'PLAZO_ENTREGA_CANTIDAD'
       DataSource = dmMemoria.dsEmpresa
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
@@ -125,12 +130,12 @@ inherited frmDocumentoEmpresa: TfrmDocumentoEmpresa
       DBEditLabel.Font.Style = []
       DBEditLabel.ParentFont = False
     end
-    object edGarantia: TrDBEdit
-      Left = 320
+    object cbEntregaUnidad: TrDBLookupComboBox
+      Left = 98
       Top = 76
-      Width = 280
+      Width = 202
       Height = 23
-      DataField = 'GARANTIA'
+      DataField = 'PLAZO_ENTREGA_UNIDAD'
       DataSource = dmMemoria.dsEmpresa
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
@@ -138,12 +143,68 @@ inherited frmDocumentoEmpresa: TfrmDocumentoEmpresa
       Font.Name = 'Segoe UI'
       Font.Style = []
       ParentFont = False
+      KeyField = 'CODIGO'
+      ListField = 'NOMBRE'
+      ListSource = dmMemoria.dsUnidadesPlazo
       TabOrder = 3
+      ReadOnlyColor = 15987699
+      DBEditLabel.AlignWithMargins = True
+      DBEditLabel.Margins.Top = 5
+      DBEditLabel.OwnCaption = 'Unidad'
+      DBEditLabel.Font.Charset = ANSI_CHARSET
+      DBEditLabel.Font.Color = clWindowText
+      DBEditLabel.Font.Height = -12
+      DBEditLabel.Font.Name = 'Segoe UI'
+      DBEditLabel.Font.Style = []
+      DBEditLabel.ParentFont = False
+    end
+    object edGarantia: TrDBEdit
+      Left = 320
+      Top = 76
+      Width = 70
+      Height = 23
+      DataField = 'GARANTIA_CANTIDAD'
+      DataSource = dmMemoria.dsEmpresa
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 4
       StyleElements = []
       ReadOnlyColor = 15987699
       DBEditLabel.AlignWithMargins = True
       DBEditLabel.Margins.Top = 5
       DBEditLabel.OwnCaption = 'Garant'#237'a'
+      DBEditLabel.Font.Charset = ANSI_CHARSET
+      DBEditLabel.Font.Color = clWindowText
+      DBEditLabel.Font.Height = -12
+      DBEditLabel.Font.Name = 'Segoe UI'
+      DBEditLabel.Font.Style = []
+      DBEditLabel.ParentFont = False
+    end
+    object cbGarantiaUnidad: TrDBLookupComboBox
+      Left = 398
+      Top = 76
+      Width = 202
+      Height = 23
+      DataField = 'GARANTIA_UNIDAD'
+      DataSource = dmMemoria.dsEmpresa
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentFont = False
+      KeyField = 'CODIGO'
+      ListField = 'NOMBRE'
+      ListSource = dmMemoria.dsUnidadesPlazo
+      TabOrder = 5
+      ReadOnlyColor = 15987699
+      DBEditLabel.AlignWithMargins = True
+      DBEditLabel.Margins.Top = 5
+      DBEditLabel.OwnCaption = 'Unidad'
       DBEditLabel.Font.Charset = ANSI_CHARSET
       DBEditLabel.Font.Color = clWindowText
       DBEditLabel.Font.Height = -12
@@ -161,7 +222,7 @@ inherited frmDocumentoEmpresa: TfrmDocumentoEmpresa
       DataField = 'CARTA_PRESENTACION'
       DataSource = dmMemoria.dsEmpresa
       ScrollBars = ssVertical
-      TabOrder = 4
+      TabOrder = 6
       StyleElements = []
       ReadOnlyColor = 15987699
       DBEditLabel.AlignWithMargins = True

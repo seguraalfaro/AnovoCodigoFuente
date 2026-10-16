@@ -8,12 +8,38 @@ interface
 uses
   System.Generics.Collections,
   MVCFramework,
+  MVCFramework.ActiveRecord,
   Anovo.DTOs.Catalogos,
   Anovo.Entities.Catalogos,
   Anovo.Repositories.Intf.Catalogos,
   Anovo.Services.Intf.Catalogos;
 
 type
+  TDatosActivo = class
+  private
+    fActivo: Boolean;
+  public
+    property Activo: Boolean read fActivo write fActivo;
+  end;
+
+  TDatosNuevoSimple = class
+  private
+    fNombre: string;
+    fActivo: Boolean;
+  public
+    property Nombre: string read fNombre write fNombre;
+    property Activo: Boolean read fActivo write fActivo;
+  end;
+
+  TTextosCatalogo = record
+    Recurso: string;
+    Duplicado: string;
+    DuplicadoOtro: string;
+    Registro: string;
+    Cambio: string;
+    Inactivacion: string;
+  end;
+
   TCatalogoService = class(TInterfacedObject, ICatalogoService)
   private
     fMateriales: IMaterialRepository;
@@ -27,6 +53,9 @@ type
     fTodos: ICatalogoTodosRepository;
     fTiposTrabajo: ITipoTrabajoRepository;
     fUnidades: IUnidadMedidaRepository;
+    fTiposMaterial: ITipoMaterialRepository;
+    fAcabados: IAcabadoRepository;
+    fFormasPago: IFormaPagoRepository;
 
     function TraerMaterial(const AId: Integer): TMateriales;
     function TraerManoObra(const AId: Integer): TManoObra;
@@ -37,6 +66,21 @@ type
     procedure ValidarUnidadActiva(const AId: Integer);
     procedure ValidarUnidadMedida(const ADto: TUnidadMedidaNuevaDTO;
       const AExcluirId: Integer);
+    function ListarDe<T: TMVCActiveRecord, constructor>
+      (const ARepo: ICatalogoSimpleRepository<T>;
+      const AIncluirInactivos: Boolean; const ATexto: string)
+      : TObjectList<TCatalogoSimpleDTO>;
+    function CrearEn<T: TMVCActiveRecord, constructor>
+      (const ARepo: ICatalogoSimpleRepository<T>;
+      const ATextos: TTextosCatalogo;
+      const ADto: TCatalogoSimpleNuevoDTO): Integer;
+    procedure ActualizarEn<T: TMVCActiveRecord, constructor>
+      (const ARepo: ICatalogoSimpleRepository<T>;
+      const ATextos: TTextosCatalogo; const AId: Integer;
+      const ADto: TCatalogoSimpleNuevoDTO);
+    procedure InactivarEn<T: TMVCActiveRecord, constructor>
+      (const ARepo: ICatalogoSimpleRepository<T>;
+      const ATextos: TTextosCatalogo; const AId: Integer);
   public
     [MVCInject]
     constructor Create(AMateriales: IMaterialRepository;
@@ -49,7 +93,10 @@ type
       ATiposTrabajo: ITipoTrabajoRepository;
       AProgramados: IPrecioProgramadoRepository;
       ATodos: ICatalogoTodosRepository;
-      AUnidades: IUnidadMedidaRepository); reintroduce;
+      AUnidades: IUnidadMedidaRepository;
+      ATiposMaterial: ITipoMaterialRepository;
+      AAcabados: IAcabadoRepository;
+      AFormasPago: IFormaPagoRepository); reintroduce;
 
     function BuscarTodos(const ATexto: string;
       const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
@@ -103,6 +150,16 @@ type
       const ADto: TTipoTrabajoNuevoDTO);
     procedure InactivarTipoTrabajo(const AId: Integer);
 
+    function Simples(const ACatalogo: TCatalogoSimple;
+      const AIncluirInactivos: Boolean; const ATexto: string = '')
+      : TObjectList<TCatalogoSimpleDTO>;
+    function CrearSimple(const ACatalogo: TCatalogoSimple;
+      const ADto: TCatalogoSimpleNuevoDTO): Integer;
+    procedure ActualizarSimple(const ACatalogo: TCatalogoSimple;
+      const AId: Integer; const ADto: TCatalogoSimpleNuevoDTO);
+    procedure InactivarSimple(const ACatalogo: TCatalogoSimple;
+      const AId: Integer);
+
     function UnidadesMedida(const AIncluirInactivas: Boolean;
       const ATexto: string = ''): TObjectList<TUnidadMedidaDTO>;
     function CrearUnidadMedida(const ADto: TUnidadMedidaNuevaDTO): Integer;
@@ -132,7 +189,9 @@ constructor TCatalogoService.Create(AMateriales: IMaterialRepository;
   AMaquinasPrecios: IMaquinaPrecioRepository;
   ATiposTrabajo: ITipoTrabajoRepository;
   AProgramados: IPrecioProgramadoRepository;
-  ATodos: ICatalogoTodosRepository; AUnidades: IUnidadMedidaRepository);
+  ATodos: ICatalogoTodosRepository; AUnidades: IUnidadMedidaRepository;
+  ATiposMaterial: ITipoMaterialRepository; AAcabados: IAcabadoRepository;
+  AFormasPago: IFormaPagoRepository);
 begin
   inherited Create;
   fMateriales := AMateriales;
@@ -146,6 +205,9 @@ begin
   fProgramados := AProgramados;
   fTodos := ATodos;
   fUnidades := AUnidades;
+  fTiposMaterial := ATiposMaterial;
+  fAcabados := AAcabados;
+  fFormasPago := AFormasPago;
 end;
 
 const
@@ -898,6 +960,199 @@ begin
     fTiposTrabajo.Update(lTipo);
   finally
     lTipo.Free;
+  end;
+end;
+
+function TextosDe(const ACatalogo: TCatalogoSimple): TTextosCatalogo;
+begin
+  case ACatalogo of
+    csTipoMaterial:
+      begin
+        Result.Recurso := SRecursoTipoMaterial;
+        Result.Duplicado := SNombreDuplicadoTipoMaterial;
+        Result.DuplicadoOtro := SNombreDuplicadoOtroTipoMaterial;
+        Result.Registro := SDetalleRegistroTipoMaterial;
+        Result.Cambio := SDetalleCambioTipoMaterial;
+        Result.Inactivacion := SDetalleInactivacionTipoMaterial;
+      end;
+    csAcabado:
+      begin
+        Result.Recurso := SRecursoAcabado;
+        Result.Duplicado := SNombreDuplicadoAcabado;
+        Result.DuplicadoOtro := SNombreDuplicadoOtroAcabado;
+        Result.Registro := SDetalleRegistroAcabado;
+        Result.Cambio := SDetalleCambioAcabado;
+        Result.Inactivacion := SDetalleInactivacionAcabado;
+      end;
+  else
+    begin
+      Result.Recurso := SRecursoFormaPago;
+      Result.Duplicado := SNombreDuplicadoFormaPago;
+      Result.DuplicadoOtro := SNombreDuplicadoOtraFormaPago;
+      Result.Registro := SDetalleRegistroFormaPago;
+      Result.Cambio := SDetalleCambioFormaPago;
+      Result.Inactivacion := SDetalleInactivacionFormaPago;
+    end;
+  end;
+end;
+
+function TCatalogoService.ListarDe<T>(const ARepo
+  : ICatalogoSimpleRepository<T>; const AIncluirInactivos: Boolean;
+  const ATexto: string): TObjectList<TCatalogoSimpleDTO>;
+var
+  lFilas: TObjectList<T>;
+begin
+  lFilas := ARepo.Todos(AIncluirInactivos, ATexto.Trim);
+  try
+    Result := TMapeo.AListaDto<T, TCatalogoSimpleDTO>(lFilas);
+  finally
+    lFilas.Free;
+  end;
+end;
+
+function TCatalogoService.CrearEn<T>(const ARepo
+  : ICatalogoSimpleRepository<T>; const ATextos: TTextosCatalogo;
+  const ADto: TCatalogoSimpleNuevoDTO): Integer;
+var
+  lFila: T;
+  lDatos: TDatosNuevoSimple;
+  lCreado: TCatalogoSimpleDTO;
+begin
+  var
+  lTx := TMVCRepository.UseTransactionContext;
+
+  if Trim(ADto.Nombre).IsEmpty then
+    raise EDatoInvalido.Create(SNombreObligatorio);
+  if ARepo.ExisteNombre(Trim(ADto.Nombre)) then
+    raise EDatoInvalido.Create(ATextos.Duplicado);
+
+  lFila := T.Create;
+  lDatos := TDatosNuevoSimple.Create;
+  try
+    lDatos.Nombre := Trim(ADto.Nombre);
+    lDatos.Activo := True;
+    TMapeo.Copiar(lDatos, lFila);
+    FijarDetalle(Format(ATextos.Registro, [lDatos.Nombre]));
+    ARepo.Insert(lFila);
+    lCreado := TMapeo.ADto<TCatalogoSimpleDTO>(lFila);
+    try
+      Result := lCreado.ID;
+    finally
+      lCreado.Free;
+    end;
+  finally
+    lDatos.Free;
+    lFila.Free;
+  end;
+end;
+
+procedure TCatalogoService.ActualizarEn<T>(const ARepo
+  : ICatalogoSimpleRepository<T>; const ATextos: TTextosCatalogo;
+  const AId: Integer; const ADto: TCatalogoSimpleNuevoDTO);
+var
+  lFila: T;
+begin
+  var
+  lTx := TMVCRepository.UseTransactionContext;
+
+  if Trim(ADto.Nombre).IsEmpty then
+    raise EDatoInvalido.Create(SNombreObligatorio);
+  lFila := ARepo.GetByPK(AId, False);
+  if lFila = nil then
+    raise ERecursoNoEncontrado.Create(ATextos.Recurso, AId);
+  try
+    if ARepo.ExisteNombre(Trim(ADto.Nombre), AId) then
+      raise EDatoInvalido.Create(ATextos.DuplicadoOtro);
+    ADto.Nombre := Trim(ADto.Nombre);
+    TMapeo.Copiar(ADto, lFila);
+    FijarDetalle(Format(ATextos.Cambio, [ADto.Nombre]));
+    ARepo.Update(lFila);
+  finally
+    lFila.Free;
+  end;
+end;
+
+procedure TCatalogoService.InactivarEn<T>(const ARepo
+  : ICatalogoSimpleRepository<T>; const ATextos: TTextosCatalogo;
+  const AId: Integer);
+var
+  lFila: T;
+  lActual: TCatalogoSimpleDTO;
+  lDatos: TDatosActivo;
+begin
+  var
+  lTx := TMVCRepository.UseTransactionContext;
+
+  lFila := ARepo.GetByPK(AId, False);
+  if lFila = nil then
+    raise ERecursoNoEncontrado.Create(ATextos.Recurso, AId);
+  lActual := TMapeo.ADto<TCatalogoSimpleDTO>(lFila);
+  lDatos := TDatosActivo.Create;
+  try
+    lDatos.Activo := False;
+    TMapeo.Copiar(lDatos, lFila);
+    FijarDetalle(Format(ATextos.Inactivacion, [lActual.Nombre]));
+    ARepo.Update(lFila);
+  finally
+    lDatos.Free;
+    lActual.Free;
+    lFila.Free;
+  end;
+end;
+
+function TCatalogoService.Simples(const ACatalogo: TCatalogoSimple;
+  const AIncluirInactivos: Boolean; const ATexto: string)
+  : TObjectList<TCatalogoSimpleDTO>;
+begin
+  case ACatalogo of
+    csTipoMaterial:
+      Result := ListarDe<TTiposMaterial>(fTiposMaterial,
+        AIncluirInactivos, ATexto);
+    csAcabado:
+      Result := ListarDe<TAcabados>(fAcabados, AIncluirInactivos, ATexto);
+  else
+    Result := ListarDe<TFormasPago>(fFormasPago, AIncluirInactivos, ATexto);
+  end;
+end;
+
+function TCatalogoService.CrearSimple(const ACatalogo: TCatalogoSimple;
+  const ADto: TCatalogoSimpleNuevoDTO): Integer;
+begin
+  case ACatalogo of
+    csTipoMaterial:
+      Result := CrearEn<TTiposMaterial>(fTiposMaterial,
+        TextosDe(ACatalogo), ADto);
+    csAcabado:
+      Result := CrearEn<TAcabados>(fAcabados, TextosDe(ACatalogo), ADto);
+  else
+    Result := CrearEn<TFormasPago>(fFormasPago, TextosDe(ACatalogo), ADto);
+  end;
+end;
+
+procedure TCatalogoService.ActualizarSimple(const ACatalogo: TCatalogoSimple;
+  const AId: Integer; const ADto: TCatalogoSimpleNuevoDTO);
+begin
+  case ACatalogo of
+    csTipoMaterial:
+      ActualizarEn<TTiposMaterial>(fTiposMaterial, TextosDe(ACatalogo),
+        AId, ADto);
+    csAcabado:
+      ActualizarEn<TAcabados>(fAcabados, TextosDe(ACatalogo), AId, ADto);
+  else
+    ActualizarEn<TFormasPago>(fFormasPago, TextosDe(ACatalogo), AId, ADto);
+  end;
+end;
+
+procedure TCatalogoService.InactivarSimple(const ACatalogo: TCatalogoSimple;
+  const AId: Integer);
+begin
+  case ACatalogo of
+    csTipoMaterial:
+      InactivarEn<TTiposMaterial>(fTiposMaterial, TextosDe(ACatalogo), AId);
+    csAcabado:
+      InactivarEn<TAcabados>(fAcabados, TextosDe(ACatalogo), AId);
+  else
+    InactivarEn<TFormasPago>(fFormasPago, TextosDe(ACatalogo), AId);
   end;
 end;
 

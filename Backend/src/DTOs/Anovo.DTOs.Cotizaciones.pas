@@ -45,8 +45,11 @@ type
     fAprobadaPorNombre: string;
     fTipoTrabajoNombre: string;
     fFormaPago: NullableString;
-    fPlazoEntrega: NullableString;
-    fGarantia: NullableString;
+    fFormaPagoId: NullableInt32;
+    fPlazoEntregaCantidad: NullableInt32;
+    fPlazoEntregaUnidad: NullableString;
+    fGarantiaCantidad: NullableInt32;
+    fGarantiaUnidad: NullableString;
   public
     property ID: Integer read fID write fID;
     property Numero: Integer read fNumero write fNumero;
@@ -94,9 +97,15 @@ type
     property TipoTrabajoNombre: string read fTipoTrabajoNombre
       write fTipoTrabajoNombre;
     property FormaPago: NullableString read fFormaPago write fFormaPago;
-    property PlazoEntrega: NullableString read fPlazoEntrega
-      write fPlazoEntrega;
-    property Garantia: NullableString read fGarantia write fGarantia;
+    property FormaPagoId: NullableInt32 read fFormaPagoId write fFormaPagoId;
+    property PlazoEntregaCantidad: NullableInt32 read fPlazoEntregaCantidad
+      write fPlazoEntregaCantidad;
+    property PlazoEntregaUnidad: NullableString read fPlazoEntregaUnidad
+      write fPlazoEntregaUnidad;
+    property GarantiaCantidad: NullableInt32 read fGarantiaCantidad
+      write fGarantiaCantidad;
+    property GarantiaUnidad: NullableString read fGarantiaUnidad
+      write fGarantiaUnidad;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -119,9 +128,11 @@ type
     fTipoTrabajoId: NullableInt32;
     fDescripcionTrabajo: string;
     fObjVersion: NullableInt32;
-    fFormaPago: NullableString;
-    fPlazoEntrega: NullableString;
-    fGarantia: NullableString;
+    fFormaPagoId: NullableInt32;
+    fPlazoEntregaCantidad: NullableInt32;
+    fPlazoEntregaUnidad: NullableString;
+    fGarantiaCantidad: NullableInt32;
+    fGarantiaUnidad: NullableString;
   public
     property TipoTrabajoId: NullableInt32 read fTipoTrabajoId
       write fTipoTrabajoId;
@@ -129,10 +140,15 @@ type
       write fDescripcionTrabajo;
     [MVCNameAs('objversion')]
     property ObjVersion: NullableInt32 read fObjVersion write fObjVersion;
-    property FormaPago: NullableString read fFormaPago write fFormaPago;
-    property PlazoEntrega: NullableString read fPlazoEntrega
-      write fPlazoEntrega;
-    property Garantia: NullableString read fGarantia write fGarantia;
+    property FormaPagoId: NullableInt32 read fFormaPagoId write fFormaPagoId;
+    property PlazoEntregaCantidad: NullableInt32 read fPlazoEntregaCantidad
+      write fPlazoEntregaCantidad;
+    property PlazoEntregaUnidad: NullableString read fPlazoEntregaUnidad
+      write fPlazoEntregaUnidad;
+    property GarantiaCantidad: NullableInt32 read fGarantiaCantidad
+      write fGarantiaCantidad;
+    property GarantiaUnidad: NullableString read fGarantiaUnidad
+      write fGarantiaUnidad;
   end;
 
   [MVCNameCase(ncSnakeCase)]

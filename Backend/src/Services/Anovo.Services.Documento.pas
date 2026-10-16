@@ -39,6 +39,7 @@ uses
   System.SysUtils,
   System.Generics.Collections,
   MVCFramework.Commons,
+  Anovo.Condiciones,
   Anovo.DTOs.Cotizaciones,
   Anovo.Entities.Clientes,
   Anovo.Entities.Empresa;
@@ -129,8 +130,10 @@ begin
       Result.MontoTotal := lCotizacion.MontoTotal.ValueOrDefault;
       Result.Subtotal := Result.MontoTotal - Result.MontoImpuesto;
       Result.FormaPago := lCotizacion.FormaPago.ValueOrDefault;
-      Result.PlazoEntrega := lCotizacion.PlazoEntrega.ValueOrDefault;
-      Result.Garantia := lCotizacion.Garantia.ValueOrDefault;
+      Result.PlazoEntrega := TextoPlazo(lCotizacion.PlazoEntregaCantidad,
+        lCotizacion.PlazoEntregaUnidad);
+      Result.Garantia := TextoPlazo(lCotizacion.GarantiaCantidad,
+        lCotizacion.GarantiaUnidad);
       Result.AvisoPrivacidad := dotEnv.Env('anovo.aviso_privacidad.version',
         AVISO_POR_DEFECTO);
 

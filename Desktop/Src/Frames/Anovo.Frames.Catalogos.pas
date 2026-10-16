@@ -51,6 +51,7 @@ type
     procedure MostrarManoObra(const AFilas: TObjectList<TManoObraDTO>);
     procedure MostrarMaquinas(const AFilas: TObjectList<TMaquinaDTO>);
     procedure MostrarTiposTrabajo(const AFilas: TObjectList<TTipoTrabajoDTO>);
+    procedure MostrarSimples(const AFilas: TObjectList<TCatalogoSimpleDTO>);
     procedure MostrarUnidadesMedida(const AFilas: TObjectList<TUnidadMedidaDTO>);
     procedure MostrarUnidadesActivas(const AFilas: TObjectList<TUnidadMedidaDTO>);
     procedure MostrarTodos(const AFilas: TObjectList<TCatalogoItemDTO>);
@@ -111,6 +112,12 @@ begin
       Result := SCatalogoTiposTrabajo;
     ctUnidadesMedida:
       Result := SCatalogoUnidadesMedida;
+    ctTiposMaterial:
+      Result := SCatalogoTiposMaterial;
+    ctAcabados:
+      Result := SCatalogoAcabados;
+    ctFormasPago:
+      Result := SCatalogoFormasPago;
   else
     Result := SCatalogoMateriales;
   end;
@@ -127,6 +134,12 @@ begin
       Result := SNuevoTipoTrabajo;
     ctUnidadesMedida:
       Result := SNuevaUnidadMedida;
+    ctTiposMaterial:
+      Result := SNuevoTipoMaterial;
+    ctAcabados:
+      Result := SNuevoAcabado;
+    ctFormasPago:
+      Result := SNuevaFormaPago;
   else
     Result := SNuevoMaterial;
   end;
@@ -144,7 +157,7 @@ end;
 
 function PistaBusquedaDe(const ACatalogo: TCatalogo): string;
 begin
-  if ACatalogo in [ctTiposTrabajo, ctUnidadesMedida] then
+  if ACatalogo in CATALOGOS_SIN_PRECIO then
     Result := SPistaBusquedaNombre
   else
     Result := SPistaBusquedaItem;
@@ -172,6 +185,7 @@ destructor TfraCatalogos.Destroy;
 begin
   FreeAndNil(FPresentador);
   dmMemoria.mtCategorias.Close;
+  dmMemoria.mtCatalogoSimple.Close;
   inherited;
 end;
 
@@ -246,6 +260,8 @@ begin
       dmMemoria.dsCatalogo.DataSet := dmMemoria.mtTiposTrabajo;
     ctUnidadesMedida:
       dmMemoria.dsCatalogo.DataSet := dmMemoria.mtUnidadesLista;
+    ctTiposMaterial, ctAcabados, ctFormasPago:
+      dmMemoria.dsCatalogo.DataSet := dmMemoria.mtCatalogoSimple;
   else
     dmMemoria.dsCatalogo.DataSet := dmMemoria.mtMateriales;
   end;
@@ -335,6 +351,12 @@ procedure TfraCatalogos.MostrarTiposTrabajo(const AFilas
   : TObjectList<TTipoTrabajoDTO>);
 begin
   Cargar<TTipoTrabajoDTO>(AFilas, dmMemoria.mtTiposTrabajo);
+end;
+
+procedure TfraCatalogos.MostrarSimples(const AFilas
+  : TObjectList<TCatalogoSimpleDTO>);
+begin
+  Cargar<TCatalogoSimpleDTO>(AFilas, dmMemoria.mtCatalogoSimple);
 end;
 
 procedure TfraCatalogos.MostrarUnidadesMedida(const AFilas

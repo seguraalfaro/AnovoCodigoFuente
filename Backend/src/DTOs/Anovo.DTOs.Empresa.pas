@@ -24,9 +24,11 @@ type
     fCuentaBancaria: NullableString;
     fPorcentajeIva: Currency;
     fDiasSinRespuesta: Integer;
-    fFormaPago: NullableString;
-    fPlazoEntrega: NullableString;
-    fGarantia: NullableString;
+    fFormaPagoId: NullableInt32;
+    fPlazoEntregaCantidad: NullableInt32;
+    fPlazoEntregaUnidad: NullableString;
+    fGarantiaCantidad: NullableInt32;
+    fGarantiaUnidad: NullableString;
     fFirmante: NullableString;
     fCartaPresentacion: NullableString;
   public
@@ -43,10 +45,15 @@ type
     property PorcentajeIva: Currency read fPorcentajeIva write fPorcentajeIva;
     property DiasSinRespuesta: Integer read fDiasSinRespuesta
       write fDiasSinRespuesta;
-    property FormaPago: NullableString read fFormaPago write fFormaPago;
-    property PlazoEntrega: NullableString read fPlazoEntrega
-      write fPlazoEntrega;
-    property Garantia: NullableString read fGarantia write fGarantia;
+    property FormaPagoId: NullableInt32 read fFormaPagoId write fFormaPagoId;
+    property PlazoEntregaCantidad: NullableInt32 read fPlazoEntregaCantidad
+      write fPlazoEntregaCantidad;
+    property PlazoEntregaUnidad: NullableString read fPlazoEntregaUnidad
+      write fPlazoEntregaUnidad;
+    property GarantiaCantidad: NullableInt32 read fGarantiaCantidad
+      write fGarantiaCantidad;
+    property GarantiaUnidad: NullableString read fGarantiaUnidad
+      write fGarantiaUnidad;
     property Firmante: NullableString read fFirmante write fFirmante;
     property CartaPresentacion: NullableString read fCartaPresentacion
       write fCartaPresentacion;

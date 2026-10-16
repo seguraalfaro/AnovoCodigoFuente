@@ -113,6 +113,8 @@ begin
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TAcabadoRepository, IAcabadoRepository,
     TRegistrationType.SingletonPerRequest);
+  Container.RegisterType(TFormaPagoRepository, IFormaPagoRepository,
+    TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TUnidadMedidaRepository, IUnidadMedidaRepository,
     TRegistrationType.SingletonPerRequest);
   Container.RegisterType(TPrecioProgramadoRepository,

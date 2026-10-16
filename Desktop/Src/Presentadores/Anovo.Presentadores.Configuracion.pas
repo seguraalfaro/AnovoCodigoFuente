@@ -7,6 +7,7 @@ interface
 
 uses
   System.SysUtils,
+  Anovo.Api.Intf.Catalogos,
   Anovo.Api.Intf.Configuracion,
   Anovo.DTOs.Empresa,
   Anovo.Presentadores.Base,
@@ -24,6 +25,7 @@ type
   TPresentadorConfiguracion = class(TPresentadorPrueba)
   private
     FVista: IVistaConfiguracion;
+    FCatalogos: IApiCatalogos;
     FEmpresa: TEmpresaDTO;
     procedure CargarCuenta;
     procedure CargarEmpresa;
@@ -34,7 +36,7 @@ type
       const AListo, AFallo: TProc; const ALiberar: TProc = nil);
   public
     constructor Create(const AVista: IVistaConfiguracion;
-      const AApi: IApiConfiguracion);
+      const AApi: IApiConfiguracion; const ACatalogos: IApiCatalogos);
     destructor Destroy; override;
     procedure Iniciar;
     procedure Probar;
@@ -68,6 +70,8 @@ implementation
 
 uses
   System.Diagnostics,
+  System.Generics.Collections,
+  Anovo.DTOs.Catalogos,
   Anovo.Config,
   Anovo.DTOs.Sesion,
   Anovo.Permisos,
@@ -119,11 +123,12 @@ begin
 end;
 
 constructor TPresentadorConfiguracion.Create(const AVista: IVistaConfiguracion;
-  const AApi: IApiConfiguracion);
+  const AApi: IApiConfiguracion; const ACatalogos: IApiCatalogos);
 begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
+  FCatalogos := ACatalogos;
 end;
 
 destructor TPresentadorConfiguracion.Destroy;
@@ -160,18 +165,24 @@ end;
 procedure TPresentadorConfiguracion.CargarEmpresa;
 var
   lApi: IApiConfiguracion;
+  lCatalogos: IApiCatalogos;
   lEmpresa: TEmpresaDTO;
+  lFormas: TObjectList<TCatalogoSimpleDTO>;
 begin
   lApi := FApi;
+  lCatalogos := FCatalogos;
   lEmpresa := nil;
+  lFormas := nil;
 
   Ejecutar(SAccionCargarEmpresa,
     procedure
     begin
       lEmpresa := lApi.Empresa;
+      lFormas := lCatalogos.Simples(csFormaPago, False);
     end,
     procedure
     begin
+      FVista.MostrarFormasPago(lFormas);
       FreeAndNil(FEmpresa);
       FEmpresa := lEmpresa;
       lEmpresa := nil;
@@ -187,6 +198,7 @@ begin
     end,
     procedure
     begin
+      lFormas.Free;
       lEmpresa.Free;
     end);
 end;

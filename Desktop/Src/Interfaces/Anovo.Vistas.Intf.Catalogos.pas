@@ -6,12 +6,13 @@ interface
 
 uses
   System.Generics.Collections,
+  Anovo.Api.Intf.Catalogos,
   Anovo.DTOs.Catalogos,
   Anovo.DTOs.Importacion;
 
 type
   TCatalogo = (ctTodos, ctMateriales, ctManoObra, ctMaquinas, ctTiposTrabajo,
-    ctUnidadesMedida);
+    ctUnidadesMedida, ctTiposMaterial, ctAcabados, ctFormasPago);
 
   TAccionCatalogo = (acEditar, acHistorial, acPrecio, acInactivar);
   TAccionesCatalogo = set of TAccionCatalogo;
@@ -33,6 +34,7 @@ type
     procedure MostrarManoObra(const AFilas: TObjectList<TManoObraDTO>);
     procedure MostrarMaquinas(const AFilas: TObjectList<TMaquinaDTO>);
     procedure MostrarTiposTrabajo(const AFilas: TObjectList<TTipoTrabajoDTO>);
+    procedure MostrarSimples(const AFilas: TObjectList<TCatalogoSimpleDTO>);
     procedure MostrarUnidadesMedida(const AFilas: TObjectList<TUnidadMedidaDTO>);
     procedure MostrarUnidadesActivas(const AFilas: TObjectList<TUnidadMedidaDTO>);
     procedure MostrarTodos(const AFilas: TObjectList<TCatalogoItemDTO>);
@@ -53,6 +55,24 @@ type
     procedure MostrarHistorial(const AFilas: TObjectList<TPrecioDTO>);
   end;
 
+const
+  CATALOGOS_SIMPLES = [ctTiposMaterial, ctAcabados, ctFormasPago];
+  CATALOGOS_SIN_PRECIO = [ctTiposTrabajo, ctUnidadesMedida] + CATALOGOS_SIMPLES;
+
+function CatalogoSimpleDe(const ACatalogo: TCatalogo): TCatalogoSimple;
+
 implementation
+
+function CatalogoSimpleDe(const ACatalogo: TCatalogo): TCatalogoSimple;
+begin
+  case ACatalogo of
+    ctAcabados:
+      Result := csAcabado;
+    ctFormasPago:
+      Result := csFormaPago;
+  else
+    Result := csTipoMaterial;
+  end;
+end;
 
 end.

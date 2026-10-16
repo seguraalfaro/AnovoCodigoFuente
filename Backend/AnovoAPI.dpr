@@ -37,6 +37,7 @@ uses
   Anovo.Entities.Solicitudes in 'src\Entities\Anovo.Entities.Solicitudes.pas',
   Anovo.Entities.Usuarios in 'src\Entities\Anovo.Entities.Usuarios.pas',
   Anovo.Textos in 'src\Common\Anovo.Textos.pas',
+  Anovo.Condiciones in 'src\Common\Anovo.Condiciones.pas',
   Anovo.Permisos in 'src\Common\Anovo.Permisos.pas',
   Anovo.Errors in 'src\Common\Anovo.Errors.pas',
   Anovo.Repositories.Intf.Clientes in 'src\Interfaces\Anovo.Repositories.Intf.Clientes.pas',

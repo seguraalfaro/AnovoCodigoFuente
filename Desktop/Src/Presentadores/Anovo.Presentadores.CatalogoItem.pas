@@ -78,6 +78,13 @@ begin
         Result := AApi.CrearUnidadMedida(ADto as TUnidadMedidaNuevaDTO)
       else
         AApi.ActualizarUnidadMedida(AId, ADto as TUnidadMedidaNuevaDTO);
+    ctTiposMaterial, ctAcabados, ctFormasPago:
+      if AId = 0 then
+        Result := AApi.CrearSimple(CatalogoSimpleDe(ACatalogo),
+          ADto as TCatalogoSimpleNuevoDTO)
+      else
+        AApi.ActualizarSimple(CatalogoSimpleDe(ACatalogo), AId,
+          ADto as TCatalogoSimpleNuevoDTO);
   else
     if AId = 0 then
       Result := AApi.CrearMaterial(ADto as TMaterialNuevoDTO)
@@ -130,7 +137,7 @@ end;
 
 function TPresentadorItemCatalogo.LlevaPrecio: Boolean;
 begin
-  Result := not (FCatalogo in [ctTiposTrabajo, ctUnidadesMedida]);
+  Result := not (FCatalogo in CATALOGOS_SIN_PRECIO);
 end;
 
 function TPresentadorItemCatalogo.PrecioCambio(const APrecio: TPrecioNuevoDTO;

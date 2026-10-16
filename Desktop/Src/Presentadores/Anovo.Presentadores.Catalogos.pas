@@ -33,6 +33,7 @@ type
     procedure CargarMaquinas;
     procedure CargarTodos;
     procedure CargarTiposTrabajo;
+    procedure CargarSimples;
     procedure CargarUnidadesMedida;
     procedure CargarUnidadesActivas;
     procedure CargarCategorias;
@@ -106,7 +107,7 @@ var
   lAcciones: TAccionesCatalogo;
 begin
   lAcciones := AccionesPermitidas;
-  if FCatalogo in [ctTiposTrabajo, ctUnidadesMedida] then
+  if FCatalogo in CATALOGOS_SIN_PRECIO then
     lAcciones := lAcciones - [acPrecio, acHistorial];
   FVista.MostrarAcciones(lAcciones, PuedeEditar and (FCatalogo <> ctTodos));
   FVista.MostrarImportar(PuedeEditar, PuedeEditar and
@@ -136,6 +137,8 @@ begin
       CargarTiposTrabajo;
     ctUnidadesMedida:
       CargarUnidadesMedida;
+    ctTiposMaterial, ctAcabados, ctFormasPago:
+      CargarSimples;
   end;
 end;
 
@@ -278,6 +281,29 @@ begin
     begin
       FTotalPaginas := 0;
       FVista.MostrarTiposTrabajo(ALista);
+      FVista.MostrarPaginacion(1, 0, ALista.Count);
+    end);
+end;
+
+procedure TPresentadorCatalogos.CargarSimples;
+var
+  lApi: IApiCatalogos;
+  lTexto: string;
+  lCatalogo: TCatalogoSimple;
+begin
+  lApi := FApi;
+  lTexto := FTexto;
+  lCatalogo := CatalogoSimpleDe(FCatalogo);
+
+  CargarLista<TCatalogoSimpleDTO>(
+    function: TObjectList<TCatalogoSimpleDTO>
+    begin
+      Result := lApi.Simples(lCatalogo, False, lTexto);
+    end,
+    procedure(ALista: TObjectList<TCatalogoSimpleDTO>)
+    begin
+      FTotalPaginas := 0;
+      FVista.MostrarSimples(ALista);
       FVista.MostrarPaginacion(1, 0, ALista.Count);
     end);
 end;
@@ -441,7 +467,7 @@ procedure TPresentadorCatalogos.CambiarPrecio(const AId: Integer);
 begin
   if not PuedeEditar then
     Exit;
-  if CatalogoDeFila in [ctTiposTrabajo, ctUnidadesMedida] then
+  if CatalogoDeFila in CATALOGOS_SIN_PRECIO then
     Exit;
   FVista.MostrarFormularioPrecio(CatalogoDeFila, AId);
 end;
@@ -452,7 +478,7 @@ var
   lCatalogo: TCatalogo;
 begin
   lCatalogo := CatalogoDeFila;
-  if lCatalogo in [ctTiposTrabajo, ctUnidadesMedida] then
+  if lCatalogo in CATALOGOS_SIN_PRECIO then
     Exit;
   lApi := FApi;
 
@@ -504,6 +530,8 @@ begin
           lApi.InactivarTipoTrabajo(AId);
         ctUnidadesMedida:
           lApi.InactivarUnidadMedida(AId);
+        ctTiposMaterial, ctAcabados, ctFormasPago:
+          lApi.InactivarSimple(CatalogoSimpleDe(lCatalogo), AId);
       else
         lApi.InactivarMaterial(AId);
       end;

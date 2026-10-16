@@ -75,9 +75,11 @@ type
     lblAjusteMotivo: TLabel;
     btnAjuste: TPlanoBotonWin;
     tjCondiciones: TPlanoTarjeta;
-    edFormaPago: TrDBEdit;
+    cbFormaPago: TrDBLookupComboBox;
     edEntrega: TrDBEdit;
+    cbEntregaUnidad: TrDBLookupComboBox;
     edGarantia: TrDBEdit;
+    cbGarantiaUnidad: TrDBLookupComboBox;
     tjLineas: TPlanoTarjeta;
     btnMaterial: TPlanoBotonWin;
     btnManoObra: TPlanoBotonWin;
@@ -133,6 +135,8 @@ type
       const AAcciones: TAccionesLinea);
     procedure MostrarLineas(const ALineas: TObjectList<TLineaDTO>);
     procedure MostrarTiposTrabajo(const ATipos: TObjectList<TTipoTrabajoDTO>);
+    procedure MostrarFormasPago(const AFormas
+      : TObjectList<TCatalogoSimpleDTO>);
     procedure MostrarSolicitud(const AProyecto, AContacto: string);
     procedure MostrarPiezas(const APiezas: TObjectList<TPiezaDTO>);
     procedure MostrarMedidas(const APieza: string;
@@ -218,6 +222,7 @@ begin
   dmMemoria.mtMedidas.Close;
   dmMemoria.mtPiezas.Close;
   dmMemoria.mtTiposTrabajoLista.Close;
+  dmMemoria.mtFormasPagoLista.Close;
   inherited;
 end;
 
@@ -311,9 +316,11 @@ begin
   AcomodarBotones;
   cbTipoTrabajo.ReadOnly := not lEditable;
   edDescripcion.ReadOnly := not lEditable;
-  edFormaPago.ReadOnly := not lEditable;
+  cbFormaPago.ReadOnly := not lEditable;
   edEntrega.ReadOnly := not lEditable;
+  cbEntregaUnidad.ReadOnly := not lEditable;
   edGarantia.ReadOnly := not lEditable;
+  cbGarantiaUnidad.ReadOnly := not lEditable;
   if lEditable and dmMemoria.mtCotizacionEdicion.Active and
     not (dmMemoria.mtCotizacionEdicion.State in dsEditModes) then
     dmMemoria.mtCotizacionEdicion.Edit;
@@ -331,6 +338,13 @@ procedure TfraCotizacion.MostrarTiposTrabajo(const ATipos
 begin
   TMapeoDatos.AListaTabla<TTipoTrabajoDTO>(ATipos,
     dmMemoria.mtTiposTrabajoLista);
+end;
+
+procedure TfraCotizacion.MostrarFormasPago(const AFormas
+  : TObjectList<TCatalogoSimpleDTO>);
+begin
+  TMapeoDatos.AListaTabla<TCatalogoSimpleDTO>(AFormas,
+    dmMemoria.mtFormasPagoLista);
 end;
 
 procedure TfraCotizacion.MostrarSolicitud(const AProyecto, AContacto: string);

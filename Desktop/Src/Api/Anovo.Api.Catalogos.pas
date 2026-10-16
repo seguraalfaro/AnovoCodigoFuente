@@ -75,6 +75,16 @@ type
       const ADto: TTipoTrabajoNuevoDTO);
     procedure InactivarTipoTrabajo(const AId: Integer);
 
+    function Simples(const ACatalogo: TCatalogoSimple;
+      const AIncluirInactivos: Boolean; const ATexto: string = '')
+      : TObjectList<TCatalogoSimpleDTO>;
+    function CrearSimple(const ACatalogo: TCatalogoSimple;
+      const ADto: TCatalogoSimpleNuevoDTO): Integer;
+    procedure ActualizarSimple(const ACatalogo: TCatalogoSimple;
+      const AId: Integer; const ADto: TCatalogoSimpleNuevoDTO);
+    procedure InactivarSimple(const ACatalogo: TCatalogoSimple;
+      const AId: Integer);
+
     function UnidadesMedida(const AIncluirInactivas: Boolean;
       const ATexto: string = ''): TObjectList<TUnidadMedidaDTO>;
     function CrearUnidadMedida(const ADto: TUnidadMedidaNuevaDTO): Integer;
@@ -98,6 +108,9 @@ const
   RUTA_MAQUINAS = '/api/catalogos/maquinas';
   RUTA_TIPOS_TRABAJO = '/api/catalogos/tipos-trabajo';
   RUTA_UNIDADES_MEDIDA = '/api/catalogos/unidades-medida';
+  RUTA_SIMPLE: array [TCatalogoSimple] of string = (
+    '/api/catalogos/tipos-material', '/api/catalogos/acabados',
+    '/api/catalogos/formas-pago');
   RUTA_CATEGORIAS = '/api/catalogos/mano-obra/categorias';
   RUTA_IMPORTACION = '%s/importacion';
   RUTA_CATALOGO_IMPORTACION: array [TCatalogoImportacion] of string = (
@@ -399,6 +412,41 @@ end;
 procedure TApiCatalogos.InactivarTipoTrabajo(const AId: Integer);
 begin
   Inactivar(RUTA_TIPOS_TRABAJO, AId);
+end;
+
+function TApiCatalogos.Simples(const ACatalogo: TCatalogoSimple;
+  const AIncluirInactivos: Boolean; const ATexto: string)
+  : TObjectList<TCatalogoSimpleDTO>;
+begin
+  Result := ListaDe<TCatalogoSimpleDTO>(RUTA_SIMPLE[ACatalogo],
+    AIncluirInactivos, ATexto);
+end;
+
+function TApiCatalogos.CrearSimple(const ACatalogo: TCatalogoSimple;
+  const ADto: TCatalogoSimpleNuevoDTO): Integer;
+begin
+  Result := IdDeLocation(Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.AddBody(ADto, False).Post(RUTA_SIMPLE[ACatalogo]);
+    end));
+end;
+
+procedure TApiCatalogos.ActualizarSimple(const ACatalogo: TCatalogoSimple;
+  const AId: Integer; const ADto: TCatalogoSimpleNuevoDTO);
+begin
+  Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.AddBody(ADto, False)
+        .Put(Format(SUB_ID, [RUTA_SIMPLE[ACatalogo], AId]));
+    end);
+end;
+
+procedure TApiCatalogos.InactivarSimple(const ACatalogo: TCatalogoSimple;
+  const AId: Integer);
+begin
+  Inactivar(RUTA_SIMPLE[ACatalogo], AId);
 end;
 
 function TApiCatalogos.UnidadesMedida(const AIncluirInactivas: Boolean;

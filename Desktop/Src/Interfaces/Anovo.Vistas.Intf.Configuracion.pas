@@ -5,6 +5,8 @@ unit Anovo.Vistas.Intf.Configuracion;
 interface
 
 uses
+  System.Generics.Collections,
+  Anovo.DTOs.Catalogos,
   Anovo.DTOs.Empresa,
   Anovo.DTOs.Sesion;
 
@@ -40,6 +42,7 @@ type
     procedure MostrarMinutosAvisos(const AMinutos: Integer);
     procedure MostrarSeccionEmpresa(const AVisible: Boolean);
     procedure MostrarEmpresa(const AEmpresa: TEmpresaDTO);
+    procedure MostrarFormasPago(const AFormas: TObjectList<TCatalogoSimpleDTO>);
     procedure EmpresaGuardada;
     procedure ParametrosGuardados;
   end;

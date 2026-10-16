@@ -51,11 +51,14 @@ type
     fTipos: ITipoTrabajoRepository;
     fEmpresa: IEmpresaRepository;
     fPermisos: IPermisoService;
+    fFormasPago: IFormaPagoRepository;
 
     function TraerVigente(const AId: Integer): TCotizaciones;
     function TraerLinea(const AId, ALineaId: Integer): TCotizacionDetalle;
     function ADto(const ACotizacion: TCotizaciones): TCotizacionDTO;
     procedure CopiarCondiciones(const ACotizacion: TCotizaciones);
+    procedure TomarCondiciones(const ACotizacion: TCotizaciones;
+      const ADto: TCotizacionEdicionDTO);
     procedure ExigirEditable(const ACotizacion: TCotizaciones);
     procedure ExigirAlcance(const ACotizacion: TCotizaciones;
       const AUsuarioId: Integer; const ARoles: TArray<string>);
@@ -75,7 +78,8 @@ type
       AClientes: IClienteRepository; AMateriales: IMaterialPrecioRepository;
       AManoObra: IManoObraPrecioRepository;
       AMaquinas: IMaquinaPrecioRepository; ATipos: ITipoTrabajoRepository;
-      AEmpresa: IEmpresaRepository; APermisos: IPermisoService); reintroduce;
+      AEmpresa: IEmpresaRepository; APermisos: IPermisoService;
+      AFormasPago: IFormaPagoRepository); reintroduce;
 
     function Buscar(const ATexto, AEstado: string; const AClienteId: Integer;
       const ADesde, AHasta: TDateTime; const ARoles: TArray<string>;
@@ -118,6 +122,7 @@ uses
   System.SysUtils,
   MVCFramework.Repository,
   Anovo.Auditoria.Contexto,
+  Anovo.Condiciones,
   Anovo.Entities.Catalogos,
   Anovo.Entities.Clientes,
   Anovo.Entities.Empresa,
@@ -135,7 +140,7 @@ constructor TCotizacionService.Create(ARepo: ICotizacionRepository;
   AMateriales: IMaterialPrecioRepository;
   AManoObra: IManoObraPrecioRepository; AMaquinas: IMaquinaPrecioRepository;
   ATipos: ITipoTrabajoRepository; AEmpresa: IEmpresaRepository;
-  APermisos: IPermisoService);
+  APermisos: IPermisoService; AFormasPago: IFormaPagoRepository);
 begin
   inherited Create;
   fRepo := ARepo;
@@ -149,6 +154,7 @@ begin
   fTipos := ATipos;
   fEmpresa := AEmpresa;
   fPermisos := APermisos;
+  fFormasPago := AFormasPago;
 end;
 
 function TCotizacionService.TipoTrabajoDePiezas(const ASolicitudId: Integer)
@@ -172,17 +178,65 @@ procedure TCotizacionService.CopiarCondiciones(const ACotizacion
   : TCotizaciones);
 var
   lEmpresa: TEmpresa;
+  lForma: TFormasPago;
 begin
   lEmpresa := fEmpresa.GetByPK(EMPRESA_ID, False);
   if lEmpresa = nil then
     Exit;
   try
-    ACotizacion.FormaPago := lEmpresa.FormaPago;
-    ACotizacion.PlazoEntrega := lEmpresa.PlazoEntrega;
-    ACotizacion.Garantia := lEmpresa.Garantia;
+    if lEmpresa.FormaPagoId.HasValue then
+    begin
+      lForma := fFormasPago.Activa(lEmpresa.FormaPagoId.Value);
+      if lForma <> nil then
+        try
+          ACotizacion.FormaPagoId := lEmpresa.FormaPagoId;
+          ACotizacion.FormaPago := lForma.Nombre;
+        finally
+          lForma.Free;
+        end;
+    end;
+    ACotizacion.PlazoEntregaCantidad := lEmpresa.PlazoEntregaCantidad;
+    ACotizacion.PlazoEntregaUnidad := lEmpresa.PlazoEntregaUnidad;
+    ACotizacion.GarantiaCantidad := lEmpresa.GarantiaCantidad;
+    ACotizacion.GarantiaUnidad := lEmpresa.GarantiaUnidad;
   finally
     lEmpresa.Free;
   end;
+end;
+
+procedure TCotizacionService.TomarCondiciones(const ACotizacion: TCotizaciones;
+  const ADto: TCotizacionEdicionDTO);
+var
+  lError: string;
+  lForma: TFormasPago;
+begin
+  lError := ErrorDePlazos(ADto.PlazoEntregaCantidad, ADto.PlazoEntregaUnidad,
+    ADto.GarantiaCantidad, ADto.GarantiaUnidad);
+  if not lError.IsEmpty then
+    raise EDatoInvalido.Create(lError);
+
+  if not ADto.FormaPagoId.HasValue then
+  begin
+    ACotizacion.FormaPagoId.Clear;
+    ACotizacion.FormaPago.Clear;
+  end
+  else if ACotizacion.FormaPagoId.ValueOrDefault <> ADto.FormaPagoId.Value then
+  begin
+    lForma := fFormasPago.Activa(ADto.FormaPagoId.Value);
+    if lForma = nil then
+      raise EDatoInvalido.Create(SFormaPagoNoDisponible);
+    try
+      ACotizacion.FormaPagoId := ADto.FormaPagoId;
+      ACotizacion.FormaPago := lForma.Nombre;
+    finally
+      lForma.Free;
+    end;
+  end;
+
+  ACotizacion.PlazoEntregaCantidad := ACorto(ADto.PlazoEntregaCantidad);
+  ACotizacion.PlazoEntregaUnidad := UnidadONula(ADto.PlazoEntregaUnidad);
+  ACotizacion.GarantiaCantidad := ACorto(ADto.GarantiaCantidad);
+  ACotizacion.GarantiaUnidad := UnidadONula(ADto.GarantiaUnidad);
 end;
 
 function TCotizacionService.IvaPara(const AClienteId: Integer): Currency;
@@ -587,9 +641,7 @@ begin
     ValidarTipoTrabajo(ADto.TipoTrabajoId, lCotizacion.TipoTrabajoId);
     lCotizacion.TipoTrabajoId := ADto.TipoTrabajoId;
     lCotizacion.DescripcionTrabajo := ADto.DescripcionTrabajo;
-    lCotizacion.FormaPago := ADto.FormaPago;
-    lCotizacion.PlazoEntrega := ADto.PlazoEntrega;
-    lCotizacion.Garantia := ADto.Garantia;
+    TomarCondiciones(lCotizacion, ADto);
     lCotizacion.PorcentajeIva := IvaPara(lCotizacion.ClienteId);
     FijarDetalle(Format(SDetalleCambioCotizacion, [lCotizacion.Numero]));
     fRepo.Update(lCotizacion);

@@ -12,6 +12,8 @@ uses
   Vcl.ExtCtrls, Vcl.Mask, Vcl.DBCtrls,
   rDBComponents,
   VclPlano.Tarjeta, VclPlano.BotonWin,
+  System.Generics.Collections,
+  Anovo.DTOs.Catalogos,
   Anovo.DTOs.Empresa,
   Anovo.DTOs.Sesion,
   Anovo.Vistas.Intf.Configuracion,
@@ -92,6 +94,7 @@ type
     procedure MostrarMinutosAvisos(const AMinutos: Integer);
     procedure MostrarSeccionEmpresa(const AVisible: Boolean);
     procedure MostrarEmpresa(const AEmpresa: TEmpresaDTO);
+    procedure MostrarFormasPago(const AFormas: TObjectList<TCatalogoSimpleDTO>);
     procedure EmpresaGuardada;
     procedure ParametrosGuardados;
     procedure MostrarProbando;
@@ -109,6 +112,7 @@ uses
   Anovo.UI.Vista,
   System.Net.URLClient,
   Anovo.UI.Tema,
+  Anovo.Api.Catalogos,
   Anovo.Api.Configuracion,
   Anovo.Config,
   Anovo.Formato,
@@ -147,7 +151,7 @@ begin
   lblVerEscritorio.Caption := TConfig.VersionEscritorio;
 
   FPresentador := TPresentadorConfiguracion.Create(Self,
-    TApiConfiguracion.Create);
+    TApiConfiguracion.Create, TApiCatalogos.Create);
   FPresentador.Iniciar;
 end;
 
@@ -278,6 +282,13 @@ begin
   lblNotaDias.Visible := AVisible;
   if not AVisible then
     tjParametros.Left := tjEmpresa.Left;
+end;
+
+procedure TfraConfiguracion.MostrarFormasPago(const AFormas
+  : TObjectList<TCatalogoSimpleDTO>);
+begin
+  TMapeoDatos.AListaTabla<TCatalogoSimpleDTO>(AFormas,
+    dmMemoria.mtFormasPagoLista);
 end;
 
 procedure TfraConfiguracion.MostrarEmpresa(const AEmpresa: TEmpresaDTO);

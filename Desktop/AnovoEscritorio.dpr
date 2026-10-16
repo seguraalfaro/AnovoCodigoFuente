@@ -87,6 +87,7 @@ uses
   Anovo.Forms.Motivo in 'Src\Forms\Anovo.Forms.Motivo.pas' {frmMotivo},
   Anovo.DTOs.Auditoria in '..\Backend\src\DTOs\Anovo.DTOs.Auditoria.pas',
   Anovo.Textos in '..\Backend\src\Common\Anovo.Textos.pas',
+  Anovo.Condiciones in '..\Backend\src\Common\Anovo.Condiciones.pas',
   Anovo.Permisos in '..\Backend\src\Common\Anovo.Permisos.pas',
   Anovo.DTOs.Dashboard in '..\Backend\src\DTOs\Anovo.DTOs.Dashboard.pas',
   Anovo.Api.Intf.Dashboard in 'Src\Interfaces\Anovo.Api.Intf.Dashboard.pas',

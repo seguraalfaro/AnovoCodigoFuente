@@ -267,7 +267,7 @@ object fraCotizacion: TfraCotizacion
         Left = 0
         Top = 94
         Width = 420
-        Height = 128
+        Height = 180
         Margins.Left = 0
         Margins.Top = 10
         Margins.Right = 0
@@ -283,7 +283,7 @@ object fraCotizacion: TfraCotizacion
           Left = 12
           Top = 40
           Width = 396
-          Height = 78
+          Height = 130
           Align = alClient
           BorderStyle = bsNone
           DataSource = dmMemoria.dsPiezas
@@ -828,28 +828,33 @@ object fraCotizacion: TfraCotizacion
           Caption = 'Condiciones para el cliente'
           Align = alRight
           TabOrder = 2
-          object edFormaPago: TrDBEdit
+          object cbFormaPago: TrDBLookupComboBox
             Left = 16
             Top = 58
             Width = 218
             Height = 23
             Anchors = [akLeft, akTop, akRight]
-            DataField = 'FORMA_PAGO'
+            DataField = 'FORMA_PAGO_ID'
             DataSource = dmMemoria.dsCotizacionEdicion
+            DropDownRows = 10
+            KeyField = 'ID'
+            ListField = 'NOMBRE'
+            ListSource = dmMemoria.dsFormasPagoLista
             TabOrder = 0
-            StyleElements = []
             ReadOnlyColor = 15987699
             DBEditLabel.AlignWithMargins = True
             DBEditLabel.Margins.Top = 5
             DBEditLabel.OwnCaption = 'Forma de pago'
+            EmptyDisplayValue = 'Sin especificar'
+            AllowLookupFilter = True
+            AutoDropDown = True
           end
           object edEntrega: TrDBEdit
             Left = 16
             Top = 108
-            Width = 218
+            Width = 70
             Height = 23
-            Anchors = [akLeft, akTop, akRight]
-            DataField = 'PLAZO_ENTREGA'
+            DataField = 'PLAZO_ENTREGA_CANTIDAD'
             DataSource = dmMemoria.dsCotizacionEdicion
             TabOrder = 1
             StyleElements = []
@@ -858,20 +863,53 @@ object fraCotizacion: TfraCotizacion
             DBEditLabel.Margins.Top = 5
             DBEditLabel.OwnCaption = 'Entrega'
           end
+          object cbEntregaUnidad: TrDBLookupComboBox
+            Left = 94
+            Top = 108
+            Width = 140
+            Height = 23
+            Anchors = [akLeft, akTop, akRight]
+            DataField = 'PLAZO_ENTREGA_UNIDAD'
+            DataSource = dmMemoria.dsCotizacionEdicion
+            KeyField = 'CODIGO'
+            ListField = 'NOMBRE'
+            ListSource = dmMemoria.dsUnidadesPlazo
+            TabOrder = 2
+            ReadOnlyColor = 15987699
+            DBEditLabel.AlignWithMargins = True
+            DBEditLabel.Margins.Top = 5
+            DBEditLabel.OwnCaption = 'Unidad'
+          end
           object edGarantia: TrDBEdit
             Left = 16
             Top = 158
-            Width = 218
+            Width = 70
             Height = 23
-            Anchors = [akLeft, akTop, akRight]
-            DataField = 'GARANTIA'
+            DataField = 'GARANTIA_CANTIDAD'
             DataSource = dmMemoria.dsCotizacionEdicion
-            TabOrder = 2
+            TabOrder = 3
             StyleElements = []
             ReadOnlyColor = 15987699
             DBEditLabel.AlignWithMargins = True
             DBEditLabel.Margins.Top = 5
             DBEditLabel.OwnCaption = 'Garant'#237'a'
+          end
+          object cbGarantiaUnidad: TrDBLookupComboBox
+            Left = 94
+            Top = 158
+            Width = 140
+            Height = 23
+            Anchors = [akLeft, akTop, akRight]
+            DataField = 'GARANTIA_UNIDAD'
+            DataSource = dmMemoria.dsCotizacionEdicion
+            KeyField = 'CODIGO'
+            ListField = 'NOMBRE'
+            ListSource = dmMemoria.dsUnidadesPlazo
+            TabOrder = 4
+            ReadOnlyColor = 15987699
+            DBEditLabel.AlignWithMargins = True
+            DBEditLabel.Margins.Top = 5
+            DBEditLabel.OwnCaption = 'Unidad'
           end
         end
       end

@@ -384,6 +384,129 @@ type
     function InactivarTipoTrabajo([MVCInject] AServicio: ICatalogoService;
       const AId: Integer): IMVCResponse;
 
+    [MVCPath('/tipos-material')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCSwagSummary('Catalogos', 'Tipos de material. Lista corta, sin paginar',
+      'listarTiposMaterial')]
+    [MVCSwagParam(plQuery, 'incluir_inactivos', 'Incluir los inactivos',
+      ptBoolean, False)]
+    [MVCSwagParam(plQuery, 'q', 'Texto a buscar en el nombre', ptString, False)]
+    [MVCSwagResponses(200, 'Tipos de material')]
+    function ListarTiposMaterial([MVCInject] AServicio: ICatalogoService;
+      const [MVCFromQueryString('incluir_inactivos', False)] AIncluirInactivos
+      : Boolean; const [MVCFromQueryString('q', '')] ABusqueda: string)
+      : IMVCResponse;
+
+    [MVCPath('/tipos-material')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
+    [MVCSwagSummary('Catalogos', 'Registra un tipo de material', 'crearTipoMaterial')]
+    [MVCSwagResponses(201, 'Creado')]
+    [MVCSwagResponses(422, 'Sin nombre o ya existe un con ese nombre')]
+    function CrearTipoMaterial([MVCInject] AServicio: ICatalogoService;
+      const [MVCFromBody] ADto: TCatalogoSimpleNuevoDTO): IMVCResponse;
+
+    [MVCPath('/tipos-material/($AId)')]
+    [MVCHTTPMethods([httpPUT])]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
+    [MVCSwagSummary('Catalogos', 'Actualiza un tipo de material', 'actualizarTipoMaterial')]
+    [MVCSwagResponses(204, 'Actualizado')]
+    [MVCSwagResponses(404, 'No existe')]
+    function ActualizarTipoMaterial([MVCInject] AServicio: ICatalogoService;
+      const AId: Integer;
+      const [MVCFromBody] ADto: TCatalogoSimpleNuevoDTO): IMVCResponse;
+
+    [MVCPath('/tipos-material/($AId)/inactivacion')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
+    [MVCSwagSummary('Catalogos', 'Inactiva un tipo de material', 'inactivarTipoMaterial')]
+    [MVCSwagResponses(204, 'Inactivado')]
+    [MVCSwagResponses(404, 'No existe')]
+    function InactivarTipoMaterial([MVCInject] AServicio: ICatalogoService;
+      const AId: Integer): IMVCResponse;
+
+    [MVCPath('/acabados')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCSwagSummary('Catalogos', 'Acabados. Lista corta, sin paginar',
+      'listarAcabados')]
+    [MVCSwagParam(plQuery, 'incluir_inactivos', 'Incluir los inactivos',
+      ptBoolean, False)]
+    [MVCSwagParam(plQuery, 'q', 'Texto a buscar en el nombre', ptString, False)]
+    [MVCSwagResponses(200, 'Acabados')]
+    function ListarAcabados([MVCInject] AServicio: ICatalogoService;
+      const [MVCFromQueryString('incluir_inactivos', False)] AIncluirInactivos
+      : Boolean; const [MVCFromQueryString('q', '')] ABusqueda: string)
+      : IMVCResponse;
+
+    [MVCPath('/acabados')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
+    [MVCSwagSummary('Catalogos', 'Registra un acabado', 'crearAcabado')]
+    [MVCSwagResponses(201, 'Creado')]
+    [MVCSwagResponses(422, 'Sin nombre o ya existe un con ese nombre')]
+    function CrearAcabado([MVCInject] AServicio: ICatalogoService;
+      const [MVCFromBody] ADto: TCatalogoSimpleNuevoDTO): IMVCResponse;
+
+    [MVCPath('/acabados/($AId)')]
+    [MVCHTTPMethods([httpPUT])]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
+    [MVCSwagSummary('Catalogos', 'Actualiza un acabado', 'actualizarAcabado')]
+    [MVCSwagResponses(204, 'Actualizado')]
+    [MVCSwagResponses(404, 'No existe')]
+    function ActualizarAcabado([MVCInject] AServicio: ICatalogoService;
+      const AId: Integer;
+      const [MVCFromBody] ADto: TCatalogoSimpleNuevoDTO): IMVCResponse;
+
+    [MVCPath('/acabados/($AId)/inactivacion')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
+    [MVCSwagSummary('Catalogos', 'Inactiva un acabado', 'inactivarAcabado')]
+    [MVCSwagResponses(204, 'Inactivado')]
+    [MVCSwagResponses(404, 'No existe')]
+    function InactivarAcabado([MVCInject] AServicio: ICatalogoService;
+      const AId: Integer): IMVCResponse;
+
+    [MVCPath('/formas-pago')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCSwagSummary('Catalogos', 'Formas de pago. Lista corta, sin paginar',
+      'listarFormasPago')]
+    [MVCSwagParam(plQuery, 'incluir_inactivos', 'Incluir los inactivos',
+      ptBoolean, False)]
+    [MVCSwagParam(plQuery, 'q', 'Texto a buscar en el nombre', ptString, False)]
+    [MVCSwagResponses(200, 'Formas de pago')]
+    function ListarFormasPago([MVCInject] AServicio: ICatalogoService;
+      const [MVCFromQueryString('incluir_inactivos', False)] AIncluirInactivos
+      : Boolean; const [MVCFromQueryString('q', '')] ABusqueda: string)
+      : IMVCResponse;
+
+    [MVCPath('/formas-pago')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
+    [MVCSwagSummary('Catalogos', 'Registra una forma de pago', 'crearFormaPago')]
+    [MVCSwagResponses(201, 'Creado')]
+    [MVCSwagResponses(422, 'Sin nombre o ya existe una con ese nombre')]
+    function CrearFormaPago([MVCInject] AServicio: ICatalogoService;
+      const [MVCFromBody] ADto: TCatalogoSimpleNuevoDTO): IMVCResponse;
+
+    [MVCPath('/formas-pago/($AId)')]
+    [MVCHTTPMethods([httpPUT])]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
+    [MVCSwagSummary('Catalogos', 'Actualiza una forma de pago', 'actualizarFormaPago')]
+    [MVCSwagResponses(204, 'Actualizado')]
+    [MVCSwagResponses(404, 'No existe')]
+    function ActualizarFormaPago([MVCInject] AServicio: ICatalogoService;
+      const AId: Integer;
+      const [MVCFromBody] ADto: TCatalogoSimpleNuevoDTO): IMVCResponse;
+
+    [MVCPath('/formas-pago/($AId)/inactivacion')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_CATALOGOS_EDITAR)]
+    [MVCSwagSummary('Catalogos', 'Inactiva una forma de pago', 'inactivarFormaPago')]
+    [MVCSwagResponses(204, 'Inactivado')]
+    [MVCSwagResponses(404, 'No existe')]
+    function InactivarFormaPago([MVCInject] AServicio: ICatalogoService;
+      const AId: Integer): IMVCResponse;
+
     [MVCPath('/unidades-medida')]
     [MVCHTTPMethods([httpGET])]
     [MVCSwagSummary('Catalogos', 'Unidades de medida. Lista corta, sin paginar',
@@ -655,6 +778,90 @@ function TCatalogosController.InactivarTipoTrabajo(AServicio: ICatalogoService;
   const AId: Integer): IMVCResponse;
 begin
   AServicio.InactivarTipoTrabajo(AId);
+  Result := NoContentResponse;
+end;
+
+function TCatalogosController.ListarTiposMaterial(AServicio: ICatalogoService;
+  const AIncluirInactivos: Boolean; const ABusqueda: string): IMVCResponse;
+begin
+  Result := OKResponse(AServicio.Simples(csTipoMaterial, AIncluirInactivos,
+    ABusqueda));
+end;
+
+function TCatalogosController.CrearTipoMaterial(AServicio: ICatalogoService;
+  const ADto: TCatalogoSimpleNuevoDTO): IMVCResponse;
+begin
+  Result := CreatedResponse('/api/catalogos/tipos-material/' +
+    AServicio.CrearSimple(csTipoMaterial, ADto).ToString);
+end;
+
+function TCatalogosController.ActualizarTipoMaterial(AServicio: ICatalogoService;
+  const AId: Integer; const ADto: TCatalogoSimpleNuevoDTO): IMVCResponse;
+begin
+  AServicio.ActualizarSimple(csTipoMaterial, AId, ADto);
+  Result := NoContentResponse;
+end;
+
+function TCatalogosController.InactivarTipoMaterial(AServicio: ICatalogoService;
+  const AId: Integer): IMVCResponse;
+begin
+  AServicio.InactivarSimple(csTipoMaterial, AId);
+  Result := NoContentResponse;
+end;
+
+function TCatalogosController.ListarAcabados(AServicio: ICatalogoService;
+  const AIncluirInactivos: Boolean; const ABusqueda: string): IMVCResponse;
+begin
+  Result := OKResponse(AServicio.Simples(csAcabado, AIncluirInactivos,
+    ABusqueda));
+end;
+
+function TCatalogosController.CrearAcabado(AServicio: ICatalogoService;
+  const ADto: TCatalogoSimpleNuevoDTO): IMVCResponse;
+begin
+  Result := CreatedResponse('/api/catalogos/acabados/' +
+    AServicio.CrearSimple(csAcabado, ADto).ToString);
+end;
+
+function TCatalogosController.ActualizarAcabado(AServicio: ICatalogoService;
+  const AId: Integer; const ADto: TCatalogoSimpleNuevoDTO): IMVCResponse;
+begin
+  AServicio.ActualizarSimple(csAcabado, AId, ADto);
+  Result := NoContentResponse;
+end;
+
+function TCatalogosController.InactivarAcabado(AServicio: ICatalogoService;
+  const AId: Integer): IMVCResponse;
+begin
+  AServicio.InactivarSimple(csAcabado, AId);
+  Result := NoContentResponse;
+end;
+
+function TCatalogosController.ListarFormasPago(AServicio: ICatalogoService;
+  const AIncluirInactivos: Boolean; const ABusqueda: string): IMVCResponse;
+begin
+  Result := OKResponse(AServicio.Simples(csFormaPago, AIncluirInactivos,
+    ABusqueda));
+end;
+
+function TCatalogosController.CrearFormaPago(AServicio: ICatalogoService;
+  const ADto: TCatalogoSimpleNuevoDTO): IMVCResponse;
+begin
+  Result := CreatedResponse('/api/catalogos/formas-pago/' +
+    AServicio.CrearSimple(csFormaPago, ADto).ToString);
+end;
+
+function TCatalogosController.ActualizarFormaPago(AServicio: ICatalogoService;
+  const AId: Integer; const ADto: TCatalogoSimpleNuevoDTO): IMVCResponse;
+begin
+  AServicio.ActualizarSimple(csFormaPago, AId, ADto);
+  Result := NoContentResponse;
+end;
+
+function TCatalogosController.InactivarFormaPago(AServicio: ICatalogoService;
+  const AId: Integer): IMVCResponse;
+begin
+  AServicio.InactivarSimple(csFormaPago, AId);
   Result := NoContentResponse;
 end;
 

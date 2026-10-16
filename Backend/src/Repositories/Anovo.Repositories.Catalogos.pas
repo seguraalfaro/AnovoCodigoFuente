@@ -6,6 +6,7 @@ interface
 
 uses
   System.Generics.Collections,
+  MVCFramework.ActiveRecord,
   Anovo.Repositories.Base,
   Anovo.Repositories.Intf.Catalogos,
   Anovo.Entities.Catalogos,
@@ -118,11 +119,27 @@ type
       const AExcluirId: Integer = 0): Boolean;
   end;
 
-  TTipoMaterialRepository = class(TAnovoRepository<TTiposMaterial>,
+  TCatalogoSimpleRepository<T: TMVCActiveRecord, constructor> = class
+    (TAnovoRepository<T>)
+  public
+    function Todos(const AIncluirInactivos: Boolean = False;
+      const ATexto: string = ''): TObjectList<T>;
+    function ExisteNombre(const ANombre: string;
+      const AExcluirId: Integer = 0): Boolean;
+  end;
+
+  TTipoMaterialRepository = class(TCatalogoSimpleRepository<TTiposMaterial>,
     ITipoMaterialRepository)
   end;
 
-  TAcabadoRepository = class(TAnovoRepository<TAcabados>, IAcabadoRepository)
+  TAcabadoRepository = class(TCatalogoSimpleRepository<TAcabados>,
+    IAcabadoRepository)
+  end;
+
+  TFormaPagoRepository = class(TCatalogoSimpleRepository<TFormasPago>,
+    IFormaPagoRepository)
+  public
+    function Activa(const AId: Integer): TFormasPago;
   end;
 
 implementation
@@ -338,6 +355,28 @@ function TTipoTrabajoRepository.ExisteNombre(const ANombre: string;
   const AExcluirId: Integer): Boolean;
 begin
   Result := NombreDuplicado(ANombre, AExcluirId);
+end;
+
+function TCatalogoSimpleRepository<T>.Todos(const AIncluirInactivos: Boolean;
+  const ATexto: string): TObjectList<T>;
+begin
+  if AIncluirInactivos then
+    Result := GetWhere(CATALOGO_SIMPLE_TODOS, [ATexto])
+  else
+    Result := GetWhere(CATALOGO_SIMPLE_ACTIVOS, [ATexto]);
+end;
+
+function TCatalogoSimpleRepository<T>.ExisteNombre(const ANombre: string;
+  const AExcluirId: Integer): Boolean;
+begin
+  Result := NombreDuplicado(ANombre, AExcluirId);
+end;
+
+function TFormaPagoRepository.Activa(const AId: Integer): TFormasPago;
+begin
+  Result := GetByPK(AId, False);
+  if (Result <> nil) and not Result.Activo.ValueOrDefault then
+    FreeAndNil(Result);
 end;
 
 function TUnidadMedidaRepository.Todas(const AIncluirInactivas: Boolean;

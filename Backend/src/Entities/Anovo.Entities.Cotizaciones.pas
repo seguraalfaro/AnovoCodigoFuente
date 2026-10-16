@@ -86,12 +86,18 @@ type
     [MVCTableField('FORMA_PAGO')]
     [MVCMaxLength(120)]
     fFormaPago: NullableString;
-    [MVCTableField('PLAZO_ENTREGA')]
-    [MVCMaxLength(120)]
-    fPlazoEntrega: NullableString;
-    [MVCTableField('GARANTIA')]
-    [MVCMaxLength(120)]
-    fGarantia: NullableString;
+    [MVCTableField('FORMA_PAGO_ID')]
+    fFormaPagoId: NullableInt32;
+    [MVCTableField('PLAZO_ENTREGA_CANTIDAD')]
+    fPlazoEntregaCantidad: NullableInt16;
+    [MVCTableField('PLAZO_ENTREGA_UNIDAD')]
+    [MVCMaxLength(15)]
+    fPlazoEntregaUnidad: NullableString;
+    [MVCTableField('GARANTIA_CANTIDAD')]
+    fGarantiaCantidad: NullableInt16;
+    [MVCTableField('GARANTIA_UNIDAD')]
+    [MVCMaxLength(15)]
+    fGarantiaUnidad: NullableString;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -119,8 +125,11 @@ type
     property FechaModificacion: NullableTDateTime  read fFechaModificacion write fFechaModificacion;
     property Objversion: NullableInt32 read fObjversion write fObjversion;
     property FormaPago: NullableString read fFormaPago write fFormaPago;
-    property PlazoEntrega: NullableString read fPlazoEntrega write fPlazoEntrega;
-    property Garantia: NullableString read fGarantia write fGarantia;
+    property FormaPagoId: NullableInt32 read fFormaPagoId write fFormaPagoId;
+    property PlazoEntregaCantidad: NullableInt16 read fPlazoEntregaCantidad write fPlazoEntregaCantidad;
+    property PlazoEntregaUnidad: NullableString read fPlazoEntregaUnidad write fPlazoEntregaUnidad;
+    property GarantiaCantidad: NullableInt16 read fGarantiaCantidad write fGarantiaCantidad;
+    property GarantiaUnidad: NullableString read fGarantiaUnidad write fGarantiaUnidad;
   end;
 
   [MVCNameCase(ncSnakeCase)]

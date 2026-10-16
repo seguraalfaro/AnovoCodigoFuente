@@ -227,6 +227,26 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
+  TCatalogoSimpleDTO = class
+  private
+    fID: Integer;
+    fNombre: string;
+    fActivo: Boolean;
+  public
+    property ID: Integer read fID write fID;
+    property Nombre: string read fNombre write fNombre;
+    property Activo: Boolean read fActivo write fActivo;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TCatalogoSimpleNuevoDTO = class
+  private
+    fNombre: string;
+  public
+    property Nombre: string read fNombre write fNombre;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
   TTipoTrabajoNuevoDTO = class
   private
     fNombre: string;

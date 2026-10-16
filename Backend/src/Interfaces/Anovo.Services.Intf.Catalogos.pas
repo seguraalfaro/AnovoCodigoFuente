@@ -9,6 +9,8 @@ uses
   Anovo.DTOs.Catalogos;
 
 type
+  TCatalogoSimple = (csTipoMaterial, csAcabado, csFormaPago);
+
   ICatalogoService = interface
     ['{C4A70E19-8D35-4B62-9F08-3E51A6D7C204}']
 
@@ -63,6 +65,16 @@ type
     procedure ActualizarTipoTrabajo(const AId: Integer;
       const ADto: TTipoTrabajoNuevoDTO);
     procedure InactivarTipoTrabajo(const AId: Integer);
+
+    function Simples(const ACatalogo: TCatalogoSimple;
+      const AIncluirInactivos: Boolean; const ATexto: string = '')
+      : TObjectList<TCatalogoSimpleDTO>;
+    function CrearSimple(const ACatalogo: TCatalogoSimple;
+      const ADto: TCatalogoSimpleNuevoDTO): Integer;
+    procedure ActualizarSimple(const ACatalogo: TCatalogoSimple;
+      const AId: Integer; const ADto: TCatalogoSimpleNuevoDTO);
+    procedure InactivarSimple(const ACatalogo: TCatalogoSimple;
+      const AId: Integer);
 
     function UnidadesMedida(const AIncluirInactivas: Boolean;
       const ATexto: string = ''): TObjectList<TUnidadMedidaDTO>;

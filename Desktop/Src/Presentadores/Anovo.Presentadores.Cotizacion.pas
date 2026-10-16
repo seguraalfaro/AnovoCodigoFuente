@@ -53,6 +53,7 @@ type
     function Editable: Boolean;
     procedure MostrarError(AMensaje: string);
     procedure MostrarCargando(AActivo: Boolean);
+    function CondicionesValidas(const ADatos: TCotizacionEdicionDTO): Boolean;
   public
     constructor Create(const AVista: IVistaCotizacion;
       const AApi: IApiCotizaciones; const ASolicitudes: IApiSolicitudes;
@@ -128,6 +129,7 @@ implementation
 
 uses
   System.NetEncoding,
+  Anovo.Condiciones,
   Anovo.DTOs.Clientes,
   Anovo.Mensajes,
   Anovo.Permisos,
@@ -309,6 +311,7 @@ var
   lCotizacion: TCotizacionDTO;
   lLineas: TObjectList<TLineaDTO>;
   lTipos: TObjectList<TTipoTrabajoDTO>;
+  lFormas: TObjectList<TCatalogoSimpleDTO>;
 begin
   lApi := FApi;
   lCatalogos := FCatalogos;
@@ -316,6 +319,7 @@ begin
   lCotizacion := nil;
   lLineas := nil;
   lTipos := nil;
+  lFormas := nil;
 
   Ejecutar(SAccionCargarCotizacion,
     procedure
@@ -323,13 +327,18 @@ begin
       lCotizacion := lApi.Obtener(lId);
       lLineas := lApi.Detalle(lId);
       if AConEncabezado then
+      begin
         lTipos := lCatalogos.TiposTrabajo(False);
+        lFormas := lCatalogos.Simples(csFormaPago, False);
+      end;
     end,
     procedure
     begin
       TomarCotizacion(lCotizacion);
       if lTipos <> nil then
         FVista.MostrarTiposTrabajo(lTipos);
+      if lFormas <> nil then
+        FVista.MostrarFormasPago(lFormas);
       FVista.MostrarCotizacion(lCotizacion, AConEncabezado);
       if (FEstado = ESTADO_DEVUELTA) and lCotizacion.MotivoRechazo.HasValue then
         FVista.MostrarDevolucion(lCotizacion.MotivoRechazo.Value)
@@ -345,6 +354,7 @@ begin
     procedure
     begin
       lTipos.Free;
+      lFormas.Free;
       lLineas.Free;
       lCotizacion.Free;
     end);
@@ -522,11 +532,28 @@ begin
     end, nil);
 end;
 
+function TPresentadorCotizacion.CondicionesValidas(const ADatos
+  : TCotizacionEdicionDTO): Boolean;
+var
+  lError: string;
+begin
+  lError := ErrorDePlazos(ADatos.PlazoEntregaCantidad,
+    ADatos.PlazoEntregaUnidad, ADatos.GarantiaCantidad, ADatos.GarantiaUnidad);
+  Result := lError.IsEmpty;
+  if not Result then
+  begin
+    ADatos.Free;
+    FVista.MostrarError(lError);
+  end;
+end;
+
 procedure TPresentadorCotizacion.Guardar(const ADatos: TCotizacionEdicionDTO);
 var
   lApi: IApiCotizaciones;
   lId: Integer;
 begin
+  if not CondicionesValidas(ADatos) then
+    Exit;
   ADatos.ObjVersion := FObjVersion;
   lApi := FApi;
   lId := FId;
@@ -551,6 +578,8 @@ var
   lApi: IApiCotizaciones;
   lId: Integer;
 begin
+  if not CondicionesValidas(ADatos) then
+    Exit;
   if not FVista.Confirmar(Format(SConfirmarPresentar, [FNumero])) then
   begin
     ADatos.Free;

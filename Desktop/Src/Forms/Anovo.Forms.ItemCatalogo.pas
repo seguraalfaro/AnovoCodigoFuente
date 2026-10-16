@@ -1,6 +1,6 @@
 unit Anovo.Forms.ItemCatalogo;
 
-// Ventana del item de catalogo, para los cuatro catalogos.
+// Ventana del item de catalogo, para todos los catalogos.
 
 interface
 
@@ -87,7 +87,8 @@ uses
   Anovo.Textos;
 
 const
-  PREFIJO: array [TCatalogo] of string = ('', 'MAT-', 'MO-', 'MAQ-', '', '');
+  PREFIJO: array [TCatalogo] of string = ('', 'MAT-', 'MO-', 'MAQ-', '', '',
+    '', '', '');
 
 function ItemDe(const ACatalogo: TCatalogo): string;
 begin
@@ -100,6 +101,12 @@ begin
       Result := SItemTipoTrabajo;
     ctUnidadesMedida:
       Result := SItemUnidadMedida;
+    ctTiposMaterial:
+      Result := SItemTipoMaterial;
+    ctAcabados:
+      Result := SItemAcabado;
+    ctFormasPago:
+      Result := SItemFormaPago;
   else
     Result := SItemMaterial;
   end;
@@ -159,7 +166,7 @@ begin
       cpCatalogo.ActiveCard := CarManoObra;
     ctMaquinas:
       cpCatalogo.ActiveCard := CarMaquina;
-    ctTiposTrabajo:
+    ctTiposTrabajo, ctTiposMaterial, ctAcabados, ctFormasPago:
       cpCatalogo.ActiveCard := CarTipoTrabajo;
     ctUnidadesMedida:
       cpCatalogo.ActiveCard := CarUnidadMedida;
@@ -230,7 +237,7 @@ var
 begin
   Result := False;
 
-  if not (FCatalogo in [ctTiposTrabajo, ctUnidadesMedida]) and
+  if not (FCatalogo in CATALOGOS_SIN_PRECIO) and
     (dmMemoria.mtItemCatalogoCODIGO.AsString.Trim.IsEmpty or
     SameText(dmMemoria.mtItemCatalogoCODIGO.AsString.Trim,
     PREFIJO[FCatalogo])) then
@@ -297,6 +304,9 @@ begin
         (dmMemoria.mtItemCatalogo);
     ctUnidadesMedida:
       Result := TMapeoDatos.ADto<TUnidadMedidaNuevaDTO>
+        (dmMemoria.mtItemCatalogo);
+    ctTiposMaterial, ctAcabados, ctFormasPago:
+      Result := TMapeoDatos.ADto<TCatalogoSimpleNuevoDTO>
         (dmMemoria.mtItemCatalogo);
   else
     if FId = 0 then

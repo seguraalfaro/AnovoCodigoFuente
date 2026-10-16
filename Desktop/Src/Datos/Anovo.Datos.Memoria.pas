@@ -475,9 +475,11 @@ type
     mtCotizacionEdicion: TFDMemTable;
     mtCotizacionEdicionTIPO_TRABAJO_ID: TIntegerField;
     mtCotizacionEdicionDESCRIPCION_TRABAJO: TStringField;
-    mtCotizacionEdicionFORMA_PAGO: TStringField;
-    mtCotizacionEdicionPLAZO_ENTREGA: TStringField;
-    mtCotizacionEdicionGARANTIA: TStringField;
+    mtCotizacionEdicionFORMA_PAGO_ID: TIntegerField;
+    mtCotizacionEdicionPLAZO_ENTREGA_CANTIDAD: TIntegerField;
+    mtCotizacionEdicionPLAZO_ENTREGA_UNIDAD: TStringField;
+    mtCotizacionEdicionGARANTIA_CANTIDAD: TIntegerField;
+    mtCotizacionEdicionGARANTIA_UNIDAD: TStringField;
     dsCotizacionEdicion: TDataSource;
     mtTiposTrabajoLista: TFDMemTable;
     mtTiposTrabajoListaID: TIntegerField;
@@ -498,6 +500,20 @@ type
     mtPiezasTIPO_MATERIAL_NOMBRE: TStringField;
     mtPiezasACABADO_NOMBRE: TStringField;
     dsPiezas: TDataSource;
+    mtCatalogoSimple: TFDMemTable;
+    mtCatalogoSimpleID: TIntegerField;
+    mtCatalogoSimpleNOMBRE: TStringField;
+    mtCatalogoSimpleACTIVO: TBooleanField;
+    mtCatalogoSimpleESTADO: TStringField;
+    mtCatalogoSimpleACCIONES: TStringField;
+    mtFormasPagoLista: TFDMemTable;
+    mtFormasPagoListaID: TIntegerField;
+    mtFormasPagoListaNOMBRE: TStringField;
+    dsFormasPagoLista: TDataSource;
+    mtUnidadesPlazo: TFDMemTable;
+    mtUnidadesPlazoCODIGO: TStringField;
+    mtUnidadesPlazoNOMBRE: TStringField;
+    dsUnidadesPlazo: TDataSource;
     mtItemsLinea: TFDMemTable;
     mtItemsLineaID: TIntegerField;
     mtItemsLineaCODIGO: TStringField;
@@ -569,9 +585,11 @@ type
     mtEmpresaREPRESENTANTE_LEGAL: TStringField;
     mtEmpresaCUENTA_BANCARIA: TStringField;
     mtEmpresaPORCENTAJE_IVA: TCurrencyField;
-    mtEmpresaFORMA_PAGO: TStringField;
-    mtEmpresaPLAZO_ENTREGA: TStringField;
-    mtEmpresaGARANTIA: TStringField;
+    mtEmpresaFORMA_PAGO_ID: TIntegerField;
+    mtEmpresaPLAZO_ENTREGA_CANTIDAD: TIntegerField;
+    mtEmpresaPLAZO_ENTREGA_UNIDAD: TStringField;
+    mtEmpresaGARANTIA_CANTIDAD: TIntegerField;
+    mtEmpresaGARANTIA_UNIDAD: TStringField;
     mtEmpresaFIRMANTE: TStringField;
     mtEmpresaCARTA_PRESENTACION: TStringField;
     dsEmpresa: TDataSource;
@@ -627,6 +645,7 @@ type
   private
     procedure CargarTiposIdentificacion;
     procedure CargarMagnitudes;
+    procedure CargarUnidadesPlazo;
   public
     procedure PrepararItemCatalogo;
     procedure PrepararPrecioCatalogo;
@@ -655,6 +674,7 @@ implementation
 {$R *.dfm}
 
 uses
+  Anovo.Condiciones,
   Anovo.DTOs.Catalogos,
   Anovo.Sesion,
   Anovo.Textos;
@@ -684,6 +704,7 @@ procedure TdmMemoria.DataModuleCreate(Sender: TObject);
 begin
   CargarTiposIdentificacion;
   CargarMagnitudes;
+  CargarUnidadesPlazo;
 end;
 
 procedure TdmMemoria.CargarTiposIdentificacion;
@@ -707,6 +728,17 @@ begin
   for lMagnitud in MAGNITUDES do
     mtMagnitudes.AppendRecord([lMagnitud, TFormato.Magnitud(lMagnitud)]);
   mtMagnitudes.First;
+end;
+
+procedure TdmMemoria.CargarUnidadesPlazo;
+var
+  lUnidad: string;
+begin
+  mtUnidadesPlazo.Close;
+  mtUnidadesPlazo.CreateDataSet;
+  for lUnidad in UNIDADES_PLAZO do
+    mtUnidadesPlazo.AppendRecord([lUnidad, NombreUnidadPlazo(lUnidad)]);
+  mtUnidadesPlazo.First;
 end;
 
 procedure TdmMemoria.mtContactoNuevoBeforePost(DataSet: TDataSet);
@@ -913,6 +945,7 @@ begin
       TFDMemTable(Components[I]).Close;
   CargarTiposIdentificacion;
   CargarMagnitudes;
+  CargarUnidadesPlazo;
 end;
 
 procedure TdmMemoria.Confirmar(const ATabla: TDataSet);

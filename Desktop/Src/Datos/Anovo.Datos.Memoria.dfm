@@ -2412,20 +2412,27 @@ object dmMemoria: TdmMemoria
       Size = 500
       FieldName = 'DESCRIPCION_TRABAJO'
     end
-    object mtCotizacionEdicionFORMA_PAGO: TStringField
+    object mtCotizacionEdicionFORMA_PAGO_ID: TIntegerField
       DisplayLabel = 'Forma de pago'
-      FieldName = 'FORMA_PAGO'
-      Size = 120
+      FieldName = 'FORMA_PAGO_ID'
     end
-    object mtCotizacionEdicionPLAZO_ENTREGA: TStringField
+    object mtCotizacionEdicionPLAZO_ENTREGA_CANTIDAD: TIntegerField
       DisplayLabel = 'Entrega'
-      FieldName = 'PLAZO_ENTREGA'
-      Size = 120
+      FieldName = 'PLAZO_ENTREGA_CANTIDAD'
     end
-    object mtCotizacionEdicionGARANTIA: TStringField
+    object mtCotizacionEdicionPLAZO_ENTREGA_UNIDAD: TStringField
+      DisplayLabel = 'Unidad'
+      FieldName = 'PLAZO_ENTREGA_UNIDAD'
+      Size = 15
+    end
+    object mtCotizacionEdicionGARANTIA_CANTIDAD: TIntegerField
       DisplayLabel = 'Garant'#237'a'
-      FieldName = 'GARANTIA'
-      Size = 120
+      FieldName = 'GARANTIA_CANTIDAD'
+    end
+    object mtCotizacionEdicionGARANTIA_UNIDAD: TStringField
+      DisplayLabel = 'Unidad'
+      FieldName = 'GARANTIA_UNIDAD'
+      Size = 15
     end
   end
   object dsCotizacionEdicion: TDataSource
@@ -2547,6 +2554,91 @@ object dmMemoria: TdmMemoria
     DataSet = mtPiezas
     Left = 1384
     Top = 568
+  end
+  object mtCatalogoSimple: TFDMemTable
+    OnCalcFields = CatalogoCalcFields
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1280
+    Top = 624
+    object mtCatalogoSimpleID: TIntegerField
+      FieldName = 'ID'
+      Visible = False
+    end
+    object mtCatalogoSimpleNOMBRE: TStringField
+      DisplayLabel = 'Nombre'
+      FieldName = 'NOMBRE'
+      Size = 120
+    end
+    object mtCatalogoSimpleACTIVO: TBooleanField
+      FieldName = 'ACTIVO'
+      Visible = False
+    end
+    object mtCatalogoSimpleESTADO: TStringField
+      DisplayLabel = 'Estado'
+      FieldKind = fkCalculated
+      FieldName = 'ESTADO'
+      Size = 15
+      Calculated = True
+    end
+    object mtCatalogoSimpleACCIONES: TStringField
+      FieldName = 'ACCIONES'
+      Size = 1
+    end
+  end
+  object mtFormasPagoLista: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1280
+    Top = 680
+    object mtFormasPagoListaID: TIntegerField
+      FieldName = 'ID'
+    end
+    object mtFormasPagoListaNOMBRE: TStringField
+      FieldName = 'NOMBRE'
+      Size = 120
+    end
+  end
+  object dsFormasPagoLista: TDataSource
+    AutoEdit = False
+    DataSet = mtFormasPagoLista
+    Left = 1384
+    Top = 680
+  end
+  object mtUnidadesPlazo: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1280
+    Top = 736
+    object mtUnidadesPlazoCODIGO: TStringField
+      FieldName = 'CODIGO'
+      Size = 15
+    end
+    object mtUnidadesPlazoNOMBRE: TStringField
+      FieldName = 'NOMBRE'
+      Size = 40
+    end
+  end
+  object dsUnidadesPlazo: TDataSource
+    AutoEdit = False
+    DataSet = mtUnidadesPlazo
+    Left = 1384
+    Top = 736
   end
   object mtItemsLinea: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -2957,20 +3049,27 @@ object dmMemoria: TdmMemoria
       FieldName = 'CUENTA_BANCARIA'
       Size = 60
     end
-    object mtEmpresaFORMA_PAGO: TStringField
+    object mtEmpresaFORMA_PAGO_ID: TIntegerField
       DisplayLabel = 'Forma de pago'
-      FieldName = 'FORMA_PAGO'
-      Size = 120
+      FieldName = 'FORMA_PAGO_ID'
     end
-    object mtEmpresaPLAZO_ENTREGA: TStringField
+    object mtEmpresaPLAZO_ENTREGA_CANTIDAD: TIntegerField
       DisplayLabel = 'Entrega'
-      FieldName = 'PLAZO_ENTREGA'
-      Size = 120
+      FieldName = 'PLAZO_ENTREGA_CANTIDAD'
     end
-    object mtEmpresaGARANTIA: TStringField
+    object mtEmpresaPLAZO_ENTREGA_UNIDAD: TStringField
+      DisplayLabel = 'Unidad'
+      FieldName = 'PLAZO_ENTREGA_UNIDAD'
+      Size = 15
+    end
+    object mtEmpresaGARANTIA_CANTIDAD: TIntegerField
       DisplayLabel = 'Garant'#237'a'
-      FieldName = 'GARANTIA'
-      Size = 120
+      FieldName = 'GARANTIA_CANTIDAD'
+    end
+    object mtEmpresaGARANTIA_UNIDAD: TStringField
+      DisplayLabel = 'Unidad'
+      FieldName = 'GARANTIA_UNIDAD'
+      Size = 15
     end
     object mtEmpresaFIRMANTE: TStringField
       DisplayLabel = 'Firma la cotizaci'#243'n'
