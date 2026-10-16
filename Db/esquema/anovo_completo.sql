@@ -3,7 +3,7 @@
    Firebird 4.0 - base ANOVO
 
    La base entera desde cero, en el estado que dejo la ultima migracion. Es la
-   suma de migraciones\01 a 44 en orden de aplicacion; cada tramo conserva la
+   suma de migraciones\01 a 47 en orden de aplicacion; cada tramo conserva la
    cabecera de su script para saber de donde salio. La 12 no tiene tramo
    propio: su cambio ya esta en la tabla MANO_OBRA del tramo 01.
 
@@ -4974,4 +4974,34 @@ COMMIT;
      SELECT COUNT(*) FROM RDB$RELATION_FIELDS WHERE RDB$RELATION_NAME = 'SOLICITUD_ADJUNTOS'
         AND RDB$FIELD_NAME = 'HASH_SHA256';                                    -- 1
      SELECT * FROM V_VERSION_ESQUEMA;                                          -- 46
+   ---------------------------------------------------------------------------- */
+
+/* ============================================================================
+   Anovo - Migracion 47: quitar el indice repetido de COTIZACION_ENVIOS
+   ----------------------------------------------------------------------------
+   La 35 creo IDX_COTIZ_ENVIOS_COTIZACION sobre COTIZACION_ID, la misma columna
+   de la clave foranea hacia COTIZACIONES. Firebird ya crea un indice por esa
+   clave (RDB$FOREIGN76), asi que este no acelera ninguna consulta y si cada
+   envio registrado. Es el mismo caso que la 24 resolvio para otros catorce.
+   Lo encontro la revision de indices del diccionario de datos (16/10/2026).
+   No toca datos ni rompe el contrato: ninguna entidad ni vista lo nombra.
+   Todo en ASCII.
+   ============================================================================ */
+
+DROP INDEX IDX_COTIZ_ENVIOS_COTIZACION;
+
+INSERT INTO ESQUEMA_MIGRACIONES (NUMERO, NOMBRE)
+  VALUES (47, '47_indice_repetido_envios');
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   Verificacion:
+     SELECT COUNT(*) FROM RDB$INDICES
+      WHERE RDB$INDEX_NAME = 'IDX_COTIZ_ENVIOS_COTIZACION';          -- 0
+     SELECT TRIM(S.RDB$FIELD_NAME) FROM RDB$RELATION_CONSTRAINTS C
+       JOIN RDB$INDEX_SEGMENTS S ON S.RDB$INDEX_NAME = C.RDB$INDEX_NAME
+      WHERE C.RDB$RELATION_NAME = 'COTIZACION_ENVIOS'
+        AND C.RDB$CONSTRAINT_TYPE = 'FOREIGN KEY';                   -- COTIZACION_ID y USUARIO_ID
+     SELECT * FROM V_VERSION_ESQUEMA;                                -- 47
    ---------------------------------------------------------------------------- */
