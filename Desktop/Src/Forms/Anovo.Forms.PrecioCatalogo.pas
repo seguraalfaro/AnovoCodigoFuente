@@ -63,6 +63,7 @@ implementation
 
 uses
   Anovo.UI.Vista,
+  Anovo.UI.ColumnasRejilla,
   Anovo.Api.Catalogos,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
@@ -107,6 +108,7 @@ end;
 procedure TfrmPrecioCatalogo.FormCreate(Sender: TObject);
 begin
   AplicarTemaGrid(grHistorial);
+  TColumnasRejilla.AplicarEn(grHistorial);
   FPresentador := TPresentadorPrecioCatalogo.Create(Self, TApiCatalogos.Create);
   FVigencia := nil;
   FGuardado := False;

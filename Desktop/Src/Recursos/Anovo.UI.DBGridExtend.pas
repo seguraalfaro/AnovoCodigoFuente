@@ -21,6 +21,7 @@ procedure EditarCasillas(AGrid: TrDBGrid);
 
 procedure AjustarColumnas(AGrid: TrDBGrid);
 
+procedure AjustarAnchos(AGrid: TrDBGrid);
 
 procedure OcultarScrollVertical(AGrid: TrDBGrid);
 
@@ -86,6 +87,7 @@ type
     procedure AjustarAcciones;
     procedure AjustarColumnas;
 
+    property CampoAcciones: string read FCampoAcciones;
     property OnAccion: TEventoAccion read FOnAccion write FOnAccion;
   end;
 
@@ -93,7 +95,7 @@ implementation
 
 uses
   Winapi.Windows, System.SysUtils, System.Math, System.UITypes, Data.DB, RosiCompGlobalCfg,
-  VclPlano.Dibujo, VclPlano.Pastilla, Anovo.UI.Tema;
+  VclPlano.Dibujo, VclPlano.Pastilla, Anovo.UI.Tema, Anovo.UI.ColumnasRejilla;
 
 const
   MARGEN_CELDA = 10;
@@ -458,6 +460,14 @@ begin
     FCeldaAnterior(Sender, ARect, ADataCol, AColumn, AState);
 end;
 
+function AlineacionTitulo(AColumna: TColumn): TAlignment;
+begin
+  if AColumna.Field is TBooleanField then
+    Result := taCenter
+  else
+    Result := AColumna.Alignment;
+end;
+
 procedure TDBGridExtend.DibujarTitulo(Sender: TObject; ACol, ARow: Longint;
   Rect: TRect; State: TGridDrawState);
 var
@@ -481,7 +491,7 @@ begin
       FGrid.Canvas.Brush.Style := bsClear;
 
       lFormato := [tfVerticalCenter, tfSingleLine, tfEndEllipsis];
-      case FGrid.Columns[lIndice].Title.Alignment of
+      case AlineacionTitulo(FGrid.Columns[lIndice]) of
         taRightJustify:
           Include(lFormato, tfRight);
         taCenter:
@@ -645,10 +655,13 @@ begin
   AGrid.Ctl3D := False;
 
   AGrid.DoubleBuffered := True;
+
+  TColumnasRejilla.Activar(AGrid);
 end;
 
 procedure EditarCasillas(AGrid: TrDBGrid);
 begin
+  TColumnasRejilla.Quitar(AGrid);
   AGrid.Options := AGrid.Options - [dgRowSelect] + [dgEditing];
   AGrid.ReadOnly := False;
   AGrid.OptionsEx2.Editors.BoolOneClickChange := True;
@@ -680,14 +693,28 @@ begin
   end;
 end;
 
+procedure AjustarAnchos(AGrid: TrDBGrid);
+var
+  lTotal, I: Integer;
+begin
+  AGrid.ColumnWidth := cwDataLabelWidth;
+  lTotal := 0;
+  for I := 0 to AGrid.Columns.Count - 1 do
+    if AGrid.Columns[I].Visible then
+      Inc(lTotal, AGrid.Columns[I].Width);
+  if lTotal <= AGrid.ClientWidth then
+    AGrid.ColumnWidth := cwAutoWidth;
+end;
+
 procedure AjustarColumnas(AGrid: TrDBGrid);
 begin
   if (AGrid = nil) or (AGrid.DataSource = nil) or
      (AGrid.DataSource.DataSet = nil) or not AGrid.DataSource.DataSet.Active then
     Exit;
 
-  AGrid.ColumnWidth := cwDataLabelWidth;
-  AGrid.ColumnWidth := cwAutoWidth;
+  AjustarAnchos(AGrid);
+  if TColumnasRejilla.De(AGrid) <> nil then
+    TColumnasRejilla.De(AGrid).Aplicar;
 end;
 
 procedure OcultarScrollVertical(AGrid: TrDBGrid);

@@ -131,6 +131,7 @@ implementation
 
 uses
   Winapi.ShellAPI,
+  Anovo.UI.ColumnasRejilla,
   Anovo.UI.Vista,
   Anovo.Formato,
   Anovo.Api.Clientes,
@@ -411,6 +412,7 @@ begin
 
   TMapeoDatos.AListaTabla<TConsentimientoDTO>(AConsentimientos,
     dmMemoria.mtConsentimientos);
+  TColumnasRejilla.AplicarEn(grHistorial);
   if AConsentimientos.Count = 0 then
     valRecogido.Caption := SIN_DATO
   else

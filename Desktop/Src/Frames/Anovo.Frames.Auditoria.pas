@@ -51,6 +51,7 @@ implementation
 {$R *.dfm}
 
 uses
+  Anovo.UI.ColumnasRejilla,
   Anovo.Api.Auditoria,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
@@ -131,6 +132,7 @@ procedure TfraAuditoria.MostrarAuditoria(const AFilas
   : TObjectList<TAuditoriaDTO>);
 begin
   TMapeoDatos.AListaTabla<TAuditoriaDTO>(AFilas, dmMemoria.mtAuditoria);
+  TColumnasRejilla.AplicarEn(grDatos);
 end;
 
 procedure TfraAuditoria.pstFiltrosChange(Sender: TObject);

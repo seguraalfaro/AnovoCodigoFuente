@@ -140,6 +140,7 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Src\Recursos\Anovo.UI.DBGridExtend.pas"/>
+        <DCCReference Include="Src\Recursos\Anovo.UI.ColumnasRejilla.pas"/>
         <DCCReference Include="Src\Common\Anovo.Sesion.pas"/>
         <DCCReference Include="Src\Common\Anovo.Config.pas"/>
         <DCCReference Include="Src\Api\Anovo.Api.Base.pas"/>
@@ -285,6 +286,9 @@
         </DCCReference>
         <DCCReference Include="Src\Forms\Anovo.Forms.Motivo.pas">
             <Form>frmMotivo</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Forms\Anovo.Forms.Columnas.pas">
+            <Form>frmColumnas</Form>
         </DCCReference>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Auditoria.pas"/>
         <DCCReference Include="..\Backend\src\Common\Anovo.Textos.pas"/>
