@@ -25,6 +25,10 @@ type
 
     function ObtenerPorUuidLocal(const AUuid: string): TClientes;
     function ExitsUuidLocal(const AUuid: string): Integer;
+    function NombreRepetido(const ANombre: string;
+      const AExcluirId: Integer): Boolean;
+    function ConIdentificacion(const ATipo: Integer;
+      const ANumero: string; const AExcluirId: Integer): TClientes;
     function ParaBajar(const ADesde: NullableTDateTime;
       const AConUuid: Boolean = False): TObjectList<TClientes>;
   end;

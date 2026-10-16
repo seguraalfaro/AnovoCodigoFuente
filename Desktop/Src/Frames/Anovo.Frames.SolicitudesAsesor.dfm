@@ -16,6 +16,48 @@ inherited fraSolicitudesAsesor: TfraSolicitudesAsesor
     inherited btnLimpiar: TPlanoBotonWin
       Left = 330
     end
+    object lblDesde: TLabel
+      Tag = 13
+      Left = 440
+      Top = 18
+      Width = 32
+      Height = 15
+      Caption = 'Desde'
+    end
+    object dtpDesde: TDateTimePicker
+      Left = 482
+      Top = 14
+      Width = 120
+      Height = 23
+      Date = 46000.000000000000000000
+      Format = 'dd/MM/yyyy'
+      Time = 46000.000000000000000000
+      ShowCheckbox = True
+      Checked = False
+      TabOrder = 2
+      OnChange = FechasChange
+    end
+    object lblHasta: TLabel
+      Tag = 13
+      Left = 614
+      Top = 18
+      Width = 30
+      Height = 15
+      Caption = 'Hasta'
+    end
+    object dtpHasta: TDateTimePicker
+      Left = 652
+      Top = 14
+      Width = 120
+      Height = 23
+      Date = 46000.000000000000000000
+      Format = 'dd/MM/yyyy'
+      Time = 46000.000000000000000000
+      ShowCheckbox = True
+      Checked = False
+      TabOrder = 3
+      OnChange = FechasChange
+    end
   end
   inherited pnclient: TRelativePanel
     Top = 175

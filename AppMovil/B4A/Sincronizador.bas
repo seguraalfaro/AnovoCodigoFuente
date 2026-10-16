@@ -80,7 +80,10 @@ Private Sub Enviar (u As UnidadSync) As ResumableSub
 			Wait For (ApiSincronizacion.SubirSolicitud(u.Paquete).Enviar) Complete (Respuesta As RestRespuesta)
 			Return Respuesta
 	End Select
-	u.Paquete.Put("contenido", Adjuntos.LeerBase64(u.Ruta))
+	Dim datos() As Byte = Adjuntos.LeerBytes(u.Ruta)
+	Dim codificador As StringUtils
+	u.Paquete.Put("contenido", codificador.EncodeBase64(datos))
+	If datos.Length > 0 Then u.Paquete.Put("hash_sha256", Adjuntos.HuellaSha256(datos))
 	Wait For (ApiSincronizacion.SubirFoto(u.SolicitudId, u.Paquete).Enviar) Complete (Respuesta As RestRespuesta)
 	Return Respuesta
 End Sub

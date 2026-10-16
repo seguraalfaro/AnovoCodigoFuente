@@ -74,34 +74,4 @@ Public Sub NuevoUuid As String
 	Return ju.RunMethod("randomUUID", Null)
 End Sub
 
-'Solo depuracion: copia la base a Descargas, donde el explorador del propio
-'tablet la ve. Requiere el permiso de escritura ya concedido.
-'Devuelve la ruta completa, o "" si fallo.
-Public Sub ExportarADescargas As String
-	If DbSQL.IsInitialized = False Then
-		Log("ExportarADescargas: la base no esta abierta")
-		Return ""
-	End If
-
-	Try
-		'sin esto la copia no incluye lo ultimo escrito (WAL)
-		Dim chk As String = DbSQL.ExecQuerySingleResult("PRAGMA wal_checkpoint(TRUNCATE)")
-		Log("wal_checkpoint -> " & chk)
-
-		Dim destino As String = File.Combine(File.DirRootExternal, "Download")
-		If File.Exists(destino, "") = False Then File.MakeDir(File.DirRootExternal, "Download")
-
-		Dim nombre As String = "anovo_" & DateTime.Now & ".db"
-		File.Copy(File.DirInternal, DbEsquema.DB_NOMBRE, destino, nombre)
-
-	
-
-		Log("Base exportada: " & File.Combine(destino, nombre) & _
-			"  " & File.Size(destino, nombre) & " bytes")
-		Return File.Combine(destino, nombre)
-	Catch
-		Log("ExportarADescargas ERROR: " & LastException)
-		Return ""
-	End Try
-End Sub
 #End Region

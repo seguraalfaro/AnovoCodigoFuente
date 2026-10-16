@@ -964,8 +964,9 @@ object fraClienteDatos: TfraClienteDatos
             BevelInner = bvNone
             BevelOuter = bvNone
             TabOrder = 0
-            TextHint = 'C'#243'digo o descripci'#243'n'
+            TextHint = 'Descripci'#243'n del trabajo'
             StyleElements = [seFont]
+            OnInvokeSearch = SearchBox1InvokeSearch
           end
           object btnExportar: TPlanoBotonWin
             Left = 812
@@ -977,6 +978,7 @@ object fraClienteDatos: TfraClienteDatos
             Caption = 'Exportar listado'
             TabOrder = 1
             StyleElements = []
+            OnClick = btnExportarClick
             Kind = fkSecondary
           end
         end
@@ -1005,6 +1007,7 @@ object fraClienteDatos: TfraClienteDatos
           ActiveFont.Style = []
           Anchors = []
           ParentFont = False
+          OnChange = pstFiltrosChange
         end
         object rpdatos: TRelativePanel
           Tag = 2
@@ -1052,7 +1055,7 @@ object fraClienteDatos: TfraClienteDatos
               end
               item
                 Expanded = False
-                FieldName = 'TIPO'
+                FieldName = 'TIPO_TRABAJO_NOMBRE'
                 Title.Caption = 'Tipo de trabajo'
                 Width = 320
                 Visible = True
@@ -1066,7 +1069,7 @@ object fraClienteDatos: TfraClienteDatos
               end
               item
                 Expanded = False
-                FieldName = 'ASESOR'
+                FieldName = 'ELABORADA_POR_NOMBRE'
                 Title.Caption = 'Elaborada por'
                 Width = 150
                 Visible = True

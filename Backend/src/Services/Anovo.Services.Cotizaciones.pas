@@ -97,6 +97,8 @@ type
 
     function Detalle(const AId, AUsuarioId: Integer;
       const ARoles: TArray<string>): TObjectList<TLineaDTO>;
+    function Estados(const AId, AUsuarioId: Integer;
+      const ARoles: TArray<string>): TObjectList<TEstadoCotizacionDTO>;
     function AgregarLinea(const AId: Integer;
       const ADto: TLineaNuevaDTO): Integer;
     procedure ActualizarLinea(const AId, ALineaId: Integer;
@@ -650,6 +652,28 @@ begin
   end;
 
   Recalcular(AId);
+end;
+
+function TCotizacionService.Estados(const AId, AUsuarioId: Integer;
+  const ARoles: TArray<string>): TObjectList<TEstadoCotizacionDTO>;
+var
+  lFilas: TObjectList<THistorialCotizacion>;
+  lCotizacion: TCotizaciones;
+begin
+  lCotizacion := TraerVigente(AId);
+  try
+    ExigirAlcance(lCotizacion, AUsuarioId, ARoles);
+  finally
+    lCotizacion.Free;
+  end;
+
+  lFilas := fRepo.HistorialDe(AId);
+  try
+    Result := TMapeo.AListaDto<THistorialCotizacion,
+      TEstadoCotizacionDTO>(lFilas);
+  finally
+    lFilas.Free;
+  end;
 end;
 
 function TCotizacionService.Detalle(const AId, AUsuarioId: Integer;

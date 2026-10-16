@@ -17,16 +17,19 @@ type
     FApi: IApiCotizaciones;
     FTexto: string;
     FFiltro: TFiltroCotizaciones;
+    FFiltroDesde: TDateTime;
+    FFiltroHasta: TDateTime;
     FPagina: Integer;
     FTotalPaginas: Integer;
     procedure Cargar;
   public
     constructor Create(const AVista: IVistaCotizaciones;
       const AApi: IApiCotizaciones);
-    procedure Iniciar;
+    procedure Iniciar(const ACargar: Boolean = True);
     procedure Recargar;
     procedure Buscar(const ATexto: string);
     procedure Limpiar;
+    procedure FiltrarFechas(const ADesde, AHasta: TDateTime);
     procedure Filtrar(const AFiltro: TFiltroCotizaciones);
     procedure IrAPagina(const APagina: Integer);
     procedure PaginaSiguiente;
@@ -58,11 +61,12 @@ begin
   FPagina := 1;
 end;
 
-procedure TPresentadorCotizaciones.Iniciar;
+procedure TPresentadorCotizaciones.Iniciar(const ACargar: Boolean);
 begin
   FVista.MostrarAcciones([alcAbrir]);
   FVista.MostrarBusqueda('', False);
-  Cargar;
+  if ACargar then
+    Cargar;
 end;
 
 procedure TPresentadorCotizaciones.Recargar;
@@ -80,7 +84,22 @@ end;
 
 procedure TPresentadorCotizaciones.Limpiar;
 begin
+  FFiltroDesde := 0;
+  FFiltroHasta := 0;
   Buscar('');
+end;
+
+procedure TPresentadorCotizaciones.FiltrarFechas(const ADesde, AHasta: TDateTime);
+begin
+  if (ADesde > 0) and (AHasta > 0) and (ADesde > AHasta) then
+  begin
+    FVista.MostrarError(SPeriodoInvertido);
+    Exit;
+  end;
+  FFiltroDesde := ADesde;
+  FFiltroHasta := AHasta;
+  FPagina := 1;
+  Cargar;
 end;
 
 procedure TPresentadorCotizaciones.Filtrar(const AFiltro: TFiltroCotizaciones);
@@ -120,18 +139,21 @@ var
   lTexto, lEstado: string;
   lPagina: Integer;
   lTotal: Int64;
+  lFiltroDesde, lFiltroHasta: TDateTime;
 begin
   lApi := FApi;
   lTexto := FTexto;
   lEstado := ESTADO_API[FFiltro];
+  lFiltroDesde := FFiltroDesde;
+  lFiltroHasta := FFiltroHasta;
   lPagina := FPagina;
   lTotal := 0;
 
   EjecutarUltima<TObjectList<TCotizacionDTO>>(SAccionCargarCotizaciones,
     function: TObjectList<TCotizacionDTO>
     begin
-      Result := lApi.Listar(lTexto, lEstado, lPagina,
-        COTIZACIONES_POR_PAGINA, lTotal);
+      Result := lApi.Listar(lTexto, lEstado, 0, lFiltroDesde, lFiltroHasta,
+        lPagina, COTIZACIONES_POR_PAGINA, lTotal);
     end,
     procedure(ALista: TObjectList<TCotizacionDTO>)
     begin

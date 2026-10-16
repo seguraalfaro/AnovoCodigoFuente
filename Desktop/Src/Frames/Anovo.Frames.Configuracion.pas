@@ -176,10 +176,14 @@ begin
 end;
 
 procedure TfraConfiguracion.btnCambiarServidorClick(Sender: TObject);
+var
+  lAnterior: string;
 begin
+  lAnterior := TConfig.UrlServidor;
   TfrmConexion.Mostrar(Self);
   lblServidor.Caption := Anfitrion(TConfig.UrlServidor);
-  FPresentador.Probar;
+  if TConfig.UrlServidor <> lAnterior then
+    FPresentador.Probar;
 end;
 
 procedure TfraConfiguracion.btnDocumentoEmpresaClick(Sender: TObject);
@@ -259,7 +263,8 @@ end;
 
 procedure TfraConfiguracion.MostrarCargando(const AActivo: Boolean);
 begin
-  CursorOcupado(AActivo);
+  BloquearEdicion([btnGuardarEmpresa, btnGuardarParametros, btnCambiarClave],
+    AActivo);
 end;
 
 procedure TfraConfiguracion.MostrarCuenta(const ADatos: TCuentaDTO);

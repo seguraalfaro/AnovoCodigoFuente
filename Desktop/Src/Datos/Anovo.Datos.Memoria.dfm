@@ -205,20 +205,20 @@ object dmMemoria: TdmMemoria
     object mtClienteCotizacionesID: TIntegerField
       FieldName = 'ID'
     end
-    object mtClienteCotizacionesNUMERO: TStringField
+    object mtClienteCotizacionesNUMERO: TIntegerField
       FieldName = 'NUMERO'
     end
-    object mtClienteCotizacionesTIPO: TStringField
-      FieldName = 'TIPO'
-      Size = 60
+    object mtClienteCotizacionesTIPO_TRABAJO_NOMBRE: TStringField
+      FieldName = 'TIPO_TRABAJO_NOMBRE'
+      Size = 120
     end
-    object mtClienteCotizacionesFECHA_ELABORACION: TDateField
+    object mtClienteCotizacionesFECHA_ELABORACION: TDateTimeField
       FieldName = 'FECHA_ELABORACION'
       DisplayFormat = 'dd/mm/yyyy'
     end
-    object mtClienteCotizacionesASESOR: TStringField
-      FieldName = 'ASESOR'
-      Size = 80
+    object mtClienteCotizacionesELABORADA_POR_NOMBRE: TStringField
+      FieldName = 'ELABORADA_POR_NOMBRE'
+      Size = 120
     end
     object mtClienteCotizacionesMONTO_TOTAL: TCurrencyField
       FieldName = 'MONTO_TOTAL'
@@ -226,6 +226,7 @@ object dmMemoria: TdmMemoria
       currency = False
     end
     object mtClienteCotizacionesESTADO: TStringField
+      OnGetText = EstadoGetText
       FieldName = 'ESTADO'
     end
     object mtClienteCotizacionesACCIONES: TStringField
@@ -3333,5 +3334,94 @@ object dmMemoria: TdmMemoria
     DataSet = mtEnvioCorreo
     Left = 1384
     Top = 512
+  end
+  object mtSinRespuesta: TFDMemTable
+    OnCalcFields = SinRespuestaCalcFields
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1488
+    Top = 512
+    object mtSinRespuestaID: TIntegerField
+      Visible = False
+      FieldName = 'ID'
+    end
+    object mtSinRespuestaNUMERO: TIntegerField
+      DisplayLabel = 'N'#250'mero'
+      FieldName = 'NUMERO'
+    end
+    object mtSinRespuestaCLIENTE_NOMBRE: TStringField
+      DisplayLabel = 'Cliente'
+      FieldName = 'CLIENTE_NOMBRE'
+      Size = 120
+    end
+    object mtSinRespuestaFECHA_ENVIO: TDateTimeField
+      DisplayLabel = 'Enviada'
+      FieldName = 'FECHA_ENVIO'
+      DisplayFormat = 'dd/mm/yyyy'
+    end
+    object mtSinRespuestaDIAS: TIntegerField
+      DisplayLabel = 'D'#237'as'
+      FieldKind = fkCalculated
+      FieldName = 'DIAS'
+      Calculated = True
+    end
+    object mtSinRespuestaMONTO_TOTAL: TCurrencyField
+      DisplayLabel = 'Total'
+      FieldName = 'MONTO_TOTAL'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+  end
+  object dsSinRespuesta: TDataSource
+    AutoEdit = False
+    DataSet = mtSinRespuesta
+    Left = 1592
+    Top = 512
+  end
+  object mtHistorialEstados: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1488
+    Top = 584
+    object mtHistorialEstadosFECHA: TDateTimeField
+      DisplayLabel = 'Fecha y hora'
+      FieldName = 'FECHA'
+      DisplayFormat = 'dd/mm/yyyy hh:nn'
+    end
+    object mtHistorialEstadosESTADO: TStringField
+      DisplayLabel = 'Estado'
+      OnGetText = EstadoGetText
+      FieldName = 'ESTADO'
+    end
+    object mtHistorialEstadosUSUARIO_NOMBRE: TStringField
+      DisplayLabel = 'Usuario'
+      FieldName = 'USUARIO_NOMBRE'
+      Size = 120
+    end
+    object mtHistorialEstadosMOTIVO: TStringField
+      DisplayLabel = 'Motivo'
+      FieldName = 'MOTIVO'
+      Size = 500
+    end
+    object mtHistorialEstadosACTIVO: TBooleanField
+      Visible = False
+      FieldName = 'ACTIVO'
+    end
+  end
+  object dsHistorialEstados: TDataSource
+    AutoEdit = False
+    DataSet = mtHistorialEstados
+    Left = 1592
+    Top = 584
   end
 end

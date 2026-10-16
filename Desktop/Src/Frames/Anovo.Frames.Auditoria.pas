@@ -12,6 +12,7 @@ uses
   Vcl.ExtCtrls, Vcl.ComCtrls,
   VclPlano.BotonWin, Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.Pestanas,
+  Anovo.Retardo,
   Anovo.Frames.Listado,
   Anovo.DTOs.Auditoria,
   Anovo.Vistas.Intf.Auditoria,
@@ -29,6 +30,8 @@ type
   private
     FPresentador: TPresentadorAuditoria;
     FPoniendoPeriodo: Boolean;
+    FRetardo: TRetardo;
+    procedure AplicarPeriodo;
     procedure MostrarFiltros(const ARotulos: TArray<string>);
     procedure MostrarPeriodo(const ADesde, AHasta: TDateTime);
     procedure MostrarAuditoria(const AFilas: TObjectList<TAuditoriaDTO>);
@@ -59,6 +62,11 @@ begin
   FTextoCargando := SCargandoBitacora;
   FTextoSinRegistros := SSinMovimientos;
   FTextoPaginacion := SPaginacionMovimientos;
+  FRetardo := TRetardo.Crear(Self, RETARDO_FECHAS,
+    procedure
+    begin
+      AplicarPeriodo;
+    end);
   FPresentador := TPresentadorAuditoria.Create(Self, TApiAuditoria.Create);
   FPresentador.Iniciar;
 end;
@@ -137,6 +145,11 @@ procedure TfraAuditoria.PeriodoChange(Sender: TObject);
 begin
   if FPoniendoPeriodo then
     Exit;
+  FRetardo.Programar;
+end;
+
+procedure TfraAuditoria.AplicarPeriodo;
+begin
   FPresentador.CambiarPeriodo(dtpDesde.Date, dtpHasta.Date);
 end;
 

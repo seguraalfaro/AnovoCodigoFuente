@@ -76,7 +76,6 @@ end;
 
 destructor TfraListado.Destroy;
 begin
-  CursorOcupado(False);
   inherited;
 end;
 

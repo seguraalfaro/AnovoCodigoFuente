@@ -154,9 +154,20 @@ Public Sub FijarUbicacion (u As UbicacionGps)
 	mBuscando = False
 End Sub
 
-Public Sub ValidarPaso (Paso As Int, CamposCompletos As Boolean) As Resultado
+Public Sub ValidarPaso (Paso As Int, CamposCompletos As Boolean, Datos As Cliente) As Resultado
 	If Paso = PASO_DATOS And CamposCompletos = False Then Return Tipos.Falla(Mensajes.CAMPOS_INCOMPLETOS)
+	If Paso = PASO_DATOS Then
+		Dim r As Resultado = ValidarRepetido(Datos)
+		If r.Ok = False Then Return r
+	End If
 	If Paso = PASO_CONTACTOS And mContactos.Size = 0 Then Return Tipos.Falla(Mensajes.SIN_CONTACTOS)
+	Return Tipos.Correcto(Null)
+End Sub
+
+Private Sub ValidarRepetido (Datos As Cliente) As Resultado
+	Dim dueno As String = DbClientes.DuenoDeIdentificacion(Datos.TipoIdentificacion, Datos.Identificacion, mCliente.UuidLocal)
+	If dueno <> "" Then Return Tipos.Falla(Mensajes.IdentificacionRepetida(Datos.Identificacion, dueno))
+	If DbClientes.NombreRepetido(Datos.Nombre, mCliente.UuidLocal) Then Return Tipos.Falla(Mensajes.ClienteRepetido(Datos.Nombre.Trim))
 	Return Tipos.Correcto(Null)
 End Sub
 
@@ -183,6 +194,8 @@ Public Sub Guardar (PermisoActual As Consentimiento) As Resultado
 	PermisoActual.Version = texto.Version
 	If PermisoActual.Acepta = False Then Return Tipos.Falla(Mensajes.FALTA_ACEPTAR)
 	If PermisoActual.Firma.Length = 0 Then Return Tipos.Falla(Mensajes.FALTA_FIRMA)
+	Dim repetido As Resultado = ValidarRepetido(mCliente)
+	If repetido.Ok = False Then Return repetido
 	Dim uuid As String = DbClientes.Guardar(mCliente, mContactos, PermisoActual, mUbicacion)
 	If uuid = "" Then Return Tipos.Falla(Mensajes.CLIENTE_NO_GUARDADO)
 	Db.BorrarBorrador(TIPO_BORRADOR)

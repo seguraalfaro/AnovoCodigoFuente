@@ -13,6 +13,7 @@ uses
   Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Vcl.WinXPanels,
   Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   FlatVcl.BotonWin, VclPlano.Pestanas, VclPlano.BotonWin,
+  Anovo.Retardo,
   Anovo.Frames.Listado,
   Anovo.DTOs.Dashboard,
   Anovo.Vistas.Intf.SolicitudesAsesor,
@@ -21,9 +22,17 @@ uses
 type
   TfraSolicitudesAsesor = class(TfraListado, IVistaSolicitudesAsesor)
     pstPeriodo: TPlanoPestanas;
+    lblDesde: TLabel;
+    dtpDesde: TDateTimePicker;
+    lblHasta: TLabel;
+    dtpHasta: TDateTimePicker;
     procedure pstPeriodoChange(Sender: TObject);
+    procedure FechasChange(Sender: TObject);
   private
+    FLimpiandoFechas: Boolean;
+    FRetardo: TRetardo;
     FPresentador: TPresentadorSolicitudesAsesor;
+    procedure AplicarFechas;
     procedure MostrarPeriodo(const AHistorial: Boolean;
       const ADesde: TDateTime);
     procedure MostrarSolicitudes(const AFilas: TObjectList<TSolicitudAsesorDTO>);
@@ -60,6 +69,11 @@ begin
   FTextoSinRegistros := SSinSolicitudes;
   FTextoPaginacion := SPaginacionSolicitudes;
   TDBGridExtend.De(grDatos).ColumnaEstado(CAMPO_ESTADO);
+  FRetardo := TRetardo.Crear(Self, RETARDO_FECHAS,
+    procedure
+    begin
+      AplicarFechas;
+    end);
 
   FPresentador := TPresentadorSolicitudesAsesor.Create(Self, TApiSolicitudes.Create);
   FPresentador.Iniciar;
@@ -84,7 +98,35 @@ end;
 
 procedure TfraSolicitudesAsesor.Limpiar;
 begin
+  FRetardo.Cancelar;
+  FLimpiandoFechas := True;
+  try
+    dtpDesde.Checked := False;
+    dtpHasta.Checked := False;
+  finally
+    FLimpiandoFechas := False;
+  end;
   FPresentador.Limpiar;
+end;
+
+procedure TfraSolicitudesAsesor.FechasChange(Sender: TObject);
+begin
+  if FLimpiandoFechas then
+    Exit;
+  FRetardo.Programar;
+end;
+
+procedure TfraSolicitudesAsesor.AplicarFechas;
+var
+  lDesde, lHasta: TDateTime;
+begin
+  lDesde := 0;
+  lHasta := 0;
+  if dtpDesde.Checked then
+    lDesde := Trunc(dtpDesde.Date);
+  if dtpHasta.Checked then
+    lHasta := Trunc(dtpHasta.Date);
+  FPresentador.FiltrarFechas(lDesde, lHasta);
 end;
 
 procedure TfraSolicitudesAsesor.PaginaAnterior;

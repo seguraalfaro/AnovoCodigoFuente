@@ -39,6 +39,7 @@ Sub Class_Globals
 	Private mNombre As String
 	Private mCroquisJson As String
 	Private mPagina As Int
+	Private mMotivoRechazo As String
 End Sub
 
 Public Sub Initialize
@@ -192,8 +193,20 @@ Public Sub ElegirAcabado (Id As Int)
 	mAcabadoId = Id
 End Sub
 
+Public Sub getMotivoRechazo As String
+	Return mMotivoRechazo
+End Sub
+
+Private Sub MedidasAceptadas (Medidas() As Int) As Boolean
+	mMotivoRechazo = ""
+	If Adjuntos.EsChica(Medidas) = False Then Return True
+	mMotivoRechazo = Mensajes.FotoChica(Medidas(0), Medidas(1))
+	Return False
+End Sub
+
 Public Sub AgregarFoto (Datos() As Byte) As String
 	If getPuedeAgregarFoto = False Then Return ""
+	If MedidasAceptadas(Adjuntos.MedidasDeBytes(Datos)) = False Then Return ""
 	Dim archivo As String = Db.NuevoUuid & EXTENSION_FOTO
 	If Adjuntos.GuardarFoto(Datos, archivo) = False Then Return ""
 	mFotos.Add(archivo)
@@ -202,6 +215,7 @@ End Sub
 
 Public Sub AgregarFotoDeGaleria (Dir As String, Archivo As String) As String
 	If getPuedeAgregarFoto = False Then Return ""
+	If MedidasAceptadas(Adjuntos.MedidasDe(Dir, Archivo)) = False Then Return ""
 	Dim destino As String = Db.NuevoUuid & EXTENSION_FOTO
 	If Adjuntos.CopiarImagen(Dir, Archivo, destino) = False Then Return ""
 	mFotos.Add(destino)

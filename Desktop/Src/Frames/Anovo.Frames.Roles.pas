@@ -1,4 +1,4 @@
-﻿unit Anovo.Frames.Roles;
+unit Anovo.Frames.Roles;
 
 // Seccion Roles y permisos: el paquete basico de cada rol. Los permisos
 // adicionales de una persona se dan en su ficha de usuario.
@@ -85,7 +85,6 @@ end;
 destructor TfraRoles.Destroy;
 begin
   FreeAndNil(FPresentador);
-  CursorOcupado(False);
   inherited;
 end;
 
@@ -112,7 +111,6 @@ end;
 
 procedure TfraRoles.MostrarCargando(const AActivo: Boolean);
 begin
-  CursorOcupado(AActivo);
   BloquearEdicion([grMatriz, btnGuardar, btnDescartar], AActivo);
 end;
 

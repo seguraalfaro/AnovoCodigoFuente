@@ -4,6 +4,10 @@ unit Anovo.Vistas.Intf.Principal;
 
 interface
 
+uses
+  System.Generics.Collections,
+  Anovo.DTOs.Cotizaciones;
+
 type
   TSeccion = (secDashboardSupervisor, secDashboardCuentas, secDashboardAsesor,
     secDashboardAsistente,
@@ -21,6 +25,9 @@ type
     procedure ProgramarAvisos(const AMinutos: Integer);
     procedure MostrarAviso(const ASeccion: TSeccion;
       const ACantidad: Integer);
+    procedure MostrarRecordatorio(const ACotizaciones
+      : TObjectList<TCotizacionDTO>);
+    procedure AbrirCotizacion(const AId: Integer);
   end;
 
 implementation

@@ -13,6 +13,8 @@ Sub Process_Globals
 	Public Const MAX_FOTOS  As Int = 20
 	Public Const ANCHO_FOTO As Int = 1600
 	Public Const CALIDAD    As Int = 85
+	Public Const LADO_LARGO_MINIMO As Int = 800
+	Public Const LADO_CORTO_MINIMO As Int = 600
 	Private Const CARPETA_FOTOS As String = "fotos"
 
 	Type Foto (Archivo As String, Miniatura As String, Sincronizada As Boolean)
@@ -128,6 +130,71 @@ Public Sub CopiarImagen (Dir As String, Archivo As String, Nombre As String) As 
 		Log("Adjuntos.CopiarImagen: " & LastException.Message)
 		Return False
 	End Try
+End Sub
+
+Public Sub MedidasDe (Dir As String, Archivo As String) As Int()
+	Dim medidas() As Int = Array As Int(0, 0)
+	Try
+		Dim entrada As InputStream = File.OpenInput(Dir, Archivo)
+		medidas = MedidasDeFlujo(entrada)
+		entrada.Close
+	Catch
+		Log("Adjuntos.MedidasDe: " & LastException.Message)
+	End Try
+	Return medidas
+End Sub
+
+Public Sub MedidasDeBytes (Datos() As Byte) As Int()
+	Dim entrada As InputStream
+	entrada.InitializeFromBytesArray(Datos, 0, Datos.Length)
+	Dim medidas() As Int = MedidasDeFlujo(entrada)
+	entrada.Close
+	Return medidas
+End Sub
+
+Private Sub MedidasDeFlujo (Entrada As InputStream) As Int()
+	Dim medidas() As Int = Array As Int(0, 0)
+	Try
+		Dim opciones As JavaObject
+		opciones.InitializeNewInstance("android.graphics.BitmapFactory$Options", Null)
+		opciones.SetField("inJustDecodeBounds", True)
+		Dim fabrica As JavaObject
+		fabrica.InitializeStatic("android.graphics.BitmapFactory")
+		fabrica.RunMethod("decodeStream", Array(Entrada, Null, opciones))
+		medidas(0) = opciones.GetField("outWidth")
+		medidas(1) = opciones.GetField("outHeight")
+	Catch
+		Log("Adjuntos.MedidasDeFlujo: " & LastException.Message)
+	End Try
+	Return medidas
+End Sub
+
+Public Sub EsChica (Medidas() As Int) As Boolean
+	If Medidas(0) <= 0 Or Medidas(1) <= 0 Then Return False
+	Return Max(Medidas(0), Medidas(1)) < LADO_LARGO_MINIMO Or Min(Medidas(0), Medidas(1)) < LADO_CORTO_MINIMO
+End Sub
+
+Public Sub LeerBytes (Ruta As String) As Byte()
+	If Ruta = "" Or File.Exists("", Ruta) = False Then
+		Dim vacio(0) As Byte
+		Return vacio
+	End If
+	Return File.ReadBytes("", Ruta)
+End Sub
+
+Public Sub HuellaSha256 (Datos() As Byte) As String
+	Dim fabrica As JavaObject
+	fabrica.InitializeStatic("java.security.MessageDigest")
+	Dim resumen As JavaObject = fabrica.RunMethod("getInstance", Array("SHA-256"))
+	Dim bytes() As Byte = resumen.RunMethod("digest", Array(Datos))
+	Dim sb As StringBuilder
+	sb.Initialize
+	For Each b As Byte In bytes
+		Dim v As Int = Bit.And(b, 0xFF)
+		If v < 16 Then sb.Append("0")
+		sb.Append(Bit.ToHexString(v))
+	Next
+	Return sb.ToString.ToLowerCase
 End Sub
 
 Public Sub LeerBase64 (Ruta As String) As String

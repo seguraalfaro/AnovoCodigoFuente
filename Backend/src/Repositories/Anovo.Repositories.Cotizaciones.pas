@@ -43,6 +43,7 @@ type
       : TTrabajoUsuario;
     function TieneEnCurso(const ASolicitudId: Integer): Boolean;
     function VistaDe(const AId: Integer): TCotizacionConNombres;
+    function HistorialDe(const AId: Integer): TObjectList<THistorialCotizacion>;
   end;
 
   TCotizacionDetalleRepository = class(TAnovoRepository<TCotizacionDetalle>,
@@ -65,6 +66,7 @@ implementation
 
 uses
   System.SysUtils,
+  System.DateUtils,
   System.Variants,
   Anovo.SQL.Cotizaciones;
 
@@ -161,6 +163,13 @@ begin
   Result := PrimeraFilaDeConsulta<TCotizacionConNombres>(CONSULTA_POR_ID, [AId]);
 end;
 
+function TCotizacionRepository.HistorialDe(const AId: Integer)
+  : TObjectList<THistorialCotizacion>;
+begin
+  Result := ListarConsulta<THistorialCotizacion>(CONSULTA_HISTORIAL_DE, [AId],
+    SIN_LIMITE);
+end;
+
 function TCotizacionRepository.ObtenerPorNumero(const ANumero: Integer)
   : TCotizaciones;
 begin
@@ -175,7 +184,7 @@ end;
 function TCotizacionRepository.EnviadasSinRespuesta(const ADias: Integer)
   : TObjectList<TCotizaciones>;
 begin
-  Result := GetWhere(COTIZACIONES_ENVIADAS_SIN_RESPUESTA, [Now - ADias]);
+  Result := GetWhere(COTIZACIONES_ENVIADAS_SIN_RESPUESTA, [IncDay(Now, -ADias)]);
 end;
 
 function TCotizacionDetalleRepository.DetalleDe(const ACotizacionId: Integer)

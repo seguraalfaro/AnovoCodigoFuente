@@ -148,6 +148,9 @@ type
     fMime: NullableString;
     [MVCTableField('TAMANO_BYTES')]
     fTamanoBytes: NullableInt32;
+    [MVCTableField('HASH_SHA256')]
+    [MVCMaxLength(64)]
+    fHashSha256: NullableString;
     [MVCTableField('CONTENIDO')]
     fContenido: TStream;
     [MVCTableField('CONTENIDO_JSON')]
@@ -169,6 +172,7 @@ type
     property NombreArchivo: NullableString read fNombreArchivo write fNombreArchivo;
     property Mime: NullableString read fMime write fMime;
     property TamanoBytes: NullableInt32 read fTamanoBytes write fTamanoBytes;
+    property HashSha256: NullableString read fHashSha256 write fHashSha256;
     property Contenido: TStream read fContenido write fContenido;
     property ContenidoJson: NullableString read fContenidoJson write fContenidoJson;
     property Activo: NullableBoolean read fActivo write fActivo;

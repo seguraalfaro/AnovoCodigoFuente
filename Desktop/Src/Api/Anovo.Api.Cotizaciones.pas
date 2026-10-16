@@ -22,12 +22,15 @@ type
     function EstadoCorreo: TEstadoCorreoDTO;
     procedure EnviarPorCorreo(const AId: Integer; const ADto: TEnvioCorreoDTO);
     function Detalle(const AId: Integer): TObjectList<TLineaDTO>;
+    function SinRespuesta: TObjectList<TCotizacionDTO>;
+    function Estados(const AId: Integer): TObjectList<TEstadoCotizacionDTO>;
     procedure DarVistoBueno(const AId: Integer);
     procedure Devolver(const AId: Integer; const AMotivo: string);
     procedure RegistrarRespuesta(const AId: Integer; const AAceptada: Boolean);
     procedure Tomar(const ASolicitudId: Integer);
-    function Listar(const ATexto, AEstado: string;
-      const APagina, APorPagina: Integer; out ATotal: Int64)
+    function Listar(const ATexto, AEstado: string; const AClienteId: Integer;
+      const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer;
+      out ATotal: Int64)
       : TObjectList<TCotizacionDTO>;
     procedure Actualizar(const AId: Integer; const ADto: TCotizacionEdicionDTO);
     function AgregarLinea(const AId: Integer;
@@ -53,11 +56,13 @@ uses
 const
   RUTA_COTIZACIONES = '/api/cotizaciones';
   RUTA_BANDEJA = '/api/cotizaciones/bandeja';
+  RUTA_SIN_RESPUESTA = '/api/cotizaciones/sin-respuesta';
   RUTA_COTIZACION = '/api/cotizaciones/%d';
   RUTA_DOCUMENTO = '/api/cotizaciones/%d/documento';
   RUTA_ENVIO_CORREO = '/api/cotizaciones/%d/envio-correo';
   RUTA_ESTADO_CORREO = '/api/correo/estado';
   RUTA_DETALLE = '/api/cotizaciones/%d/detalle';
+  RUTA_ESTADOS = '/api/cotizaciones/%d/estados';
   RUTA_VISTO_BUENO = '/api/cotizaciones/%d/visto-bueno';
   RUTA_DEVOLUCION = '/api/cotizaciones/%d/devolucion';
   RUTA_RESPUESTA = '/api/cotizaciones/%d/respuesta';
@@ -117,7 +122,7 @@ begin
   lRespuesta := Ejecutar(
     function: IMVCRESTResponse
     begin
-      Result := NuevoCliente.Get(Format(RUTA_DOCUMENTO, [AId]));
+      Result := NuevoCliente(True, '', True).Get(Format(RUTA_DOCUMENTO, [AId]));
     end);
 
   Result := TCotizacionDocumentoDTO.Create;
@@ -178,6 +183,45 @@ begin
   end;
 end;
 
+function TApiCotizaciones.Estados(const AId: Integer)
+  : TObjectList<TEstadoCotizacionDTO>;
+var
+  lRespuesta: IMVCRESTResponse;
+begin
+  lRespuesta := Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.Get(Format(RUTA_ESTADOS, [AId]));
+    end);
+
+  Result := TObjectList<TEstadoCotizacionDTO>.Create(True);
+  try
+    lRespuesta.BodyForListOf(Result, TEstadoCotizacionDTO, 'data');
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
+function TApiCotizaciones.SinRespuesta: TObjectList<TCotizacionDTO>;
+var
+  lRespuesta: IMVCRESTResponse;
+begin
+  lRespuesta := Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.Get(RUTA_SIN_RESPUESTA);
+    end);
+
+  Result := TObjectList<TCotizacionDTO>.Create(True);
+  try
+    lRespuesta.BodyForListOf(Result, TCotizacionDTO, 'data');
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
 procedure TApiCotizaciones.Accion(const AId: Integer; const ARuta: string);
 begin
   Ejecutar(
@@ -203,7 +247,9 @@ begin
 end;
 
 function TApiCotizaciones.Listar(const ATexto, AEstado: string;
-  const APagina, APorPagina: Integer; out ATotal: Int64)
+  const AClienteId: Integer; const ADesde, AHasta: TDateTime;
+  const APagina, APorPagina: Integer;
+  out ATotal: Int64)
   : TObjectList<TCotizacionDTO>;
 var
   lRespuesta: IMVCRESTResponse;
@@ -215,6 +261,9 @@ begin
       Result := NuevoCliente
         .AddQueryStringParam('q', ATexto)
         .AddQueryStringParam('estado', AEstado)
+        .AddQueryStringParam('cliente_id', AClienteId)
+        .AddQueryStringParam('desde', FechaParaApi(ADesde))
+        .AddQueryStringParam('hasta', FechaParaApi(AHasta))
         .AddQueryStringParam('pagina', APagina)
         .AddQueryStringParam('por_pagina', APorPagina)
         .Get(RUTA_COTIZACIONES);

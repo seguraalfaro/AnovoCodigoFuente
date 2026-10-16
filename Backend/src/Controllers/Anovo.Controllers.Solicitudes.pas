@@ -109,6 +109,10 @@ type
       'descripcion', ptString, False)]
     [MVCSwagParam(plQuery, 'periodo', 'mes (el mes en curso, por defecto) o ' +
       'todo (el historial completo)', ptString, False)]
+    [MVCSwagParam(plQuery, 'desde', 'Fecha de captura desde, aaaa-mm-dd. ' +
+      'Con desde o hasta, el periodo no se usa', ptString, False)]
+    [MVCSwagParam(plQuery, 'hasta', 'Fecha de captura hasta, aaaa-mm-dd, ' +
+      'incluida', ptString, False)]
     [MVCSwagParam(plQuery, 'pagina', 'Numero de pagina, desde 1',
       ptInteger, False)]
     [MVCSwagParam(plQuery, 'por_pagina', 'Cuantos por pagina. Maximo 200',
@@ -119,6 +123,8 @@ type
     function Seguimiento([MVCInject] AServicio: ISolicitudService;
       const [MVCFromQueryString('q', '')] ABusqueda: string;
       const [MVCFromQueryString('periodo', PERIODO_MES)] APeriodo: string;
+      const [MVCFromQueryString('desde', '')] AFiltroDesde: string;
+      const [MVCFromQueryString('hasta', '')] AFiltroHasta: string;
       const [MVCFromQueryString('pagina', 1)] APagina: Integer;
       const [MVCFromQueryString('por_pagina', POR_PAGINA_POR_DEFECTO)
       ] APorPagina: Integer): TSeguimientoPaginaDTO;
@@ -426,8 +432,8 @@ begin
 end;
 
 function TSolicitudesController.Seguimiento(AServicio: ISolicitudService;
-  const ABusqueda, APeriodo: string; const APagina, APorPagina: Integer)
-  : TSeguimientoPaginaDTO;
+  const ABusqueda, APeriodo, AFiltroDesde, AFiltroHasta: string;
+  const APagina, APorPagina: Integer): TSeguimientoPaginaDTO;
 var
   lTotal: Int64;
   lPagina, lPorPagina: Integer;
@@ -438,8 +444,8 @@ begin
   lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
 
   lDatos := AServicio.Seguimiento(UsuarioId, ABusqueda,
-    not SameText(APeriodo, PERIODO_TODO), lPagina, lPorPagina, lDesde,
-    lHasta, lTotal);
+    not SameText(APeriodo, PERIODO_TODO), ComoFecha(AFiltroDesde),
+    ComoFecha(AFiltroHasta), lPagina, lPorPagina, lDesde, lHasta, lTotal);
 
   Result := TSeguimientoPaginaDTO.Create(lDatos, lTotal, lPagina, lPorPagina);
   if lDesde > 0 then

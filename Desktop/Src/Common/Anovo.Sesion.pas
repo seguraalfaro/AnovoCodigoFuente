@@ -2,6 +2,8 @@ unit Anovo.Sesion;
 
 // Sesion del usuario en memoria: token, rol, nombre y permisos.
 // Solo decide que se muestra; los permisos los aplica el servidor.
+// Los hilos de trabajo leen el token bajo candado; vencer solo marca
+// y el cierre lo hace el hilo principal una sola vez.
 
 interface
 
@@ -15,6 +17,7 @@ type
 
   TSesion = class
   private
+    class var FCandado: TObject;
     class var FToken: string;
     class var FUsuarioId: Integer;
     class var FCorreo: string;
@@ -22,8 +25,13 @@ type
     class var FRol: TRolUsuario;
     class var FDebeCambiarClave: Boolean;
     class var FVence: TDateTime;
+    class var FVencida: Boolean;
     class var FPermisos: TArray<string>;
     class var FAlVencer: TProc<string>;
+    class constructor Create;
+    class destructor Destroy;
+    class function ObtenerToken: string; static;
+    class function ObtenerPermisos: TArray<string>; static;
   public
     class procedure Abrir(const AToken: string);
     class procedure Cerrar;
@@ -36,13 +44,13 @@ type
     class function Tiene(const APermiso: string): Boolean;
     class function TieneAlguno(const APermisos: array of string): Boolean;
 
-    class property Token: string read FToken;
+    class property Token: string read ObtenerToken;
     class property UsuarioId: Integer read FUsuarioId;
     class property Correo: string read FCorreo;
     class property Nombre: string read FNombre;
     class property Rol: TRolUsuario read FRol;
     class property DebeCambiarClave: Boolean read FDebeCambiarClave;
-    class property Permisos: TArray<string> read FPermisos;
+    class property Permisos: TArray<string> read ObtenerPermisos;
   end;
 
 function RolDesdeCodigo(const ACodigo: string): TRolUsuario;
@@ -103,6 +111,36 @@ begin
   Result := UpperCase(Result);
 end;
 
+class constructor TSesion.Create;
+begin
+  FCandado := TObject.Create;
+end;
+
+class destructor TSesion.Destroy;
+begin
+  FCandado.Free;
+end;
+
+class function TSesion.ObtenerToken: string;
+begin
+  TMonitor.Enter(FCandado);
+  try
+    Result := FToken;
+  finally
+    TMonitor.Exit(FCandado);
+  end;
+end;
+
+class function TSesion.ObtenerPermisos: TArray<string>;
+begin
+  TMonitor.Enter(FCandado);
+  try
+    Result := Copy(FPermisos);
+  finally
+    TMonitor.Exit(FCandado);
+  end;
+end;
+
 class procedure TSesion.Abrir(const AToken: string);
 var
   lPartes: TArray<string>;
@@ -116,14 +154,20 @@ begin
     (TEncoding.UTF8.GetString(URLSafeB64DecodeBytes(lPartes[1])))
     as TJsonObject;
   try
-    FToken := AToken;
-    FCorreo := lDatos.S['username'];
-    FNombre := lDatos.S['NOMBRE'];
-    FRol := RolDesdeCodigo(lDatos.S['roles']);
-    FUsuarioId := StrToIntDef(lDatos.S['USUARIO_ID'], 0);
-    FDebeCambiarClave := SameText(lDatos.S['DEBE_CAMBIAR_CLAVE'], 'True');
-    FVence := UnixToDateTime(lDatos.L['exp'], False);
-    FPermisos := nil;
+    TMonitor.Enter(FCandado);
+    try
+      FToken := AToken;
+      FVencida := False;
+      FCorreo := lDatos.S['username'];
+      FNombre := lDatos.S['NOMBRE'];
+      FRol := RolDesdeCodigo(lDatos.S['roles']);
+      FUsuarioId := StrToIntDef(lDatos.S['USUARIO_ID'], 0);
+      FDebeCambiarClave := SameText(lDatos.S['DEBE_CAMBIAR_CLAVE'], 'True');
+      FVence := UnixToDateTime(lDatos.L['exp'], False);
+      FPermisos := nil;
+    finally
+      TMonitor.Exit(FCandado);
+    end;
   finally
     lDatos.Free;
   end;
@@ -131,23 +175,36 @@ end;
 
 class procedure TSesion.Cerrar;
 begin
-  FToken := '';
-  FUsuarioId := 0;
-  FCorreo := '';
-  FNombre := '';
-  FRol := rolNinguno;
-  FDebeCambiarClave := False;
-  FVence := 0;
-  FPermisos := nil;
+  TMonitor.Enter(FCandado);
+  try
+    FToken := '';
+    FVencida := False;
+    FUsuarioId := 0;
+    FCorreo := '';
+    FNombre := '';
+    FRol := rolNinguno;
+    FDebeCambiarClave := False;
+    FVence := 0;
+    FPermisos := nil;
+  finally
+    TMonitor.Exit(FCandado);
+  end;
 end;
 
 class procedure TSesion.Vencer(const AMensaje: string);
 var
-  lAbierta: Boolean;
+  lAvisar: Boolean;
 begin
-  lAbierta := not FToken.IsEmpty;
-  Cerrar;
-  if lAbierta and Assigned(FAlVencer) then
+  TMonitor.Enter(FCandado);
+  try
+    lAvisar := not FToken.IsEmpty and not FVencida;
+    if lAvisar then
+      FVencida := True;
+  finally
+    TMonitor.Exit(FCandado);
+  end;
+
+  if lAvisar and Assigned(FAlVencer) then
     TThread.Queue(nil,
       procedure
       begin
@@ -163,24 +220,40 @@ end;
 
 class function TSesion.Iniciada: Boolean;
 begin
-  Result := not FToken.IsEmpty;
+  TMonitor.Enter(FCandado);
+  try
+    Result := not FToken.IsEmpty and not FVencida;
+  finally
+    TMonitor.Exit(FCandado);
+  end;
 end;
 
 class function TSesion.EstaVigente: Boolean;
 begin
-  Result := Iniciada and (Now < IncSecond(FVence, -MARGEN_SEGUNDOS));
+  TMonitor.Enter(FCandado);
+  try
+    Result := not FToken.IsEmpty and not FVencida and
+      (Now < IncSecond(FVence, -MARGEN_SEGUNDOS));
+  finally
+    TMonitor.Exit(FCandado);
+  end;
 end;
 
 class procedure TSesion.AsignarPermisos(const APermisos: TArray<string>);
 begin
-  FPermisos := APermisos;
+  TMonitor.Enter(FCandado);
+  try
+    FPermisos := Copy(APermisos);
+  finally
+    TMonitor.Exit(FCandado);
+  end;
 end;
 
 class function TSesion.Tiene(const APermiso: string): Boolean;
 var
   lPermiso: string;
 begin
-  for lPermiso in FPermisos do
+  for lPermiso in ObtenerPermisos do
     if SameText(lPermiso, APermiso) then
       Exit(True);
   Result := False;

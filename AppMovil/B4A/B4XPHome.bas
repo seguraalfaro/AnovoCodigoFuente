@@ -26,7 +26,14 @@ Sub Class_Globals
 	Private solicitudes As PresentadorSolicitudes
 	Private ClvSolicitudes As CustomListView
 	Private BuscadorSolicitudes As ASBuscador
-	Private lblSolTitulo, lblSolTotal, lblFiltroMes, lblFiltroTodas As B4XView
+	Private lblSolTitulo, lblSolTotal, lblFiltroMes, lblFiltroTodas, lblFiltroRango As B4XView
+	Private pnEstados As B4XView
+	Private chipsEstado As List
+	Private dialogoFecha As B4XDialog
+	Private plantillaFecha As B4XDateTemplate
+	Private Const ALTO_CHIP As Int = 28dip
+	Private Const SEPARACION_CHIP As Int = 6dip
+	Private Const RELLENO_CHIP As Int = 24dip
 	Private Const RADIO_FILTRO As Int = 8dip
 	Private perfil As HojaPerfil
 	Private panelPerfil As B4XView
@@ -383,14 +390,48 @@ Private Sub PrepararSolicitudes
 	lblSolTotal.TextColor = Colores.COLOR_PRIMARIO
 	lblFiltroMes.Text = Mensajes.FILTRO_MES
 	lblFiltroTodas.Text = Mensajes.FILTRO_TODAS
+	CrearChipsEstado
+End Sub
+
+Private Sub CrearChipsEstado
+	chipsEstado.Initialize
+	Dim hsv As HorizontalScrollView
+	hsv.Initialize(0, "")
+	pnEstados.AddView(hsv, 0, 0, pnEstados.Width, pnEstados.Height)
+	Dim x As Int = 0
+	Dim lienzo As B4XView = xui.CreatePanel("")
+	lienzo.SetLayoutAnimated(0, 0, 0, 1dip, 1dip)
+	Dim medida As B4XCanvas
+	medida.Initialize(lienzo)
+	For Each texto As String In solicitudes.Estados
+		Dim l As Label
+		l.Initialize("ChipEstado")
+		l.Tag = Utils.TAG_RAW
+		l.SingleLine = True
+		Dim chip As B4XView = l
+		chip.Text = texto
+		chip.Font = xui.CreateDefaultBoldFont(12)
+		chip.SetTextAlignment("CENTER", "CENTER")
+		Dim ancho As Int = medida.MeasureText(texto, chip.Font).Width + RELLENO_CHIP
+		hsv.Panel.AddView(chip, x, (pnEstados.Height - ALTO_CHIP) / 2, ancho, ALTO_CHIP)
+		chipsEstado.Add(chip)
+		x = x + ancho + SEPARACION_CHIP
+	Next
+	medida.Release
+	hsv.Panel.Width = x
 End Sub
 
 Private Sub PintarSolicitudes
 	solicitudes.Actualizar
 	lblSolTotal.Text = solicitudes.TotalTexto
 	lblSolTotal.SetColorAndBorder(Colores.COLOR_PRIMARIO_TENUE, 0, Colores.COLOR_PRIMARIO_TENUE, lblSolTotal.Height / 2)
-	PintarFiltro(lblFiltroMes, solicitudes.SoloMes)
-	PintarFiltro(lblFiltroTodas, Not(solicitudes.SoloMes))
+	PintarFiltro(lblFiltroMes, solicitudes.Periodo = solicitudes.PERIODO_MES)
+	PintarFiltro(lblFiltroTodas, solicitudes.Periodo = solicitudes.PERIODO_TODAS)
+	PintarFiltro(lblFiltroRango, solicitudes.Periodo = solicitudes.PERIODO_RANGO)
+	lblFiltroRango.Text = solicitudes.TextoRango
+	For Each chip As B4XView In chipsEstado
+		PintarFiltro(chip, solicitudes.EstadoActivo(chip.Text))
+	Next
 	BuscadorSolicitudes.setFuente(solicitudes.Filas)
 End Sub
 
@@ -405,13 +446,48 @@ Private Sub PintarFiltro (Etiqueta As B4XView, Activo As Boolean)
 End Sub
 
 Private Sub lblFiltroMes_Click
-	solicitudes.SoloMes = True
+	solicitudes.Periodo = solicitudes.PERIODO_MES
 	PintarSolicitudes
 End Sub
 
 Private Sub lblFiltroTodas_Click
-	solicitudes.SoloMes = False
+	solicitudes.Periodo = solicitudes.PERIODO_TODAS
 	PintarSolicitudes
+End Sub
+
+Private Sub ChipEstado_Click
+	Dim chip As B4XView = Sender
+	solicitudes.Estado = chip.Text
+	PintarSolicitudes
+End Sub
+
+Private Sub lblFiltroRango_Click
+	Wait For (PedirFecha(Mensajes.FECHA_DESDE, solicitudes.RangoDesde)) Complete (Desde As Long)
+	If Desde = 0 Then Return
+	Wait For (PedirFecha(Mensajes.FECHA_HASTA, solicitudes.RangoHasta)) Complete (Hasta As Long)
+	If Hasta = 0 Then Return
+	Dim r As Resultado = solicitudes.FijarRango(Desde, Hasta)
+	If r.Ok = False Then
+		xui.MsgboxAsync(r.Mensaje, Mensajes.TITULO)
+		Return
+	End If
+	PintarSolicitudes
+End Sub
+
+Private Sub PedirFecha (Titulo As String, Inicial As Long) As ResumableSub
+	If dialogoFecha.IsInitialized = False Then
+		dialogoFecha.Initialize(Root)
+		UI.EstilizarDialogo(dialogoFecha)
+		plantillaFecha.Initialize
+	End If
+	plantillaFecha.Date = Inicial
+	dialogoFecha.Title = Titulo
+	Dim rs As Object = dialogoFecha.ShowTemplate(plantillaFecha, Mensajes.ELEGIR, "", Mensajes.CANCELAR)
+	UI.AjustarBarraTitulo(dialogoFecha)
+	UI.CentrarDialogo(dialogoFecha)
+	Wait For (rs) Complete (Resultado As Int)
+	If Resultado <> xui.DialogResponse_Positive Then Return 0
+	Return plantillaFecha.Date
 End Sub
 
 Private Sub BuscadorSolicitudes_Filtrado (Resultado As List)

@@ -20,12 +20,15 @@ type
     function EstadoCorreo: TEstadoCorreoDTO;
     procedure EnviarPorCorreo(const AId: Integer; const ADto: TEnvioCorreoDTO);
     function Detalle(const AId: Integer): TObjectList<TLineaDTO>;
+    function SinRespuesta: TObjectList<TCotizacionDTO>;
+    function Estados(const AId: Integer): TObjectList<TEstadoCotizacionDTO>;
     procedure DarVistoBueno(const AId: Integer);
     procedure Devolver(const AId: Integer; const AMotivo: string);
     procedure RegistrarRespuesta(const AId: Integer; const AAceptada: Boolean);
     procedure Tomar(const ASolicitudId: Integer);
-    function Listar(const ATexto, AEstado: string;
-      const APagina, APorPagina: Integer; out ATotal: Int64)
+    function Listar(const ATexto, AEstado: string; const AClienteId: Integer;
+      const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer;
+      out ATotal: Int64)
       : TObjectList<TCotizacionDTO>;
     procedure Actualizar(const AId: Integer; const ADto: TCotizacionEdicionDTO);
     function AgregarLinea(const AId: Integer;

@@ -7,6 +7,7 @@ interface
 
 uses
   Anovo.Api.Intf.Clientes,
+  Anovo.Api.Intf.Cotizaciones,
   Anovo.Presentadores.Base,
   Anovo.DTOs.Clientes,
   Anovo.Vistas.Intf.ClienteDatos,
@@ -17,6 +18,9 @@ type
   private
     FVista: IVistaClienteDatos;
     FApi: IApiClientes;
+    FApiCotizaciones: IApiCotizaciones;
+    FTextoCotizaciones: string;
+    FEstadoCotizaciones: string;
     FClienteId: Integer;
     FCargadas: set of TPestanaCliente;
     FPersonaFisica: Boolean;
@@ -24,12 +28,17 @@ type
     procedure CargarDatosCliente;
     procedure CargarContactos;
     procedure CargarConsentimientos;
+    procedure CargarCotizaciones;
     procedure MostrarUbicacion(const ACliente: TClienteDTO);
     procedure MostrarError(AMensaje: string);
     procedure MostrarCargando(AActivo: Boolean);
   public
     constructor Create(const AVista: IVistaClienteDatos;
-      const AApi: IApiClientes; const AClienteId: Integer);
+      const AApi: IApiClientes; const AApiCotizaciones: IApiCotizaciones;
+      const AClienteId: Integer);
+    procedure BuscarCotizaciones(const ATexto: string);
+    procedure FiltrarCotizaciones(const AFiltro: Integer);
+    procedure VerCotizacion(const AId: Integer);
     procedure Iniciar;
     procedure AbrirPestana(const APestana: TPestanaCliente);
     procedure Refrescar(const APestana: TPestanaCliente);
@@ -52,7 +61,14 @@ uses
   System.Generics.Collections,
   Anovo.Formato,
   Anovo.Sesion,
-  Anovo.Textos;
+  Anovo.Textos,
+  Anovo.DTOs.Cotizaciones,
+  Anovo.Mensajes;
+
+const
+  COTIZACIONES_DEL_CLIENTE = 200;
+  ESTADOS_COTIZACION: array [0 .. 3] of string = ('', 'aprobada', 'enviada',
+    'rechazada');
 
 const
   TIPO_IDENT_FISICA = 1;
@@ -76,11 +92,13 @@ begin
 end;
 
 constructor TPresentadorClienteDatos.Create(const AVista: IVistaClienteDatos;
-  const AApi: IApiClientes; const AClienteId: Integer);
+  const AApi: IApiClientes; const AApiCotizaciones: IApiCotizaciones;
+  const AClienteId: Integer);
 begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
+  FApiCotizaciones := AApiCotizaciones;
   FClienteId := AClienteId;
 end;
 
@@ -148,8 +166,54 @@ begin
     pcConsentimiento:
       CargarConsentimientos;
     pcCotizaciones:
-      ;
+      CargarCotizaciones;
   end;
+end;
+
+procedure TPresentadorClienteDatos.CargarCotizaciones;
+var
+  lApi: IApiCotizaciones;
+  lTexto, lEstado: string;
+  lClienteId: Integer;
+  lTotal: Int64;
+begin
+  lApi := FApiCotizaciones;
+  lTexto := FTextoCotizaciones;
+  lEstado := FEstadoCotizaciones;
+  lClienteId := FClienteId;
+  lTotal := 0;
+
+  EjecutarUltima<TObjectList<TCotizacionDTO>>(SAccionCargarCotizaciones,
+    function: TObjectList<TCotizacionDTO>
+    begin
+      Result := lApi.Listar(lTexto, lEstado, lClienteId, 0, 0, 1,
+        COTIZACIONES_DEL_CLIENTE, lTotal);
+    end,
+    procedure(ALista: TObjectList<TCotizacionDTO>)
+    begin
+      FVista.MostrarCotizaciones(ALista);
+    end, MostrarError, MostrarCargando);
+end;
+
+procedure TPresentadorClienteDatos.BuscarCotizaciones(const ATexto: string);
+begin
+  FTextoCotizaciones := Trim(ATexto);
+  CargarCotizaciones;
+end;
+
+procedure TPresentadorClienteDatos.FiltrarCotizaciones(const AFiltro: Integer);
+begin
+  if (AFiltro < Low(ESTADOS_COTIZACION)) or
+    (AFiltro > High(ESTADOS_COTIZACION)) then
+    Exit;
+  FEstadoCotizaciones := ESTADOS_COTIZACION[AFiltro];
+  CargarCotizaciones;
+end;
+
+procedure TPresentadorClienteDatos.VerCotizacion(const AId: Integer);
+begin
+  if AId > 0 then
+    PedirCotizacion(AId);
 end;
 
 procedure TPresentadorClienteDatos.MostrarError(AMensaje: string);

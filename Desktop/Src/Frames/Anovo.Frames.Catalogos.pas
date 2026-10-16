@@ -315,6 +315,7 @@ begin
   FTextoCargando := Format(SCargandoCatalogo, [LowerCase(TituloDe(FCatalogo))]);
   inherited;
   pstCatalogo.Enabled := not AActivo;
+  cbCategoria.Enabled := not AActivo;
 end;
 
 procedure TfraCatalogos.MostrarMateriales(const AFilas

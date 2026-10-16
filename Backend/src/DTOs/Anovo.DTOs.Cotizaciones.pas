@@ -152,6 +152,22 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
+  TEstadoCotizacionDTO = class
+  private
+    fEstado: string;
+    fFecha: NullableTDateTime;
+    fUsuarioNombre: string;
+    fMotivo: NullableString;
+    fActivo: Boolean;
+  public
+    property Estado: string read fEstado write fEstado;
+    property Fecha: NullableTDateTime read fFecha write fFecha;
+    property UsuarioNombre: string read fUsuarioNombre write fUsuarioNombre;
+    property Motivo: NullableString read fMotivo write fMotivo;
+    property Activo: Boolean read fActivo write fActivo;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
   TLineaDTO = class
   private
     fID: Integer;

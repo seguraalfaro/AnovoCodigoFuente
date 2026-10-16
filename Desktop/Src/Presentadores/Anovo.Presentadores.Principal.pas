@@ -7,6 +7,7 @@ interface
 
 uses
   Anovo.Api.Intf.Dashboard,
+  Anovo.Api.Intf.Cotizaciones,
   Anovo.Presentadores.Base,
   Anovo.Vistas.Intf.Principal,
   Anovo.Permisos;
@@ -16,19 +17,28 @@ type
   private
     FVista: IVistaPrincipal;
     FApi: IApiDashboard;
+    FApiCotizaciones: IApiCotizaciones;
+    FRecordar: Boolean;
+    FRevisando: Boolean;
     FPermitidas: TSecciones;
     FConsultando: Boolean;
+    FAvisosPendientes: Boolean;
     FSuscripcion: Integer;
     FSuscripcionNavegar: Integer;
+    FSuscripcionCotizacion: Integer;
     function TieneAvisos: Boolean;
+    function SigueSinRespuesta: Boolean;
   public
     constructor Create(const AVista: IVistaPrincipal;
-      const AApi: IApiDashboard);
+      const AApi: IApiDashboard; const AApiCotizaciones: IApiCotizaciones);
     destructor Destroy; override;
     procedure Iniciar;
     procedure Navegar(const ASeccion: TSeccion);
     procedure CerrarSesion;
     procedure RefrescarAvisos;
+    procedure RevisarSinRespuesta;
+    procedure RefrescarTodo;
+    procedure AbrirCotizacion(const AId: Integer);
     class function SeccionesPermitidas: TSecciones;
     class function SolicitudesDelAsesor: Boolean;
     class function MenuOrdenado(const APermitidas: TSecciones)
@@ -41,10 +51,12 @@ uses
   System.SysUtils,
   System.Classes,
   System.Messaging,
+  System.Generics.Collections,
   Anovo.Cancelacion,
   Anovo.Config,
   Anovo.Mensajes,
   Anovo.DTOs.Dashboard,
+  Anovo.DTOs.Cotizaciones,
   Anovo.Sesion;
 
 const
@@ -86,16 +98,33 @@ const
     secUsuarios, secConfiguracion);
 
 constructor TPresentadorPrincipal.Create(const AVista: IVistaPrincipal;
-  const AApi: IApiDashboard);
+  const AApi: IApiDashboard; const AApiCotizaciones: IApiCotizaciones);
 begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
+  FApiCotizaciones := AApiCotizaciones;
   FSuscripcion := TMessageManager.DefaultManager.SubscribeToMessage
     (TMensajeAvisos,
     procedure(const Sender: TObject; const AMensaje: TMessage)
     begin
       RefrescarAvisos;
+    end);
+  FSuscripcionCotizacion := TMessageManager.DefaultManager.SubscribeToMessage
+    (TMensajeAbrirCotizacion,
+    procedure(const Sender: TObject; const AMensaje: TMessage)
+    var
+      lId: Integer;
+      lCancelacion: ICancelacion;
+    begin
+      lId := TMensajeAbrirCotizacion(AMensaje).Value;
+      lCancelacion := Cancelacion;
+      TThread.ForceQueue(nil,
+        procedure
+        begin
+          if not lCancelacion.Cancelada then
+            AbrirCotizacion(lId);
+        end);
     end);
   FSuscripcionNavegar := TMessageManager.DefaultManager.SubscribeToMessage
     (TMensajeNavegar,
@@ -120,6 +149,8 @@ begin
   TMessageManager.DefaultManager.Unsubscribe(TMensajeAvisos, FSuscripcion);
   TMessageManager.DefaultManager.Unsubscribe(TMensajeNavegar,
     FSuscripcionNavegar);
+  TMessageManager.DefaultManager.Unsubscribe(TMensajeAbrirCotizacion,
+    FSuscripcionCotizacion);
   inherited;
 end;
 
@@ -174,10 +205,11 @@ begin
     InicialesDe(TSesion.Nombre));
   FVista.MostrarSecciones(MenuOrdenado(FPermitidas));
 
+  FRecordar := True;
   if TieneAvisos then
   begin
     FVista.ProgramarAvisos(TConfig.MinutosAvisos);
-    RefrescarAvisos;
+    RefrescarTodo;
   end;
 
   for lSeccion in ORDEN_INICIO do
@@ -192,6 +224,9 @@ procedure TPresentadorPrincipal.CerrarSesion;
 begin
   CancelarPendientes;
   FConsultando := False;
+  FAvisosPendientes := False;
+  FRevisando := False;
+  FRecordar := False;
   FPermitidas := [];
   TSesion.Cerrar;
 end;
@@ -201,16 +236,25 @@ begin
   if not(ASeccion in FPermitidas) then
     Exit;
   FVista.AbrirSeccion(ASeccion);
-  if ASeccion in [secBandeja, secSolicitudes] then
-    RefrescarAvisos;
+end;
+
+procedure TPresentadorPrincipal.RefrescarTodo;
+begin
+  RefrescarAvisos;
+  RevisarSinRespuesta;
 end;
 
 procedure TPresentadorPrincipal.RefrescarAvisos;
 var
   lApi: IApiDashboard;
 begin
-  if FConsultando or not TieneAvisos then
+  if not TieneAvisos then
     Exit;
+  if FConsultando then
+  begin
+    FAvisosPendientes := True;
+    Exit;
+  end;
   FConsultando := True;
   lApi := FApi;
 
@@ -224,11 +268,79 @@ begin
       FConsultando := False;
       FVista.MostrarAviso(secBandeja, AAvisos.PorAprobar);
       FVista.MostrarAviso(secSolicitudes, AAvisos.PorCotizar);
+      if FAvisosPendientes then
+      begin
+        FAvisosPendientes := False;
+        RefrescarAvisos;
+      end;
     end,
     procedure(AMensaje: string)
     begin
       FConsultando := False;
+      FAvisosPendientes := False;
     end);
+end;
+
+function TPresentadorPrincipal.SigueSinRespuesta: Boolean;
+begin
+  Result := TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR);
+end;
+
+procedure TPresentadorPrincipal.RevisarSinRespuesta;
+var
+  lApi: IApiCotizaciones;
+  lLista: TObjectList<TCotizacionDTO>;
+begin
+  if FRevisando or not SigueSinRespuesta then
+    Exit;
+  FRevisando := True;
+  lApi := FApiCotizaciones;
+
+  lLista := nil;
+  Ejecutar('',
+    procedure
+    begin
+      lLista := lApi.SinRespuesta;
+    end,
+    procedure
+    var
+      lMostrar: Boolean;
+      lTomada: TObjectList<TCotizacionDTO>;
+    begin
+      FRevisando := False;
+      FVista.MostrarAviso(secCotizaciones, lLista.Count);
+      lMostrar := FRecordar and (lLista.Count > 0);
+      FRecordar := False;
+      if not lMostrar then
+        Exit;
+      lTomada := lLista;
+      lLista := nil;
+      Diferir(
+        procedure
+        begin
+          FVista.MostrarRecordatorio(lTomada);
+        end,
+        procedure
+        begin
+          lTomada.Free;
+        end);
+    end,
+    procedure(AMensaje: string)
+    begin
+      FRevisando := False;
+      FRecordar := False;
+    end, nil,
+    procedure
+    begin
+      lLista.Free;
+    end);
+end;
+
+procedure TPresentadorPrincipal.AbrirCotizacion(const AId: Integer);
+begin
+  if (AId <= 0) or not(secCotizaciones in FPermitidas) then
+    Exit;
+  FVista.AbrirCotizacion(AId);
 end;
 
 end.

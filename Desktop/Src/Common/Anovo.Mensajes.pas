@@ -12,9 +12,11 @@ uses
 type
   TMensajeAvisos = class(TMessage);
   TMensajeNavegar = class(TMessage<TSeccion>);
+  TMensajeAbrirCotizacion = class(TMessage<Integer>);
 
 procedure AvisarCambioEnAvisos;
 procedure PedirSeccion(const ASeccion: TSeccion);
+procedure PedirCotizacion(const AId: Integer);
 
 implementation
 
@@ -27,6 +29,12 @@ procedure PedirSeccion(const ASeccion: TSeccion);
 begin
   TMessageManager.DefaultManager.SendMessage(nil,
     TMensajeNavegar.Create(ASeccion), True);
+end;
+
+procedure PedirCotizacion(const AId: Integer);
+begin
+  TMessageManager.DefaultManager.SendMessage(nil,
+    TMensajeAbrirCotizacion.Create(AId), True);
 end;
 
 end.

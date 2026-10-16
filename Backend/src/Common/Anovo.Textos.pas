@@ -109,6 +109,11 @@ resourcestring
   SMagnitudUnidades = 'Unidades';
 
   SClienteNoExiste = 'El cliente indicado no existe.';
+  SClienteNombreRepetido = 'Ya existe un cliente con el nombre «%s». ' +
+    'Búsquelo en la lista en lugar de registrarlo otra vez; si está ' +
+    'inactivo, se puede reactivar.';
+  SClienteIdentificacionRepetida = 'La identificación %s ya es del ' +
+    'cliente «%s». Búsquelo en la lista en lugar de registrarlo otra vez.';
   SContactoNoEsDelCliente = 'El contacto indicado no existe o no es de ese ' +
     'cliente.';
   SSolicitudSinPiezas = 'La solicitud no trae ninguna pieza.';
@@ -173,6 +178,19 @@ resourcestring
     'queda ligada al texto exacto que leyó el cliente. Para corregir algo, ' +
     'publique una versión nueva.';
   SBotonPublicar = 'Publicar';
+  SRecordatorioTitulo = 'Cotizaciones sin respuesta';
+  SRecordatorioAyuda = 'Se enviaron al cliente hace más del plazo de ' +
+    'seguimiento y todavía no las aprobó ni rechazó. Conviene llamarle o ' +
+    'registrar su respuesta.';
+  SRecordatorioPie = '%d cotizaciones. El plazo (7 días si no se cambia) se ' +
+    'ajusta en Configuración, Empresa.';
+  SBotonAbrirCotizacion = 'Abrir cotización';
+  SBotonCerrar = 'Cerrar';
+  SHistorialTitulo = 'Historial de estados';
+  SHistorialAyuda = 'Cada cambio con fecha, hora y usuario, el más reciente ' +
+    'arriba. El motivo aparece al devolverla.';
+  SHistorialTituloVentana = 'Historial de la cotización %d';
+  SAccionCargarHistorial = 'cargar el historial de la cotización';
   SConsentimientoPublicado = 'La versión quedó publicada y vigente.';
   SEstadoVigente = 'Vigente';
   SEstadoAnterior = 'Anterior';
@@ -218,6 +236,8 @@ resourcestring
     '%s.';
   SSolicitudCotizada = 'Esta solicitud ya tiene cotización y no admite cambios.';
   SAdjuntoMuyGrande = 'El adjunto supera el máximo de 3 MB permitido.';
+  SAdjuntoHuellaDistinta = 'La foto llegó distinta de la que guardó el ' +
+    'teléfono. Reintente la sincronización.';
   SAdjuntoVacio = 'El adjunto viene vacío: falta el contenido o los trazos.';
   SPendienteSinItem = 'El pendiente no apunta a ningún ítem del catálogo.';
   SClaveVaciaHash = 'No se puede calcular el hash de una clave vacía.';
@@ -340,6 +360,10 @@ resourcestring
   SCertificadoInvalido = 'No se pudo verificar el certificado del servidor ' +
     'de Anovo. Avise al administrador.';
   SCredencialesInvalidas = 'El correo o la clave no son correctos.';
+  SCuentaInactiva = 'La cuenta está inactiva. Pida al personal de TI que la ' +
+    'reactive.';
+  SSinPermisoOperacion = 'Su perfil no tiene permiso para esta operación. Si ' +
+    'lo necesita, pídalo al personal de TI.';
   SFaltanCredenciales = 'Escriba su correo y su clave.';
   SUsuarioSinPermisos = 'Su usuario no tiene permisos asignados en el ' +
     'sistema. Avise al administrador.';

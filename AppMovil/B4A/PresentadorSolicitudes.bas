@@ -5,12 +5,21 @@ Type=Class
 Version=13.7
 @EndOfDesignText@
 ' Presentador de la pestana Solicitudes (HU-03): lista del asesor con el estado como lo ve el,
-' filtro del mes y textos de cada fila. Todo sale de SQLite. No conoce vistas.
+' filtros por estado y por periodo (mes, todas o rango) y textos de cada fila. Todo sale de SQLite.
 
 Sub Class_Globals
 	Private Const SEPARADOR As String = " · "
 	Private mFilas As List
-	Private mSoloMes As Boolean = True
+	Private Const HASTA_SIN_LIMITE As String = "9999-12-31"
+	Private Const FORMATO_SQL As String = "yyyy-MM-dd"
+	Private Const FORMATO_CHIP As String = "dd/MM"
+	Public Const PERIODO_MES As Int = 0
+	Public Const PERIODO_TODAS As Int = 1
+	Public Const PERIODO_RANGO As Int = 2
+	Private mPeriodo As Int = PERIODO_MES
+	Private mDesde As Long
+	Private mHasta As Long
+	Private mEstado As String = ""
 End Sub
 
 Public Sub Initialize
@@ -20,19 +29,60 @@ End Sub
 #Region Estado
 Public Sub Actualizar
 	Dim desde As String = ""
-	If mSoloMes Then
-		Dim hoy As Long = DateTime.Now
-		desde = Utils.Formatear(DateTime.Add(hoy, 0, 0, 1 - DateTime.GetDayOfMonth(hoy)), "yyyy-MM-dd")
-	End If
-	mFilas = DbSeguimiento.Lista(desde)
+	Dim hasta As String = HASTA_SIN_LIMITE
+	Select mPeriodo
+		Case PERIODO_MES
+			Dim hoy As Long = DateTime.Now
+			desde = Utils.Formatear(DateTime.Add(hoy, 0, 0, 1 - DateTime.GetDayOfMonth(hoy)), FORMATO_SQL)
+		Case PERIODO_RANGO
+			desde = Utils.Formatear(mDesde, FORMATO_SQL)
+			hasta = Utils.Formatear(DateTime.Add(mHasta, 0, 0, 1), FORMATO_SQL)
+	End Select
+	Dim todas As List = DbSeguimiento.Lista(desde, hasta)
+	mFilas.Initialize
+	For Each f As SeguimientoFila In todas
+		If mEstado = "" Or Grupo(f.Estado) = mEstado Then mFilas.Add(f)
+	Next
 End Sub
 
-Public Sub getSoloMes As Boolean
-	Return mSoloMes
+Public Sub getPeriodo As Int
+	Return mPeriodo
 End Sub
 
-Public Sub setSoloMes (Valor As Boolean)
-	mSoloMes = Valor
+Public Sub setPeriodo (Valor As Int)
+	mPeriodo = Valor
+End Sub
+
+Public Sub FijarRango (Desde As Long, Hasta As Long) As Resultado
+	If Utils.Formatear(Desde, FORMATO_SQL).CompareTo(Utils.Formatear(Hasta, FORMATO_SQL)) > 0 Then Return Tipos.Falla(Mensajes.PERIODO_INVERTIDO)
+	mDesde = Desde
+	mHasta = Hasta
+	mPeriodo = PERIODO_RANGO
+	Return Tipos.Correcto(Null)
+End Sub
+
+Public Sub getRangoDesde As Long
+	If mDesde = 0 Then Return DateTime.Now
+	Return mDesde
+End Sub
+
+Public Sub getRangoHasta As Long
+	If mHasta = 0 Then Return DateTime.Now
+	Return mHasta
+End Sub
+
+Public Sub getEstados As List
+	Return Array As String(Mensajes.FILTRO_TODAS, Mensajes.SEG_POR_SUBIR, Mensajes.SEG_ESPERANDO, _
+		Mensajes.SEG_ELABORACION, Mensajes.SEG_ENVIADA, Mensajes.SEG_APROBADA, Mensajes.SEG_RECHAZADA)
+End Sub
+
+Public Sub setEstado (Texto As String)
+	If Texto = Mensajes.FILTRO_TODAS Then mEstado = "" Else mEstado = Texto
+End Sub
+
+Public Sub EstadoActivo (Texto As String) As Boolean
+	If Texto = Mensajes.FILTRO_TODAS Then Return mEstado = ""
+	Return mEstado = Texto
 End Sub
 #End Region
 
@@ -46,8 +96,14 @@ Public Sub getTotalTexto As String
 End Sub
 
 Public Sub getTextoVacio As String
-	If mSoloMes Then Return Mensajes.SIN_SOLICITUDES_MES
+	If mEstado <> "" Or mPeriodo = PERIODO_RANGO Then Return Mensajes.SIN_SOLICITUDES_FILTRO
+	If mPeriodo = PERIODO_MES Then Return Mensajes.SIN_SOLICITUDES_MES
 	Return Mensajes.SIN_SOLICITUDES
+End Sub
+
+Public Sub getTextoRango As String
+	If mPeriodo <> PERIODO_RANGO Then Return Mensajes.FILTRO_FECHAS
+	Return Mensajes.TextoRango(Utils.Formatear(mDesde, FORMATO_CHIP), Utils.Formatear(mHasta, FORMATO_CHIP))
 End Sub
 #End Region
 

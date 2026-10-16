@@ -16,6 +16,7 @@ type
   TApiSolicitudes = class(TApiBase, IApiSolicitudes)
   public
     function Seguimiento(const ATexto: string; const AHistorial: Boolean;
+      const AFiltroDesde, AFiltroHasta: TDateTime;
       const APagina, APorPagina: Integer; out ATotal: Int64;
       out ADesde: TDateTime): TObjectList<TSolicitudAsesorDTO>;
     function Cola(const ATexto: string; const APagina, APorPagina: Integer;
@@ -29,7 +30,8 @@ type
     function Adjuntos(const AId: Integer): TObjectList<TAdjuntoDTO>;
     function Adjunto(const AId, AAdjuntoId: Integer): TAdjuntoContenidoDTO;
   private
-    function Leer(const ARuta: string): IMVCRESTResponse;
+    function Leer(const ARuta: string;
+      const ALarga: Boolean = False): IMVCRESTResponse;
     function Pagina(const ARuta, ATexto: string;
       const APagina, APorPagina: Integer; out ATotal: Int64;
       const ALista: TObject; const AClase: TClass): IMVCRESTResponse;
@@ -56,7 +58,8 @@ const
   PERIODO_TODO = 'todo';
 
 function TApiSolicitudes.Seguimiento(const ATexto: string;
-  const AHistorial: Boolean; const APagina, APorPagina: Integer;
+  const AHistorial: Boolean; const AFiltroDesde, AFiltroHasta: TDateTime;
+  const APagina, APorPagina: Integer;
   out ATotal: Int64; out ADesde: TDateTime): TObjectList<TSolicitudAsesorDTO>;
 var
   lRespuesta: IMVCRESTResponse;
@@ -74,6 +77,8 @@ begin
       Result := NuevoCliente
         .AddQueryStringParam('q', ATexto)
         .AddQueryStringParam('periodo', lPeriodo)
+        .AddQueryStringParam('desde', FechaParaApi(AFiltroDesde))
+        .AddQueryStringParam('hasta', FechaParaApi(AFiltroHasta))
         .AddQueryStringParam('pagina', APagina)
         .AddQueryStringParam('por_pagina', APorPagina)
         .Get(RUTA_SEGUIMIENTO);
@@ -123,12 +128,13 @@ begin
   end;
 end;
 
-function TApiSolicitudes.Leer(const ARuta: string): IMVCRESTResponse;
+function TApiSolicitudes.Leer(const ARuta: string;
+  const ALarga: Boolean): IMVCRESTResponse;
 begin
   Result := Ejecutar(
     function: IMVCRESTResponse
     begin
-      Result := NuevoCliente.Get(ARuta);
+      Result := NuevoCliente(True, '', ALarga).Get(ARuta);
     end);
 end;
 
@@ -185,7 +191,7 @@ function TApiSolicitudes.Adjunto(const AId, AAdjuntoId: Integer)
 begin
   Result := TAdjuntoContenidoDTO.Create;
   try
-    Leer(Format(RUTA_ADJUNTO, [AId, AAdjuntoId])).BodyFor(Result, CAMPO_DATOS);
+    Leer(Format(RUTA_ADJUNTO, [AId, AAdjuntoId]), True).BodyFor(Result, CAMPO_DATOS);
   except
     Result.Free;
     raise;

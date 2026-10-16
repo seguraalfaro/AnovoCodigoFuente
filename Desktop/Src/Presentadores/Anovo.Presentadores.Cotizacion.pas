@@ -65,8 +65,10 @@ type
     procedure RecargarTipos;
     procedure Guardar(const ADatos: TCotizacionEdicionDTO);
     procedure Presentar(const ADatos: TCotizacionEdicionDTO);
+    procedure PedirDocumento(const AMostrar: TProc<TCotizacionDocumentoDTO>);
     procedure PrepararEnvio;
     procedure VerDocumento(const ARuta: string);
+    procedure VerHistorial;
     procedure RegistrarRespuesta(const AAceptada: Boolean);
     procedure QuitarLinea(const ALineaId: Integer);
     function Linea(const ALineaId: Integer): TLineaDTO;
@@ -92,6 +94,7 @@ type
     FMaquinaId: Integer;
     FDescripcion: string;
     FUnidad: string;
+    FCategoriaBuscada: Integer;
     procedure Enviar(const ADto: TLineaNuevaDTO);
     function TipoDelModo: string;
   public
@@ -100,6 +103,8 @@ type
     procedure Iniciar(const ACotizacionId: Integer; const AModo: TModoLinea;
       const ALinea: TLineaDTO);
     procedure Buscar(const ATexto: string; const ACategoriaId: Integer);
+    procedure FiltrarCategoria(const ATexto: string;
+      const ACategoriaId: Integer);
     procedure Agregar(const AItemId: Integer; const ANombre, AUnidad: string;
       const ACantidad: Currency);
     procedure AgregarNota(const ATexto: string);
@@ -486,7 +491,7 @@ begin
   lSolicitudes := FSolicitudes;
   lSolicitudId := FSolicitudId;
 
-  EjecutarUltima<TEvidenciaPieza>(SAccionCargarCotizacion,
+  Ejecutar<TEvidenciaPieza>(SAccionCargarCotizacion,
     function: TEvidenciaPieza
     var
       I: Integer;
@@ -565,7 +570,7 @@ begin
     end,
     procedure
     begin
-      Cargar(True);
+      Cargar(False);
     end, MostrarError, MostrarCargando,
     procedure
     begin
@@ -606,42 +611,97 @@ begin
     end);
 end;
 
-procedure TPresentadorCotizacion.PrepararEnvio;
+procedure TPresentadorCotizacion.PedirDocumento(const AMostrar
+  : TProc<TCotizacionDocumentoDTO>);
 var
   lApi: IApiCotizaciones;
   lId: Integer;
+  lDocumento: TCotizacionDocumentoDTO;
 begin
   lApi := FApi;
   lId := FId;
+  lDocumento := nil;
 
-  Ejecutar<TCotizacionDocumentoDTO>(SAccionCargarDocumento,
-    function: TCotizacionDocumentoDTO
+  Ejecutar(SAccionCargarDocumento,
+    procedure
     begin
-      Result := lApi.Documento(lId);
+      lDocumento := lApi.Documento(lId);
     end,
+    procedure
+    var
+      lTomado: TCotizacionDocumentoDTO;
+    begin
+      lTomado := lDocumento;
+      lDocumento := nil;
+      Diferir(
+        procedure
+        begin
+          AMostrar(lTomado);
+        end,
+        procedure
+        begin
+          lTomado.Free;
+        end);
+    end, MostrarError, MostrarCargando,
+    procedure
+    begin
+      lDocumento.Free;
+    end);
+end;
+
+procedure TPresentadorCotizacion.PrepararEnvio;
+begin
+  PedirDocumento(
     procedure(ADocumento: TCotizacionDocumentoDTO)
     begin
       FVista.MostrarEnvio(ADocumento);
-    end, MostrarError, MostrarCargando);
+    end);
 end;
 
 procedure TPresentadorCotizacion.VerDocumento(const ARuta: string);
-var
-  lApi: IApiCotizaciones;
-  lId: Integer;
 begin
-  lApi := FApi;
-  lId := FId;
-
-  Ejecutar<TCotizacionDocumentoDTO>(SAccionCargarDocumento,
-    function: TCotizacionDocumentoDTO
-    begin
-      Result := lApi.Documento(lId);
-    end,
+  PedirDocumento(
     procedure(ADocumento: TCotizacionDocumentoDTO)
     begin
       FVista.MostrarDocumento(ADocumento, ARuta);
-    end, MostrarError, MostrarCargando);
+    end);
+end;
+
+procedure TPresentadorCotizacion.VerHistorial;
+var
+  lApi: IApiCotizaciones;
+  lId: Integer;
+  lEstados: TObjectList<TEstadoCotizacionDTO>;
+begin
+  lApi := FApi;
+  lId := FId;
+  lEstados := nil;
+
+  Ejecutar(SAccionCargarHistorial,
+    procedure
+    begin
+      lEstados := lApi.Estados(lId);
+    end,
+    procedure
+    var
+      lTomados: TObjectList<TEstadoCotizacionDTO>;
+    begin
+      lTomados := lEstados;
+      lEstados := nil;
+      Diferir(
+        procedure
+        begin
+          FVista.MostrarHistorial(lTomados);
+        end,
+        procedure
+        begin
+          lTomados.Free;
+        end);
+    end, MostrarError, MostrarCargando,
+    procedure
+    begin
+      lEstados.Free;
+    end);
 end;
 
 procedure TPresentadorCotizacion.RegistrarRespuesta(const AAceptada: Boolean);
@@ -666,6 +726,7 @@ begin
     end,
     procedure
     begin
+      AvisarCambioEnAvisos;
       FVista.Regresar;
     end, MostrarError, MostrarCargando);
 end;
@@ -770,6 +831,14 @@ begin
   end;
 end;
 
+procedure TPresentadorLineaCotizacion.FiltrarCategoria(const ATexto: string;
+  const ACategoriaId: Integer);
+begin
+  if ACategoriaId = FCategoriaBuscada then
+    Exit;
+  Buscar(ATexto, ACategoriaId);
+end;
+
 procedure TPresentadorLineaCotizacion.Buscar(const ATexto: string;
   const ACategoriaId: Integer);
 var
@@ -780,6 +849,7 @@ begin
   lCatalogos := FCatalogos;
   lModo := FModo;
   lTexto := ATexto.Trim;
+  FCategoriaBuscada := ACategoriaId;
 
   EjecutarUltima<TObjectList<TItemLinea>>(SAccionBuscarCatalogo,
     function: TObjectList<TItemLinea>

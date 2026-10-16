@@ -1181,6 +1181,9 @@ type
     [MVCTableField('PIEZA_ID')]
     [MVCRequired]
     fPiezaId: Int32;
+    [MVCTableField('HASH_SHA256')]
+    [MVCMaxLength(64)]
+    fHashSha256: NullableString;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -1197,6 +1200,7 @@ type
     property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
     property Objversion: NullableInt32 read fObjversion write fObjversion;
     property PiezaId: Int32 read fPiezaId write fPiezaId;
+    property HashSha256: NullableString read fHashSha256 write fHashSha256;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -1921,6 +1925,40 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_COTIZACION_HISTORIAL')]
+  TVCotizacionHistorial = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ID')]
+    fID: NullableInt32;
+    [MVCTableField('COTIZACION_ID')]
+    fCotizacionId: NullableInt32;
+    [MVCTableField('ESTADO')]
+    [MVCMaxLength(20)]
+    fEstado: NullableString;
+    [MVCTableField('FECHA')]
+    fFecha: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('USUARIO_ID')]
+    fUsuarioId: NullableInt32;
+    [MVCTableField('USUARIO_NOMBRE')]
+    [MVCMaxLength(120)]
+    fUsuarioNombre: NullableString;
+    [MVCTableField('MOTIVO')]
+    [MVCMaxLength(500)]
+    fMotivo: NullableString;
+    [MVCTableField('ACTIVO')]
+    fActivo: NullableBoolean;
+  public
+    property ID: NullableInt32 read fID write fID;
+    property CotizacionId: NullableInt32 read fCotizacionId write fCotizacionId;
+    property Estado: NullableString read fEstado write fEstado;
+    property Fecha: NullableTDateTime {dtDateTimeStamp} read fFecha write fFecha;
+    property UsuarioId: NullableInt32 read fUsuarioId write fUsuarioId;
+    property UsuarioNombre: NullableString read fUsuarioNombre write fUsuarioNombre;
+    property Motivo: NullableString read fMotivo write fMotivo;
+    property Activo: NullableBoolean read fActivo write fActivo;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
   [MVCTable('V_CUENTAS_RESUMEN')]
   TVCuentasResumen = class(TMVCActiveRecord)
   private
@@ -2524,6 +2562,7 @@ ActiveRecordMappingRegistry.AddEntity('v_consentimientos', TVConsentimientos);
 ActiveRecordMappingRegistry.AddEntity('v_cotizaciones', TVCotizaciones);
 ActiveRecordMappingRegistry.AddEntity('v_cotizaciones_dia', TVCotizacionesDia);
 ActiveRecordMappingRegistry.AddEntity('v_cotizaciones_por_estado', TVCotizacionesPorEstado);
+ActiveRecordMappingRegistry.AddEntity('v_cotizacion_historial', TVCotizacionHistorial);
 ActiveRecordMappingRegistry.AddEntity('v_cuentas_resumen', TVCuentasResumen);
 ActiveRecordMappingRegistry.AddEntity('v_periodo_actual', TVPeriodoActual);
 ActiveRecordMappingRegistry.AddEntity('v_permisos_roles', TVPermisosRoles);

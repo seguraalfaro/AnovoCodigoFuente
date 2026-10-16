@@ -28,6 +28,10 @@ type
       const AConsentimiento: string = ''): Int64;
     function ObtenerPorUuidLocal(const AUuid: string): TClientes;
     function ExitsUuidLocal(const AUuid: string): Integer;
+    function NombreRepetido(const ANombre: string;
+      const AExcluirId: Integer): Boolean;
+    function ConIdentificacion(const ATipo: Integer;
+      const ANumero: string; const AExcluirId: Integer): TClientes;
   end;
 
   TClienteContactoRepository = class(TAnovoRepository<TClienteContactos>,
@@ -109,6 +113,19 @@ begin
     Result := Result + CLIENTES_SOLO_ACTIVOS;
   if AConsentimiento <> '' then
     Result := Result + CLIENTES_POR_CONSENTIMIENTO;
+end;
+
+function TClienteRepository.NombreRepetido(const ANombre: string;
+  const AExcluirId: Integer): Boolean;
+begin
+  Result := NombreDuplicado(ANombre, AExcluirId);
+end;
+
+function TClienteRepository.ConIdentificacion(const ATipo: Integer;
+  const ANumero: string; const AExcluirId: Integer): TClientes;
+begin
+  Result := GetOneByWhere(CLIENTES_CON_IDENTIFICACION,
+    [ATipo, ANumero, AExcluirId], False);
 end;
 
 function TClienteRepository.ObtenerPorUuidLocal(const AUuid: string): TClientes;

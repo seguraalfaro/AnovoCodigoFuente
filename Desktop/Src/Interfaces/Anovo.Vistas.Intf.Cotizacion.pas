@@ -62,6 +62,7 @@ type
     procedure MostrarTiposTrabajo(const ATipos: TObjectList<TTipoTrabajoDTO>);
     procedure MostrarFormasPago(const AFormas: TObjectList<TCatalogoSimpleDTO>);
     procedure MostrarSolicitud(const AProyecto, AContacto: string);
+    procedure MostrarHistorial(const AEstados: TObjectList<TEstadoCotizacionDTO>);
     procedure MostrarPiezas(const APiezas: TObjectList<TPiezaDTO>);
     procedure MostrarMedidas(const APieza: string;
       const AMedidas: TObjectList<TMedidaDTO>);

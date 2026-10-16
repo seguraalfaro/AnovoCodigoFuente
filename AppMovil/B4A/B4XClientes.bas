@@ -307,7 +307,7 @@ Private Sub BtnSiguiente_Click
 	Dim actual As Int = AHView.CurrentPage
 	Dim completos As Boolean = True
 	If actual = PASO_DATOS Then completos = UI.ValidarFormulario(PnDatos)
-	Dim r As Resultado = presentador.ValidarPaso(actual, completos)
+	Dim r As Resultado = presentador.ValidarPaso(actual, completos, LeerCliente)
 	If r.Ok = False Then
 		xui.MsgboxAsync(r.Mensaje, Mensajes.TITULO)
 		Return

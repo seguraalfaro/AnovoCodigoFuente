@@ -92,9 +92,9 @@ type
     function RegistrarCompleta(const ADto: TSolicitudCompletaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
     procedure MarcarRecibida(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>);
     procedure CambiarEstado(const AId: Integer; const ADto: TCambioEstadoDTO; const AUsuarioId: Integer; const ARoles: TArray<string>);    function Seguimiento(const AAsesorId: Integer; const ATexto: string;
-      const ASoloMes: Boolean; const APagina, APorPagina: Integer;
-      out ADesde, AHasta: TDateTime; out ATotal: Int64)
-      : TObjectList<TSolicitudAsesorDTO>;
+      const ASoloMes: Boolean; const AFiltroDesde, AFiltroHasta: TDateTime;
+      const APagina, APorPagina: Integer; out ADesde, AHasta: TDateTime;
+      out ATotal: Int64): TObjectList<TSolicitudAsesorDTO>;
 
     function Cola(const ATexto: string; const APagina, APorPagina: Integer;
       out ATotal: Int64): TObjectList<TSolicitudPorCotizarDTO>;
@@ -123,6 +123,7 @@ implementation
 uses
   System.Classes,
   System.NetEncoding,
+  System.Hash,
   System.SysUtils,
   JsonDataObjects,
   MVCFramework.Repository,
@@ -136,6 +137,9 @@ uses
   System.DateUtils,
   Anovo.Entities.Vistas.Lectura,
   Anovo.Entities.Consultas;
+
+const
+  FECHA_SIN_LIMITE_INICIO = 36526;
 
 constructor TSolicitudService.Create(ARepo: ISolicitudRepository;
   APiezas: ISolicitudPiezaRepository; AMedidas: ISolicitudMedidaRepository;
@@ -780,6 +784,15 @@ begin
   end;
 end;
 
+function HuellaDe(const ABytes: TBytes): string;
+var
+  lHash: THashSHA2;
+begin
+  lHash := THashSHA2.Create(THashSHA2.TSHA2Version.SHA256);
+  lHash.Update(ABytes);
+  Result := lHash.HashAsString.ToLower;
+end;
+
 function TSolicitudService.InsertarAdjunto(const APiezaId: Integer;
   const ADto: TAdjuntoNuevoDTO): Integer;
 var
@@ -787,6 +800,7 @@ var
   lExistente: TSolicitudAdjuntos;
   lBytes: TBytes;
   lStream: TMemoryStream;
+  lHuella: string;
 begin
   if ADto.UuidLocal.IsEmpty then
     raise EDatoInvalido.Create(SFaltaIdLocalAdjunto);
@@ -829,6 +843,12 @@ begin
       lAdjunto.Mime := MimeDeImagen(lBytes);
       if lAdjunto.Mime.Value.IsEmpty then
         raise EDatoInvalido.Create(SAdjuntoFormatoInvalido);
+
+      lHuella := HuellaDe(lBytes);
+      if ADto.HashSha256.HasValue and not ADto.HashSha256.Value.Trim.IsEmpty and
+        not SameText(ADto.HashSha256.Value.Trim, lHuella) then
+        raise EDatoInvalido.Create(SAdjuntoHuellaDistinta);
+      lAdjunto.HashSha256 := lHuella;
 
       lStream := TMemoryStream.Create;
       lStream.WriteBuffer(lBytes[0], Length(lBytes));
@@ -918,6 +938,7 @@ end;
 
 function TSolicitudService.Seguimiento(const AAsesorId: Integer;
   const ATexto: string; const ASoloMes: Boolean;
+  const AFiltroDesde, AFiltroHasta: TDateTime;
   const APagina, APorPagina: Integer; out ADesde, AHasta: TDateTime;
   out ATotal: Int64): TObjectList<TSolicitudAsesorDTO>;
 var
@@ -925,7 +946,20 @@ var
 begin
   ADesde := 0;
   AHasta := 0;
-  if ASoloMes then
+  if (AFiltroDesde > 0) and (AFiltroHasta > 0) and
+    (Trunc(AFiltroDesde) > Trunc(AFiltroHasta)) then
+    raise EDatoInvalido.Create(SPeriodoInvertido);
+
+  if (AFiltroDesde > 0) or (AFiltroHasta > 0) then
+  begin
+    ADesde := FECHA_SIN_LIMITE_INICIO;
+    if AFiltroDesde > 0 then
+      ADesde := Trunc(AFiltroDesde);
+    AHasta := IncYear(Date);
+    if AFiltroHasta > 0 then
+      AHasta := Trunc(AFiltroHasta) + 1;
+  end
+  else if ASoloMes then
   begin
     ADesde := StartOfTheMonth(Date);
     AHasta := IncMonth(ADesde, 1);

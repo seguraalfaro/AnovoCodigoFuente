@@ -300,7 +300,6 @@ end;
 
 procedure TfrmImportacionCatalogo.MostrarCargando(const AActivo: Boolean);
 begin
-  CursorOcupado(AActivo);
   BloquearEdicion([pnlArchivo, pnlCampos, grFilas, btnAprobar], AActivo);
 end;
 

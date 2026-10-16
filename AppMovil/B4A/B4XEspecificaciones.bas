@@ -410,7 +410,9 @@ End Sub
 
 Private Sub MostrarFoto (Archivo As String, Falla As String)
 	If Archivo = "" Then
-		xui.MsgboxAsync(Falla, Mensajes.TITULO)
+		Dim texto As String = Falla
+		If presentador.MotivoRechazo <> "" Then texto = presentador.MotivoRechazo
+		xui.MsgboxAsync(texto, Mensajes.TITULO)
 		Return
 	End If
 	CvFoto.Add(CrearMiniatura(Archivo), Archivo)

@@ -86,9 +86,12 @@ type
 
     [MVCPath('/sin-respuesta')]
     [MVCHTTPMethods([httpGET])]
-    [MVCSwagSummary('Cotizaciones', 'Enviadas hace mas de siete dias y sin ' +
-      'respuesta del cliente', 'cotizacionesSinRespuesta')]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCSwagSummary('Cotizaciones', 'Enviadas hace mas de los dias ' +
+      'configurados en la empresa y sin respuesta del cliente',
+      'cotizacionesSinRespuesta')]
     [MVCSwagResponses(200, 'Las que llevan mas dias esperando')]
+    [MVCSwagResponses(403, 'Sin el permiso de elaborar cotizaciones')]
     function SinRespuesta([MVCInject] AServicio: ICotizacionService)
       : IMVCResponse;
 
@@ -130,6 +133,16 @@ type
     function Actualizar([MVCInject] AServicio: ICotizacionService;
       const AId: Integer;
       const [MVCFromBody] ADto: TCotizacionEdicionDTO): IMVCResponse;
+
+    [MVCPath('/($AId)/estados')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCSwagSummary('Cotizaciones', 'Historial de estados: cada paso con ' +
+      'fecha, usuario y motivo, el mas reciente primero (HU-07)',
+      'historialCotizacion')]
+    [MVCSwagResponses(200, 'Los pasos de la cotizacion')]
+    [MVCSwagResponses(404, 'No existe, o es de una solicitud de otro asesor')]
+    function Estados([MVCInject] AServicio: ICotizacionService;
+      const AId: Integer): IMVCResponse;
 
     [MVCPath('/($AId)/detalle')]
     [MVCHTTPMethods([httpGET])]
@@ -327,6 +340,12 @@ function TCotizacionesController.Actualizar(AServicio: ICotizacionService;
 begin
   AServicio.Actualizar(AId, ADto);
   Result := NoContentResponse;
+end;
+
+function TCotizacionesController.Estados(AServicio: ICotizacionService;
+  const AId: Integer): IMVCResponse;
+begin
+  Result := OKResponse(AServicio.Estados(AId, UsuarioId, Roles));
 end;
 
 function TCotizacionesController.Detalle(AServicio: ICotizacionService;

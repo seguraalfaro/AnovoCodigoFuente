@@ -93,7 +93,11 @@ begin
         rlCorrecto:
           FVista.IrAPrincipal;
         rlDebeCambiarClave:
-          FVista.IrACambioDeClave;
+          Diferir(
+            procedure
+            begin
+              FVista.IrACambioDeClave;
+            end);
         rlSinAccesoEscritorio:
           FVista.MostrarError(SUsuarioSinPermisos);
       end;

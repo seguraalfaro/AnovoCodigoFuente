@@ -1,6 +1,7 @@
 unit Anovo.UI.Vista;
 
-// Apoyos comunes de las vistas: cursor de espera, errores, busqueda y paginacion.
+// Apoyos comunes de las vistas: cursor de espera por contador, avisos
+// fuera del callback en curso, busqueda y paginacion.
 
 interface
 
@@ -28,11 +29,19 @@ procedure PintarPaginacion(AEtiqueta: TLabel; AAnterior, ASiguiente: TControl;
 implementation
 
 uses
-  System.SysUtils, System.UITypes, Vcl.Forms, Vcl.Dialogs;
+  System.SysUtils, System.Classes, System.UITypes, Vcl.Forms, Vcl.Dialogs;
+
+var
+  Ocupados: Integer;
 
 procedure CursorOcupado(const AActivo: Boolean);
 begin
   if AActivo then
+    Inc(Ocupados)
+  else if Ocupados > 0 then
+    Dec(Ocupados);
+
+  if Ocupados > 0 then
     Screen.Cursor := crAppStart
   else
     Screen.Cursor := crDefault;
@@ -40,12 +49,20 @@ end;
 
 procedure AvisarError(const AMensaje: string);
 begin
-  MessageDlg(AMensaje, mtError, [mbOK], 0);
+  TThread.ForceQueue(nil,
+    procedure
+    begin
+      MessageDlg(AMensaje, mtError, [mbOK], 0);
+    end);
 end;
 
 procedure Informar(const AMensaje: string);
 begin
-  MessageDlg(AMensaje, mtInformation, [mbOK], 0);
+  TThread.ForceQueue(nil,
+    procedure
+    begin
+      MessageDlg(AMensaje, mtInformation, [mbOK], 0);
+    end);
 end;
 
 function Confirmar(const AMensaje: string): Boolean;

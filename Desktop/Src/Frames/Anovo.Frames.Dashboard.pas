@@ -59,7 +59,6 @@ end;
 
 destructor TfraDashboard.Destroy;
 begin
-  CursorOcupado(False);
   inherited;
 end;
 

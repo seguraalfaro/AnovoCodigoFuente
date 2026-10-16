@@ -79,7 +79,7 @@
         <SanitizedProjectName>AnovoAPI</SanitizedProjectName>
         <VerInfo_Locale>2058</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=;CFBundleName=</VerInfo_Keys>
-        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
         <DCC_UnitSearchPath>$(DMVC);$(ICS)\Source;$(ICS)\Source\Include;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
@@ -261,6 +261,10 @@
         <DCCReference Include="src\Services\Anovo.Services.Documento.pas"/>
         <DCCReference Include="src\Common\Anovo.Correo.Config.pas"/>
         <DCCReference Include="src\Common\Anovo.Correo.Token.pas"/>
+        <DCCReference Include="src\Common\Anovo.Tunel.Config.pas"/>
+        <DCCReference Include="src\Common\Anovo.Tunel.pas"/>
+        <DCCReference Include="src\Common\Anovo.Env.Archivo.pas"/>
+        <DCCReference Include="src\UI\Anovo.UI.Rejilla.pas"/>
         <DCCReference Include="src\DTOs\Anovo.DTOs.Correo.pas"/>
         <DCCReference Include="src\Interfaces\Anovo.Services.Intf.Correo.pas"/>
         <DCCReference Include="src\Services\Anovo.Services.Correo.OAuth.pas"/>

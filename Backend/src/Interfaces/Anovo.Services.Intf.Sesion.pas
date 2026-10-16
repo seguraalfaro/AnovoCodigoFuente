@@ -18,6 +18,7 @@ type
     Nombre: string;
     Rol: string;
     DebeCambiarClave: Boolean;
+    CuentaInactiva: Boolean;
   end;
 
   ISesionService = interface

@@ -33,6 +33,8 @@ type
     procedure CopiarEstado(const AOrigen, ADestino: TClientes); overload;
     procedure CopiarEstado(const AOrigen, ADestino: TClienteContactos); overload;
     procedure ExigirPersonaFisica(const ACliente: TClientes);
+    procedure ExigirNoRepetido(const ACliente: TClientes;
+      const AExcluirId: Integer);
     procedure AnonimizarContactos(const AClienteId: Integer);
     procedure VaciarContacto(const AContacto: TClienteContactos);
     procedure AnonimizarAdjuntos(const AClienteId: Integer);
@@ -175,6 +177,37 @@ begin
     raise EDatoInvalido.Create(SAnonimizarSoloFisica);
 end;
 
+procedure TClienteService.ExigirNoRepetido(const ACliente: TClientes;
+  const AExcluirId: Integer);
+var
+  lNumero: string;
+  lOtro: TClientes;
+begin
+  if ACliente.Identificacion.HasValue and
+    ACliente.TipoIdentificacion.HasValue then
+  begin
+    lNumero := ACliente.Identificacion.Value.Replace('-', '', [rfReplaceAll])
+      .Replace(' ', '', [rfReplaceAll]);
+    if not lNumero.IsEmpty then
+    begin
+      lOtro := fRepo.ConIdentificacion(ACliente.TipoIdentificacion.Value,
+        lNumero, AExcluirId);
+      if lOtro <> nil then
+        try
+          raise EConflictoDeEstado.Create('CLIENTE_IDENTIFICACION_REPETIDA',
+            Format(SClienteIdentificacionRepetida,
+            [ACliente.Identificacion.Value, lOtro.Nombre]));
+        finally
+          lOtro.Free;
+        end;
+    end;
+  end;
+
+  if fRepo.NombreRepetido(ACliente.Nombre.Trim, AExcluirId) then
+    raise EConflictoDeEstado.Create('CLIENTE_DUPLICADO',
+      Format(SClienteNombreRepetido, [ACliente.Nombre.Trim]));
+end;
+
 procedure TClienteService.AnonimizarContactos(const AClienteId: Integer);
 var
   lContactos: TObjectList<TClienteContactos>;
@@ -299,6 +332,7 @@ begin
   try
     TMapeo.Copiar(ADto, lCliente);
     EstadoInicial(lCliente);
+    ExigirNoRepetido(lCliente, 0);
     FijarDetalle(Format(SDetalleRegistroCliente, [ADto.Nombre]));
     fRepo.Insert(lCliente);
     Result := lCliente.ID.ValueOrDefault;
@@ -331,6 +365,7 @@ begin
     CopiarEstado(lCliente, lAntes);
     TMapeo.Copiar(ADto, lCliente);
     CopiarEstado(lAntes, lCliente);
+    ExigirNoRepetido(lCliente, AId);
     FijarDetalle(SDetalleEdicionCliente);
     try
       fRepo.Update(lCliente);
@@ -437,6 +472,14 @@ begin
     raise EDatoInvalido.Create(SFirmaVacia);
 
   lImagen := TNetEncoding.Base64.DecodeStringToBytes(ADto.Firma.FirmaBase64);
+
+  lCliente := TClientes.Create;
+  try
+    TMapeo.Copiar(ADto.Cliente, lCliente);
+    ExigirNoRepetido(lCliente, 0);
+  finally
+    lCliente.Free;
+  end;
 
   lCliente := nil;
   lContacto := nil;

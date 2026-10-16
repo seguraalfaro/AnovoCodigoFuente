@@ -118,11 +118,7 @@ procedure TPresentadorCatalogos.Cargar;
 begin
   case FCatalogo of
     ctTodos:
-      begin
-        if not FCategoriasPedidas then
-          CargarCategorias;
-        CargarTodos;
-      end;
+      CargarTodos;
     ctMateriales:
       CargarMateriales;
     ctManoObra:
@@ -332,7 +328,6 @@ var
   lApi: IApiCatalogos;
   lTexto: string;
 begin
-  CargarUnidadesActivas;
   lApi := FApi;
   lTexto := FTexto;
 
@@ -344,6 +339,8 @@ begin
     procedure(ALista: TObjectList<TUnidadMedidaDTO>)
     begin
       FTotalPaginas := 0;
+      if lTexto.IsEmpty then
+        FVista.MostrarUnidadesActivas(ALista);
       FVista.MostrarUnidadesMedida(ALista);
       FVista.MostrarPaginacion(1, 0, ALista.Count);
     end);
@@ -397,7 +394,7 @@ end;
 
 procedure TPresentadorCatalogos.FiltrarCategoria(const ACategoriaId: Integer);
 begin
-  if FCatalogo <> ctManoObra then
+  if (FCatalogo <> ctManoObra) or (ACategoriaId = FCategoriaId) then
     Exit;
   FCategoriaId := ACategoriaId;
   FPagina := 1;
@@ -476,27 +473,41 @@ procedure TPresentadorCatalogos.VerHistorial(const AId: Integer);
 var
   lApi: IApiCatalogos;
   lCatalogo: TCatalogo;
+  lLista: TObjectList<TPrecioDTO>;
 begin
   lCatalogo := CatalogoDeFila;
   if lCatalogo in CATALOGOS_SIN_PRECIO then
     Exit;
   lApi := FApi;
+  lLista := nil;
 
-  Ejecutar<TObjectList<TPrecioDTO>>(SAccionCargarCatalogo,
-    function: TObjectList<TPrecioDTO>
+  Ejecutar(SAccionCargarCatalogo,
+    procedure
     begin
       case lCatalogo of
         ctManoObra:
-          Result := lApi.HistorialPrecioManoObra(AId);
+          lLista := lApi.HistorialPrecioManoObra(AId);
         ctMaquinas:
-          Result := lApi.HistorialCostoMaquina(AId);
+          lLista := lApi.HistorialCostoMaquina(AId);
       else
-        Result := lApi.HistorialPrecioMaterial(AId);
+        lLista := lApi.HistorialPrecioMaterial(AId);
       end;
     end,
-    procedure(ALista: TObjectList<TPrecioDTO>)
+    procedure
+    var
+      lTomada: TObjectList<TPrecioDTO>;
     begin
-      FVista.MostrarHistorial(ALista);
+      lTomada := lLista;
+      lLista := nil;
+      Diferir(
+        procedure
+        begin
+          FVista.MostrarHistorial(lTomada);
+        end,
+        procedure
+        begin
+          lTomada.Free;
+        end);
     end,
     procedure(AMensaje: string)
     begin
@@ -505,6 +516,10 @@ begin
     procedure(AActivo: Boolean)
     begin
       FVista.MostrarCargando(AActivo);
+    end,
+    procedure
+    begin
+      lLista.Free;
     end);
 end;
 

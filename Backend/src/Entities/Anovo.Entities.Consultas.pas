@@ -33,6 +33,7 @@ const
   CONSULTA_BUSCAR_CON_ADICIONALES = 'BuscarConAdicionales';
   CONSULTA_BAJADA = 'Bajada';
   CONSULTA_BAJADA_DESDE = 'BajadaDesde';
+  CONSULTA_HISTORIAL_DE = 'HistorialDe';
 
   RQL_PAGINA = ';limit(%d,%d)';
   RQL_TEXTO_USUARIO = 'or(contains(Nombre,"%s"),contains(Correo,"%s"))';
@@ -286,6 +287,14 @@ type
   [MVCNamedRQLQuery(CONSULTA_ORDENADAS,
     'sort(+UsuarioId,+PermisoId)')]
   TExcepcionesDePermisos = class(TVUsuariosPermisos)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_COTIZACION_HISTORIAL')]
+  [MVCNamedRQLQuery(CONSULTA_HISTORIAL_DE,
+    'eq(CotizacionId,%d);sort(-Fecha,-ID)')]
+  THistorialCotizacion = class(TVCotizacionHistorial)
   end;
 
 implementation

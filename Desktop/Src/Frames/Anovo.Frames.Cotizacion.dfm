@@ -4,8 +4,8 @@ object fraCotizacion: TfraCotizacion
   Width = 1180
   Height = 720
   Align = alTop
-  OnResize = FrameResize
   TabOrder = 0
+  OnResize = FrameResize
   object pnlEncabezado: TPanel
     Tag = 2
     Left = 0
@@ -149,6 +149,20 @@ object fraCotizacion: TfraCotizacion
       OnClick = btnVistaPreviaClick
       Kind = fkSecondary
     end
+    object btnHistorial: TPlanoBotonWin
+      Tag = 21
+      Left = 400
+      Top = 18
+      Width = 110
+      Height = 32
+      Cursor = crHandPoint
+      Anchors = [akTop, akRight]
+      Caption = 'Historial'
+      TabOrder = 8
+      StyleElements = []
+      OnClick = btnHistorialClick
+      Kind = fkSecondary
+    end
   end
   object pnlAviso: TPanel
     Tag = 1
@@ -221,6 +235,9 @@ object fraCotizacion: TfraCotizacion
         Padding.Right = 12
         Padding.Bottom = 12
         TabOrder = 0
+        DesignSize = (
+          420
+          84)
         object lblProyectoRot: TLabel
           Tag = 13
           Left = 16
@@ -305,9 +322,9 @@ object fraCotizacion: TfraCotizacion
         Tag = 3
         AlignWithMargins = True
         Left = 0
-        Top = 232
+        Top = 284
         Width = 420
-        Height = 32
+        Height = 13
         Margins.Left = 0
         Margins.Top = 10
         Margins.Right = 0
@@ -442,7 +459,7 @@ object fraCotizacion: TfraCotizacion
         Tag = 3
         Left = 0
         Top = 0
-        Width = 796
+        Width = 706
         Height = 89
         Align = alTop
         TabOrder = 0
@@ -450,7 +467,7 @@ object fraCotizacion: TfraCotizacion
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 790
+          Width = 700
           Height = 83
           ControlCollection = <
             item
@@ -525,9 +542,8 @@ object fraCotizacion: TfraCotizacion
           Align = alClient
           BevelOuter = bvNone
           TabOrder = 0
-          ExplicitHeight = 78
           DesignSize = (
-            790
+            700
             83)
           object lblQueSeCotiza: TLabel
             Tag = 12
@@ -558,6 +574,8 @@ object fraCotizacion: TfraCotizacion
             DBEditLabel.OwnCaption = 'Tipo de trabajo'
             BoundLabel.Anchors = []
             BoundLabel.Position = lpTopRight
+            BoundLabel.ExplicitLeft = 102
+            BoundLabel.ExplicitTop = -14
             EmptyDisplayValue = 'Sin especificar'
             AllowLookupFilter = True
             AutoDropDown = True
@@ -601,7 +619,7 @@ object fraCotizacion: TfraCotizacion
           end
           object pstEstado: TPlanoPastilla
             AlignWithMargins = True
-            Left = 750
+            Left = 660
             Top = 10
             Width = 20
             Height = 22
@@ -622,7 +640,7 @@ object fraCotizacion: TfraCotizacion
         AlignWithMargins = True
         Left = 0
         Top = 389
-        Width = 796
+        Width = 706
         Height = 206
         Margins.Left = 0
         Margins.Top = 10
@@ -633,7 +651,7 @@ object fraCotizacion: TfraCotizacion
         TabOrder = 2
         object tjTotales: TPlanoTarjeta
           Tag = 3
-          Left = 486
+          Left = 396
           Top = 0
           Width = 310
           Height = 206
@@ -765,7 +783,7 @@ object fraCotizacion: TfraCotizacion
           AlignWithMargins = True
           Left = 0
           Top = 0
-          Width = 476
+          Width = 126
           Height = 206
           Margins.Left = 0
           Margins.Top = 0
@@ -775,7 +793,7 @@ object fraCotizacion: TfraCotizacion
           Align = alClient
           TabOrder = 0
           DesignSize = (
-            476
+            126
             206)
           object lblAjustePorcentaje: TLabel
             Tag = 25
@@ -817,7 +835,7 @@ object fraCotizacion: TfraCotizacion
         object tjCondiciones: TPlanoTarjeta
           Tag = 3
           AlignWithMargins = True
-          Left = 226
+          Left = 136
           Top = 0
           Width = 250
           Height = 206
@@ -828,11 +846,14 @@ object fraCotizacion: TfraCotizacion
           Caption = 'Condiciones para el cliente'
           Align = alRight
           TabOrder = 2
+          DesignSize = (
+            250
+            206)
           object cbFormaPago: TrDBLookupComboBox
             Left = 16
             Top = 58
             Width = 218
-            Height = 23
+            Height = 21
             Anchors = [akLeft, akTop, akRight]
             DataField = 'FORMA_PAGO_ID'
             DataSource = dmMemoria.dsCotizacionEdicion
@@ -845,6 +866,7 @@ object fraCotizacion: TfraCotizacion
             DBEditLabel.AlignWithMargins = True
             DBEditLabel.Margins.Top = 5
             DBEditLabel.OwnCaption = 'Forma de pago'
+            BoundLabel.Position = lpTopRight
             EmptyDisplayValue = 'Sin especificar'
             AllowLookupFilter = True
             AutoDropDown = True
@@ -853,7 +875,7 @@ object fraCotizacion: TfraCotizacion
             Left = 16
             Top = 108
             Width = 70
-            Height = 23
+            Height = 21
             DataField = 'PLAZO_ENTREGA_CANTIDAD'
             DataSource = dmMemoria.dsCotizacionEdicion
             TabOrder = 1
@@ -867,10 +889,11 @@ object fraCotizacion: TfraCotizacion
             Left = 94
             Top = 108
             Width = 140
-            Height = 23
+            Height = 21
             Anchors = [akLeft, akTop, akRight]
             DataField = 'PLAZO_ENTREGA_UNIDAD'
             DataSource = dmMemoria.dsCotizacionEdicion
+            DropDownRows = 15
             KeyField = 'CODIGO'
             ListField = 'NOMBRE'
             ListSource = dmMemoria.dsUnidadesPlazo
@@ -879,12 +902,13 @@ object fraCotizacion: TfraCotizacion
             DBEditLabel.AlignWithMargins = True
             DBEditLabel.Margins.Top = 5
             DBEditLabel.OwnCaption = 'Unidad'
+            BoundLabel.Position = lpTopRight
           end
           object edGarantia: TrDBEdit
             Left = 16
             Top = 158
             Width = 70
-            Height = 23
+            Height = 21
             DataField = 'GARANTIA_CANTIDAD'
             DataSource = dmMemoria.dsCotizacionEdicion
             TabOrder = 3
@@ -898,10 +922,11 @@ object fraCotizacion: TfraCotizacion
             Left = 94
             Top = 158
             Width = 140
-            Height = 23
+            Height = 21
             Anchors = [akLeft, akTop, akRight]
             DataField = 'GARANTIA_UNIDAD'
             DataSource = dmMemoria.dsCotizacionEdicion
+            DropDownRows = 15
             KeyField = 'CODIGO'
             ListField = 'NOMBRE'
             ListSource = dmMemoria.dsUnidadesPlazo
@@ -910,6 +935,7 @@ object fraCotizacion: TfraCotizacion
             DBEditLabel.AlignWithMargins = True
             DBEditLabel.Margins.Top = 5
             DBEditLabel.OwnCaption = 'Unidad'
+            BoundLabel.Position = lpTopRight
           end
         end
       end
@@ -918,7 +944,7 @@ object fraCotizacion: TfraCotizacion
         AlignWithMargins = True
         Left = 0
         Top = 99
-        Width = 796
+        Width = 706
         Height = 280
         Margins.Left = 0
         Margins.Top = 10
@@ -931,10 +957,8 @@ object fraCotizacion: TfraCotizacion
         Padding.Right = 12
         Padding.Bottom = 12
         TabOrder = 1
-        ExplicitTop = 114
-        ExplicitHeight = 265
         DesignSize = (
-          796
+          706
           280)
         object btnMaterial: TPlanoBotonWin
           Left = 366
@@ -1015,7 +1039,7 @@ object fraCotizacion: TfraCotizacion
         object grLineas: TrDBGrid
           Left = 12
           Top = 80
-          Width = 772
+          Width = 682
           Height = 188
           Align = alClient
           BorderStyle = bsNone

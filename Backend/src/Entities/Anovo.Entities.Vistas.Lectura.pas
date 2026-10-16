@@ -879,6 +879,41 @@ type
     property Numero: NullableInt32 read fNumero write fNumero;
   end;
 
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_COTIZACION_HISTORIAL')]
+  TVCotizacionHistorial = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ID')]
+    fID: NullableInt32;
+    [MVCTableField('COTIZACION_ID')]
+    fCotizacionId: NullableInt32;
+    [MVCTableField('ESTADO')]
+    [MVCMaxLength(20)]
+    fEstado: NullableString;
+    [MVCTableField('FECHA')]
+    fFecha: NullableTDateTime;
+    [MVCTableField('USUARIO_ID')]
+    fUsuarioId: NullableInt32;
+    [MVCTableField('USUARIO_NOMBRE')]
+    [MVCMaxLength(120)]
+    fUsuarioNombre: NullableString;
+    [MVCTableField('MOTIVO')]
+    [MVCMaxLength(500)]
+    fMotivo: NullableString;
+    [MVCTableField('ACTIVO')]
+    fActivo: NullableBoolean;
+  public
+    property ID: NullableInt32 read fID write fID;
+    property CotizacionId: NullableInt32 read fCotizacionId write fCotizacionId;
+    property Estado: NullableString read fEstado write fEstado;
+    property Fecha: NullableTDateTime read fFecha write fFecha;
+    property UsuarioId: NullableInt32 read fUsuarioId write fUsuarioId;
+    property UsuarioNombre: NullableString read fUsuarioNombre write fUsuarioNombre;
+    property Motivo: NullableString read fMotivo write fMotivo;
+    property Activo: NullableBoolean read fActivo write fActivo;
+  end;
+
 implementation
 
 end.

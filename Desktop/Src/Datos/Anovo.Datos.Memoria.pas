@@ -59,10 +59,10 @@ type
     mtConsentimientosFIRMANTE_NOMBRE: TStringField;
     mtClienteCotizaciones: TFDMemTable;
     mtClienteCotizacionesID: TIntegerField;
-    mtClienteCotizacionesNUMERO: TStringField;
-    mtClienteCotizacionesTIPO: TStringField;
-    mtClienteCotizacionesFECHA_ELABORACION: TDateField;
-    mtClienteCotizacionesASESOR: TStringField;
+    mtClienteCotizacionesNUMERO: TIntegerField;
+    mtClienteCotizacionesTIPO_TRABAJO_NOMBRE: TStringField;
+    mtClienteCotizacionesFECHA_ELABORACION: TDateTimeField;
+    mtClienteCotizacionesELABORADA_POR_NOMBRE: TStringField;
     mtClienteCotizacionesMONTO_TOTAL: TCurrencyField;
     mtClienteCotizacionesESTADO: TStringField;
     mtClienteCotizacionesACCIONES: TStringField;
@@ -633,6 +633,21 @@ type
     mtEnvioCorreoASUNTO: TStringField;
     mtEnvioCorreoMENSAJE: TStringField;
     dsEnvioCorreo: TDataSource;
+    mtSinRespuesta: TFDMemTable;
+    mtSinRespuestaID: TIntegerField;
+    mtSinRespuestaNUMERO: TIntegerField;
+    mtSinRespuestaCLIENTE_NOMBRE: TStringField;
+    mtSinRespuestaFECHA_ENVIO: TDateTimeField;
+    mtSinRespuestaDIAS: TIntegerField;
+    mtSinRespuestaMONTO_TOTAL: TCurrencyField;
+    dsSinRespuesta: TDataSource;
+    mtHistorialEstados: TFDMemTable;
+    mtHistorialEstadosFECHA: TDateTimeField;
+    mtHistorialEstadosESTADO: TStringField;
+    mtHistorialEstadosUSUARIO_NOMBRE: TStringField;
+    mtHistorialEstadosMOTIVO: TStringField;
+    mtHistorialEstadosACTIVO: TBooleanField;
+    dsHistorialEstados: TDataSource;
     FDGUIxWaitCursor1: TFDGUIxWaitCursor;
     procedure DataModuleCreate(Sender: TObject);
     procedure mtContactoNuevoBeforePost(DataSet: TDataSet);
@@ -640,6 +655,7 @@ type
     procedure MotivoTelefonoGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
     procedure TextosConsentimientoCalcFields(DataSet: TDataSet);
+    procedure SinRespuestaCalcFields(DataSet: TDataSet);
     procedure EstadoConsentimientoGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
     procedure EstadoGetText(Sender: TField; var Text: string;
@@ -704,6 +720,7 @@ implementation
 {$R *.dfm}
 
 uses
+  System.DateUtils,
   Anovo.Condiciones,
   Anovo.DTOs.Catalogos,
   Anovo.Sesion,
@@ -775,6 +792,15 @@ procedure TdmMemoria.mtContactoNuevoBeforePost(DataSet: TDataSet);
 begin
   mtContactoNuevoTELEFONO.AsString :=
     TFormato.TelefonoExt(mtContactoNuevoTELEFONO.AsString);
+end;
+
+procedure TdmMemoria.SinRespuestaCalcFields(DataSet: TDataSet);
+begin
+  if mtSinRespuestaFECHA_ENVIO.IsNull then
+    mtSinRespuestaDIAS.Clear
+  else
+    mtSinRespuestaDIAS.AsInteger := DaysBetween(Date,
+      DateOf(mtSinRespuestaFECHA_ENVIO.AsDateTime));
 end;
 
 procedure TdmMemoria.TextosConsentimientoCalcFields(DataSet: TDataSet);

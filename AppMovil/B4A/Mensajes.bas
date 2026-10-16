@@ -46,6 +46,8 @@ Sub Process_Globals
 	Public Const FALTA_FIRMA As String = "Falta la firma del cliente."
 	Public Const SIN_TEXTO_PERMISO As String = "El texto del permiso todavía no llegó a este teléfono. Sincronice con el servidor antes de registrar al cliente."
 	Private Const VERSION_TEXTO_PERMISO As String = "Versión del texto: $1"
+	Private Const CLIENTE_REPETIDO As String = "Ya existe un cliente con el nombre «$1». Búsquelo en la lista en lugar de registrarlo otra vez."
+	Private Const IDENTIFICACION_REPETIDA As String = "La identificación $1 ya es del cliente «$2». Búsquelo en la lista en lugar de registrarlo otra vez."
 	Public Const CLIENTE_NO_GUARDADO As String = "No se pudo guardar el cliente en el teléfono. Intente de nuevo."
 	Public Const CLIENTE_GUARDADO As String = "Cliente guardado."
 	Public Const MENU_SINCRONIZAR As String = "Sincronizar"
@@ -63,6 +65,13 @@ Sub Process_Globals
 	Public Const MIS_SOLICITUDES As String = "Mis solicitudes"
 	Public Const FILTRO_MES As String = "Este mes"
 	Public Const FILTRO_TODAS As String = "Todas"
+	Public Const FILTRO_FECHAS As String = "Fechas…"
+	Public Const FECHA_DESDE As String = "Desde"
+	Public Const FECHA_HASTA As String = "Hasta"
+	Public Const ELEGIR As String = "Elegir"
+	Public Const PERIODO_INVERTIDO As String = "La fecha de inicio es posterior a la del fin."
+	Public Const SIN_SOLICITUDES_FILTRO As String = "No hay solicitudes con estos filtros."
+	Private Const TEXTO_RANGO As String = "$1 – $2"
 	Public Const SIN_SOLICITUDES_MES As String = "No hay solicitudes este mes."
 	Public Const SIN_SOLICITUDES As String = "Todavía no hay solicitudes."
 	Public Const SEG_POR_SUBIR As String = "Por subir"
@@ -188,6 +197,7 @@ Sub Process_Globals
 	Public Const ELEGIR_FOTO As String = "Elegir foto"
 	Public Const FOTO_NO_VALIDA As String = "No se pudo leer la imagen elegida. Elija otra."
 	Public Const FOTO_NO_GUARDADA As String = "No se pudo guardar la foto en el teléfono. Intente de nuevo."
+	Private Const FOTO_CHICA As String = "La foto mide $1×$2. Se necesita al menos 800×600 para que se vean los detalles."
 	Public Const DESCARTAR_PIEZA As String = "¿Descartar esta pieza? Se pierden los datos, el croquis y las fotos."
 	Public Const MEDIDA_SIN_VALOR As String = "Sin valor: toque para llenarla"
 	Private Const MEDIDA_CANTIDAD As String = " · cant. $1"
@@ -389,6 +399,22 @@ Public Sub TextoPermiso (Accion As String, Firmante As String) As String
 	If Accion = "revocado" Then Return PERMISO_REVOCADO.Replace("$1", Firmante)
 	If Firmante = "" Then Return PERMISO_SIN_FIRMANTE
 	Return PERMISO_OTORGADO.Replace("$1", Firmante)
+End Sub
+
+Public Sub FotoChica (Ancho As Int, Alto As Int) As String
+	Return FOTO_CHICA.Replace("$1", Ancho).Replace("$2", Alto)
+End Sub
+
+Public Sub TextoRango (Desde As String, Hasta As String) As String
+	Return TEXTO_RANGO.Replace("$1", Desde).Replace("$2", Hasta)
+End Sub
+
+Public Sub ClienteRepetido (Nombre As String) As String
+	Return CLIENTE_REPETIDO.Replace("$1", Nombre)
+End Sub
+
+Public Sub IdentificacionRepetida (Numero As String, Dueno As String) As String
+	Return IDENTIFICACION_REPETIDA.Replace("$1", Numero).Replace("$2", Dueno)
 End Sub
 
 Public Sub VersionTextoPermiso (Version As String) As String

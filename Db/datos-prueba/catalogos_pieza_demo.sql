@@ -16,6 +16,11 @@
    Todo en ASCII.
    ============================================================================ */
 
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID',
+  (SELECT ID FROM USUARIOS WHERE CORREO = 'sistema@anovo.local'))
+  FROM RDB$DATABASE;
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE', 'datos de demostracion: tipos de material y acabados') FROM RDB$DATABASE;
+
 UPDATE OR INSERT INTO TIPOS_MATERIAL (NOMBRE, ACTIVO) VALUES ('Demo acero inoxidable', TRUE) MATCHING (NOMBRE);
 UPDATE OR INSERT INTO TIPOS_MATERIAL (NOMBRE, ACTIVO) VALUES ('Demo hierro negro', TRUE) MATCHING (NOMBRE);
 UPDATE OR INSERT INTO TIPOS_MATERIAL (NOMBRE, ACTIVO) VALUES ('Demo acero galvanizado', TRUE) MATCHING (NOMBRE);

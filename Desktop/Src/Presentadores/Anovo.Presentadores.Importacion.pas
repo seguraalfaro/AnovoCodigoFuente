@@ -7,6 +7,7 @@ unit Anovo.Presentadores.Importacion;
 interface
 
 uses
+  Anovo.Retardo,
   System.Generics.Collections,
   Anovo.Archivo.Hoja,
   Anovo.Api.Intf.Catalogos,
@@ -31,6 +32,7 @@ type
     FFilas: TObjectList<TFilaCarga>;
     FSaltadas: TArray<Integer>;
     FRevisando: Boolean;
+    FRetardo: TRetardo;
     function TextoSaltadas: string;
     function Obligatorio(const ACampo: TCampoCarga): Boolean;
     function ValorDe(const AValores: TArray<string>;
@@ -43,6 +45,7 @@ type
     procedure AutoEmparejar;
     procedure Armar;
     procedure Revisar;
+    procedure ProgramarRevision;
     procedure Publicar;
     procedure Leer(const ARuta: string; const AHoja: Integer;
       const AConHojas: Boolean);
@@ -151,10 +154,16 @@ begin
   FCatalogo := ACatalogo;
   FCampos := CAMPOS_CATALOGO[ACatalogo];
   FFilas := TObjectList<TFilaCarga>.Create(True);
+  FRetardo := TRetardo.Crear(nil, RETARDO_REVISION,
+    procedure
+    begin
+      Revisar;
+    end);
 end;
 
 destructor TPresentadorImportacion.Destroy;
 begin
+  FRetardo.Free;
   FFilas.Free;
   inherited;
 end;
@@ -334,7 +343,7 @@ begin
     lFila.Costo := ValorDe(lValores, ccCosto);
     lFila.Precio := ValorDe(lValores, ccPrecio);
   end;
-  Revisar;
+  ProgramarRevision;
 end;
 
 function TPresentadorImportacion.FilaDe(const ANumero: Integer): TFilaCarga;
@@ -361,7 +370,7 @@ begin
   lFila.Categoria := Trim(AFila.Categoria);
   lFila.Costo := Trim(AFila.Costo);
   lFila.Precio := Trim(AFila.Precio);
-  Revisar;
+  ProgramarRevision;
 end;
 
 function TPresentadorImportacion.RevisarLocal(const AFila: TFilaCarga): string;
@@ -444,6 +453,13 @@ begin
     lFila.Revision := lError.Error;
     lFila.ConError := True;
   end;
+end;
+
+procedure TPresentadorImportacion.ProgramarRevision;
+begin
+  FRevisando := True;
+  Publicar;
+  FRetardo.Programar;
 end;
 
 procedure TPresentadorImportacion.Revisar;
@@ -535,6 +551,11 @@ var
   lCatalogo: TCatalogoImportacion;
   lDto: TImportacionDTO;
 begin
+  if FRetardo.Pendiente then
+  begin
+    FRetardo.Cancelar;
+    Revisar;
+  end;
   if FRevisando then
     Exit;
   lListas := Listas;

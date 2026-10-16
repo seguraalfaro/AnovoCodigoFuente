@@ -16,6 +16,8 @@ type
     FApi: IApiSolicitudes;
     FTexto: string;
     FHistorial: Boolean;
+    FFiltroDesde: TDateTime;
+    FFiltroHasta: TDateTime;
     FPagina: Integer;
     FTotalPaginas: Integer;
     procedure Cargar;
@@ -25,6 +27,7 @@ type
     procedure Iniciar;
     procedure Buscar(const ATexto: string);
     procedure Limpiar;
+    procedure FiltrarFechas(const ADesde, AHasta: TDateTime);
     procedure VerHistorial(const AHistorial: Boolean);
     procedure IrAPagina(const APagina: Integer);
     procedure PaginaSiguiente;
@@ -68,7 +71,22 @@ end;
 
 procedure TPresentadorSolicitudesAsesor.Limpiar;
 begin
+  FFiltroDesde := 0;
+  FFiltroHasta := 0;
   Buscar('');
+end;
+
+procedure TPresentadorSolicitudesAsesor.FiltrarFechas(const ADesde, AHasta: TDateTime);
+begin
+  if (ADesde > 0) and (AHasta > 0) and (ADesde > AHasta) then
+  begin
+    FVista.MostrarError(SPeriodoInvertido);
+    Exit;
+  end;
+  FFiltroDesde := ADesde;
+  FFiltroHasta := AHasta;
+  FPagina := 1;
+  Cargar;
 end;
 
 procedure TPresentadorSolicitudesAsesor.VerHistorial(const AHistorial: Boolean);
@@ -105,20 +123,22 @@ var
   lTexto: string;
   lHistorial: Boolean;
   lTotal: Int64;
-  lDesde: TDateTime;
+  lDesde, lFiltroDesde, lFiltroHasta: TDateTime;
 begin
   lApi := FApi;
   lTexto := FTexto;
   lPagina := FPagina;
   lHistorial := FHistorial;
+  lFiltroDesde := FFiltroDesde;
+  lFiltroHasta := FFiltroHasta;
   lTotal := 0;
   lDesde := 0;
 
   EjecutarUltima<TObjectList<TSolicitudAsesorDTO>>(SAccionCargarSolicitudes,
     function: TObjectList<TSolicitudAsesorDTO>
     begin
-      Result := lApi.Seguimiento(lTexto, lHistorial, lPagina,
-        SOLICITUDES_POR_PAGINA, lTotal, lDesde);
+      Result := lApi.Seguimiento(lTexto, lHistorial, lFiltroDesde,
+        lFiltroHasta, lPagina, SOLICITUDES_POR_PAGINA, lTotal, lDesde);
     end,
     procedure(ALista: TObjectList<TSolicitudAsesorDTO>)
     begin

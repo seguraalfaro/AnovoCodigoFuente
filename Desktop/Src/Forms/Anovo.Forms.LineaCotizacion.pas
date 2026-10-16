@@ -216,8 +216,13 @@ begin
 end;
 
 procedure TfrmLineaCotizacion.cbCategoriaClick(Sender: TObject);
+var
+  lCategoria: Integer;
 begin
-  Buscar;
+  lCategoria := 0;
+  if not VarIsNull(cbCategoria.KeyValue) then
+    lCategoria := cbCategoria.KeyValue;
+  FPresentador.FiltrarCategoria(sbBuscar.Text, lCategoria);
 end;
 
 procedure TfrmLineaCotizacion.grItemsCellClick(Column: TColumn);

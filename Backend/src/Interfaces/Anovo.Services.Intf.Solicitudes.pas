@@ -31,9 +31,9 @@ type
     procedure CambiarEstado(const AId: Integer; const ADto: TCambioEstadoDTO; const AUsuarioId: Integer; const ARoles: TArray<string>);
 
     function Seguimiento(const AAsesorId: Integer; const ATexto: string;
-      const ASoloMes: Boolean; const APagina, APorPagina: Integer;
-      out ADesde, AHasta: TDateTime; out ATotal: Int64)
-      : TObjectList<TSolicitudAsesorDTO>;
+      const ASoloMes: Boolean; const AFiltroDesde, AFiltroHasta: TDateTime;
+      const APagina, APorPagina: Integer; out ADesde, AHasta: TDateTime;
+      out ATotal: Int64): TObjectList<TSolicitudAsesorDTO>;
 
     function Cola(const ATexto: string; const APagina, APorPagina: Integer;
       out ATotal: Int64): TObjectList<TSolicitudPorCotizarDTO>;

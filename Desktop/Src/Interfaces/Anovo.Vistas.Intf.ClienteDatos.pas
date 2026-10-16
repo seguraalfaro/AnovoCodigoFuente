@@ -6,7 +6,8 @@ interface
 
 uses
   System.Generics.Collections,
-  Anovo.DTOs.Clientes;
+  Anovo.DTOs.Clientes,
+  Anovo.DTOs.Cotizaciones;
 
 type
   TPestanaCliente = (pcDatos, pcContactos, pcConsentimiento, pcCotizaciones);
@@ -24,6 +25,8 @@ type
     procedure MostrarCliente(const ACliente: TClienteDTO);
     procedure MostrarUbicacion(const ATexto, AUrlMapa: string);
     procedure MostrarContactos(const AContactos: TObjectList<TContactoDTO>);
+    procedure MostrarCotizaciones(const ACotizaciones
+      : TObjectList<TCotizacionDTO>);
     procedure MostrarConsentimientos(const AConsentimientos
       : TObjectList<TConsentimientoDTO>);
     procedure MostrarAcciones(const APuedeEditar, APuedeRevocar,

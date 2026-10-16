@@ -31,6 +31,8 @@ type
 
     function Detalle(const AId, AUsuarioId: Integer;
       const ARoles: TArray<string>): TObjectList<TLineaDTO>;
+    function Estados(const AId, AUsuarioId: Integer;
+      const ARoles: TArray<string>): TObjectList<TEstadoCotizacionDTO>;
     function AgregarLinea(const AId: Integer;
       const ADto: TLineaNuevaDTO): Integer;
     procedure ActualizarLinea(const AId, ALineaId: Integer;

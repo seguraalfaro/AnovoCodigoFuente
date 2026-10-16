@@ -95,13 +95,6 @@ begin
   end;
 
   try
-    if not lUsuario.Activo.ValueOrDefault then
-    begin
-      fClave.Hashear(AClave);
-      LogW(Format('Login fallido: usuario %d inactivo', [lUsuario.ID.Value]));
-      Exit;
-    end;
-
     lFila := fClaves.ClaveActivaDe(lUsuario.ID.Value);
     if lFila = nil then
     begin
@@ -116,6 +109,13 @@ begin
       begin
         LogW(Format('Login fallido: clave incorrecta, usuario %d',
           [lUsuario.ID.Value]));
+        Exit;
+      end;
+
+      if not lUsuario.Activo.ValueOrDefault then
+      begin
+        Result.CuentaInactiva := True;
+        LogW(Format('Login rechazado: usuario %d inactivo', [lUsuario.ID.Value]));
         Exit;
       end;
 

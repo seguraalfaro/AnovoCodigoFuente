@@ -226,6 +226,7 @@ type
     fMime: NullableString;
     fContenido: NullableString;
     fContenidoJson: NullableString;
+    fHashSha256: NullableString;
   public
     property UuidLocal: string read fUuidLocal write fUuidLocal;
     property PiezaId: NullableInt32 read fPiezaId write fPiezaId;
@@ -237,6 +238,7 @@ type
     property Contenido: NullableString read fContenido write fContenido;
     property ContenidoJson: NullableString read fContenidoJson
       write fContenidoJson;
+    property HashSha256: NullableString read fHashSha256 write fHashSha256;
   end;
 
   [MVCNameCase(ncSnakeCase)]

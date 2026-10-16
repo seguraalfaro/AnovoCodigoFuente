@@ -116,12 +116,13 @@ end;
 
 class function TAnovoRepository<T>.FechaParaRQL(const AFecha: TDateTime): string;
 begin
-  Result := FormatDateTime('yyyy-mm-dd', AFecha);
+  Result := FormatDateTime('yyyy-mm-dd', AFecha, TFormatSettings.Invariant);
 end;
 
 class function TAnovoRepository<T>.FechaHoraParaRQL(const AFecha: TDateTime): string;
 begin
-  Result := FormatDateTime('yyyy-mm-dd hh:nn:ss', AFecha);
+  Result := FormatDateTime('yyyy-mm-dd hh:nn:ss', AFecha,
+    TFormatSettings.Invariant);
 end;
 
 class function TAnovoRepository<T>.TextoParaRQL(const ATexto: string): string;

@@ -32,7 +32,9 @@ uses
   System.Actions, Vcl.ActnList, PestanasPlanas, Vcl.WinXPanels,
   Anovo.Vistas.Intf.Principal,
   Anovo.Presentadores.Principal,
-  Anovo.Permisos;
+  Anovo.Permisos,
+  System.Generics.Collections,
+  Anovo.DTOs.Cotizaciones;
 
 type
   TfrmPrincipal = class(TForm, IVistaPrincipal)
@@ -65,12 +67,15 @@ type
     FLogin: TfraLogin;
     FSombra: TPaintBox;
     FItems: TArray<TPlanoNavItem>;
+    FSeccionAbierta: TSeccion;
+    FHaySeccion: Boolean;
     procedure SombraPaint(Sender: TObject);
     procedure MostrarIngreso;
     procedure SesionVencida(const AMensaje: string);
     procedure Ingreso(Sender: TObject);
     procedure ContenidoResize(Sender: TObject);
     function ObtenerFrame(ASeccion: TSeccion): TFrame;
+    procedure PonerFrame(const ASeccion: TSeccion; AFrame: TFrame);
     procedure LimpiarMenu;
 
     procedure AgregarItem(const ASeccion: TSeccion);
@@ -81,6 +86,9 @@ type
     procedure ProgramarAvisos(const AMinutos: Integer);
     procedure MostrarAviso(const ASeccion: TSeccion;
       const ACantidad: Integer);
+    procedure MostrarRecordatorio(const ACotizaciones
+      : TObjectList<TCotizacionDTO>);
+    procedure AbrirCotizacion(const AId: Integer);
   public
   end;
 
@@ -93,10 +101,13 @@ implementation
 
 uses
   Anovo.UI.Iconos,
+  Anovo.Config,
   Anovo.Datos.Memoria,
   Anovo.Sesion,
   Anovo.UI.Vista,
   Anovo.Api.Dashboard,
+  Anovo.Api.Cotizaciones,
+  Anovo.Forms.Recordatorio,
   Anovo.Textos;
 
 const
@@ -160,7 +171,8 @@ procedure TfrmPrincipal.FormCreate(Sender: TObject);
 begin
   AplicarTemaBarraTitulo(Self, TitleBarPanel1, 55);
   AplicarTema(Self);
-  FPresentador := TPresentadorPrincipal.Create(Self, TApiDashboard.Create);
+  FPresentador := TPresentadorPrincipal.Create(Self, TApiDashboard.Create,
+    TApiCotizaciones.Create);
   pnlContenido.OnResize := ContenidoResize;
   TSesion.AlVencer(
     procedure(AMensaje: string)
@@ -267,6 +279,7 @@ procedure TfrmPrincipal.AcSalirExecute(Sender: TObject);
 begin
   tmrAvisos.Enabled := False;
   FreeAndNil(FFrameTemp);
+  FHaySeccion := False;
   LimpiarMenu;
   MostrarUsuario('', '', '');
   FPresentador.CerrarSesion;
@@ -310,7 +323,7 @@ begin
   FPresentador.Navegar(TSeccion((Sender as TPlanoNavItem).Tag));
 end;
 
-procedure TfrmPrincipal.AbrirSeccion(const ASeccion: TSeccion);
+procedure TfrmPrincipal.PonerFrame(const ASeccion: TSeccion; AFrame: TFrame);
 var
   lItem: TPlanoNavItem;
 begin
@@ -319,7 +332,9 @@ begin
 
   if Assigned(FFrameTemp) then
     FreeAndNil(FFrameTemp);
-  FFrameTemp := ObtenerFrame(ASeccion);
+  FFrameTemp := AFrame;
+  FSeccionAbierta := ASeccion;
+  FHaySeccion := FFrameTemp <> nil;
 
   if FFrameTemp = nil then
     Exit;
@@ -327,6 +342,13 @@ begin
   FFrameTemp.Align := alClient;
 
   AplicarTemaFrame(FFrameTemp);
+end;
+
+procedure TfrmPrincipal.AbrirSeccion(const ASeccion: TSeccion);
+begin
+  if FHaySeccion and (FSeccionAbierta = ASeccion) and Assigned(FFrameTemp) then
+    Exit;
+  PonerFrame(ASeccion, ObtenerFrame(ASeccion));
 end;
 
 procedure TfrmPrincipal.ProgramarAvisos(const AMinutos: Integer);
@@ -345,9 +367,24 @@ begin
       lItem.Badge := ACantidad;
 end;
 
+procedure TfrmPrincipal.MostrarRecordatorio(const ACotizaciones
+  : TObjectList<TCotizacionDTO>);
+begin
+  FPresentador.AbrirCotizacion(TfrmRecordatorio.Mostrar(Self, ACotizaciones));
+end;
+
+procedure TfrmPrincipal.AbrirCotizacion(const AId: Integer);
+begin
+  if FFrameTemp is TfraCotizaciones then
+    TfraCotizaciones(FFrameTemp).Abrir(AId)
+  else
+    PonerFrame(secCotizaciones, TfraCotizaciones.Crear(Self, AId));
+end;
+
 procedure TfrmPrincipal.tmrAvisosTimer(Sender: TObject);
 begin
-  FPresentador.RefrescarAvisos;
+  ProgramarAvisos(TConfig.MinutosAvisos);
+  FPresentador.RefrescarTodo;
 end;
 
 function TfrmPrincipal.ObtenerFrame(ASeccion: TSeccion): TFrame;

@@ -2,6 +2,7 @@ unit Anovo.Presentadores.Base;
 
 // Base de los presentadores: corre el trabajo en segundo plano y
 // entrega el resultado en el hilo de la pantalla, si sigue abierta.
+// El estado ocupado se lleva por contador de llamadas en vuelo.
 
 interface
 
@@ -14,6 +15,11 @@ type
   private
     FCancelacion: ICancelacion;
     FSolicitud: Integer;
+    FEnVuelo: Integer;
+    FApagar: TProc<Boolean>;
+    procedure Encender(const AOcupado: TProc<Boolean>);
+    procedure Apagar;
+    procedure ApagarTodo;
   protected
     function Cancelacion: ICancelacion;
     procedure CancelarPendientes;
@@ -28,6 +34,7 @@ type
     procedure EjecutarUltima<T: class>(const AAccion: string;
       const ATrabajo: TFunc<T>; const AListo: TProc<T>;
       const AError: TProc<string>; const AOcupado: TProc<Boolean>);
+    procedure Diferir(const AProc: TProc; const ALiberar: TProc = nil);
   public
     constructor Create;
     destructor Destroy; override;
@@ -37,9 +44,13 @@ implementation
 
 uses
   System.Classes,
+  System.Math,
   System.Threading,
   Anovo.Api.Base,
   Anovo.Textos;
+
+const
+  HILOS_MINIMOS = 8;
 
 constructor TPresentadorBase.Create;
 begin
@@ -50,6 +61,7 @@ end;
 destructor TPresentadorBase.Destroy;
 begin
   FCancelacion.Cancelar;
+  ApagarTodo;
   inherited;
 end;
 
@@ -62,6 +74,57 @@ procedure TPresentadorBase.CancelarPendientes;
 begin
   FCancelacion.Cancelar;
   FCancelacion := TCancelacion.Create;
+  ApagarTodo;
+end;
+
+procedure TPresentadorBase.Encender(const AOcupado: TProc<Boolean>);
+begin
+  if not Assigned(AOcupado) then
+    Exit;
+  Inc(FEnVuelo);
+  if FEnVuelo = 1 then
+  begin
+    FApagar := AOcupado;
+    AOcupado(True);
+  end;
+end;
+
+procedure TPresentadorBase.Apagar;
+begin
+  if FEnVuelo = 0 then
+    Exit;
+  Dec(FEnVuelo);
+  if (FEnVuelo = 0) and Assigned(FApagar) then
+  begin
+    FApagar(False);
+    FApagar := nil;
+  end;
+end;
+
+procedure TPresentadorBase.ApagarTodo;
+begin
+  if (FEnVuelo > 0) and Assigned(FApagar) then
+    FApagar(False);
+  FEnVuelo := 0;
+  FApagar := nil;
+end;
+
+procedure TPresentadorBase.Diferir(const AProc: TProc; const ALiberar: TProc);
+var
+  lCancelacion: ICancelacion;
+begin
+  lCancelacion := FCancelacion;
+  TThread.ForceQueue(nil,
+    procedure
+    begin
+      try
+        if not lCancelacion.Cancelada then
+          AProc();
+      finally
+        if Assigned(ALiberar) then
+          ALiberar();
+      end;
+    end);
 end;
 
 procedure TPresentadorBase.Ejecutar(const AAccion: string;
@@ -69,10 +132,11 @@ procedure TPresentadorBase.Ejecutar(const AAccion: string;
   const AOcupado: TProc<Boolean>; const ALiberar: TProc);
 var
   lCancelacion: ICancelacion;
+  lConOcupado: Boolean;
 begin
   lCancelacion := FCancelacion;
-  if Assigned(AOcupado) then
-    AOcupado(True);
+  lConOcupado := Assigned(AOcupado);
+  Encender(AOcupado);
 
   TTask.Run(
     procedure
@@ -95,8 +159,8 @@ begin
           try
             if lCancelacion.Cancelada then
               Exit;
-            if Assigned(AOcupado) then
-              AOcupado(False);
+            if lConOcupado then
+              Apagar;
             if lError.IsEmpty then
               AListo()
             else if Assigned(AError) then
@@ -150,12 +214,12 @@ begin
     begin
       if (lNumero = FSolicitud) and Assigned(AError) then
         AError(AMensaje);
-    end,
-    procedure(AActivo: Boolean)
-    begin
-      if (lNumero = FSolicitud) and Assigned(AOcupado) then
-        AOcupado(AActivo);
-    end);
+    end, AOcupado);
 end;
+
+initialization
+
+TThreadPool.Default.SetMinWorkerThreads(Max(HILOS_MINIMOS,
+  TThread.ProcessorCount));
 
 end.

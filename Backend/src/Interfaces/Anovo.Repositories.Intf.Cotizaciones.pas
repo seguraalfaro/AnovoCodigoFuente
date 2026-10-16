@@ -41,6 +41,7 @@ type
       : TTrabajoUsuario;
     function TieneEnCurso(const ASolicitudId: Integer): Boolean;
     function VistaDe(const AId: Integer): TCotizacionConNombres;
+    function HistorialDe(const AId: Integer): TObjectList<THistorialCotizacion>;
   end;
 
   ICotizacionDetalleRepository = interface(IMVCRepository<TCotizacionDetalle>)

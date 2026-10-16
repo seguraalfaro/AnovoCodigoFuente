@@ -32,6 +32,7 @@ type
     btnClienteAprobo: TPlanoBotonWin;
     btnClienteRechazo: TPlanoBotonWin;
     btnVistaPrevia: TPlanoBotonWin;
+    btnHistorial: TPlanoBotonWin;
     btnGuardarPdf: TPlanoBotonWin;
     pnlAviso: TPanel;
     lblAviso: TLabel;
@@ -101,6 +102,7 @@ type
     procedure btnClienteAproboClick(Sender: TObject);
     procedure btnClienteRechazoClick(Sender: TObject);
     procedure btnVistaPreviaClick(Sender: TObject);
+    procedure btnHistorialClick(Sender: TObject);
     procedure btnGuardarPdfClick(Sender: TObject);
     procedure btnAjusteClick(Sender: TObject);
     procedure btnMaterialClick(Sender: TObject);
@@ -127,6 +129,7 @@ type
     procedure MostrarCotizacion(const ACotizacion: TCotizacionDTO;
       const AConEncabezado: Boolean);
     procedure MostrarDevolucion(const AMotivo: string);
+    procedure MostrarHistorial(const AEstados: TObjectList<TEstadoCotizacionDTO>);
     procedure MostrarDocumento(const ADocumento: TCotizacionDocumentoDTO;
       const ARuta: string);
     procedure MostrarEnvio(const ADocumento: TCotizacionDocumentoDTO);
@@ -155,6 +158,7 @@ implementation
 {$R *.dfm}
 
 uses
+  Anovo.Forms.HistorialCotizacion,
   System.Math,
   Anovo.UI.Vista,
   Anovo.UI.Tema,
@@ -216,7 +220,6 @@ end;
 destructor TfraCotizacion.Destroy;
 begin
   FreeAndNil(FPresentador);
-  CursorOcupado(False);
   dmMemoria.mtLineasCotizacion.Close;
   dmMemoria.mtCotizacionEdicion.Close;
   dmMemoria.mtMedidas.Close;
@@ -228,7 +231,6 @@ end;
 
 procedure TfraCotizacion.MostrarCargando(const AActivo: Boolean);
 begin
-  CursorOcupado(AActivo);
   BloquearEdicion([pnlEncabezado, pnlDerecha], AActivo);
 end;
 
@@ -540,6 +542,17 @@ begin
   FPresentador.VerDocumento('');
 end;
 
+procedure TfraCotizacion.btnHistorialClick(Sender: TObject);
+begin
+  FPresentador.VerHistorial;
+end;
+
+procedure TfraCotizacion.MostrarHistorial(const AEstados
+  : TObjectList<TEstadoCotizacionDTO>);
+begin
+  TfrmHistorialCotizacion.Mostrar(Self, FPresentador.Numero, AEstados);
+end;
+
 procedure TfraCotizacion.btnGuardarPdfClick(Sender: TObject);
 var
   lDialogo: TSaveDialog;
@@ -583,7 +596,7 @@ var
 begin
   lDerecha := pnlEncabezado.ClientWidth - MARGEN_BOTONES;
   for lBoton in [btnClienteAprobo, btnClienteRechazo, btnEnviar, btnPresentar,
-    btnGuardar, btnGuardarPdf, btnVistaPrevia, btnVolver] do
+    btnGuardar, btnGuardarPdf, btnVistaPrevia, btnHistorial, btnVolver] do
     if lBoton.Visible then
     begin
       lBoton.Left := lDerecha - lBoton.Width;

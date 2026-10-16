@@ -18,6 +18,8 @@ Sub Process_Globals
 	Private Const SQL_PERMISO As String = "SELECT accion, COALESCE(firmante_nombre, '') AS firmante, fecha, version_texto FROM consentimiento_firmas WHERE cliente_uuid = ? ORDER BY fecha DESC LIMIT 1"
 	Private Const SQL_LISTA As String = "SELECT uuid_local, nombre, identificacion, tipo_identificacion, telefono, direccion, contacto, correo FROM clientes WHERE activo = 1 ORDER BY nombre COLLATE NOCASE"
 	Private Const SQL_CONTACTOS_DE As String = "SELECT uuid_local, nombre, area, telefono, celular, correo, principal FROM cliente_contactos WHERE cliente_uuid = ? AND activo = 1 ORDER BY principal DESC, nombre COLLATE NOCASE"
+	Private Const SQL_NOMBRE_REPETIDO As String = "SELECT 1 FROM clientes WHERE TRIM(nombre) = ? COLLATE NOCASE AND uuid_local <> ? LIMIT 1"
+	Private Const SQL_IDENTIFICACION_REPETIDA As String = "SELECT nombre FROM clientes WHERE tipo_identificacion = ? AND REPLACE(REPLACE(identificacion, '-', ''), ' ', '') = ? AND uuid_local <> ? LIMIT 1"
 	Private Const TIPOS_IDENTIFICACION As Int = 3
 End Sub
 
@@ -182,6 +184,25 @@ End Sub
 Private Sub Texto (Valor As String) As String
 	If Valor = Null Then Return ""
 	Return Valor
+End Sub
+
+Public Sub NombreRepetido (Nombre As String, UuidPropio As String) As Boolean
+	If Nombre.Trim = "" Then Return False
+	Dim rs As ResultSet = Db.DbSQL.ExecQuery2(SQL_NOMBRE_REPETIDO, Array As String(Nombre.Trim, UuidPropio))
+	Dim hay As Boolean = rs.NextRow
+	rs.Close
+	Return hay
+End Sub
+
+Public Sub DuenoDeIdentificacion (IndiceTipo As Int, Numero As String, UuidPropio As String) As String
+	Dim tipo As Object = TipoIdentificacion(IndiceTipo)
+	Dim limpio As String = Numero.Replace("-", "").Replace(" ", "").Trim
+	If tipo = Null Or limpio = "" Then Return ""
+	Dim rs As ResultSet = Db.DbSQL.ExecQuery2(SQL_IDENTIFICACION_REPETIDA, Array As String(tipo, limpio, UuidPropio))
+	Dim dueno As String = ""
+	If rs.NextRow Then dueno = rs.GetString("nombre")
+	rs.Close
+	Return dueno
 End Sub
 
 Private Sub TipoIdentificacion (IndiceCombo As Int) As Object

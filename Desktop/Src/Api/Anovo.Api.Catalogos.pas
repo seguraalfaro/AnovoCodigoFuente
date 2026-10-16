@@ -313,7 +313,7 @@ begin
   lRespuesta := Ejecutar(
     function: IMVCRESTResponse
     begin
-      Result := NuevoCliente.AddBody(ADatos, False)
+      Result := NuevoCliente(True, '', True).AddBody(ADatos, False)
         .AddQueryStringParam('revisar', VALOR_REVISAR[ASoloRevisar])
         .Post(Format(RUTA_IMPORTACION,
         [RUTA_CATALOGO_IMPORTACION[ACatalogo]]));

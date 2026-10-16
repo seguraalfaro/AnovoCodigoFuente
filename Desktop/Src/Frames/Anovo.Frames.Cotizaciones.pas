@@ -6,11 +6,13 @@ unit Anovo.Frames.Cotizaciones;
 interface
 
 uses
+  Vcl.ComCtrls,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
   System.Generics.Collections,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.BotonWin, VclPlano.Pestanas,
+  Anovo.Retardo,
   Anovo.Frames.Listado,
   Anovo.Frames.Cotizacion,
   Anovo.DTOs.Cotizaciones,
@@ -20,11 +22,20 @@ uses
 type
   TfraCotizaciones = class(TfraListado, IVistaCotizaciones)
     pstFiltros: TPlanoPestanas;
+    lblDesde: TLabel;
+    dtpDesde: TDateTimePicker;
+    lblHasta: TLabel;
+    dtpHasta: TDateTimePicker;
     procedure pstFiltrosChange(Sender: TObject);
     procedure grDatosDblClick(Sender: TObject);
+    procedure FechasChange(Sender: TObject);
   private
+    FLimpiandoFechas: Boolean;
+    FInicialId: Integer;
+    FRetardo: TRetardo;
     FPresentador: TPresentadorCotizaciones;
     FCotizacion: TfraCotizacion;
+    procedure AplicarFechas;
     procedure Accion(Sender: TObject; const AClave: string);
     procedure MostrarAcciones(const AAcciones: TAccionesListaCotizacion);
     procedure MostrarCotizaciones(const AFilas: TObjectList<TCotizacionDTO>);
@@ -38,6 +49,8 @@ type
     procedure MostrarCargando(const AActivo: Boolean); override;
   public
     constructor Create(AOwner: TComponent); override;
+    constructor Crear(AOwner: TComponent; const ACotizacionId: Integer);
+    procedure Abrir(const AId: Integer);
     destructor Destroy; override;
   end;
 
@@ -73,9 +86,24 @@ begin
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
   lRejilla.OnAccion := Accion;
 
+  FRetardo := TRetardo.Crear(Self, RETARDO_FECHAS,
+    procedure
+    begin
+      AplicarFechas;
+    end);
+
   FPresentador := TPresentadorCotizaciones.Create(Self,
     TApiCotizaciones.Create);
-  FPresentador.Iniciar;
+  FPresentador.Iniciar(FInicialId = 0);
+  if FInicialId > 0 then
+    FPresentador.Abrir(FInicialId);
+end;
+
+constructor TfraCotizaciones.Crear(AOwner: TComponent;
+  const ACotizacionId: Integer);
+begin
+  FInicialId := ACotizacionId;
+  Create(AOwner);
 end;
 
 destructor TfraCotizaciones.Destroy;
@@ -91,7 +119,35 @@ end;
 
 procedure TfraCotizaciones.Limpiar;
 begin
+  FRetardo.Cancelar;
+  FLimpiandoFechas := True;
+  try
+    dtpDesde.Checked := False;
+    dtpHasta.Checked := False;
+  finally
+    FLimpiandoFechas := False;
+  end;
   FPresentador.Limpiar;
+end;
+
+procedure TfraCotizaciones.FechasChange(Sender: TObject);
+begin
+  if FLimpiandoFechas then
+    Exit;
+  FRetardo.Programar;
+end;
+
+procedure TfraCotizaciones.AplicarFechas;
+var
+  lDesde, lHasta: TDateTime;
+begin
+  lDesde := 0;
+  lHasta := 0;
+  if dtpDesde.Checked then
+    lDesde := Trunc(dtpDesde.Date);
+  if dtpHasta.Checked then
+    lHasta := Trunc(dtpHasta.Date);
+  FPresentador.FiltrarFechas(lDesde, lHasta);
 end;
 
 procedure TfraCotizaciones.PaginaAnterior;
@@ -144,6 +200,11 @@ begin
   if FPresentador = nil then
     Exit;
   FPresentador.Filtrar(TFiltroCotizaciones(pstFiltros.ItemIndex));
+end;
+
+procedure TfraCotizaciones.Abrir(const AId: Integer);
+begin
+  FPresentador.Abrir(AId);
 end;
 
 procedure TfraCotizaciones.AbrirCotizacion(const AId: Integer);

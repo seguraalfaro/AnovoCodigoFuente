@@ -120,11 +120,15 @@ begin
   lSesion := AContext.ServiceContainerResolver.Resolve(
     TypeInfo(ISesionService)) as ISesionService;
   lResultado := lSesion.Autenticar(UserName, Password);
+  if lResultado.CuentaInactiva then
+    raise EAnovoError.Create('CUENTA_INACTIVA', SCuentaInactiva,
+      HTTP_STATUS.Forbidden);
   if not lResultado.Valido then
   begin
     if TIntentosIngreso.RegistrarFallo(UserName, lIp) then
       LogW(Format('Ingreso bloqueado por intentos fallidos desde %s', [lIp]));
-    Exit;
+    raise EAnovoError.Create('CREDENCIALES_INVALIDAS', SCredencialesInvalidas,
+      HTTP_STATUS.Unauthorized);
   end;
   TIntentosIngreso.RegistrarExito(UserName);
 
@@ -159,16 +163,12 @@ begin
       HTTP_STATUS.Forbidden);
 
   lTipo := fRtti.FindType(ControllerQualifiedClassName);
-  if not CumplePermisos(AContext, UserRoles, lTipo.GetAttributes) then
-  begin
-    IsAuthorized := False;
-    Exit;
-  end;
-
   lMetodo := lTipo.GetMethod(ActionName);
-  if (lMetodo <> nil) and not CumplePermisos(AContext, UserRoles,
-    lMetodo.GetAttributes) then
-    IsAuthorized := False;
+  if not CumplePermisos(AContext, UserRoles, lTipo.GetAttributes) or
+    ((lMetodo <> nil) and not CumplePermisos(AContext, UserRoles,
+    lMetodo.GetAttributes)) then
+    raise EAnovoError.Create('SIN_PERMISO', SSinPermisoOperacion,
+      HTTP_STATUS.Forbidden);
 end;
 
 end.
