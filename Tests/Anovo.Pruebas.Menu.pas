@@ -48,6 +48,8 @@ type
     procedure GerenciaVeUnSoloDashboard;
     [Test]
     procedure SupervisorVeSuDashboardYNoElDelAsistente;
+    [Test]
+    procedure AsesorNoVeCotizacionesNiMateriales;
   end;
 
 implementation
@@ -140,6 +142,21 @@ begin
   lSecciones := Secciones;
   Assert.IsTrue(secDashboardSupervisor in lSecciones);
   Assert.IsFalse(secDashboardAsistente in lSecciones);
+end;
+
+procedure TPruebasMenu.AsesorNoVeCotizacionesNiMateriales;
+var
+  lSecciones: TSecciones;
+begin
+  AbrirSesion('asesor', [PERMISO_COTIZACIONES_VER_APROBADAS_PROPIAS,
+    PERMISO_SOLICITUDES_VER_PROPIAS, PERMISO_CLIENTES_VER,
+    PERMISO_CATALOGOS_VER]);
+  lSecciones := Secciones;
+  Assert.IsTrue(secSolicitudes in lSecciones);
+  Assert.IsFalse(secCotizaciones in lSecciones);
+  Assert.IsFalse(secMateriales in lSecciones);
+  Assert.IsFalse(secBandeja in lSecciones);
+  Assert.IsFalse(secGeneracion in lSecciones);
 end;
 
 initialization

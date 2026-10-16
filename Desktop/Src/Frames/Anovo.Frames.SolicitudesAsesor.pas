@@ -15,9 +15,10 @@ uses
   FlatVcl.BotonWin, VclPlano.Pestanas, VclPlano.BotonWin,
   Anovo.Retardo,
   Anovo.Frames.Listado,
+  Anovo.Frames.Cotizacion,
   Anovo.DTOs.Dashboard,
   Anovo.Vistas.Intf.SolicitudesAsesor,
-  Anovo.Presentadores.SolicitudesAsesor;
+  Anovo.Presentadores.SolicitudesAsesor, Vcl.VirtualImage;
 
 type
   TfraSolicitudesAsesor = class(TfraListado, IVistaSolicitudesAsesor)
@@ -29,12 +30,15 @@ type
     procedure pstPeriodoChange(Sender: TObject);
     procedure FechasChange(Sender: TObject);
   private
-    FLimpiandoFechas: Boolean;
+    FPoniendoFechas: Boolean;
     FRetardo: TRetardo;
     FPresentador: TPresentadorSolicitudesAsesor;
+    FCotizacion: TfraCotizacion;
+    procedure Accion(Sender: TObject; const AClave: string);
+    procedure AbrirCotizacion(const AId: Integer);
+    procedure CerrarCotizacion(Sender: TObject);
     procedure AplicarFechas;
-    procedure MostrarPeriodo(const AHistorial: Boolean;
-      const ADesde: TDateTime);
+    procedure MostrarPeriodo(const ADesde, AHasta: TDateTime);
     procedure MostrarSolicitudes(const AFilas: TObjectList<TSolicitudAsesorDTO>);
   protected
     procedure Buscar(const ATexto: string); override;
@@ -54,6 +58,7 @@ implementation
 
 uses
   Anovo.UI.DBGridExtend,
+  Anovo.UI.Tema,
   Anovo.Api.Solicitudes,
   Anovo.Mapeo.Datos,
   Anovo.Textos,
@@ -61,6 +66,9 @@ uses
 
 const
   CAMPO_ESTADO = 'ESTADO';
+  CAMPO_ACCIONES = 'ACCIONES';
+  CAMPO_VER_COTIZACION = 'VER_COTIZACION';
+  ACCION_VER = 'ver';
 
 constructor TfraSolicitudesAsesor.Create(AOwner: TComponent);
 begin
@@ -69,6 +77,10 @@ begin
   FTextoSinRegistros := SSinSolicitudes;
   FTextoPaginacion := SPaginacionSolicitudes;
   TDBGridExtend.De(grDatos).ColumnaEstado(CAMPO_ESTADO);
+  TDBGridExtend.De(grDatos).ColumnaAcciones(CAMPO_ACCIONES);
+  TDBGridExtend.De(grDatos).AgregarAlterna(ACCION_VER, SAccionVerCotizacion,
+    '', CAMPO_VER_COTIZACION);
+  TDBGridExtend.De(grDatos).OnAccion := Accion;
   FRetardo := TRetardo.Crear(Self, RETARDO_FECHAS,
     procedure
     begin
@@ -85,6 +97,35 @@ begin
   inherited;
 end;
 
+procedure TfraSolicitudesAsesor.Accion(Sender: TObject; const AClave: string);
+begin
+  if SameText(AClave, ACCION_VER) and not dmMemoria.mtSeguimiento.IsEmpty and
+    dmMemoria.mtSeguimientoVER_COTIZACION.AsBoolean then
+    AbrirCotizacion(dmMemoria.mtSeguimientoCOTIZACION_ID.AsInteger);
+end;
+
+procedure TfraSolicitudesAsesor.AbrirCotizacion(const AId: Integer);
+begin
+  FreeAndNil(FCotizacion);
+  FCotizacion := TfraCotizacion.Crear(Self, AId);
+  FCotizacion.OnRegresar := CerrarCotizacion;
+  FCotizacion.Parent := Self;
+  FCotizacion.SetBounds(0, 0, ClientWidth, ClientHeight);
+  FCotizacion.Anchors := [akLeft, akTop, akRight, akBottom];
+  FCotizacion.BringToFront;
+  AplicarTemaFrame(FCotizacion);
+end;
+
+procedure TfraSolicitudesAsesor.CerrarCotizacion(Sender: TObject);
+begin
+  FCotizacion.Visible := False;
+  TThread.ForceQueue(nil,
+    procedure
+    begin
+      FreeAndNil(FCotizacion);
+    end);
+end;
+
 procedure TfraSolicitudesAsesor.Resize;
 begin
   inherited;
@@ -99,19 +140,19 @@ end;
 procedure TfraSolicitudesAsesor.Limpiar;
 begin
   FRetardo.Cancelar;
-  FLimpiandoFechas := True;
+  FPoniendoFechas := True;
   try
     dtpDesde.Checked := False;
     dtpHasta.Checked := False;
   finally
-    FLimpiandoFechas := False;
+    FPoniendoFechas := False;
   end;
   FPresentador.Limpiar;
 end;
 
 procedure TfraSolicitudesAsesor.FechasChange(Sender: TObject);
 begin
-  if FLimpiandoFechas then
+  if FPoniendoFechas then
     Exit;
   FRetardo.Programar;
 end;
@@ -152,10 +193,17 @@ begin
   pstPeriodo.Enabled := not AActivo;
 end;
 
-procedure TfraSolicitudesAsesor.MostrarPeriodo(const AHistorial: Boolean;
-  const ADesde: TDateTime);
+procedure TfraSolicitudesAsesor.MostrarPeriodo(const ADesde, AHasta: TDateTime);
 begin
-
+  FPoniendoFechas := True;
+  try
+    dtpDesde.Date := ADesde;
+    dtpHasta.Date := AHasta;
+    dtpDesde.Checked := False;
+    dtpHasta.Checked := False;
+  finally
+    FPoniendoFechas := False;
+  end;
 end;
 
 procedure TfraSolicitudesAsesor.MostrarSolicitudes(const AFilas

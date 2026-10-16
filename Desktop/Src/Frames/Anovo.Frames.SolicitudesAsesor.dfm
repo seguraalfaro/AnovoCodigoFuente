@@ -3,26 +3,37 @@ inherited fraSolicitudesAsesor: TfraSolicitudesAsesor
     inherited lblTitulo: TLabel
       Width = 136
       Caption = 'Mis solicitudes'
+      ExplicitWidth = 136
     end
     inherited lblSubtitulo: TLabel
-      Width = 221
+      Width = 226
       Caption = 'Lo que usted captur'#243' y en qu'#233' va cada una'
+      ExplicitWidth = 226
     end
   end
   inherited pnlBarra: TPanel
-    inherited sbBuscar: TSearchBox
-      TextHint = 'Cliente o descripci'#243'n'
-    end
-    inherited btnLimpiar: TPlanoBotonWin
-      Left = 330
-    end
-    object lblDesde: TLabel
+    object lblDesde: TLabel [0]
       Tag = 13
       Left = 440
       Top = 18
       Width = 32
       Height = 15
       Caption = 'Desde'
+    end
+    object lblHasta: TLabel [1]
+      Tag = 13
+      Left = 614
+      Top = 18
+      Width = 30
+      Height = 15
+      Caption = 'Hasta'
+    end
+    inherited sbBuscar: TSearchBox
+      TextHint = 'Cliente o descripci'#243'n'
+    end
+    inherited btnLimpiar: TPlanoBotonWin
+      Left = 330
+      ExplicitLeft = 330
     end
     object dtpDesde: TDateTimePicker
       Left = 482
@@ -36,14 +47,6 @@ inherited fraSolicitudesAsesor: TfraSolicitudesAsesor
       Checked = False
       TabOrder = 2
       OnChange = FechasChange
-    end
-    object lblHasta: TLabel
-      Tag = 13
-      Left = 614
-      Top = 18
-      Width = 30
-      Height = 15
-      Caption = 'Hasta'
     end
     object dtpHasta: TDateTimePicker
       Left = 652
@@ -62,6 +65,8 @@ inherited fraSolicitudesAsesor: TfraSolicitudesAsesor
   inherited pnclient: TRelativePanel
     Top = 175
     Height = 392
+    ExplicitTop = 175
+    ExplicitHeight = 392
     inherited grDatos: TrDBGrid
       Width = 914
       Height = 386
@@ -69,6 +74,12 @@ inherited fraSolicitudesAsesor: TfraSolicitudesAsesor
       DataSource = dmMemoria.dsSeguimiento
       ColumnWidth = cwAutoWidth
     end
+  end
+  inherited pnlSinRegistros: TPanel
+    Top = 172
+    Height = 398
+    ExplicitTop = 172
+    ExplicitHeight = 398
   end
   object pstPeriodo: TPlanoPestanas
     AlignWithMargins = True

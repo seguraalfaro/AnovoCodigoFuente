@@ -24,7 +24,6 @@ uses
 
 const
   RUTA_REPORTE_COTIZACIONES = '/api/reportes/cotizaciones';
-  FORMATO_FECHA = 'yyyy-mm-dd';
 
 function TApiReportes.Cotizaciones(const ADesde, AHasta: TDateTime)
   : TReporteCotizacionesDTO;
@@ -35,8 +34,8 @@ begin
     function: IMVCRESTResponse
     begin
       Result := NuevoCliente
-        .AddQueryStringParam('desde', FormatDateTime(FORMATO_FECHA, ADesde))
-        .AddQueryStringParam('hasta', FormatDateTime(FORMATO_FECHA, AHasta))
+        .AddQueryStringParam('desde', FechaParaApi(ADesde))
+        .AddQueryStringParam('hasta', FechaParaApi(AHasta))
         .Get(RUTA_REPORTE_COTIZACIONES);
     end);
 

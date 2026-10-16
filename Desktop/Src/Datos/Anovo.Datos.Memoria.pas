@@ -288,6 +288,8 @@ type
     mtSeguimientoDESCRIPCION: TStringField;
     mtSeguimientoESTADO: TStringField;
     mtSeguimientoMONTO_APROBADO: TCurrencyField;
+    mtSeguimientoVER_COTIZACION: TBooleanField;
+    mtSeguimientoACCIONES: TStringField;
     dsSeguimiento: TDataSource;
     mtTiposTrabajo: TFDMemTable;
     mtTiposTrabajoID: TIntegerField;
@@ -652,6 +654,7 @@ type
     procedure DataModuleCreate(Sender: TObject);
     procedure mtContactoNuevoBeforePost(DataSet: TDataSet);
     procedure CatalogoCalcFields(DataSet: TDataSet);
+    procedure SeguimientoCalcFields(DataSet: TDataSet);
     procedure MotivoTelefonoGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
     procedure TextosConsentimientoCalcFields(DataSet: TDataSet);
@@ -824,6 +827,12 @@ procedure TdmMemoria.MotivoTelefonoGetText(Sender: TField; var Text: string;
   DisplayText: Boolean);
 begin
   Text := TFormato.MotivoTelefono(Sender.AsString);
+end;
+
+procedure TdmMemoria.SeguimientoCalcFields(DataSet: TDataSet);
+begin
+  mtSeguimientoVER_COTIZACION.AsBoolean :=
+    mtSeguimientoCOTIZACION_ID.AsInteger > 0;
 end;
 
 procedure TdmMemoria.CatalogoCalcFields(DataSet: TDataSet);

@@ -22,6 +22,7 @@ type
     FPagina: Integer;
     FTotalPaginas: Integer;
     procedure Cargar;
+    function HayFiltro: Boolean;
   public
     constructor Create(const AVista: IVistaCotizaciones;
       const AApi: IApiCotizaciones);
@@ -44,6 +45,7 @@ implementation
 
 uses
   System.SysUtils,
+  System.DateUtils,
   System.Generics.Collections,
   Anovo.DTOs.Cotizaciones,
   Anovo.Textos;
@@ -64,6 +66,7 @@ end;
 procedure TPresentadorCotizaciones.Iniciar(const ACargar: Boolean);
 begin
   FVista.MostrarAcciones([alcAbrir]);
+  FVista.MostrarPeriodo(StartOfTheMonth(Date), Date);
   FVista.MostrarBusqueda('', False);
   if ACargar then
     Cargar;
@@ -78,8 +81,13 @@ procedure TPresentadorCotizaciones.Buscar(const ATexto: string);
 begin
   FTexto := ATexto.Trim;
   FPagina := 1;
-  FVista.MostrarBusqueda(FTexto, not FTexto.IsEmpty);
+  FVista.MostrarBusqueda(FTexto, HayFiltro);
   Cargar;
+end;
+
+function TPresentadorCotizaciones.HayFiltro: Boolean;
+begin
+  Result := not FTexto.IsEmpty or (FFiltroDesde > 0) or (FFiltroHasta > 0);
 end;
 
 procedure TPresentadorCotizaciones.Limpiar;
@@ -99,6 +107,7 @@ begin
   FFiltroDesde := ADesde;
   FFiltroHasta := AHasta;
   FPagina := 1;
+  FVista.MostrarBusqueda(FTexto, HayFiltro);
   Cargar;
 end;
 

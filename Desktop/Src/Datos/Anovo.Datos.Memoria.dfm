@@ -1353,6 +1353,7 @@ object dmMemoria: TdmMemoria
     Top = 1136
   end
   object mtSeguimiento: TFDMemTable
+    OnCalcFields = SeguimientoCalcFields
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll
     ResourceOptions.AssignedValues = [rvSilentMode]
@@ -1395,6 +1396,17 @@ object dmMemoria: TdmMemoria
       FieldName = 'MONTO_APROBADO'
       DisplayFormat = '#,##0.00'
       currency = False
+    end
+    object mtSeguimientoVER_COTIZACION: TBooleanField
+      FieldKind = fkCalculated
+      FieldName = 'VER_COTIZACION'
+      Visible = False
+      Calculated = True
+    end
+    object mtSeguimientoACCIONES: TStringField
+      DisplayLabel = 'Acciones'
+      FieldName = 'ACCIONES'
+      Size = 1
     end
   end
   object dsSeguimiento: TDataSource

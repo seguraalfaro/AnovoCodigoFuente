@@ -30,7 +30,7 @@ type
     procedure grDatosDblClick(Sender: TObject);
     procedure FechasChange(Sender: TObject);
   private
-    FLimpiandoFechas: Boolean;
+    FPoniendoFechas: Boolean;
     FInicialId: Integer;
     FRetardo: TRetardo;
     FPresentador: TPresentadorCotizaciones;
@@ -38,6 +38,7 @@ type
     procedure AplicarFechas;
     procedure Accion(Sender: TObject; const AClave: string);
     procedure MostrarAcciones(const AAcciones: TAccionesListaCotizacion);
+    procedure MostrarPeriodo(const ADesde, AHasta: TDateTime);
     procedure MostrarCotizaciones(const AFilas: TObjectList<TCotizacionDTO>);
     procedure AbrirCotizacion(const AId: Integer);
     procedure CerrarCotizacion(Sender: TObject);
@@ -120,19 +121,32 @@ end;
 procedure TfraCotizaciones.Limpiar;
 begin
   FRetardo.Cancelar;
-  FLimpiandoFechas := True;
+  FPoniendoFechas := True;
   try
     dtpDesde.Checked := False;
     dtpHasta.Checked := False;
   finally
-    FLimpiandoFechas := False;
+    FPoniendoFechas := False;
   end;
   FPresentador.Limpiar;
 end;
 
+procedure TfraCotizaciones.MostrarPeriodo(const ADesde, AHasta: TDateTime);
+begin
+  FPoniendoFechas := True;
+  try
+    dtpDesde.Date := ADesde;
+    dtpHasta.Date := AHasta;
+    dtpDesde.Checked := False;
+    dtpHasta.Checked := False;
+  finally
+    FPoniendoFechas := False;
+  end;
+end;
+
 procedure TfraCotizaciones.FechasChange(Sender: TObject);
 begin
-  if FLimpiandoFechas then
+  if FPoniendoFechas then
     Exit;
   FRetardo.Programar;
 end;

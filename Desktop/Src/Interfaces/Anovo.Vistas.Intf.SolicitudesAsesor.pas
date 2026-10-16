@@ -14,8 +14,7 @@ type
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarBusqueda(const ATexto: string;
       const APuedeLimpiar: Boolean);
-    procedure MostrarPeriodo(const AHistorial: Boolean;
-      const ADesde: TDateTime);
+    procedure MostrarPeriodo(const ADesde, AHasta: TDateTime);
     procedure MostrarSolicitudes(const AFilas: TObjectList<TSolicitudAsesorDTO>);
     procedure MostrarPaginacion(const APagina, ATotalPaginas: Integer;
       const ATotal: Int64);

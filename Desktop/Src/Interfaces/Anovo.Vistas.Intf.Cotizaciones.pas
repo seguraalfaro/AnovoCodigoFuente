@@ -19,6 +19,7 @@ type
     ['{2F84B6D1-5C39-4E07-A812-7D0E9C3B5A64}']
     procedure MostrarAcciones(const AAcciones: TAccionesListaCotizacion);
     procedure MostrarCargando(const AActivo: Boolean);
+    procedure MostrarPeriodo(const ADesde, AHasta: TDateTime);
     procedure MostrarBusqueda(const ATexto: string;
       const APuedeLimpiar: Boolean);
     procedure MostrarCotizaciones(const AFilas: TObjectList<TCotizacionDTO>);

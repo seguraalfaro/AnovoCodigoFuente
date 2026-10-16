@@ -32,13 +32,6 @@ const
   RUTA_AUDITORIA = '/api/auditoria';
   RUTA_CUENTAS = '/api/auditoria/cuentas';
 
-  FORMATO_FECHA = 'yyyy-mm-dd';
-
-function ComoTexto(const AFecha: TDateTime): string;
-begin
-  Result := FormatDateTime(FORMATO_FECHA, AFecha);
-end;
-
 function TApiAuditoria.Buscar(const ASoloCuentas: Boolean;
   const ADesde, AHasta: TDateTime; const AEntidad, AAccion, ATexto: string;
   const APagina, APorPagina: Integer; out ATotal: Int64)
@@ -53,8 +46,8 @@ begin
       lCliente: IMVCRESTClient;
     begin
       lCliente := NuevoCliente
-        .AddQueryStringParam('desde', ComoTexto(ADesde))
-        .AddQueryStringParam('hasta', ComoTexto(AHasta))
+        .AddQueryStringParam('desde', FechaParaApi(ADesde))
+        .AddQueryStringParam('hasta', FechaParaApi(AHasta))
         .AddQueryStringParam('pagina', APagina)
         .AddQueryStringParam('por_pagina', APorPagina);
       if AEntidad <> '' then

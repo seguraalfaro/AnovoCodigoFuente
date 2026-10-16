@@ -21,6 +21,7 @@ type
     FPagina: Integer;
     FTotalPaginas: Integer;
     procedure Cargar;
+    function HayFiltro: Boolean;
   public
     constructor Create(const AVista: IVistaSolicitudesAsesor;
       const AApi: IApiSolicitudes);
@@ -41,6 +42,7 @@ implementation
 
 uses
   System.SysUtils,
+  System.DateUtils,
   System.Generics.Collections,
   Anovo.DTOs.Dashboard,
   Anovo.Textos;
@@ -57,6 +59,7 @@ end;
 
 procedure TPresentadorSolicitudesAsesor.Iniciar;
 begin
+  FVista.MostrarPeriodo(StartOfTheMonth(Date), Date);
   FVista.MostrarBusqueda('', False);
   Cargar;
 end;
@@ -65,8 +68,13 @@ procedure TPresentadorSolicitudesAsesor.Buscar(const ATexto: string);
 begin
   FTexto := Trim(ATexto);
   FPagina := 1;
-  FVista.MostrarBusqueda(FTexto, not FTexto.IsEmpty);
+  FVista.MostrarBusqueda(FTexto, HayFiltro);
   Cargar;
+end;
+
+function TPresentadorSolicitudesAsesor.HayFiltro: Boolean;
+begin
+  Result := not FTexto.IsEmpty or (FFiltroDesde > 0) or (FFiltroHasta > 0);
 end;
 
 procedure TPresentadorSolicitudesAsesor.Limpiar;
@@ -86,6 +94,7 @@ begin
   FFiltroDesde := ADesde;
   FFiltroHasta := AHasta;
   FPagina := 1;
+  FVista.MostrarBusqueda(FTexto, HayFiltro);
   Cargar;
 end;
 
@@ -144,7 +153,6 @@ begin
     begin
       FTotalPaginas := (lTotal + SOLICITUDES_POR_PAGINA - 1) div
         SOLICITUDES_POR_PAGINA;
-      FVista.MostrarPeriodo(lHistorial, lDesde);
       FVista.MostrarSolicitudes(ALista);
       FVista.MostrarPaginacion(lPagina, FTotalPaginas, lTotal);
     end,

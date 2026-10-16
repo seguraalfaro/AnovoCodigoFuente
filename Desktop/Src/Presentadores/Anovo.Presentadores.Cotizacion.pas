@@ -262,8 +262,10 @@ begin
   else if (FEstado = ESTADO_ENVIADA) and
     TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR) then
     lBotones := [bcRespuesta];
-  if (FEstado = ESTADO_VISTO_BUENO) or (FEstado = ESTADO_ENVIADA) or
-    (FEstado = ESTADO_APROBADA) or (FEstado = ESTADO_RECHAZADA) then
+  if ((FEstado = ESTADO_VISTO_BUENO) or (FEstado = ESTADO_ENVIADA) or
+    (FEstado = ESTADO_APROBADA) or (FEstado = ESTADO_RECHAZADA)) and
+    (TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR) or
+    TSesion.Tiene(PERMISO_COTIZACIONES_APROBAR)) then
     Include(lBotones, bcDocumento);
   FVista.MostrarBotones(lBotones, lAcciones);
 end;
