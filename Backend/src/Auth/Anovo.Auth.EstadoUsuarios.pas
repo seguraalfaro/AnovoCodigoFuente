@@ -1,7 +1,7 @@
 unit Anovo.Auth.EstadoUsuarios;
 
-// Estado vigente de cada cuenta (activa, rol, ultimo cambio de clave) con un
-// cache corto: un token deja de servir en cuanto cambia algo de la cuenta.
+// Estado vigente de cada cuenta (activa, rol, ultimo cambio de clave) y de
+// cada telefono, con un cache corto: un token deja de servir en cuanto cambia.
 
 interface
 
@@ -15,8 +15,9 @@ type
     class destructor Destroy;
     class function SesionVigente(const AContext: TWebContext;
       const AUsuarioId: Integer; const ARol: string; const AEmitido: TDateTime;
-      const ADebeCambiar: Boolean): Boolean;
+      const ADebeCambiar: Boolean; const ADispositivoId: Integer): Boolean;
     class procedure Olvidar(const AUsuarioId: Integer);
+    class procedure OlvidarDispositivo(const ADispositivoId: Integer);
   end;
 
 implementation
@@ -28,6 +29,7 @@ uses
   System.Generics.Collections,
   MVCFramework.Commons,
   Anovo.Entities.Consultas,
+  Anovo.Entities.Usuarios,
   Anovo.Repositories.Intf.Usuarios,
   Anovo.Services.Intf.Sesion;
 
@@ -41,9 +43,15 @@ type
     Leido: TDateTime;
   end;
 
+  TEstadoTelefono = record
+    Activo: Boolean;
+    Leido: TDateTime;
+  end;
+
 var
   gBloqueo: TCriticalSection;
   gEstados: TDictionary<Integer, TEstadoCuenta>;
+  gTelefonos: TDictionary<Integer, TEstadoTelefono>;
 
 const
   SEGUNDOS_TOLERANCIA = 1;
@@ -78,21 +86,67 @@ begin
   Result.Leido := Now;
 end;
 
+function LeerTelefono(const AContext: TWebContext;
+  const ADispositivoId: Integer): TEstadoTelefono;
+var
+  lRepo: IDispositivoRepository;
+  lFila: TUsuariosDispositivos;
+begin
+  lRepo := AContext.ServiceContainerResolver.Resolve(
+    TypeInfo(IDispositivoRepository)) as IDispositivoRepository;
+  lFila := lRepo.GetByPK(ADispositivoId, False);
+  try
+    Result.Activo := (lFila <> nil) and lFila.Activo.ValueOrDefault;
+  finally
+    lFila.Free;
+  end;
+  Result.Leido := Now;
+end;
+
+function TelefonoActivo(const AContext: TWebContext;
+  const ADispositivoId: Integer): Boolean;
+var
+  lEstado: TEstadoTelefono;
+  lEnCache: Boolean;
+begin
+  gBloqueo.Enter;
+  try
+    lEnCache := gTelefonos.TryGetValue(ADispositivoId, lEstado) and
+      (SecondsBetween(Now, lEstado.Leido) < SegundosCache);
+  finally
+    gBloqueo.Leave;
+  end;
+
+  if not lEnCache then
+  begin
+    lEstado := LeerTelefono(AContext, ADispositivoId);
+    gBloqueo.Enter;
+    try
+      gTelefonos.AddOrSetValue(ADispositivoId, lEstado);
+    finally
+      gBloqueo.Leave;
+    end;
+  end;
+  Result := lEstado.Activo;
+end;
+
 class constructor TEstadoUsuarios.Create;
 begin
   gBloqueo := TCriticalSection.Create;
   gEstados := TDictionary<Integer, TEstadoCuenta>.Create;
+  gTelefonos := TDictionary<Integer, TEstadoTelefono>.Create;
 end;
 
 class destructor TEstadoUsuarios.Destroy;
 begin
+  gTelefonos.Free;
   gEstados.Free;
   gBloqueo.Free;
 end;
 
 class function TEstadoUsuarios.SesionVigente(const AContext: TWebContext;
   const AUsuarioId: Integer; const ARol: string; const AEmitido: TDateTime;
-  const ADebeCambiar: Boolean): Boolean;
+  const ADebeCambiar: Boolean; const ADispositivoId: Integer): Boolean;
 var
   lEstado: TEstadoCuenta;
   lEnCache: Boolean;
@@ -120,7 +174,19 @@ begin
     (SameText(lEstado.Rol, ARol) or (lEstado.DebeCambiar and
     SameText(ARol, ROL_CLAVE_VENCIDA))) and
     (lEstado.FechaClave <= IncSecond(AEmitido, SEGUNDOS_TOLERANCIA)) and
-    (ADebeCambiar or not lEstado.DebeCambiar);
+    (ADebeCambiar or not lEstado.DebeCambiar) and
+    ((ADispositivoId = 0) or TelefonoActivo(AContext, ADispositivoId));
+end;
+
+class procedure TEstadoUsuarios.OlvidarDispositivo(const ADispositivoId
+  : Integer);
+begin
+  gBloqueo.Enter;
+  try
+    gTelefonos.Remove(ADispositivoId);
+  finally
+    gBloqueo.Leave;
+  end;
 end;
 
 class procedure TEstadoUsuarios.Olvidar(const AUsuarioId: Integer);

@@ -859,6 +859,22 @@ resourcestring
   SSinProyecto = 'Sin nombre de proyecto';
   SSinContacto = 'Sin contacto';
   SContactoInactivo = 'El contacto ya no está activo';
+  SRecursoDispositivo = 'el teléfono';
+  SPestanaTelefonos = 'Teléfonos';
+  SSinTelefonos = 'Esta cuenta no tiene teléfonos registrados.';
+  STelefonosNota = 'Marque «Inactivar al guardar» y guarde: la sesión de ese ' +
+    'teléfono se corta en su siguiente uso y la persona vuelve a ingresar con ' +
+    'su clave.';
+  SMotivoTelCierre = 'Cerró sesión';
+  SMotivoTelReuso = 'Llave usada dos veces';
+  SMotivoTelClave = 'Cambio de clave';
+  SMotivoTelUsuario = 'Cuenta inactiva';
+  SMotivoTelReemplazo = 'Se registró de nuevo';
+  SMotivoTelVencido = 'Sin uso por mucho tiempo';
+  SMotivoTelAdmin = 'Inactivado por TI';
+  SDetalleInactivacionDispositivo = 'Inactivación del teléfono «%s» de la ' +
+    'cuenta %d';
+  SSinUbicacion = 'Sin ubicación capturada';
   SAbrirEnVisor = 'Abrir en el visor de Windows';
   SConfirmarQuitarLinea = '¿Quitar la línea «%s»?';
   SConfirmarPresentar = '¿Enviar la cotización Nº %d a revisión? ' +

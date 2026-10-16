@@ -98,6 +98,7 @@ inherited frmUsuario: TfrmUsuario
     Height = 40
     Items.Strings = (
       'Datos'
+      'Tel'#233'fonos'
       'Permisos')
     CardPanel = cpUsuario
     Indent = 20
@@ -304,14 +305,73 @@ inherited frmUsuario: TfrmUsuario
         end
       end
     end
+    object crdTelefonos: TCard
+      Left = 0
+      Top = 0
+      Width = 640
+      Height = 367
+      Caption = 'Tel'#233'fonos'
+      CardIndex = 1
+      TabOrder = 1
+      object lblTelefonosNota: TLabel
+        Tag = 13
+        AlignWithMargins = True
+        Left = 20
+        Top = 11
+        Width = 600
+        Height = 32
+        Margins.Left = 20
+        Margins.Top = 8
+        Margins.Right = 20
+        Align = alTop
+        AutoSize = False
+        WordWrap = True
+      end
+      object lblSinTelefonos: TLabel
+        Tag = 13
+        Left = 0
+        Top = 46
+        Width = 640
+        Height = 321
+        Align = alClient
+        Alignment = taCenter
+        AutoSize = False
+        Layout = tlCenter
+        Visible = False
+      end
+      object grTelefonos: TrDBGrid
+        AlignWithMargins = True
+        Left = 20
+        Top = 49
+        Width = 600
+        Height = 310
+        Margins.Left = 20
+        Margins.Right = 20
+        Margins.Bottom = 8
+        Align = alClient
+        BorderStyle = bsNone
+        DataSource = dmMemoria.dsTelefonos
+        DefaultDrawing = False
+        Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
+        TabOrder = 0
+        TitleFont.Charset = ANSI_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -12
+        TitleFont.Name = 'Segoe UI'
+        TitleFont.Style = []
+        StyleElements = [seFont]
+        OnCanEdit = grTelefonosCanEdit
+        OnBoolClick = grTelefonosBoolClick
+      end
+    end
     object crdPermisos: TCard
       Left = 0
       Top = 0
       Width = 640
       Height = 367
       Caption = 'Permisos'
-      CardIndex = 1
-      TabOrder = 1
+      CardIndex = 2
+      TabOrder = 2
       object lblResumen: TLabel
         Tag = 13
         AlignWithMargins = True

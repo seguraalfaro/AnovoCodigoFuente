@@ -1,7 +1,7 @@
 unit Anovo.Presentadores.Usuario;
 
-// Presentador de la ventana de un usuario: carga roles, cuenta y
-// permisos; guarda datos, clave temporal y adicionales en una sola accion.
+// Presentador de la ventana de un usuario: carga roles, cuenta, telefonos y
+// permisos; guarda datos, clave, adicionales y telefonos en una sola accion.
 
 interface
 
@@ -10,6 +10,7 @@ uses
   Anovo.Api.Intf.Usuarios,
   Anovo.Api.Intf.Roles,
   Anovo.Presentadores.Base,
+  Anovo.DTOs.Dispositivos,
   Anovo.DTOs.Usuarios,
   Anovo.DTOs.Roles,
   Anovo.Vistas.Intf.Usuario;
@@ -24,6 +25,8 @@ type
     FPorId: TDictionary<Integer, TFilaPermiso>;
     FCambios: TDictionary<Integer, string>;
     FBasicos: TDictionary<Integer, Integer>;
+    FTelefonos: TObjectList<TFilaTelefono>;
+    FInactivar: TList<Integer>;
     FId: Integer;
     FNombre: string;
     FCorreo: string;
@@ -42,6 +45,8 @@ type
     destructor Destroy; override;
     procedure Cargar(const AId: Integer);
     procedure MarcarPermiso(const APermisoId: Integer; const ATiene: Boolean);
+    procedure MarcarTelefono(const ADispositivoId: Integer;
+      const AInactivar: Boolean);
     function HayCambiosDePermisos: Boolean;
     function CambiosDePermisos: Integer;
     function BasicosDelRol(const ARolId: Integer): Integer;
@@ -77,6 +82,28 @@ const
   LARGO_CLAVE_TEMPORAL = 12;
   LETRAS_CLAVE = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
   DIGITOS_CLAVE = '23456789';
+
+function FilasTelefono(const ADispositivos: TObjectList<TDispositivoDTO>)
+  : TObjectList<TFilaTelefono>;
+var
+  lDispositivo: TDispositivoDTO;
+  lFila: TFilaTelefono;
+begin
+  Result := TObjectList<TFilaTelefono>.Create(True);
+  for lDispositivo in ADispositivos do
+  begin
+    lFila := TFilaTelefono.Create;
+    Result.Add(lFila);
+    lFila.ID := lDispositivo.ID;
+    lFila.Nombre := lDispositivo.Nombre.ValueOrDefault;
+    lFila.Activo := lDispositivo.Activo;
+    lFila.Motivo := lDispositivo.Motivo.ValueOrDefault;
+    lFila.FechaCreacion := lDispositivo.FechaCreacion;
+    lFila.FechaUltimoUso := lDispositivo.FechaUltimoUso;
+    if lDispositivo.Activo then
+      lFila.Inactivar := False;
+  end;
+end;
 
 function FilasDe(const AMatriz: TMatrizPermisosDTO; const AUsuario: TUsuarioDTO;
   const AExcepciones: TObjectList<TExcepcionDTO>): TObjectList<TFilaPermiso>;
@@ -133,12 +160,15 @@ begin
   FPorId := TDictionary<Integer, TFilaPermiso>.Create;
   FCambios := TDictionary<Integer, string>.Create;
   FBasicos := TDictionary<Integer, Integer>.Create;
+  FInactivar := TList<Integer>.Create;
 end;
 
 destructor TPresentadorUsuario.Destroy;
 begin
   FCambios.Free;
   FBasicos.Free;
+  FInactivar.Free;
+  FTelefonos.Free;
   FPorId.Free;
   FFilas.Free;
   inherited;
@@ -182,6 +212,14 @@ begin
     FCambios.AddOrSetValue(APermisoId, TIPO_OTORGADO)
   else
     FCambios.AddOrSetValue(APermisoId, TIPO_QUITADO);
+end;
+
+procedure TPresentadorUsuario.MarcarTelefono(const ADispositivoId: Integer;
+  const AInactivar: Boolean);
+begin
+  FInactivar.Remove(ADispositivoId);
+  if AInactivar then
+    FInactivar.Add(ADispositivoId);
 end;
 
 procedure TPresentadorUsuario.TomarBasicos(const AMatriz: TMatrizPermisosDTO);
@@ -270,7 +308,7 @@ function TPresentadorUsuario.HayCambios(const ADatos: TUsuarioEdicionDTO;
   const AConPermisos: Boolean): Boolean;
 begin
   Result := CambioDatos(ADatos) or not ADatos.ClaveTemporal.IsEmpty or
-    FPedirCambio or AConPermisos;
+    FPedirCambio or AConPermisos or (FInactivar.Count > 0);
 end;
 
 function TPresentadorUsuario.CambiosAEnviar(const AMotivo: string)
@@ -303,8 +341,10 @@ var
   lUsuario: TUsuarioDTO;
   lExcepciones: TObjectList<TExcepcionDTO>;
   lFilas: TObjectList<TFilaPermiso>;
+  lTelefonos: TObjectList<TFilaTelefono>;
 begin
   FId := AId;
+  lTelefonos := nil;
   lApiUsuarios := FApiUsuarios;
   lApiRoles := FApiRoles;
   lMatriz := nil;
@@ -314,6 +354,8 @@ begin
 
   Ejecutar(SAccionCargarUsuario,
     procedure
+    var
+      lDispositivos: TObjectList<TDispositivoDTO>;
     begin
       lMatriz := lApiRoles.Matriz;
       if AId > 0 then
@@ -321,6 +363,12 @@ begin
         lUsuario := lApiUsuarios.Obtener(AId);
         lExcepciones := lApiUsuarios.Excepciones(AId);
         lFilas := FilasDe(lMatriz, lUsuario, lExcepciones);
+        lDispositivos := lApiUsuarios.Dispositivos(AId);
+        try
+          lTelefonos := FilasTelefono(lDispositivos);
+        finally
+          lDispositivos.Free;
+        end;
       end;
     end,
     procedure
@@ -334,6 +382,11 @@ begin
         TomarFilas(lFilas);
         lFilas := nil;
         FVista.MostrarPermisos(FFilas);
+        FTelefonos.Free;
+        FTelefonos := lTelefonos;
+        lTelefonos := nil;
+        FInactivar.Clear;
+        FVista.MostrarTelefonos(FTelefonos);
       end;
     end, MostrarError,
     procedure(AActivo: Boolean)
@@ -342,6 +395,7 @@ begin
     end,
     procedure
     begin
+      lTelefonos.Free;
       lFilas.Free;
       lExcepciones.Free;
       lUsuario.Free;
@@ -357,6 +411,7 @@ var
   lClave: string;
   lPedir, lEnviarDatos: Boolean;
   lCambios: TCambiosExcepcionesDTO;
+  lTelefonos: TArray<Integer>;
 begin
   lId := FId;
   ADatos.Nombre := ADatos.Nombre.Trim;
@@ -369,10 +424,13 @@ begin
   lCambios := nil;
   if AConPermisos and HayCambiosDePermisos then
     lCambios := CambiosAEnviar(AMotivo);
+  lTelefonos := FInactivar.ToArray;
   lApi := FApiUsuarios;
 
   Ejecutar(SAccionGuardar,
     procedure
+    var
+      lTelefono: Integer;
     begin
       if lId = 0 then
         lApi.Crear(ADatos).Free
@@ -386,6 +444,8 @@ begin
           lApi.PedirCambioClave(lId);
         if lCambios <> nil then
           lApi.CambiarExcepciones(lId, lCambios);
+        for lTelefono in lTelefonos do
+          lApi.InactivarDispositivo(lId, lTelefono);
       end;
     end,
     procedure

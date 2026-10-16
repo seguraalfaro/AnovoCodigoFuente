@@ -22,6 +22,7 @@ type
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarError(const AMensaje: string);
     procedure MostrarCliente(const ACliente: TClienteDTO);
+    procedure MostrarUbicacion(const ATexto, AUrlMapa: string);
     procedure MostrarContactos(const AContactos: TObjectList<TContactoDTO>);
     procedure MostrarConsentimientos(const AConsentimientos
       : TObjectList<TConsentimientoDTO>);

@@ -6,6 +6,7 @@ unit Anovo.Services.Intf.Dispositivos;
 interface
 
 uses
+  System.Generics.Collections,
   Anovo.DTOs.Dispositivos;
 
 const
@@ -15,6 +16,7 @@ const
   MOTIVO_USUARIO = 'usuario';
   MOTIVO_REEMPLAZO = 'reemplazo';
   MOTIVO_VENCIDO = 'vencido';
+  MOTIVO_ADMIN = 'admin';
 
 type
   IDispositivoService = interface
@@ -23,6 +25,8 @@ type
       const ADto: TDispositivoNuevoDTO): TLlaveDispositivoDTO;
     function Renovar(const ADto: TRenovacionDTO): TSesionRenovadaDTO;
     procedure Cerrar(const ADto: TRenovacionDTO);
+    function DeUsuario(const AUsuarioId: Integer): TObjectList<TDispositivoDTO>;
+    procedure InactivarPorAdmin(const AUsuarioId, ADispositivoId: Integer);
   end;
 
 implementation

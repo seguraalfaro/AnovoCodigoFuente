@@ -514,6 +514,16 @@ type
     mtUnidadesPlazoCODIGO: TStringField;
     mtUnidadesPlazoNOMBRE: TStringField;
     dsUnidadesPlazo: TDataSource;
+    mtTelefonos: TFDMemTable;
+    mtTelefonosID: TIntegerField;
+    mtTelefonosNOMBRE: TStringField;
+    mtTelefonosFECHA_CREACION: TDateTimeField;
+    mtTelefonosFECHA_ULTIMO_USO: TDateTimeField;
+    mtTelefonosESTADO: TStringField;
+    mtTelefonosMOTIVO: TStringField;
+    mtTelefonosACTIVO: TBooleanField;
+    mtTelefonosINACTIVAR: TBooleanField;
+    dsTelefonos: TDataSource;
     mtItemsLinea: TFDMemTable;
     mtItemsLineaID: TIntegerField;
     mtItemsLineaCODIGO: TStringField;
@@ -613,6 +623,8 @@ type
     procedure DataModuleCreate(Sender: TObject);
     procedure mtContactoNuevoBeforePost(DataSet: TDataSet);
     procedure CatalogoCalcFields(DataSet: TDataSet);
+    procedure MotivoTelefonoGetText(Sender: TField; var Text: string;
+      DisplayText: Boolean);
     procedure EstadoGetText(Sender: TField; var Text: string;
       DisplayText: Boolean);
     procedure TipoGetText(Sender: TField; var Text: string;
@@ -745,6 +757,12 @@ procedure TdmMemoria.mtContactoNuevoBeforePost(DataSet: TDataSet);
 begin
   mtContactoNuevoTELEFONO.AsString :=
     TFormato.TelefonoExt(mtContactoNuevoTELEFONO.AsString);
+end;
+
+procedure TdmMemoria.MotivoTelefonoGetText(Sender: TField; var Text: string;
+  DisplayText: Boolean);
+begin
+  Text := TFormato.MotivoTelefono(Sender.AsString);
 end;
 
 procedure TdmMemoria.CatalogoCalcFields(DataSet: TDataSet);

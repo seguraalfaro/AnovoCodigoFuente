@@ -1,7 +1,7 @@
 unit Anovo.Forms.Usuario;
 
-// Ventana de un usuario: datos de la cuenta, clave temporal y permisos
-// adicionales o quitados sobre el paquete basico de su rol.
+// Ventana de un usuario: datos de la cuenta, clave temporal, telefonos y
+// permisos adicionales o quitados sobre el paquete basico de su rol.
 
 interface
 
@@ -51,6 +51,10 @@ type
     lblResumen: TLabel;
     lblSinPermisos: TLabel;
     grPermisos: TrDBGrid;
+    crdTelefonos: TCard;
+    lblTelefonosNota: TLabel;
+    lblSinTelefonos: TLabel;
+    grTelefonos: TrDBGrid;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnGuardarClick(Sender: TObject);
@@ -65,6 +69,10 @@ type
     procedure chkSoloExcepcionesClick(Sender: TObject);
     procedure grPermisosGetCellParams(Sender: TObject; Field: TField;
       AFont: TFont; var Background: TColor; ActiveRow, Highlight: Boolean);
+    procedure grTelefonosCanEdit(Sender: TObject; Field: TField;
+      Column: TColumn; var CanEdit: Boolean);
+    procedure grTelefonosBoolClick(Sender: TObject; DataSet: TDataSet;
+      Column: TColumn; Field: TField; Value: Variant);
   private
     FPresentador: TPresentadorUsuario;
     FId: Integer;
@@ -83,6 +91,7 @@ type
     procedure MostrarRoles(const ARoles: TObjectList<TRolDTO>);
     procedure MostrarUsuario(const AUsuario: TUsuarioDTO);
     procedure MostrarPermisos(const AFilas: TObjectList<TFilaPermiso>);
+    procedure MostrarTelefonos(const AFilas: TObjectList<TFilaTelefono>);
     procedure Guardado;
   protected
     function ControlesEdicion: TArray<TControl>; override;
@@ -110,6 +119,8 @@ uses
 
 const
   CAMPO_ORIGEN = 'ORIGEN';
+  CAMPO_ESTADO = 'ESTADO';
+  PESTANA_PERMISOS = 2;
 
 class function TfrmUsuario.Mostrar(AOwner: TComponent;
   const AId: Integer): Boolean;
@@ -148,6 +159,12 @@ begin
   EditarCasillas(grPermisos);
   lRejilla := TDBGridExtend.De(grPermisos);
   lRejilla.ColumnaEstado(CAMPO_ORIGEN);
+  AplicarTemaGrid(grTelefonos);
+  EditarCasillas(grTelefonos);
+  TDBGridExtend.De(grTelefonos).ColumnaEstado(CAMPO_ESTADO);
+  lblTelefonosNota.Caption := STelefonosNota;
+  pstSecciones.Items[1] := SPestanaTelefonos;
+  dmMemoria.mtTelefonos.Close;
   dmMemoria.SoloExcepciones(False);
   dmMemoria.mtPermisosUsuario.Close;
   dmMemoria.mtUsuario.Close;
@@ -167,6 +184,7 @@ begin
   dmMemoria.mtUsuario.Close;
   dmMemoria.mtRoles.Close;
   dmMemoria.mtPermisosUsuario.Close;
+  dmMemoria.mtTelefonos.Close;
 end;
 
 function TfrmUsuario.ControlesEdicion: TArray<TControl>;
@@ -202,12 +220,17 @@ begin
     pstEstado.Caption := SEstInactivo;
   end;
   pstEstado.Left := lblTitulo.Left + lblTitulo.Width + 10;
-  if AUsuario.Excepciones > 0 then
-    pstSecciones.Items[1] := Format(SPestanaPermisosCon,
+  if not (not FPropia and TPresentadorUsuario.PuedeEditarPermisos) then
+  begin
+    if pstSecciones.Items.Count > PESTANA_PERMISOS then
+      pstSecciones.Items.Delete(PESTANA_PERMISOS);
+  end
+  else if AUsuario.Excepciones > 0 then
+    pstSecciones.Items[PESTANA_PERMISOS] := Format(SPestanaPermisosCon,
       [TFormato.Cantidad(AUsuario.Excepciones, SUnAdicional,
       SVariosAdicionales)])
   else
-    pstSecciones.Items[1] := SPestanaPermisos;
+    pstSecciones.Items[PESTANA_PERMISOS] := SPestanaPermisos;
   cbRol.Enabled := not FPropia;
   lblFechas.Caption := Format(SUsuarioRegistrado,
     [TFormato.FechaHora(AUsuario.FechaCreacion.ValueOrDefault)]);
@@ -215,8 +238,7 @@ begin
   if AUsuario.FechaClave.HasValue then
     FFechaClave := TFormato.FechaHora(AUsuario.FechaClave.Value);
 
-  pstSecciones.Visible := not FPropia and
-    TPresentadorUsuario.PuedeEditarPermisos;
+  pstSecciones.Visible := True;
 
   MostrarPaquete;
   MostrarClave;
@@ -399,6 +421,35 @@ begin
   FPresentador.MarcarPermiso(dmMemoria.mtPermisosUsuarioPERMISO_ID.AsInteger,
     Field.AsBoolean);
   MostrarResumen;
+end;
+
+procedure TfrmUsuario.MostrarTelefonos(const AFilas
+  : TObjectList<TFilaTelefono>);
+var
+  lVacia: Boolean;
+begin
+  TMapeoDatos.AListaTabla<TFilaTelefono>(AFilas, dmMemoria.mtTelefonos);
+  lVacia := dmMemoria.mtTelefonos.IsEmpty;
+  grTelefonos.Visible := not lVacia;
+  lblSinTelefonos.Visible := lVacia;
+  lblSinTelefonos.Caption := SSinTelefonos;
+  TDBGridExtend.De(grTelefonos).AjustarColumnas;
+end;
+
+procedure TfrmUsuario.grTelefonosCanEdit(Sender: TObject; Field: TField;
+  Column: TColumn; var CanEdit: Boolean);
+begin
+  CanEdit := CanEdit and (Field = dmMemoria.mtTelefonosINACTIVAR) and
+    not dmMemoria.mtTelefonos.IsEmpty and
+    dmMemoria.mtTelefonosACTIVO.AsBoolean;
+end;
+
+procedure TfrmUsuario.grTelefonosBoolClick(Sender: TObject; DataSet: TDataSet;
+  Column: TColumn; Field: TField; Value: Variant);
+begin
+  dmMemoria.Confirmar(DataSet);
+  FPresentador.MarcarTelefono(dmMemoria.mtTelefonosID.AsInteger,
+    Field.AsBoolean);
 end;
 
 function TfrmUsuario.RolEscogido: Integer;

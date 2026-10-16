@@ -46,6 +46,8 @@ type
     function ActivosDe(const AUuidDispositivo: string)
       : TObjectList<TUsuariosDispositivos>;
     function PorLlaveAnterior(const ALlaveHash: string): TUsuariosDispositivos;
+    function DeUsuario(const AUsuarioId: Integer)
+      : TObjectList<TUsuariosDispositivos>;
   end;
 
   TUsuarioPermisoRepository = class(TAnovoRepository<TUsuariosPermisos>,
@@ -192,6 +194,12 @@ function TDispositivoRepository.PorLlaveAnterior(const ALlaveHash: string)
   : TUsuariosDispositivos;
 begin
   Result := GetOneByWhere(DISPOSITIVO_POR_LLAVE_ANTERIOR, [ALlaveHash], False);
+end;
+
+function TDispositivoRepository.DeUsuario(const AUsuarioId: Integer)
+  : TObjectList<TUsuariosDispositivos>;
+begin
+  Result := GetWhere(DISPOSITIVOS_DE_USUARIO, [AUsuarioId]);
 end;
 
 function TUsuarioRepository.IdSistema: Integer;

@@ -149,7 +149,7 @@ begin
 
   if not TEstadoUsuarios.SesionVigente(AContext, UsuarioDelToken(AContext),
     RolDelToken(UserRoles), AContext.LoggedUser.LoggedSince,
-    DebeCambiarClave(AContext)) then
+    DebeCambiarClave(AContext), DispositivoDelToken(AContext)) then
     raise EAnovoError.Create('SESION_REVOCADA', SSesionRevocada,
       HTTP_STATUS.Unauthorized);
 

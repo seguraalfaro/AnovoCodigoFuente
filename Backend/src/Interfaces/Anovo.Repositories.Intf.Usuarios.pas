@@ -49,6 +49,8 @@ type
     function ActivosDe(const AUuidDispositivo: string)
       : TObjectList<TUsuariosDispositivos>;
     function PorLlaveAnterior(const ALlaveHash: string): TUsuariosDispositivos;
+    function DeUsuario(const AUsuarioId: Integer)
+      : TObjectList<TUsuariosDispositivos>;
   end;
 
   IUsuarioPermisoRepository = interface(IMVCRepository<TUsuariosPermisos>)

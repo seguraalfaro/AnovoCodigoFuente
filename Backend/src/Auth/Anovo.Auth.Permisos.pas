@@ -10,6 +10,7 @@ uses
 
 const
   DATO_USUARIO_ID = 'USUARIO_ID';
+  DATO_DISPOSITIVO_ID = 'DISPOSITIVO_ID';
   SEPARADOR_PERMISOS = ';';
 
 type
@@ -22,6 +23,7 @@ type
   end;
 
 function UsuarioDelToken(const AContext: TWebContext): Integer;
+function DispositivoDelToken(const AContext: TWebContext): Integer;
 
 implementation
 
@@ -44,15 +46,26 @@ begin
     Result[I] := Result[I].Trim;
 end;
 
-function UsuarioDelToken(const AContext: TWebContext): Integer;
+function EnteroDelToken(const AContext: TWebContext;
+  const ADato: string): Integer;
 var
   lTexto: string;
 begin
   lTexto := '';
   if Assigned(AContext.LoggedUser.CustomData) then
-    AContext.LoggedUser.CustomData.TryGetValue(DATO_USUARIO_ID, lTexto);
+    AContext.LoggedUser.CustomData.TryGetValue(ADato, lTexto);
   if not TryStrToInt(lTexto, Result) then
     Result := 0;
+end;
+
+function UsuarioDelToken(const AContext: TWebContext): Integer;
+begin
+  Result := EnteroDelToken(AContext, DATO_USUARIO_ID);
+end;
+
+function DispositivoDelToken(const AContext: TWebContext): Integer;
+begin
+  Result := EnteroDelToken(AContext, DATO_DISPOSITIVO_ID);
 end;
 
 end.

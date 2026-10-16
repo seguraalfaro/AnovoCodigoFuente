@@ -73,7 +73,11 @@ type
     Label1: TLabel;
     separador: TPanel;
     btnAnonimizar: TPlanoBotonWin;
+    lblUbicacionRot: TLabel;
+    lblUbicacion: TLabel;
+    lblVerMapa: TLabel;
     procedure AcRegregsarExecute(Sender: TObject);
+    procedure lblVerMapaClick(Sender: TObject);
     procedure btnEditarClienteClick(Sender: TObject);
     procedure btnGuardarClienteClick(Sender: TObject);
     procedure btnCancelarEdicionClick(Sender: TObject);
@@ -86,11 +90,13 @@ type
     FPuedeEditar: Boolean;
     FPuedeAnonimizar: Boolean;
     FClienteId: Integer;
+    FUrlMapa: string;
     function ClienteEditado: TClienteEdicionDTO;
     procedure BotonesDeEdicion(const AEdicion: Boolean);
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarError(const AMensaje: string);
     procedure MostrarCliente(const ACliente: TClienteDTO);
+    procedure MostrarUbicacion(const ATexto, AUrlMapa: string);
     procedure MostrarContactos(const AContactos: TObjectList<TContactoDTO>);
     procedure MostrarConsentimientos(const AConsentimientos
       : TObjectList<TConsentimientoDTO>);
@@ -116,6 +122,7 @@ implementation
 {$R *.dfm}
 
 uses
+  Winapi.ShellAPI,
   Anovo.UI.Vista,
   Anovo.Formato,
   Anovo.Api.Clientes,
@@ -127,6 +134,7 @@ uses
 
 const
   SIN_DATO = '-';
+  ACCION_ABRIR_MAPA = 'open';
 
   CAMPO_ACCIONES = 'ACCIONES';
 
@@ -306,6 +314,20 @@ begin
   if dmMemoria.mtClienteCotizaciones.IsEmpty then
     Exit;
   Informar(SOpcionPendiente);
+end;
+
+procedure TfraClienteDatos.MostrarUbicacion(const ATexto, AUrlMapa: string);
+begin
+  FUrlMapa := AUrlMapa;
+  lblUbicacion.Caption := ATexto;
+  lblVerMapa.Visible := not AUrlMapa.IsEmpty;
+end;
+
+procedure TfraClienteDatos.lblVerMapaClick(Sender: TObject);
+begin
+  if not FUrlMapa.IsEmpty then
+    ShellExecute(Handle, ACCION_ABRIR_MAPA, PChar(FUrlMapa), nil, nil,
+      SW_SHOWNORMAL);
 end;
 
 procedure TfraClienteDatos.MostrarCliente(const ACliente: TClienteDTO);

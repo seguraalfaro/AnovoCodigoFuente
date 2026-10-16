@@ -6,6 +6,7 @@ interface
 
 uses
   System.Generics.Collections,
+  Anovo.DTOs.Dispositivos,
   Anovo.DTOs.Usuarios;
 
 type
@@ -24,6 +25,8 @@ type
     function Excepciones(const AId: Integer): TObjectList<TExcepcionDTO>;
     procedure CambiarExcepciones(const AId: Integer;
       const ADto: TCambiosExcepcionesDTO);
+    function Dispositivos(const AId: Integer): TObjectList<TDispositivoDTO>;
+    procedure InactivarDispositivo(const AId, ADispositivoId: Integer);
   end;
 
 implementation

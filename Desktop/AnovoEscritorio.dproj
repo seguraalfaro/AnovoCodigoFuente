@@ -352,6 +352,7 @@
             <Form>frmConexion</Form>
         </DCCReference>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Usuarios.pas"/>
+        <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Dispositivos.pas"/>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Roles.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Usuarios.pas"/>
         <DCCReference Include="Src\Api\Anovo.Api.Usuarios.pas"/>

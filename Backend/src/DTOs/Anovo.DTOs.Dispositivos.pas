@@ -6,7 +6,8 @@ unit Anovo.DTOs.Dispositivos;
 interface
 
 uses
-  MVCFramework.Serializer.Commons;
+  MVCFramework.Serializer.Commons,
+  MVCFramework.Nullables;
 
 type
   [MVCNameCase(ncSnakeCase)]
@@ -25,9 +26,33 @@ type
   private
     fLlave: string;
     fVence: TDateTime;
+    fToken: string;
   public
     property Llave: string read fLlave write fLlave;
     property Vence: TDateTime read fVence write fVence;
+    property Token: string read fToken write fToken;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TDispositivoDTO = class
+  private
+    fID: Integer;
+    fNombre: NullableString;
+    fActivo: Boolean;
+    fMotivo: NullableString;
+    fFechaCreacion: NullableTDateTime;
+    fFechaUltimoUso: NullableTDateTime;
+    fFechaVence: TDateTime;
+  public
+    property ID: Integer read fID write fID;
+    property Nombre: NullableString read fNombre write fNombre;
+    property Activo: Boolean read fActivo write fActivo;
+    property Motivo: NullableString read fMotivo write fMotivo;
+    property FechaCreacion: NullableTDateTime read fFechaCreacion
+      write fFechaCreacion;
+    property FechaUltimoUso: NullableTDateTime read fFechaUltimoUso
+      write fFechaUltimoUso;
+    property FechaVence: TDateTime read fFechaVence write fFechaVence;
   end;
 
   [MVCNameCase(ncSnakeCase)]

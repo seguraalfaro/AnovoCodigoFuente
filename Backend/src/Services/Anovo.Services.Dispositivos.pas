@@ -6,6 +6,7 @@ unit Anovo.Services.Dispositivos;
 interface
 
 uses
+  System.Generics.Collections,
   MVCFramework,
   Anovo.DTOs.Dispositivos,
   Anovo.Entities.Usuarios,
@@ -32,6 +33,8 @@ type
     procedure Inactivar(const ADispositivo: TUsuariosDispositivos;
       const AMotivo: string);
     procedure RevisarReuso(const AUuidDispositivo, ALlaveHash: string);
+    function InactivarEnTransaccion(const AUsuarioId,
+      ADispositivoId: Integer): Boolean;
   public
     [MVCInject]
     constructor Create(ADispositivos: IDispositivoRepository;
@@ -40,6 +43,8 @@ type
       const ADto: TDispositivoNuevoDTO): TLlaveDispositivoDTO;
     function Renovar(const ADto: TRenovacionDTO): TSesionRenovadaDTO;
     procedure Cerrar(const ADto: TRenovacionDTO);
+    function DeUsuario(const AUsuarioId: Integer): TObjectList<TDispositivoDTO>;
+    procedure InactivarPorAdmin(const AUsuarioId, ADispositivoId: Integer);
   end;
 
 implementation
@@ -47,13 +52,14 @@ implementation
 uses
   System.SysUtils,
   System.Hash,
-  System.Generics.Collections,
   MVCFramework.Commons,
   MVCFramework.Logger,
   MVCFramework.Repository,
   Anovo.Auditoria.Contexto,
+  Anovo.Auth.EstadoUsuarios,
   Anovo.Auth.Token,
   Anovo.Errors,
+  Anovo.Mapeo,
   Anovo.Textos;
 
 const
@@ -222,6 +228,8 @@ begin
       fDispositivos.Insert(lNuevo);
       Result.Llave := lLlave;
       Result.Vence := lNuevo.FechaVence;
+      Result.Token := EmitirToken(fSesion.SesionDe(AUsuarioId),
+        lNuevo.ID.Value);
     finally
       lNuevo.Free;
     end;
@@ -270,12 +278,59 @@ begin
     end;
 
     Result := TSesionRenovadaDTO.Create;
-    Result.Token := EmitirToken(lSesion);
+    Result.Token := EmitirToken(lSesion, lDispositivo.ID.Value);
     Result.Llave := lLlave;
     Result.Vence := lDispositivo.FechaVence;
   finally
     lDispositivo.Free;
   end;
+end;
+
+function TDispositivoService.DeUsuario(const AUsuarioId: Integer)
+  : TObjectList<TDispositivoDTO>;
+var
+  lFilas: TObjectList<TUsuariosDispositivos>;
+begin
+  lFilas := fDispositivos.DeUsuario(AUsuarioId);
+  try
+    Result := TMapeo.AListaDto<TUsuariosDispositivos, TDispositivoDTO>(lFilas);
+  finally
+    lFilas.Free;
+  end;
+end;
+
+function TDispositivoService.InactivarEnTransaccion(const AUsuarioId,
+  ADispositivoId: Integer): Boolean;
+var
+  lFila: TUsuariosDispositivos;
+begin
+  var
+  lTx := TMVCRepository.UseTransactionContext;
+
+  lFila := fDispositivos.GetByPK(ADispositivoId, False);
+  if (lFila <> nil) and (lFila.UsuarioId <> AUsuarioId) then
+    FreeAndNil(lFila);
+  if lFila = nil then
+    raise ERecursoNoEncontrado.Create(SRecursoDispositivo, ADispositivoId);
+  try
+    if not lFila.Activo.ValueOrDefault then
+      Exit(False);
+    lFila.Activo := False;
+    lFila.Motivo := MOTIVO_ADMIN;
+    FijarDetalle(Format(SDetalleInactivacionDispositivo,
+      [lFila.Nombre.ValueOrDefault, AUsuarioId]));
+    fDispositivos.Update(lFila);
+    Result := True;
+  finally
+    lFila.Free;
+  end;
+end;
+
+procedure TDispositivoService.InactivarPorAdmin(const AUsuarioId,
+  ADispositivoId: Integer);
+begin
+  if InactivarEnTransaccion(AUsuarioId, ADispositivoId) then
+    TEstadoUsuarios.OlvidarDispositivo(ADispositivoId);
 end;
 
 procedure TDispositivoService.Cerrar(const ADto: TRenovacionDTO);

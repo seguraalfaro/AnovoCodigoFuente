@@ -136,6 +136,7 @@ uses
   Anovo.Forms.CambioClave in 'Src\Forms\Anovo.Forms.CambioClave.pas' {frmCambioClave},
   Anovo.Forms.Conexion in 'Src\Forms\Anovo.Forms.Conexion.pas' {frmConexion},
   Anovo.DTOs.Usuarios in '..\Backend\src\DTOs\Anovo.DTOs.Usuarios.pas',
+  Anovo.DTOs.Dispositivos in '..\Backend\src\DTOs\Anovo.DTOs.Dispositivos.pas',
   Anovo.DTOs.Roles in '..\Backend\src\DTOs\Anovo.DTOs.Roles.pas',
   Anovo.Api.Intf.Usuarios in 'Src\Interfaces\Anovo.Api.Intf.Usuarios.pas',
   Anovo.Api.Usuarios in 'Src\Api\Anovo.Api.Usuarios.pas',

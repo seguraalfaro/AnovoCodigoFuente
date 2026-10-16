@@ -38,5 +38,9 @@ Public Sub RegistrarTelefono As ResumableSub
 		Log("Registro del telefono: " & Respuesta.StatusCode)
 		Return False
 	End If
-	Return LlaveDispositivo.Guardar(Respuesta.DatosMap.GetDefault(CAMPO_LLAVE, ""))
+	Dim datos As Map = Respuesta.DatosMap
+	If LlaveDispositivo.Guardar(datos.GetDefault(CAMPO_LLAVE, "")) = False Then Return False
+	Dim nuevo As String = datos.GetDefault(CAMPO_TOKEN, "")
+	If nuevo <> "" Then Sesion.Abrir(nuevo)
+	Return True
 End Sub

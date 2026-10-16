@@ -11,6 +11,7 @@ uses
   MVCFramework.RESTClient.Intf,
   Anovo.Api.Base,
   Anovo.Api.Intf.Usuarios,
+  Anovo.DTOs.Dispositivos,
   Anovo.DTOs.Usuarios;
 
 type
@@ -31,6 +32,8 @@ type
     function Excepciones(const AId: Integer): TObjectList<TExcepcionDTO>;
     procedure CambiarExcepciones(const AId: Integer;
       const ADto: TCambiosExcepcionesDTO);
+    function Dispositivos(const AId: Integer): TObjectList<TDispositivoDTO>;
+    procedure InactivarDispositivo(const AId, ADispositivoId: Integer);
   end;
 
 implementation
@@ -47,6 +50,8 @@ const
   ACCION_CLAVE = 'clave';
   ACCION_CAMBIO_CLAVE = 'cambio-clave';
   ACCION_PERMISOS = 'permisos';
+  ACCION_DISPOSITIVOS = 'dispositivos';
+  SUB_INACTIVAR_DISPOSITIVO = '%s/%d/dispositivos/%d/inactivacion';
 
 function TApiUsuarios.Buscar(const ATexto, AEstado: string;
   const APagina, APorPagina: Integer; out ATotal: Int64)
@@ -176,6 +181,37 @@ end;
 procedure TApiUsuarios.PedirCambioClave(const AId: Integer);
 begin
   Accion(AId, ACCION_CAMBIO_CLAVE);
+end;
+
+function TApiUsuarios.Dispositivos(const AId: Integer)
+  : TObjectList<TDispositivoDTO>;
+var
+  lRespuesta: IMVCRESTResponse;
+begin
+  lRespuesta := Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.Get(Format(SUB_ACCION,
+        [RUTA_USUARIOS, AId, ACCION_DISPOSITIVOS]));
+    end);
+
+  Result := TObjectList<TDispositivoDTO>.Create(True);
+  try
+    lRespuesta.BodyForListOf(Result, TDispositivoDTO, 'data');
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
+procedure TApiUsuarios.InactivarDispositivo(const AId, ADispositivoId: Integer);
+begin
+  Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.Post(Format(SUB_INACTIVAR_DISPOSITIVO,
+        [RUTA_USUARIOS, AId, ADispositivoId]));
+    end);
 end;
 
 function TApiUsuarios.Excepciones(const AId: Integer)

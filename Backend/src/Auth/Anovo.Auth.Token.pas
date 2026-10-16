@@ -16,7 +16,8 @@ const
 
 procedure ConfigurarClaims(const AJWT: TJWT);
 function SecretoJWT: string;
-function EmitirToken(const AAutenticacion: TAutenticacion): string;
+function EmitirToken(const AAutenticacion: TAutenticacion;
+  const ADispositivoId: Integer = 0): string;
 
 implementation
 
@@ -40,7 +41,8 @@ begin
   Result := dotEnv.Env('JWT_SECRET');
 end;
 
-function EmitirToken(const AAutenticacion: TAutenticacion): string;
+function EmitirToken(const AAutenticacion: TAutenticacion;
+  const ADispositivoId: Integer): string;
 var
   lJWT: TJWT;
 begin
@@ -53,6 +55,8 @@ begin
     lJWT.CustomClaims[DATO_NOMBRE] := AAutenticacion.Nombre;
     lJWT.CustomClaims[DATO_DEBE_CAMBIAR_CLAVE] :=
       BoolToStr(AAutenticacion.DebeCambiarClave, True);
+    if ADispositivoId > 0 then
+      lJWT.CustomClaims[DATO_DISPOSITIVO_ID] := ADispositivoId.ToString;
     Result := lJWT.GetToken;
   finally
     lJWT.Free;

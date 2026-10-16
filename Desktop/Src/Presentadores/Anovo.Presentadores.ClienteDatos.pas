@@ -24,6 +24,7 @@ type
     procedure CargarDatosCliente;
     procedure CargarContactos;
     procedure CargarConsentimientos;
+    procedure MostrarUbicacion(const ACliente: TClienteDTO);
     procedure MostrarError(AMensaje: string);
     procedure MostrarCargando(AActivo: Boolean);
   public
@@ -47,12 +48,30 @@ implementation
 uses
   System.SysUtils,
   System.Generics.Collections,
+  Anovo.Formato,
   Anovo.Sesion,
   Anovo.Textos;
 
 const
   TIPO_IDENT_FISICA = 1;
   TIPO_IDENT_DIMEX = 3;
+  URL_MAPA = 'https://www.google.com/maps/search/?api=1&query=%s';
+
+procedure TPresentadorClienteDatos.MostrarUbicacion(const ACliente
+  : TClienteDTO);
+var
+  lCoordenadas: string;
+begin
+  if not ACliente.Latitud.HasValue or not ACliente.Longitud.HasValue then
+  begin
+    FVista.MostrarUbicacion(SSinUbicacion, '');
+    Exit;
+  end;
+  lCoordenadas := TFormato.Coordenadas(ACliente.Latitud.Value,
+    ACliente.Longitud.Value);
+  FVista.MostrarUbicacion(lCoordenadas, Format(URL_MAPA,
+    [StringReplace(lCoordenadas, ' ', '', [rfReplaceAll])]));
+end;
 
 constructor TPresentadorClienteDatos.Create(const AVista: IVistaClienteDatos;
   const AApi: IApiClientes; const AClienteId: Integer);
@@ -210,6 +229,7 @@ begin
         (ACliente.TipoIdentificacion.Value = TIPO_IDENT_DIMEX));
       FAnonimizado := ACliente.Anonimizado;
       FVista.MostrarCliente(ACliente);
+      MostrarUbicacion(ACliente);
       FVista.MostrarAnonimizacion(PuedeAnonimizar,
         FPersonaFisica and not FAnonimizado);
     end, MostrarError, MostrarCargando);

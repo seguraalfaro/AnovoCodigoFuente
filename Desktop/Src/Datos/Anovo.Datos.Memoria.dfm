@@ -2640,6 +2640,63 @@ object dmMemoria: TdmMemoria
     Left = 1384
     Top = 736
   end
+  object mtTelefonos: TFDMemTable
+    OnCalcFields = CatalogoCalcFields
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1280
+    Top = 792
+    object mtTelefonosID: TIntegerField
+      FieldName = 'ID'
+      Visible = False
+    end
+    object mtTelefonosNOMBRE: TStringField
+      DisplayLabel = 'Tel'#233'fono'
+      FieldName = 'NOMBRE'
+      Size = 120
+    end
+    object mtTelefonosFECHA_CREACION: TDateTimeField
+      DisplayLabel = 'Registrado'
+      FieldName = 'FECHA_CREACION'
+      DisplayFormat = 'dd/mm/yyyy hh:nn'
+    end
+    object mtTelefonosFECHA_ULTIMO_USO: TDateTimeField
+      DisplayLabel = #218'ltimo uso'
+      FieldName = 'FECHA_ULTIMO_USO'
+      DisplayFormat = 'dd/mm/yyyy hh:nn'
+    end
+    object mtTelefonosESTADO: TStringField
+      DisplayLabel = 'Estado'
+      FieldKind = fkCalculated
+      FieldName = 'ESTADO'
+      Size = 15
+      Calculated = True
+    end
+    object mtTelefonosMOTIVO: TStringField
+      DisplayLabel = 'Motivo'
+      FieldName = 'MOTIVO'
+      OnGetText = MotivoTelefonoGetText
+      Size = 20
+    end
+    object mtTelefonosACTIVO: TBooleanField
+      FieldName = 'ACTIVO'
+      Visible = False
+    end
+    object mtTelefonosINACTIVAR: TBooleanField
+      DisplayLabel = 'Inactivar al guardar'
+      FieldName = 'INACTIVAR'
+    end
+  end
+  object dsTelefonos: TDataSource
+    DataSet = mtTelefonos
+    Left = 1384
+    Top = 792
+  end
   object mtItemsLinea: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll

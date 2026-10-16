@@ -288,7 +288,7 @@ object fraClienteDatos: TfraClienteDatos
             Left = 16
             Top = 216
             Width = 353
-            Height = 137
+            Height = 80
             BorderStyle = bsNone
             DataField = 'DIRECCION'
             DataSource = dmMemoria.dsClienteDetalle
@@ -306,6 +306,36 @@ object fraClienteDatos: TfraClienteDatos
             DBEditLabel.Font.Name = 'Segoe UI'
             DBEditLabel.Font.Style = []
             DBEditLabel.ParentFont = False
+          end
+          object lblUbicacionRot: TLabel
+            Tag = 13
+            Left = 16
+            Top = 310
+            Width = 353
+            Height = 15
+            AutoSize = False
+            Caption = 'Ubicaci'#243'n en campo'
+          end
+          object lblUbicacion: TLabel
+            Left = 16
+            Top = 332
+            Width = 240
+            Height = 17
+            AutoSize = False
+            ShowAccelChar = False
+          end
+          object lblVerMapa: TLabel
+            Tag = 15
+            Left = 262
+            Top = 332
+            Width = 107
+            Height = 17
+            Cursor = crHandPoint
+            Alignment = taRightJustify
+            AutoSize = False
+            Caption = 'Ver en el mapa'
+            Visible = False
+            OnClick = lblVerMapaClick
           end
         end
         object tjUbicacion: TPlanoTarjeta

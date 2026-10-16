@@ -11,6 +11,7 @@ uses
   MVCFramework.Swagger.Commons,
   Anovo.Auth.Permisos,
   Anovo.DTOs.Usuarios,
+  Anovo.Services.Intf.Dispositivos,
   Anovo.Services.Intf.Usuarios,
   Anovo.Permisos;
 
@@ -95,6 +96,28 @@ type
     [MVCSwagResponses(404, 'No existe un usuario con ese numero')]
     function Inactivar([MVCInject] AServicio: IUsuarioService;
       const AId: Integer): IMVCResponse;
+
+    [MVCPath('/($AId)/dispositivos')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCSwagSummary('Usuarios', 'Telefonos registrados por la cuenta, los ' +
+      'activos primero', 'listarDispositivos')]
+    [MVCSwagParam(plPath, 'AId', 'Numero del usuario', ptInteger, True)]
+    [MVCSwagResponses(200, 'Los telefonos, sin la llave')]
+    function Dispositivos([MVCInject] AServicio: IDispositivoService;
+      const AId: Integer): IMVCResponse;
+
+    [MVCPath('/($AId)/dispositivos/($ADispositivoId)/inactivacion')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCSwagSummary('Usuarios', 'Inactiva un telefono: su llave deja de ' +
+      'servir y su sesion se corta en la siguiente peticion',
+      'inactivarDispositivo')]
+    [MVCSwagParam(plPath, 'AId', 'Numero del usuario', ptInteger, True)]
+    [MVCSwagParam(plPath, 'ADispositivoId', 'Numero del telefono', ptInteger,
+      True)]
+    [MVCSwagResponses(204, 'Inactivado, o ya lo estaba')]
+    [MVCSwagResponses(404, 'No existe ese telefono en esa cuenta')]
+    function InactivarDispositivo([MVCInject] AServicio: IDispositivoService;
+      const AId, ADispositivoId: Integer): IMVCResponse;
 
     [MVCPath('/($AId)/activacion')]
     [MVCHTTPMethods([httpPOST])]
@@ -199,6 +222,19 @@ function TUsuariosController.Editar(AServicio: IUsuarioService;
   const AId: Integer; const ADto: TUsuarioEdicionDTO): IMVCResponse;
 begin
   AServicio.Editar(AId, ADto);
+  Result := NoContentResponse;
+end;
+
+function TUsuariosController.Dispositivos(AServicio: IDispositivoService;
+  const AId: Integer): IMVCResponse;
+begin
+  Result := OKResponse(AServicio.DeUsuario(AId));
+end;
+
+function TUsuariosController.InactivarDispositivo(AServicio
+  : IDispositivoService; const AId, ADispositivoId: Integer): IMVCResponse;
+begin
+  AServicio.InactivarPorAdmin(AId, ADispositivoId);
   Result := NoContentResponse;
 end;
 

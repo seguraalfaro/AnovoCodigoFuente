@@ -32,6 +32,9 @@ type
     class function Fecha(const AFecha: TDateTime): string; static;
     class function FechaHora(const AFecha: TDateTime): string; static;
     class function Porcentaje(const AValor: Double): string; static;
+    class function Coordenadas(const ALatitud, ALongitud: Double)
+      : string; static;
+    class function MotivoTelefono(const AValor: string): string; static;
     class function ClaveEnGrupos(const AClave: string): string; static;
     class function Cantidad(const ACantidad: Integer;
       const AUno, AVarios: string): string; static;
@@ -196,6 +199,31 @@ begin
   else
     Result := '';
   end;
+end;
+
+class function TFormato.MotivoTelefono(const AValor: string): string;
+const
+  CODIGOS: array [0 .. 6] of string = ('cierre', 'reuso', 'clave', 'usuario',
+    'reemplazo', 'vencido', 'admin');
+  TEXTOS: array [0 .. 6] of string = (SMotivoTelCierre, SMotivoTelReuso,
+    SMotivoTelClave, SMotivoTelUsuario, SMotivoTelReemplazo, SMotivoTelVencido,
+    SMotivoTelAdmin);
+var
+  I: Integer;
+begin
+  for I := Low(CODIGOS) to High(CODIGOS) do
+    if SameText(AValor, CODIGOS[I]) then
+      Exit(TEXTOS[I]);
+  Result := AValor;
+end;
+
+class function TFormato.Coordenadas(const ALatitud, ALongitud: Double): string;
+const
+  FORMATO_COORDENADA = '0.000000';
+begin
+  Result := FormatFloat(FORMATO_COORDENADA, ALatitud,
+    TFormatSettings.Invariant) + ', ' + FormatFloat(FORMATO_COORDENADA,
+    ALongitud, TFormatSettings.Invariant);
 end;
 
 class function TFormato.MesAnio(const AFecha: TDateTime): string;
