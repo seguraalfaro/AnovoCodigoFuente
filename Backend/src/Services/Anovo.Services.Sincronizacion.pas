@@ -125,7 +125,7 @@ var
 begin
   lClientes := fClientes.ParaBajar(ADesde, True);
   try
-    ABajada.Clientes.Free;
+    FreeAndNil(ABajada.Clientes);
     ABajada.Clientes := TMapeo.AListaDto<TClientes, TClienteBajadaDTO>
       (lClientes);
     lUuids := UuidsDe(lClientes);
@@ -193,7 +193,7 @@ var
 begin
   lFilas := fSolicitudes.SeguimientoParaBajar(AAsesorId, ADesde);
   try
-    ABajada.Solicitudes.Free;
+    FreeAndNil(ABajada.Solicitudes);
     ABajada.Solicitudes := TMapeo.AListaDto<TSeguimientoAsesor,
       TSolicitudBajadaDTO>(lFilas);
   finally
@@ -210,7 +210,7 @@ var
 begin
   lTrabajos := fTiposTrabajo.ParaBajar(ADesde);
   try
-    ABajada.TiposTrabajo.Free;
+    FreeAndNil(ABajada.TiposTrabajo);
     ABajada.TiposTrabajo := TMapeo.AListaDto<TTiposTrabajo, TCatalogoBajadaDTO>
       (lTrabajos);
   finally
@@ -219,7 +219,7 @@ begin
 
   lMateriales := fTiposMaterial.ParaBajar(ADesde);
   try
-    ABajada.TiposMaterial.Free;
+    FreeAndNil(ABajada.TiposMaterial);
     ABajada.TiposMaterial := TMapeo.AListaDto<TTiposMaterial,
       TCatalogoBajadaDTO>(lMateriales);
   finally
@@ -228,7 +228,7 @@ begin
 
   lAcabados := fAcabados.ParaBajar(ADesde);
   try
-    ABajada.Acabados.Free;
+    FreeAndNil(ABajada.Acabados);
     ABajada.Acabados := TMapeo.AListaDto<TAcabados, TCatalogoBajadaDTO>
       (lAcabados);
   finally

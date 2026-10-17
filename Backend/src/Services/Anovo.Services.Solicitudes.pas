@@ -375,8 +375,13 @@ begin
     AEstado, lPeriodo.Inicio, lPeriodo.Fin);
   try
     Result := TObjectList<TSolicitudDTO>.Create(True);
-    for lFila in lFilas do
-      Result.Add(ADto(lFila));
+    try
+      for lFila in lFilas do
+        Result.Add(ADto(lFila));
+    except
+      Result.Free;
+      raise;
+    end;
   finally
     lFilas.Free;
   end;
@@ -799,7 +804,6 @@ var
   lAdjunto: TSolicitudAdjuntos;
   lExistente: TSolicitudAdjuntos;
   lBytes: TBytes;
-  lStream: TMemoryStream;
   lHuella: string;
 begin
   if ADto.UuidLocal.IsEmpty then
@@ -850,10 +854,9 @@ begin
         raise EDatoInvalido.Create(SAdjuntoHuellaDistinta);
       lAdjunto.HashSha256 := lHuella;
 
-      lStream := TMemoryStream.Create;
-      lStream.WriteBuffer(lBytes[0], Length(lBytes));
-      lStream.Position := 0;
-      lAdjunto.Contenido := lStream;
+      lAdjunto.Contenido.Size := 0;
+      lAdjunto.Contenido.WriteBuffer(lBytes[0], Length(lBytes));
+      lAdjunto.Contenido.Position := 0;
       lAdjunto.TamanoBytes := Length(lBytes);
     end
     else if not ADto.ContenidoJson.HasValue then

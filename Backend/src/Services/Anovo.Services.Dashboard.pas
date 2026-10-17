@@ -86,7 +86,7 @@ begin
     lFilas := fRepo.RecientesAsesor(AAsesorId, StartOfTheWeek(Date),
       IncDay(StartOfTheWeek(Date), 7));
     try
-      Result.Recientes.Free;
+      FreeAndNil(Result.Recientes);
       Result.Recientes := TMapeo.AListaDto<TSeguimientoAsesor,
         TSolicitudAsesorDTO>(lFilas);
     finally
@@ -109,7 +109,7 @@ begin
 
     lFilas := fRepo.ColaPorCotizar;
     try
-      Result.Cola.Free;
+      FreeAndNil(Result.Cola);
       Result.Cola := TMapeo.AListaDto<TColaSolicitudes,
         TSolicitudPorCotizarDTO>(lFilas);
     finally
@@ -133,7 +133,7 @@ begin
 
     lFilas := fRepo.ColaPorAprobar(AUsuarioId);
     try
-      Result.Cola.Free;
+      FreeAndNil(Result.Cola);
       Result.Cola := TMapeo.AListaDto<TBandejaCotizaciones,
         TCotizacionPorAprobarDTO>(lFilas);
     finally
@@ -161,7 +161,7 @@ begin
 
     lProductividad := fRepo.Productividad;
     try
-      Result.Productividad.Free;
+      FreeAndNil(Result.Productividad);
       Result.Productividad := TMapeo.AListaDto<TAsesoresMes,
         TProductividadAsesorDTO>(lProductividad);
     finally
@@ -170,7 +170,7 @@ begin
 
     lEstados := fRepo.CotizacionesPorEstado;
     try
-      Result.Estados.Free;
+      FreeAndNil(Result.Estados);
       Result.Estados := TMapeo.AListaDto<TCotizacionesPorEstado,
         TCotizacionesPorEstadoDTO>(lEstados);
     finally
@@ -196,7 +196,7 @@ begin
 
     lCambios := fRepo.CambiosCuentas;
     try
-      Result.Cambios.Free;
+      FreeAndNil(Result.Cambios);
       Result.Cambios := TMapeo.AListaDto<TCambiosDeCuentas,
         TCambioCuentaDTO>(lCambios);
     finally

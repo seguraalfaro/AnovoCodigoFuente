@@ -76,7 +76,7 @@ begin
   try
     lRoles := fRoles.Resumen;
     try
-      Result.Roles.Free;
+      FreeAndNil(Result.Roles);
       Result.Roles := TMapeo.AListaDto<TRolesOrdenados, TRolDTO>(lRoles);
     finally
       lRoles.Free;
@@ -84,7 +84,7 @@ begin
 
     lPermisos := fCatalogo.Catalogo;
     try
-      Result.Permisos.Free;
+      FreeAndNil(Result.Permisos);
       Result.Permisos := TMapeo.AListaDto<TCatalogoPermisos, TPermisoDTO>(lPermisos);
     finally
       lPermisos.Free;
@@ -92,7 +92,7 @@ begin
 
     lAsignaciones := fPermisos.GetAll;
     try
-      Result.Asignaciones.Free;
+      FreeAndNil(Result.Asignaciones);
       Result.Asignaciones :=
         TMapeo.AListaDto<TRolesPermisos, TAsignacionDTO>(lAsignaciones);
     finally

@@ -349,20 +349,24 @@ begin
   lMaterial := TraerMaterial(AId);
   try
     Result := TMapeo.ADto<TMaterialDTO>(lMaterial);
-    Result.UnidadMedida := NombreUnidadMedida(lMaterial.UnidadMedidaId);
+    try
+      Result.UnidadMedida := NombreUnidadMedida(lMaterial.UnidadMedidaId);
+      lPrecio := fMaterialesPrecios.PrecioVigenteDe(AId);
+      if lPrecio <> nil then
+        try
+          Result.CostoUnitario := lPrecio.CostoUnitario;
+          Result.PrecioUnitario := lPrecio.PrecioUnitario;
+          Result.FechaVigencia := lPrecio.FechaVigencia;
+        finally
+          lPrecio.Free;
+        end;
+    except
+      Result.Free;
+      raise;
+    end;
   finally
     lMaterial.Free;
   end;
-
-  lPrecio := fMaterialesPrecios.PrecioVigenteDe(AId);
-  if lPrecio <> nil then
-    try
-      Result.CostoUnitario := lPrecio.CostoUnitario;
-      Result.PrecioUnitario := lPrecio.PrecioUnitario;
-      Result.FechaVigencia := lPrecio.FechaVigencia;
-    finally
-      lPrecio.Free;
-    end;
 end;
 
 function TCatalogoService.CrearMaterial(const ADto: TMaterialNuevoDTO): Integer;
@@ -537,19 +541,23 @@ begin
   lItem := TraerManoObra(AId);
   try
     Result := TMapeo.ADto<TManoObraDTO>(lItem);
-    Result.UnidadMedida := NombreUnidadMedida(lItem.UnidadMedidaId);
+    try
+      Result.UnidadMedida := NombreUnidadMedida(lItem.UnidadMedidaId);
+      lPrecio := fManoObraPrecios.PrecioVigenteDe(AId);
+      if lPrecio <> nil then
+        try
+          Result.CostoUnitario := lPrecio.CostoUnitario;
+          Result.FechaVigencia := lPrecio.FechaVigencia;
+        finally
+          lPrecio.Free;
+        end;
+    except
+      Result.Free;
+      raise;
+    end;
   finally
     lItem.Free;
   end;
-
-  lPrecio := fManoObraPrecios.PrecioVigenteDe(AId);
-  if lPrecio <> nil then
-    try
-      Result.CostoUnitario := lPrecio.CostoUnitario;
-      Result.FechaVigencia := lPrecio.FechaVigencia;
-    finally
-      lPrecio.Free;
-    end;
 end;
 
 function TCatalogoService.CrearManoObra(const ADto: TManoObraNuevaDTO): Integer;
@@ -737,14 +745,19 @@ begin
     lMaquina.Free;
   end;
 
-  lPrecio := fMaquinasPrecios.PrecioVigenteDe(AId);
-  if lPrecio <> nil then
-    try
-      Result.CostoHora := lPrecio.CostoHora;
-      Result.FechaVigencia := lPrecio.FechaVigencia;
-    finally
-      lPrecio.Free;
-    end;
+  try
+    lPrecio := fMaquinasPrecios.PrecioVigenteDe(AId);
+    if lPrecio <> nil then
+      try
+        Result.CostoHora := lPrecio.CostoHora;
+        Result.FechaVigencia := lPrecio.FechaVigencia;
+      finally
+        lPrecio.Free;
+      end;
+  except
+    Result.Free;
+    raise;
+  end;
 end;
 
 function TCatalogoService.CrearMaquina(const ADto: TMaquinaNuevaDTO): Integer;

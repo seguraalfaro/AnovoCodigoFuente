@@ -207,23 +207,28 @@ begin
     lUsuario.Free;
   end;
 
-  lFila := fClaves.ClaveActivaDe(AUsuarioId);
-  if lFila <> nil then
-    try
-      Result.ClaveCambiada := lFila.FechaCambio;
-    finally
-      lFila.Free;
-    end;
-
-  lExcepciones := fExcepciones.DeUsuario(AUsuarioId);
   try
-    for lExcepcion in lExcepciones do
-      if lExcepcion.Tipo = TIPO_OTORGADO then
-        Result.PermisosAdicionales := Result.PermisosAdicionales + 1
-      else
-        Result.PermisosQuitados := Result.PermisosQuitados + 1;
-  finally
-    lExcepciones.Free;
+    lFila := fClaves.ClaveActivaDe(AUsuarioId);
+    if lFila <> nil then
+      try
+        Result.ClaveCambiada := lFila.FechaCambio;
+      finally
+        lFila.Free;
+      end;
+
+    lExcepciones := fExcepciones.DeUsuario(AUsuarioId);
+    try
+      for lExcepcion in lExcepciones do
+        if lExcepcion.Tipo = TIPO_OTORGADO then
+          Result.PermisosAdicionales := Result.PermisosAdicionales + 1
+        else
+          Result.PermisosQuitados := Result.PermisosQuitados + 1;
+    finally
+      lExcepciones.Free;
+    end;
+  except
+    Result.Free;
+    raise;
   end;
 end;
 

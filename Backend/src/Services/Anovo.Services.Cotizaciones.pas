@@ -477,8 +477,13 @@ begin
     lFiltroUsuario, lPeriodo.Inicio, lPeriodo.Fin);
   try
     Result := TObjectList<TCotizacionDTO>.Create(True);
-    for lFila in lFilas do
-      Result.Add(ADto(lFila));
+    try
+      for lFila in lFilas do
+        Result.Add(ADto(lFila));
+    except
+      Result.Free;
+      raise;
+    end;
   finally
     lFilas.Free;
   end;
@@ -507,7 +512,7 @@ begin
 
     lFilas := fRepo.Bandeja(AUsuarioId, ATexto, APagina, APorPagina);
     try
-      Result.Data.Free;
+      FreeAndNil(Result.Data);
       Result.Data := TMapeo.AListaDto<TBandejaCotizaciones,
         TCotizacionBandejaDTO>(lFilas);
     finally
@@ -1013,8 +1018,13 @@ begin
   lFilas := fRepo.EnviadasSinRespuesta(lDias);
   try
     Result := TObjectList<TCotizacionDTO>.Create(True);
-    for lFila in lFilas do
-      Result.Add(ADto(lFila));
+    try
+      for lFila in lFilas do
+        Result.Add(ADto(lFila));
+    except
+      Result.Free;
+      raise;
+    end;
   finally
     lFilas.Free;
   end;
