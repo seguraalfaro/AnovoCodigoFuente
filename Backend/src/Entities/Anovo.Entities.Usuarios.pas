@@ -99,7 +99,6 @@ type
     [MVCTableField('CLAVE_HASH')]
     [MVCRequired]
     [MVCMaxLength(255)]
-    [MVCDoNotSerialize]
     fClaveHash: String;
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
@@ -109,6 +108,7 @@ type
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
     property UsuarioId: Int32 read fUsuarioId write fUsuarioId;
+    [MVCDoNotSerialize]
     property ClaveHash: String read fClaveHash write fClaveHash;
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaCambio: NullableTDateTime
@@ -177,11 +177,9 @@ type
     [MVCTableField('LLAVE_HASH')]
     [MVCRequired]
     [MVCMaxLength(64)]
-    [MVCDoNotSerialize]
     fLlaveHash: String;
     [MVCTableField('LLAVE_ANTERIOR_HASH')]
     [MVCMaxLength(64)]
-    [MVCDoNotSerialize]
     fLlaveAnteriorHash: NullableString;
     [MVCTableField('FECHA_VENCE')]
     [MVCRequired]
@@ -206,7 +204,9 @@ type
     property UuidDispositivo: String read fUuidDispositivo
       write fUuidDispositivo;
     property Nombre: NullableString read fNombre write fNombre;
+    [MVCDoNotSerialize]
     property LlaveHash: String read fLlaveHash write fLlaveHash;
+    [MVCDoNotSerialize]
     property LlaveAnteriorHash: NullableString read fLlaveAnteriorHash
       write fLlaveAnteriorHash;
     property FechaVence: TDateTime read fFechaVence write fFechaVence;

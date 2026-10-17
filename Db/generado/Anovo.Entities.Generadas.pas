@@ -1462,6 +1462,7 @@ type
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
     property UsuarioId: Int32 read fUsuarioId write fUsuarioId;
+    [MVCDoNotSerialize]
     property ClaveHash: String read fClaveHash write fClaveHash;
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaCambio: NullableTDateTime {dtDateTimeStamp} read fFechaCambio write fFechaCambio;
@@ -1512,7 +1513,9 @@ type
     property UsuarioId: Int32 read fUsuarioId write fUsuarioId;
     property UuidDispositivo: String read fUuidDispositivo write fUuidDispositivo;
     property Nombre: NullableString read fNombre write fNombre;
+    [MVCDoNotSerialize]
     property LlaveHash: String read fLlaveHash write fLlaveHash;
+    [MVCDoNotSerialize]
     property LlaveAnteriorHash: NullableString read fLlaveAnteriorHash write fLlaveAnteriorHash;
     property FechaVence: TDateTime {dtDateTimeStamp} read fFechaVence write fFechaVence;
     property FechaUltimoUso: NullableTDateTime {dtDateTimeStamp} read fFechaUltimoUso write fFechaUltimoUso;
