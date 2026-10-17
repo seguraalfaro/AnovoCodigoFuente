@@ -5,22 +5,18 @@ unit Anovo.Vistas.Intf.Bandeja;
 interface
 
 uses
+  Anovo.Vistas.Intf.Listado,
   Anovo.DTOs.Cotizaciones;
 
 type
   TAccionBandeja = (abRevisar);
   TAccionesBandeja = set of TAccionBandeja;
 
-  IVistaBandeja = interface
+  IVistaBandeja = interface(IVistaListado)
     ['{858BB0F1-3F49-4843-8716-E32F4C57192F}']
     procedure MostrarAcciones(const AAcciones: TAccionesBandeja);
-    procedure MostrarCargando(const AActivo: Boolean);
-    procedure MostrarBusqueda(const ATexto: string;
-      const APuedeLimpiar: Boolean);
     procedure MostrarBandeja(const ADatos: TBandejaPaginaDTO);
-    procedure MostrarPaginacion(const APagina, ATotalPaginas: Integer;
-      const ATotal: Int64);
-    procedure MostrarError(const AMensaje: string);
+    function MostrarRevision(const AId: Integer): Boolean;
   end;
 
 implementation

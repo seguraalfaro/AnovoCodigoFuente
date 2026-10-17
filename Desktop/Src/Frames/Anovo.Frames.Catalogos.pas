@@ -36,7 +36,6 @@ type
     FPresentador: TPresentadorCatalogos;
     FCatalogo: TCatalogo;
     procedure Accion(Sender: TObject; const AClave: string);
-    function TablaActual: TDataSet;
     function IdDeLaFila: Integer;
     function NombreDeLaFila: string;
     procedure Cargar<T: class>(const AFilas: TObjectList<T>;
@@ -61,7 +60,8 @@ type
       const AId: Integer);
     procedure MostrarFormularioPrecio(const ACatalogo: TCatalogo;
       const AId: Integer);
-    procedure MostrarHistorial(const AFilas: TObjectList<TPrecioDTO>);
+    procedure MostrarHistorial(const ACatalogo: TCatalogo;
+      const AFilas: TObjectList<TPrecioDTO>);
     function Confirmar(const AMensaje: string): Boolean;
   protected
     procedure Buscar(const ATexto: string); override;
@@ -80,7 +80,7 @@ implementation
 {$R *.dfm}
 
 uses
-  rDBExport,
+  Anovo.UI.ColumnasRejilla,
   Anovo.Api.Catalogos,
   Anovo.Forms.ItemCatalogo,
   Anovo.Forms.PrecioCatalogo,
@@ -189,30 +189,14 @@ begin
   inherited;
 end;
 
-function TfraCatalogos.TablaActual: TDataSet;
-begin
-  Result := dmMemoria.dsCatalogo.DataSet;
-end;
-
 function TfraCatalogos.IdDeLaFila: Integer;
-var
-  lTabla: TDataSet;
 begin
-  lTabla := TablaActual;
-  if lTabla.IsEmpty then
-    Exit(0);
-  Result := lTabla.FieldByName('ID').AsInteger;
+  Result := dmMemoria.IdFilaCatalogo;
 end;
 
 function TfraCatalogos.NombreDeLaFila: string;
-var
-  lTabla: TDataSet;
 begin
-  lTabla := TablaActual;
-
-  if lTabla.IsEmpty then
-    Exit('');
-  Result := lTabla.FieldByName('NOMBRE').AsString;
+  Result := dmMemoria.NombreFilaCatalogo;
 end;
 
 procedure TfraCatalogos.Accion(Sender: TObject; const AClave: string);
@@ -412,14 +396,11 @@ begin
     FPresentador.Recargar;
 end;
 
-procedure TfraCatalogos.MostrarHistorial(const AFilas: TObjectList<TPrecioDTO>);
+procedure TfraCatalogos.MostrarHistorial(const ACatalogo: TCatalogo;
+  const AFilas: TObjectList<TPrecioDTO>);
 begin
   TMapeoDatos.AListaTabla<TPrecioDTO>(AFilas, dmMemoria.mtHistorialPrecio);
-  if FCatalogo = ctTodos then
-    TfrmPrecioCatalogo.Mostrar(Self, CatalogoDeLaFila, 0, NombreDeLaFila,
-      mpHistorial)
-  else
-    TfrmPrecioCatalogo.Mostrar(Self, FCatalogo, 0, NombreDeLaFila, mpHistorial);
+  TfrmPrecioCatalogo.Mostrar(Self, ACatalogo, 0, NombreDeLaFila, mpHistorial);
 end;
 
 procedure TfraCatalogos.pstCatalogoChange(Sender: TObject);
@@ -443,7 +424,7 @@ end;
 
 procedure TfraCatalogos.btnExportarClick(Sender: TObject);
 begin
-  rDBExport.DBExport(grDatos, True, True);
+  TColumnasRejilla.ExportarRejilla(grDatos);
 end;
 
 end.

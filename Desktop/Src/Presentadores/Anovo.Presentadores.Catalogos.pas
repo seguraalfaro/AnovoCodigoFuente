@@ -9,25 +9,21 @@ uses
   System.Generics.Collections,
   Anovo.Api.Intf.Catalogos,
   Anovo.Presentadores.Base,
+  Anovo.Presentadores.Listado,
   Anovo.Vistas.Intf.Catalogos,
   Anovo.Permisos,
   Anovo.Textos;
 
 type
-  TPresentadorCatalogos = class(TPresentadorBase)
+  TPresentadorCatalogos = class(TPresentadorListado)
   private
     FVista: IVistaCatalogos;
     FApi: IApiCatalogos;
     FCatalogo: TCatalogo;
-    FTexto: string;
     FCategoriaId: Integer;
-    FPagina: Integer;
-    FTotalPaginas: Integer;
     FCategoriasPedidas: Boolean;
-    procedure Cargar;
     procedure CargarLista<T: class>(const ATrabajo: TFunc<TObjectList<T>>;
       const AListo: TProc<TObjectList<T>>);
-    procedure MostrarPagina(const APagina: Integer; const ATotal: Int64);
     procedure CargarMateriales;
     procedure CargarManoObra;
     procedure CargarMaquinas;
@@ -39,17 +35,14 @@ type
     procedure CargarCategorias;
     procedure PublicarAcciones;
     function CatalogoDeFila: TCatalogo;
+  protected
+    procedure Cargar; override;
   public
     constructor Create(const AVista: IVistaCatalogos;
       const AApi: IApiCatalogos);
     procedure Iniciar;
-    procedure Buscar(const ATexto: string);
-    procedure Limpiar;
     procedure Filtrar(const ACatalogo: TCatalogo);
     procedure FiltrarCategoria(const ACategoriaId: Integer);
-    procedure IrAPagina(const APagina: Integer);
-    procedure PaginaSiguiente;
-    procedure PaginaAnterior;
 
     procedure Nuevo;
     procedure Importar;
@@ -57,7 +50,6 @@ type
     procedure CambiarPrecio(const AId: Integer);
     procedure VerHistorial(const AId: Integer);
     procedure Inactivar(const AId: Integer);
-    procedure Recargar;
 
     class function AccionesPermitidas: TAccionesCatalogo;
     class function PuedeEditar: Boolean;
@@ -86,11 +78,10 @@ end;
 constructor TPresentadorCatalogos.Create(const AVista: IVistaCatalogos;
   const AApi: IApiCatalogos);
 begin
-  inherited Create;
+  inherited Create(AVista);
   FVista := AVista;
   FApi := AApi;
   FCatalogo := ctTodos;
-  FPagina := 1;
 end;
 
 procedure TPresentadorCatalogos.Iniciar;
@@ -152,13 +143,6 @@ begin
     end);
 end;
 
-procedure TPresentadorCatalogos.MostrarPagina(const APagina: Integer;
-  const ATotal: Int64);
-begin
-  FTotalPaginas := (ATotal + CATALOGO_POR_PAGINA - 1) div CATALOGO_POR_PAGINA;
-  FVista.MostrarPaginacion(APagina, FTotalPaginas, ATotal);
-end;
-
 procedure TPresentadorCatalogos.CargarMateriales;
 var
   lApi: IApiCatalogos;
@@ -180,7 +164,7 @@ begin
     procedure(ALista: TObjectList<TMaterialDTO>)
     begin
       FVista.MostrarMateriales(ALista);
-      MostrarPagina(lPagina, lTotal);
+      MostrarPagina(lPagina, lTotal, CATALOGO_POR_PAGINA);
     end);
 end;
 
@@ -206,7 +190,7 @@ begin
     procedure(ALista: TObjectList<TManoObraDTO>)
     begin
       FVista.MostrarManoObra(ALista);
-      MostrarPagina(lPagina, lTotal);
+      MostrarPagina(lPagina, lTotal, CATALOGO_POR_PAGINA);
     end);
 end;
 
@@ -231,7 +215,7 @@ begin
     procedure(ALista: TObjectList<TMaquinaDTO>)
     begin
       FVista.MostrarMaquinas(ALista);
-      MostrarPagina(lPagina, lTotal);
+      MostrarPagina(lPagina, lTotal, CATALOGO_POR_PAGINA);
     end);
 end;
 
@@ -256,7 +240,7 @@ begin
     procedure(ALista: TObjectList<TCatalogoItemDTO>)
     begin
       FVista.MostrarTodos(ALista);
-      MostrarPagina(lPagina, lTotal);
+      MostrarPagina(lPagina, lTotal, CATALOGO_POR_PAGINA);
     end);
 end;
 
@@ -363,19 +347,6 @@ begin
     end, nil);
 end;
 
-procedure TPresentadorCatalogos.Buscar(const ATexto: string);
-begin
-  FTexto := ATexto.Trim;
-  FPagina := 1;
-  FVista.MostrarBusqueda(FTexto, not FTexto.IsEmpty);
-  Cargar;
-end;
-
-procedure TPresentadorCatalogos.Limpiar;
-begin
-  Buscar('');
-end;
-
 procedure TPresentadorCatalogos.Filtrar(const ACatalogo: TCatalogo);
 begin
   if ACatalogo = FCatalogo then
@@ -398,29 +369,6 @@ begin
     Exit;
   FCategoriaId := ACategoriaId;
   FPagina := 1;
-  Cargar;
-end;
-
-procedure TPresentadorCatalogos.IrAPagina(const APagina: Integer);
-begin
-  if (APagina < 1) or ((FTotalPaginas > 0) and (APagina > FTotalPaginas)) then
-    Exit;
-  FPagina := APagina;
-  Cargar;
-end;
-
-procedure TPresentadorCatalogos.PaginaSiguiente;
-begin
-  IrAPagina(FPagina + 1);
-end;
-
-procedure TPresentadorCatalogos.PaginaAnterior;
-begin
-  IrAPagina(FPagina - 1);
-end;
-
-procedure TPresentadorCatalogos.Recargar;
-begin
   Cargar;
 end;
 
@@ -502,7 +450,7 @@ begin
       Diferir(
         procedure
         begin
-          FVista.MostrarHistorial(lTomada);
+          FVista.MostrarHistorial(lCatalogo, lTomada);
         end,
         procedure
         begin

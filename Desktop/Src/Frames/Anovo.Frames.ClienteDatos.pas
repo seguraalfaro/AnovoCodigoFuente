@@ -96,6 +96,7 @@ type
     FClienteId: Integer;
     FUrlMapa: string;
     function ClienteEditado: TClienteEdicionDTO;
+    procedure OcultarBarras;
     procedure BotonesDeEdicion(const AEdicion: Boolean);
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarError(const AMensaje: string);
@@ -105,7 +106,7 @@ type
     procedure MostrarCotizaciones(const ACotizaciones
       : TObjectList<TCotizacionDTO>);
     procedure MostrarConsentimientos(const AConsentimientos
-      : TObjectList<TConsentimientoDTO>);
+      : TObjectList<TConsentimientoDTO>; const ARecogido: string);
     procedure MostrarAcciones(const APuedeEditar, APuedeRevocar,
       APuedeVerCotizaciones: Boolean; const AContacto: TAccionesContacto;
       const ACotizacion: TAccionesCotizacionCliente);
@@ -122,6 +123,7 @@ type
 
     constructor Crear(AOwner: TComponent; const AClienteId: Integer);
     destructor Destroy; override;
+    procedure Resize; override;
     property OnRegresar: TNotifyEvent read FOnRegresar write FOnRegresar;
   end;
 
@@ -136,7 +138,6 @@ uses
   Anovo.Formato,
   Anovo.Api.Clientes,
   Anovo.Api.Cotizaciones,
-  rDBExport,
   Anovo.Forms.ContactoNuevo,
   Anovo.Forms.Motivo,
   Anovo.Mapeo.Datos,
@@ -144,7 +145,6 @@ uses
   Anovo.Textos;
 
 const
-  SIN_DATO = '-';
   ACCION_ABRIR_MAPA = 'open';
 
   CAMPO_ACCIONES = 'ACCIONES';
@@ -164,6 +164,9 @@ begin
   AplicarTemaGrid(grContactos);
   AplicarTemaGrid(grCotizaciones);
   AplicarTemaGrid(grHistorial);
+  TCeldasRejilla.De(grContactos).TextoVacio := SVacioContactos;
+  TCeldasRejilla.De(grCotizaciones).TextoVacio := SVacioCotizacionesCliente;
+  TCeldasRejilla.De(grHistorial).TextoVacio := SVacioConsentimientos;
   PrepararRejilla(grContactos, AccionContacto);
   PrepararRejilla(grCotizaciones, AccionCotizacion);
   FClienteId := AClienteId;
@@ -352,6 +355,19 @@ begin
   TMapeoDatos.AListaTabla<TCotizacionDTO>(ACotizaciones,
     dmMemoria.mtClienteCotizaciones);
   TCeldasRejilla.De(grCotizaciones).AjustarColumnas;
+  OcultarBarras;
+end;
+
+procedure TfraClienteDatos.Resize;
+begin
+  inherited;
+  OcultarBarras;
+end;
+
+procedure TfraClienteDatos.OcultarBarras;
+begin
+  OcultarScrollVertical(grContactos);
+  OcultarScrollVertical(grCotizaciones);
 end;
 
 procedure TfraClienteDatos.SearchBox1InvokeSearch(Sender: TObject);
@@ -368,7 +384,7 @@ end;
 
 procedure TfraClienteDatos.btnExportarClick(Sender: TObject);
 begin
-  rDBExport.DBExport(grCotizaciones, True, True);
+  TColumnasRejilla.ExportarRejilla(grCotizaciones);
 end;
 
 procedure TfraClienteDatos.MostrarUbicacion(const ATexto, AUrlMapa: string);
@@ -391,38 +407,27 @@ begin
   TMapeoDatos.ATabla(ACliente, dmMemoria.mtClienteDetalle);
 
   pstEstado.Caption := ACliente.ConsentimientoEstado;
-  valVersion.Caption := ACliente.ConsentimientoVersion.ValueOrElse(SIN_DATO);
+  valVersion.Caption := ACliente.ConsentimientoVersion.ValueOrElse(SSinDato);
   if ACliente.ConsentimientoFecha.HasValue then
     valOtorgado.Caption := TFormato.FechaHora(ACliente.ConsentimientoFecha.Value)
   else
-    valOtorgado.Caption := SIN_DATO;
+    valOtorgado.Caption := SSinDato;
 end;
 
 procedure TfraClienteDatos.MostrarContactos(const AContactos
   : TObjectList<TContactoDTO>);
 begin
   TMapeoDatos.AListaTabla<TContactoDTO>(AContactos, dmMemoria.mtContactos);
+  OcultarBarras;
 end;
 
 procedure TfraClienteDatos.MostrarConsentimientos(const AConsentimientos
-  : TObjectList<TConsentimientoDTO>);
-var
-  lPrimera: TConsentimientoDTO;
+  : TObjectList<TConsentimientoDTO>; const ARecogido: string);
 begin
-
   TMapeoDatos.AListaTabla<TConsentimientoDTO>(AConsentimientos,
     dmMemoria.mtConsentimientos);
   TColumnasRejilla.AplicarEn(grHistorial);
-  if AConsentimientos.Count = 0 then
-    valRecogido.Caption := SIN_DATO
-  else
-  begin
-    lPrimera := AConsentimientos.First;
-    valRecogido.Caption := lPrimera.FirmanteNombre.ValueOrElse(SIN_DATO);
-    if lPrimera.Origen.HasValue and (lPrimera.Origen.Value <> '') then
-      valRecogido.Caption := valRecogido.Caption + ' (' +
-        lPrimera.Origen.Value + ')';
-  end;
+  valRecogido.Caption := ARecogido;
 end;
 
 end.

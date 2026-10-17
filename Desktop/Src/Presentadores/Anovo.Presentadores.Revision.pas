@@ -16,14 +16,15 @@ type
     FVista: IVistaRevision;
     FApi: IApiCotizaciones;
     FId: Integer;
+    FNumero: Integer;
     procedure Decidir(const ADecision: TDecision; const AMotivo: string);
     procedure MostrarError(AMensaje: string);
   public
     constructor Create(const AVista: IVistaRevision;
-      const AApi: IApiCotizaciones; const AId: Integer);
-    procedure Iniciar;
+      const AApi: IApiCotizaciones);
+    procedure Iniciar(const AId: Integer);
     procedure DarVistoBueno;
-    procedure Devolver(const AMotivo: string);
+    procedure Devolver;
   end;
 
 implementation
@@ -36,12 +37,11 @@ uses
   Anovo.Textos;
 
 constructor TPresentadorRevision.Create(const AVista: IVistaRevision;
-  const AApi: IApiCotizaciones; const AId: Integer);
+  const AApi: IApiCotizaciones);
 begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
-  FId := AId;
 end;
 
 procedure TPresentadorRevision.MostrarError(AMensaje: string);
@@ -49,13 +49,14 @@ begin
   FVista.MostrarError(AMensaje);
 end;
 
-procedure TPresentadorRevision.Iniciar;
+procedure TPresentadorRevision.Iniciar(const AId: Integer);
 var
   lApi: IApiCotizaciones;
   lId: Integer;
   lCotizacion: TCotizacionDTO;
   lLineas: TObjectList<TLineaDTO>;
 begin
+  FId := AId;
   lApi := FApi;
   lId := FId;
   lCotizacion := nil;
@@ -69,6 +70,7 @@ begin
     end,
     procedure
     begin
+      FNumero := lCotizacion.Numero;
       FVista.MostrarCotizacion(lCotizacion, lLineas);
     end, MostrarError,
     procedure(AActivo: Boolean)
@@ -84,12 +86,16 @@ end;
 
 procedure TPresentadorRevision.DarVistoBueno;
 begin
-  Decidir(dcVistoBueno, '');
+  if FVista.Confirmar(Format(SConfirmarAprobar, [FNumero])) then
+    Decidir(dcVistoBueno, '');
 end;
 
-procedure TPresentadorRevision.Devolver(const AMotivo: string);
+procedure TPresentadorRevision.Devolver;
+var
+  lMotivo: string;
 begin
-  Decidir(dcDevolver, AMotivo);
+  if FVista.PedirMotivo(Format(SDevolverTitulo, [FNumero]), lMotivo) then
+    Decidir(dcDevolver, lMotivo);
 end;
 
 procedure TPresentadorRevision.Decidir(const ADecision: TDecision;

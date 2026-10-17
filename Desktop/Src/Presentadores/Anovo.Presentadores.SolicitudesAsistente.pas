@@ -9,38 +9,28 @@ uses
   Anovo.Api.Intf.Solicitudes,
   Anovo.Api.Intf.Cotizaciones,
   Anovo.Presentadores.Base,
+  Anovo.Presentadores.Listado,
   Anovo.Vistas.Intf.SolicitudesAsistente,
   Anovo.Permisos;
 
 type
-  TPresentadorSolicitudesAsistente = class(TPresentadorBase)
+  TPresentadorSolicitudesAsistente = class(TPresentadorListado)
   private
     FVista: IVistaSolicitudesAsistente;
     FApi: IApiSolicitudes;
     FCotizaciones: IApiCotizaciones;
     FModo: TModoSolicitudes;
-    FTexto: string;
-    FPagina: Integer;
-    FTotalPaginas: Integer;
-    procedure Cargar;
-    procedure MostrarPagina(const APagina: Integer; const ATotal: Int64);
-    procedure MostrarError(AMensaje: string);
-    procedure MostrarCargando(AActivo: Boolean);
     procedure PublicarAcciones;
+  protected
+    procedure Cargar; override;
   public
     constructor Create(const AVista: IVistaSolicitudesAsistente;
       const AApi: IApiSolicitudes; const ACotizaciones: IApiCotizaciones);
     procedure Iniciar;
     class function AccionesPermitidas: TAccionesCola;
     procedure CambiarModo(const AModo: TModoSolicitudes);
-    procedure Buscar(const ATexto: string);
-    procedure Limpiar;
-    procedure IrAPagina(const APagina: Integer);
-    procedure PaginaSiguiente;
-    procedure PaginaAnterior;
-    procedure Tomar(const ASolicitudId: Integer);
+    procedure Tomar(const ASolicitudId: Integer; const ACliente: string);
     procedure Abrir(const ACotizacionId: Integer);
-    procedure Recargar;
   end;
 
 const
@@ -61,11 +51,10 @@ constructor TPresentadorSolicitudesAsistente.Create(const AVista
   : IVistaSolicitudesAsistente; const AApi: IApiSolicitudes;
   const ACotizaciones: IApiCotizaciones);
 begin
-  inherited Create;
+  inherited Create(AVista);
   FVista := AVista;
   FApi := AApi;
   FCotizaciones := ACotizaciones;
-  FPagina := 1;
 end;
 
 class function TPresentadorSolicitudesAsistente.AccionesPermitidas
@@ -90,11 +79,6 @@ begin
     FVista.AbrirCotizacion(ACotizacionId);
 end;
 
-procedure TPresentadorSolicitudesAsistente.Recargar;
-begin
-  Cargar;
-end;
-
 procedure TPresentadorSolicitudesAsistente.Iniciar;
 begin
   PublicarAcciones;
@@ -113,55 +97,6 @@ begin
   PublicarAcciones;
   FVista.MostrarModo(FModo);
   Cargar;
-end;
-
-procedure TPresentadorSolicitudesAsistente.Buscar(const ATexto: string);
-begin
-  FTexto := ATexto.Trim;
-  FPagina := 1;
-  FVista.MostrarBusqueda(FTexto, not FTexto.IsEmpty);
-  Cargar;
-end;
-
-procedure TPresentadorSolicitudesAsistente.Limpiar;
-begin
-  Buscar('');
-end;
-
-procedure TPresentadorSolicitudesAsistente.IrAPagina(const APagina: Integer);
-begin
-  if (APagina < 1) or ((FTotalPaginas > 0) and (APagina > FTotalPaginas)) then
-    Exit;
-  FPagina := APagina;
-  Cargar;
-end;
-
-procedure TPresentadorSolicitudesAsistente.PaginaSiguiente;
-begin
-  IrAPagina(FPagina + 1);
-end;
-
-procedure TPresentadorSolicitudesAsistente.PaginaAnterior;
-begin
-  IrAPagina(FPagina - 1);
-end;
-
-procedure TPresentadorSolicitudesAsistente.MostrarPagina(const APagina
-  : Integer; const ATotal: Int64);
-begin
-  FTotalPaginas := (ATotal + SOLICITUDES_POR_PAGINA - 1) div
-    SOLICITUDES_POR_PAGINA;
-  FVista.MostrarPaginacion(APagina, FTotalPaginas, ATotal);
-end;
-
-procedure TPresentadorSolicitudesAsistente.MostrarError(AMensaje: string);
-begin
-  FVista.MostrarError(AMensaje);
-end;
-
-procedure TPresentadorSolicitudesAsistente.MostrarCargando(AActivo: Boolean);
-begin
-  FVista.MostrarCargando(AActivo);
 end;
 
 procedure TPresentadorSolicitudesAsistente.Cargar;
@@ -186,7 +121,7 @@ begin
       procedure(ALista: TObjectList<TSolicitudPorCotizarDTO>)
       begin
         FVista.MostrarCola(ALista);
-        MostrarPagina(lPagina, lTotal);
+        MostrarPagina(lPagina, lTotal, SOLICITUDES_POR_PAGINA);
       end, MostrarError, MostrarCargando)
   else
     EjecutarUltima<TObjectList<TSolicitudEnTrabajoDTO>>
@@ -199,15 +134,19 @@ begin
       procedure(ALista: TObjectList<TSolicitudEnTrabajoDTO>)
       begin
         FVista.MostrarEnTrabajo(ALista);
-        MostrarPagina(lPagina, lTotal);
+        MostrarPagina(lPagina, lTotal, SOLICITUDES_POR_PAGINA);
       end, MostrarError, MostrarCargando);
 end;
 
-procedure TPresentadorSolicitudesAsistente.Tomar(const ASolicitudId: Integer);
+procedure TPresentadorSolicitudesAsistente.Tomar(const ASolicitudId: Integer;
+  const ACliente: string);
 var
   lApi: IApiCotizaciones;
 begin
-  if (ASolicitudId <= 0) or not (acTomar in AccionesPermitidas) then
+  if (ASolicitudId <= 0) or (FModo <> msCola) or
+    not (acTomar in AccionesPermitidas) then
+    Exit;
+  if not FVista.Confirmar(Format(SConfirmarTomar, [ACliente])) then
     Exit;
   lApi := FCotizaciones;
 

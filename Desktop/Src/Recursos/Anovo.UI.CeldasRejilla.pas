@@ -6,8 +6,9 @@ unit Anovo.UI.CeldasRejilla;
 interface
 
 uses
-  System.Types, System.Classes, Vcl.Controls, Vcl.Graphics, Vcl.Grids,
-  Vcl.DBGrids, rDBGrid, VclPlano.Paleta;
+  System.Types, System.Classes, Data.DB, Vcl.Controls, Vcl.Graphics, Vcl.Grids,
+  Vcl.DBGrids, Vcl.ExtCtrls, Vcl.StdCtrls, Vcl.VirtualImage, rDBGrid,
+  VclPlano.Paleta;
 
 const
   ALTO_FILA_LISTADO = 34;
@@ -26,6 +27,10 @@ procedure AnchosAutomaticos(AGrid: TrDBGrid);
 procedure OcultarScrollVertical(AGrid: TrDBGrid);
 
 function EstadoPlano(const AEstado: string): TPlanoEstado;
+
+function ComponenteDe(AGrid: TrDBGrid; AClase: TComponentClass): TComponent;
+
+function ColumnaDe(AGrid: TrDBGrid; const ACampo: string): TColumn;
 
 type
   TAccionRejilla = record
@@ -49,6 +54,17 @@ type
     FMoveAnterior: TMouseMoveEvent;
     FCoordHover: TGridCoord;
     FBotonHover: Integer;
+    FTextoVacio: string;
+    FEnlace: TDataLink;
+    FAviso: TPanel;
+    FCirculo: TShape;
+    FIcono: TVirtualImage;
+    FTitulo: TLabel;
+    FDetalle: TLabel;
+    procedure PonerTextoVacio(const AValor: string);
+    procedure CrearAviso;
+    procedure UbicarAviso;
+    procedure AcomodarAviso(Sender: TObject);
     function EsColumnaEstado(const ACampo: string): Boolean;
     function SinFilas: Boolean;
     function FondoDeCelda(const ARect: TRect; AColumn: TColumn): TColor;
@@ -68,6 +84,7 @@ type
     procedure Mover(Sender: TObject; AShift: TShiftState; AX, AY: Integer);
   public
     constructor Crear(AGrid: TrDBGrid);
+    destructor Destroy; override;
 
     class function De(AGrid: TrDBGrid): TCeldasRejilla;
     class function Buscar(AGrid: TrDBGrid): TCeldasRejilla;
@@ -83,7 +100,9 @@ type
     function AnchoAcciones: Integer;
     procedure AjustarAcciones;
     procedure AjustarColumnas;
+    procedure RevisarVacio;
 
+    property TextoVacio: string read FTextoVacio write PonerTextoVacio;
     property CampoAcciones: string read FCampoAcciones;
     property OnAccion: TEventoAccion read FOnAccion write FOnAccion;
   end;
@@ -91,8 +110,9 @@ type
 implementation
 
 uses
-  Winapi.Windows, System.SysUtils, System.Math, System.UITypes, Data.DB,
-  Vcl.Forms, Vcl.WinXCtrls, RosiCompGlobalCfg, VclPlano.Dibujo, VclPlano.Pastilla, Anovo.UI.Tema, Anovo.UI.ColumnasRejilla;
+  Winapi.Windows, System.SysUtils, System.Math, System.UITypes,
+  Vcl.Forms, Vcl.WinXCtrls, RosiCompGlobalCfg, VclPlano.Dibujo, VclPlano.Pastilla, Anovo.UI.Tema, Anovo.UI.ColumnasRejilla,
+  Anovo.UI.Iconos, Anovo.Textos;
 
 const
   MARGEN_CELDA = 10;
@@ -101,9 +121,33 @@ const
   RADIO_BOTON = 4;
   RELLENO_BOTON = 10;
   SEPARACION_BOTONES = 6;
+  DIAMETRO_VACIO = 64;
+  ICONO_VACIO = 40;
+  ALTO_TITULO_VACIO = 24;
+  ALTO_DETALLE_VACIO = 36;
+  SEPARACION_VACIO = 8;
+  ICONO_BUSCAR = 'Marca\12-buscar-marca';
 
 type
   TRejillaAbierta = class(TrDBGrid);
+
+  TEnlaceVacio = class(TDataLink)
+  private
+    FDueno: TCeldasRejilla;
+  protected
+    procedure ActiveChanged; override;
+    procedure DataSetChanged; override;
+  end;
+
+procedure TEnlaceVacio.ActiveChanged;
+begin
+  FDueno.RevisarVacio;
+end;
+
+procedure TEnlaceVacio.DataSetChanged;
+begin
+  FDueno.RevisarVacio;
+end;
 
 procedure FuenteDeCelda(ACanvas: TCanvas; ABase: TFont);
 begin
@@ -151,7 +195,135 @@ begin
   FGrid.OnMouseMove := Mover;
 end;
 
-class function TCeldasRejilla.Buscar(AGrid: TrDBGrid): TCeldasRejilla;
+destructor TCeldasRejilla.Destroy;
+begin
+  FreeAndNil(FEnlace);
+  inherited;
+end;
+
+procedure TCeldasRejilla.PonerTextoVacio(const AValor: string);
+begin
+  FTextoVacio := AValor;
+  if FAviso = nil then
+    CrearAviso;
+  FDetalle.Caption := AValor;
+  RevisarVacio;
+end;
+
+procedure TCeldasRejilla.CrearAviso;
+begin
+  FAviso := TPanel.Create(Self);
+  FAviso.Parent := FGrid;
+  FAviso.Visible := False;
+  FAviso.BevelOuter := bvNone;
+  FAviso.ParentBackground := False;
+  FAviso.Color := clAnovoTarjeta;
+  FAviso.Caption := '';
+  FAviso.Align := alClient;
+  FAviso.AlignWithMargins := True;
+  FAviso.OnResize := AcomodarAviso;
+
+  FCirculo := TShape.Create(Self);
+  FCirculo.Parent := FAviso;
+  FCirculo.Shape := stCircle;
+  FCirculo.Pen.Style := psClear;
+  FCirculo.Brush.Color := clAnovoAcentoSuave;
+
+  FIcono := TVirtualImage.Create(Self);
+  FIcono.Parent := FAviso;
+  FIcono.ImageCollection := dmIconos.IcAnovo;
+  FIcono.ImageName := ICONO_BUSCAR;
+
+  FTitulo := TLabel.Create(Self);
+  FTitulo.Parent := FAviso;
+  FTitulo.AutoSize := False;
+  FTitulo.Alignment := taCenter;
+  FTitulo.Tag := TAG_TITULO;
+  FTitulo.Caption := SSinResultados;
+  AplicarTemaEtiqueta(FTitulo);
+
+  FDetalle := TLabel.Create(Self);
+  FDetalle.Parent := FAviso;
+  FDetalle.AutoSize := False;
+  FDetalle.Alignment := taCenter;
+  FDetalle.WordWrap := True;
+  FDetalle.Tag := TAG_APOYO;
+  AplicarTemaEtiqueta(FDetalle);
+
+  FEnlace := TEnlaceVacio.Create;
+  TEnlaceVacio(FEnlace).FDueno := Self;
+end;
+
+procedure TCeldasRejilla.RevisarVacio;
+var
+  lDatos: TDataSet;
+  lVacio: Boolean;
+begin
+  if FAviso = nil then
+    Exit;
+  if FEnlace.DataSource <> FGrid.DataSource then
+    FEnlace.DataSource := FGrid.DataSource;
+
+  lVacio := False;
+  if FGrid.DataSource <> nil then
+  begin
+    lDatos := FGrid.DataSource.DataSet;
+    lVacio := (lDatos <> nil) and lDatos.Active and lDatos.IsEmpty;
+  end;
+
+  if lVacio then
+    UbicarAviso;
+  FAviso.Visible := lVacio;
+end;
+
+procedure TCeldasRejilla.UbicarAviso;
+var
+  lSobra: Integer;
+begin
+  FAviso.Margins.Left := 0;
+  FAviso.Margins.Bottom := 0;
+  if dgTitles in FGrid.Options then
+    FAviso.Margins.Top := TRejillaAbierta(FGrid).RowHeights[0] + 1
+  else
+    FAviso.Margins.Top := 0;
+  lSobra := 0;
+  if FGrid.Parent <> nil then
+    lSobra := FGrid.Left + FGrid.Width - FGrid.Parent.ClientWidth;
+  FAviso.Margins.Right := Max(lSobra, 0);
+end;
+
+procedure TCeldasRejilla.AcomodarAviso(Sender: TObject);
+var
+  lConIcono: Boolean;
+  lAlto, lY, lAncho: Integer;
+begin
+  lAncho := FAviso.ClientWidth;
+  lAlto := FGrid.ScaleValue(ALTO_TITULO_VACIO + ALTO_DETALLE_VACIO);
+  lConIcono := FAviso.ClientHeight >= lAlto +
+    FGrid.ScaleValue(DIAMETRO_VACIO + SEPARACION_VACIO * 3);
+  if lConIcono then
+    Inc(lAlto, FGrid.ScaleValue(DIAMETRO_VACIO + SEPARACION_VACIO));
+
+  lY := Max((FAviso.ClientHeight - lAlto) div 2, 0);
+  FCirculo.Visible := lConIcono;
+  FIcono.Visible := lConIcono;
+  if lConIcono then
+  begin
+    FCirculo.SetBounds((lAncho - FGrid.ScaleValue(DIAMETRO_VACIO)) div 2, lY,
+      FGrid.ScaleValue(DIAMETRO_VACIO), FGrid.ScaleValue(DIAMETRO_VACIO));
+    FIcono.SetBounds((lAncho - FGrid.ScaleValue(ICONO_VACIO)) div 2,
+      lY + FGrid.ScaleValue(DIAMETRO_VACIO - ICONO_VACIO) div 2,
+      FGrid.ScaleValue(ICONO_VACIO), FGrid.ScaleValue(ICONO_VACIO));
+    Inc(lY, FGrid.ScaleValue(DIAMETRO_VACIO + SEPARACION_VACIO));
+  end;
+  FTitulo.SetBounds(0, lY, lAncho, FGrid.ScaleValue(ALTO_TITULO_VACIO));
+  FDetalle.SetBounds(FGrid.ScaleValue(SEPARACION_VACIO * 2),
+    lY + FGrid.ScaleValue(ALTO_TITULO_VACIO),
+    Max(lAncho - FGrid.ScaleValue(SEPARACION_VACIO * 4), 0),
+    FGrid.ScaleValue(ALTO_DETALLE_VACIO));
+end;
+
+function ComponenteDe(AGrid: TrDBGrid; AClase: TComponentClass): TComponent;
 var
   I: Integer;
 begin
@@ -159,8 +331,23 @@ begin
   if AGrid = nil then
     Exit;
   for I := 0 to AGrid.ComponentCount - 1 do
-    if AGrid.Components[I] is TCeldasRejilla then
-      Exit(TCeldasRejilla(AGrid.Components[I]));
+    if AGrid.Components[I] is AClase then
+      Exit(AGrid.Components[I]);
+end;
+
+function ColumnaDe(AGrid: TrDBGrid; const ACampo: string): TColumn;
+var
+  I: Integer;
+begin
+  for I := 0 to AGrid.Columns.Count - 1 do
+    if SameText(AGrid.Columns[I].FieldName, ACampo) then
+      Exit(AGrid.Columns[I]);
+  Result := nil;
+end;
+
+class function TCeldasRejilla.Buscar(AGrid: TrDBGrid): TCeldasRejilla;
+begin
+  Result := TCeldasRejilla(ComponenteDe(AGrid, TCeldasRejilla));
 end;
 
 class function TCeldasRejilla.De(AGrid: TrDBGrid): TCeldasRejilla;
@@ -315,7 +502,7 @@ end;
 
 procedure TCeldasRejilla.AjustarAcciones;
 var
-  I: Integer;
+  lColumna: TColumn;
 begin
   if FCampoAcciones = '' then
     Exit;
@@ -323,18 +510,18 @@ begin
   if FGrid.FieldsFixedColumnWidth.IndexOf(FCampoAcciones) < 0 then
     FGrid.FieldsFixedColumnWidth.Add(FCampoAcciones);
 
-  for I := 0 to FGrid.Columns.Count - 1 do
-    if SameText(FGrid.Columns[I].FieldName, FCampoAcciones) then
-    begin
-      FGrid.Columns[I].Visible := Length(FAcciones) > 0;
-      FGrid.Columns[I].Width := AnchoAcciones;
-    end;
+  lColumna := ColumnaDe(FGrid, FCampoAcciones);
+  if lColumna = nil then
+    Exit;
+  lColumna.Visible := Length(FAcciones) > 0;
+  lColumna.Width := AnchoAcciones;
 end;
 
 procedure TCeldasRejilla.AjustarColumnas;
 begin
   AjustarAcciones;
   Anovo.UI.CeldasRejilla.AjustarColumnas(FGrid);
+  RevisarVacio;
 end;
 
 function TCeldasRejilla.SinFilas: Boolean;

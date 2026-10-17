@@ -7,7 +7,7 @@ interface
 uses
   System.SysUtils, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Vcl.VirtualImage, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
+  Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.BotonWin;
 
 type
@@ -20,12 +20,6 @@ type
     btnLimpiar: TPlanoBotonWin;
     pnclient: TRelativePanel;
     grDatos: TrDBGrid;
-    pnlSinRegistros: TPanel;
-    pnlVacio: TPanel;
-    shpVacio: TShape;
-    imgVacio: TVirtualImage;
-    lblVacioTitulo: TLabel;
-    lblSinRegistros: TLabel;
     pnlPie: TPanel;
     lblPaginacion: TLabel;
     btnAnterior: TPlanoBotonWin;
@@ -36,6 +30,7 @@ type
     procedure btnSiguienteClick(Sender: TObject);
   private
     FTextoPie: string;
+    FEncima: TFrame;
   protected
     FTextoCargando: string;
     FTextoSinRegistros: string;
@@ -52,6 +47,8 @@ type
       const ATotal: Int64);
     procedure MostrarError(const AMensaje: string);
     procedure Resize; override;
+    procedure MostrarEncima(AFrame: TFrame);
+    procedure CerrarEncima(const ADespues: TProc = nil);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -71,7 +68,6 @@ constructor TfraListado.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   AplicarTemaGrid(grDatos);
-  lblVacioTitulo.Caption := SSinResultados;
 end;
 
 destructor TfraListado.Destroy;
@@ -111,17 +107,40 @@ begin
   PintarPaginacion(lblPaginacion, btnAnterior, btnSiguiente, APagina,
     ATotalPaginas, ATotal, FTextoSinRegistros, FTextoPaginacion,
     FTextoSoloTotal);
-  pnclient.Visible := ATotal > 0;
-  pnlSinRegistros.Visible := ATotal = 0;
-  if pnclient.Visible then
+  TCeldasRejilla.De(grDatos).TextoVacio := FTextoSinRegistros;
+  if ATotal > 0 then
     TCeldasRejilla.De(grDatos).AjustarColumnas;
-  lblSinRegistros.Caption := FTextoSinRegistros;
 end;
 
 procedure TfraListado.MostrarError(const AMensaje: string);
 begin
   lblPaginacion.Caption := '';
   AvisarError(AMensaje);
+end;
+
+procedure TfraListado.MostrarEncima(AFrame: TFrame);
+begin
+  FreeAndNil(FEncima);
+  FEncima := AFrame;
+  FEncima.Parent := Self;
+  FEncima.SetBounds(0, 0, ClientWidth, ClientHeight);
+  FEncima.Anchors := [akLeft, akTop, akRight, akBottom];
+  FEncima.BringToFront;
+  AplicarTemaFrame(FEncima);
+end;
+
+procedure TfraListado.CerrarEncima(const ADespues: TProc);
+begin
+  if FEncima = nil then
+    Exit;
+  FEncima.Visible := False;
+  TThread.ForceQueue(nil,
+    procedure
+    begin
+      FreeAndNil(FEncima);
+      if Assigned(ADespues) then
+        ADespues;
+    end);
 end;
 
 procedure TfraListado.sbBuscarInvokeSearch(Sender: TObject);

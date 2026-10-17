@@ -16,6 +16,21 @@ uses
   Anovo.Vistas.Intf.Usuario;
 
 type
+  TEstadoClave = record
+    HayClave: Boolean;
+    PuedeGenerar: Boolean;
+    PuedePedirCambio: Boolean;
+    ConPastilla: Boolean;
+    ConEstado: Boolean;
+    ConNota: Boolean;
+    Pendiente: Boolean;
+    RotuloGenerar: string;
+    RotuloPedirCambio: string;
+    Pastilla: string;
+    Estado: string;
+    Nota: string;
+  end;
+
   TPresentadorUsuario = class(TPresentadorBase)
   private
     FVista: IVistaUsuario;
@@ -56,6 +71,10 @@ type
     function PuedeRestablecer: Boolean;
     class function EsCuentaPropia(const AId: Integer): Boolean;
     class function PuedeEditarPermisos: Boolean;
+    class function MuestraPermisos(const AId: Integer): Boolean;
+    class function RotuloPermisos(const AExcepciones: Integer): string;
+    function EstadoClave(const AHayClave: Boolean;
+      const AFechaClave: string): TEstadoClave;
     function HayCambios(const ADatos: TUsuarioEdicionDTO;
       const AConPermisos: Boolean): Boolean;
     procedure PedirCambio(const APedir: Boolean);
@@ -74,6 +93,7 @@ uses
   System.Generics.Defaults,
   Anovo.Sesion,
   Anovo.Permisos,
+  Anovo.Formato,
   Anovo.Textos;
 
 const
@@ -283,6 +303,68 @@ end;
 function TPresentadorUsuario.PuedeRestablecer: Boolean;
 begin
   Result := (FId > 0) and (FId <> TSesion.UsuarioId);
+end;
+
+class function TPresentadorUsuario.MuestraPermisos(const AId: Integer): Boolean;
+begin
+  Result := not EsCuentaPropia(AId) and PuedeEditarPermisos;
+end;
+
+class function TPresentadorUsuario.RotuloPermisos(const AExcepciones
+  : Integer): string;
+begin
+  if AExcepciones > 0 then
+    Result := Format(SPestanaPermisosCon, [TFormato.Cantidad(AExcepciones,
+      SUnAdicional, SVariosAdicionales)])
+  else
+    Result := SPestanaPermisos;
+end;
+
+function TPresentadorUsuario.EstadoClave(const AHayClave: Boolean;
+  const AFechaClave: string): TEstadoClave;
+begin
+  Result := Default(TEstadoClave);
+  Result.HayClave := AHayClave;
+  Result.PuedeGenerar := (FId = 0) or PuedeRestablecer;
+  if AHayClave then
+    Result.RotuloGenerar := SGenerarOtra
+  else
+    Result.RotuloGenerar := SGenerarClave;
+  Result.PuedePedirCambio := Result.PuedeGenerar and (FId > 0) and
+    not AHayClave and not FDebeCambiarClave;
+  if FPedirCambio then
+    Result.RotuloPedirCambio := SNoPedirCambio
+  else
+    Result.RotuloPedirCambio := SPedirCambio;
+  Result.ConPastilla := FId > 0;
+  Result.ConEstado := not AHayClave;
+  Result.ConNota := AHayClave or FPedirCambio;
+  Result.Pendiente := True;
+
+  if FId = 0 then
+    Result.Nota := SClaveNuevaNota
+  else if AHayClave then
+  begin
+    Result.Pastilla := SSinGuardar;
+    Result.Nota := SClaveSeAplica;
+  end
+  else if FPedirCambio then
+  begin
+    Result.Pastilla := SSinGuardar;
+    Result.Estado := Format(SClaveCambiadaEl, [AFechaClave]);
+    Result.Nota := SCambioPedidoNota;
+  end
+  else if FDebeCambiarClave then
+  begin
+    Result.Pastilla := SEstClavePendiente;
+    Result.Estado := SClaveDebeCambiar;
+  end
+  else
+  begin
+    Result.Pendiente := False;
+    Result.Pastilla := SClaveVigente;
+    Result.Estado := Format(SClaveCambiadaEl, [AFechaClave]);
+  end;
 end;
 
 class function TPresentadorUsuario.GenerarClave: string;

@@ -70,23 +70,8 @@ end;
 
 function TfrmEdicion.MostrarReparos(const AReparos: TStrings;
   const AEncabezado: string): Boolean;
-var
-  lMensaje: string;
-  I: Integer;
 begin
-  Result := AReparos.Count = 0;
-  if Result then
-    Exit;
-
-  if AReparos.Count = 1 then
-    lMensaje := AReparos[0]
-  else
-  begin
-    lMensaje := AEncabezado + sLineBreak;
-    for I := 0 to AReparos.Count - 1 do
-      lMensaje := lMensaje + sLineBreak + '   ' + #$2022 + '  ' + AReparos[I];
-  end;
-  MostrarError(lMensaje);
+  Result := AvisarReparos(AReparos, AEncabezado);
 end;
 
 procedure TfrmEdicion.btnCancelarClick(Sender: TObject);

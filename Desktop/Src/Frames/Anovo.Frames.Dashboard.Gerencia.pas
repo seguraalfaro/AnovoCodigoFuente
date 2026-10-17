@@ -56,6 +56,7 @@ begin
   inherited Create(AOwner);
   AplicarTemaGrid(grEstados);
   TCeldasRejilla.De(grEstados).ColumnaEstado(CAMPO_ESTADO);
+  TCeldasRejilla.De(grEstados).TextoVacio := SVacioEstados;
 
   FPresentador := TPresentadorDashboard<TDashboardGerenciaDTO>.Create(Self,
     TApiDashboard.Create,
@@ -85,7 +86,7 @@ procedure TfraDashboardGerencia.MostrarDashboard(const ADatos
 begin
   lblPeriodo.Caption := TFormato.MesAnio(ADatos.Desde);
   lblCifra1.Caption := TFormato.Colones(ADatos.CotizadoMes);
-  lblCifra2.Caption := Format(SPorcentaje, [ADatos.TasaAprobacion]);
+  lblCifra2.Caption := TFormato.Tasa(ADatos.TasaAprobacion);
   lblDecididas.Caption := Format(SDecididasMes, [ADatos.AprobadasMes,
     ADatos.AprobadasMes + ADatos.RechazadasMes]);
   lblCifra3.Caption := TFormato.Dias(ADatos.RespuestaMedia);

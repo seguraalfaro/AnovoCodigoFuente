@@ -37,7 +37,7 @@ Sub Class_Globals
 	Private CvMedidas As CustomListView
 	Private lblMedidaLetra, lblMedidaNombre, lblMedidaDetalle, lblSeccion As B4XView
 	Private ivFoto, lblQuitarFoto As B4XView
-	Private Const ALTO_MEDIDA As Int = 64dip
+	Private Const ALTO_MEDIDA As Int = 98dip
 	Private Const ALTO_AVISO As Int = 36dip
 
 	Private ASDrawIso1 As ASDrawIso

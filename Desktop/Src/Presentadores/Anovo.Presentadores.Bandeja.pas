@@ -7,29 +7,23 @@ interface
 uses
   Anovo.Api.Intf.Cotizaciones,
   Anovo.Presentadores.Base,
+  Anovo.Presentadores.Listado,
   Anovo.Vistas.Intf.Bandeja,
   Anovo.Permisos;
 
 type
-  TPresentadorBandeja = class(TPresentadorBase)
+  TPresentadorBandeja = class(TPresentadorListado)
   private
     FVista: IVistaBandeja;
     FApi: IApiCotizaciones;
-    FTexto: string;
-    FPagina: Integer;
-    FTotalPaginas: Integer;
-    procedure Cargar;
+  protected
+    procedure Cargar; override;
   public
     constructor Create(const AVista: IVistaBandeja;
       const AApi: IApiCotizaciones);
     procedure Iniciar;
     class function AccionesPermitidas: TAccionesBandeja;
-    procedure Recargar;
-    procedure Buscar(const ATexto: string);
-    procedure Limpiar;
-    procedure IrAPagina(const APagina: Integer);
-    procedure PaginaSiguiente;
-    procedure PaginaAnterior;
+    procedure Revisar(const AId: Integer);
   end;
 
 const
@@ -46,10 +40,9 @@ uses
 constructor TPresentadorBandeja.Create(const AVista: IVistaBandeja;
   const AApi: IApiCotizaciones);
 begin
-  inherited Create;
+  inherited Create(AVista);
   FVista := AVista;
   FApi := AApi;
-  FPagina := 1;
 end;
 
 class function TPresentadorBandeja.AccionesPermitidas: TAccionesBandeja;
@@ -66,40 +59,12 @@ begin
   Cargar;
 end;
 
-procedure TPresentadorBandeja.Recargar;
+procedure TPresentadorBandeja.Revisar(const AId: Integer);
 begin
-  Cargar;
-end;
-
-procedure TPresentadorBandeja.Buscar(const ATexto: string);
-begin
-  FTexto := ATexto.Trim;
-  FPagina := 1;
-  FVista.MostrarBusqueda(FTexto, not FTexto.IsEmpty);
-  Cargar;
-end;
-
-procedure TPresentadorBandeja.Limpiar;
-begin
-  Buscar('');
-end;
-
-procedure TPresentadorBandeja.IrAPagina(const APagina: Integer);
-begin
-  if (APagina < 1) or ((FTotalPaginas > 0) and (APagina > FTotalPaginas)) then
+  if (AId <= 0) or not (abRevisar in AccionesPermitidas) then
     Exit;
-  FPagina := APagina;
-  Cargar;
-end;
-
-procedure TPresentadorBandeja.PaginaSiguiente;
-begin
-  IrAPagina(FPagina + 1);
-end;
-
-procedure TPresentadorBandeja.PaginaAnterior;
-begin
-  IrAPagina(FPagina - 1);
+  if FVista.MostrarRevision(AId) then
+    Recargar;
 end;
 
 procedure TPresentadorBandeja.Cargar;

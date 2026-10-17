@@ -24,7 +24,6 @@ type
     crdVersiones: TCard;
     grVersiones: TrDBGrid;
     meVersion: TrDBMemo;
-    lblSinVersiones: TLabel;
     crdNueva: TCard;
     lblNotaNueva: TLabel;
     edVersion: TrDBEdit;
@@ -84,7 +83,7 @@ begin
   AplicarTemaGrid(grVersiones);
   TCeldasRejilla.De(grVersiones).ColumnaEstado(CAMPO_ESTADO);
   lblNotaNueva.Caption := SNotaNuevaVersion;
-  lblSinVersiones.Caption := SSinTextoConsentimiento;
+  TCeldasRejilla.De(grVersiones).TextoVacio := SSinTextoConsentimiento;
   btnGuardar.Caption := SBotonPublicar;
   btnGuardar.Visible := False;
   dmMemoria.PrepararConsentimientoNuevo;
@@ -122,9 +121,7 @@ begin
   TMapeoDatos.AListaTabla<TConsentimientoTextoDTO>(AVersiones,
     dmMemoria.mtTextosConsentimiento);
   lVacia := dmMemoria.mtTextosConsentimiento.IsEmpty;
-  grVersiones.Visible := not lVacia;
   meVersion.Visible := not lVacia;
-  lblSinVersiones.Visible := lVacia;
   TCeldasRejilla.De(grVersiones).AjustarColumnas;
 end;
 

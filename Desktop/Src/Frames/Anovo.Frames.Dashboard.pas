@@ -49,12 +49,14 @@ implementation
 
 uses
   Anovo.UI.Vista,
-  Anovo.UI.Tema;
+  Anovo.UI.Tema,
+  Anovo.Textos;
 
 constructor TfraDashboard.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   AplicarTemaGrid(grLista);
+  TCeldasRejilla.De(grLista).TextoVacio := SVacioDashboard;
 end;
 
 destructor TfraDashboard.Destroy;

@@ -3,22 +3,33 @@ inherited frmPeriodo: TfrmPeriodo
   ClientHeight = 300
   ClientWidth = 560
   OnCreate = FormCreate
+  ExplicitWidth = 566
+  ExplicitHeight = 329
+  PixelsPerInch = 96
+  TextHeight = 15
   inherited TitleBarPanel1: TTitleBarPanel
     Width = 560
   end
   inherited pnlTitulo: TPanel
     Width = 560
+    ExplicitWidth = 560
     inherited lblTitulo: TLabel
+      Width = 3
       Caption = ''
+      ExplicitWidth = 3
     end
     inherited lblSubtitulo: TLabel
+      Width = 3
       Caption = ''
+      ExplicitWidth = 3
     end
   end
   inherited pnlPie: TRelativePanel
     Top = 240
     Width = 560
     TabOrder = 2
+    ExplicitTop = 240
+    ExplicitWidth = 560
     inherited btnGuardar: TPlanoBotonWin
       Caption = 'Aplicar'
       OnClick = btnGuardarClick
@@ -37,7 +48,7 @@ inherited frmPeriodo: TfrmPeriodo
       Tag = 13
       Left = 20
       Top = 8
-      Width = 35
+      Width = 33
       Height = 15
       Caption = 'Atajos'
     end
@@ -45,7 +56,7 @@ inherited frmPeriodo: TfrmPeriodo
       Tag = 13
       Left = 20
       Top = 88
-      Width = 37
+      Width = 36
       Height = 15
       Caption = 'Fechas'
     end

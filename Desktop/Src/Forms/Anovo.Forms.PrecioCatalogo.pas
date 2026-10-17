@@ -108,6 +108,7 @@ end;
 procedure TfrmPrecioCatalogo.FormCreate(Sender: TObject);
 begin
   AplicarTemaGrid(grHistorial);
+  TCeldasRejilla.De(grHistorial).TextoVacio := SVacioHistorialPrecio;
   TColumnasRejilla.AplicarEn(grHistorial);
   FPresentador := TPresentadorPrecioCatalogo.Create(Self, TApiCatalogos.Create);
   FVigencia := nil;

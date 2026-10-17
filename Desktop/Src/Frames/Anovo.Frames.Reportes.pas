@@ -54,7 +54,7 @@ implementation
 {$R *.dfm}
 
 uses
-  rDBExport,
+  Anovo.UI.ColumnasRejilla,
   RosiCompGlobalCfg,
   Anovo.UI.Vista,
   Anovo.UI.CeldasRejilla,
@@ -153,7 +153,7 @@ begin
   lblCifra1.Caption := ADatos.Total.ToString;
   lblCifra2.Caption := TFormato.Colones(ADatos.MontoTotal);
   lblCifra3.Caption := ADatos.Aprobadas.ToString;
-  lblCifra4.Caption := Format(SPorcentaje, [ADatos.TasaAprobacion]);
+  lblCifra4.Caption := TFormato.Tasa(ADatos.TasaAprobacion);
   lblCifra5.Caption := TFormato.Dias(ADatos.RespuestaMedia);
   FTasaTotal := ADatos.TasaAprobacion;
   FMaximoMes := AMaximoMes;
@@ -179,7 +179,7 @@ begin
     grLista.FooterRow_SetSettings(lCampo, SUMA, tadRight);
   if FVistaActual in [vrAsesor, vrMes] then
     grLista.FooterRow_SetSettings(CAMPO_TASA,
-      Format(SPorcentaje, [FTasaTotal]), tadRight);
+      TFormato.Tasa(FTasaTotal), tadRight);
   if grLista.DataSource.DataSet.Active then
     grLista.RecalculateSummaryResults;
 end;
@@ -206,7 +206,7 @@ end;
 
 procedure TfraReportes.btnExportarClick(Sender: TObject);
 begin
-  rDBExport.DBExport(grLista, True, True);
+  TColumnasRejilla.ExportarRejilla(grLista);
 end;
 
 end.

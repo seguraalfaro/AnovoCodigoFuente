@@ -327,18 +327,6 @@ inherited frmUsuario: TfrmUsuario
         AutoSize = False
         WordWrap = True
       end
-      object lblSinTelefonos: TLabel
-        Tag = 13
-        Left = 0
-        Top = 46
-        Width = 640
-        Height = 321
-        Align = alClient
-        Alignment = taCenter
-        AutoSize = False
-        Layout = tlCenter
-        Visible = False
-      end
       object grTelefonos: TrDBGrid
         AlignWithMargins = True
         Left = 20
@@ -384,25 +372,6 @@ inherited frmUsuario: TfrmUsuario
         Margins.Right = 20
         Align = alTop
         ExplicitWidth = 3
-      end
-      object lblSinPermisos: TLabel
-        Tag = 13
-        AlignWithMargins = True
-        Left = 20
-        Top = 63
-        Width = 600
-        Height = 296
-        Margins.Left = 20
-        Margins.Right = 20
-        Margins.Bottom = 8
-        Align = alClient
-        Alignment = taCenter
-        AutoSize = False
-        Layout = tlCenter
-        Visible = False
-        WordWrap = True
-        ExplicitTop = 60
-        ExplicitHeight = 299
       end
       object pnlResumen: TPanel
         Tag = 1

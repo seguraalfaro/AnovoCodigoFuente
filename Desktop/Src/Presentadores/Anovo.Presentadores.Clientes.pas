@@ -7,30 +7,24 @@ interface
 uses
   Anovo.Api.Intf.Clientes,
   Anovo.Presentadores.Base,
+  Anovo.Presentadores.Listado,
   Anovo.Vistas.Intf.Clientes,
   Anovo.Permisos;
 
 type
-  TPresentadorClientes = class(TPresentadorBase)
+  TPresentadorClientes = class(TPresentadorListado)
   private
     FVista: IVistaClientes;
     FApi: IApiClientes;
-    FTexto: string;
     FFiltro: TFiltroConsentimiento;
-    FPagina: Integer;
-    FTotalPaginas: Integer;
     FDetalle: Integer;
-    procedure Cargar;
+  protected
+    procedure Cargar; override;
   public
     constructor Create(const AVista: IVistaClientes;
       const AApi: IApiClientes);
     procedure Iniciar;
-    procedure Buscar(const ATexto: string);
-    procedure Limpiar;
     procedure Filtrar(const AFiltro: TFiltroConsentimiento);
-    procedure IrAPagina(const APagina: Integer);
-    procedure PaginaSiguiente;
-    procedure PaginaAnterior;
     procedure VerDetalle(const AId: Integer);
     procedure VolverAlListado;
     class function AccionesPermitidas: TAccionesCliente;
@@ -58,10 +52,9 @@ const
 constructor TPresentadorClientes.Create(const AVista: IVistaClientes;
   const AApi: IApiClientes);
 begin
-  inherited Create;
+  inherited Create(AVista);
   FVista := AVista;
   FApi := AApi;
-  FPagina := 1;
 end;
 
 class function TPresentadorClientes.AccionesPermitidas: TAccionesCliente;
@@ -86,42 +79,11 @@ begin
   Cargar;
 end;
 
-procedure TPresentadorClientes.Buscar(const ATexto: string);
-begin
-  FTexto := ATexto.Trim;
-  FPagina := 1;
-  FVista.MostrarBusqueda(FTexto, not FTexto.IsEmpty);
-  Cargar;
-end;
-
-procedure TPresentadorClientes.Limpiar;
-begin
-  Buscar('');
-end;
-
 procedure TPresentadorClientes.Filtrar(const AFiltro: TFiltroConsentimiento);
 begin
   FFiltro := AFiltro;
   FPagina := 1;
   Cargar;
-end;
-
-procedure TPresentadorClientes.IrAPagina(const APagina: Integer);
-begin
-  if (APagina < 1) or ((FTotalPaginas > 0) and (APagina > FTotalPaginas)) then
-    Exit;
-  FPagina := APagina;
-  Cargar;
-end;
-
-procedure TPresentadorClientes.PaginaSiguiente;
-begin
-  IrAPagina(FPagina + 1);
-end;
-
-procedure TPresentadorClientes.PaginaAnterior;
-begin
-  IrAPagina(FPagina - 1);
 end;
 
 procedure TPresentadorClientes.VerDetalle(const AId: Integer);

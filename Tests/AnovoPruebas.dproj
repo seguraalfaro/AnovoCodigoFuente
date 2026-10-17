@@ -44,6 +44,7 @@
         <DCCReference Include="Anovo.Pruebas.Menu.pas"/>
         <DCCReference Include="Anovo.Pruebas.Plazos.pas"/>
         <DCCReference Include="Anovo.Pruebas.PeriodoBusqueda.pas"/>
+        <DCCReference Include="Anovo.Pruebas.TotalesCotizacion.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

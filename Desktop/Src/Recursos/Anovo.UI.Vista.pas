@@ -6,7 +6,7 @@ unit Anovo.UI.Vista;
 interface
 
 uses
-  Vcl.Controls, Vcl.StdCtrls, Vcl.WinXCtrls;
+  System.Classes, Vcl.Controls, Vcl.StdCtrls, Vcl.WinXCtrls;
 
 procedure CursorOcupado(const AActivo: Boolean);
 
@@ -15,6 +15,9 @@ procedure AvisarError(const AMensaje: string);
 procedure Informar(const AMensaje: string);
 
 function Confirmar(const AMensaje: string): Boolean;
+
+function AvisarReparos(const AReparos: TStrings;
+  const AEncabezado: string): Boolean;
 
 procedure BloquearEdicion(const AControles: array of TControl;
   const AActivo: Boolean);
@@ -29,7 +32,7 @@ procedure PintarPaginacion(AEtiqueta: TLabel; AAnterior, ASiguiente: TControl;
 implementation
 
 uses
-  System.SysUtils, System.Classes, System.UITypes, Vcl.Forms, Vcl.Dialogs;
+  System.SysUtils, System.UITypes, Vcl.Forms, Vcl.Dialogs;
 
 var
   Ocupados: Integer;
@@ -68,6 +71,28 @@ end;
 function Confirmar(const AMensaje: string): Boolean;
 begin
   Result := MessageDlg(AMensaje, mtConfirmation, [mbYes, mbNo], 0) = mrYes;
+end;
+
+function AvisarReparos(const AReparos: TStrings;
+  const AEncabezado: string): Boolean;
+const
+  VINETA = '   ' + #$2022 + '  ';
+var
+  lMensaje: string;
+  I: Integer;
+begin
+  Result := AReparos.Count = 0;
+  if Result then
+    Exit;
+  if AReparos.Count = 1 then
+    lMensaje := AReparos[0]
+  else
+  begin
+    lMensaje := AEncabezado + sLineBreak;
+    for I := 0 to AReparos.Count - 1 do
+      lMensaje := lMensaje + sLineBreak + VINETA + AReparos[I];
+  end;
+  AvisarError(lMensaje);
 end;
 
 procedure BloquearEdicion(const AControles: array of TControl;

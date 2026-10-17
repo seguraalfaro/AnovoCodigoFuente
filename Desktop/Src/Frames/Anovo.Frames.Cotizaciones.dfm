@@ -40,12 +40,6 @@ inherited fraCotizaciones: TfraCotizaciones
       OnDblClick = grDatosDblClick
     end
   end
-  inherited pnlSinRegistros: TPanel
-    Top = 172
-    Height = 398
-    ExplicitTop = 172
-    ExplicitHeight = 398
-  end
   object pstFiltros: TPlanoPestanas
     AlignWithMargins = True
     Left = 3

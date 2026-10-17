@@ -44,12 +44,6 @@ inherited fraSolicitudesAsesor: TfraSolicitudesAsesor
       ColumnWidth = cwAutoWidth
     end
   end
-  inherited pnlSinRegistros: TPanel
-    Top = 172
-    Height = 398
-    ExplicitTop = 172
-    ExplicitHeight = 398
-  end
   object pstPeriodo: TPlanoPestanas
     AlignWithMargins = True
     Left = 3

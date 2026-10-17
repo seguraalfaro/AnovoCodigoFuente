@@ -31,7 +31,6 @@ type
     procedure btnExportarClick(Sender: TObject);
   private
     FPresentador: TPresentadorClientes;
-    FDetalle: TfraClienteDatos;
     procedure CerrarDetalle(Sender: TObject);
     procedure Accion(Sender: TObject; const AClave: string);
     procedure MostrarAcciones(const AAcciones: TAccionesCliente;
@@ -55,7 +54,7 @@ implementation
 {$R *.dfm}
 
 uses
-  rDBExport,
+  Anovo.UI.ColumnasRejilla,
   Anovo.Api.Clientes,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
@@ -141,15 +140,12 @@ begin
 end;
 
 procedure TfraClientes.MostrarDetalle(const AId: Integer);
+var
+  lDetalle: TfraClienteDatos;
 begin
-  FreeAndNil(FDetalle);
-  FDetalle := TfraClienteDatos.Crear(Self, AId);
-  FDetalle.OnRegresar := CerrarDetalle;
-  FDetalle.Parent := Self;
-  FDetalle.SetBounds(0, 0, ClientWidth, ClientHeight);
-  FDetalle.Anchors := [akLeft, akTop, akRight, akBottom];
-  FDetalle.BringToFront;
-  AplicarTemaFrame(FDetalle);
+  lDetalle := TfraClienteDatos.Crear(Self, AId);
+  lDetalle.OnRegresar := CerrarDetalle;
+  MostrarEncima(lDetalle);
 end;
 
 procedure TfraClientes.CerrarDetalle(Sender: TObject);
@@ -159,8 +155,7 @@ end;
 
 procedure TfraClientes.MostrarListado;
 begin
-  if Assigned(FDetalle) then
-    FDetalle.Visible := False;
+  CerrarEncima;
 end;
 
 procedure TfraClientes.pstFiltrosChange(Sender: TObject);
@@ -172,7 +167,7 @@ end;
 
 procedure TfraClientes.btnExportarClick(Sender: TObject);
 begin
-  rDBExport.DBExport(grDatos, True, True);
+  TColumnasRejilla.ExportarRejilla(grDatos);
 end;
 
 procedure TfraClientes.btnNuevoClick(Sender: TObject);

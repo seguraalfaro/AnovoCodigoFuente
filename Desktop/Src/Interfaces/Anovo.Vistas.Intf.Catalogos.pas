@@ -5,6 +5,7 @@ unit Anovo.Vistas.Intf.Catalogos;
 interface
 
 uses
+  Anovo.Vistas.Intf.Listado,
   System.Generics.Collections,
   Anovo.Api.Intf.Catalogos,
   Anovo.DTOs.Catalogos,
@@ -17,7 +18,7 @@ type
   TAccionCatalogo = (acEditar, acHistorial, acPrecio, acInactivar);
   TAccionesCatalogo = set of TAccionCatalogo;
 
-  IVistaCatalogos = interface
+  IVistaCatalogos = interface(IVistaListado)
     ['{5E2B9A70-1C46-4D83-B0F9-72A4E6C51D08}']
 
     procedure MostrarCatalogo(const ACatalogo: TCatalogo);
@@ -26,9 +27,6 @@ type
       const ACatalogo: TCatalogoImportacion);
     procedure MostrarAcciones(const AAcciones: TAccionesCatalogo;
       const APuedeCrear: Boolean);
-    procedure MostrarCargando(const AActivo: Boolean);
-    procedure MostrarBusqueda(const ATexto: string;
-      const APuedeLimpiar: Boolean);
 
     procedure MostrarMateriales(const AFilas: TObjectList<TMaterialDTO>);
     procedure MostrarManoObra(const AFilas: TObjectList<TManoObraDTO>);
@@ -43,16 +41,14 @@ type
 
     procedure MostrarCategorias(const ACategorias: TObjectList<TCategoriaDTO>);
 
-    procedure MostrarPaginacion(const APagina, ATotalPaginas: Integer;
-      const ATotal: Int64);
-    procedure MostrarError(const AMensaje: string);
     function Confirmar(const AMensaje: string): Boolean;
 
     procedure MostrarFormularioItem(const ACatalogo: TCatalogo;
       const AId: Integer);
     procedure MostrarFormularioPrecio(const ACatalogo: TCatalogo;
       const AId: Integer);
-    procedure MostrarHistorial(const AFilas: TObjectList<TPrecioDTO>);
+    procedure MostrarHistorial(const ACatalogo: TCatalogo;
+      const AFilas: TObjectList<TPrecioDTO>);
   end;
 
 const

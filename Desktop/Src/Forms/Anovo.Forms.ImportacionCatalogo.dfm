@@ -1,6 +1,7 @@
-object frmImportacionCatalogo: TfrmImportacionCatalogo
+inherited frmImportacionCatalogo: TfrmImportacionCatalogo
   Left = 0
   Top = 0
+  BorderStyle = bsSizeable
   Caption = 'Importar'
   ClientHeight = 660
   ClientWidth = 1100
@@ -36,39 +37,73 @@ object frmImportacionCatalogo: TfrmImportacionCatalogo
   OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 15
-  object TitleBarPanel1: TTitleBarPanel
-    Left = 0
-    Top = 0
+  inherited TitleBarPanel1: TTitleBarPanel
     Width = 1100
-    Height = 25
-    CustomButtons = <>
   end
-  object pnlTitulo: TPanel
-    Tag = 2
-    Left = 0
-    Top = 25
+  inherited pnlTitulo: TPanel
     Width = 1100
-    Height = 62
-    Align = alTop
-    BevelOuter = bvNone
-    TabOrder = 0
-    object lblTitulo: TLabel
-      Tag = 11
-      Left = 20
-      Top = 10
-      Width = 31
-      Height = 15
+    inherited lblTitulo: TLabel
       Caption = 'Importar'
     end
-    object lblSubtitulo: TLabel
-      Tag = 13
-      Left = 20
-      Top = 37
+    inherited lblSubtitulo: TLabel
       Width = 400
-      Height = 15
       Caption =
         'Solo crea '#237'tems nuevos. Un c'#243'digo que ya existe en el cat'#225'logo n' +
         'o se importa.'
+    end
+  end
+  inherited pnlPie: TRelativePanel
+    Top = 600
+    Width = 1100
+    ControlCollection = <
+      item
+        Control = btnGuardar
+        AlignBottomWithPanel = False
+        AlignHorizontalCenterWithPanel = False
+        AlignLeftWithPanel = False
+        AlignRightWithPanel = True
+        AlignTopWithPanel = False
+        AlignVerticalCenterWithPanel = True
+      end
+      item
+        Control = btnCancelar
+        AlignBottomWithPanel = False
+        AlignHorizontalCenterWithPanel = False
+        AlignLeftWithPanel = False
+        AlignRightWithPanel = False
+        AlignTopWithPanel = False
+        AlignVerticalCenterWithPanel = True
+        LeftOf = btnGuardar
+      end
+      item
+        Control = lblNota
+        AlignBottomWithPanel = False
+        AlignHorizontalCenterWithPanel = False
+        AlignLeftWithPanel = True
+        AlignRightWithPanel = False
+        AlignTopWithPanel = False
+        AlignVerticalCenterWithPanel = True
+      end>
+    TabOrder = 4
+    inherited btnGuardar: TPlanoBotonWin
+      Left = 870
+      Width = 210
+      Caption = 'Importar'
+      Enabled = False
+      OnClick = btnAprobarClick
+    end
+    inherited btnCancelar: TPlanoBotonWin
+      Left = 744
+    end
+    object lblNota: TLabel
+      Tag = 13
+      AlignWithMargins = True
+      Left = 20
+      Top = 22
+      Width = 400
+      Height = 15
+      Margins.Left = 20
+      Caption = 'Las filas con error no se env'#237'an. Nada existente se modifica.'
     end
   end
   object pnlArchivo: TPanel
@@ -132,53 +167,6 @@ object frmImportacionCatalogo: TfrmImportacionCatalogo
       Enabled = False
       TabOrder = 2
       OnChange = cbHojaChange
-    end
-  end
-  object pnlPie: TPanel
-    Tag = 2
-    Left = 0
-    Top = 600
-    Width = 1100
-    Height = 60
-    Align = alBottom
-    BevelOuter = bvNone
-    TabOrder = 4
-    DesignSize = (
-      1100
-      60)
-    object lblNota: TLabel
-      Tag = 13
-      Left = 20
-      Top = 22
-      Width = 400
-      Height = 15
-      Caption = 'Las filas con error no se env'#237'an. Nada existente se modifica.'
-    end
-    object btnCancelar: TPlanoBotonWin
-      Left = 740
-      Top = 14
-      Width = 120
-      Height = 32
-      Cursor = crHandPoint
-      Anchors = [akTop, akRight]
-      Caption = 'Cancelar'
-      TabOrder = 0
-      StyleElements = []
-      OnClick = btnCancelarClick
-      Kind = fkSecondary
-    end
-    object btnAprobar: TPlanoBotonWin
-      Left = 870
-      Top = 14
-      Width = 210
-      Height = 32
-      Cursor = crHandPoint
-      Anchors = [akTop, akRight]
-      Caption = 'Importar'
-      Enabled = False
-      TabOrder = 1
-      StyleElements = []
-      OnClick = btnAprobarClick
     end
   end
   object pnlCampos: TPanel

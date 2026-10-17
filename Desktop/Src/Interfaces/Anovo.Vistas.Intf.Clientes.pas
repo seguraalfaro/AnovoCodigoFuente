@@ -5,6 +5,7 @@ unit Anovo.Vistas.Intf.Clientes;
 interface
 
 uses
+  Anovo.Vistas.Intf.Listado,
   System.Generics.Collections,
   Anovo.DTOs.Clientes;
 
@@ -14,17 +15,11 @@ type
   TAccionCliente = (acDetalles);
   TAccionesCliente = set of TAccionCliente;
 
-  IVistaClientes = interface
+  IVistaClientes = interface(IVistaListado)
     ['{7A1D4C92-3E58-4B06-9F27-C5E8B0A16D43}']
     procedure MostrarAcciones(const AAcciones: TAccionesCliente;
       const APuedeCrear: Boolean);
-    procedure MostrarCargando(const AActivo: Boolean);
-    procedure MostrarBusqueda(const ATexto: string;
-      const APuedeLimpiar: Boolean);
     procedure MostrarClientes(const AClientes: TObjectList<TClienteDTO>);
-    procedure MostrarPaginacion(const APagina, ATotalPaginas: Integer;
-      const ATotal: Int64);
-    procedure MostrarError(const AMensaje: string);
     procedure MostrarDetalle(const AId: Integer);
     procedure MostrarListado;
   end;

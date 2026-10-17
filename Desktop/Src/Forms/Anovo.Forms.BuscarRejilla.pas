@@ -25,8 +25,7 @@ type
   private
     FDatos: TDataSet;
     FCampos: TArray<string>;
-    function Coincide(const ATexto: string): Boolean;
-    function BuscarSiguiente(const ATexto: string): Boolean;
+    function CamposElegidos: TArray<string>;
   public
     class procedure Buscar(AOwner: TComponent; ADatos: TDataSet;
       const ACampos, ATitulos: TArray<string>; const ACampoInicial: string);
@@ -37,6 +36,7 @@ implementation
 {$R *.dfm}
 
 uses
+  Anovo.UI.ColumnasRejilla,
   Anovo.Textos;
 
 class procedure TfrmBuscarRejilla.Buscar(AOwner: TComponent; ADatos: TDataSet;
@@ -67,53 +67,12 @@ begin
   end;
 end;
 
-function TfrmBuscarRejilla.Coincide(const ATexto: string): Boolean;
-var
-  I: Integer;
-  lCampo: TField;
+function TfrmBuscarRejilla.CamposElegidos: TArray<string>;
 begin
-  Result := False;
-  for I := 0 to High(FCampos) do
-  begin
-    if (cbColumna.ItemIndex > 0) and (cbColumna.ItemIndex - 1 <> I) then
-      Continue;
-    lCampo := FDatos.FindField(FCampos[I]);
-    if (lCampo <> nil) and
-      LowerCase(lCampo.DisplayText).Contains(ATexto) then
-      Exit(True);
-  end;
-end;
-
-function TfrmBuscarRejilla.BuscarSiguiente(const ATexto: string): Boolean;
-var
-  lInicio: TBookmark;
-  lVuelta: Boolean;
-begin
-  Result := False;
-  if (FDatos = nil) or not FDatos.Active or FDatos.IsEmpty then
-    Exit;
-  lInicio := FDatos.GetBookmark;
-  try
-    lVuelta := False;
-    while True do
-    begin
-      FDatos.Next;
-      if FDatos.Eof then
-      begin
-        if lVuelta then
-          Break;
-        lVuelta := True;
-        FDatos.First;
-      end;
-      if Coincide(ATexto) then
-        Exit(True);
-      if FDatos.CompareBookmarks(lInicio, FDatos.GetBookmark) = 0 then
-        Break;
-    end;
-    FDatos.GotoBookmark(lInicio);
-  finally
-    FDatos.FreeBookmark(lInicio);
-  end;
+  if cbColumna.ItemIndex > 0 then
+    Result := [FCampos[cbColumna.ItemIndex - 1]]
+  else
+    Result := Copy(FCampos);
 end;
 
 procedure TfrmBuscarRejilla.btnGuardarClick(Sender: TObject);
@@ -127,7 +86,7 @@ begin
     edTexto.SetFocus;
     Exit;
   end;
-  if BuscarSiguiente(lTexto) then
+  if BuscarFila(FDatos, CamposElegidos, lTexto) then
     lblResultado.Caption := Format(SBuscarEncontrado, [FDatos.RecNo])
   else
     lblResultado.Caption := SBuscarSinCoincidencias;

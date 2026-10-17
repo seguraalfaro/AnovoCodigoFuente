@@ -97,6 +97,7 @@ inherited frmRevision: TfrmRevision
         Caption = 'Trabajo'
       end
       object lblTrabajo: TLabel
+        Tag = 25
         Left = 20
         Top = 28
         Width = 420
@@ -115,6 +116,7 @@ inherited frmRevision: TfrmRevision
         Caption = 'Motivo del ajuste'
       end
       object lblMotivoAjuste: TLabel
+        Tag = 25
         Left = 20
         Top = 96
         Width = 420
@@ -136,6 +138,7 @@ inherited frmRevision: TfrmRevision
       Caption = 'Materiales'
     end
     object lblMateriales: TLabel
+      Tag = 25
       Left = 690
       Top = 8
       Width = 150
@@ -157,6 +160,7 @@ inherited frmRevision: TfrmRevision
       Caption = 'Mano de obra'
     end
     object lblManoObra: TLabel
+      Tag = 25
       Left = 690
       Top = 28
       Width = 150
@@ -178,6 +182,7 @@ inherited frmRevision: TfrmRevision
       Caption = 'M'#225'quina'
     end
     object lblMaquina: TLabel
+      Tag = 25
       Left = 690
       Top = 48
       Width = 150
@@ -199,6 +204,7 @@ inherited frmRevision: TfrmRevision
       Caption = 'Costo'
     end
     object lblCosto: TLabel
+      Tag = 25
       Left = 690
       Top = 68
       Width = 150
@@ -220,6 +226,7 @@ inherited frmRevision: TfrmRevision
       Caption = 'Ajuste'
     end
     object lblAjuste: TLabel
+      Tag = 25
       Left = 690
       Top = 88
       Width = 150
@@ -241,6 +248,7 @@ inherited frmRevision: TfrmRevision
       Caption = 'IVA'
     end
     object lblIva: TLabel
+      Tag = 25
       Left = 690
       Top = 108
       Width = 150

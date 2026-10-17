@@ -713,6 +713,8 @@ type
     procedure Confirmar(const ATabla: TDataSet);
     procedure LimpiarTodo;
     function FilaCatalogo: TDataSet;
+    function IdFilaCatalogo: Integer;
+    function NombreFilaCatalogo: string;
   end;
 
 var
@@ -731,6 +733,8 @@ uses
 
 const
   CONSENTIMIENTO_PENDIENTE = 'pendiente';
+  CAMPO_ID_CATALOGO = 'ID';
+  CAMPO_NOMBRE_CATALOGO = 'NOMBRE';
 
   ESTADO_ACTIVO = 'activo';
   ESTADO_INACTIVO = 'inactivo';
@@ -955,7 +959,7 @@ begin
   if Sender.IsNull then
     Text := ''
   else
-    Text := Format(SPorcentaje, [Sender.AsInteger]);
+    Text := TFormato.Tasa(Sender.AsInteger);
 end;
 
 procedure TdmMemoria.EstadoGetText(Sender: TField; var Text: string;
@@ -1047,6 +1051,20 @@ begin
   Result := dsCatalogo.DataSet;
   if (Result <> nil) and Result.IsEmpty then
     Result := nil;
+end;
+
+function TdmMemoria.IdFilaCatalogo: Integer;
+begin
+  Result := 0;
+  if FilaCatalogo <> nil then
+    Result := FilaCatalogo.FieldByName(CAMPO_ID_CATALOGO).AsInteger;
+end;
+
+function TdmMemoria.NombreFilaCatalogo: string;
+begin
+  Result := '';
+  if FilaCatalogo <> nil then
+    Result := FilaCatalogo.FieldByName(CAMPO_NOMBRE_CATALOGO).AsString;
 end;
 
 procedure TdmMemoria.SinTodasLasCategorias(const ASin: Boolean);

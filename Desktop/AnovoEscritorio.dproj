@@ -308,6 +308,9 @@
         <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Dashboard.pas"/>
         <DCCReference Include="Src\Api\Anovo.Api.Dashboard.pas"/>
         <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Base.pas"/>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Listado.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Listado.pas"/>
+        <DCCReference Include="Src\Common\Anovo.TotalesCotizacion.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.Dashboard.pas"/>
         <DCCReference Include="Src\Presentadores\Anovo.Presentadores.Dashboard.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Solicitudes.pas"/>

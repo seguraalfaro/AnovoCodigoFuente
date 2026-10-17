@@ -8,32 +8,27 @@ uses
   Anovo.Api.Intf.Solicitudes,
   Anovo.PeriodoBusqueda,
   Anovo.Presentadores.Base,
+  Anovo.Presentadores.Listado,
   Anovo.Vistas.Intf.SolicitudesAsesor;
 
 type
-  TPresentadorSolicitudesAsesor = class(TPresentadorBase)
+  TPresentadorSolicitudesAsesor = class(TPresentadorListado)
   private
     FVista: IVistaSolicitudesAsesor;
     FApi: IApiSolicitudes;
-    FTexto: string;
     FHistorial: Boolean;
-    FPeriodo: TPeriodoBusqueda;
-    FPagina: Integer;
-    FTotalPaginas: Integer;
-    procedure Cargar;
-    function HayFiltro: Boolean;
-    class function PeriodoInicial: TPeriodoBusqueda; static;
+  protected
+    procedure Cargar; override;
+    function UsaPeriodo: Boolean; override;
+    function PeriodoInicial: TPeriodoBusqueda; override;
+    procedure PintarPeriodo; override;
   public
     constructor Create(const AVista: IVistaSolicitudesAsesor;
       const AApi: IApiSolicitudes);
     procedure Iniciar;
-    procedure Buscar(const ATexto: string);
-    procedure Limpiar;
-    procedure FiltrarPeriodo(const APeriodo: TPeriodoBusqueda);
+    class function AccionesPermitidas: TAccionesSolicitudAsesor;
+    procedure Abrir(const ACotizacionId: Integer);
     procedure VerHistorial(const AHistorial: Boolean);
-    procedure IrAPagina(const APagina: Integer);
-    procedure PaginaSiguiente;
-    procedure PaginaAnterior;
   end;
 
 const
@@ -50,59 +45,43 @@ uses
 constructor TPresentadorSolicitudesAsesor.Create(const AVista: IVistaSolicitudesAsesor;
   const AApi: IApiSolicitudes);
 begin
-  inherited Create;
+  inherited Create(AVista);
   FVista := AVista;
   FApi := AApi;
   FHistorial := False;
-  FPagina := 1;
-  FPeriodo := PeriodoInicial;
 end;
 
-class function TPresentadorSolicitudesAsesor.PeriodoInicial: TPeriodoBusqueda;
+function TPresentadorSolicitudesAsesor.UsaPeriodo: Boolean;
+begin
+  Result := True;
+end;
+
+procedure TPresentadorSolicitudesAsesor.PintarPeriodo;
+begin
+  FVista.MostrarPeriodo(FPeriodo);
+end;
+
+function TPresentadorSolicitudesAsesor.PeriodoInicial: TPeriodoBusqueda;
 begin
   Result := TPeriodoBusqueda.De(apEsteMes);
 end;
 
+class function TPresentadorSolicitudesAsesor.AccionesPermitidas
+  : TAccionesSolicitudAsesor;
+begin
+  Result := [asaVer];
+end;
+
+procedure TPresentadorSolicitudesAsesor.Abrir(const ACotizacionId: Integer);
+begin
+  if (ACotizacionId > 0) and (asaVer in AccionesPermitidas) then
+    FVista.AbrirCotizacion(ACotizacionId);
+end;
+
 procedure TPresentadorSolicitudesAsesor.Iniciar;
 begin
+  FVista.MostrarAcciones(AccionesPermitidas);
   FVista.MostrarPeriodo(FPeriodo);
-  FVista.MostrarBusqueda(FTexto, HayFiltro);
-  Cargar;
-end;
-
-procedure TPresentadorSolicitudesAsesor.Buscar(const ATexto: string);
-begin
-  FTexto := Trim(ATexto);
-  FPagina := 1;
-  FVista.MostrarBusqueda(FTexto, HayFiltro);
-  Cargar;
-end;
-
-function TPresentadorSolicitudesAsesor.HayFiltro: Boolean;
-begin
-  Result := not FTexto.IsEmpty or not FPeriodo.Igual(PeriodoInicial);
-end;
-
-procedure TPresentadorSolicitudesAsesor.Limpiar;
-begin
-  FPeriodo := PeriodoInicial;
-  FVista.MostrarPeriodo(FPeriodo);
-  Buscar('');
-end;
-
-procedure TPresentadorSolicitudesAsesor.FiltrarPeriodo(const APeriodo
-  : TPeriodoBusqueda);
-var
-  lMensaje: string;
-begin
-  if not APeriodo.Validar(lMensaje) then
-  begin
-    FVista.MostrarError(lMensaje);
-    FVista.MostrarPeriodo(FPeriodo);
-    Exit;
-  end;
-  FPeriodo := APeriodo;
-  FPagina := 1;
   FVista.MostrarBusqueda(FTexto, HayFiltro);
   Cargar;
 end;
@@ -114,24 +93,6 @@ begin
   FHistorial := AHistorial;
   FPagina := 1;
   Cargar;
-end;
-
-procedure TPresentadorSolicitudesAsesor.IrAPagina(const APagina: Integer);
-begin
-  if (APagina < 1) or ((FTotalPaginas > 0) and (APagina > FTotalPaginas)) then
-    Exit;
-  FPagina := APagina;
-  Cargar;
-end;
-
-procedure TPresentadorSolicitudesAsesor.PaginaSiguiente;
-begin
-  IrAPagina(FPagina + 1);
-end;
-
-procedure TPresentadorSolicitudesAsesor.PaginaAnterior;
-begin
-  IrAPagina(FPagina - 1);
 end;
 
 procedure TPresentadorSolicitudesAsesor.Cargar;

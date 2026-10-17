@@ -85,6 +85,7 @@ object fraCotizacion: TfraCotizacion
         Caption = 'Contacto'
       end
       object lblContacto: TLabel
+        Tag = 25
         Left = 68
         Top = 36
         Width = 352

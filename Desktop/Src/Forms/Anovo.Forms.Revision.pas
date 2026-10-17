@@ -47,14 +47,14 @@ type
     procedure btnDevolverClick(Sender: TObject);
   private
     FPresentador: TPresentadorRevision;
-    FId: Integer;
-    FNumero: Integer;
     FRevisada: Boolean;
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarCotizacion(const ACotizacion: TCotizacionDTO;
       const ALineas: TObjectList<TLineaDTO>);
     procedure MostrarProcesando(const AActivo: Boolean);
     procedure Revisada;
+    function Confirmar(const AMensaje: string): Boolean;
+    function PedirMotivo(const ATitulo: string; out AMotivo: string): Boolean;
   protected
     function ControlesEdicion: TArray<TControl>; override;
   public
@@ -73,7 +73,7 @@ uses
   Anovo.Forms.Motivo,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
-  Anovo.Formato,
+  Anovo.TotalesCotizacion,
   Anovo.Textos;
 
 class function TfrmRevision.Mostrar(AOwner: TComponent;
@@ -83,10 +83,7 @@ var
 begin
   lForma := TfrmRevision.Create(AOwner);
   try
-    lForma.FId := AId;
-    lForma.FPresentador := TPresentadorRevision.Create(lForma,
-      TApiCotizaciones.Create, AId);
-    lForma.FPresentador.Iniciar;
+    lForma.FPresentador.Iniciar(AId);
     lForma.ShowModal;
     Result := lForma.FRevisada;
   finally
@@ -97,8 +94,10 @@ end;
 procedure TfrmRevision.FormCreate(Sender: TObject);
 begin
   AplicarTemaGrid(grLineas);
+  TCeldasRejilla.De(grLineas).TextoVacio := SVacioLineas;
   lblTitulo.Caption := '';
   lblSubtitulo.Caption := '';
+  FPresentador := TPresentadorRevision.Create(Self, TApiCotizaciones.Create);
 end;
 
 procedure TfrmRevision.FormDestroy(Sender: TObject);
@@ -123,35 +122,28 @@ end;
 
 procedure TfrmRevision.MostrarCotizacion(const ACotizacion: TCotizacionDTO;
   const ALineas: TObjectList<TLineaDTO>);
+var
+  lTotales: TTotalesCotizacion;
 begin
-  FNumero := ACotizacion.Numero;
   lblTitulo.Caption := Format(SCotizacionNumero, [ACotizacion.Numero]);
   lblSubtitulo.Caption := Format(SRevisionSubtitulo,
     [ACotizacion.ClienteNombre, ACotizacion.AsesorNombre,
     ACotizacion.ElaboradaPorNombre]);
   lblTrabajo.Caption := ACotizacion.DescripcionTrabajo;
 
-  lblMateriales.Caption :=
-    TFormato.Colones(ACotizacion.SubtotalMateriales.ValueOrDefault);
-  lblManoObra.Caption :=
-    TFormato.Colones(ACotizacion.SubtotalManoObra.ValueOrDefault);
-  lblMaquina.Caption :=
-    TFormato.Colones(ACotizacion.SubtotalMaquina.ValueOrDefault);
-  lblCosto.Caption := TFormato.Colones(ACotizacion.CostoTotal.ValueOrDefault);
-  if ACotizacion.PorcentajeAjuste = 0 then
-    lblAjusteRot.Caption := SSinAjuste
-  else
-    lblAjusteRot.Caption := Format(SAjustePorcentaje,
-      [TFormato.Porcentaje(ACotizacion.PorcentajeAjuste)]);
-  lblAjuste.Caption := TFormato.Colones(ACotizacion.CostoTotal.ValueOrDefault *
-    ACotizacion.PorcentajeAjuste / 100);
-  lblMotivoAjuste.Caption := ACotizacion.MotivoAjuste.ValueOrDefault;
-  lblMotivoAjusteRot.Visible := not ACotizacion.MotivoAjuste.ValueOrDefault.IsEmpty;
+  lTotales := TTotalesCotizacion.De(ACotizacion);
+  lblMateriales.Caption := lTotales.Materiales;
+  lblManoObra.Caption := lTotales.ManoObra;
+  lblMaquina.Caption := lTotales.Maquina;
+  lblCosto.Caption := lTotales.Costo;
+  lblAjusteRot.Caption := lTotales.AjusteRotulo;
+  lblAjuste.Caption := lTotales.Ajuste;
+  lblMotivoAjuste.Caption := lTotales.MotivoAjuste;
+  lblMotivoAjusteRot.Visible := not lTotales.MotivoAjuste.IsEmpty;
   lblMotivoAjuste.Visible := lblMotivoAjusteRot.Visible;
-  lblIvaRot.Caption := Format(SIvaPorcentaje,
-    [TFormato.Porcentaje(ACotizacion.PorcentajeIva)]);
-  lblIva.Caption := TFormato.Colones(ACotizacion.MontoImpuesto.ValueOrDefault);
-  lblTotal.Caption := TFormato.Colones(ACotizacion.MontoTotal.ValueOrDefault);
+  lblIvaRot.Caption := lTotales.IvaRotulo;
+  lblIva.Caption := lTotales.Iva;
+  lblTotal.Caption := lTotales.Total;
 
   TMapeoDatos.AListaTabla<TLineaDTO>(ALineas, dmMemoria.mtRevisionLineas);
   Anovo.UI.CeldasRejilla.AjustarColumnas(grLineas);
@@ -165,17 +157,24 @@ end;
 
 procedure TfrmRevision.btnGuardarClick(Sender: TObject);
 begin
-  if Confirmar(Format(SConfirmarAprobar, [FNumero])) then
-    FPresentador.DarVistoBueno;
+  FPresentador.DarVistoBueno;
 end;
 
 procedure TfrmRevision.btnDevolverClick(Sender: TObject);
-var
-  lMotivo: string;
 begin
-  if TfrmMotivo.Pedir(Self, Format(SDevolverTitulo, [FNumero]),
-    SDevolverAyuda, SBotonDevolver, lMotivo) then
-    FPresentador.Devolver(lMotivo);
+  FPresentador.Devolver;
+end;
+
+function TfrmRevision.Confirmar(const AMensaje: string): Boolean;
+begin
+  Result := Anovo.UI.Vista.Confirmar(AMensaje);
+end;
+
+function TfrmRevision.PedirMotivo(const ATitulo: string;
+  out AMotivo: string): Boolean;
+begin
+  Result := TfrmMotivo.Pedir(Self, ATitulo, SDevolverAyuda, SBotonDevolver,
+    AMotivo);
 end;
 
 

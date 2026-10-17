@@ -6,6 +6,7 @@ unit Anovo.Vistas.Intf.SolicitudesAsistente;
 interface
 
 uses
+  Anovo.Vistas.Intf.Listado,
   System.Generics.Collections,
   Anovo.DTOs.Dashboard,
   Anovo.DTOs.Solicitudes;
@@ -15,20 +16,15 @@ type
   TAccionCola = (acTomar, acAbrir);
   TAccionesCola = set of TAccionCola;
 
-  IVistaSolicitudesAsistente = interface
+  IVistaSolicitudesAsistente = interface(IVistaListado)
     ['{8346550D-2F58-4EDB-9829-B75763CB7E68}']
     procedure MostrarAcciones(const AAcciones: TAccionesCola);
-    procedure MostrarCargando(const AActivo: Boolean);
-    procedure MostrarBusqueda(const ATexto: string;
-      const APuedeLimpiar: Boolean);
     procedure MostrarModo(const AModo: TModoSolicitudes);
     procedure MostrarCola(const AFilas: TObjectList<TSolicitudPorCotizarDTO>);
     procedure MostrarEnTrabajo(const AFilas
       : TObjectList<TSolicitudEnTrabajoDTO>);
-    procedure MostrarPaginacion(const APagina, ATotalPaginas: Integer;
-      const ATotal: Int64);
-    procedure MostrarError(const AMensaje: string);
     procedure AbrirCotizacion(const AId: Integer);
+    function Confirmar(const AMensaje: string): Boolean;
   end;
 
 implementation

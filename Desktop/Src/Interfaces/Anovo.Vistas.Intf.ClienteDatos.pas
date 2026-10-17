@@ -28,7 +28,7 @@ type
     procedure MostrarCotizaciones(const ACotizaciones
       : TObjectList<TCotizacionDTO>);
     procedure MostrarConsentimientos(const AConsentimientos
-      : TObjectList<TConsentimientoDTO>);
+      : TObjectList<TConsentimientoDTO>; const ARecogido: string);
     procedure MostrarAcciones(const APuedeEditar, APuedeRevocar,
       APuedeVerCotizaciones: Boolean; const AContacto: TAccionesContacto;
       const ACotizacion: TAccionesCotizacionCliente);

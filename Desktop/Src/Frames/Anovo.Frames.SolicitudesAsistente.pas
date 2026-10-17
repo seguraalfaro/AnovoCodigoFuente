@@ -24,11 +24,11 @@ type
     procedure pstModoChange(Sender: TObject);
   private
     FPresentador: TPresentadorSolicitudesAsistente;
-    FCotizacion: TfraCotizacion;
     procedure Accion(Sender: TObject; const AClave: string);
     procedure AbrirCotizacion(const AId: Integer);
     procedure CerrarCotizacion(Sender: TObject);
     procedure MostrarAcciones(const AAcciones: TAccionesCola);
+    function Confirmar(const AMensaje: string): Boolean;
     procedure MostrarModo(const AModo: TModoSolicitudes);
     procedure MostrarCola(const AFilas: TObjectList<TSolicitudPorCotizarDTO>);
     procedure MostrarEnTrabajo(const AFilas
@@ -162,34 +162,31 @@ begin
       FPresentador.Abrir(dmMemoria.mtSolicitudesEnTrabajoID.AsInteger);
     Exit;
   end;
-  if dmMemoria.mtSolicitudesCola.IsEmpty or
-    (pstModo.ItemIndex <> Ord(msCola)) then
-    Exit;
   if SameText(AClave, ACCIONES[acTomar].Clave) and
-    Confirmar(Format(SConfirmarTomar,
-    [dmMemoria.mtSolicitudesColaCLIENTE_NOMBRE.AsString])) then
-    FPresentador.Tomar(dmMemoria.mtSolicitudesColaID.AsInteger);
+    not dmMemoria.mtSolicitudesCola.IsEmpty then
+    FPresentador.Tomar(dmMemoria.mtSolicitudesColaID.AsInteger,
+      dmMemoria.mtSolicitudesColaCLIENTE_NOMBRE.AsString);
+end;
+
+function TfraSolicitudesAsistente.Confirmar(const AMensaje: string): Boolean;
+begin
+  Result := Anovo.UI.Vista.Confirmar(AMensaje);
 end;
 
 procedure TfraSolicitudesAsistente.AbrirCotizacion(const AId: Integer);
+var
+  lCotizacion: TfraCotizacion;
 begin
-  FreeAndNil(FCotizacion);
-  FCotizacion := TfraCotizacion.Crear(Self, AId);
-  FCotizacion.OnRegresar := CerrarCotizacion;
-  FCotizacion.Parent := Self;
-  FCotizacion.SetBounds(0, 0, ClientWidth, ClientHeight);
-  FCotizacion.Anchors := [akLeft, akTop, akRight, akBottom];
-  FCotizacion.BringToFront;
-  AplicarTemaFrame(FCotizacion);
+  lCotizacion := TfraCotizacion.Crear(Self, AId);
+  lCotizacion.OnRegresar := CerrarCotizacion;
+  MostrarEncima(lCotizacion);
 end;
 
 procedure TfraSolicitudesAsistente.CerrarCotizacion(Sender: TObject);
 begin
-  FCotizacion.Visible := False;
-  TThread.ForceQueue(nil,
+  CerrarEncima(
     procedure
     begin
-      FreeAndNil(FCotizacion);
       FPresentador.Recargar;
     end);
 end;

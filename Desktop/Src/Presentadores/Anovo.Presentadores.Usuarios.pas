@@ -9,32 +9,23 @@ uses
   System.SysUtils,
   Anovo.Api.Intf.Usuarios,
   Anovo.Presentadores.Base,
+  Anovo.Presentadores.Listado,
   Anovo.Vistas.Intf.Usuarios,
   Anovo.Permisos;
 
 type
-  TPresentadorUsuarios = class(TPresentadorBase)
+  TPresentadorUsuarios = class(TPresentadorListado)
   private
     FVista: IVistaUsuarios;
     FApi: IApiUsuarios;
-    FTexto: string;
     FFiltro: TFiltroUsuarios;
-    FPagina: Integer;
-    FTotalPaginas: Integer;
-    procedure Cargar;
-    procedure MostrarError(AMensaje: string);
-    procedure MostrarCargando(AActivo: Boolean);
+  protected
+    procedure Cargar; override;
   public
     constructor Create(const AVista: IVistaUsuarios;
       const AApi: IApiUsuarios);
     procedure Iniciar;
-    procedure Recargar;
-    procedure Buscar(const ATexto: string);
-    procedure Limpiar;
     procedure Filtrar(const AFiltro: TFiltroUsuarios);
-    procedure IrAPagina(const APagina: Integer);
-    procedure PaginaSiguiente;
-    procedure PaginaAnterior;
     procedure Editar(const AId: Integer);
     procedure CambiarEstado(const AId: Integer; const ANombre: string;
       const AEstaActivo: Boolean);
@@ -60,10 +51,9 @@ const
 constructor TPresentadorUsuarios.Create(const AVista: IVistaUsuarios;
   const AApi: IApiUsuarios);
 begin
-  inherited Create;
+  inherited Create(AVista);
   FVista := AVista;
   FApi := AApi;
-  FPagina := 1;
 end;
 
 class function TPresentadorUsuarios.AccionesPermitidas: TAccionesUsuario;
@@ -83,24 +73,6 @@ begin
   Cargar;
 end;
 
-procedure TPresentadorUsuarios.Recargar;
-begin
-  Cargar;
-end;
-
-procedure TPresentadorUsuarios.Buscar(const ATexto: string);
-begin
-  FTexto := ATexto.Trim;
-  FPagina := 1;
-  FVista.MostrarBusqueda(FTexto, not FTexto.IsEmpty);
-  Cargar;
-end;
-
-procedure TPresentadorUsuarios.Limpiar;
-begin
-  Buscar('');
-end;
-
 procedure TPresentadorUsuarios.Filtrar(const AFiltro: TFiltroUsuarios);
 begin
   FFiltro := AFiltro;
@@ -108,38 +80,10 @@ begin
   Cargar;
 end;
 
-procedure TPresentadorUsuarios.IrAPagina(const APagina: Integer);
-begin
-  if (APagina < 1) or ((FTotalPaginas > 0) and (APagina > FTotalPaginas)) then
-    Exit;
-  FPagina := APagina;
-  Cargar;
-end;
-
-procedure TPresentadorUsuarios.PaginaSiguiente;
-begin
-  IrAPagina(FPagina + 1);
-end;
-
-procedure TPresentadorUsuarios.PaginaAnterior;
-begin
-  IrAPagina(FPagina - 1);
-end;
-
 procedure TPresentadorUsuarios.Editar(const AId: Integer);
 begin
   if AId > 0 then
     FVista.AbrirUsuario(AId);
-end;
-
-procedure TPresentadorUsuarios.MostrarError(AMensaje: string);
-begin
-  FVista.MostrarError(AMensaje);
-end;
-
-procedure TPresentadorUsuarios.MostrarCargando(AActivo: Boolean);
-begin
-  FVista.MostrarCargando(AActivo);
 end;
 
 procedure TPresentadorUsuarios.CambiarEstado(const AId: Integer;

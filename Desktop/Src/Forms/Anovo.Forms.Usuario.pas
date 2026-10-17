@@ -49,11 +49,9 @@ type
     pstSinGuardar: TPlanoPastilla;
     chkSoloExcepciones: TCheckBox;
     lblResumen: TLabel;
-    lblSinPermisos: TLabel;
     grPermisos: TrDBGrid;
     crdTelefonos: TCard;
     lblTelefonosNota: TLabel;
-    lblSinTelefonos: TLabel;
     grTelefonos: TrDBGrid;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -171,7 +169,6 @@ begin
   lblAviso.Visible := False;
   lblPaquete.Visible := False;
   lblResumen.Visible := False;
-  lblSinPermisos.Visible := False;
   chkSoloExcepciones.Caption := SSoloExcepciones;
   FPresentador := TPresentadorUsuario.Create(Self, TApiUsuarios.Create,
     TApiRoles.Create);
@@ -220,17 +217,14 @@ begin
     pstEstado.Caption := SEstInactivo;
   end;
   pstEstado.Left := lblTitulo.Left + lblTitulo.Width + 10;
-  if not (not FPropia and TPresentadorUsuario.PuedeEditarPermisos) then
+  if not TPresentadorUsuario.MuestraPermisos(FId) then
   begin
     if pstSecciones.Items.Count > PESTANA_PERMISOS then
       pstSecciones.Items.Delete(PESTANA_PERMISOS);
   end
-  else if AUsuario.Excepciones > 0 then
-    pstSecciones.Items[PESTANA_PERMISOS] := Format(SPestanaPermisosCon,
-      [TFormato.Cantidad(AUsuario.Excepciones, SUnAdicional,
-      SVariosAdicionales)])
   else
-    pstSecciones.Items[PESTANA_PERMISOS] := SPestanaPermisos;
+    pstSecciones.Items[PESTANA_PERMISOS] :=
+      TPresentadorUsuario.RotuloPermisos(AUsuario.Excepciones);
   cbRol.Enabled := not FPropia;
   lblFechas.Caption := Format(SUsuarioRegistrado,
     [TFormato.FechaHora(AUsuario.FechaCreacion.ValueOrDefault)]);
@@ -264,56 +258,31 @@ end;
 
 procedure TfrmUsuario.MostrarClave;
 var
-  lHayClave, lPuede: Boolean;
+  lEstado: TEstadoClave;
 begin
-  lHayClave := not dmMemoria.mtUsuarioCLAVE_TEMPORAL.AsString.IsEmpty;
-  lPuede := (FId = 0) or FPresentador.PuedeRestablecer;
-
-  edClave.Visible := lHayClave;
-  btnCopiar.Visible := lHayClave;
-  btnGenerar.Visible := lPuede;
-  if lHayClave then
-    btnGenerar.Caption := SGenerarOtra
-  else
-    btnGenerar.Caption := SGenerarClave;
-  btnPedirCambio.Visible := lPuede and (FId > 0) and not lHayClave and
-    not FPresentador.DebeCambiarClave;
-  if FPresentador.PideCambio then
-    btnPedirCambio.Caption := SNoPedirCambio
-  else
-    btnPedirCambio.Caption := SPedirCambio;
-
-  pstClave.Visible := FId > 0;
-  lblClaveEstado.Visible := not lHayClave;
-  lblClaveNota.Visible := lHayClave or FPresentador.PideCambio;
-
-  if FId = 0 then
-    lblClaveNota.Caption := SClaveNuevaNota
-  else if lHayClave then
+  lEstado := FPresentador.EstadoClave(
+    not dmMemoria.mtUsuarioCLAVE_TEMPORAL.AsString.IsEmpty, FFechaClave);
+  edClave.Visible := lEstado.HayClave;
+  btnCopiar.Visible := lEstado.HayClave;
+  btnGenerar.Visible := lEstado.PuedeGenerar;
+  btnGenerar.Caption := lEstado.RotuloGenerar;
+  btnPedirCambio.Visible := lEstado.PuedePedirCambio;
+  btnPedirCambio.Caption := lEstado.RotuloPedirCambio;
+  pstClave.Visible := lEstado.ConPastilla;
+  lblClaveEstado.Visible := lEstado.ConEstado;
+  lblClaveNota.Visible := lEstado.ConNota;
+  if lEstado.Pastilla <> '' then
   begin
-    pstClave.Status := fsPending;
-    pstClave.Caption := SSinGuardar;
-    lblClaveNota.Caption := SClaveSeAplica;
-  end
-  else if FPresentador.PideCambio then
-  begin
-    pstClave.Status := fsPending;
-    pstClave.Caption := SSinGuardar;
-    lblClaveEstado.Caption := Format(SClaveCambiadaEl, [FFechaClave]);
-    lblClaveNota.Caption := SCambioPedidoNota;
-  end
-  else if FPresentador.DebeCambiarClave then
-  begin
-    pstClave.Status := fsPending;
-    pstClave.Caption := SEstClavePendiente;
-    lblClaveEstado.Caption := SClaveDebeCambiar;
-  end
-  else
-  begin
-    pstClave.Status := fsInfo;
-    pstClave.Caption := SClaveVigente;
-    lblClaveEstado.Caption := Format(SClaveCambiadaEl, [FFechaClave]);
+    pstClave.Caption := lEstado.Pastilla;
+    if lEstado.Pendiente then
+      pstClave.Status := fsPending
+    else
+      pstClave.Status := fsInfo;
   end;
+  if lEstado.Estado <> '' then
+    lblClaveEstado.Caption := lEstado.Estado;
+  if lEstado.Nota <> '' then
+    lblClaveNota.Caption := lEstado.Nota;
 end;
 
 procedure TfrmUsuario.btnGenerarClick(Sender: TObject);
@@ -341,18 +310,11 @@ begin
 end;
 
 procedure TfrmUsuario.MostrarSiHayPermisos;
-var
-  lVacia: Boolean;
 begin
-  lVacia := dmMemoria.mtPermisosUsuario.IsEmpty;
-  grPermisos.Visible := not lVacia;
-  lblSinPermisos.Visible := lVacia;
-  if not lVacia then
-    Exit;
   if chkSoloExcepciones.Checked then
-    lblSinPermisos.Caption := SSinExcepciones
+    TCeldasRejilla.De(grPermisos).TextoVacio := SSinExcepciones
   else
-    lblSinPermisos.Caption := SSinPermisosParaMostrar;
+    TCeldasRejilla.De(grPermisos).TextoVacio := SSinPermisosParaMostrar;
 end;
 
 procedure TfrmUsuario.MostrarResumen;
@@ -425,14 +387,9 @@ end;
 
 procedure TfrmUsuario.MostrarTelefonos(const AFilas
   : TObjectList<TFilaTelefono>);
-var
-  lVacia: Boolean;
 begin
   TMapeoDatos.AListaTabla<TFilaTelefono>(AFilas, dmMemoria.mtTelefonos);
-  lVacia := dmMemoria.mtTelefonos.IsEmpty;
-  grTelefonos.Visible := not lVacia;
-  lblSinTelefonos.Visible := lVacia;
-  lblSinTelefonos.Caption := SSinTelefonos;
+  TCeldasRejilla.De(grTelefonos).TextoVacio := SSinTelefonos;
   TCeldasRejilla.De(grTelefonos).AjustarColumnas;
 end;
 

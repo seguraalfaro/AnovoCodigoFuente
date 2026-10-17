@@ -6,8 +6,8 @@ Version=13.7
 @EndOfDesignText@
 ' ============================================================
 '  DbEsquema — crea la base local leyendo esquema_sqlite.sql (Files).
-'  Sin versiones. Si cambia el esquema: se reemplaza el .sql y se
-'  pone BORRAR_BASE = True una vez (borra y recrea con datos de prueba).
+'  Sin versiones. Cada arranque crea las tablas que falten; una columna
+'  nueva pide BORRAR_BASE = True una vez (borra y recrea con datos de prueba).
 ' ============================================================
 
 Sub Process_Globals
@@ -42,10 +42,8 @@ Public Sub Abrir As SQL
 	Return s        ' IsInitialized = False
 	End Try
 	AplicarPragmas(s)
-    If ExisteBaseDatos Then
 	CrearEsquema(s)
 	ValidarEsquema(s)
-	End If
 	Log("DbEsquema: base lista.")
 	Return s
 End Sub

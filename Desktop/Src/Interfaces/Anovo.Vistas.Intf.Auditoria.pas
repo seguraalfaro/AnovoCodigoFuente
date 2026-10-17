@@ -5,6 +5,7 @@ unit Anovo.Vistas.Intf.Auditoria;
 interface
 
 uses
+  Anovo.Vistas.Intf.Listado,
   System.Generics.Collections,
   Anovo.DTOs.Auditoria,
   Anovo.PeriodoBusqueda;
@@ -14,18 +15,12 @@ type
     feClaves, feMatrizRoles, fePermisosPersona);
   TFiltrosEntidad = TArray<TFiltroEntidad>;
 
-  IVistaAuditoria = interface
+  IVistaAuditoria = interface(IVistaListado)
     ['{3B8D06F1-5C27-4E94-A6B0-D174E9C2538A}']
 
     procedure MostrarFiltros(const ARotulos: TArray<string>);
-    procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
-    procedure MostrarBusqueda(const ATexto: string;
-      const APuedeLimpiar: Boolean);
     procedure MostrarAuditoria(const AFilas: TObjectList<TAuditoriaDTO>);
-    procedure MostrarPaginacion(const APagina, ATotalPaginas: Integer;
-      const ATotal: Int64);
-    procedure MostrarError(const AMensaje: string);
   end;
 
 implementation

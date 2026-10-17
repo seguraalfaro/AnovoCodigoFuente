@@ -60,6 +60,10 @@ type
       const APestana: Integer = 0): TModalResult;
   end;
 
+const
+  PESTANA_COLUMNAS = 0;
+  PESTANA_VISTA = 1;
+
 implementation
 
 {$R *.dfm}
@@ -225,8 +229,8 @@ end;
 
 procedure TfrmColumnas.pstConfigChange(Sender: TObject);
 begin
-  pnlCampos.Visible := pstConfig.ItemIndex <> 1;
-  pnlVista.Visible := pstConfig.ItemIndex = 1;
+  pnlCampos.Visible := pstConfig.ItemIndex <> PESTANA_VISTA;
+  pnlVista.Visible := pstConfig.ItemIndex = PESTANA_VISTA;
 end;
 
 procedure TfrmColumnas.btnGuardarClick(Sender: TObject);

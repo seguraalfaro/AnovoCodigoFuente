@@ -10,8 +10,10 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
   System.UITypes, System.Generics.Collections,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.ExtCtrls, Vcl.TitleBarCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
+  Vcl.ExtCtrls, Vcl.TitleBarCtrls, Vcl.WinXCtrls, Anovo.UI.PanelRelativo,
+  Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.BotonWin,
+  Anovo.Forms.Edicion,
   Anovo.DTOs.Importacion,
   Anovo.Vistas.Intf.Importacion,
   Anovo.Presentadores.Importacion;
@@ -20,11 +22,7 @@ const
   WM_FILA_EDITADA = WM_USER + 1;
 
 type
-  TfrmImportacionCatalogo = class(TForm, IVistaImportacion)
-    TitleBarPanel1: TTitleBarPanel;
-    pnlTitulo: TPanel;
-    lblTitulo: TLabel;
-    lblSubtitulo: TLabel;
+  TfrmImportacionCatalogo = class(TfrmEdicion, IVistaImportacion)
     pnlArchivo: TPanel;
     lblArchivo: TLabel;
     edArchivo: TEdit;
@@ -41,17 +39,13 @@ type
     lblSaltadas: TLabel;
     chkSoloErrores: TCheckBox;
     grFilas: TrDBGrid;
-    pnlPie: TPanel;
     lblNota: TLabel;
-    btnCancelar: TPlanoBotonWin;
-    btnAprobar: TPlanoBotonWin;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnAbrirClick(Sender: TObject);
     procedure cbHojaChange(Sender: TObject);
     procedure chkSoloErroresClick(Sender: TObject);
     procedure btnAprobarClick(Sender: TObject);
-    procedure btnCancelarClick(Sender: TObject);
     procedure grFilasCanEdit(Sender: TObject; Field: TField; Column: TColumn;
       var CanEdit: Boolean);
   private
@@ -78,9 +72,10 @@ type
       const ARevisando: Boolean);
     procedure MostrarSaltadas(const ATexto: string);
     procedure MostrarCargando(const AActivo: Boolean);
-    procedure MostrarError(const AMensaje: string);
     function Confirmar(const AMensaje: string): Boolean;
     procedure Terminar(const AMensaje: string);
+  protected
+    function ControlesEdicion: TArray<TControl>; override;
   public
     constructor Crear(AOwner: TComponent;
       const ACatalogo: TCatalogoImportacion);
@@ -129,9 +124,8 @@ end;
 
 procedure TfrmImportacionCatalogo.FormCreate(Sender: TObject);
 begin
-  AplicarTema(Self);
-  AplicarTemaBarraTitulo(Self, TitleBarPanel1);
   AplicarTemaGrid(grFilas);
+  TCeldasRejilla.De(grFilas).TextoVacio := SVacioImportacion;
   MarcarErrores;
   dmMemoria.mtImportacion.AfterPost := TablaAfterPost;
   FPresentador := TPresentadorImportacion.Create(Self, TApiCatalogos.Create,
@@ -195,7 +189,6 @@ begin
     lCombo := TComboBox.Create(Self);
     lCombo.Parent := sbCampos;
     lCombo.Style := csDropDownList;
-    lCombo.Tag := I;
     lCombo.SetBounds(MARGEN_CAMPOS, lTop + ALTO_ROTULO + 2,
       sbCampos.ClientWidth - 2 * MARGEN_CAMPOS, lCombo.Height);
     lCombo.Anchors := [akLeft, akTop, akRight];
@@ -288,8 +281,8 @@ begin
   else
     lblResumen.Caption := Format(SResumenCarga, [ALeidas, AListas,
       AConError]);
-  btnAprobar.Caption := Format(SAprobarCarga, [AListas]);
-  btnAprobar.Enabled := (AListas > 0) and not ARevisando;
+  btnGuardar.Caption := Format(SAprobarCarga, [AListas]);
+  btnGuardar.Enabled := (AListas > 0) and not ARevisando;
   chkSoloErrores.Enabled := ALeidas > 0;
 end;
 
@@ -298,14 +291,14 @@ begin
   lblSaltadas.Caption := ATexto;
 end;
 
-procedure TfrmImportacionCatalogo.MostrarCargando(const AActivo: Boolean);
+function TfrmImportacionCatalogo.ControlesEdicion: TArray<TControl>;
 begin
-  BloquearEdicion([pnlArchivo, pnlCampos, grFilas, btnAprobar], AActivo);
+  Result := [pnlArchivo, pnlCampos, grFilas];
 end;
 
-procedure TfrmImportacionCatalogo.MostrarError(const AMensaje: string);
+procedure TfrmImportacionCatalogo.MostrarCargando(const AActivo: Boolean);
 begin
-  AvisarError(AMensaje);
+  MostrarOcupado(AActivo);
 end;
 
 function TfrmImportacionCatalogo.Confirmar(const AMensaje: string): Boolean;
@@ -322,11 +315,14 @@ end;
 procedure TfrmImportacionCatalogo.ComboCampoChange(Sender: TObject);
 var
   lCombo: TComboBox;
+  I: Integer;
 begin
   if FMostrando or (FPresentador = nil) then
     Exit;
   lCombo := Sender as TComboBox;
-  FPresentador.Emparejar(lCombo.Tag, lCombo.ItemIndex - 1);
+  for I := 0 to High(FCombos) do
+    if FCombos[I] = lCombo then
+      FPresentador.Emparejar(I, lCombo.ItemIndex - 1);
 end;
 
 procedure TfrmImportacionCatalogo.TablaAfterPost(DataSet: TDataSet);
@@ -380,11 +376,6 @@ procedure TfrmImportacionCatalogo.btnAprobarClick(Sender: TObject);
 begin
   dmMemoria.Confirmar(dmMemoria.mtImportacion);
   FPresentador.Aprobar;
-end;
-
-procedure TfrmImportacionCatalogo.btnCancelarClick(Sender: TObject);
-begin
-  ModalResult := mrCancel;
 end;
 
 procedure TfrmImportacionCatalogo.grFilasCanEdit(Sender: TObject;

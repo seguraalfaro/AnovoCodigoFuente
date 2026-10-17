@@ -80,18 +80,6 @@ inherited frmConsentimiento: TfrmConsentimiento
       Caption = 'Versiones'
       CardIndex = 0
       TabOrder = 0
-      object lblSinVersiones: TLabel
-        Tag = 13
-        Left = 0
-        Top = 0
-        Width = 760
-        Height = 447
-        Align = alClient
-        Alignment = taCenter
-        AutoSize = False
-        Layout = tlCenter
-        Visible = False
-      end
       object grVersiones: TrDBGrid
         AlignWithMargins = True
         Left = 20

@@ -61,6 +61,7 @@ procedure TfrmHistorialCotizacion.FormCreate(Sender: TObject);
 begin
   AplicarTemaGrid(grHistorial);
   TCeldasRejilla.De(grHistorial).ColumnaEstado(CAMPO_ESTADO);
+  TCeldasRejilla.De(grHistorial).TextoVacio := SVacioHistorialEstados;
   lblTitulo.Caption := SHistorialTitulo;
   lblSubtitulo.Caption := SHistorialAyuda;
   btnGuardar.Visible := False;

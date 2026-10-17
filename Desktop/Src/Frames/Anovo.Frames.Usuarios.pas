@@ -51,7 +51,7 @@ implementation
 {$R *.dfm}
 
 uses
-  rDBExport,
+  Anovo.UI.ColumnasRejilla,
   Anovo.Api.Usuarios,
   Anovo.Forms.Usuario,
   Anovo.Mapeo.Datos,
@@ -170,7 +170,7 @@ end;
 
 procedure TfraUsuarios.btnExportarClick(Sender: TObject);
 begin
-  rDBExport.DBExport(grDatos, True, True);
+  TColumnasRejilla.ExportarRejilla(grDatos);
 end;
 
 procedure TfraUsuarios.btnNuevoClick(Sender: TObject);

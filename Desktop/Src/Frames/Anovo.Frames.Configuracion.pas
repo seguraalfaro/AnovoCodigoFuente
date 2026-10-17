@@ -24,6 +24,7 @@ type
     pnlTitulo: TPanel;
     lblTitulo: TLabel;
     lblSubtitulo: TLabel;
+    sbCuerpo: TScrollBox;
     pnlCuerpo: TGridPanel;
     tjCuenta: TPlanoTarjeta;
     lblNombreRot: TLabel;
@@ -86,8 +87,10 @@ type
     procedure btnConsentimientoClick(Sender: TObject);
     procedure btnGuardarEmpresaClick(Sender: TObject);
     procedure btnGuardarParametrosClick(Sender: TObject);
+    procedure pnlCuerpoResize(Sender: TObject);
   private
     FPresentador: TPresentadorConfiguracion;
+    procedure AjustarAltoCuerpo;
     function ValidarEmpresa: Boolean;
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarCuenta(const ADatos: TCuentaDTO);
@@ -128,6 +131,10 @@ uses
   Anovo.Validacion,
   Anovo.Textos;
 
+const
+  ESPACIO_TARJETA = 16;
+  ESPACIO_BOTONES = 8;
+
 function Anfitrion(const AUrl: string): string;
 begin
   try
@@ -152,6 +159,7 @@ begin
 
   lblServidor.Caption := Anfitrion(TConfig.UrlServidor);
   lblVerEscritorio.Caption := TConfig.VersionEscritorio;
+  AjustarAltoCuerpo;
 
   FPresentador := TPresentadorConfiguracion.Create(Self,
     TApiConfiguracion.Create, TApiCatalogos.Create);
@@ -162,6 +170,28 @@ destructor TfraConfiguracion.Destroy;
 begin
   FreeAndNil(FPresentador);
   inherited;
+end;
+
+procedure TfraConfiguracion.AjustarAltoCuerpo;
+var
+  lAlto: Double;
+  I: Integer;
+begin
+  lAlto := pnlCuerpo.Padding.Top;
+  for I := 0 to pnlCuerpo.RowCollection.Count - 1 do
+    lAlto := lAlto + pnlCuerpo.RowCollection[I].Value;
+  pnlCuerpo.Height := Round(lAlto);
+end;
+
+procedure TfraConfiguracion.pnlCuerpoResize(Sender: TObject);
+var
+  lAncho: Integer;
+begin
+  lAncho := (tjConexion.Width - 2 * btnProbar.Left -
+    ScaleValue(ESPACIO_BOTONES)) div 2;
+  btnProbar.Width := lAncho;
+  btnCambiarServidor.SetBounds(btnProbar.Left + lAncho +
+    ScaleValue(ESPACIO_BOTONES), btnProbar.Top, lAncho, btnProbar.Height);
 end;
 
 procedure TfraConfiguracion.btnCambiarClaveClick(Sender: TObject);
@@ -206,8 +236,6 @@ end;
 function TfraConfiguracion.ValidarEmpresa: Boolean;
 var
   lReparos: TStringList;
-  lMensaje: string;
-  I: Integer;
 begin
   lReparos := TStringList.Create;
   try
@@ -224,19 +252,7 @@ begin
         lReparos.Add(SValCorreo);
     end;
 
-    Result := lReparos.Count = 0;
-    if Result then
-      Exit;
-
-    if lReparos.Count = 1 then
-      lMensaje := lReparos[0]
-    else
-    begin
-      lMensaje := SReparosEmpresa + sLineBreak;
-      for I := 0 to lReparos.Count - 1 do
-        lMensaje := lMensaje + sLineBreak + '   ' + #$2022 + '  ' + lReparos[I];
-    end;
-    MostrarError(lMensaje);
+    Result := AvisarReparos(lReparos, SReparosEmpresa);
   finally
     lReparos.Free;
   end;
@@ -301,6 +317,15 @@ begin
     lCeldas[lCeldas.IndexOf(tjEmpresa)].ColumnSpan := 1;
     lCeldas[lCeldas.IndexOf(tjParametros)].Column := 0;
   end;
+  if not AVisible then
+  begin
+    btnGuardarParametros.Top := lblNotaMinutos.Top + lblNotaMinutos.Height +
+      ScaleValue(ESPACIO_TARJETA);
+    pnlCuerpo.RowCollection[1].Value := btnGuardarParametros.Top +
+      btnGuardarParametros.Height + ScaleValue(ESPACIO_TARJETA) +
+      tjParametros.Margins.Bottom;
+  end;
+  AjustarAltoCuerpo;
 end;
 
 procedure TfraConfiguracion.MostrarFormasPago(const AFormas
@@ -356,7 +381,10 @@ begin
   lblEstado.ShowHint := False;
   lblRespuesta.Caption := Format(SMilisegundos, [AResultado.Milisegundos]);
 
-  lblVerServidor.Caption := AResultado.VersionServidor;
+  if AResultado.VersionServidor.IsEmpty then
+    lblVerServidor.Caption := SSinDato
+  else
+    lblVerServidor.Caption := AResultado.VersionServidor;
   if AResultado.VersionMovil.IsEmpty then
     lblVerMovil.Caption := SSinDato
   else

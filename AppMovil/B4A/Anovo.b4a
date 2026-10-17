@@ -172,7 +172,7 @@ Version=14
 #Region  Project Attributes 
 	#ApplicationLabel: Anovo
 	#VersionCode: 1
-	#VersionName: 
+	#VersionName: 1.0.0
 	'SupportedOrientations possible values: unspecified, landscape or portrait.
 	#SupportedOrientations: portrait
 	#EdgeToEdgeOldDevices: True

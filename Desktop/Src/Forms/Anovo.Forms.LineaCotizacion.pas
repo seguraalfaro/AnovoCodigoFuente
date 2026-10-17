@@ -102,6 +102,7 @@ end;
 procedure TfrmLineaCotizacion.FormCreate(Sender: TObject);
 begin
   AplicarTemaGrid(grItems);
+  TCeldasRejilla.De(grItems).TextoVacio := SVacioItems;
   FGuardado := False;
   FPresentador := TPresentadorLineaCotizacion.Create(Self,
     TApiCotizaciones.Create, TApiCatalogos.Create);
@@ -175,7 +176,7 @@ begin
     lblSubtitulo.Caption := ALinea.Descripcion;
     FPrecio := ALinea.PrecioUnitario.ValueOrDefault;
     dmMemoria.mtLineaNuevaCANTIDAD.AsCurrency := ALinea.Cantidad.ValueOrDefault;
-    edCantidad.DBEditLabel.OwnCaption := Format('%s (%s)',
+    edCantidad.DBEditLabel.OwnCaption := Format(SNombreConDetalle,
       [edCantidad.DBEditLabel.OwnCaption, ALinea.UnidadMedida.ValueOrDefault]);
     lblNota.Caption := SPrecioConservado;
   end

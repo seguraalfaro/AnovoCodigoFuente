@@ -91,6 +91,18 @@ begin
     [StringReplace(lCoordenadas, ' ', '', [rfReplaceAll])]));
 end;
 
+function TextoRecogido(const ALista: TObjectList<TConsentimientoDTO>): string;
+var
+  lPrimera: TConsentimientoDTO;
+begin
+  if ALista.Count = 0 then
+    Exit(SSinDato);
+  lPrimera := ALista.First;
+  Result := lPrimera.FirmanteNombre.ValueOrElse(SSinDato);
+  if lPrimera.Origen.HasValue and (lPrimera.Origen.Value <> '') then
+    Result := Format(SNombreConDetalle, [Result, lPrimera.Origen.Value]);
+end;
+
 constructor TPresentadorClienteDatos.Create(const AVista: IVistaClienteDatos;
   const AApi: IApiClientes; const AApiCotizaciones: IApiCotizaciones;
   const AClienteId: Integer);
@@ -363,7 +375,7 @@ begin
     end,
     procedure(ALista: TObjectList<TConsentimientoDTO>)
     begin
-      FVista.MostrarConsentimientos(ALista);
+      FVista.MostrarConsentimientos(ALista, TextoRecogido(ALista));
     end, MostrarError, MostrarCargando);
 end;
 

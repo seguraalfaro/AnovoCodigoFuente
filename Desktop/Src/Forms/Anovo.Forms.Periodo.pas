@@ -91,7 +91,10 @@ begin
     lForma.dtpHasta.ShowCheckbox := not AObligatorio;
     if AObligatorio then
       lForma.lblSubtitulo.Caption := SPeriodoAyudaObligatorio;
-    lForma.Poner(APeriodo);
+    if AObligatorio and (APeriodo.Atajo = apTodas) then
+      lForma.Poner(TPeriodoBusqueda.De(apEsteMes))
+    else
+      lForma.Poner(APeriodo);
     Result := lForma.ShowModal = mrOk;
     if Result then
       APeriodo := lForma.FPeriodo;
@@ -220,7 +223,10 @@ begin
   FBoton.Images := dmIconos.ViAnovo;
   FBoton.ImageIndex := dmIconos.ViAnovo.GetIndexByName(ICONO_CALENDARIO);
   FBoton.OnClick := BotonClick;
-  Mostrar(TPeriodoBusqueda.De(apTodas));
+  if AObligatorio then
+    Mostrar(TPeriodoBusqueda.De(apEsteMes))
+  else
+    Mostrar(TPeriodoBusqueda.De(apTodas));
 end;
 
 procedure TSelectorPeriodo.Mostrar(const APeriodo: TPeriodoBusqueda);

@@ -6,8 +6,8 @@ unit Anovo.UI.ColumnasRejilla;
 interface
 
 uses
-  System.Classes, System.Types, Vcl.Controls, Vcl.Menus, Vcl.DBGrids, Vcl.Graphics,
-  Winapi.Windows, rDBGrid,
+  System.Classes, System.Types, Data.DB, Vcl.Controls, Vcl.Menus, Vcl.DBGrids,
+  Vcl.Graphics, Winapi.Windows, rDBGrid,
   rDBGridSorter_FireDac, Anovo.Forms.ExportarRejilla;
 
 type
@@ -99,6 +99,7 @@ type
     class procedure AplicarEn(AGrid: TrDBGrid);
     class procedure Quitar(AGrid: TrDBGrid);
     class function De(AGrid: TrDBGrid): TColumnasRejilla;
+    class procedure ExportarRejilla(AGrid: TrDBGrid);
 
     procedure Aplicar;
     procedure Guardar;
@@ -106,16 +107,20 @@ type
     procedure Restablecer;
   end;
 
+function BuscarFila(ADatos: TDataSet; const ACampos: TArray<string>;
+  const ATexto: string): Boolean;
+
 implementation
 
 uses
-  System.SysUtils, System.IOUtils, System.UITypes, Data.DB, Vcl.Grids, Vcl.Forms,
+  System.SysUtils, System.IOUtils, System.UITypes, Vcl.Grids, Vcl.Forms,
   PropSaveMain, PropSaveGrids, RosiCompGlobalCfg,
   Vcl.Dialogs, Winapi.ShellAPI, rDBFilter, rXLSExport, TXTExport,
   Anovo.UI.Vista,
   Anovo.UI.Tema,
   Anovo.Forms.BuscarRejilla,
   Anovo.Sesion,
+  Anovo.Formato,
   Anovo.Textos,
   Anovo.UI.CeldasRejilla,
   Anovo.Forms.Columnas;
@@ -136,7 +141,6 @@ const
   PREFIJO_FRAME = 'Tfra';
   PREFIJO_FORMA = 'Tfrm';
   REJILLA_LISTADO = 'grDatos';
-  PESTANA_VISTA = 1;
   TAG_ROTULO = -1;
   ALTO_OPCION = 28;
   ALTO_ROTULO = 22;
@@ -158,8 +162,7 @@ const
   GLIFO_VISTA = #$E9E9;
   EXTENSION_EXCEL = 'xlsx';
   EXTENSION_CSV = 'csv';
-  SEPARADOR_CSV = ';';
-  SUFIJO_FECHA = '_yyyy-mm-dd';
+  SEPARADOR_FECHA = '_';
 
 type
   TGuardaColumnas = class(TDBGridsPropSave);
@@ -379,15 +382,8 @@ begin
 end;
 
 class function TColumnasRejilla.De(AGrid: TrDBGrid): TColumnasRejilla;
-var
-  I: Integer;
 begin
-  Result := nil;
-  if AGrid = nil then
-    Exit;
-  for I := 0 to AGrid.ComponentCount - 1 do
-    if AGrid.Components[I] is TColumnasRejilla then
-      Exit(TColumnasRejilla(AGrid.Components[I]));
+  Result := TColumnasRejilla(ComponenteDe(AGrid, TColumnasRejilla));
 end;
 
 function TColumnasRejilla.Seccion: string;
@@ -396,13 +392,8 @@ begin
 end;
 
 function TColumnasRejilla.Columna(const ACampo: string): TColumn;
-var
-  I: Integer;
 begin
-  for I := 0 to FGrid.Columns.Count - 1 do
-    if SameText(FGrid.Columns[I].FieldName, ACampo) then
-      Exit(FGrid.Columns[I]);
-  Result := nil;
+  Result := ColumnaDe(FGrid, ACampo);
 end;
 
 function TColumnasRejilla.CampoAcciones: string;
@@ -833,7 +824,7 @@ begin
       lDialogo.DefaultExt := EXTENSION_CSV;
     end;
     lDialogo.FileName := StringReplace(Trim(GetParentForm(FGrid).Caption), ' ', '_',
-      [rfReplaceAll]) + FormatDateTime(SUFIJO_FECHA, Now);
+      [rfReplaceAll]) + SEPARADOR_FECHA + TFormato.FechaArchivo(Date);
     Result := lDialogo.Execute;
     ARuta := lDialogo.FileName;
   finally
@@ -846,37 +837,64 @@ procedure TColumnasRejilla.Exportar(const AOpciones: TOpcionesExportacion;
 var
   lExcel: TrXLSExport;
   lTexto: TTXTExport;
+  lForma: TCustomForm;
 begin
-  if AOpciones.Formato = feExcel then
-  begin
-    lExcel := TrXLSExport.Create(nil);
-    try
-      lExcel.ExportFile := ARuta;
-      if AOpciones.Abrir then
-        lExcel.ActionAfter := aaShow
-      else
-        lExcel.ActionAfter := aaNone;
-      lExcel.ExportDBTable(FGrid, True);
-    finally
-      lExcel.Free;
+  lForma := GetParentForm(FGrid);
+  if lForma <> nil then
+    lForma.Update;
+  CursorOcupado(True);
+  try
+    if AOpciones.Formato = feExcel then
+    begin
+      lExcel := TrXLSExport.Create(nil);
+      try
+        lExcel.ExportFile := ARuta;
+        lExcel.Options := lExcel.Options - [xleExportTitles,
+          xleOnlyVisibleFields, xleAddSumRow, xleSetAutoFilter];
+        if AOpciones.Titulos then
+          lExcel.Options := lExcel.Options + [xleExportTitles];
+        if AOpciones.SoloVisibles then
+          lExcel.Options := lExcel.Options + [xleOnlyVisibleFields];
+        if AOpciones.Totales then
+          lExcel.Options := lExcel.Options + [xleAddSumRow];
+        if AOpciones.Filtro and AOpciones.Titulos then
+          lExcel.Options := lExcel.Options + [xleSetAutoFilter];
+        if AOpciones.Abrir then
+          lExcel.ActionAfter := aaShow
+        else
+          lExcel.ActionAfter := aaNone;
+        lExcel.ExportDBTable(FGrid, True);
+      finally
+        lExcel.Free;
+      end;
+    end
+    else
+    begin
+      lTexto := TTXTExport.Create(nil);
+      try
+        lTexto.ExportFile := ARuta;
+        lTexto.FieldSeparator := AOpciones.Separador;
+        lTexto.TextApostrophe := '"';
+        lTexto.ExportFieldName := AOpciones.Titulos;
+        lTexto.ExportOnlyVisibleFields := AOpciones.SoloVisibles;
+        if AOpciones.Abrir then
+          lTexto.ActionAfter := aaShow
+        else
+          lTexto.ActionAfter := aaNone;
+        lTexto.Execute(FGrid);
+      finally
+        lTexto.Free;
+      end;
     end;
-  end
-  else
-  begin
-    lTexto := TTXTExport.Create(nil);
-    try
-      lTexto.ExportFile := ARuta;
-      lTexto.FieldSeparator := SEPARADOR_CSV;
-      lTexto.TextApostrophe := '"';
-      if AOpciones.Abrir then
-        lTexto.ActionAfter := aaShow
-      else
-        lTexto.ActionAfter := aaNone;
-      lTexto.Execute(FGrid);
-    finally
-      lTexto.Free;
+  except
+    on E: Exception do
+    begin
+      CursorOcupado(False);
+      AvisarError(Format(SErrorExportar, [E.Message]));
+      Exit;
     end;
   end;
+  CursorOcupado(False);
   if not AOpciones.Abrir and FileExists(ARuta) then
     Informar(Format(SExportado, [ARuta]));
 end;
@@ -893,6 +911,66 @@ begin
     Exit;
   if PedirArchivo(lOpciones.Formato, lRuta) then
     Exportar(lOpciones, lRuta);
+end;
+
+class procedure TColumnasRejilla.ExportarRejilla(AGrid: TrDBGrid);
+var
+  lColumnas: TColumnasRejilla;
+begin
+  lColumnas := De(AGrid);
+  if lColumnas = nil then
+    lColumnas := Activar(AGrid);
+  lColumnas.ElegirExportar(nil);
+end;
+
+function BuscarFila(ADatos: TDataSet; const ACampos: TArray<string>;
+  const ATexto: string): Boolean;
+var
+  lInicio: TBookmark;
+  lVuelta: Boolean;
+
+  function Coincide: Boolean;
+  var
+    lNombre: string;
+    lCampo: TField;
+  begin
+    for lNombre in ACampos do
+    begin
+      lCampo := ADatos.FindField(lNombre);
+      if (lCampo <> nil) and LowerCase(lCampo.DisplayText).Contains(ATexto) then
+        Exit(True);
+    end;
+    Result := False;
+  end;
+
+begin
+  Result := False;
+  if (ADatos = nil) or not ADatos.Active or ADatos.IsEmpty then
+    Exit;
+  lInicio := ADatos.GetBookmark;
+  ADatos.DisableControls;
+  try
+    lVuelta := False;
+    while not Result do
+    begin
+      ADatos.Next;
+      if ADatos.Eof then
+      begin
+        if lVuelta then
+          Break;
+        lVuelta := True;
+        ADatos.First;
+      end;
+      Result := Coincide;
+      if not Result and (ADatos.CompareBookmarks(lInicio, ADatos.GetBookmark) = 0) then
+        Break;
+    end;
+    if not Result then
+      ADatos.GotoBookmark(lInicio);
+  finally
+    ADatos.EnableControls;
+    ADatos.FreeBookmark(lInicio);
+  end;
 end;
 
 procedure TColumnasRejilla.ElegirVista(Sender: TObject);

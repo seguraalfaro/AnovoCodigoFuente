@@ -29,8 +29,8 @@ type
   private
     FSelector: TSelectorPeriodo;
     FPresentador: TPresentadorSolicitudesAsesor;
-    FCotizacion: TfraCotizacion;
     procedure Accion(Sender: TObject; const AClave: string);
+    procedure MostrarAcciones(const AAcciones: TAccionesSolicitudAsesor);
     procedure AbrirCotizacion(const AId: Integer);
     procedure CerrarCotizacion(Sender: TObject);
     procedure PeriodoCambio(const APeriodo: TPeriodoBusqueda);
@@ -64,7 +64,8 @@ const
   CAMPO_ESTADO = 'ESTADO';
   CAMPO_ACCIONES = 'ACCIONES';
   CAMPO_VER_COTIZACION = 'VER_COTIZACION';
-  ACCION_VER = 'ver';
+  ACCIONES: array [TAccionSolicitudAsesor] of TAccionRejilla = ((Clave: 'ver';
+    Rotulo: SAccionVerCotizacion; Alterno: ''; Campo: CAMPO_VER_COTIZACION));
 
 constructor TfraSolicitudesAsesor.Create(AOwner: TComponent);
 begin
@@ -74,8 +75,6 @@ begin
   FTextoPaginacion := SPaginacionSolicitudes;
   TCeldasRejilla.De(grDatos).ColumnaEstado(CAMPO_ESTADO);
   TCeldasRejilla.De(grDatos).ColumnaAcciones(CAMPO_ACCIONES);
-  TCeldasRejilla.De(grDatos).AgregarAlterna(ACCION_VER, SAccionVerCotizacion,
-    '', CAMPO_VER_COTIZACION);
   TCeldasRejilla.De(grDatos).OnAccion := Accion;
   FSelector := TSelectorPeriodo.Crear(btnPeriodo, False, PeriodoCambio);
 
@@ -91,31 +90,31 @@ end;
 
 procedure TfraSolicitudesAsesor.Accion(Sender: TObject; const AClave: string);
 begin
-  if SameText(AClave, ACCION_VER) and not dmMemoria.mtSeguimiento.IsEmpty and
+  if SameText(AClave, ACCIONES[asaVer].Clave) and
+    not dmMemoria.mtSeguimiento.IsEmpty and
     dmMemoria.mtSeguimientoVER_COTIZACION.AsBoolean then
-    AbrirCotizacion(dmMemoria.mtSeguimientoCOTIZACION_ID.AsInteger);
+    FPresentador.Abrir(dmMemoria.mtSeguimientoCOTIZACION_ID.AsInteger);
+end;
+
+procedure TfraSolicitudesAsesor.MostrarAcciones(const AAcciones
+  : TAccionesSolicitudAsesor);
+begin
+  TCeldasRejilla.De(grDatos).PonerAcciones<TAccionesSolicitudAsesor>(ACCIONES,
+    AAcciones);
 end;
 
 procedure TfraSolicitudesAsesor.AbrirCotizacion(const AId: Integer);
+var
+  lCotizacion: TfraCotizacion;
 begin
-  FreeAndNil(FCotizacion);
-  FCotizacion := TfraCotizacion.Crear(Self, AId);
-  FCotizacion.OnRegresar := CerrarCotizacion;
-  FCotizacion.Parent := Self;
-  FCotizacion.SetBounds(0, 0, ClientWidth, ClientHeight);
-  FCotizacion.Anchors := [akLeft, akTop, akRight, akBottom];
-  FCotizacion.BringToFront;
-  AplicarTemaFrame(FCotizacion);
+  lCotizacion := TfraCotizacion.Crear(Self, AId);
+  lCotizacion.OnRegresar := CerrarCotizacion;
+  MostrarEncima(lCotizacion);
 end;
 
 procedure TfraSolicitudesAsesor.CerrarCotizacion(Sender: TObject);
 begin
-  FCotizacion.Visible := False;
-  TThread.ForceQueue(nil,
-    procedure
-    begin
-      FreeAndNil(FCotizacion);
-    end);
+  CerrarEncima;
 end;
 
 procedure TfraSolicitudesAsesor.Resize;

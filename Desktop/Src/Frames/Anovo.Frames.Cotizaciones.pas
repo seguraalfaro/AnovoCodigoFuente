@@ -29,7 +29,6 @@ type
     FInicialId: Integer;
     FSelector: TSelectorPeriodo;
     FPresentador: TPresentadorCotizaciones;
-    FCotizacion: TfraCotizacion;
     procedure PeriodoCambio(const APeriodo: TPeriodoBusqueda);
     procedure Accion(Sender: TObject; const AClave: string);
     procedure MostrarAcciones(const AAcciones: TAccionesListaCotizacion);
@@ -183,24 +182,19 @@ begin
 end;
 
 procedure TfraCotizaciones.AbrirCotizacion(const AId: Integer);
+var
+  lCotizacion: TfraCotizacion;
 begin
-  FreeAndNil(FCotizacion);
-  FCotizacion := TfraCotizacion.Crear(Self, AId);
-  FCotizacion.OnRegresar := CerrarCotizacion;
-  FCotizacion.Parent := Self;
-  FCotizacion.SetBounds(0, 0, ClientWidth, ClientHeight);
-  FCotizacion.Anchors := [akLeft, akTop, akRight, akBottom];
-  FCotizacion.BringToFront;
-  AplicarTemaFrame(FCotizacion);
+  lCotizacion := TfraCotizacion.Crear(Self, AId);
+  lCotizacion.OnRegresar := CerrarCotizacion;
+  MostrarEncima(lCotizacion);
 end;
 
 procedure TfraCotizaciones.CerrarCotizacion(Sender: TObject);
 begin
-  FCotizacion.Visible := False;
-  TThread.ForceQueue(nil,
+  CerrarEncima(
     procedure
     begin
-      FreeAndNil(FCotizacion);
       FPresentador.Recargar;
     end);
 end;

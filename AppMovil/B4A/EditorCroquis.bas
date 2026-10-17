@@ -61,8 +61,8 @@ Public Sub Preparar
 	COLORES_LAPIZ = Array As Int(Colores.COLOR_TEXTO_PRIMARIO, Colores.COLOR_PRIMARIO, Colores.COLOR_ERROR)
 	GROSORES = Array As Float(2dip, 4dip, 7dip)
 	mDibujo.setModo(MODO_LIBRE)
-	mDibujo.Rejilla = False
-	mDibujo.Iman = False
+	mDibujo.Rejilla = True
+	mDibujo.Iman = True
 	mDibujo.setGrosorLapiz(GROSORES(idxGrosor))
 	ElegirColor(0)
 	PrepararMenu

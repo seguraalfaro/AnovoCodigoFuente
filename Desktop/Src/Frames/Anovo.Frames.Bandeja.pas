@@ -27,11 +27,11 @@ type
     procedure grDatosDblClick(Sender: TObject);
   private
     FPresentador: TPresentadorBandeja;
-    FAcciones: TAccionesBandeja;
     procedure MostrarAcciones(const AAcciones: TAccionesBandeja);
     procedure Accion(Sender: TObject; const AClave: string);
     procedure Revisar;
     procedure MostrarBandeja(const ADatos: TBandejaPaginaDTO);
+    function MostrarRevision(const AId: Integer): Boolean;
   protected
     procedure Buscar(const ATexto: string); override;
     procedure Limpiar; override;
@@ -120,23 +120,24 @@ end;
 
 procedure TfraBandeja.MostrarAcciones(const AAcciones: TAccionesBandeja);
 begin
-  FAcciones := AAcciones;
   TCeldasRejilla.De(grDatos).PonerAcciones<TAccionesBandeja>(ACCIONES,
     AAcciones);
 end;
 
 procedure TfraBandeja.grDatosDblClick(Sender: TObject);
 begin
-  if abRevisar in FAcciones then
-    Revisar;
+  Revisar;
 end;
 
 procedure TfraBandeja.Revisar;
 begin
-  if dmMemoria.mtBandeja.IsEmpty then
-    Exit;
-  if TfrmRevision.Mostrar(Self, dmMemoria.mtBandejaID.AsInteger) then
-    FPresentador.Recargar;
+  if not dmMemoria.mtBandeja.IsEmpty then
+    FPresentador.Revisar(dmMemoria.mtBandejaID.AsInteger);
+end;
+
+function TfraBandeja.MostrarRevision(const AId: Integer): Boolean;
+begin
+  Result := TfrmRevision.Mostrar(Self, AId);
 end;
 
 end.

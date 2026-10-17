@@ -19,6 +19,8 @@ type
     procedure MostrarProcesando(const AActivo: Boolean);
     procedure MostrarError(const AMensaje: string);
     procedure Revisada;
+    function Confirmar(const AMensaje: string): Boolean;
+    function PedirMotivo(const ATitulo: string; out AMotivo: string): Boolean;
   end;
 
 implementation

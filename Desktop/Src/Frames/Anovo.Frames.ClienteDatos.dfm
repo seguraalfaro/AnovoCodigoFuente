@@ -317,6 +317,7 @@ object fraClienteDatos: TfraClienteDatos
             Caption = 'Ubicaci'#243'n en campo'
           end
           object lblUbicacion: TLabel
+            Tag = 25
             Left = 16
             Top = 332
             Width = 240

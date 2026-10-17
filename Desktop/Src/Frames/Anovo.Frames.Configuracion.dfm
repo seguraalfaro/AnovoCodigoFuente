@@ -32,861 +32,871 @@ object fraConfiguracion: TfraConfiguracion
       Caption = 'Su cuenta, la conexi'#243'n, los datos de la empresa y los par'#225'metros del sistema'
     end
   end
-  object pnlCuerpo: TGridPanel
+  object sbCuerpo: TScrollBox
     Tag = 2
     Left = 0
     Top = 62
     Width = 960
     Height = 628
+    HorzScrollBar.Visible = False
+    VertScrollBar.Tracking = True
     Align = alClient
-    BevelOuter = bvNone
-    ColumnCollection = <
-      item
-        Value = 33.333333333333330000
-      end
-      item
-        Value = 33.333333333333330000
-      end
-      item
-        Value = 33.333333333333340000
-      end>
-    ControlCollection = <
-      item
-        Column = 0
-        Control = tjCuenta
-        Row = 0
-      end
-      item
-        Column = 1
-        Control = tjConexion
-        Row = 0
-      end
-      item
-        Column = 2
-        Control = tjAcercaDe
-        Row = 0
-      end
-      item
-        Column = 0
-        ColumnSpan = 2
-        Control = tjEmpresa
-        Row = 1
-      end
-      item
-        Column = 2
-        Control = tjParametros
-        Row = 1
-      end>
-    Padding.Left = 20
-    Padding.Top = 8
-    Padding.Right = 8
-    RowCollection = <
-      item
-        SizeStyle = ssAbsolute
-        Value = 248.000000000000000000
-      end
-      item
-        SizeStyle = ssAbsolute
-        Value = 372.000000000000000000
-      end
-      item
-        Value = 100.000000000000000000
-      end>
+    BorderStyle = bsNone
     TabOrder = 1
-    object tjCuenta: TPlanoTarjeta
-      Tag = 3
-      Left = 20
-      Top = 8
-      Width = 300
-      Height = 236
-      AlignWithMargins = True
-      TitleHeight = 36
-      Caption = 'Mi cuenta'
-      Margins.Left = 0
-      Margins.Top = 0
-      Margins.Right = 12
-      Margins.Bottom = 12
+    object pnlCuerpo: TGridPanel
+      Tag = 2
+      Left = 0
+      Top = 0
+      Width = 960
+      Height = 628
+      Align = alTop
+      BevelOuter = bvNone
+      ColumnCollection = <
+        item
+          Value = 33.333333333333330000
+        end
+        item
+          Value = 33.333333333333330000
+        end
+        item
+          Value = 33.333333333333340000
+        end>
+      ControlCollection = <
+        item
+          Column = 0
+          Control = tjCuenta
+          Row = 0
+        end
+        item
+          Column = 1
+          Control = tjConexion
+          Row = 0
+        end
+        item
+          Column = 2
+          Control = tjAcercaDe
+          Row = 0
+        end
+        item
+          Column = 0
+          ColumnSpan = 2
+          Control = tjEmpresa
+          Row = 1
+        end
+        item
+          Column = 2
+          Control = tjParametros
+          Row = 1
+        end>
+      Padding.Left = 20
+      Padding.Top = 8
+      Padding.Right = 8
+      RowCollection = <
+        item
+          SizeStyle = ssAbsolute
+          Value = 248.000000000000000000
+        end
+        item
+          SizeStyle = ssAbsolute
+          Value = 372.000000000000000000
+        end>
       TabOrder = 0
-      Align = alClient
-      DesignSize = (
-        300
-        236)
-      object lblNombreRot: TLabel
-        Tag = 13
-        Left = 16
-        Top = 49
-        Caption = 'Nombre'
-      end
-      object lblNombre: TLabel
-        Tag = 25
-        Left = 124
-        Top = 48
-        Width = 160
-        Height = 15
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Alignment = taRightJustify
-        Caption = '-'
-        EllipsisPosition = epEndEllipsis
-      end
-      object lblCorreoRot: TLabel
-        Tag = 13
-        Left = 16
-        Top = 77
-        Caption = 'Correo'
-      end
-      object lblCorreo: TLabel
-        Tag = 25
-        Left = 124
-        Top = 76
-        Width = 160
-        Height = 15
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Alignment = taRightJustify
-        Caption = '-'
-        EllipsisPosition = epEndEllipsis
-      end
-      object lblRolRot: TLabel
-        Tag = 13
-        Left = 16
-        Top = 105
-        Caption = 'Rol'
-      end
-      object lblRol: TLabel
-        Tag = 25
-        Left = 124
-        Top = 104
-        Width = 160
-        Height = 15
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Alignment = taRightJustify
-        Caption = '-'
-        EllipsisPosition = epEndEllipsis
-      end
-      object lblPermisosRot: TLabel
-        Tag = 13
-        Left = 16
-        Top = 133
-        Caption = 'Permisos propios'
-      end
-      object lblPermisos: TLabel
-        Tag = 25
-        Left = 124
-        Top = 132
-        Width = 160
-        Height = 15
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Alignment = taRightJustify
-        Caption = '-'
-        EllipsisPosition = epEndEllipsis
-      end
-      object lblClaveRot: TLabel
-        Tag = 13
-        Left = 16
-        Top = 161
-        Caption = 'Clave cambiada'
-      end
-      object lblClave: TLabel
-        Tag = 25
-        Left = 124
-        Top = 160
-        Width = 160
-        Height = 15
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Alignment = taRightJustify
-        Caption = '-'
-        EllipsisPosition = epEndEllipsis
-      end
-      object btnCambiarClave: TPlanoBotonWin
-        Left = 16
-        Top = 188
-        Width = 150
-        Height = 32
-        Cursor = crHandPoint
-        Caption = 'Cambiar mi clave'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
+      OnResize = pnlCuerpoResize
+      object tjCuenta: TPlanoTarjeta
+        Tag = 3
+        Left = 20
+        Top = 8
+        Width = 300
+        Height = 236
+        AlignWithMargins = True
+        TitleHeight = 36
+        Caption = 'Mi cuenta'
+        Margins.Left = 0
+        Margins.Top = 0
+        Margins.Right = 12
+        Margins.Bottom = 12
         TabOrder = 0
-        StyleElements = []
-        OnClick = btnCambiarClaveClick
+        Align = alClient
+        DesignSize = (
+          300
+          236)
+        object lblNombreRot: TLabel
+          Tag = 13
+          Left = 16
+          Top = 49
+          Caption = 'Nombre'
+        end
+        object lblNombre: TLabel
+          Tag = 25
+          Left = 124
+          Top = 48
+          Width = 160
+          Height = 15
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          Alignment = taRightJustify
+          Caption = '-'
+          EllipsisPosition = epEndEllipsis
+        end
+        object lblCorreoRot: TLabel
+          Tag = 13
+          Left = 16
+          Top = 77
+          Caption = 'Correo'
+        end
+        object lblCorreo: TLabel
+          Tag = 25
+          Left = 124
+          Top = 76
+          Width = 160
+          Height = 15
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          Alignment = taRightJustify
+          Caption = '-'
+          EllipsisPosition = epEndEllipsis
+        end
+        object lblRolRot: TLabel
+          Tag = 13
+          Left = 16
+          Top = 105
+          Caption = 'Rol'
+        end
+        object lblRol: TLabel
+          Tag = 25
+          Left = 124
+          Top = 104
+          Width = 160
+          Height = 15
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          Alignment = taRightJustify
+          Caption = '-'
+          EllipsisPosition = epEndEllipsis
+        end
+        object lblPermisosRot: TLabel
+          Tag = 13
+          Left = 16
+          Top = 133
+          Caption = 'Permisos propios'
+        end
+        object lblPermisos: TLabel
+          Tag = 25
+          Left = 124
+          Top = 132
+          Width = 160
+          Height = 15
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          Alignment = taRightJustify
+          Caption = '-'
+          EllipsisPosition = epEndEllipsis
+        end
+        object lblClaveRot: TLabel
+          Tag = 13
+          Left = 16
+          Top = 161
+          Caption = 'Clave cambiada'
+        end
+        object lblClave: TLabel
+          Tag = 25
+          Left = 124
+          Top = 160
+          Width = 160
+          Height = 15
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          Alignment = taRightJustify
+          Caption = '-'
+          EllipsisPosition = epEndEllipsis
+        end
+        object btnCambiarClave: TPlanoBotonWin
+          Left = 16
+          Top = 188
+          Width = 150
+          Height = 32
+          Cursor = crHandPoint
+          Caption = 'Cambiar mi clave'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          StyleElements = []
+          OnClick = btnCambiarClaveClick
+        end
       end
-    end
-    object tjConexion: TPlanoTarjeta
-      Tag = 3
-      Left = 332
-      Top = 8
-      Width = 300
-      Height = 236
-      AlignWithMargins = True
-      TitleHeight = 36
-      Caption = 'Conexi'#243'n'
-      Margins.Left = 0
-      Margins.Top = 0
-      Margins.Right = 12
-      Margins.Bottom = 12
-      TabOrder = 1
-      Align = alClient
-      DesignSize = (
-        300
-        236)
-      object lblServidorRot: TLabel
-        Tag = 13
-        Left = 16
-        Top = 49
-        Caption = 'Servidor'
-      end
-      object lblServidor: TLabel
-        Tag = 25
-        Left = 124
-        Top = 48
-        Width = 160
-        Height = 15
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Alignment = taRightJustify
-        Caption = '-'
-        EllipsisPosition = epEndEllipsis
-      end
-      object lblEstadoRot: TLabel
-        Tag = 13
-        Left = 16
-        Top = 77
-        Caption = 'Estado'
-      end
-      object lblEstado: TLabel
-        Tag = 25
-        Left = 124
-        Top = 76
-        Width = 160
-        Height = 15
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Alignment = taRightJustify
-        Caption = '-'
-        EllipsisPosition = epEndEllipsis
-      end
-      object lblRespuestaRot: TLabel
-        Tag = 13
-        Left = 16
-        Top = 105
-        Caption = 'Respuesta'
-      end
-      object lblRespuesta: TLabel
-        Tag = 25
-        Left = 124
-        Top = 104
-        Width = 160
-        Height = 15
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Alignment = taRightJustify
-        Caption = '-'
-        EllipsisPosition = epEndEllipsis
-      end
-      object btnProbar: TPlanoBotonWin
-        Left = 16
-        Top = 188
-        Width = 130
-        Height = 32
-        Cursor = crHandPoint
-        Caption = 'Probar conexi'#243'n'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 0
-        StyleElements = []
-        OnClick = btnProbarClick
-        Kind = fkSecondary
-      end
-      object btnCambiarServidor: TPlanoBotonWin
-        Left = 154
-        Top = 188
-        Width = 130
-        Height = 32
-        Cursor = crHandPoint
-        Caption = 'Cambiar servidor'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
+      object tjConexion: TPlanoTarjeta
+        Tag = 3
+        Left = 332
+        Top = 8
+        Width = 300
+        Height = 236
+        AlignWithMargins = True
+        TitleHeight = 36
+        Caption = 'Conexi'#243'n'
+        Margins.Left = 0
+        Margins.Top = 0
+        Margins.Right = 12
+        Margins.Bottom = 12
         TabOrder = 1
-        StyleElements = []
-        OnClick = btnCambiarServidorClick
-        Kind = fkSecondary
+        Align = alClient
+        DesignSize = (
+          300
+          236)
+        object lblServidorRot: TLabel
+          Tag = 13
+          Left = 16
+          Top = 49
+          Caption = 'Servidor'
+        end
+        object lblServidor: TLabel
+          Tag = 25
+          Left = 124
+          Top = 48
+          Width = 160
+          Height = 15
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          Alignment = taRightJustify
+          Caption = '-'
+          EllipsisPosition = epEndEllipsis
+        end
+        object lblEstadoRot: TLabel
+          Tag = 13
+          Left = 16
+          Top = 77
+          Caption = 'Estado'
+        end
+        object lblEstado: TLabel
+          Tag = 25
+          Left = 124
+          Top = 76
+          Width = 160
+          Height = 15
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          Alignment = taRightJustify
+          Caption = '-'
+          EllipsisPosition = epEndEllipsis
+        end
+        object lblRespuestaRot: TLabel
+          Tag = 13
+          Left = 16
+          Top = 105
+          Caption = 'Respuesta'
+        end
+        object lblRespuesta: TLabel
+          Tag = 25
+          Left = 124
+          Top = 104
+          Width = 160
+          Height = 15
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          Alignment = taRightJustify
+          Caption = '-'
+          EllipsisPosition = epEndEllipsis
+        end
+        object btnProbar: TPlanoBotonWin
+          Left = 16
+          Top = 188
+          Width = 130
+          Height = 32
+          Cursor = crHandPoint
+          Caption = 'Probar conexi'#243'n'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          StyleElements = []
+          OnClick = btnProbarClick
+          Kind = fkSecondary
+        end
+        object btnCambiarServidor: TPlanoBotonWin
+          Left = 154
+          Top = 188
+          Width = 130
+          Height = 32
+          Cursor = crHandPoint
+          Caption = 'Cambiar servidor'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          StyleElements = []
+          OnClick = btnCambiarServidorClick
+          Kind = fkSecondary
+        end
       end
-    end
-    object tjAcercaDe: TPlanoTarjeta
-      Tag = 3
-      Left = 644
-      Top = 8
-      Width = 300
-      Height = 236
-      AlignWithMargins = True
-      TitleHeight = 36
-      Caption = 'Acerca de'
-      Margins.Left = 0
-      Margins.Top = 0
-      Margins.Right = 12
-      Margins.Bottom = 12
-      TabOrder = 2
-      Align = alClient
-      DesignSize = (
-        300
-        236)
-      object lblVerEscritorioRot: TLabel
-        Tag = 13
-        Left = 16
-        Top = 49
-        Caption = 'Escritorio'
-      end
-      object lblVerEscritorio: TLabel
-        Tag = 25
-        Left = 124
-        Top = 48
-        Width = 160
-        Height = 15
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Alignment = taRightJustify
-        Caption = '-'
-        EllipsisPosition = epEndEllipsis
-      end
-      object lblVerServidorRot: TLabel
-        Tag = 13
-        Left = 16
-        Top = 77
-        Caption = 'Servidor'
-      end
-      object lblVerServidor: TLabel
-        Tag = 25
-        Left = 124
-        Top = 76
-        Width = 160
-        Height = 15
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Alignment = taRightJustify
-        Caption = '-'
-        EllipsisPosition = epEndEllipsis
-      end
-      object lblVerBaseRot: TLabel
-        Tag = 13
-        Left = 16
-        Top = 105
-        Caption = 'Base de datos'
-      end
-      object lblVerBase: TLabel
-        Tag = 25
-        Left = 124
-        Top = 104
-        Width = 160
-        Height = 15
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Alignment = taRightJustify
-        Caption = '-'
-        EllipsisPosition = epEndEllipsis
-      end
-      object lblVerMovilRot: TLabel
-        Tag = 13
-        Left = 16
-        Top = 133
-        Caption = 'M'#243'vil'
-      end
-      object lblVerMovil: TLabel
-        Tag = 25
-        Left = 124
-        Top = 132
-        Width = 160
-        Height = 15
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Alignment = taRightJustify
-        Caption = '-'
-        EllipsisPosition = epEndEllipsis
-      end
-      object lblVerAvisoRot: TLabel
-        Tag = 13
-        Left = 16
-        Top = 161
-        Caption = 'Aviso de privacidad'
-      end
-      object lblVerAviso: TLabel
-        Tag = 25
-        Left = 124
-        Top = 160
-        Width = 160
-        Height = 15
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Alignment = taRightJustify
-        Caption = '-'
-        EllipsisPosition = epEndEllipsis
-      end
-    end
-    object tjEmpresa: TPlanoTarjeta
-      Tag = 3
-      Left = 20
-      Top = 256
-      Width = 612
-      Height = 360
-      AlignWithMargins = True
-      TitleHeight = 36
-      Caption = 'Datos de la empresa'
-      Margins.Left = 0
-      Margins.Top = 0
-      Margins.Right = 12
-      Margins.Bottom = 12
-      TabOrder = 3
-      Align = alClient
-      DesignSize = (
-        612
-        360)
-      object edRazonSocial: TrDBEdit
-        Left = 16
-        Top = 62
-        Width = 280
-        Height = 23
-        DataField = 'RAZON_SOCIAL'
-        DataSource = dmMemoria.dsEmpresa
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 0
-        StyleElements = []
-        ReadOnlyColor = 15987699
-        DBEditLabel.AlignWithMargins = True
-        DBEditLabel.Margins.Top = 5
-        DBEditLabel.OwnCaption = 'Raz'#243'n social'
-        DBEditLabel.ShowRequiredBold = True
-        DBEditLabel.Font.Charset = ANSI_CHARSET
-        DBEditLabel.Font.Color = clWindowText
-        DBEditLabel.Font.Height = -12
-        DBEditLabel.Font.Name = 'Segoe UI'
-        DBEditLabel.Font.Style = []
-        DBEditLabel.ParentFont = False
-      end
-      object edCedula: TrDBEdit
-        Left = 316
-        Top = 62
-        Width = 280
-        Height = 23
-        DataField = 'CEDULA_JURIDICA'
-        DataSource = dmMemoria.dsEmpresa
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 1
-        StyleElements = []
-        ReadOnlyColor = 15987699
-        DBEditLabel.AlignWithMargins = True
-        DBEditLabel.Margins.Top = 5
-        DBEditLabel.OwnCaption = 'C'#233'dula jur'#237'dica'
-        DBEditLabel.ShowRequiredBold = True
-        DBEditLabel.Font.Charset = ANSI_CHARSET
-        DBEditLabel.Font.Color = clWindowText
-        DBEditLabel.Font.Height = -12
-        DBEditLabel.Font.Name = 'Segoe UI'
-        DBEditLabel.Font.Style = []
-        DBEditLabel.ParentFont = False
-      end
-      object edRepresentante: TrDBEdit
-        Left = 16
-        Top = 112
-        Width = 280
-        Height = 23
-        DataField = 'REPRESENTANTE_LEGAL'
-        DataSource = dmMemoria.dsEmpresa
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
+      object tjAcercaDe: TPlanoTarjeta
+        Tag = 3
+        Left = 644
+        Top = 8
+        Width = 300
+        Height = 236
+        AlignWithMargins = True
+        TitleHeight = 36
+        Caption = 'Acerca de'
+        Margins.Left = 0
+        Margins.Top = 0
+        Margins.Right = 12
+        Margins.Bottom = 12
         TabOrder = 2
-        StyleElements = []
-        ReadOnlyColor = 15987699
-        DBEditLabel.AlignWithMargins = True
-        DBEditLabel.Margins.Top = 5
-        DBEditLabel.OwnCaption = 'Representante legal'
-        DBEditLabel.Font.Charset = ANSI_CHARSET
-        DBEditLabel.Font.Color = clWindowText
-        DBEditLabel.Font.Height = -12
-        DBEditLabel.Font.Name = 'Segoe UI'
-        DBEditLabel.Font.Style = []
-        DBEditLabel.ParentFont = False
+        Align = alClient
+        DesignSize = (
+          300
+          236)
+        object lblVerEscritorioRot: TLabel
+          Tag = 13
+          Left = 16
+          Top = 49
+          Caption = 'Escritorio'
+        end
+        object lblVerEscritorio: TLabel
+          Tag = 25
+          Left = 124
+          Top = 48
+          Width = 160
+          Height = 15
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          Alignment = taRightJustify
+          Caption = '-'
+          EllipsisPosition = epEndEllipsis
+        end
+        object lblVerServidorRot: TLabel
+          Tag = 13
+          Left = 16
+          Top = 77
+          Caption = 'Servidor'
+        end
+        object lblVerServidor: TLabel
+          Tag = 25
+          Left = 124
+          Top = 76
+          Width = 160
+          Height = 15
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          Alignment = taRightJustify
+          Caption = '-'
+          EllipsisPosition = epEndEllipsis
+        end
+        object lblVerBaseRot: TLabel
+          Tag = 13
+          Left = 16
+          Top = 105
+          Caption = 'Base de datos'
+        end
+        object lblVerBase: TLabel
+          Tag = 25
+          Left = 124
+          Top = 104
+          Width = 160
+          Height = 15
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          Alignment = taRightJustify
+          Caption = '-'
+          EllipsisPosition = epEndEllipsis
+        end
+        object lblVerMovilRot: TLabel
+          Tag = 13
+          Left = 16
+          Top = 133
+          Caption = 'M'#243'vil'
+        end
+        object lblVerMovil: TLabel
+          Tag = 25
+          Left = 124
+          Top = 132
+          Width = 160
+          Height = 15
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          Alignment = taRightJustify
+          Caption = '-'
+          EllipsisPosition = epEndEllipsis
+        end
+        object lblVerAvisoRot: TLabel
+          Tag = 13
+          Left = 16
+          Top = 161
+          Caption = 'Aviso de privacidad'
+        end
+        object lblVerAviso: TLabel
+          Tag = 25
+          Left = 124
+          Top = 160
+          Width = 160
+          Height = 15
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          Alignment = taRightJustify
+          Caption = '-'
+          EllipsisPosition = epEndEllipsis
+        end
       end
-      object edCorreoEmpresa: TrDBEdit
-        Left = 316
-        Top = 112
-        Width = 280
-        Height = 23
-        DataField = 'CORREO'
-        DataSource = dmMemoria.dsEmpresa
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
+      object tjEmpresa: TPlanoTarjeta
+        Tag = 3
+        Left = 20
+        Top = 256
+        Width = 612
+        Height = 360
+        AlignWithMargins = True
+        TitleHeight = 36
+        Caption = 'Datos de la empresa'
+        Margins.Left = 0
+        Margins.Top = 0
+        Margins.Right = 12
+        Margins.Bottom = 12
         TabOrder = 3
-        StyleElements = []
-        ReadOnlyColor = 15987699
-        DBEditLabel.AlignWithMargins = True
-        DBEditLabel.Margins.Top = 5
-        DBEditLabel.OwnCaption = 'Correo'
-        DBEditLabel.Font.Charset = ANSI_CHARSET
-        DBEditLabel.Font.Color = clWindowText
-        DBEditLabel.Font.Height = -12
-        DBEditLabel.Font.Name = 'Segoe UI'
-        DBEditLabel.Font.Style = []
-        DBEditLabel.ParentFont = False
+        Align = alClient
+        DesignSize = (
+          612
+          360)
+        object edRazonSocial: TrDBEdit
+          Left = 16
+          Top = 62
+          Width = 280
+          Height = 23
+          DataField = 'RAZON_SOCIAL'
+          DataSource = dmMemoria.dsEmpresa
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          StyleElements = []
+          ReadOnlyColor = 15987699
+          DBEditLabel.AlignWithMargins = True
+          DBEditLabel.Margins.Top = 5
+          DBEditLabel.OwnCaption = 'Raz'#243'n social'
+          DBEditLabel.ShowRequiredBold = True
+          DBEditLabel.Font.Charset = ANSI_CHARSET
+          DBEditLabel.Font.Color = clWindowText
+          DBEditLabel.Font.Height = -12
+          DBEditLabel.Font.Name = 'Segoe UI'
+          DBEditLabel.Font.Style = []
+          DBEditLabel.ParentFont = False
+        end
+        object edCedula: TrDBEdit
+          Left = 316
+          Top = 62
+          Width = 280
+          Height = 23
+          DataField = 'CEDULA_JURIDICA'
+          DataSource = dmMemoria.dsEmpresa
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          StyleElements = []
+          ReadOnlyColor = 15987699
+          DBEditLabel.AlignWithMargins = True
+          DBEditLabel.Margins.Top = 5
+          DBEditLabel.OwnCaption = 'C'#233'dula jur'#237'dica'
+          DBEditLabel.ShowRequiredBold = True
+          DBEditLabel.Font.Charset = ANSI_CHARSET
+          DBEditLabel.Font.Color = clWindowText
+          DBEditLabel.Font.Height = -12
+          DBEditLabel.Font.Name = 'Segoe UI'
+          DBEditLabel.Font.Style = []
+          DBEditLabel.ParentFont = False
+        end
+        object edRepresentante: TrDBEdit
+          Left = 16
+          Top = 112
+          Width = 280
+          Height = 23
+          DataField = 'REPRESENTANTE_LEGAL'
+          DataSource = dmMemoria.dsEmpresa
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 2
+          StyleElements = []
+          ReadOnlyColor = 15987699
+          DBEditLabel.AlignWithMargins = True
+          DBEditLabel.Margins.Top = 5
+          DBEditLabel.OwnCaption = 'Representante legal'
+          DBEditLabel.Font.Charset = ANSI_CHARSET
+          DBEditLabel.Font.Color = clWindowText
+          DBEditLabel.Font.Height = -12
+          DBEditLabel.Font.Name = 'Segoe UI'
+          DBEditLabel.Font.Style = []
+          DBEditLabel.ParentFont = False
+        end
+        object edCorreoEmpresa: TrDBEdit
+          Left = 316
+          Top = 112
+          Width = 280
+          Height = 23
+          DataField = 'CORREO'
+          DataSource = dmMemoria.dsEmpresa
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 3
+          StyleElements = []
+          ReadOnlyColor = 15987699
+          DBEditLabel.AlignWithMargins = True
+          DBEditLabel.Margins.Top = 5
+          DBEditLabel.OwnCaption = 'Correo'
+          DBEditLabel.Font.Charset = ANSI_CHARSET
+          DBEditLabel.Font.Color = clWindowText
+          DBEditLabel.Font.Height = -12
+          DBEditLabel.Font.Name = 'Segoe UI'
+          DBEditLabel.Font.Style = []
+          DBEditLabel.ParentFont = False
+        end
+        object edTelefono: TrDBEdit
+          Left = 16
+          Top = 162
+          Width = 280
+          Height = 23
+          DataField = 'TELEFONO_FIJO'
+          DataSource = dmMemoria.dsEmpresa
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 4
+          StyleElements = []
+          ReadOnlyColor = 15987699
+          DBEditLabel.AlignWithMargins = True
+          DBEditLabel.Margins.Top = 5
+          DBEditLabel.OwnCaption = 'Tel'#233'fono fijo'
+          DBEditLabel.Font.Charset = ANSI_CHARSET
+          DBEditLabel.Font.Color = clWindowText
+          DBEditLabel.Font.Height = -12
+          DBEditLabel.Font.Name = 'Segoe UI'
+          DBEditLabel.Font.Style = []
+          DBEditLabel.ParentFont = False
+        end
+        object edCelular: TrDBEdit
+          Left = 316
+          Top = 162
+          Width = 280
+          Height = 23
+          DataField = 'CELULAR'
+          DataSource = dmMemoria.dsEmpresa
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 5
+          StyleElements = []
+          ReadOnlyColor = 15987699
+          DBEditLabel.AlignWithMargins = True
+          DBEditLabel.Margins.Top = 5
+          DBEditLabel.OwnCaption = 'Celular'
+          DBEditLabel.Font.Charset = ANSI_CHARSET
+          DBEditLabel.Font.Color = clWindowText
+          DBEditLabel.Font.Height = -12
+          DBEditLabel.Font.Name = 'Segoe UI'
+          DBEditLabel.Font.Style = []
+          DBEditLabel.ParentFont = False
+        end
+        object edDireccion: TrDBEdit
+          Left = 16
+          Top = 212
+          Width = 580
+          Height = 23
+          Anchors = [akLeft, akTop, akRight]
+          DataField = 'DIRECCION'
+          DataSource = dmMemoria.dsEmpresa
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 6
+          StyleElements = []
+          ReadOnlyColor = 15987699
+          DBEditLabel.AlignWithMargins = True
+          DBEditLabel.Margins.Top = 5
+          DBEditLabel.OwnCaption = 'Direcci'#243'n'
+          DBEditLabel.Font.Charset = ANSI_CHARSET
+          DBEditLabel.Font.Color = clWindowText
+          DBEditLabel.Font.Height = -12
+          DBEditLabel.Font.Name = 'Segoe UI'
+          DBEditLabel.Font.Style = []
+          DBEditLabel.ParentFont = False
+        end
+        object edCuenta: TrDBEdit
+          Left = 16
+          Top = 262
+          Width = 280
+          Height = 23
+          DataField = 'CUENTA_BANCARIA'
+          DataSource = dmMemoria.dsEmpresa
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 7
+          StyleElements = []
+          ReadOnlyColor = 15987699
+          DBEditLabel.AlignWithMargins = True
+          DBEditLabel.Margins.Top = 5
+          DBEditLabel.OwnCaption = 'Cuenta bancaria'
+          DBEditLabel.Font.Charset = ANSI_CHARSET
+          DBEditLabel.Font.Color = clWindowText
+          DBEditLabel.Font.Height = -12
+          DBEditLabel.Font.Name = 'Segoe UI'
+          DBEditLabel.Font.Style = []
+          DBEditLabel.ParentFont = False
+        end
+        object edIva: TrDBEdit
+          Left = 316
+          Top = 262
+          Width = 100
+          Height = 23
+          DataField = 'PORCENTAJE_IVA'
+          DataSource = dmMemoria.dsEmpresa
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 8
+          StyleElements = []
+          ReadOnlyColor = 15987699
+          DBEditLabel.AlignWithMargins = True
+          DBEditLabel.Margins.Top = 5
+          DBEditLabel.OwnCaption = 'IVA (%)'
+          DBEditLabel.ShowRequiredBold = True
+          DBEditLabel.Font.Charset = ANSI_CHARSET
+          DBEditLabel.Font.Color = clWindowText
+          DBEditLabel.Font.Height = -12
+          DBEditLabel.Font.Name = 'Segoe UI'
+          DBEditLabel.Font.Style = []
+          DBEditLabel.ParentFont = False
+        end
+        object lblNotaIva: TLabel
+          Tag = 13
+          Left = 424
+          Top = 258
+          Width = 172
+          Height = 44
+          AutoSize = False
+          Caption = 'El IVA nuevo se aplica a las cotizaciones que se elaboren desde ahora; '#13#10'las ya hechas conservan el suyo.'
+          WordWrap = True
+        end
+        object btnDocumentoEmpresa: TPlanoBotonWin
+          Tag = 21
+          Left = 16
+          Top = 312
+          Width = 175
+          Height = 32
+          Cursor = crHandPoint
+          Caption = 'Documento de la cotizaci'#243'n'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 11
+          StyleElements = []
+          OnClick = btnDocumentoEmpresaClick
+          Kind = fkSecondary
+        end
+        object btnConsentimiento: TPlanoBotonWin
+          Tag = 21
+          Left = 199
+          Top = 312
+          Width = 163
+          Height = 32
+          Cursor = crHandPoint
+          Caption = 'Texto del consentimiento'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 12
+          StyleElements = []
+          OnClick = btnConsentimientoClick
+          Kind = fkSecondary
+        end
+        object btnDeshacer: TPlanoBotonWin
+          Left = 370
+          Top = 312
+          Width = 108
+          Height = 32
+          Anchors = [akTop, akRight]
+          Cursor = crHandPoint
+          Caption = 'Deshacer'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 9
+          StyleElements = []
+          OnClick = btnDeshacerClick
+          Kind = fkSecondary
+        end
+        object btnGuardarEmpresa: TPlanoBotonWin
+          Left = 486
+          Top = 312
+          Width = 110
+          Height = 32
+          Anchors = [akTop, akRight]
+          Cursor = crHandPoint
+          Caption = 'Guardar datos'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 10
+          StyleElements = []
+          OnClick = btnGuardarEmpresaClick
+        end
       end
-      object edTelefono: TrDBEdit
-        Left = 16
-        Top = 162
-        Width = 280
-        Height = 23
-        DataField = 'TELEFONO_FIJO'
-        DataSource = dmMemoria.dsEmpresa
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
+      object tjParametros: TPlanoTarjeta
+        Tag = 3
+        Left = 644
+        Top = 256
+        Width = 300
+        Height = 360
+        AlignWithMargins = True
+        TitleHeight = 36
+        Caption = 'Par'#225'metros'
+        Margins.Left = 0
+        Margins.Top = 0
+        Margins.Right = 12
+        Margins.Bottom = 12
         TabOrder = 4
-        StyleElements = []
-        ReadOnlyColor = 15987699
-        DBEditLabel.AlignWithMargins = True
-        DBEditLabel.Margins.Top = 5
-        DBEditLabel.OwnCaption = 'Tel'#233'fono fijo'
-        DBEditLabel.Font.Charset = ANSI_CHARSET
-        DBEditLabel.Font.Color = clWindowText
-        DBEditLabel.Font.Height = -12
-        DBEditLabel.Font.Name = 'Segoe UI'
-        DBEditLabel.Font.Style = []
-        DBEditLabel.ParentFont = False
-      end
-      object edCelular: TrDBEdit
-        Left = 316
-        Top = 162
-        Width = 280
-        Height = 23
-        DataField = 'CELULAR'
-        DataSource = dmMemoria.dsEmpresa
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 5
-        StyleElements = []
-        ReadOnlyColor = 15987699
-        DBEditLabel.AlignWithMargins = True
-        DBEditLabel.Margins.Top = 5
-        DBEditLabel.OwnCaption = 'Celular'
-        DBEditLabel.Font.Charset = ANSI_CHARSET
-        DBEditLabel.Font.Color = clWindowText
-        DBEditLabel.Font.Height = -12
-        DBEditLabel.Font.Name = 'Segoe UI'
-        DBEditLabel.Font.Style = []
-        DBEditLabel.ParentFont = False
-      end
-      object edDireccion: TrDBEdit
-        Left = 16
-        Top = 212
-        Width = 580
-        Height = 23
-        Anchors = [akLeft, akTop, akRight]
-        DataField = 'DIRECCION'
-        DataSource = dmMemoria.dsEmpresa
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 6
-        StyleElements = []
-        ReadOnlyColor = 15987699
-        DBEditLabel.AlignWithMargins = True
-        DBEditLabel.Margins.Top = 5
-        DBEditLabel.OwnCaption = 'Direcci'#243'n'
-        DBEditLabel.Font.Charset = ANSI_CHARSET
-        DBEditLabel.Font.Color = clWindowText
-        DBEditLabel.Font.Height = -12
-        DBEditLabel.Font.Name = 'Segoe UI'
-        DBEditLabel.Font.Style = []
-        DBEditLabel.ParentFont = False
-      end
-      object edCuenta: TrDBEdit
-        Left = 16
-        Top = 262
-        Width = 280
-        Height = 23
-        DataField = 'CUENTA_BANCARIA'
-        DataSource = dmMemoria.dsEmpresa
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 7
-        StyleElements = []
-        ReadOnlyColor = 15987699
-        DBEditLabel.AlignWithMargins = True
-        DBEditLabel.Margins.Top = 5
-        DBEditLabel.OwnCaption = 'Cuenta bancaria'
-        DBEditLabel.Font.Charset = ANSI_CHARSET
-        DBEditLabel.Font.Color = clWindowText
-        DBEditLabel.Font.Height = -12
-        DBEditLabel.Font.Name = 'Segoe UI'
-        DBEditLabel.Font.Style = []
-        DBEditLabel.ParentFont = False
-      end
-      object edIva: TrDBEdit
-        Left = 316
-        Top = 262
-        Width = 100
-        Height = 23
-        DataField = 'PORCENTAJE_IVA'
-        DataSource = dmMemoria.dsEmpresa
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 8
-        StyleElements = []
-        ReadOnlyColor = 15987699
-        DBEditLabel.AlignWithMargins = True
-        DBEditLabel.Margins.Top = 5
-        DBEditLabel.OwnCaption = 'IVA (%)'
-        DBEditLabel.ShowRequiredBold = True
-        DBEditLabel.Font.Charset = ANSI_CHARSET
-        DBEditLabel.Font.Color = clWindowText
-        DBEditLabel.Font.Height = -12
-        DBEditLabel.Font.Name = 'Segoe UI'
-        DBEditLabel.Font.Style = []
-        DBEditLabel.ParentFont = False
-      end
-      object lblNotaIva: TLabel
-        Tag = 13
-        Left = 424
-        Top = 258
-        Width = 172
-        Height = 44
-        AutoSize = False
-        Caption = 'El IVA nuevo se aplica a las cotizaciones que se elaboren desde ahora; '#13#10'las ya hechas conservan el suyo.'
-        WordWrap = True
-      end
-      object btnDocumentoEmpresa: TPlanoBotonWin
-        Tag = 21
-        Left = 16
-        Top = 312
-        Width = 175
-        Height = 32
-        Cursor = crHandPoint
-        Caption = 'Documento de la cotizaci'#243'n'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 11
-        StyleElements = []
-        OnClick = btnDocumentoEmpresaClick
-        Kind = fkSecondary
-      end
-      object btnConsentimiento: TPlanoBotonWin
-        Tag = 21
-        Left = 199
-        Top = 312
-        Width = 163
-        Height = 32
-        Cursor = crHandPoint
-        Caption = 'Texto del consentimiento'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 12
-        StyleElements = []
-        OnClick = btnConsentimientoClick
-        Kind = fkSecondary
-      end
-      object btnDeshacer: TPlanoBotonWin
-        Left = 370
-        Top = 312
-        Width = 108
-        Height = 32
-        Anchors = [akTop, akRight]
-        Cursor = crHandPoint
-        Caption = 'Deshacer'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 9
-        StyleElements = []
-        OnClick = btnDeshacerClick
-        Kind = fkSecondary
-      end
-      object btnGuardarEmpresa: TPlanoBotonWin
-        Left = 486
-        Top = 312
-        Width = 110
-        Height = 32
-        Anchors = [akTop, akRight]
-        Cursor = crHandPoint
-        Caption = 'Guardar datos'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 10
-        StyleElements = []
-        OnClick = btnGuardarEmpresaClick
-      end
-    end
-    object tjParametros: TPlanoTarjeta
-      Tag = 3
-      Left = 644
-      Top = 256
-      Width = 300
-      Height = 360
-      AlignWithMargins = True
-      TitleHeight = 36
-      Caption = 'Par'#225'metros'
-      Margins.Left = 0
-      Margins.Top = 0
-      Margins.Right = 12
-      Margins.Bottom = 12
-      TabOrder = 4
-      Align = alClient
-      DesignSize = (
-        300
-        360)
-      object edMinutos: TrDBEdit
-        Left = 16
-        Top = 62
-        Width = 100
-        Height = 23
-        DataField = 'MINUTOS_AVISOS'
-        DataSource = dmMemoria.dsParametros
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 0
-        StyleElements = []
-        ReadOnlyColor = 15987699
-        DBEditLabel.AlignWithMargins = True
-        DBEditLabel.Margins.Top = 5
-        DBEditLabel.OwnCaption = 'Revisar avisos cada (minutos)'
-        DBEditLabel.Font.Charset = ANSI_CHARSET
-        DBEditLabel.Font.Color = clWindowText
-        DBEditLabel.Font.Height = -12
-        DBEditLabel.Font.Name = 'Segoe UI'
-        DBEditLabel.Font.Style = []
-        DBEditLabel.ParentFont = False
-      end
-      object lblNotaMinutos: TLabel
-        Tag = 13
-        Left = 16
-        Top = 90
-        Width = 268
-        Height = 32
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Caption = 'Preferencia de este equipo; se guarda en esta computadora.'
-        WordWrap = True
-      end
-      object edDias: TrDBEdit
-        Left = 16
-        Top = 162
-        Width = 100
-        Height = 23
-        DataField = 'DIAS_SIN_RESPUESTA'
-        DataSource = dmMemoria.dsParametros
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 1
-        StyleElements = []
-        ReadOnlyColor = 15987699
-        DBEditLabel.AlignWithMargins = True
-        DBEditLabel.Margins.Top = 5
-        DBEditLabel.OwnCaption = 'D'#237'as para '#171'sin respuesta'#187' del cliente'
-        DBEditLabel.Font.Charset = ANSI_CHARSET
-        DBEditLabel.Font.Color = clWindowText
-        DBEditLabel.Font.Height = -12
-        DBEditLabel.Font.Name = 'Segoe UI'
-        DBEditLabel.Font.Style = []
-        DBEditLabel.ParentFont = False
-      end
-      object lblNotaDias: TLabel
-        Tag = 13
-        Left = 16
-        Top = 190
-        Width = 268
-        Height = 32
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Caption = 'Cotizaciones enviadas que pasan este plazo sin respuesta. ''Lo cambia gerencia o TI.'
-        WordWrap = True
-      end
-      object btnGuardarParametros: TPlanoBotonWin
-        Left = 16
-        Top = 312
-        Width = 150
-        Height = 32
-        Cursor = crHandPoint
-        Caption = 'Guardar par'#225'metros'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -12
-        Font.Name = 'Segoe UI'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 2
-        StyleElements = []
-        OnClick = btnGuardarParametrosClick
+        Align = alClient
+        DesignSize = (
+          300
+          360)
+        object edMinutos: TrDBEdit
+          Left = 16
+          Top = 62
+          Width = 100
+          Height = 23
+          DataField = 'MINUTOS_AVISOS'
+          DataSource = dmMemoria.dsParametros
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          StyleElements = []
+          ReadOnlyColor = 15987699
+          DBEditLabel.AlignWithMargins = True
+          DBEditLabel.Margins.Top = 5
+          DBEditLabel.OwnCaption = 'Revisar avisos cada (minutos)'
+          DBEditLabel.Font.Charset = ANSI_CHARSET
+          DBEditLabel.Font.Color = clWindowText
+          DBEditLabel.Font.Height = -12
+          DBEditLabel.Font.Name = 'Segoe UI'
+          DBEditLabel.Font.Style = []
+          DBEditLabel.ParentFont = False
+        end
+        object lblNotaMinutos: TLabel
+          Tag = 13
+          Left = 16
+          Top = 90
+          Width = 268
+          Height = 32
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          Caption = 'Preferencia de este equipo; se guarda en esta computadora.'
+          WordWrap = True
+        end
+        object edDias: TrDBEdit
+          Left = 16
+          Top = 162
+          Width = 100
+          Height = 23
+          DataField = 'DIAS_SIN_RESPUESTA'
+          DataSource = dmMemoria.dsParametros
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          StyleElements = []
+          ReadOnlyColor = 15987699
+          DBEditLabel.AlignWithMargins = True
+          DBEditLabel.Margins.Top = 5
+          DBEditLabel.OwnCaption = 'D'#237'as para '#171'sin respuesta'#187' del cliente'
+          DBEditLabel.Font.Charset = ANSI_CHARSET
+          DBEditLabel.Font.Color = clWindowText
+          DBEditLabel.Font.Height = -12
+          DBEditLabel.Font.Name = 'Segoe UI'
+          DBEditLabel.Font.Style = []
+          DBEditLabel.ParentFont = False
+        end
+        object lblNotaDias: TLabel
+          Tag = 13
+          Left = 16
+          Top = 190
+          Width = 268
+          Height = 32
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          Caption = 'Cotizaciones enviadas que pasan este plazo sin respuesta. ''Lo cambia gerencia o TI.'
+          WordWrap = True
+        end
+        object btnGuardarParametros: TPlanoBotonWin
+          Left = 16
+          Top = 312
+          Width = 150
+          Height = 32
+          Cursor = crHandPoint
+          Caption = 'Guardar par'#225'metros'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Segoe UI'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 2
+          StyleElements = []
+          OnClick = btnGuardarParametrosClick
+        end
       end
     end
   end

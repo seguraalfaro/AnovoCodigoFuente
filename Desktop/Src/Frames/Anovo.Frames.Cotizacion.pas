@@ -184,6 +184,7 @@ uses
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
   Anovo.Formato,
+  Anovo.TotalesCotizacion,
   Anovo.Textos;
 
 const
@@ -208,6 +209,9 @@ begin
   AplicarTemaGrid(grLineas);
   AplicarTemaGrid(grPiezas);
   AplicarTemaGrid(grMedidas);
+  TCeldasRejilla.De(grLineas).TextoVacio := SVacioLineas;
+  TCeldasRejilla.De(grPiezas).TextoVacio := SVacioPiezas;
+  TCeldasRejilla.De(grMedidas).TextoVacio := SVacioMedidas;
   lblSinCroquis.Caption := SSinCroquis;
   lblSinFotos.Caption := SSinFotos;
 
@@ -249,6 +253,8 @@ end;
 
 procedure TfraCotizacion.MostrarCotizacion(const ACotizacion: TCotizacionDTO;
   const AConEncabezado: Boolean);
+var
+  lTotales: TTotalesCotizacion;
 begin
   lblTitulo.Caption := Format(SCotizacionTitulo,
     [ACotizacion.Numero, ACotizacion.ClienteNombre]);
@@ -258,30 +264,17 @@ begin
   pstEstado.Caption := TFormato.Estado(ACotizacion.Estado);
   pstEstado.Status := EstadoPlano(ACotizacion.Estado);
 
-  lblMateriales.Caption :=
-    TFormato.Colones(ACotizacion.SubtotalMateriales.ValueOrDefault);
-  lblManoObra.Caption :=
-    TFormato.Colones(ACotizacion.SubtotalManoObra.ValueOrDefault);
-  lblMaquina.Caption :=
-    TFormato.Colones(ACotizacion.SubtotalMaquina.ValueOrDefault);
-  lblCosto.Caption := TFormato.Colones(ACotizacion.CostoTotal.ValueOrDefault);
-  lblAjuste.Caption := TFormato.Colones(ACotizacion.CostoTotal.ValueOrDefault *
-    ACotizacion.PorcentajeAjuste / 100);
-  lblIva.Caption := TFormato.Colones(ACotizacion.MontoImpuesto.ValueOrDefault);
-  lblTotal.Caption := TFormato.Colones(ACotizacion.MontoTotal.ValueOrDefault);
-
-  if ACotizacion.PorcentajeIva = 0 then
-    lblIvaRot.Caption := SIvaExonerado
-  else
-    lblIvaRot.Caption := Format(SIvaPorcentaje,
-      [TFormato.Porcentaje(ACotizacion.PorcentajeIva)]);
-
-  if ACotizacion.PorcentajeAjuste = 0 then
-    lblAjusteRot.Caption := SSinAjuste
-  else
-    lblAjusteRot.Caption := Format(SAjustePorcentaje,
-      [TFormato.Porcentaje(ACotizacion.PorcentajeAjuste)]);
-  lblAjusteRot.Hint := ACotizacion.MotivoAjuste.ValueOrDefault;
+  lTotales := TTotalesCotizacion.De(ACotizacion);
+  lblMateriales.Caption := lTotales.Materiales;
+  lblManoObra.Caption := lTotales.ManoObra;
+  lblMaquina.Caption := lTotales.Maquina;
+  lblCosto.Caption := lTotales.Costo;
+  lblAjuste.Caption := lTotales.Ajuste;
+  lblIva.Caption := lTotales.Iva;
+  lblTotal.Caption := lTotales.Total;
+  lblIvaRot.Caption := lTotales.IvaRotulo;
+  lblAjusteRot.Caption := lTotales.AjusteRotulo;
+  lblAjusteRot.Hint := lTotales.MotivoAjuste;
   lblAjusteRot.ShowHint := not lblAjusteRot.Hint.IsEmpty;
   lblAjuste.Hint := lblAjusteRot.Hint;
   lblAjuste.ShowHint := lblAjusteRot.ShowHint;

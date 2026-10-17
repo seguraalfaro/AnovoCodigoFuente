@@ -9,33 +9,25 @@ uses
   Anovo.Api.Intf.Cotizaciones,
   Anovo.PeriodoBusqueda,
   Anovo.Presentadores.Base,
+  Anovo.Presentadores.Listado,
   Anovo.Vistas.Intf.Cotizaciones;
 
 type
-  TPresentadorCotizaciones = class(TPresentadorBase)
+  TPresentadorCotizaciones = class(TPresentadorListado)
   private
     FVista: IVistaCotizaciones;
     FApi: IApiCotizaciones;
-    FTexto: string;
     FFiltro: TFiltroCotizaciones;
-    FPeriodo: TPeriodoBusqueda;
-    FPagina: Integer;
-    FTotalPaginas: Integer;
-    procedure Cargar;
-    function HayFiltro: Boolean;
-    class function PeriodoInicial: TPeriodoBusqueda; static;
+  protected
+    procedure Cargar; override;
+    function UsaPeriodo: Boolean; override;
+    function PeriodoInicial: TPeriodoBusqueda; override;
+    procedure PintarPeriodo; override;
   public
     constructor Create(const AVista: IVistaCotizaciones;
       const AApi: IApiCotizaciones);
     procedure Iniciar(const ACargar: Boolean = True);
-    procedure Recargar;
-    procedure Buscar(const ATexto: string);
-    procedure Limpiar;
-    procedure FiltrarPeriodo(const APeriodo: TPeriodoBusqueda);
     procedure Filtrar(const AFiltro: TFiltroCotizaciones);
-    procedure IrAPagina(const APagina: Integer);
-    procedure PaginaSiguiente;
-    procedure PaginaAnterior;
     procedure Abrir(const AId: Integer);
   end;
 
@@ -57,14 +49,22 @@ const
 constructor TPresentadorCotizaciones.Create(const AVista: IVistaCotizaciones;
   const AApi: IApiCotizaciones);
 begin
-  inherited Create;
+  inherited Create(AVista);
   FVista := AVista;
   FApi := AApi;
-  FPagina := 1;
-  FPeriodo := PeriodoInicial;
 end;
 
-class function TPresentadorCotizaciones.PeriodoInicial: TPeriodoBusqueda;
+function TPresentadorCotizaciones.UsaPeriodo: Boolean;
+begin
+  Result := True;
+end;
+
+procedure TPresentadorCotizaciones.PintarPeriodo;
+begin
+  FVista.MostrarPeriodo(FPeriodo);
+end;
+
+function TPresentadorCotizaciones.PeriodoInicial: TPeriodoBusqueda;
 begin
   Result := TPeriodoBusqueda.De(apEsteMes);
 end;
@@ -78,71 +78,11 @@ begin
     Cargar;
 end;
 
-procedure TPresentadorCotizaciones.Recargar;
-begin
-  Cargar;
-end;
-
-procedure TPresentadorCotizaciones.Buscar(const ATexto: string);
-begin
-  FTexto := ATexto.Trim;
-  FPagina := 1;
-  FVista.MostrarBusqueda(FTexto, HayFiltro);
-  Cargar;
-end;
-
-function TPresentadorCotizaciones.HayFiltro: Boolean;
-begin
-  Result := not FTexto.IsEmpty or not FPeriodo.Igual(PeriodoInicial);
-end;
-
-procedure TPresentadorCotizaciones.Limpiar;
-begin
-  FPeriodo := PeriodoInicial;
-  FVista.MostrarPeriodo(FPeriodo);
-  Buscar('');
-end;
-
-procedure TPresentadorCotizaciones.FiltrarPeriodo(const APeriodo
-  : TPeriodoBusqueda);
-var
-  lMensaje: string;
-begin
-  if not APeriodo.Validar(lMensaje) then
-  begin
-    FVista.MostrarError(lMensaje);
-    FVista.MostrarPeriodo(FPeriodo);
-    Exit;
-  end;
-  FPeriodo := APeriodo;
-  FPagina := 1;
-  FVista.MostrarBusqueda(FTexto, HayFiltro);
-  Cargar;
-end;
-
 procedure TPresentadorCotizaciones.Filtrar(const AFiltro: TFiltroCotizaciones);
 begin
   FFiltro := AFiltro;
   FPagina := 1;
   Cargar;
-end;
-
-procedure TPresentadorCotizaciones.IrAPagina(const APagina: Integer);
-begin
-  if (APagina < 1) or ((FTotalPaginas > 0) and (APagina > FTotalPaginas)) then
-    Exit;
-  FPagina := APagina;
-  Cargar;
-end;
-
-procedure TPresentadorCotizaciones.PaginaSiguiente;
-begin
-  IrAPagina(FPagina + 1);
-end;
-
-procedure TPresentadorCotizaciones.PaginaAnterior;
-begin
-  IrAPagina(FPagina - 1);
 end;
 
 procedure TPresentadorCotizaciones.Abrir(const AId: Integer);
