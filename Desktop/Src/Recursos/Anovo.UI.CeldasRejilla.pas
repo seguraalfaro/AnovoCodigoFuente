@@ -694,7 +694,7 @@ end;
 
 procedure OcultarScrollVertical(AGrid: TrDBGrid);
 var
-  lBarra, lIndice, lIzquierda, lArriba, lDerecha, lAbajo: Integer;
+  lBarra, lIndice, lIzquierda, lArriba, lAbajo: Integer;
   lRelativo: Vcl.WinXCtrls.TRelativePanel;
 begin
   if (AGrid = nil) or (AGrid.Parent = nil) then
@@ -707,22 +707,21 @@ begin
   begin
     lRelativo := Vcl.WinXCtrls.TRelativePanel(AGrid.Parent);
     lIndice := lRelativo.ControlCollection.IndexOf(AGrid);
-    if lIndice >= 0 then
+    if (lIndice >= 0) and lRelativo.ControlCollection[lIndice].AlignRightWithPanel then
     begin
       lRelativo.ControlCollection[lIndice].AlignRightWithPanel := False;
       lRelativo.ControlCollection[lIndice].AlignBottomWithPanel := False;
+      lRelativo.Realign;
     end;
   end;
 
   lIzquierda := 0;
   lArriba := 0;
-  lDerecha := 0;
   lAbajo := 0;
   if AGrid.AlignWithMargins then
   begin
     lIzquierda := AGrid.Margins.Left;
     lArriba := AGrid.Margins.Top;
-    lDerecha := AGrid.Margins.Right;
     lAbajo := AGrid.Margins.Bottom;
   end;
 
@@ -731,7 +730,7 @@ begin
   AGrid.Align := alNone;
   AGrid.Anchors := [akLeft, akTop, akRight, akBottom];
   AGrid.SetBounds(lIzquierda, lArriba,
-    AGrid.Parent.ClientWidth - lIzquierda - lDerecha + lBarra,
+    AGrid.Parent.ClientWidth - lIzquierda + lBarra,
     AGrid.Parent.ClientHeight - lArriba - lAbajo);
 end;
 

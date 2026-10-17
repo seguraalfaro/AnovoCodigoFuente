@@ -144,6 +144,7 @@ implementation
 
 uses
   System.TypInfo,
+  Vcl.DBGrids,
   VclPlano.Paleta;
 
 const
@@ -484,6 +485,8 @@ end;
 
 procedure AplicarTemaControl(AControl: TControl);
 begin
+  if AControl is TCustomDBGrid then
+    Exit;
 
   if AControl.Tag <> TAG_RAW then
     AplicarEstiloPropio(AControl);
