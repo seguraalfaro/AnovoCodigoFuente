@@ -13,7 +13,7 @@ uses
   rDBGrid, rDBComponents,
   VclPlano.BotonWin,
   Anovo.UI.Tema,
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.Forms.Edicion,
   Anovo.DTOs.Catalogos,
   Anovo.Vistas.Intf.Catalogos,

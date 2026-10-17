@@ -139,7 +139,7 @@
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Src\Recursos\Anovo.UI.DBGridExtend.pas"/>
+        <DCCReference Include="Src\Recursos\Anovo.UI.CeldasRejilla.pas"/>
         <DCCReference Include="Src\Recursos\Anovo.UI.ColumnasRejilla.pas"/>
         <DCCReference Include="Src\Common\Anovo.Sesion.pas"/>
         <DCCReference Include="Src\Common\Anovo.Config.pas"/>
@@ -287,6 +287,16 @@
         <DCCReference Include="Src\Forms\Anovo.Forms.Motivo.pas">
             <Form>frmMotivo</Form>
         </DCCReference>
+        <DCCReference Include="Src\Forms\Anovo.Forms.BuscarRejilla.pas">
+            <Form>frmBuscarRejilla</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Forms\Anovo.Forms.ExportarRejilla.pas">
+            <Form>frmExportarRejilla</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Forms\Anovo.Forms.Periodo.pas">
+            <Form>frmPeriodo</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Common\Anovo.PeriodoBusqueda.pas"/>
         <DCCReference Include="Src\Forms\Anovo.Forms.Columnas.pas">
             <Form>frmColumnas</Form>
         </DCCReference>

@@ -7,6 +7,7 @@ interface
 
 uses
   Anovo.Api.Intf.Cotizaciones,
+  Anovo.PeriodoBusqueda,
   Anovo.Presentadores.Base,
   Anovo.Vistas.Intf.Cotizaciones;
 
@@ -17,12 +18,12 @@ type
     FApi: IApiCotizaciones;
     FTexto: string;
     FFiltro: TFiltroCotizaciones;
-    FFiltroDesde: TDateTime;
-    FFiltroHasta: TDateTime;
+    FPeriodo: TPeriodoBusqueda;
     FPagina: Integer;
     FTotalPaginas: Integer;
     procedure Cargar;
     function HayFiltro: Boolean;
+    class function PeriodoInicial: TPeriodoBusqueda; static;
   public
     constructor Create(const AVista: IVistaCotizaciones;
       const AApi: IApiCotizaciones);
@@ -30,7 +31,7 @@ type
     procedure Recargar;
     procedure Buscar(const ATexto: string);
     procedure Limpiar;
-    procedure FiltrarFechas(const ADesde, AHasta: TDateTime);
+    procedure FiltrarPeriodo(const APeriodo: TPeriodoBusqueda);
     procedure Filtrar(const AFiltro: TFiltroCotizaciones);
     procedure IrAPagina(const APagina: Integer);
     procedure PaginaSiguiente;
@@ -45,7 +46,6 @@ implementation
 
 uses
   System.SysUtils,
-  System.DateUtils,
   System.Generics.Collections,
   Anovo.DTOs.Cotizaciones,
   Anovo.Textos;
@@ -61,13 +61,19 @@ begin
   FVista := AVista;
   FApi := AApi;
   FPagina := 1;
+  FPeriodo := PeriodoInicial;
+end;
+
+class function TPresentadorCotizaciones.PeriodoInicial: TPeriodoBusqueda;
+begin
+  Result := TPeriodoBusqueda.De(apEsteMes);
 end;
 
 procedure TPresentadorCotizaciones.Iniciar(const ACargar: Boolean);
 begin
   FVista.MostrarAcciones([alcAbrir]);
-  FVista.MostrarPeriodo(StartOfTheMonth(Date), Date);
-  FVista.MostrarBusqueda('', False);
+  FVista.MostrarPeriodo(FPeriodo);
+  FVista.MostrarBusqueda(FTexto, HayFiltro);
   if ACargar then
     Cargar;
 end;
@@ -87,25 +93,28 @@ end;
 
 function TPresentadorCotizaciones.HayFiltro: Boolean;
 begin
-  Result := not FTexto.IsEmpty or (FFiltroDesde > 0) or (FFiltroHasta > 0);
+  Result := not FTexto.IsEmpty or not FPeriodo.Igual(PeriodoInicial);
 end;
 
 procedure TPresentadorCotizaciones.Limpiar;
 begin
-  FFiltroDesde := 0;
-  FFiltroHasta := 0;
+  FPeriodo := PeriodoInicial;
+  FVista.MostrarPeriodo(FPeriodo);
   Buscar('');
 end;
 
-procedure TPresentadorCotizaciones.FiltrarFechas(const ADesde, AHasta: TDateTime);
+procedure TPresentadorCotizaciones.FiltrarPeriodo(const APeriodo
+  : TPeriodoBusqueda);
+var
+  lMensaje: string;
 begin
-  if (ADesde > 0) and (AHasta > 0) and (ADesde > AHasta) then
+  if not APeriodo.Validar(lMensaje) then
   begin
-    FVista.MostrarError(SPeriodoInvertido);
+    FVista.MostrarError(lMensaje);
+    FVista.MostrarPeriodo(FPeriodo);
     Exit;
   end;
-  FFiltroDesde := ADesde;
-  FFiltroHasta := AHasta;
+  FPeriodo := APeriodo;
   FPagina := 1;
   FVista.MostrarBusqueda(FTexto, HayFiltro);
   Cargar;
@@ -153,8 +162,8 @@ begin
   lApi := FApi;
   lTexto := FTexto;
   lEstado := ESTADO_API[FFiltro];
-  lFiltroDesde := FFiltroDesde;
-  lFiltroHasta := FFiltroHasta;
+  lFiltroDesde := FPeriodo.Desde;
+  lFiltroHasta := FPeriodo.Hasta;
   lPagina := FPagina;
   lTotal := 0;
 

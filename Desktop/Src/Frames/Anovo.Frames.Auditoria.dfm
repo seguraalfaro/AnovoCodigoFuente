@@ -19,43 +19,16 @@ inherited fraAuditoria: TfraAuditoria
       Left = 643
       TabOrder = 3
     end
-    object lblDesde: TLabel
-      Tag = 13
+    object btnPeriodo: TPlanoBotonWin
       Left = 20
-      Top = 18
-      Width = 32
-      Height = 15
-      Caption = 'Desde'
-    end
-    object lblHasta: TLabel
-      Tag = 13
-      Left = 176
-      Top = 18
-      Width = 30
-      Height = 15
-      Caption = 'Hasta'
-    end
-    object dtpDesde: TDateTimePicker
-      Left = 60
-      Top = 14
-      Width = 106
-      Height = 23
-      Date = 46000.000000000000000000
-      Format = 'dd/MM/yyyy'
-      Time = 46000.000000000000000000
+      Top = 12
+      Width = 300
+      Height = 28
+      Cursor = crHandPoint
+      Caption = 'Todas las fechas'
       TabOrder = 0
-      OnChange = PeriodoChange
-    end
-    object dtpHasta: TDateTimePicker
-      Left = 213
-      Top = 14
-      Width = 106
-      Height = 23
-      Date = 46000.000000000000000000
-      Format = 'dd/MM/yyyy'
-      Time = 46000.000000000000000000
-      TabOrder = 1
-      OnChange = PeriodoChange
+      StyleElements = []
+      Kind = fkSecondary
     end
   end
   inherited pnclient: TRelativePanel

@@ -167,7 +167,7 @@ uses
   System.Math,
   Anovo.UI.Vista,
   Anovo.UI.Tema,
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.UI.Croquis,
   Anovo.UI.Imagen,
   Anovo.Api.Cotizaciones,
@@ -202,7 +202,7 @@ const
 
 constructor TfraCotizacion.Crear(AOwner: TComponent; const AId: Integer);
 var
-  lRejilla: TDBGridExtend;
+  lRejilla: TCeldasRejilla;
 begin
   inherited Create(AOwner);
   AplicarTemaGrid(grLineas);
@@ -211,7 +211,7 @@ begin
   lblSinCroquis.Caption := SSinCroquis;
   lblSinFotos.Caption := SSinFotos;
 
-  lRejilla := TDBGridExtend.De(grLineas);
+  lRejilla := TCeldasRejilla.De(grLineas);
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
   lRejilla.OnAccion := Accion;
 
@@ -324,13 +324,13 @@ begin
   if lEditable and dmMemoria.mtCotizacionEdicion.Active and
     not (dmMemoria.mtCotizacionEdicion.State in dsEditModes) then
     dmMemoria.mtCotizacionEdicion.Edit;
-  TDBGridExtend.De(grLineas).PonerAcciones<TAccionesLinea>(ACCIONES, AAcciones);
+  TCeldasRejilla.De(grLineas).PonerAcciones<TAccionesLinea>(ACCIONES, AAcciones);
 end;
 
 procedure TfraCotizacion.MostrarLineas(const ALineas: TObjectList<TLineaDTO>);
 begin
   TMapeoDatos.AListaTabla<TLineaDTO>(ALineas, dmMemoria.mtLineasCotizacion);
-  TDBGridExtend.De(grLineas).AjustarColumnas;
+  TCeldasRejilla.De(grLineas).AjustarColumnas;
 end;
 
 procedure TfraCotizacion.MostrarTiposTrabajo(const ATipos
@@ -358,7 +358,7 @@ begin
   tjPiezas.Caption := Format(SPiezasTotal, [APiezas.Count]);
   TMapeoDatos.AListaTabla<TPiezaDTO>(APiezas, dmMemoria.mtPiezas);
   dmMemoria.mtPiezas.First;
-  TDBGridExtend.De(grPiezas).AjustarColumnas;
+  TCeldasRejilla.De(grPiezas).AjustarColumnas;
 end;
 
 procedure TfraCotizacion.MostrarMedidas(const APieza: string;
@@ -366,7 +366,7 @@ procedure TfraCotizacion.MostrarMedidas(const APieza: string;
 begin
   tjMedidas.Caption := Format(SMedidasDePieza, [APieza]);
   TMapeoDatos.AListaTabla<TMedidaDTO>(AMedidas, dmMemoria.mtMedidas);
-  TDBGridExtend.De(grMedidas).AjustarColumnas;
+  TCeldasRejilla.De(grMedidas).AjustarColumnas;
 end;
 
 procedure TfraCotizacion.MostrarEvidencia(const APieza, ACroquis: string;

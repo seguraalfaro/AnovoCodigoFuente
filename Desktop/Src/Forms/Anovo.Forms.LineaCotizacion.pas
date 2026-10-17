@@ -69,7 +69,7 @@ implementation
 
 uses
   Anovo.UI.Tema,
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.Api.Cotizaciones,
   Anovo.Api.Catalogos,
   Anovo.Mapeo.Datos,
@@ -250,7 +250,7 @@ procedure TfrmLineaCotizacion.MostrarItems(const AItems
   : TObjectList<TItemLinea>);
 begin
   TMapeoDatos.AListaTabla<TItemLinea>(AItems, dmMemoria.mtItemsLinea);
-  TDBGridExtend.De(grItems).AjustarColumnas;
+  TCeldasRejilla.De(grItems).AjustarColumnas;
   ActualizarPrecio;
 end;
 

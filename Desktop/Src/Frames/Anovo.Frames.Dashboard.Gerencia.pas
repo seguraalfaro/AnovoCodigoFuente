@@ -37,7 +37,7 @@ implementation
 uses
   System.Math,
   Anovo.UI.Tema,
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.Mapeo.Datos,
   Anovo.Api.Intf.Dashboard,
   Anovo.Api.Dashboard,
@@ -55,7 +55,7 @@ constructor TfraDashboardGerencia.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   AplicarTemaGrid(grEstados);
-  TDBGridExtend.De(grEstados).ColumnaEstado(CAMPO_ESTADO);
+  TCeldasRejilla.De(grEstados).ColumnaEstado(CAMPO_ESTADO);
 
   FPresentador := TPresentadorDashboard<TDashboardGerenciaDTO>.Create(Self,
     TApiDashboard.Create,
@@ -77,7 +77,7 @@ begin
   inherited;
   tjEstados.Width := EnsureRange(ClientWidth * PORCENTAJE_ESTADOS div 100,
     ScaleValue(ANCHO_ESTADOS_MINIMO), ScaleValue(ANCHO_ESTADOS_MAXIMO));
-  Anovo.UI.DBGridExtend.AjustarColumnas(grEstados);
+  Anovo.UI.CeldasRejilla.AjustarColumnas(grEstados);
 end;
 
 procedure TfraDashboardGerencia.MostrarDashboard(const ADatos
@@ -94,7 +94,7 @@ begin
     dmMemoria.mtDashboardGerencia);
   TMapeoDatos.AListaTabla<TCotizacionesPorEstadoDTO>(ADatos.Estados,
     dmMemoria.mtDashboardEstados);
-  Anovo.UI.DBGridExtend.AjustarColumnas(grEstados);
+  Anovo.UI.CeldasRejilla.AjustarColumnas(grEstados);
 end;
 
 end.

@@ -95,7 +95,7 @@ implementation
 uses
   Anovo.UI.Tema,
   Anovo.UI.Vista,
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.Api.Catalogos,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
@@ -274,7 +274,7 @@ begin
     if lFila > 0 then
       dmMemoria.mtImportacion.Locate(dmMemoria.mtImportacionFILA.FieldName,
         lFila, []);
-    Anovo.UI.DBGridExtend.AjustarColumnas(grFilas);
+    Anovo.UI.CeldasRejilla.AjustarColumnas(grFilas);
   finally
     FMostrando := False;
   end;

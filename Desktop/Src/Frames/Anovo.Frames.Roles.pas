@@ -64,7 +64,7 @@ uses
   Anovo.Forms.Motivo,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.UI.Vista,
   Anovo.UI.Tema,
   Anovo.Sesion,

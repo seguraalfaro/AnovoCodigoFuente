@@ -12,7 +12,7 @@ uses
   Vcl.ExtCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   FireDAC.Comp.Client,
   VclPlano.Tarjeta,
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.Mapeo.Datos;
 
 type
@@ -65,7 +65,7 @@ end;
 procedure TfraDashboard.Resize;
 begin
   inherited;
-  Anovo.UI.DBGridExtend.AjustarColumnas(grLista);
+  Anovo.UI.CeldasRejilla.AjustarColumnas(grLista);
 end;
 
 procedure TfraDashboard.MostrarCargando(const AActivo: Boolean);
@@ -82,7 +82,7 @@ procedure TfraDashboard.MostrarLista<T>(const AFilas: TObjectList<T>;
   const ATabla: TFDMemTable);
 begin
   TMapeoDatos.AListaTabla<T>(AFilas, ATabla);
-  Anovo.UI.DBGridExtend.AjustarColumnas(grLista);
+  Anovo.UI.CeldasRejilla.AjustarColumnas(grLista);
 end;
 
 end.

@@ -6,7 +6,8 @@ interface
 
 uses
   System.Generics.Collections,
-  Anovo.DTOs.Dashboard;
+  Anovo.DTOs.Dashboard,
+  Anovo.PeriodoBusqueda;
 
 type
   IVistaSolicitudesAsesor = interface
@@ -14,7 +15,7 @@ type
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarBusqueda(const ATexto: string;
       const APuedeLimpiar: Boolean);
-    procedure MostrarPeriodo(const ADesde, AHasta: TDateTime);
+    procedure MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
     procedure MostrarSolicitudes(const AFilas: TObjectList<TSolicitudAsesorDTO>);
     procedure MostrarPaginacion(const APagina, ATotalPaginas: Integer;
       const ATotal: Int64);

@@ -37,7 +37,7 @@ implementation
 uses
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.Textos;
 
 class function TfrmRecordatorio.Mostrar(AOwner: TComponent;
@@ -51,7 +51,7 @@ begin
     TMapeoDatos.AListaTabla<TCotizacionDTO>(ACotizaciones,
       dmMemoria.mtSinRespuesta);
     lForma.lblPie.Caption := Format(SRecordatorioPie, [ACotizaciones.Count]);
-    TDBGridExtend.De(lForma.grSinRespuesta).AjustarColumnas;
+    TCeldasRejilla.De(lForma.grSinRespuesta).AjustarColumnas;
     if (lForma.ShowModal = mrOk) and not dmMemoria.mtSinRespuesta.IsEmpty then
       Result := dmMemoria.mtSinRespuestaID.AsInteger;
   finally

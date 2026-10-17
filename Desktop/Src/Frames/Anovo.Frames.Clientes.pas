@@ -6,7 +6,7 @@ interface
 
 uses
   Anovo.UI.Tema,
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   System.UITypes,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, System.Types, System.Generics.Collections,
@@ -70,14 +70,14 @@ const
 
 constructor TfraClientes.Create(AOwner: TComponent);
 var
-  lRejilla: TDBGridExtend;
+  lRejilla: TCeldasRejilla;
 begin
   inherited Create(AOwner);
   FTextoCargando := SCargandoClientes;
   FTextoSinRegistros := SSinClientes;
   FTextoPaginacion := SPaginacionClientes;
 
-  lRejilla := TDBGridExtend.De(grDatos);
+  lRejilla := TCeldasRejilla.De(grDatos);
   lRejilla.ColumnaEstado(CAMPO_CONSENTIMIENTO);
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
   lRejilla.OnAccion := Accion;
@@ -116,7 +116,7 @@ procedure TfraClientes.MostrarAcciones(const AAcciones: TAccionesCliente;
   const APuedeCrear: Boolean);
 begin
   btnNuevo.Visible := APuedeCrear;
-  TDBGridExtend.De(grDatos).PonerAcciones<TAccionesCliente>(ACCIONES,
+  TCeldasRejilla.De(grDatos).PonerAcciones<TAccionesCliente>(ACCIONES,
     AAcciones);
 end;
 

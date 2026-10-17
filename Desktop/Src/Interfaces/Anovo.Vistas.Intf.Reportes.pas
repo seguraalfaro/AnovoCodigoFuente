@@ -5,18 +5,17 @@ unit Anovo.Vistas.Intf.Reportes;
 interface
 
 uses
-  Anovo.DTOs.Reportes;
+  Anovo.DTOs.Reportes,
+  Anovo.PeriodoBusqueda;
 
 type
   TVistaReporte = (vrEstado, vrAsesor, vrTipo, vrMes);
-  TPeriodoReporte = (prEsteMes, prMesAnterior, prTrimestre, prAnio);
 
   IVistaReportes = interface
     ['{C4E8A2B7-5D19-4F63-8A0E-7B3D91F2C658}']
     procedure MostrarVistas(const ARotulos: TArray<string>);
     procedure MostrarVista(const AVista: TVistaReporte);
-    procedure MostrarPeriodo(const ADesde, AHasta: TDateTime;
-      const APeriodo: Integer);
+    procedure MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarReporte(const ADatos: TReporteCotizacionesDTO;
       const AMaximoMes: Integer);

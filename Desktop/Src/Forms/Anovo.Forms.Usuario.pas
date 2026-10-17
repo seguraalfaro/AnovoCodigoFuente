@@ -111,7 +111,7 @@ uses
   Anovo.Forms.Motivo,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.UI.Tema,
   Anovo.Formato,
   Anovo.Sesion,
@@ -153,15 +153,15 @@ end;
 
 procedure TfrmUsuario.FormCreate(Sender: TObject);
 var
-  lRejilla: TDBGridExtend;
+  lRejilla: TCeldasRejilla;
 begin
   AplicarTemaGrid(grPermisos);
   EditarCasillas(grPermisos);
-  lRejilla := TDBGridExtend.De(grPermisos);
+  lRejilla := TCeldasRejilla.De(grPermisos);
   lRejilla.ColumnaEstado(CAMPO_ORIGEN);
   AplicarTemaGrid(grTelefonos);
   EditarCasillas(grTelefonos);
-  TDBGridExtend.De(grTelefonos).ColumnaEstado(CAMPO_ESTADO);
+  TCeldasRejilla.De(grTelefonos).ColumnaEstado(CAMPO_ESTADO);
   lblTelefonosNota.Caption := STelefonosNota;
   pstSecciones.Items[1] := SPestanaTelefonos;
   dmMemoria.mtTelefonos.Close;
@@ -433,7 +433,7 @@ begin
   grTelefonos.Visible := not lVacia;
   lblSinTelefonos.Visible := lVacia;
   lblSinTelefonos.Caption := SSinTelefonos;
-  TDBGridExtend.De(grTelefonos).AjustarColumnas;
+  TCeldasRejilla.De(grTelefonos).AjustarColumnas;
 end;
 
 procedure TfrmUsuario.grTelefonosCanEdit(Sender: TObject; Field: TField;

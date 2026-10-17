@@ -6,6 +6,7 @@ interface
 
 uses
   Anovo.Api.Intf.Auditoria,
+  Anovo.PeriodoBusqueda,
   Anovo.Presentadores.Base,
   Anovo.Vistas.Intf.Auditoria,
   Anovo.Permisos;
@@ -16,8 +17,7 @@ type
     FVista: IVistaAuditoria;
     FApi: IApiAuditoria;
     FSoloCuentas: Boolean;
-    FDesde: TDateTime;
-    FHasta: TDateTime;
+    FPeriodo: TPeriodoBusqueda;
     FFiltro: TFiltroEntidad;
     FFiltros: TFiltrosEntidad;
     FTexto: string;
@@ -25,7 +25,9 @@ type
     FTotalPaginas: Integer;
     function EntidadPedida: string;
     function Rotulos: TArray<string>;
+    function HayFiltro: Boolean;
     procedure Cargar;
+    class function PeriodoInicial: TPeriodoBusqueda; static;
   public
     constructor Create(const AVista: IVistaAuditoria;
       const AApi: IApiAuditoria);
@@ -33,7 +35,7 @@ type
     procedure Buscar(const ATexto: string);
     procedure Limpiar;
     procedure Filtrar(const AIndice: Integer);
-    procedure CambiarPeriodo(const ADesde, AHasta: TDateTime);
+    procedure FiltrarPeriodo(const APeriodo: TPeriodoBusqueda);
     procedure IrAPagina(const APagina: Integer);
     procedure PaginaSiguiente;
     procedure PaginaAnterior;
@@ -75,8 +77,13 @@ begin
   FVista := AVista;
   FApi := AApi;
   FPagina := 1;
-  FHasta := Date;
-  FDesde := IncDay(FHasta, -DIAS_POR_DEFECTO);
+  FPeriodo := PeriodoInicial;
+end;
+
+class function TPresentadorAuditoria.PeriodoInicial: TPeriodoBusqueda;
+begin
+  Result := TPeriodoBusqueda.Personalizado(IncDay(Date, -DIAS_POR_DEFECTO),
+    Date);
 end;
 
 class function TPresentadorAuditoria.PuedeVerTodo: Boolean;
@@ -108,8 +115,8 @@ begin
     FFiltros := FILTROS_TODA;
   FFiltro := FFiltros[0];
   FVista.MostrarFiltros(Rotulos);
-  FVista.MostrarPeriodo(FDesde, FHasta);
-  FVista.MostrarBusqueda('', False);
+  FVista.MostrarPeriodo(FPeriodo);
+  FVista.MostrarBusqueda(FTexto, HayFiltro);
   Cargar;
 end;
 
@@ -117,12 +124,19 @@ procedure TPresentadorAuditoria.Buscar(const ATexto: string);
 begin
   FTexto := ATexto.Trim;
   FPagina := 1;
-  FVista.MostrarBusqueda(FTexto, not FTexto.IsEmpty);
+  FVista.MostrarBusqueda(FTexto, HayFiltro);
   Cargar;
+end;
+
+function TPresentadorAuditoria.HayFiltro: Boolean;
+begin
+  Result := not FTexto.IsEmpty or not FPeriodo.Igual(PeriodoInicial);
 end;
 
 procedure TPresentadorAuditoria.Limpiar;
 begin
+  FPeriodo := PeriodoInicial;
+  FVista.MostrarPeriodo(FPeriodo);
   Buscar('');
 end;
 
@@ -135,18 +149,21 @@ begin
   Cargar;
 end;
 
-procedure TPresentadorAuditoria.CambiarPeriodo(const ADesde, AHasta: TDateTime);
+procedure TPresentadorAuditoria.FiltrarPeriodo(const APeriodo
+  : TPeriodoBusqueda);
+var
+  lMensaje: string;
 begin
-  if ADesde > AHasta then
+  if not APeriodo.Validar(lMensaje) then
   begin
-    FVista.MostrarError(SPeriodoInvertido);
-    FVista.MostrarPeriodo(FDesde, FHasta);
+    FVista.MostrarError(lMensaje);
+    FVista.MostrarPeriodo(FPeriodo);
     Exit;
   end;
 
-  FDesde := ADesde;
-  FHasta := AHasta;
+  FPeriodo := APeriodo;
   FPagina := 1;
+  FVista.MostrarBusqueda(FTexto, HayFiltro);
   Cargar;
 end;
 
@@ -179,8 +196,8 @@ var
 begin
   lApi := FApi;
   lSoloCuentas := FSoloCuentas;
-  lDesde := FDesde;
-  lHasta := FHasta;
+  lDesde := FPeriodo.Desde;
+  lHasta := FPeriodo.Hasta;
   lEntidad := EntidadPedida;
   lTexto := FTexto;
   lPagina := FPagina;

@@ -6,7 +6,8 @@ interface
 
 uses
   System.Generics.Collections,
-  Anovo.DTOs.Auditoria;
+  Anovo.DTOs.Auditoria,
+  Anovo.PeriodoBusqueda;
 
 type
   TFiltroEntidad = (feTodo, feClientes, feCotizaciones, feCuentas, feUsuarios,
@@ -18,7 +19,7 @@ type
 
     procedure MostrarFiltros(const ARotulos: TArray<string>);
     procedure MostrarCargando(const AActivo: Boolean);
-    procedure MostrarPeriodo(const ADesde, AHasta: TDateTime);
+    procedure MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
     procedure MostrarBusqueda(const ATexto: string;
       const APuedeLimpiar: Boolean);
     procedure MostrarAuditoria(const AFilas: TObjectList<TAuditoriaDTO>);

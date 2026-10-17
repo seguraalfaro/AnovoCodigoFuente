@@ -68,7 +68,7 @@ implementation
 uses
   Anovo.UI.Vista,
   Anovo.UI.Tema,
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.Api.Cotizaciones,
   Anovo.Forms.Motivo,
   Anovo.Mapeo.Datos,
@@ -154,7 +154,7 @@ begin
   lblTotal.Caption := TFormato.Colones(ACotizacion.MontoTotal.ValueOrDefault);
 
   TMapeoDatos.AListaTabla<TLineaDTO>(ALineas, dmMemoria.mtRevisionLineas);
-  Anovo.UI.DBGridExtend.AjustarColumnas(grLineas);
+  Anovo.UI.CeldasRejilla.AjustarColumnas(grLineas);
 end;
 
 procedure TfrmRevision.Revisada;

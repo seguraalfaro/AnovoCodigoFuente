@@ -8,40 +8,36 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.ExtCtrls, Vcl.ComCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
+  Vcl.ExtCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.Tarjeta, VclPlano.BotonWin, VclPlano.Pestanas,
   Anovo.Frames.Dashboard,
   Anovo.DTOs.Reportes,
+  Anovo.PeriodoBusqueda,
+  Anovo.Forms.Periodo,
   Anovo.Vistas.Intf.Reportes,
   Anovo.Presentadores.Reportes;
 
 type
   TfraReportes = class(TfraDashboard, IVistaReportes)
     pnlFiltros: TPanel;
-    lblDesde: TLabel;
-    dtpDesde: TDateTimePicker;
-    lblHasta: TLabel;
-    dtpHasta: TDateTimePicker;
-    pstPeriodo: TPlanoPestanas;
-    btnConsultar: TPlanoBotonWin;
+    btnPeriodo: TPlanoBotonWin;
     btnExportar: TPlanoBotonWin;
     tjCifra5: TPlanoTarjeta;
     lblCifra5: TLabel;
     pstVistas: TPlanoPestanas;
-    procedure pstPeriodoChange(Sender: TObject);
     procedure pstVistasChange(Sender: TObject);
-    procedure btnConsultarClick(Sender: TObject);
     procedure btnExportarClick(Sender: TObject);
   private
     FPresentador: TPresentadorReportes;
+    FSelector: TSelectorPeriodo;
     FVistaActual: TVistaReporte;
     FTasaTotal: Integer;
     FMaximoMes: Integer;
     FMostrando: Boolean;
     procedure MostrarVistas(const ARotulos: TArray<string>);
     procedure MostrarVista(const AVista: TVistaReporte);
-    procedure MostrarPeriodo(const ADesde, AHasta: TDateTime;
-      const APeriodo: Integer);
+    procedure MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
+    procedure PeriodoCambio(const APeriodo: TPeriodoBusqueda);
     procedure MostrarReporte(const ADatos: TReporteCotizacionesDTO;
       const AMaximoMes: Integer);
     procedure PonerPie;
@@ -61,7 +57,7 @@ uses
   rDBExport,
   RosiCompGlobalCfg,
   Anovo.UI.Vista,
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.Api.Reportes,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
@@ -88,9 +84,10 @@ const
 constructor TfraReportes.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  TDBGridExtend.De(grLista).ColumnaEstado(CAMPO_ESTADO);
+  TCeldasRejilla.De(grLista).ColumnaEstado(CAMPO_ESTADO);
   grLista.FooterRow.FooterVisible := True;
   grLista.FooterRow.BoldText := True;
+  FSelector := TSelectorPeriodo.Crear(btnPeriodo, True, PeriodoCambio);
   FPresentador := TPresentadorReportes.Create(Self, TApiReportes.Create);
   FPresentador.Iniciar;
 end;
@@ -137,20 +134,17 @@ begin
   end;
   PonerPie;
   PonerBarras;
-  Anovo.UI.DBGridExtend.AjustarColumnas(grLista);
+  Anovo.UI.CeldasRejilla.AjustarColumnas(grLista);
 end;
 
-procedure TfraReportes.MostrarPeriodo(const ADesde, AHasta: TDateTime;
-  const APeriodo: Integer);
+procedure TfraReportes.MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
 begin
-  FMostrando := True;
-  try
-    dtpDesde.Date := ADesde;
-    dtpHasta.Date := AHasta;
-    pstPeriodo.ItemIndex := APeriodo;
-  finally
-    FMostrando := False;
-  end;
+  FSelector.Mostrar(APeriodo);
+end;
+
+procedure TfraReportes.PeriodoCambio(const APeriodo: TPeriodoBusqueda);
+begin
+  FPresentador.FiltrarPeriodo(APeriodo);
 end;
 
 procedure TfraReportes.MostrarReporte(const ADatos: TReporteCotizacionesDTO;
@@ -203,23 +197,11 @@ begin
   end;
 end;
 
-procedure TfraReportes.pstPeriodoChange(Sender: TObject);
-begin
-  if FMostrando or (FPresentador = nil) then
-    Exit;
-  FPresentador.ElegirPeriodo(pstPeriodo.ItemIndex);
-end;
-
 procedure TfraReportes.pstVistasChange(Sender: TObject);
 begin
   if FMostrando or (FPresentador = nil) then
     Exit;
   FPresentador.ElegirVista(pstVistas.ItemIndex);
-end;
-
-procedure TfraReportes.btnConsultarClick(Sender: TObject);
-begin
-  FPresentador.Consultar(dtpDesde.Date, dtpHasta.Date);
 end;
 
 procedure TfraReportes.btnExportarClick(Sender: TObject);

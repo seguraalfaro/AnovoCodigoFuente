@@ -6,7 +6,7 @@ unit Anovo.Frames.Usuarios;
 interface
 
 uses
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   System.UITypes,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, System.Types, System.Generics.Collections,
@@ -71,14 +71,14 @@ const
 
 constructor TfraUsuarios.Create(AOwner: TComponent);
 var
-  lRejilla: TDBGridExtend;
+  lRejilla: TCeldasRejilla;
 begin
   inherited Create(AOwner);
   FTextoCargando := SCargandoUsuarios;
   FTextoSinRegistros := SSinUsuarios;
   FTextoPaginacion := SPaginacionUsuarios;
 
-  lRejilla := TDBGridExtend.De(grDatos);
+  lRejilla := TCeldasRejilla.De(grDatos);
   lRejilla.ColumnaEstado(CAMPO_ESTADO);
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
   lRejilla.OnAccion := Accion;
@@ -117,7 +117,7 @@ procedure TfraUsuarios.MostrarAcciones(const AAcciones: TAccionesUsuario;
   const APuedeCrear: Boolean);
 begin
   btnNuevo.Visible := APuedeCrear;
-  TDBGridExtend.De(grDatos).PonerAcciones<TAccionesUsuario>(ACCIONES,
+  TCeldasRejilla.De(grDatos).PonerAcciones<TAccionesUsuario>(ACCIONES,
     AAcciones);
 end;
 

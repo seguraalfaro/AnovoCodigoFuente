@@ -30,7 +30,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.Api.Intf.Dashboard,
   Anovo.Api.Dashboard,
   Anovo.Formato,
@@ -42,7 +42,7 @@ const
 constructor TfraDashboardAsesor.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  TDBGridExtend.De(grLista).ColumnaEstado(CAMPO_ESTADO);
+  TCeldasRejilla.De(grLista).ColumnaEstado(CAMPO_ESTADO);
 
   FPresentador := TPresentadorDashboard<TDashboardAsesorDTO>.Create(Self,
     TApiDashboard.Create,

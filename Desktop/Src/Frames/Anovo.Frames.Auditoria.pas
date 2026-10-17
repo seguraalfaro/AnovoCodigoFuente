@@ -12,7 +12,8 @@ uses
   Vcl.ExtCtrls, Vcl.ComCtrls,
   VclPlano.BotonWin, Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.Pestanas,
-  Anovo.Retardo,
+  Anovo.PeriodoBusqueda,
+  Anovo.Forms.Periodo,
   Anovo.Frames.Listado,
   Anovo.DTOs.Auditoria,
   Anovo.Vistas.Intf.Auditoria,
@@ -20,20 +21,15 @@ uses
 
 type
   TfraAuditoria = class(TfraListado, IVistaAuditoria)
-    lblDesde: TLabel;
-    lblHasta: TLabel;
-    dtpDesde: TDateTimePicker;
-    dtpHasta: TDateTimePicker;
+    btnPeriodo: TPlanoBotonWin;
     pstFiltros: TPlanoPestanas;
     procedure pstFiltrosChange(Sender: TObject);
-    procedure PeriodoChange(Sender: TObject);
   private
     FPresentador: TPresentadorAuditoria;
-    FPoniendoPeriodo: Boolean;
-    FRetardo: TRetardo;
-    procedure AplicarPeriodo;
+    FSelector: TSelectorPeriodo;
+    procedure PeriodoCambio(const APeriodo: TPeriodoBusqueda);
     procedure MostrarFiltros(const ARotulos: TArray<string>);
-    procedure MostrarPeriodo(const ADesde, AHasta: TDateTime);
+    procedure MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
     procedure MostrarAuditoria(const AFilas: TObjectList<TAuditoriaDTO>);
   protected
     procedure Buscar(const ATexto: string); override;
@@ -63,11 +59,7 @@ begin
   FTextoCargando := SCargandoBitacora;
   FTextoSinRegistros := SSinMovimientos;
   FTextoPaginacion := SPaginacionMovimientos;
-  FRetardo := TRetardo.Crear(Self, RETARDO_FECHAS,
-    procedure
-    begin
-      AplicarPeriodo;
-    end);
+  FSelector := TSelectorPeriodo.Crear(btnPeriodo, True, PeriodoCambio);
   FPresentador := TPresentadorAuditoria.Create(Self, TApiAuditoria.Create);
   FPresentador.Iniciar;
 end;
@@ -113,19 +105,12 @@ procedure TfraAuditoria.MostrarCargando(const AActivo: Boolean);
 begin
   inherited;
   pstFiltros.Enabled := not AActivo;
-  dtpDesde.Enabled := not AActivo;
-  dtpHasta.Enabled := not AActivo;
+  btnPeriodo.Enabled := not AActivo;
 end;
 
-procedure TfraAuditoria.MostrarPeriodo(const ADesde, AHasta: TDateTime);
+procedure TfraAuditoria.MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
 begin
-  FPoniendoPeriodo := True;
-  try
-    dtpDesde.Date := ADesde;
-    dtpHasta.Date := AHasta;
-  finally
-    FPoniendoPeriodo := False;
-  end;
+  FSelector.Mostrar(APeriodo);
 end;
 
 procedure TfraAuditoria.MostrarAuditoria(const AFilas
@@ -143,16 +128,9 @@ begin
   FPresentador.Filtrar(pstFiltros.ItemIndex);
 end;
 
-procedure TfraAuditoria.PeriodoChange(Sender: TObject);
+procedure TfraAuditoria.PeriodoCambio(const APeriodo: TPeriodoBusqueda);
 begin
-  if FPoniendoPeriodo then
-    Exit;
-  FRetardo.Programar;
-end;
-
-procedure TfraAuditoria.AplicarPeriodo;
-begin
-  FPresentador.CambiarPeriodo(dtpDesde.Date, dtpHasta.Date);
+  FPresentador.FiltrarPeriodo(APeriodo);
 end;
 
 end.

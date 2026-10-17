@@ -13,7 +13,8 @@ uses
   Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Vcl.WinXPanels,
   Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   FlatVcl.BotonWin, VclPlano.Pestanas, VclPlano.BotonWin,
-  Anovo.Retardo,
+  Anovo.PeriodoBusqueda,
+  Anovo.Forms.Periodo,
   Anovo.Frames.Listado,
   Anovo.Frames.Cotizacion,
   Anovo.DTOs.Dashboard,
@@ -23,22 +24,17 @@ uses
 type
   TfraSolicitudesAsesor = class(TfraListado, IVistaSolicitudesAsesor)
     pstPeriodo: TPlanoPestanas;
-    lblDesde: TLabel;
-    dtpDesde: TDateTimePicker;
-    lblHasta: TLabel;
-    dtpHasta: TDateTimePicker;
+    btnPeriodo: TPlanoBotonWin;
     procedure pstPeriodoChange(Sender: TObject);
-    procedure FechasChange(Sender: TObject);
   private
-    FPoniendoFechas: Boolean;
-    FRetardo: TRetardo;
+    FSelector: TSelectorPeriodo;
     FPresentador: TPresentadorSolicitudesAsesor;
     FCotizacion: TfraCotizacion;
     procedure Accion(Sender: TObject; const AClave: string);
     procedure AbrirCotizacion(const AId: Integer);
     procedure CerrarCotizacion(Sender: TObject);
-    procedure AplicarFechas;
-    procedure MostrarPeriodo(const ADesde, AHasta: TDateTime);
+    procedure PeriodoCambio(const APeriodo: TPeriodoBusqueda);
+    procedure MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
     procedure MostrarSolicitudes(const AFilas: TObjectList<TSolicitudAsesorDTO>);
   protected
     procedure Buscar(const ATexto: string); override;
@@ -57,7 +53,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.UI.Tema,
   Anovo.Api.Solicitudes,
   Anovo.Mapeo.Datos,
@@ -76,16 +72,12 @@ begin
   FTextoCargando := SCargandoSolicitudes;
   FTextoSinRegistros := SSinSolicitudes;
   FTextoPaginacion := SPaginacionSolicitudes;
-  TDBGridExtend.De(grDatos).ColumnaEstado(CAMPO_ESTADO);
-  TDBGridExtend.De(grDatos).ColumnaAcciones(CAMPO_ACCIONES);
-  TDBGridExtend.De(grDatos).AgregarAlterna(ACCION_VER, SAccionVerCotizacion,
+  TCeldasRejilla.De(grDatos).ColumnaEstado(CAMPO_ESTADO);
+  TCeldasRejilla.De(grDatos).ColumnaAcciones(CAMPO_ACCIONES);
+  TCeldasRejilla.De(grDatos).AgregarAlterna(ACCION_VER, SAccionVerCotizacion,
     '', CAMPO_VER_COTIZACION);
-  TDBGridExtend.De(grDatos).OnAccion := Accion;
-  FRetardo := TRetardo.Crear(Self, RETARDO_FECHAS,
-    procedure
-    begin
-      AplicarFechas;
-    end);
+  TCeldasRejilla.De(grDatos).OnAccion := Accion;
+  FSelector := TSelectorPeriodo.Crear(btnPeriodo, False, PeriodoCambio);
 
   FPresentador := TPresentadorSolicitudesAsesor.Create(Self, TApiSolicitudes.Create);
   FPresentador.Iniciar;
@@ -129,7 +121,7 @@ end;
 procedure TfraSolicitudesAsesor.Resize;
 begin
   inherited;
-  Anovo.UI.DBGridExtend.AjustarColumnas(grDatos);
+  Anovo.UI.CeldasRejilla.AjustarColumnas(grDatos);
 end;
 
 procedure TfraSolicitudesAsesor.Buscar(const ATexto: string);
@@ -139,35 +131,13 @@ end;
 
 procedure TfraSolicitudesAsesor.Limpiar;
 begin
-  FRetardo.Cancelar;
-  FPoniendoFechas := True;
-  try
-    dtpDesde.Checked := False;
-    dtpHasta.Checked := False;
-  finally
-    FPoniendoFechas := False;
-  end;
   FPresentador.Limpiar;
 end;
 
-procedure TfraSolicitudesAsesor.FechasChange(Sender: TObject);
+procedure TfraSolicitudesAsesor.PeriodoCambio(const APeriodo
+  : TPeriodoBusqueda);
 begin
-  if FPoniendoFechas then
-    Exit;
-  FRetardo.Programar;
-end;
-
-procedure TfraSolicitudesAsesor.AplicarFechas;
-var
-  lDesde, lHasta: TDateTime;
-begin
-  lDesde := 0;
-  lHasta := 0;
-  if dtpDesde.Checked then
-    lDesde := Trunc(dtpDesde.Date);
-  if dtpHasta.Checked then
-    lHasta := Trunc(dtpHasta.Date);
-  FPresentador.FiltrarFechas(lDesde, lHasta);
+  FPresentador.FiltrarPeriodo(APeriodo);
 end;
 
 procedure TfraSolicitudesAsesor.PaginaAnterior;
@@ -191,19 +161,13 @@ procedure TfraSolicitudesAsesor.MostrarCargando(const AActivo: Boolean);
 begin
   inherited;
   pstPeriodo.Enabled := not AActivo;
+  btnPeriodo.Enabled := not AActivo;
 end;
 
-procedure TfraSolicitudesAsesor.MostrarPeriodo(const ADesde, AHasta: TDateTime);
+procedure TfraSolicitudesAsesor.MostrarPeriodo(const APeriodo
+  : TPeriodoBusqueda);
 begin
-  FPoniendoFechas := True;
-  try
-    dtpDesde.Date := ADesde;
-    dtpHasta.Date := AHasta;
-    dtpDesde.Checked := False;
-    dtpHasta.Checked := False;
-  finally
-    FPoniendoFechas := False;
-  end;
+  FSelector.Mostrar(APeriodo);
 end;
 
 procedure TfraSolicitudesAsesor.MostrarSolicitudes(const AFilas
@@ -211,7 +175,7 @@ procedure TfraSolicitudesAsesor.MostrarSolicitudes(const AFilas
 begin
   TMapeoDatos.AListaTabla<TSolicitudAsesorDTO>(AFilas,
     dmMemoria.mtSeguimiento);
-  Anovo.UI.DBGridExtend.AjustarColumnas(grDatos);
+  Anovo.UI.CeldasRejilla.AjustarColumnas(grDatos);
 end;
 
 end.

@@ -47,7 +47,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.Api.Cotizaciones,
   Anovo.Forms.Revision,
   Anovo.Mapeo.Datos,
@@ -62,14 +62,14 @@ const
 
 constructor TfraBandeja.Create(AOwner: TComponent);
 var
-  lRejilla: TDBGridExtend;
+  lRejilla: TCeldasRejilla;
 begin
   inherited Create(AOwner);
   FTextoCargando := SCargandoBandeja;
   FTextoSinRegistros := SSinBandeja;
   FTextoPaginacion := SPaginacionBandeja;
 
-  lRejilla := TDBGridExtend.De(grDatos);
+  lRejilla := TCeldasRejilla.De(grDatos);
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
   lRejilla.OnAccion := Accion;
 
@@ -121,7 +121,7 @@ end;
 procedure TfraBandeja.MostrarAcciones(const AAcciones: TAccionesBandeja);
 begin
   FAcciones := AAcciones;
-  TDBGridExtend.De(grDatos).PonerAcciones<TAccionesBandeja>(ACCIONES,
+  TCeldasRejilla.De(grDatos).PonerAcciones<TAccionesBandeja>(ACCIONES,
     AAcciones);
 end;
 

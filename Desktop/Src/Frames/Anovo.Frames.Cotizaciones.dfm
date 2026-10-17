@@ -14,50 +14,19 @@ inherited fraCotizaciones: TfraCotizaciones
     end
   end
   inherited pnlBarra: TPanel
-    object lblDesde: TLabel [0]
-      Tag = 13
-      Left = 440
-      Top = 18
-      Width = 32
-      Height = 15
-      Caption = 'Desde'
-    end
-    object lblHasta: TLabel [1]
-      Tag = 13
-      Left = 614
-      Top = 18
-      Width = 30
-      Height = 15
-      Caption = 'Hasta'
-    end
     inherited sbBuscar: TSearchBox
       TextHint = 'Cliente o descripci'#243'n'
     end
-    object dtpDesde: TDateTimePicker
-      Left = 482
-      Top = 14
-      Width = 120
-      Height = 23
-      Date = 46000.000000000000000000
-      Format = 'dd/MM/yyyy'
-      Time = 46000.000000000000000000
-      ShowCheckbox = True
-      Checked = False
+    object btnPeriodo: TPlanoBotonWin
+      Left = 432
+      Top = 12
+      Width = 330
+      Height = 28
+      Cursor = crHandPoint
+      Caption = 'Todas las fechas'
       TabOrder = 2
-      OnChange = FechasChange
-    end
-    object dtpHasta: TDateTimePicker
-      Left = 652
-      Top = 14
-      Width = 120
-      Height = 23
-      Date = 46000.000000000000000000
-      Format = 'dd/MM/yyyy'
-      Time = 46000.000000000000000000
-      ShowCheckbox = True
-      Checked = False
-      TabOrder = 3
-      OnChange = FechasChange
+      StyleElements = []
+      Kind = fkSecondary
     end
   end
   inherited pnclient: TRelativePanel

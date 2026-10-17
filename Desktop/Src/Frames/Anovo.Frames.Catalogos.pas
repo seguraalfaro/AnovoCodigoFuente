@@ -5,7 +5,7 @@ unit Anovo.Frames.Catalogos;
 interface
 
 uses
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   System.UITypes,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, System.Types, System.Generics.Collections,
@@ -165,14 +165,14 @@ end;
 
 constructor TfraCatalogos.Create(AOwner: TComponent);
 var
-  lRejilla: TDBGridExtend;
+  lRejilla: TCeldasRejilla;
 begin
   inherited Create(AOwner);
   FTextoSinRegistros := SSinRegistros;
   FTextoPaginacion := SPaginacionRegistros;
   FTextoSoloTotal := SRegistrosTotal;
 
-  lRejilla := TDBGridExtend.De(grDatos);
+  lRejilla := TCeldasRejilla.De(grDatos);
   lRejilla.ColumnaEstado(CAMPO_ESTADO);
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
   lRejilla.OnAccion := Accion;
@@ -273,7 +273,7 @@ procedure TfraCatalogos.MostrarAcciones(const AAcciones: TAccionesCatalogo;
   const APuedeCrear: Boolean);
 begin
   btnNuevo.Visible := APuedeCrear;
-  TDBGridExtend.De(grDatos).PonerAcciones<TAccionesCatalogo>(ACCIONES,
+  TCeldasRejilla.De(grDatos).PonerAcciones<TAccionesCatalogo>(ACCIONES,
     AAcciones);
 end;
 
@@ -281,13 +281,13 @@ procedure TfraCatalogos.Cargar<T>(const AFilas: TObjectList<T>;
   const ATabla: TFDMemTable);
 begin
   TMapeoDatos.AListaTabla<T>(AFilas, ATabla);
-  TDBGridExtend.De(grDatos).AjustarColumnas;
+  TCeldasRejilla.De(grDatos).AjustarColumnas;
 end;
 
 procedure TfraCatalogos.Resize;
 begin
   inherited;
-  Anovo.UI.DBGridExtend.AjustarColumnas(grDatos);
+  Anovo.UI.CeldasRejilla.AjustarColumnas(grDatos);
 end;
 
 procedure TfraCatalogos.Buscar(const ATexto: string);

@@ -9,7 +9,7 @@ uses
   System.SysUtils, System.Classes, System.UITypes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.CheckLst, Vcl.TitleBarCtrls, Vcl.WinXCtrls, Anovo.UI.PanelRelativo,
-  VclPlano.BotonWin,
+  Vcl.Samples.Spin, VclPlano.BotonWin, VclPlano.Pestanas,
   Anovo.Forms.Edicion,
   Anovo.UI.ColumnasRejilla;
 
@@ -26,6 +26,15 @@ type
     rbDerecha: TRadioButton;
     btnRestablecer: TPlanoBotonWin;
     btnAplicarTodas: TPlanoBotonWin;
+    pstConfig: TPlanoPestanas;
+    pnlVista: TPanel;
+    chkFilasAlternas: TCheckBox;
+    chkDegradado: TCheckBox;
+    chkOrdenarTitulo: TCheckBox;
+    chkEmbudo: TCheckBox;
+    chkTotales: TCheckBox;
+    lblAltoFila: TLabel;
+    speAltoFila: TSpinEdit;
     procedure clbColumnasClick(Sender: TObject);
     procedure clbColumnasClickCheck(Sender: TObject);
     procedure btnSubirClick(Sender: TObject);
@@ -34,16 +43,21 @@ type
     procedure btnRestablecerClick(Sender: TObject);
     procedure btnAplicarTodasClick(Sender: TObject);
     procedure btnGuardarClick(Sender: TObject);
+    procedure pstConfigChange(Sender: TObject);
   private
     FColumnas: TColumnasElegidas;
+    FVista: TVistaRejilla;
     FPintando: Boolean;
     procedure Pintar(const AIndice: Integer);
     procedure MostrarAlineacion;
     function AlineacionElegida: TAlignment;
     procedure Mover(const ADesplazamiento: Integer);
+    procedure PintarVista;
+    procedure LeerVista;
   public
     class function Elegir(AOwner: TComponent;
-      var AColumnas: TColumnasElegidas): TModalResult;
+      var AColumnas: TColumnasElegidas; var AVista: TVistaRejilla;
+      const APestana: Integer = 0): TModalResult;
   end;
 
 implementation
@@ -54,19 +68,28 @@ uses
   Anovo.Textos;
 
 class function TfrmColumnas.Elegir(AOwner: TComponent;
-  var AColumnas: TColumnasElegidas): TModalResult;
+  var AColumnas: TColumnasElegidas; var AVista: TVistaRejilla;
+  const APestana: Integer): TModalResult;
 var
   lForma: TfrmColumnas;
 begin
   lForma := TfrmColumnas.Create(AOwner);
   try
-    lForma.lblTitulo.Caption := STituloColumnas;
-    lForma.lblSubtitulo.Caption := SAyudaColumnas;
+    lForma.lblTitulo.Caption := STituloVistaRejilla;
+    lForma.lblSubtitulo.Caption := SAyudaVistaRejilla;
+    lForma.pstConfig.Items.Text := SPestanaColumnas + sLineBreak + SPestanaVista;
     lForma.FColumnas := Copy(AColumnas);
+    lForma.FVista := AVista;
     lForma.Pintar(0);
+    lForma.PintarVista;
+    lForma.pstConfig.ItemIndex := APestana;
+    lForma.pstConfigChange(nil);
     Result := lForma.ShowModal;
     if Result = mrOk then
+    begin
       AColumnas := lForma.FColumnas;
+      AVista := lForma.FVista;
+    end;
   finally
     lForma.Free;
   end;
@@ -180,10 +203,37 @@ begin
   ModalResult := mrRetry;
 end;
 
+procedure TfrmColumnas.PintarVista;
+begin
+  chkFilasAlternas.Checked := FVista.FilasAlternas;
+  chkDegradado.Checked := FVista.DegradadoFila;
+  chkOrdenarTitulo.Checked := FVista.OrdenarTitulo;
+  chkEmbudo.Checked := FVista.EmbudoFiltro;
+  chkTotales.Checked := FVista.FilaTotales;
+  speAltoFila.Value := FVista.AltoFila;
+end;
+
+procedure TfrmColumnas.LeerVista;
+begin
+  FVista.FilasAlternas := chkFilasAlternas.Checked;
+  FVista.DegradadoFila := chkDegradado.Checked;
+  FVista.OrdenarTitulo := chkOrdenarTitulo.Checked;
+  FVista.EmbudoFiltro := chkEmbudo.Checked;
+  FVista.FilaTotales := chkTotales.Checked;
+  FVista.AltoFila := speAltoFila.Value;
+end;
+
+procedure TfrmColumnas.pstConfigChange(Sender: TObject);
+begin
+  pnlCampos.Visible := pstConfig.ItemIndex <> 1;
+  pnlVista.Visible := pstConfig.ItemIndex = 1;
+end;
+
 procedure TfrmColumnas.btnGuardarClick(Sender: TObject);
 var
   I: Integer;
 begin
+  LeerVista;
   for I := 0 to High(FColumnas) do
     if FColumnas[I].Visible then
     begin

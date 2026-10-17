@@ -14,7 +14,8 @@ uses
   Anovo.Pruebas.Permisos.Cache in 'Anovo.Pruebas.Permisos.Cache.pas',
   Anovo.Pruebas.Permisos.Controllers in 'Anovo.Pruebas.Permisos.Controllers.pas',
   Anovo.Pruebas.Menu in 'Anovo.Pruebas.Menu.pas',
-  Anovo.Pruebas.Plazos in 'Anovo.Pruebas.Plazos.pas';
+  Anovo.Pruebas.Plazos in 'Anovo.Pruebas.Plazos.pas',
+  Anovo.Pruebas.PeriodoBusqueda in 'Anovo.Pruebas.PeriodoBusqueda.pas';
 
 const
   ARCHIVO_RESULTADOS = 'AnovoPruebas.xml';

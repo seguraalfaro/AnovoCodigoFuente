@@ -49,7 +49,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.UI.Vista,
   Anovo.UI.Tema,
   Anovo.Api.Solicitudes,
@@ -67,13 +67,13 @@ const
 
 constructor TfraSolicitudesAsistente.Create(AOwner: TComponent);
 var
-  lRejilla: TDBGridExtend;
+  lRejilla: TCeldasRejilla;
 begin
   inherited Create(AOwner);
   FTextoCargando := SCargandoSolicitudes;
   FTextoPaginacion := SPaginacionSolicitudes;
 
-  lRejilla := TDBGridExtend.De(grDatos);
+  lRejilla := TCeldasRejilla.De(grDatos);
   lRejilla.ColumnaEstado(CAMPO_ESTADO);
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
   lRejilla.OnAccion := Accion;
@@ -128,7 +128,7 @@ begin
     FTextoSinRegistros := SSinEnTrabajo;
     grDatos.DataSource := dmMemoria.dsSolicitudesEnTrabajo;
   end;
-  TDBGridExtend.De(grDatos).AjustarColumnas;
+  TCeldasRejilla.De(grDatos).AjustarColumnas;
 end;
 
 procedure TfraSolicitudesAsistente.MostrarCola(const AFilas
@@ -136,7 +136,7 @@ procedure TfraSolicitudesAsistente.MostrarCola(const AFilas
 begin
   TMapeoDatos.AListaTabla<TSolicitudPorCotizarDTO>(AFilas,
     dmMemoria.mtSolicitudesCola);
-  TDBGridExtend.De(grDatos).AjustarColumnas;
+  TCeldasRejilla.De(grDatos).AjustarColumnas;
 end;
 
 procedure TfraSolicitudesAsistente.MostrarEnTrabajo(const AFilas
@@ -144,13 +144,13 @@ procedure TfraSolicitudesAsistente.MostrarEnTrabajo(const AFilas
 begin
   TMapeoDatos.AListaTabla<TSolicitudEnTrabajoDTO>(AFilas,
     dmMemoria.mtSolicitudesEnTrabajo);
-  TDBGridExtend.De(grDatos).AjustarColumnas;
+  TCeldasRejilla.De(grDatos).AjustarColumnas;
 end;
 
 procedure TfraSolicitudesAsistente.MostrarAcciones(const AAcciones
   : TAccionesCola);
 begin
-  TDBGridExtend.De(grDatos).PonerAcciones<TAccionesCola>(ACCIONES, AAcciones);
+  TCeldasRejilla.De(grDatos).PonerAcciones<TAccionesCola>(ACCIONES, AAcciones);
 end;
 
 procedure TfraSolicitudesAsistente.Accion(Sender: TObject;

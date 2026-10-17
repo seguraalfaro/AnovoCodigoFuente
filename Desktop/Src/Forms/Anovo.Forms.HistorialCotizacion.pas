@@ -34,7 +34,7 @@ implementation
 uses
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.Textos;
 
 const
@@ -50,7 +50,7 @@ begin
     lForma.Caption := Format(SHistorialTituloVentana, [ANumero]);
     TMapeoDatos.AListaTabla<TEstadoCotizacionDTO>(AEstados,
       dmMemoria.mtHistorialEstados);
-    TDBGridExtend.De(lForma.grHistorial).AjustarColumnas;
+    TCeldasRejilla.De(lForma.grHistorial).AjustarColumnas;
     lForma.ShowModal;
   finally
     lForma.Free;
@@ -60,7 +60,7 @@ end;
 procedure TfrmHistorialCotizacion.FormCreate(Sender: TObject);
 begin
   AplicarTemaGrid(grHistorial);
-  TDBGridExtend.De(grHistorial).ColumnaEstado(CAMPO_ESTADO);
+  TCeldasRejilla.De(grHistorial).ColumnaEstado(CAMPO_ESTADO);
   lblTitulo.Caption := SHistorialTitulo;
   lblSubtitulo.Caption := SHistorialAyuda;
   btnGuardar.Visible := False;

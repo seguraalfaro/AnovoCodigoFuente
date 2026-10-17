@@ -56,7 +56,7 @@ uses
   Anovo.Api.Configuracion,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.UI.Vista,
   Anovo.Textos;
 
@@ -82,7 +82,7 @@ procedure TfrmConsentimiento.FormCreate(Sender: TObject);
 begin
   FPublicado := False;
   AplicarTemaGrid(grVersiones);
-  TDBGridExtend.De(grVersiones).ColumnaEstado(CAMPO_ESTADO);
+  TCeldasRejilla.De(grVersiones).ColumnaEstado(CAMPO_ESTADO);
   lblNotaNueva.Caption := SNotaNuevaVersion;
   lblSinVersiones.Caption := SSinTextoConsentimiento;
   btnGuardar.Caption := SBotonPublicar;
@@ -125,7 +125,7 @@ begin
   grVersiones.Visible := not lVacia;
   meVersion.Visible := not lVacia;
   lblSinVersiones.Visible := lVacia;
-  TDBGridExtend.De(grVersiones).AjustarColumnas;
+  TCeldasRejilla.De(grVersiones).AjustarColumnas;
 end;
 
 procedure TfrmConsentimiento.pstSeccionesChange(Sender: TObject);

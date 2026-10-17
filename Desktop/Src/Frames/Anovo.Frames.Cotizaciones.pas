@@ -6,13 +6,13 @@ unit Anovo.Frames.Cotizaciones;
 interface
 
 uses
-  Vcl.ComCtrls,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
   System.Generics.Collections,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.BotonWin, VclPlano.Pestanas,
-  Anovo.Retardo,
+  Anovo.PeriodoBusqueda,
+  Anovo.Forms.Periodo,
   Anovo.Frames.Listado,
   Anovo.Frames.Cotizacion,
   Anovo.DTOs.Cotizaciones,
@@ -22,23 +22,18 @@ uses
 type
   TfraCotizaciones = class(TfraListado, IVistaCotizaciones)
     pstFiltros: TPlanoPestanas;
-    lblDesde: TLabel;
-    dtpDesde: TDateTimePicker;
-    lblHasta: TLabel;
-    dtpHasta: TDateTimePicker;
+    btnPeriodo: TPlanoBotonWin;
     procedure pstFiltrosChange(Sender: TObject);
     procedure grDatosDblClick(Sender: TObject);
-    procedure FechasChange(Sender: TObject);
   private
-    FPoniendoFechas: Boolean;
     FInicialId: Integer;
-    FRetardo: TRetardo;
+    FSelector: TSelectorPeriodo;
     FPresentador: TPresentadorCotizaciones;
     FCotizacion: TfraCotizacion;
-    procedure AplicarFechas;
+    procedure PeriodoCambio(const APeriodo: TPeriodoBusqueda);
     procedure Accion(Sender: TObject; const AClave: string);
     procedure MostrarAcciones(const AAcciones: TAccionesListaCotizacion);
-    procedure MostrarPeriodo(const ADesde, AHasta: TDateTime);
+    procedure MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
     procedure MostrarCotizaciones(const AFilas: TObjectList<TCotizacionDTO>);
     procedure AbrirCotizacion(const AId: Integer);
     procedure CerrarCotizacion(Sender: TObject);
@@ -60,7 +55,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.UI.Tema,
   Anovo.Api.Cotizaciones,
   Anovo.Mapeo.Datos,
@@ -75,23 +70,19 @@ const
 
 constructor TfraCotizaciones.Create(AOwner: TComponent);
 var
-  lRejilla: TDBGridExtend;
+  lRejilla: TCeldasRejilla;
 begin
   inherited Create(AOwner);
   FTextoCargando := SCargandoCotizaciones;
   FTextoSinRegistros := SSinCotizaciones;
   FTextoPaginacion := SPaginacionCotizaciones;
 
-  lRejilla := TDBGridExtend.De(grDatos);
+  lRejilla := TCeldasRejilla.De(grDatos);
   lRejilla.ColumnaEstado(CAMPO_ESTADO);
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
   lRejilla.OnAccion := Accion;
 
-  FRetardo := TRetardo.Crear(Self, RETARDO_FECHAS,
-    procedure
-    begin
-      AplicarFechas;
-    end);
+  FSelector := TSelectorPeriodo.Crear(btnPeriodo, False, PeriodoCambio);
 
   FPresentador := TPresentadorCotizaciones.Create(Self,
     TApiCotizaciones.Create);
@@ -120,48 +111,17 @@ end;
 
 procedure TfraCotizaciones.Limpiar;
 begin
-  FRetardo.Cancelar;
-  FPoniendoFechas := True;
-  try
-    dtpDesde.Checked := False;
-    dtpHasta.Checked := False;
-  finally
-    FPoniendoFechas := False;
-  end;
   FPresentador.Limpiar;
 end;
 
-procedure TfraCotizaciones.MostrarPeriodo(const ADesde, AHasta: TDateTime);
+procedure TfraCotizaciones.MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
 begin
-  FPoniendoFechas := True;
-  try
-    dtpDesde.Date := ADesde;
-    dtpHasta.Date := AHasta;
-    dtpDesde.Checked := False;
-    dtpHasta.Checked := False;
-  finally
-    FPoniendoFechas := False;
-  end;
+  FSelector.Mostrar(APeriodo);
 end;
 
-procedure TfraCotizaciones.FechasChange(Sender: TObject);
+procedure TfraCotizaciones.PeriodoCambio(const APeriodo: TPeriodoBusqueda);
 begin
-  if FPoniendoFechas then
-    Exit;
-  FRetardo.Programar;
-end;
-
-procedure TfraCotizaciones.AplicarFechas;
-var
-  lDesde, lHasta: TDateTime;
-begin
-  lDesde := 0;
-  lHasta := 0;
-  if dtpDesde.Checked then
-    lDesde := Trunc(dtpDesde.Date);
-  if dtpHasta.Checked then
-    lHasta := Trunc(dtpHasta.Date);
-  FPresentador.FiltrarFechas(lDesde, lHasta);
+  FPresentador.FiltrarPeriodo(APeriodo);
 end;
 
 procedure TfraCotizaciones.PaginaAnterior;
@@ -178,12 +138,13 @@ procedure TfraCotizaciones.MostrarCargando(const AActivo: Boolean);
 begin
   inherited;
   pstFiltros.Enabled := not AActivo;
+  btnPeriodo.Enabled := not AActivo;
 end;
 
 procedure TfraCotizaciones.MostrarAcciones(const AAcciones
   : TAccionesListaCotizacion);
 begin
-  TDBGridExtend.De(grDatos).PonerAcciones<TAccionesListaCotizacion>(ACCIONES,
+  TCeldasRejilla.De(grDatos).PonerAcciones<TAccionesListaCotizacion>(ACCIONES,
     AAcciones);
 end;
 
@@ -192,7 +153,7 @@ procedure TfraCotizaciones.MostrarCotizaciones(const AFilas
 begin
   TMapeoDatos.AListaTabla<TCotizacionDTO>(AFilas,
     dmMemoria.mtCotizacionesLista);
-  TDBGridExtend.De(grDatos).AjustarColumnas;
+  TCeldasRejilla.De(grDatos).AjustarColumnas;
 end;
 
 procedure TfraCotizaciones.Accion(Sender: TObject; const AClave: string);

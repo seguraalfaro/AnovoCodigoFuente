@@ -1,6 +1,6 @@
 inherited frmColumnas: TfrmColumnas
   Caption = 'Columnas'
-  ClientHeight = 447
+  ClientHeight = 487
   ClientWidth = 440
   inherited TitleBarPanel1: TTitleBarPanel
     Width = 440
@@ -15,7 +15,7 @@ inherited frmColumnas: TfrmColumnas
     end
   end
   inherited pnlPie: TRelativePanel
-    Top = 387
+    Top = 427
     Width = 440
     ControlCollection = <
       item
@@ -66,10 +66,105 @@ inherited frmColumnas: TfrmColumnas
       Kind = fkSecondary
     end
   end
+  object pstConfig: TPlanoPestanas
+    AlignWithMargins = True
+    Left = 3
+    Top = 87
+    Width = 434
+    Height = 40
+    Align = alTop
+    Items.Strings = (
+      'Columnas'
+      'Vista')
+    Style = pesPastilla
+    Indent = 20
+    BackColor = 16447477
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ActiveFont.Charset = DEFAULT_CHARSET
+    ActiveFont.Color = clWindowText
+    ActiveFont.Height = -12
+    ActiveFont.Name = 'Segoe UI Semibold'
+    ActiveFont.Style = []
+    OnChange = pstConfigChange
+  end
+  object pnlVista: TPanel
+    Tag = 2
+    Left = 0
+    Top = 130
+    Width = 440
+    Height = 297
+    Align = alClient
+    BevelOuter = bvNone
+    TabOrder = 3
+    Visible = False
+    object chkFilasAlternas: TCheckBox
+      Left = 20
+      Top = 12
+      Width = 380
+      Height = 20
+      Caption = 'Filas alternas de color'
+      TabOrder = 0
+    end
+    object chkDegradado: TCheckBox
+      Left = 20
+      Top = 40
+      Width = 380
+      Height = 20
+      Caption = 'Degradado en la fila elegida'
+      TabOrder = 1
+    end
+    object chkOrdenarTitulo: TCheckBox
+      Left = 20
+      Top = 68
+      Width = 380
+      Height = 20
+      Caption = 'Ordenar al hacer clic en el t'#237'tulo'
+      TabOrder = 2
+    end
+    object chkEmbudo: TCheckBox
+      Left = 20
+      Top = 96
+      Width = 380
+      Height = 20
+      Caption = 'Embudo de filtro en los t'#237'tulos'
+      TabOrder = 3
+    end
+    object chkTotales: TCheckBox
+      Left = 20
+      Top = 124
+      Width = 380
+      Height = 20
+      Caption = 'Fila de totales al pie'
+      TabOrder = 4
+    end
+    object lblAltoFila: TLabel
+      Tag = 13
+      Left = 20
+      Top = 162
+      Width = 280
+      Height = 15
+      AutoSize = False
+      Caption = 'Alto de cada fila'
+    end
+    object speAltoFila: TSpinEdit
+      Left = 20
+      Top = 182
+      Width = 80
+      Height = 24
+      MaxValue = 48
+      MinValue = 24
+      TabOrder = 5
+      Value = 34
+    end
+  end
   object pnlCampos: TPanel
     Tag = 2
     Left = 0
-    Top = 87
+    Top = 130
     Width = 440
     Height = 300
     Align = alClient

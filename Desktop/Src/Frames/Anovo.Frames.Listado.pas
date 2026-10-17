@@ -63,7 +63,7 @@ implementation
 
 uses
   Anovo.UI.Tema,
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Anovo.UI.Vista,
   Anovo.Textos;
 
@@ -114,7 +114,7 @@ begin
   pnclient.Visible := ATotal > 0;
   pnlSinRegistros.Visible := ATotal = 0;
   if pnclient.Visible then
-    TDBGridExtend.De(grDatos).AjustarColumnas;
+    TCeldasRejilla.De(grDatos).AjustarColumnas;
   lblSinRegistros.Caption := FTextoSinRegistros;
 end;
 

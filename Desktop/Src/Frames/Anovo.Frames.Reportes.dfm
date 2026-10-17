@@ -120,80 +120,16 @@ inherited fraReportes: TfraReportes
     DesignSize = (
       960
       52)
-    object lblDesde: TLabel
-      Tag = 13
+    object btnPeriodo: TPlanoBotonWin
       Left = 20
-      Top = 18
-      Width = 32
-      Height = 15
-      Caption = 'Desde'
-    end
-    object lblHasta: TLabel
-      Tag = 13
-      Left = 176
-      Top = 18
-      Width = 30
-      Height = 15
-      Caption = 'Hasta'
-    end
-    object dtpDesde: TDateTimePicker
-      Left = 60
-      Top = 14
-      Width = 106
-      Height = 23
-      Date = 46000.000000000000000000
-      Format = 'dd/MM/yyyy'
-      Time = 46000.000000000000000000
-      TabOrder = 0
-    end
-    object dtpHasta: TDateTimePicker
-      Left = 213
-      Top = 14
-      Width = 106
-      Height = 23
-      Date = 46000.000000000000000000
-      Format = 'dd/MM/yyyy'
-      Time = 46000.000000000000000000
-      TabOrder = 1
-    end
-    object pstPeriodo: TPlanoPestanas
-      Left = 332
-      Top = 8
-      Width = 380
-      Height = 36
-      Align = alNone
-      Indent = 0
-      Items.Strings = (
-        'Este mes'
-        'Mes anterior'
-        'Trimestre'
-        'A'#241'o')
-      Style = pesPastilla
-      BackColor = 16447477
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Segoe UI'
-      Font.Style = []
-      ActiveFont.Charset = DEFAULT_CHARSET
-      ActiveFont.Color = clWindowText
-      ActiveFont.Height = -12
-      ActiveFont.Name = 'Segoe UI Semibold'
-      ActiveFont.Style = []
-      OnChange = pstPeriodoChange
-      ParentFont = False
-    end
-    object btnConsultar: TPlanoBotonWin
-      Left = 714
       Top = 12
-      Width = 100
+      Width = 330
       Height = 28
       Cursor = crHandPoint
-      Anchors = [akTop, akRight]
-      Caption = 'Consultar'
-      TabOrder = 3
+      Caption = 'Todas las fechas'
+      TabOrder = 0
       StyleElements = []
-      OnClick = btnConsultarClick
+      Kind = fkSecondary
     end
     object btnExportar: TPlanoBotonWin
       Left = 822
@@ -203,7 +139,7 @@ inherited fraReportes: TfraReportes
       Cursor = crHandPoint
       Anchors = [akTop, akRight]
       Caption = 'Exportar'
-      TabOrder = 4
+      TabOrder = 1
       StyleElements = []
       OnClick = btnExportarClick
       Kind = fkSecondary

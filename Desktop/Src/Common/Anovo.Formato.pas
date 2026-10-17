@@ -30,6 +30,7 @@ type
     class function FechaLarga(const AFecha: TDateTime): string; static;
     class function Dias(const ADias: Integer): string; static;
     class function Fecha(const AFecha: TDateTime): string; static;
+    class function DiaMes(const AFecha: TDateTime): string; static;
     class function FechaHora(const AFecha: TDateTime): string; static;
     class function Porcentaje(const AValor: Double): string; static;
     class function Coordenadas(const ALatitud, ALongitud: Double)
@@ -57,6 +58,7 @@ uses
 
 const
   FORMATO_FECHA = 'dd/mm/yyyy';
+  FORMATO_DIA_MES = 'dd/mm';
   FORMATO_FECHA_HORA = 'dd/mm/yyyy hh:nn';
   FORMATO_MONTO = '#,##0.00';
   FORMATO_PORCENTAJE = '0.##';
@@ -258,6 +260,11 @@ end;
 class function TFormato.Fecha(const AFecha: TDateTime): string;
 begin
   Result := FormatDateTime(FORMATO_FECHA, AFecha);
+end;
+
+class function TFormato.DiaMes(const AFecha: TDateTime): string;
+begin
+  Result := FormatDateTime(FORMATO_DIA_MES, AFecha);
 end;
 
 class function TFormato.FechaHora(const AFecha: TDateTime): string;

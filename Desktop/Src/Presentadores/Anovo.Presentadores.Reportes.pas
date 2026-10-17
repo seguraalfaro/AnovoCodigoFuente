@@ -7,6 +7,7 @@ interface
 
 uses
   Anovo.Api.Intf.Reportes,
+  Anovo.PeriodoBusqueda,
   Anovo.Presentadores.Base,
   Anovo.Vistas.Intf.Reportes;
 
@@ -16,15 +17,13 @@ type
     FVista: IVistaReportes;
     FApi: IApiReportes;
     FVistas: TArray<TVistaReporte>;
-    FDesde: TDateTime;
-    FHasta: TDateTime;
+    FPeriodo: TPeriodoBusqueda;
     procedure Cargar;
   public
     constructor Create(const AVista: IVistaReportes;
       const AApi: IApiReportes);
     procedure Iniciar;
-    procedure ElegirPeriodo(const AIndice: Integer);
-    procedure Consultar(const ADesde, AHasta: TDateTime);
+    procedure FiltrarPeriodo(const APeriodo: TPeriodoBusqueda);
     procedure ElegirVista(const AIndice: Integer);
   end;
 
@@ -32,7 +31,6 @@ implementation
 
 uses
   System.SysUtils,
-  System.DateUtils,
   Anovo.DTOs.Reportes,
   Anovo.Sesion,
   Anovo.Permisos,
@@ -51,6 +49,7 @@ begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
+  FPeriodo := TPeriodoBusqueda.De(apEsteMes);
 end;
 
 procedure TPresentadorReportes.Iniciar;
@@ -68,48 +67,23 @@ begin
     lRotulos := lRotulos + [ROTULO_VISTA[lVista]];
   FVista.MostrarVistas(lRotulos);
   FVista.MostrarVista(FVistas[0]);
-  ElegirPeriodo(Ord(prEsteMes));
-end;
-
-procedure TPresentadorReportes.ElegirPeriodo(const AIndice: Integer);
-var
-  lHoy: TDateTime;
-begin
-  if (AIndice < Ord(Low(TPeriodoReporte))) or
-    (AIndice > Ord(High(TPeriodoReporte))) then
-    Exit;
-
-  lHoy := Date;
-  FHasta := lHoy;
-  case TPeriodoReporte(AIndice) of
-    prEsteMes:
-      FDesde := StartOfTheMonth(lHoy);
-    prMesAnterior:
-      begin
-        FDesde := StartOfTheMonth(IncMonth(lHoy, -1));
-        FHasta := DateOf(EndOfTheMonth(FDesde));
-      end;
-    prTrimestre:
-      FDesde := StartOfTheMonth(IncMonth(lHoy, -2));
-    prAnio:
-      FDesde := StartOfTheYear(lHoy);
-  end;
-
-  FVista.MostrarPeriodo(FDesde, FHasta, AIndice);
+  FVista.MostrarPeriodo(FPeriodo);
   Cargar;
 end;
 
-procedure TPresentadorReportes.Consultar(const ADesde, AHasta: TDateTime);
+procedure TPresentadorReportes.FiltrarPeriodo(const APeriodo
+  : TPeriodoBusqueda);
+var
+  lMensaje: string;
 begin
-  if DateOf(ADesde) > DateOf(AHasta) then
+  if not APeriodo.Validar(lMensaje) then
   begin
-    FVista.MostrarError(SPeriodoInvertido);
+    FVista.MostrarError(lMensaje);
+    FVista.MostrarPeriodo(FPeriodo);
     Exit;
   end;
 
-  FDesde := DateOf(ADesde);
-  FHasta := DateOf(AHasta);
-  FVista.MostrarPeriodo(FDesde, FHasta, -1);
+  FPeriodo := APeriodo;
   Cargar;
 end;
 
@@ -126,8 +100,8 @@ var
   lDesde, lHasta: TDateTime;
 begin
   lApi := FApi;
-  lDesde := FDesde;
-  lHasta := FHasta;
+  lDesde := FPeriodo.Desde;
+  lHasta := FPeriodo.Hasta;
 
   EjecutarUltima<TReporteCotizacionesDTO>(SAccionCargarReporte,
     function: TReporteCotizacionesDTO

@@ -8,7 +8,7 @@ interface
 uses
   Anovo.UI.Iconos,
   Anovo.UI.Tema,
-  Anovo.UI.DBGridExtend,
+  Anovo.UI.CeldasRejilla,
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, System.UITypes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
@@ -225,9 +225,9 @@ end;
 procedure TfraClienteDatos.PrepararRejilla(const AGrid: TrDBGrid;
   const AManejador: TEventoAccion);
 var
-  lRejilla: TDBGridExtend;
+  lRejilla: TCeldasRejilla;
 begin
-  lRejilla := TDBGridExtend.De(AGrid);
+  lRejilla := TCeldasRejilla.De(AGrid);
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
   lRejilla.OnAccion := AManejador;
 end;
@@ -320,9 +320,9 @@ begin
   btnRevocar.Visible := APuedeRevocar;
   btnExportar.Visible := APuedeVerCotizaciones;
 
-  TDBGridExtend.De(grContactos).PonerAcciones<TAccionesContacto>
+  TCeldasRejilla.De(grContactos).PonerAcciones<TAccionesContacto>
     (ACCIONES_CONTACTO, AContacto);
-  TDBGridExtend.De(grCotizaciones).PonerAcciones<TAccionesCotizacionCliente>
+  TCeldasRejilla.De(grCotizaciones).PonerAcciones<TAccionesCotizacionCliente>
     (ACCIONES_COTIZACION, ACotizacion);
 end;
 
@@ -351,7 +351,7 @@ procedure TfraClienteDatos.MostrarCotizaciones(const ACotizaciones
 begin
   TMapeoDatos.AListaTabla<TCotizacionDTO>(ACotizaciones,
     dmMemoria.mtClienteCotizaciones);
-  TDBGridExtend.De(grCotizaciones).AjustarColumnas;
+  TCeldasRejilla.De(grCotizaciones).AjustarColumnas;
 end;
 
 procedure TfraClienteDatos.SearchBox1InvokeSearch(Sender: TObject);
