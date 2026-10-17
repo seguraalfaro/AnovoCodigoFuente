@@ -640,7 +640,7 @@ begin
   try
     ExigirEditable(lCotizacion);
 
-    if lCotizacion.Objversion.ValueOrDefault <> ADto.ObjVersion.Value then
+    if lCotizacion.Objversion <> ADto.ObjVersion.Value then
       raise EVersionVencida.Create(SRecursoCotizacion, AId);
 
     ValidarTipoTrabajo(ADto.TipoTrabajoId, lCotizacion.TipoTrabajoId);

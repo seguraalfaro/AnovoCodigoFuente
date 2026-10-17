@@ -147,8 +147,8 @@ type
     fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
     fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
-    [MVCTableField('OBJVERSION')]
-    fObjversion: NullableInt32;
+    [MVCTableField('OBJVERSION', [foVersion])]
+    fObjversion: Integer;
     [MVCTableField('TIPO_IDENTIFICACION')]
     fTipoIdentificacion: NullableInt16;
     [MVCTableField('CONTACTO')]
@@ -174,7 +174,7 @@ type
     property Anonimizado: Boolean read fAnonimizado write fAnonimizado;
     property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
     property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
-    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property Objversion: Integer read fObjversion write fObjversion;
     property TipoIdentificacion: NullableInt16 read fTipoIdentificacion write fTipoIdentificacion;
     property Contacto: NullableString read fContacto write fContacto;
   end;
@@ -275,8 +275,8 @@ type
     fActivo: NullableBoolean;
     [MVCTableField('FECHA_CREACION')]
     fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
-    [MVCTableField('OBJVERSION')]
-    fObjversion: NullableInt32;
+    [MVCTableField('OBJVERSION', [foVersion])]
+    fObjversion: Integer;
     [MVCTableField('CELULAR')]
     [MVCMaxLength(30)]
     fCelular: NullableString;
@@ -298,7 +298,7 @@ type
     property Anonimizado: Boolean read fAnonimizado write fAnonimizado;
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
-    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property Objversion: Integer read fObjversion write fObjversion;
     property Celular: NullableString read fCelular write fCelular;
     property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
   end;
@@ -414,8 +414,8 @@ type
     fFechaEnvio: NullableTDateTime {dtDateTimeStamp};
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
     fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
-    [MVCTableField('OBJVERSION')]
-    fObjversion: NullableInt32;
+    [MVCTableField('OBJVERSION', [foVersion])]
+    fObjversion: Integer;
     [MVCTableField('FORMA_PAGO')]
     [MVCMaxLength(120)]
     fFormaPago: NullableString;
@@ -456,7 +456,7 @@ type
     property FechaAprobacion: NullableTDateTime {dtDateTimeStamp} read fFechaAprobacion write fFechaAprobacion;
     property FechaEnvio: NullableTDateTime {dtDateTimeStamp} read fFechaEnvio write fFechaEnvio;
     property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
-    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property Objversion: Integer read fObjversion write fObjversion;
     property FormaPago: NullableString read fFormaPago write fFormaPago;
     property FormaPagoId: NullableInt32 read fFormaPagoId write fFormaPagoId;
     property PlazoEntregaCantidad: NullableInt16 read fPlazoEntregaCantidad write fPlazoEntregaCantidad;
@@ -1122,8 +1122,8 @@ type
     fEstado: String;
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
     fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
-    [MVCTableField('OBJVERSION')]
-    fObjversion: NullableInt32;
+    [MVCTableField('OBJVERSION', [foVersion])]
+    fObjversion: Integer;
     [MVCTableField('CLIENTE_CONTACTO_ID')]
     fClienteContactoId: NullableInt32;
     [MVCTableField('NOMBRE_PROYECTO')]
@@ -1141,7 +1141,7 @@ type
     property FechaRecepcion: NullableTDateTime {dtDateTimeStamp} read fFechaRecepcion write fFechaRecepcion;
     property Estado: String read fEstado write fEstado;
     property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
-    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property Objversion: Integer read fObjversion write fObjversion;
     property ClienteContactoId: NullableInt32 read fClienteContactoId write fClienteContactoId;
     property NombreProyecto: NullableString read fNombreProyecto write fNombreProyecto;
   end;
@@ -1176,8 +1176,8 @@ type
     fActivo: NullableBoolean;
     [MVCTableField('FECHA_CREACION')]
     fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
-    [MVCTableField('OBJVERSION')]
-    fObjversion: NullableInt32;
+    [MVCTableField('OBJVERSION', [foVersion])]
+    fObjversion: Integer;
     [MVCTableField('PIEZA_ID')]
     [MVCRequired]
     fPiezaId: Int32;
@@ -1198,7 +1198,7 @@ type
     property ContenidoJson: NullableString read fContenidoJson write fContenidoJson;
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
-    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property Objversion: Integer read fObjversion write fObjversion;
     property PiezaId: Int32 read fPiezaId write fPiezaId;
     property HashSha256: NullableString read fHashSha256 write fHashSha256;
   end;
@@ -1235,8 +1235,8 @@ type
     fOrden: Int16;
     [MVCTableField('FECHA_CREACION')]
     fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
-    [MVCTableField('OBJVERSION')]
-    fObjversion: NullableInt32;
+    [MVCTableField('OBJVERSION', [foVersion])]
+    fObjversion: Integer;
     [MVCTableField('CANTIDAD')]
     [MVCRequired]
     fCantidad: Int16;
@@ -1258,7 +1258,7 @@ type
     property Observacion: NullableString read fObservacion write fObservacion;
     property Orden: Int16 read fOrden write fOrden;
     property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
-    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property Objversion: Integer read fObjversion write fObjversion;
     property Cantidad: Int16 read fCantidad write fCantidad;
     property PiezaId: Int32 read fPiezaId write fPiezaId;
     property Activo: Boolean read fActivo write fActivo;
@@ -1296,8 +1296,8 @@ type
     fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
     fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
-    [MVCTableField('OBJVERSION')]
-    fObjversion: NullableInt32;
+    [MVCTableField('OBJVERSION', [foVersion])]
+    fObjversion: Integer;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -1311,7 +1311,7 @@ type
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
     property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
-    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property Objversion: Integer read fObjversion write fObjversion;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -1504,8 +1504,8 @@ type
     fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
     fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
-    [MVCTableField('OBJVERSION')]
-    fObjversion: NullableInt32;
+    [MVCTableField('OBJVERSION', [foVersion])]
+    fObjversion: Integer;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -1520,7 +1520,7 @@ type
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
     property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
-    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property Objversion: Integer read fObjversion write fObjversion;
   end;
 
   [MVCNameCase(ncSnakeCase)]

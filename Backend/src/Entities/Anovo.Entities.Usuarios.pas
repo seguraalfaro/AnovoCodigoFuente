@@ -197,8 +197,8 @@ type
     fFechaCreacion: NullableTDateTime;
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
     fFechaModificacion: NullableTDateTime;
-    [MVCTableField('OBJVERSION')]
-    fObjversion: NullableInt32;
+    [MVCTableField('OBJVERSION', [foVersion])]
+    fObjversion: Integer;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -218,7 +218,7 @@ type
       write fFechaCreacion;
     property FechaModificacion: NullableTDateTime read fFechaModificacion
       write fFechaModificacion;
-    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property Objversion: Integer read fObjversion write fObjversion;
   end;
 
 implementation

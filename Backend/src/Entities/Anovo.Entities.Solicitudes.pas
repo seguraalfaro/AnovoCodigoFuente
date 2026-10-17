@@ -48,8 +48,8 @@ type
     fEstado: String;
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
     fFechaModificacion: NullableTDateTime ;
-    [MVCTableField('OBJVERSION')]
-    fObjversion: NullableInt32;
+    [MVCTableField('OBJVERSION', [foVersion])]
+    fObjversion: Integer;
     [MVCTableField('CLIENTE_CONTACTO_ID')]
     fClienteContactoId: NullableInt32;
     [MVCTableField('NOMBRE_PROYECTO')]
@@ -67,7 +67,7 @@ type
     property FechaRecepcion: NullableTDateTime  read fFechaRecepcion write fFechaRecepcion;
     property Estado: String read fEstado write fEstado;
     property FechaModificacion: NullableTDateTime  read fFechaModificacion write fFechaModificacion;
-    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property Objversion: Integer read fObjversion write fObjversion;
     property ClienteContactoId: NullableInt32 read fClienteContactoId write fClienteContactoId;
     property NombreProyecto: NullableString read fNombreProyecto write fNombreProyecto;
   end;
@@ -105,8 +105,8 @@ type
     [MVCTableField('FECHA_MODIFICACION', [foDoNotInsert, foDoNotUpdate,
       foRefresh])]
     fFechaModificacion: NullableTDateTime;
-    [MVCTableField('OBJVERSION')]
-    fObjversion: NullableInt32;
+    [MVCTableField('OBJVERSION', [foVersion])]
+    fObjversion: Integer;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -120,7 +120,7 @@ type
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaCreacion: NullableTDateTime read fFechaCreacion write fFechaCreacion;
     property FechaModificacion: NullableTDateTime read fFechaModificacion write fFechaModificacion;
-    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property Objversion: Integer read fObjversion write fObjversion;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -159,8 +159,8 @@ type
     fActivo: NullableBoolean;
     [MVCTableField('FECHA_CREACION')]
     fFechaCreacion: NullableTDateTime ;
-    [MVCTableField('OBJVERSION')]
-    fObjversion: NullableInt32;
+    [MVCTableField('OBJVERSION', [foVersion])]
+    fObjversion: Integer;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -177,7 +177,7 @@ type
     property ContenidoJson: NullableString read fContenidoJson write fContenidoJson;
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaCreacion: NullableTDateTime  read fFechaCreacion write fFechaCreacion;
-    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property Objversion: Integer read fObjversion write fObjversion;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -215,8 +215,8 @@ type
     fOrden: Int16;
     [MVCTableField('FECHA_CREACION')]
     fFechaCreacion: NullableTDateTime ;
-    [MVCTableField('OBJVERSION')]
-    fObjversion: NullableInt32;
+    [MVCTableField('OBJVERSION', [foVersion])]
+    fObjversion: Integer;
     [MVCTableField('CANTIDAD')]
     [MVCRequired]
     fCantidad: Int16;
@@ -236,7 +236,7 @@ type
     property Observacion: NullableString read fObservacion write fObservacion;
     property Orden: Int16 read fOrden write fOrden;
     property FechaCreacion: NullableTDateTime  read fFechaCreacion write fFechaCreacion;
-    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property Objversion: Integer read fObjversion write fObjversion;
     property Cantidad: Int16 read fCantidad write fCantidad;
     property Activo: Boolean read fActivo write fActivo;
   end;

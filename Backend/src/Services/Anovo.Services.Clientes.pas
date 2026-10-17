@@ -593,7 +593,7 @@ begin
   lContacto := TraerContacto(AId, AContactoId);
   lAntes := TClienteContactos.Create;
   try
-    if lContacto.ObjVersion.ValueOrDefault <> ADto.ObjVersion.Value then
+    if lContacto.ObjVersion <> ADto.ObjVersion.Value then
       raise EVersionVencida.Create(SRecursoContacto, AContactoId);
 
     CopiarEstado(lContacto, lAntes);

@@ -455,7 +455,7 @@ begin
       raise EConflictoDeEstado.Create('SOLICITUD_COTIZADA',
         SSolicitudCotizada);
 
-    if lSolicitud.Objversion.ValueOrDefault <> ADto.ObjVersion.Value then
+    if lSolicitud.Objversion <> ADto.ObjVersion.Value then
       raise EVersionVencida.Create(SRecursoSolicitud, AId);
 
     TMapeo.Copiar(ADto, lSolicitud);

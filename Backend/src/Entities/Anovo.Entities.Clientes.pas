@@ -165,8 +165,8 @@ type
     fActivo: NullableBoolean;
     [MVCTableField('FECHA_CREACION', [foDoNotInsert, foDoNotUpdate, foRefresh])]
     fFechaCreacion: NullableTDateTime ;
-    [MVCTableField('OBJVERSION')]
-    fObjversion: NullableInt32;
+    [MVCTableField('OBJVERSION', [foVersion])]
+    fObjversion: Integer;
     [MVCTableField('FECHA_MODIFICACION', [foDoNotInsert, foDoNotUpdate,
       foRefresh])]
     fFechaModificacion: NullableTDateTime;
@@ -191,7 +191,7 @@ type
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaCreacion: NullableTDateTime
       read fFechaCreacion write fFechaCreacion;
-    property ObjVersion: NullableInt32 read fObjversion write fObjversion;
+    property ObjVersion: Integer read fObjversion write fObjversion;
     property FechaModificacion: NullableTDateTime read fFechaModificacion
       write fFechaModificacion;
   end;

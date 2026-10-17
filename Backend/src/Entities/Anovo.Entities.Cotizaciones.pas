@@ -81,8 +81,8 @@ type
     fFechaEnvio: NullableTDateTime ;
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
     fFechaModificacion: NullableTDateTime ;
-    [MVCTableField('OBJVERSION')]
-    fObjversion: NullableInt32;
+    [MVCTableField('OBJVERSION', [foVersion])]
+    fObjversion: Integer;
     [MVCTableField('FORMA_PAGO')]
     [MVCMaxLength(120)]
     fFormaPago: NullableString;
@@ -123,7 +123,7 @@ type
     property FechaAprobacion: NullableTDateTime  read fFechaAprobacion write fFechaAprobacion;
     property FechaEnvio: NullableTDateTime  read fFechaEnvio write fFechaEnvio;
     property FechaModificacion: NullableTDateTime  read fFechaModificacion write fFechaModificacion;
-    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property Objversion: Integer read fObjversion write fObjversion;
     property FormaPago: NullableString read fFormaPago write fFormaPago;
     property FormaPagoId: NullableInt32 read fFormaPagoId write fFormaPagoId;
     property PlazoEntregaCantidad: NullableInt16 read fPlazoEntregaCantidad write fPlazoEntregaCantidad;
