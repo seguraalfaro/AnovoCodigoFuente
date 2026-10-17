@@ -92,7 +92,7 @@ implementation
 
 uses
   Winapi.Windows, System.SysUtils, System.Math, System.UITypes, Data.DB,
-  Vcl.Forms, RosiCompGlobalCfg, VclPlano.Dibujo, VclPlano.Pastilla, Anovo.UI.Tema, Anovo.UI.ColumnasRejilla;
+  Vcl.Forms, Vcl.WinXCtrls, RosiCompGlobalCfg, VclPlano.Dibujo, VclPlano.Pastilla, Anovo.UI.Tema, Anovo.UI.ColumnasRejilla;
 
 const
   MARGEN_CELDA = 10;
@@ -641,6 +641,8 @@ begin
   if AGrid = nil then
     Exit;
 
+  TCeldasRejilla.De(AGrid);
+  AGrid.StyleElements := [];
   AGrid.DrawingStyle := gdsGradient;
   AGrid.GradientStartColor := clAnovoMarca;
   AGrid.GradientEndColor := clAnovoMarca;
@@ -654,6 +656,7 @@ begin
   for i := 0 to AGrid.Columns.Count - 1 do
   begin
     AGrid.Columns[i].Title.Color := clAnovoMarca;
+    AGrid.Columns[i].Title.Font.Color := clBlack;
     AGrid.Columns[i].Title.Font.Name := FUENTE_SEMI;
     AGrid.Columns[i].Title.Font.Height := -11;
     AGrid.Columns[i].Title.Font.Color := clWhite;
@@ -691,7 +694,8 @@ end;
 
 procedure OcultarScrollVertical(AGrid: TrDBGrid);
 var
-  lBarra: Integer;
+  lBarra, lIndice, lIzquierda, lArriba, lDerecha, lAbajo: Integer;
+  lRelativo: Vcl.WinXCtrls.TRelativePanel;
 begin
   if (AGrid = nil) or (AGrid.Parent = nil) then
     Exit;
@@ -699,12 +703,36 @@ begin
   if (AGrid.Parent.ClientWidth <= 0) or (AGrid.Parent.ClientHeight <= 0) then
     Exit;
 
+  if AGrid.Parent is Vcl.WinXCtrls.TRelativePanel then
+  begin
+    lRelativo := Vcl.WinXCtrls.TRelativePanel(AGrid.Parent);
+    lIndice := lRelativo.ControlCollection.IndexOf(AGrid);
+    if lIndice >= 0 then
+    begin
+      lRelativo.ControlCollection[lIndice].AlignRightWithPanel := False;
+      lRelativo.ControlCollection[lIndice].AlignBottomWithPanel := False;
+    end;
+  end;
+
+  lIzquierda := 0;
+  lArriba := 0;
+  lDerecha := 0;
+  lAbajo := 0;
+  if AGrid.AlignWithMargins then
+  begin
+    lIzquierda := AGrid.Margins.Left;
+    lArriba := AGrid.Margins.Top;
+    lDerecha := AGrid.Margins.Right;
+    lAbajo := AGrid.Margins.Bottom;
+  end;
+
   lBarra := GetSystemMetrics(SM_CXVSCROLL);
 
   AGrid.Align := alNone;
   AGrid.Anchors := [akLeft, akTop, akRight, akBottom];
-  AGrid.SetBounds(0, 0, AGrid.Parent.ClientWidth + lBarra,
-    AGrid.Parent.ClientHeight);
+  AGrid.SetBounds(lIzquierda, lArriba,
+    AGrid.Parent.ClientWidth - lIzquierda - lDerecha + lBarra,
+    AGrid.Parent.ClientHeight - lArriba - lAbajo);
 end;
 
 end.

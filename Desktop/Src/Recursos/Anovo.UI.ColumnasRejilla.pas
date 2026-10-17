@@ -6,7 +6,8 @@ unit Anovo.UI.ColumnasRejilla;
 interface
 
 uses
-  System.Classes, System.Types, Vcl.Controls, Vcl.Menus, Vcl.DBGrids, rDBGrid,
+  System.Classes, System.Types, Vcl.Controls, Vcl.Menus, Vcl.DBGrids, Vcl.Graphics,
+  Winapi.Windows, rDBGrid,
   rDBGridSorter_FireDac, Anovo.Forms.ExportarRejilla;
 
 type
@@ -60,7 +61,12 @@ type
     function HayDatos: Boolean;
     procedure AnchoAutomatico;
     procedure GuardarConAnchos(const AAnchosPropios: Boolean);
-    function Opcion(const ACaption: string; AEvento: TNotifyEvent): TMenuItem;
+    function Opcion(const ACaption: string; AEvento: TNotifyEvent;
+      const AGlifo: Char = #0): TMenuItem;
+    procedure MedirOpcion(Sender: TObject; ACanvas: TCanvas;
+      var AWidth, AHeight: Integer);
+    procedure DibujarOpcion(Sender: TObject; ACanvas: TCanvas; ARect: TRect;
+      AState: TOwnerDrawState);
     procedure Separador;
     procedure Presionar(Sender: TObject; AButton: TMouseButton;
       AShift: TShiftState; AX, AY: Integer);
@@ -105,8 +111,9 @@ implementation
 uses
   System.SysUtils, System.IOUtils, System.UITypes, Data.DB, Vcl.Grids, Vcl.Forms,
   PropSaveMain, PropSaveGrids, RosiCompGlobalCfg,
-  Vcl.Dialogs, Winapi.ShellAPI, Winapi.Windows, rDBFilter, rXLSExport, TXTExport,
+  Vcl.Dialogs, Winapi.ShellAPI, rDBFilter, rXLSExport, TXTExport,
   Anovo.UI.Vista,
+  Anovo.UI.Tema,
   Anovo.Forms.BuscarRejilla,
   Anovo.Sesion,
   Anovo.Textos,
@@ -130,6 +137,25 @@ const
   PREFIJO_FORMA = 'Tfrm';
   REJILLA_LISTADO = 'grDatos';
   PESTANA_VISTA = 1;
+  TAG_ROTULO = -1;
+  ALTO_OPCION = 28;
+  ALTO_ROTULO = 22;
+  ALTO_SEPARADOR = 9;
+  MARGEN_TEXTO = 36;
+  MARGEN_DERECHO = 24;
+  MARGEN_LINEA = 8;
+  FUENTE_GLIFOS = 'Segoe MDL2 Assets';
+  GLIFO_COLUMNAS = #$E8FD;
+  GLIFO_RESTABLECER = #$E777;
+  GLIFO_ORDENAR = #$E8CB;
+  GLIFO_QUITAR = #$E711;
+  GLIFO_BUSCAR = #$E721;
+  GLIFO_FILTRAR = #$E71C;
+  GLIFO_QUITAR_FILTRO = #$E894;
+  GLIFO_ANCHO = #$E9A6;
+  GLIFO_ANCHO_DATOS = #$E8B3;
+  GLIFO_EXPORTAR = #$E896;
+  GLIFO_VISTA = #$E9E9;
   EXTENSION_EXCEL = 'xlsx';
   EXTENSION_CSV = 'csv';
   SEPARADOR_CSV = ';';
@@ -182,24 +208,27 @@ begin
     FGrid.Sorter := FOrdenador;
 
   FMenu := TPopupMenu.Create(Self);
+  FMenu.OwnerDraw := True;
   FMenu.OnPopup := AbrirMenu;
-  Opcion(SMenuColumnas, ElegirColumnas);
-  Opcion(SMenuRestablecerColumnas, ElegirRestablecer);
+  Opcion(SMenuColumnas, ElegirColumnas, GLIFO_COLUMNAS);
+  Opcion(SMenuRestablecerColumnas, ElegirRestablecer, GLIFO_RESTABLECER);
   Separador;
   FOpcionPagina := Opcion('', nil);
   FOpcionPagina.Enabled := False;
-  Opcion(SMenuOrdenarAsc, ElegirOrdenAsc);
-  Opcion(SMenuOrdenarDesc, ElegirOrdenDesc);
-  FOpcionQuitarOrden := Opcion(SMenuQuitarOrden, ElegirQuitarOrden);
-  Opcion(SMenuBuscar, ElegirBuscar);
-  FOpcionFiltrar := Opcion(SMenuFiltrarValor, ElegirFiltrar);
-  FOpcionQuitarFiltro := Opcion(SMenuQuitarFiltro, ElegirQuitarFiltro);
+  FOpcionPagina.Tag := TAG_ROTULO;
+  Opcion(SMenuOrdenarAsc, ElegirOrdenAsc, GLIFO_ORDENAR);
+  Opcion(SMenuOrdenarDesc, ElegirOrdenDesc, GLIFO_ORDENAR);
+  FOpcionQuitarOrden := Opcion(SMenuQuitarOrden, ElegirQuitarOrden, GLIFO_QUITAR);
+  Opcion(SMenuBuscar, ElegirBuscar, GLIFO_BUSCAR);
+  FOpcionFiltrar := Opcion(SMenuFiltrarValor, ElegirFiltrar, GLIFO_FILTRAR);
+  FOpcionQuitarFiltro := Opcion(SMenuQuitarFiltro, ElegirQuitarFiltro,
+    GLIFO_QUITAR_FILTRO);
   Separador;
-  Opcion(SMenuAnchoAutomatico, ElegirAnchoAutomatico);
-  Opcion(SMenuAnchoDatos, ElegirAnchoDatos);
-  Opcion(SMenuExportar, ElegirExportar);
+  Opcion(SMenuAnchoAutomatico, ElegirAnchoAutomatico, GLIFO_ANCHO);
+  Opcion(SMenuAnchoDatos, ElegirAnchoDatos, GLIFO_ANCHO_DATOS);
+  Opcion(SMenuExportar, ElegirExportar, GLIFO_EXPORTAR);
   Separador;
-  Opcion(SMenuVistaRejilla, ElegirVista);
+  Opcion(SMenuVistaRejilla, ElegirVista, GLIFO_VISTA);
 
   FUpAnterior := FGrid.OnMouseUp;
   FDownAnterior := FGrid.OnMouseDown;
@@ -208,12 +237,95 @@ begin
 end;
 
 function TColumnasRejilla.Opcion(const ACaption: string;
-  AEvento: TNotifyEvent): TMenuItem;
+  AEvento: TNotifyEvent; const AGlifo: Char): TMenuItem;
 begin
   Result := TMenuItem.Create(FMenu);
   Result.Caption := ACaption;
   Result.OnClick := AEvento;
+  Result.Tag := Ord(AGlifo);
+  Result.OnMeasureItem := MedirOpcion;
+  Result.OnAdvancedDrawItem := DibujarOpcion;
   FMenu.Items.Add(Result);
+end;
+
+procedure TColumnasRejilla.MedirOpcion(Sender: TObject; ACanvas: TCanvas;
+  var AWidth, AHeight: Integer);
+var
+  lOpcion: TMenuItem;
+begin
+  lOpcion := TMenuItem(Sender);
+  if lOpcion.IsLine then
+  begin
+    AHeight := ALTO_SEPARADOR;
+    Exit;
+  end;
+  ACanvas.Font.Name := FUENTE;
+  ACanvas.Font.Height := -12;
+  AWidth := ACanvas.TextWidth(StripHotkey(lOpcion.Caption)) + MARGEN_TEXTO + MARGEN_DERECHO;
+  if lOpcion.Tag = TAG_ROTULO then
+    AHeight := ALTO_ROTULO
+  else
+    AHeight := ALTO_OPCION;
+end;
+
+procedure TColumnasRejilla.DibujarOpcion(Sender: TObject; ACanvas: TCanvas;
+  ARect: TRect; AState: TOwnerDrawState);
+var
+  lOpcion: TMenuItem;
+  lRotulo: Boolean;
+  R: TRect;
+  lTinta: TColor;
+  lTexto: string;
+begin
+  lOpcion := TMenuItem(Sender);
+  lRotulo := lOpcion.Tag = TAG_ROTULO;
+  ACanvas.Brush.Style := bsSolid;
+  ACanvas.Brush.Color := clAnovoTarjeta;
+  if (odSelected in AState) and lOpcion.Enabled and not lRotulo then
+    ACanvas.Brush.Color := clAnovoAcentoSuave;
+  ACanvas.FillRect(ARect);
+
+  if lOpcion.IsLine then
+  begin
+    ACanvas.Pen.Color := clAnovoBorde;
+    ACanvas.MoveTo(ARect.Left + MARGEN_LINEA, (ARect.Top + ARect.Bottom) div 2);
+    ACanvas.LineTo(ARect.Right - MARGEN_LINEA, (ARect.Top + ARect.Bottom) div 2);
+    Exit;
+  end;
+
+  if lRotulo then
+    lTinta := clAnovoTextoSuave
+  else if lOpcion.Enabled then
+    lTinta := clAnovoTexto
+  else
+    lTinta := clAnovoDeshabilitado;
+  ACanvas.Brush.Style := bsClear;
+
+  if (lOpcion.Tag > 0) and not lRotulo then
+  begin
+    R := ARect;
+    R.Left := ARect.Left + MARGEN_LINEA;
+    R.Right := ARect.Left + MARGEN_TEXTO - MARGEN_LINEA;
+    ACanvas.Font.Name := FUENTE_GLIFOS;
+    ACanvas.Font.Height := -13;
+    ACanvas.Font.Color := lTinta;
+    lTexto := Char(lOpcion.Tag);
+    ACanvas.TextRect(R, lTexto, [tfCenter, tfVerticalCenter, tfSingleLine]);
+  end;
+
+  R := ARect;
+  R.Left := ARect.Left + MARGEN_TEXTO;
+  if lRotulo then
+    R.Left := ARect.Left + MARGEN_LINEA + 4;
+  ACanvas.Font.Name := FUENTE;
+  if lRotulo then
+    ACanvas.Font.Height := -11
+  else
+    ACanvas.Font.Height := -12;
+  ACanvas.Font.Color := lTinta;
+  lTexto := StripHotkey(lOpcion.Caption);
+  ACanvas.TextRect(R, lTexto, [tfLeft, tfVerticalCenter, tfSingleLine]);
+  ACanvas.Brush.Style := bsSolid;
 end;
 
 procedure TColumnasRejilla.Separador;
