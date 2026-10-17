@@ -338,7 +338,7 @@ end;
 function TCotizacionesController.Actualizar(AServicio: ICotizacionService;
   const AId: Integer; const ADto: TCotizacionEdicionDTO): IMVCResponse;
 begin
-  AServicio.Actualizar(AId, ADto);
+  AServicio.Actualizar(AId, ADto, UsuarioId, Roles);
   Result := NoContentResponse;
 end;
 
@@ -372,48 +372,48 @@ function TCotizacionesController.AgregarLinea(AServicio: ICotizacionService;
   const AId: Integer; const ADto: TLineaNuevaDTO): IMVCResponse;
 begin
   Result := CreatedResponse('/api/cotizaciones/' + AId.ToString + '/detalle/' +
-    AServicio.AgregarLinea(AId, ADto).ToString);
+    AServicio.AgregarLinea(AId, ADto, UsuarioId, Roles).ToString);
 end;
 
 function TCotizacionesController.ActualizarLinea(AServicio: ICotizacionService;
   const AId, ALineaId: Integer; const ADto: TLineaNuevaDTO): IMVCResponse;
 begin
-  AServicio.ActualizarLinea(AId, ALineaId, ADto);
+  AServicio.ActualizarLinea(AId, ALineaId, ADto, UsuarioId, Roles);
   Result := NoContentResponse;
 end;
 
 function TCotizacionesController.EliminarLinea(AServicio: ICotizacionService;
   const AId, ALineaId: Integer): IMVCResponse;
 begin
-  AServicio.EliminarLinea(AId, ALineaId);
+  AServicio.EliminarLinea(AId, ALineaId, UsuarioId, Roles);
   Result := NoContentResponse;
 end;
 
 function TCotizacionesController.AplicarAjuste(AServicio: ICotizacionService;
   const AId: Integer; const ADto: TAjusteDTO): IMVCResponse;
 begin
-  AServicio.AplicarAjuste(AId, ADto);
+  AServicio.AplicarAjuste(AId, ADto, UsuarioId, Roles);
   Result := NoContentResponse;
 end;
 
 function TCotizacionesController.Presentar(AServicio: ICotizacionService;
   const AId: Integer): IMVCResponse;
 begin
-  AServicio.Presentar(AId);
+  AServicio.Presentar(AId, UsuarioId, Roles);
   Result := NoContentResponse;
 end;
 
 function TCotizacionesController.Enviar(AServicio: ICotizacionService;
   const AId: Integer): IMVCResponse;
 begin
-  AServicio.Enviar(AId);
+  AServicio.Enviar(AId, UsuarioId, Roles);
   Result := NoContentResponse;
 end;
 
 function TCotizacionesController.DarVistoBueno(AServicio: ICotizacionService;
   const AId: Integer): IMVCResponse;
 begin
-  AServicio.DarVistoBueno(AId);
+  AServicio.DarVistoBueno(AId, UsuarioId, Roles);
   Result := NoContentResponse;
 end;
 
@@ -421,14 +421,14 @@ function TCotizacionesController.RegistrarRespuesta(
   AServicio: ICotizacionService; const AId: Integer;
   const ADto: TRespuestaClienteDTO): IMVCResponse;
 begin
-  AServicio.RegistrarRespuesta(AId, ADto);
+  AServicio.RegistrarRespuesta(AId, ADto, UsuarioId, Roles);
   Result := NoContentResponse;
 end;
 
 function TCotizacionesController.Devolver(AServicio: ICotizacionService;
   const AId: Integer; const ADto: TMotivoDTO): IMVCResponse;
 begin
-  AServicio.Devolver(AId, ADto);
+  AServicio.Devolver(AId, ADto, UsuarioId, Roles);
   Result := NoContentResponse;
 end;
 

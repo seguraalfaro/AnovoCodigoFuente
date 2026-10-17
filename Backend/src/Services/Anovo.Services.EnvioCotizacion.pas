@@ -108,7 +108,7 @@ begin
     var
     lTx := TMVCRepository.UseTransactionContext;
 
-    fCotizaciones.Enviar(AId);
+    fCotizaciones.Enviar(AId, AUsuarioId, ARoles);
 
     lEnvio := TCotizacionEnvios.Create;
     try
