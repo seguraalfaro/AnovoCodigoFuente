@@ -136,6 +136,7 @@ begin
   finally
     LimpiarUsuario;
   end;
+  TEstadoUsuarios.OlvidarDispositivo(ADispositivo.ID.Value);
   LogW(Format('Dispositivo %d inactivado: %s', [ADispositivo.ID.Value,
     AMotivo]));
 end;
@@ -193,6 +194,8 @@ var
   lAnterior: TUsuariosDispositivos;
   lNuevo: TUsuariosDispositivos;
   lLlave: string;
+  lReemplazados: TArray<Integer>;
+  lId: Integer;
 begin
   if ADto.UuidDispositivo.Trim.IsEmpty then
     raise EDatoInvalido.Create(SFaltaUuidDispositivo);
@@ -211,6 +214,7 @@ begin
         lAnterior.Activo := False;
         lAnterior.Motivo := MOTIVO_REEMPLAZO;
         fDispositivos.Update(lAnterior);
+        lReemplazados := lReemplazados + [lAnterior.ID.Value];
       end;
     finally
       lAnteriores.Free;
@@ -237,6 +241,8 @@ begin
     Result.Free;
     raise;
   end;
+  for lId in lReemplazados do
+    TEstadoUsuarios.OlvidarDispositivo(lId);
 end;
 
 function TDispositivoService.Renovar(const ADto: TRenovacionDTO)
