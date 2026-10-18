@@ -3007,21 +3007,25 @@ object dmMemoria: TdmMemoria
       DisplayLabel = 'Rechazadas'
       FieldName = 'RECHAZADAS'
     end
+    object mtReporteAsesoresDESCARTADAS: TIntegerField
+      DisplayLabel = 'Descartadas'
+      FieldName = 'DESCARTADAS'
+    end
     object mtReporteAsesoresTASA_APROBACION: TIntegerField
       Alignment = taCenter
       DisplayLabel = 'Tasa'
       FieldName = 'TASA_APROBACION'
       OnGetText = PorcentajeGetText
     end
-    object mtReporteAsesoresMONTO_APROBADO: TCurrencyField
-      DisplayLabel = 'Monto aprobado'
-      FieldName = 'MONTO_APROBADO'
-      DisplayFormat = '#,##0.00'
-      currency = False
-    end
     object mtReporteAsesoresMONTO_TOTAL: TCurrencyField
       DisplayLabel = 'Monto enviado'
       FieldName = 'MONTO_TOTAL'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtReporteAsesoresMONTO_APROBADO: TCurrencyField
+      DisplayLabel = 'Monto aprobado'
+      FieldName = 'MONTO_APROBADO'
       DisplayFormat = '#,##0.00'
       currency = False
     end
@@ -3120,9 +3124,29 @@ object dmMemoria: TdmMemoria
       DisplayLabel = 'Aprobadas'
       FieldName = 'APROBADAS'
     end
+    object mtReporteTiposRECHAZADAS: TIntegerField
+      DisplayLabel = 'Rechazadas'
+      FieldName = 'RECHAZADAS'
+    end
+    object mtReporteTiposDESCARTADAS: TIntegerField
+      DisplayLabel = 'Descartadas'
+      FieldName = 'DESCARTADAS'
+    end
+    object mtReporteTiposTASA_APROBACION: TIntegerField
+      Alignment = taCenter
+      DisplayLabel = 'Tasa'
+      FieldName = 'TASA_APROBACION'
+      OnGetText = PorcentajeGetText
+    end
     object mtReporteTiposMONTO_TOTAL: TCurrencyField
       DisplayLabel = 'Monto enviado'
       FieldName = 'MONTO_TOTAL'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtReporteTiposMONTO_APROBADO: TCurrencyField
+      DisplayLabel = 'Monto aprobado'
+      FieldName = 'MONTO_APROBADO'
       DisplayFormat = '#,##0.00'
       currency = False
     end
@@ -3170,6 +3194,10 @@ object dmMemoria: TdmMemoria
       DisplayLabel = 'Rechazadas'
       FieldName = 'RECHAZADAS'
     end
+    object mtReporteMesesDESCARTADAS: TIntegerField
+      DisplayLabel = 'Descartadas'
+      FieldName = 'DESCARTADAS'
+    end
     object mtReporteMesesTASA_APROBACION: TIntegerField
       Alignment = taCenter
       DisplayLabel = 'Tasa'
@@ -3179,6 +3207,12 @@ object dmMemoria: TdmMemoria
     object mtReporteMesesMONTO_TOTAL: TCurrencyField
       DisplayLabel = 'Monto enviado'
       FieldName = 'MONTO_TOTAL'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtReporteMesesMONTO_APROBADO: TCurrencyField
+      DisplayLabel = 'Monto aprobado'
+      FieldName = 'MONTO_APROBADO'
       DisplayFormat = '#,##0.00'
       currency = False
     end
@@ -3548,5 +3582,65 @@ object dmMemoria: TdmMemoria
     DataSet = mtHistorialEstados
     Left = 1592
     Top = 584
+  end
+  object mtDetalleReporte: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1488
+    Top = 656
+    object mtDetalleReporteID: TIntegerField
+      FieldName = 'ID'
+      Visible = False
+    end
+    object mtDetalleReporteNUMERO: TIntegerField
+      DisplayLabel = 'N'#250'mero'
+      FieldName = 'NUMERO'
+    end
+    object mtDetalleReporteCLIENTE_NOMBRE: TStringField
+      DisplayLabel = 'Cliente'
+      FieldName = 'CLIENTE_NOMBRE'
+      Size = 120
+    end
+    object mtDetalleReporteDESCRIPCION_TRABAJO: TStringField
+      DisplayLabel = 'Trabajo'
+      FieldName = 'DESCRIPCION_TRABAJO'
+      Size = 500
+    end
+    object mtDetalleReporteASESOR_NOMBRE: TStringField
+      DisplayLabel = 'Asesor'
+      FieldName = 'ASESOR_NOMBRE'
+      Size = 120
+    end
+    object mtDetalleReporteFECHA_ENVIO: TDateTimeField
+      DisplayLabel = 'Enviada'
+      FieldName = 'FECHA_ENVIO'
+      DisplayFormat = 'dd/mm/yyyy'
+    end
+    object mtDetalleReporteMONTO_TOTAL: TCurrencyField
+      DisplayLabel = 'Total'
+      FieldName = 'MONTO_TOTAL'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtDetalleReporteESTADO: TStringField
+      DisplayLabel = 'Estado'
+      FieldName = 'ESTADO'
+      OnGetText = EstadoGetText
+    end
+    object mtDetalleReporteACCIONES: TStringField
+      DisplayLabel = 'Acciones'
+      FieldName = 'ACCIONES'
+    end
+  end
+  object dsDetalleReporte: TDataSource
+    AutoEdit = False
+    DataSet = mtDetalleReporte
+    Left = 1592
+    Top = 656
   end
 end

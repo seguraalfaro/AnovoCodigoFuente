@@ -14,61 +14,53 @@ uses
 type
 
   [MVCNameCase(ncSnakeCase)]
-  TReporteAsesorDTO = class
+  TReporteFilaDTO = class
   private
-    fAsesorId: Integer;
-    fAsesorNombre: string;
     fCantidad: Integer;
     fAprobadas: Integer;
     fRechazadas: Integer;
+    fDescartadas: Integer;
     fTasaAprobacion: Integer;
     fMontoAprobado: NullableCurrency;
     fMontoTotal: NullableCurrency;
   public
-    property AsesorId: Integer read fAsesorId write fAsesorId;
-    property AsesorNombre: string read fAsesorNombre write fAsesorNombre;
     property Cantidad: Integer read fCantidad write fCantidad;
     property Aprobadas: Integer read fAprobadas write fAprobadas;
     property Rechazadas: Integer read fRechazadas write fRechazadas;
+    property Descartadas: Integer read fDescartadas write fDescartadas;
     property TasaAprobacion: Integer read fTasaAprobacion write fTasaAprobacion;
     property MontoAprobado: NullableCurrency read fMontoAprobado write fMontoAprobado;
     property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
   end;
 
   [MVCNameCase(ncSnakeCase)]
-  TReporteTipoDTO = class
+  TReporteAsesorDTO = class(TReporteFilaDTO)
   private
-    fTipoTrabajoId: NullableInt32;
-    fTipoTrabajoNombre: string;
-    fCantidad: Integer;
-    fAprobadas: Integer;
-    fMontoTotal: NullableCurrency;
+    fAsesorId: Integer;
+    fAsesorNombre: string;
   public
-    property TipoTrabajoId: NullableInt32 read fTipoTrabajoId write fTipoTrabajoId;
-    property TipoTrabajoNombre: string read fTipoTrabajoNombre write fTipoTrabajoNombre;
-    property Cantidad: Integer read fCantidad write fCantidad;
-    property Aprobadas: Integer read fAprobadas write fAprobadas;
-    property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
+    property AsesorId: Integer read fAsesorId write fAsesorId;
+    property AsesorNombre: string read fAsesorNombre write fAsesorNombre;
   end;
 
   [MVCNameCase(ncSnakeCase)]
-  TReporteMesDTO = class
+  TReporteTipoDTO = class(TReporteFilaDTO)
+  private
+    fTipoTrabajoId: NullableInt32;
+    fTipoTrabajoNombre: string;
+  public
+    property TipoTrabajoId: NullableInt32 read fTipoTrabajoId write fTipoTrabajoId;
+    property TipoTrabajoNombre: string read fTipoTrabajoNombre write fTipoTrabajoNombre;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TReporteMesDTO = class(TReporteFilaDTO)
   private
     fAnio: Integer;
     fMes: Integer;
-    fCantidad: Integer;
-    fAprobadas: Integer;
-    fRechazadas: Integer;
-    fTasaAprobacion: Integer;
-    fMontoTotal: NullableCurrency;
   public
     property Anio: Integer read fAnio write fAnio;
     property Mes: Integer read fMes write fMes;
-    property Cantidad: Integer read fCantidad write fCantidad;
-    property Aprobadas: Integer read fAprobadas write fAprobadas;
-    property Rechazadas: Integer read fRechazadas write fRechazadas;
-    property TasaAprobacion: Integer read fTasaAprobacion write fTasaAprobacion;
-    property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -101,16 +93,39 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
-  TReporteCotizacionesDTO = class
+  TReporteResumenDTO = class
   private
     fDesde: TDateTime;
     fHasta: TDateTime;
     fTotal: Integer;
     fMontoTotal: Currency;
     fAprobadas: Integer;
+    fMontoAprobado: Currency;
     fRechazadas: Integer;
+    fDescartadas: Integer;
     fTasaAprobacion: Integer;
     fRespuestaMedia: Integer;
+  public
+    property Desde: TDateTime read fDesde write fDesde;
+    property Hasta: TDateTime read fHasta write fHasta;
+    property Total: Integer read fTotal write fTotal;
+    property MontoTotal: Currency read fMontoTotal write fMontoTotal;
+    property Aprobadas: Integer read fAprobadas write fAprobadas;
+    property MontoAprobado: Currency read fMontoAprobado write fMontoAprobado;
+    property Rechazadas: Integer read fRechazadas write fRechazadas;
+    property Descartadas: Integer read fDescartadas write fDescartadas;
+    property TasaAprobacion: Integer read fTasaAprobacion write fTasaAprobacion;
+    property RespuestaMedia: Integer read fRespuestaMedia write fRespuestaMedia;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TReporteCotizacionesDTO = class(TReporteResumenDTO)
+  private
+    fEmpresaRazonSocial: string;
+    fEmpresaCedula: string;
+    fEmpresaTelefono: string;
+    fEmpresaCorreo: string;
+    fAnterior: TReporteResumenDTO;
     fPorEstado: TObjectList<TCotizacionesPorEstadoDTO>;
     fPorAsesor: TObjectList<TReporteAsesorDTO>;
     fPorTipo: TObjectList<TReporteTipoDTO>;
@@ -119,14 +134,13 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    property Desde: TDateTime read fDesde write fDesde;
-    property Hasta: TDateTime read fHasta write fHasta;
-    property Total: Integer read fTotal write fTotal;
-    property MontoTotal: Currency read fMontoTotal write fMontoTotal;
-    property Aprobadas: Integer read fAprobadas write fAprobadas;
-    property Rechazadas: Integer read fRechazadas write fRechazadas;
-    property TasaAprobacion: Integer read fTasaAprobacion write fTasaAprobacion;
-    property RespuestaMedia: Integer read fRespuestaMedia write fRespuestaMedia;
+    property EmpresaRazonSocial: string read fEmpresaRazonSocial
+      write fEmpresaRazonSocial;
+    property EmpresaCedula: string read fEmpresaCedula write fEmpresaCedula;
+    property EmpresaTelefono: string read fEmpresaTelefono
+      write fEmpresaTelefono;
+    property EmpresaCorreo: string read fEmpresaCorreo write fEmpresaCorreo;
+    property Anterior: TReporteResumenDTO read fAnterior write fAnterior;
     property PorEstado: TObjectList<TCotizacionesPorEstadoDTO> read fPorEstado
       write fPorEstado;
     property PorAsesor: TObjectList<TReporteAsesorDTO> read fPorAsesor
@@ -144,6 +158,7 @@ implementation
 constructor TReporteCotizacionesDTO.Create;
 begin
   inherited Create;
+  fAnterior := TReporteResumenDTO.Create;
   fPorEstado := TObjectList<TCotizacionesPorEstadoDTO>.Create(True);
   fPorAsesor := TObjectList<TReporteAsesorDTO>.Create(True);
   fPorTipo := TObjectList<TReporteTipoDTO>.Create(True);
@@ -158,6 +173,7 @@ begin
   fPorTipo.Free;
   fPorAsesor.Free;
   fPorEstado.Free;
+  fAnterior.Free;
   inherited;
 end;
 

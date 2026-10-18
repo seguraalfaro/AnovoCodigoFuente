@@ -297,6 +297,8 @@ resourcestring
   STipoIdCedulaJuridica = 'Cédula jurídica';
   STipoIdDimex = 'DIMEX';
   SReporteRangoInvalido = 'La fecha inicial no puede ser posterior a la final.';
+  SReporteVistaInvalida = 'La vista del reporte no existe. Use estado, asesor, tipo, mes o cliente.';
+  SReporteClaveInvalida = 'La fila del reporte no es válida para esa vista.';
   SSinTipoTrabajo = 'Sin tipo de trabajo';
 
   SPeriodoInvertido = 'La fecha de inicio es posterior a la del fin.';
@@ -753,6 +755,33 @@ resourcestring
   SVistaSinRespuesta = 'Clientes sin respuesta';
   SVistaPorMes = 'Por mes';
   STotalReporte = 'Total';
+  SReporteCompara = 'Comparado con %s al %s';
+  SReporteLeyenda = 'Tasa = aprobadas ÷ (aprobadas + rechazadas) del periodo. ' +
+    'Las descartadas y las que esperan respuesta no entran. Doble clic en una ' +
+    'fila para ver sus cotizaciones.';
+  SFlechaSube = '▲';
+  SFlechaBaja = '▼';
+  SVariacionPorcentaje = '%s %d %% vs. antes';
+  SVariacionPuntos = '%s %d pts vs. antes';
+  SVariacionDias = '%s %s vs. antes';
+  SVariacionIgual = 'Igual que antes';
+  SVariacionSinBase = 'Sin datos antes';
+  SDetalleReporteTitulo = 'Cotizaciones: %s';
+  SDetalleReporteAyuda = '%s · %s';
+  SDetalleReportePie = '%d cotizaciones. Doble clic o Abrir para verla.';
+  SVacioDetalleReporte = 'Ninguna cotización en esta fila';
+  SAccionCargarDetalleReporte = 'cargar las cotizaciones de la fila';
+  SReportePdfTitulo = 'Reporte de cotizaciones';
+  SReportePdfVista = '%s · %s';
+  SReportePdfGenerado = 'Generado por %s el %s';
+  SReportePdfTotal = 'Total';
+  SReporteSeparador = ' · ';
+  SCifraEnviadas = 'Enviadas';
+  SCifraMontoEnviado = 'Monto enviado';
+  SCifraAprobadas = 'Aprobadas';
+  SCifraMontoAprobado = 'Monto aprobado';
+  SCifraTasa = 'Tasa de aprobación';
+  SCifraRespuesta = 'Respuesta media';
   SDecididasMes = '%d de %d decididas';
 
   SCargandoCatalogo = 'Cargando %s...';

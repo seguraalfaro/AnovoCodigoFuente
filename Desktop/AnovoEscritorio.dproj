@@ -291,6 +291,10 @@
         <DCCReference Include="Src\Forms\Anovo.Forms.OrdenCompra.pas">
             <Form>frmOrdenCompra</Form>
         </DCCReference>
+        <DCCReference Include="Src\Forms\Anovo.Forms.DetalleReporte.pas">
+            <Form>frmDetalleReporte</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Reportes\Anovo.Reportes.Periodo.pas"/>
         <DCCReference Include="Src\Forms\Anovo.Forms.BuscarRejilla.pas">
             <Form>frmBuscarRejilla</Form>
         </DCCReference>

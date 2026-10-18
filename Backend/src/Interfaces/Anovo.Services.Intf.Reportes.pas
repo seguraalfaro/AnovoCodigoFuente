@@ -5,6 +5,8 @@ unit Anovo.Services.Intf.Reportes;
 interface
 
 uses
+  System.Generics.Collections,
+  Anovo.DTOs.Cotizaciones,
   Anovo.DTOs.Reportes;
 
 type
@@ -13,6 +15,9 @@ type
     function Cotizaciones(const ADesde, AHasta: TDateTime;
       const AUsuarioId: Integer; const ARoles: TArray<string>)
       : TReporteCotizacionesDTO;
+    function Detalle(const ADesde, AHasta: TDateTime;
+      const AVista, AClave: string; const AUsuarioId: Integer;
+      const ARoles: TArray<string>): TObjectList<TCotizacionDTO>;
   end;
 
 implementation

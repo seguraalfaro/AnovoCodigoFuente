@@ -12,41 +12,69 @@ inherited fraReportes: TfraReportes
   inherited pnlKpi: TPanel
     Top = 114
     inherited tjCifra1: TPlanoTarjeta
-      Width = 150
+      Width = 104
       Caption = 'Enviadas'
       inherited lblCifra1: TLabel
-        Width = 118
+        Width = 72
+      end
+      object lblDelta1: TLabel
+        Left = 16
+        Top = 66
+        Width = 72
+        Height = 16
+        AutoSize = False
       end
     end
     inherited tjCifra2: TPlanoTarjeta
-      Left = 182
-      Width = 268
+      Left = 136
+      Width = 220
       Caption = 'Monto enviado'
       inherited lblCifra2: TLabel
-        Width = 236
+        Width = 188
+      end
+      object lblDelta2: TLabel
+        Left = 16
+        Top = 66
+        Width = 188
+        Height = 16
+        AutoSize = False
       end
     end
     inherited tjCifra3: TPlanoTarjeta
-      Left = 462
-      Width = 150
+      Left = 368
+      Width = 104
       Caption = 'Aprobadas'
       inherited lblCifra3: TLabel
-        Width = 118
+        Width = 72
+      end
+      object lblDelta3: TLabel
+        Left = 16
+        Top = 66
+        Width = 72
+        Height = 16
+        AutoSize = False
       end
     end
     inherited tjCifra4: TPlanoTarjeta
-      Left = 624
-      Width = 150
-      Caption = 'Tasa de aprobaci'#243'n'
+      Left = 716
+      Width = 104
+      Caption = 'Tasa'
       inherited lblCifra4: TLabel
-        Width = 118
+        Width = 72
+      end
+      object lblDelta4: TLabel
+        Left = 16
+        Top = 66
+        Width = 72
+        Height = 16
+        AutoSize = False
       end
     end
     object tjCifra5: TPlanoTarjeta
       Tag = 8
-      Left = 786
+      Left = 832
       Top = 8
-      Width = 150
+      Width = 116
       Height = 92
       TitleHeight = 28
       CardColor = 761589
@@ -56,7 +84,7 @@ inherited fraReportes: TfraReportes
         Tag = 16
         Left = 16
         Top = 32
-        Width = 118
+        Width = 84
         Height = 34
         AutoSize = False
         Caption = '0'
@@ -66,6 +94,46 @@ inherited fraReportes: TfraReportes
         Font.Name = 'Segoe UI Semibold'
         Font.Style = []
         ParentFont = False
+      end
+      object lblDelta5: TLabel
+        Left = 16
+        Top = 66
+        Width = 84
+        Height = 16
+        AutoSize = False
+      end
+    end
+    object tjCifra6: TPlanoTarjeta
+      Tag = 9
+      Left = 484
+      Top = 8
+      Width = 220
+      Height = 92
+      TitleHeight = 28
+      CardColor = 6210850
+      Caption = 'Monto aprobado'
+      TabOrder = 5
+      object lblCifra6: TLabel
+        Tag = 16
+        Left = 16
+        Top = 32
+        Width = 188
+        Height = 34
+        AutoSize = False
+        Caption = '0'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -27
+        Font.Name = 'Segoe UI Semibold'
+        Font.Style = []
+        ParentFont = False
+      end
+      object lblDelta6: TLabel
+        Left = 16
+        Top = 66
+        Width = 188
+        Height = 16
+        AutoSize = False
       end
     end
   end
@@ -87,7 +155,8 @@ inherited fraReportes: TfraReportes
         'Por estado'
         'Por asesor'
         'Por tipo de trabajo'
-        'Por mes')
+        'Por mes'
+        'Clientes sin respuesta')
       Style = pesPastilla
       BackColor = 16447477
       Font.Charset = DEFAULT_CHARSET
@@ -105,8 +174,24 @@ inherited fraReportes: TfraReportes
     end
     inherited grLista: TrDBGrid
       Top = 86
-      Height = 274
+      Height = 236
       DataSource = dmMemoria.dsReporteEstados
+      OnDblClick = grListaDblClick
+    end
+    object lblLeyenda: TLabel
+      Tag = 13
+      AlignWithMargins = True
+      Left = 10
+      Top = 326
+      Width = 900
+      Height = 34
+      Margins.Left = 10
+      Margins.Top = 4
+      Margins.Right = 10
+      Margins.Bottom = 6
+      Align = alBottom
+      AutoSize = False
+      WordWrap = True
     end
   end
   object pnlFiltros: TPanel
@@ -143,6 +228,19 @@ inherited fraReportes: TfraReportes
       TabOrder = 1
       StyleElements = []
       OnClick = btnExportarClick
+      Kind = fkSecondary
+    end
+    object btnPdf: TPlanoBotonWin
+      Left = 696
+      Top = 12
+      Width = 118
+      Height = 28
+      Cursor = crHandPoint
+      Anchors = [akTop, akRight]
+      Caption = 'Imprimir / PDF'
+      TabOrder = 2
+      StyleElements = []
+      OnClick = btnPdfClick
       Kind = fkSecondary
     end
   end

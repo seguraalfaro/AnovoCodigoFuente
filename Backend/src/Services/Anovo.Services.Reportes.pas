@@ -1,14 +1,17 @@
 unit Anovo.Services.Reportes;
 
 // Servicio de reportes: cada paso del flujo cuenta en el dia en que ocurrio.
-// Envios al cliente, respuestas (aprobadas y rechazadas) y tasas por asesor,
-// tipo, mes y cliente (sin respuesta). Sin reportes.ver, solo lo propio.
+// Mismas columnas por asesor, tipo y mes, comparacion con el periodo anterior
+// y las cotizaciones detras de cada fila. Sin reportes.ver, solo lo propio.
 
 interface
 
 uses
+  System.Generics.Collections,
   MVCFramework,
+  Anovo.DTOs.Cotizaciones,
   Anovo.DTOs.Reportes,
+  Anovo.Repositories.Intf.Empresa,
   Anovo.Repositories.Intf.Reportes,
   Anovo.Services.Intf.Permisos,
   Anovo.Services.Intf.Reportes;
@@ -17,26 +20,45 @@ type
   TReporteService = class(TInterfacedObject, IReporteService)
   private
     fRepo: IReporteRepository;
+    fEmpresa: IEmpresaRepository;
     fPermisos: IPermisoService;
+    function FiltroUsuario(const AUsuarioId: Integer;
+      const ARoles: TArray<string>): Integer;
+    procedure Resumir(const ADesde, AHasta: TDateTime;
+      const AFiltroUsuario: Integer; const AResumen: TReporteResumenDTO);
+    procedure LlenarEmpresa(const AReporte: TReporteCotizacionesDTO);
   public
     [MVCInject]
-    constructor Create(ARepo: IReporteRepository;
+    constructor Create(ARepo: IReporteRepository; AEmpresa: IEmpresaRepository;
       APermisos: IPermisoService); reintroduce;
     function Cotizaciones(const ADesde, AHasta: TDateTime;
       const AUsuarioId: Integer; const ARoles: TArray<string>)
       : TReporteCotizacionesDTO;
+    function Detalle(const ADesde, AHasta: TDateTime;
+      const AVista, AClave: string; const AUsuarioId: Integer;
+      const ARoles: TArray<string>): TObjectList<TCotizacionDTO>;
   end;
+
+const
+  VISTA_ESTADO = 'estado';
+  VISTA_ASESOR = 'asesor';
+  VISTA_TIPO = 'tipo';
+  VISTA_MES = 'mes';
+  VISTA_CLIENTE = 'cliente';
+  DETALLE_MAXIMO = 500;
 
 implementation
 
 uses
   System.SysUtils,
   System.DateUtils,
-  System.Generics.Collections,
+  System.Math,
   System.Generics.Defaults,
   Anovo.DTOs.Dashboard,
   Anovo.Entities.Consultas,
+  Anovo.Entities.Empresa,
   Anovo.Errors,
+  Anovo.Mapeo,
   Anovo.Permisos,
   Anovo.Services.Cotizaciones,
   Anovo.Textos;
@@ -45,16 +67,25 @@ const
   ORDEN_ESTADOS: array [0 .. 7] of string = (ESTADO_BORRADOR,
     ESTADO_PENDIENTE, ESTADO_DEVUELTA, ESTADO_VISTO_BUENO, ESTADO_ENVIADA,
     ESTADO_APROBADA, ESTADO_RECHAZADA, ESTADO_DESCARTADA);
+  MESES_SIN_HUECOS = 36;
 
 function EsEnvio(const AFila: TCotizacionesDia): Boolean;
 begin
   Result := AFila.Estado.ValueOrDefault = ESTADO_ENVIADA;
 end;
 
+function DescartadasDe(const AFila: TCotizacionesDia): Integer;
+begin
+  if AFila.Estado.ValueOrDefault = ESTADO_DESCARTADA then
+    Result := AFila.Cantidad.ValueOrDefault
+  else
+    Result := 0;
+end;
+
 function EsDelCliente(const AFila: TCotizacionesDia): Boolean;
 begin
   Result := EsEnvio(AFila) or (AFila.Aprobadas.ValueOrDefault > 0) or
-    (AFila.Rechazadas.ValueOrDefault > 0);
+    (AFila.Rechazadas.ValueOrDefault > 0) or (DescartadasDe(AFila) > 0);
 end;
 
 function EnviadasDe(const AFila: TCotizacionesDia): Integer;
@@ -96,6 +127,29 @@ begin
     Result := 1
   else
     Result := 0;
+end;
+
+function ClaveMes(const AAnio, AMes: Integer): Integer;
+begin
+  Result := AAnio * 100 + AMes;
+end;
+
+procedure Acumular(const ADestino: TReporteFilaDTO;
+  const AFila: TCotizacionesDia);
+begin
+  ADestino.Cantidad := ADestino.Cantidad + EnviadasDe(AFila);
+  ADestino.Aprobadas := ADestino.Aprobadas + AFila.Aprobadas.ValueOrDefault;
+  ADestino.Rechazadas := ADestino.Rechazadas + AFila.Rechazadas.ValueOrDefault;
+  ADestino.Descartadas := ADestino.Descartadas + DescartadasDe(AFila);
+  ADestino.MontoAprobado := ADestino.MontoAprobado.ValueOrDefault +
+    AFila.MontoAprobado.ValueOrDefault;
+  ADestino.MontoTotal := ADestino.MontoTotal.ValueOrDefault +
+    MontoEnviadoDe(AFila);
+end;
+
+procedure CerrarTasa(const AFila: TReporteFilaDTO);
+begin
+  AFila.TasaAprobacion := Tasa(AFila.Aprobadas, AFila.Rechazadas);
 end;
 
 procedure SumarEstados(const AFilas: TObjectList<TCotizacionesDia>;
@@ -151,20 +205,13 @@ begin
         lAsesor.AsesorNombre := lFila.AsesorNombre.ValueOrDefault;
         lPorClave.Add(lAsesor.AsesorId, lAsesor);
       end;
-      lAsesor.Cantidad := lAsesor.Cantidad + EnviadasDe(lFila);
-      lAsesor.Aprobadas := lAsesor.Aprobadas + lFila.Aprobadas.ValueOrDefault;
-      lAsesor.Rechazadas := lAsesor.Rechazadas +
-        lFila.Rechazadas.ValueOrDefault;
-      lAsesor.MontoAprobado := lAsesor.MontoAprobado.ValueOrDefault +
-        lFila.MontoAprobado.ValueOrDefault;
-      lAsesor.MontoTotal := lAsesor.MontoTotal.ValueOrDefault +
-        MontoEnviadoDe(lFila);
+      Acumular(lAsesor, lFila);
     end;
   finally
     lPorClave.Free;
   end;
   for lAsesor in ALista do
-    lAsesor.TasaAprobacion := Tasa(lAsesor.Aprobadas, lAsesor.Rechazadas);
+    CerrarTasa(lAsesor);
   ALista.Sort(TComparer<TReporteAsesorDTO>.Construct(
     function(const A, B: TReporteAsesorDTO): Integer
     begin
@@ -197,13 +244,16 @@ begin
         lTipo.TipoTrabajoNombre := lFila.TipoTrabajoNombre.ValueOrDefault;
         lPorClave.Add(lFila.TipoTrabajoId.ValueOrDefault, lTipo);
       end;
-      lTipo.Cantidad := lTipo.Cantidad + EnviadasDe(lFila);
-      lTipo.Aprobadas := lTipo.Aprobadas + lFila.Aprobadas.ValueOrDefault;
-      lTipo.MontoTotal := lTipo.MontoTotal.ValueOrDefault +
-        MontoEnviadoDe(lFila);
+      Acumular(lTipo, lFila);
     end;
   finally
     lPorClave.Free;
+  end;
+  for lTipo in ALista do
+  begin
+    CerrarTasa(lTipo);
+    if lTipo.TipoTrabajoNombre.IsEmpty then
+      lTipo.TipoTrabajoNombre := SSinTipoTrabajo;
   end;
   ALista.Sort(TComparer<TReporteTipoDTO>.Construct(
     function(const A, B: TReporteTipoDTO): Integer
@@ -212,18 +262,16 @@ begin
       if Result = 0 then
         Result := CompareText(A.TipoTrabajoNombre, B.TipoTrabajoNombre);
     end));
-  for lTipo in ALista do
-    if lTipo.TipoTrabajoNombre.IsEmpty then
-      lTipo.TipoTrabajoNombre := SSinTipoTrabajo;
 end;
 
 procedure SumarMeses(const AFilas: TObjectList<TCotizacionesDia>;
-  const ALista: TObjectList<TReporteMesDTO>);
+  const ADesde, AHasta: TDateTime; const ALista: TObjectList<TReporteMesDTO>);
 var
   lFila: TCotizacionesDia;
   lPorClave: TDictionary<Integer, TReporteMesDTO>;
   lMes: TReporteMesDTO;
-  lClave: Integer;
+  lClave, lPrimera, lUltima: Integer;
+  lFecha: TDateTime;
 begin
   lPorClave := TDictionary<Integer, TReporteMesDTO>.Create;
   try
@@ -231,7 +279,7 @@ begin
     begin
       if not EsDelCliente(lFila) then
         Continue;
-      lClave := lFila.Anio.ValueOrDefault * 100 + lFila.Mes.ValueOrDefault;
+      lClave := ClaveMes(lFila.Anio.ValueOrDefault, lFila.Mes.ValueOrDefault);
       if not lPorClave.TryGetValue(lClave, lMes) then
       begin
         lMes := TReporteMesDTO.Create;
@@ -240,21 +288,51 @@ begin
         lMes.Mes := lFila.Mes.ValueOrDefault;
         lPorClave.Add(lClave, lMes);
       end;
-      lMes.Cantidad := lMes.Cantidad + EnviadasDe(lFila);
-      lMes.Aprobadas := lMes.Aprobadas + lFila.Aprobadas.ValueOrDefault;
-      lMes.Rechazadas := lMes.Rechazadas + lFila.Rechazadas.ValueOrDefault;
-      lMes.MontoTotal := lMes.MontoTotal.ValueOrDefault +
-        MontoEnviadoDe(lFila);
+      Acumular(lMes, lFila);
+    end;
+
+    if (YearOf(AHasta) * 12 + MonthOf(AHasta)) -
+      (YearOf(ADesde) * 12 + MonthOf(ADesde)) < MESES_SIN_HUECOS then
+    begin
+      lPrimera := ClaveMes(YearOf(ADesde), MonthOf(ADesde));
+      lUltima := ClaveMes(YearOf(AHasta), MonthOf(AHasta));
+    end
+    else
+    begin
+      lPrimera := MaxInt;
+      lUltima := 0;
+      for lClave in lPorClave.Keys do
+      begin
+        lPrimera := Min(lPrimera, lClave);
+        lUltima := Max(lUltima, lClave);
+      end;
+    end;
+    if lUltima > 0 then
+    begin
+      lFecha := EncodeDate(lPrimera div 100, lPrimera mod 100, 1);
+      while ClaveMes(YearOf(lFecha), MonthOf(lFecha)) <= lUltima do
+      begin
+        lClave := ClaveMes(YearOf(lFecha), MonthOf(lFecha));
+        if not lPorClave.ContainsKey(lClave) then
+        begin
+          lMes := TReporteMesDTO.Create;
+          ALista.Add(lMes);
+          lMes.Anio := YearOf(lFecha);
+          lMes.Mes := MonthOf(lFecha);
+          lPorClave.Add(lClave, lMes);
+        end;
+        lFecha := IncMonth(lFecha);
+      end;
     end;
   finally
     lPorClave.Free;
   end;
   for lMes in ALista do
-    lMes.TasaAprobacion := Tasa(lMes.Aprobadas, lMes.Rechazadas);
+    CerrarTasa(lMes);
   ALista.Sort(TComparer<TReporteMesDTO>.Construct(
     function(const A, B: TReporteMesDTO): Integer
     begin
-      Result := (A.Anio * 100 + A.Mes) - (B.Anio * 100 + B.Mes);
+      Result := ClaveMes(A.Anio, A.Mes) - ClaveMes(B.Anio, B.Mes);
     end));
 end;
 
@@ -317,62 +395,127 @@ begin
     end));
 end;
 
+procedure PeriodoAnterior(const ADesde, AHasta: TDateTime;
+  out AAntesDesde, AAntesHasta: TDateTime);
+var
+  lMeses: Integer;
+begin
+  if DayOf(ADesde) = 1 then
+  begin
+    lMeses := (YearOf(AHasta) * 12 + MonthOf(AHasta)) -
+      (YearOf(ADesde) * 12 + MonthOf(ADesde)) + 1;
+    AAntesDesde := IncMonth(ADesde, -lMeses);
+    AAntesHasta := IncMonth(AHasta, -lMeses);
+  end
+  else
+  begin
+    AAntesHasta := IncDay(ADesde, -1);
+    AAntesDesde := IncDay(AAntesHasta, -DaysBetween(ADesde, AHasta));
+  end;
+end;
+
 constructor TReporteService.Create(ARepo: IReporteRepository;
-  APermisos: IPermisoService);
+  AEmpresa: IEmpresaRepository; APermisos: IPermisoService);
 begin
   inherited Create;
   fRepo := ARepo;
+  fEmpresa := AEmpresa;
   fPermisos := APermisos;
+end;
+
+function TReporteService.FiltroUsuario(const AUsuarioId: Integer;
+  const ARoles: TArray<string>): Integer;
+begin
+  if fPermisos.TieneAlguno(AUsuarioId, ARoles, [PERMISO_REPORTES_VER]) then
+    Result := 0
+  else
+    Result := AUsuarioId;
+end;
+
+procedure TReporteService.Resumir(const ADesde, AHasta: TDateTime;
+  const AFiltroUsuario: Integer; const AResumen: TReporteResumenDTO);
+var
+  lFilas: TObjectList<TCotizacionesDia>;
+  lFila: TCotizacionesDia;
+  lSumaDias, lConRespuesta: Integer;
+begin
+  AResumen.Desde := ADesde;
+  AResumen.Hasta := AHasta;
+  lFilas := fRepo.DiasEntre(ADesde, IncDay(AHasta, 1), AFiltroUsuario);
+  try
+    lSumaDias := 0;
+    lConRespuesta := 0;
+    for lFila in lFilas do
+    begin
+      AResumen.Total := AResumen.Total + EnviadasDe(lFila);
+      AResumen.MontoTotal := AResumen.MontoTotal + MontoEnviadoDe(lFila);
+      AResumen.Aprobadas := AResumen.Aprobadas +
+        lFila.Aprobadas.ValueOrDefault;
+      AResumen.MontoAprobado := AResumen.MontoAprobado +
+        lFila.MontoAprobado.ValueOrDefault;
+      AResumen.Rechazadas := AResumen.Rechazadas +
+        lFila.Rechazadas.ValueOrDefault;
+      AResumen.Descartadas := AResumen.Descartadas + DescartadasDe(lFila);
+      Inc(lSumaDias, lFila.SumaDiasRespuesta.ValueOrDefault);
+      Inc(lConRespuesta, lFila.ConRespuesta.ValueOrDefault);
+    end;
+    if lConRespuesta > 0 then
+      AResumen.RespuestaMedia := lSumaDias div lConRespuesta;
+    AResumen.TasaAprobacion := Tasa(AResumen.Aprobadas, AResumen.Rechazadas);
+
+    if AResumen is TReporteCotizacionesDTO then
+    begin
+      SumarEstados(lFilas, TReporteCotizacionesDTO(AResumen).PorEstado);
+      SumarAsesores(lFilas, TReporteCotizacionesDTO(AResumen).PorAsesor);
+      SumarTipos(lFilas, TReporteCotizacionesDTO(AResumen).PorTipo);
+      SumarMeses(lFilas, ADesde, AHasta,
+        TReporteCotizacionesDTO(AResumen).PorMes);
+    end;
+  finally
+    lFilas.Free;
+  end;
+end;
+
+procedure TReporteService.LlenarEmpresa(const AReporte
+  : TReporteCotizacionesDTO);
+var
+  lEmpresa: TEmpresa;
+  lTelefono: string;
+begin
+  lEmpresa := fEmpresa.GetByPK(EMPRESA_ID, False);
+  if lEmpresa = nil then
+    Exit;
+  try
+    AReporte.EmpresaRazonSocial := lEmpresa.RazonSocial;
+    AReporte.EmpresaCedula := lEmpresa.CedulaJuridica;
+    lTelefono := lEmpresa.TelefonoFijo.ValueOrDefault;
+    if lTelefono.IsEmpty then
+      lTelefono := lEmpresa.Celular.ValueOrDefault;
+    AReporte.EmpresaTelefono := lTelefono;
+    AReporte.EmpresaCorreo := lEmpresa.Correo.ValueOrDefault;
+  finally
+    lEmpresa.Free;
+  end;
 end;
 
 function TReporteService.Cotizaciones(const ADesde, AHasta: TDateTime;
   const AUsuarioId: Integer; const ARoles: TArray<string>)
   : TReporteCotizacionesDTO;
 var
-  lFilas: TObjectList<TCotizacionesDia>;
   lEnviadas: TObjectList<TClientesRespuesta>;
-  lFila: TCotizacionesDia;
-  lSumaDias, lConRespuesta, lFiltroUsuario: Integer;
+  lFiltroUsuario: Integer;
+  lAntesDesde, lAntesHasta: TDateTime;
 begin
   if DateOf(ADesde) > DateOf(AHasta) then
     raise EDatoInvalido.Create(SReporteRangoInvalido);
 
-  if fPermisos.TieneAlguno(AUsuarioId, ARoles, [PERMISO_REPORTES_VER]) then
-    lFiltroUsuario := 0
-  else
-    lFiltroUsuario := AUsuarioId;
+  lFiltroUsuario := FiltroUsuario(AUsuarioId, ARoles);
 
   Result := TReporteCotizacionesDTO.Create;
   try
-    Result.Desde := DateOf(ADesde);
-    Result.Hasta := DateOf(AHasta);
-
-    lFilas := fRepo.DiasEntre(Result.Desde, IncDay(Result.Hasta, 1),
-      lFiltroUsuario);
-    try
-      lSumaDias := 0;
-      lConRespuesta := 0;
-      for lFila in lFilas do
-      begin
-        Result.Total := Result.Total + EnviadasDe(lFila);
-        Result.MontoTotal := Result.MontoTotal + MontoEnviadoDe(lFila);
-        Result.Aprobadas := Result.Aprobadas + lFila.Aprobadas.ValueOrDefault;
-        Result.Rechazadas := Result.Rechazadas +
-          lFila.Rechazadas.ValueOrDefault;
-        Inc(lSumaDias, lFila.SumaDiasRespuesta.ValueOrDefault);
-        Inc(lConRespuesta, lFila.ConRespuesta.ValueOrDefault);
-      end;
-      if lConRespuesta > 0 then
-        Result.RespuestaMedia := lSumaDias div lConRespuesta;
-      Result.TasaAprobacion := Tasa(Result.Aprobadas, Result.Rechazadas);
-
-      SumarEstados(lFilas, Result.PorEstado);
-      SumarAsesores(lFilas, Result.PorAsesor);
-      SumarTipos(lFilas, Result.PorTipo);
-      SumarMeses(lFilas, Result.PorMes);
-    finally
-      lFilas.Free;
-    end;
+    Resumir(DateOf(ADesde), DateOf(AHasta), lFiltroUsuario, Result);
+    PeriodoAnterior(Result.Desde, Result.Hasta, lAntesDesde, lAntesHasta);
+    Resumir(lAntesDesde, lAntesHasta, lFiltroUsuario, Result.Anterior);
 
     lEnviadas := fRepo.EnviadasEntre(Result.Desde, IncDay(Result.Hasta, 1),
       lFiltroUsuario);
@@ -381,9 +524,83 @@ begin
     finally
       lEnviadas.Free;
     end;
+    LlenarEmpresa(Result);
   except
     Result.Free;
     raise;
+  end;
+end;
+
+function TReporteService.Detalle(const ADesde, AHasta: TDateTime;
+  const AVista, AClave: string; const AUsuarioId: Integer;
+  const ARoles: TArray<string>): TObjectList<TCotizacionDTO>;
+var
+  lFiltro: TFiltroDetalleReporte;
+  lClave: Integer;
+  lInicioMes: TDateTime;
+  lVistas: TObjectList<TCotizacionConNombres>;
+  lVista: TCotizacionConNombres;
+begin
+  if DateOf(ADesde) > DateOf(AHasta) then
+    raise EDatoInvalido.Create(SReporteRangoInvalido);
+
+  lFiltro := Default(TFiltroDetalleReporte);
+  lFiltro.Desde := DateOf(ADesde);
+  lFiltro.Hasta := IncDay(DateOf(AHasta), 1);
+  lFiltro.UsuarioPropio := FiltroUsuario(AUsuarioId, ARoles);
+
+  if SameText(AVista, VISTA_ESTADO) then
+  begin
+    if OrdenEstado(AClave) = Length(ORDEN_ESTADOS) then
+      raise EDatoInvalido.Create(SReporteClaveInvalida);
+    lFiltro.Estado := AClave;
+  end
+  else if SameText(AVista, VISTA_TIPO) then
+  begin
+    if not TryStrToInt(AClave, lClave) then
+      raise EDatoInvalido.Create(SReporteClaveInvalida);
+    lFiltro.FiltraTipo := True;
+    lFiltro.TipoTrabajoId := lClave;
+  end
+  else
+  begin
+    if not TryStrToInt(AClave, lClave) or (lClave <= 0) then
+      raise EDatoInvalido.Create(SReporteClaveInvalida);
+    if SameText(AVista, VISTA_ASESOR) then
+      lFiltro.AsesorId := lClave
+    else if SameText(AVista, VISTA_CLIENTE) then
+    begin
+      lFiltro.ClienteId := lClave;
+      lFiltro.PorEnvio := True;
+    end
+    else if SameText(AVista, VISTA_MES) then
+    begin
+      if not TryEncodeDate(lClave div 100, lClave mod 100, 1, lInicioMes) then
+        raise EDatoInvalido.Create(SReporteClaveInvalida);
+      lFiltro.Desde := Max(lFiltro.Desde, lInicioMes);
+      lFiltro.Hasta := Min(lFiltro.Hasta, IncMonth(lInicioMes));
+    end
+    else
+      raise EDatoInvalido.Create(SReporteVistaInvalida);
+  end;
+
+  lVistas := fRepo.Detalle(lFiltro, DETALLE_MAXIMO);
+  try
+    Result := TObjectList<TCotizacionDTO>.Create(True);
+    try
+      for lVista in lVistas do
+        Result.Add(TMapeo.ADto<TCotizacionDTO>(lVista));
+      Result.Sort(TComparer<TCotizacionDTO>.Construct(
+        function(const A, B: TCotizacionDTO): Integer
+        begin
+          Result := B.Numero - A.Numero;
+        end));
+    except
+      Result.Free;
+      raise;
+    end;
+  finally
+    lVistas.Free;
   end;
 end;
 
