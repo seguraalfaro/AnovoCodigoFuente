@@ -61,4 +61,6 @@ desktop.ini
 # (contiene los layouts .bal) y toda la carpeta db/ con los scripts SQL.
 
 # ============ PRUEBAS ============
+Desktop/Win32/Debug/AnovoEscritorio.llamadas.log
+Db/datos-prueba/claves_cuentas_pruebas.txt
 /Tests/bin/
