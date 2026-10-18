@@ -43,6 +43,8 @@ type
       : TTrabajoUsuario;
     function TieneEnCurso(const ASolicitudId: Integer): Boolean;
     function VistaDe(const AId: Integer): TCotizacionConNombres;
+    function VistasDe(const AIds: TArray<Integer>)
+      : TObjectList<TCotizacionConNombres>;
     function HistorialDe(const AId: Integer): TObjectList<THistorialCotizacion>;
   end;
 
@@ -172,6 +174,25 @@ function TCotizacionRepository.VistaDe(const AId: Integer)
   : TCotizacionConNombres;
 begin
   Result := PrimeraFilaDeConsulta<TCotizacionConNombres>(CONSULTA_POR_ID, [AId]);
+end;
+
+function TCotizacionRepository.VistasDe(const AIds: TArray<Integer>)
+  : TObjectList<TCotizacionConNombres>;
+var
+  lId: Integer;
+  lLista: string;
+begin
+  if Length(AIds) = 0 then
+    Exit(TObjectList<TCotizacionConNombres>.Create(True));
+  lLista := '';
+  for lId in AIds do
+  begin
+    if lLista <> '' then
+      lLista := lLista + ',';
+    lLista := lLista + lId.ToString;
+  end;
+  Result := ListarConsulta<TCotizacionConNombres>(CONSULTA_DE_IDS, [lLista],
+    SIN_LIMITE);
 end;
 
 function TCotizacionRepository.HistorialDe(const AId: Integer)

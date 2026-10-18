@@ -41,6 +41,8 @@ type
       : TTrabajoUsuario;
     function TieneEnCurso(const ASolicitudId: Integer): Boolean;
     function VistaDe(const AId: Integer): TCotizacionConNombres;
+    function VistasDe(const AIds: TArray<Integer>)
+      : TObjectList<TCotizacionConNombres>;
     function HistorialDe(const AId: Integer): TObjectList<THistorialCotizacion>;
   end;
 

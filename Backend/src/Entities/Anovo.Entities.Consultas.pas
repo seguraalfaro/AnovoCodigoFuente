@@ -26,6 +26,7 @@ const
   CONSULTA_ENTRE = 'Entre';
   CONSULTA_ENTRE_PROPIAS = 'EntrePropias';
   CONSULTA_POR_ID = 'PorId';
+  CONSULTA_DE_IDS = 'DeIds';
   CONSULTA_DE_SOLICITUD = 'DeSolicitud';
   CONSULTA_DE_CLIENTE = 'DeCliente';
   CONSULTA_BUSCAR_INACTIVOS = 'BuscarInactivos';
@@ -219,6 +220,8 @@ type
   [MVCTable('V_COTIZACIONES')]
   [MVCNamedRQLQuery(CONSULTA_POR_ID,
     'eq(ID,%d)')]
+  [MVCNamedRQLQuery(CONSULTA_DE_IDS,
+    'in(ID,[%s])')]
   TCotizacionConNombres = class(TVCotizaciones)
   end;
 

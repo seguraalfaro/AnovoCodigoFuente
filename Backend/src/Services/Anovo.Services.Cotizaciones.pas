@@ -512,6 +512,11 @@ var
   lPeriodo: TPeriodo;
   lFilas: TObjectList<TCotizaciones>;
   lFila: TCotizaciones;
+  lIds: TArray<Integer>;
+  lVistas: TObjectList<TCotizacionConNombres>;
+  lVista: TCotizacionConNombres;
+  lPorId: TDictionary<Integer, TCotizacionConNombres>;
+  lDto: TCotizacionDTO;
 begin
   if fPermisos.TieneAlguno(AUsuarioId, ARoles,
     [PERMISO_COTIZACIONES_VER_TODAS]) then
@@ -525,16 +530,32 @@ begin
 
   lFilas := fRepo.Buscar(ATexto, APagina, APorPagina, AEstado, AClienteId,
     lFiltroUsuario, lPeriodo.Inicio, lPeriodo.Fin);
+  lVistas := nil;
+  lPorId := TDictionary<Integer, TCotizacionConNombres>.Create;
   try
+    lIds := [];
+    for lFila in lFilas do
+      lIds := lIds + [lFila.ID.Value];
+    lVistas := fRepo.VistasDe(lIds);
+    for lVista in lVistas do
+      lPorId.AddOrSetValue(lVista.ID.ValueOrDefault, lVista);
+
     Result := TObjectList<TCotizacionDTO>.Create(True);
     try
       for lFila in lFilas do
-        Result.Add(ADto(lFila));
+      begin
+        lDto := TMapeo.ADto<TCotizacionDTO>(lFila);
+        Result.Add(lDto);
+        if lPorId.TryGetValue(lFila.ID.Value, lVista) then
+          TMapeo.Copiar(lVista, lDto);
+      end;
     except
       Result.Free;
       raise;
     end;
   finally
+    lPorId.Free;
+    lVistas.Free;
     lFilas.Free;
   end;
 end;

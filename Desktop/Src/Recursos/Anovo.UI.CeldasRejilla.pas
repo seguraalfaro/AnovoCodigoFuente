@@ -65,6 +65,9 @@ type
     procedure UbicarAviso;
     procedure AcomodarAviso(Sender: TObject);
     function EsColumnaEstado(const ACampo: string): Boolean;
+    function TextoDeEstado(const ACampo: TField): string;
+    function AnchoEstado(const AColumna: TColumn): Integer;
+    procedure AjustarEstados;
     function SinFilas: Boolean;
     function FondoDeCelda(const ARect: TRect; AColumn: TColumn): TColor;
     procedure RellenarFondo(const ARect: TRect; AColumn: TColumn);
@@ -499,6 +502,60 @@ begin
   end;
 end;
 
+function TCeldasRejilla.TextoDeEstado(const ACampo: TField): string;
+begin
+  Result := ACampo.DisplayText;
+  if (Result <> '') and (Result = ACampo.AsString) then
+    Result := UpperCase(Result[1]) + Copy(Result, 2, MaxInt);
+end;
+
+function TCeldasRejilla.AnchoEstado(const AColumna: TColumn): Integer;
+var
+  I, lAnterior: Integer;
+  lEnlace: TGridDataLink;
+  lAux: Vcl.Graphics.TBitmap;
+begin
+  lAux := Vcl.Graphics.TBitmap.Create;
+  try
+    FuenteDeCelda(lAux.Canvas, FGrid.Font);
+    Result := lAux.Canvas.TextWidth(AColumna.Title.Caption);
+    lEnlace := TRejillaAbierta(FGrid).DataLink;
+    if lEnlace.Active then
+    begin
+      lAnterior := lEnlace.ActiveRecord;
+      try
+        for I := 0 to lEnlace.RecordCount - 1 do
+        begin
+          lEnlace.ActiveRecord := I;
+          Result := Max(Result, TPlanoPastilla.AnchoPara(lAux.Canvas,
+            TextoDeEstado(AColumna.Field)));
+        end;
+      finally
+        lEnlace.ActiveRecord := lAnterior;
+      end;
+    end;
+  finally
+    lAux.Free;
+  end;
+  Inc(Result, MARGEN_CELDA * 2);
+end;
+
+procedure TCeldasRejilla.AjustarEstados;
+var
+  lCampo: string;
+  lColumna: TColumn;
+begin
+  for lCampo in FColumnasEstado do
+  begin
+    lColumna := ColumnaDe(FGrid, lCampo);
+    if (lColumna = nil) or (lColumna.Field = nil) then
+      Continue;
+    if FGrid.FieldsFixedColumnWidth.IndexOf(lCampo) < 0 then
+      FGrid.FieldsFixedColumnWidth.Add(lCampo);
+    lColumna.Width := AnchoEstado(lColumna);
+  end;
+end;
+
 procedure TCeldasRejilla.AjustarAcciones;
 var
   lColumna: TColumn;
@@ -532,6 +589,7 @@ end;
 procedure TCeldasRejilla.AjustarColumnas;
 begin
   AjustarAcciones;
+  AjustarEstados;
   Anovo.UI.CeldasRejilla.AjustarColumnas(FGrid);
   SeguirFuente;
   RevisarVacio;
@@ -588,9 +646,7 @@ begin
   lValor := AColumn.Field.AsString;
   if Trim(lValor) = '' then
     Exit;
-  lEstado := AColumn.Field.DisplayText;
-  if lEstado = lValor then
-    lEstado := UpperCase(lEstado[1]) + Copy(lEstado, 2, MaxInt);
+  lEstado := TextoDeEstado(AColumn.Field);
 
   FuenteDeCelda(FGrid.Canvas, FGrid.Font);
   R.Left := ARect.Left + MARGEN_CELDA;
