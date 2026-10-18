@@ -58,6 +58,7 @@ type
 
 const
   LARGO_UUID_LOCAL = 36;
+  TIPO_JSON_UTF8 = 'application/json; charset=utf-8';
 
 function ManejadorDeErrores: TMVCExceptionHandlerProc;
 function CuerpoError(const ACodigo, AMensaje: string): string;
@@ -252,7 +253,7 @@ begin
         end;
 
         WebContext.Response.StatusCode := lStatus;
-        WebContext.Response.ContentType := TMVCMediaType.APPLICATION_JSON;
+        WebContext.Response.ContentType := TIPO_JSON_UTF8;
         WebContext.Response.Content := lCuerpo.ToJSON(False);
       finally
         lCuerpo.Free;

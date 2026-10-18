@@ -32,7 +32,7 @@ procedure PintarPaginacion(AEtiqueta: TLabel; AAnterior, ASiguiente: TControl;
 implementation
 
 uses
-  System.SysUtils, System.UITypes, Vcl.Forms, Vcl.Dialogs;
+  System.SysUtils, System.UITypes, Vcl.Forms, Vcl.Dialogs, Anovo.Textos;
 
 var
   Ocupados: Integer;
@@ -50,12 +50,41 @@ begin
     Screen.Cursor := crDefault;
 end;
 
+function Dialogo(const AMensaje, ATitulo: string; const ATipo: TMsgDlgType;
+  const ABotones: TMsgDlgButtons): Integer;
+var
+  lForma: TForm;
+  I: Integer;
+  lBoton: TButton;
+begin
+  lForma := CreateMessageDialog(AMensaje, ATipo, ABotones);
+  try
+    lForma.Caption := ATitulo;
+    for I := 0 to lForma.ComponentCount - 1 do
+      if lForma.Components[I] is TButton then
+      begin
+        lBoton := TButton(lForma.Components[I]);
+        case lBoton.ModalResult of
+          mrOk:
+            lBoton.Caption := SDialogoAceptar;
+          mrYes:
+            lBoton.Caption := SDialogoSi;
+          mrNo:
+            lBoton.Caption := SDialogoNo;
+        end;
+      end;
+    Result := lForma.ShowModal;
+  finally
+    lForma.Free;
+  end;
+end;
+
 procedure AvisarError(const AMensaje: string);
 begin
   TThread.ForceQueue(nil,
     procedure
     begin
-      MessageDlg(AMensaje, mtError, [mbOK], 0);
+      Dialogo(AMensaje, SDialogoError, mtError, [mbOK]);
     end);
 end;
 
@@ -64,13 +93,14 @@ begin
   TThread.ForceQueue(nil,
     procedure
     begin
-      MessageDlg(AMensaje, mtInformation, [mbOK], 0);
+      Dialogo(AMensaje, SDialogoAviso, mtInformation, [mbOK]);
     end);
 end;
 
 function Confirmar(const AMensaje: string): Boolean;
 begin
-  Result := MessageDlg(AMensaje, mtConfirmation, [mbYes, mbNo], 0) = mrYes;
+  Result := Dialogo(AMensaje, SDialogoConfirmar, mtConfirmation,
+    [mbYes, mbNo]) = mrYes;
 end;
 
 function AvisarReparos(const AReparos: TStrings;

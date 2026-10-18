@@ -56,6 +56,7 @@ type
     FBotonHover: Integer;
     FTextoVacio: string;
     FEnlace: TDataLink;
+    FSiguiendoFuente: Boolean;
     FAviso: TPanel;
     FCirculo: TShape;
     FIcono: TVirtualImage;
@@ -101,6 +102,7 @@ type
     procedure AjustarAcciones;
     procedure AjustarColumnas;
     procedure RevisarVacio;
+    procedure SeguirFuente;
 
     property TextoVacio: string read FTextoVacio write PonerTextoVacio;
     property CampoAcciones: string read FCampoAcciones;
@@ -207,6 +209,7 @@ begin
   if FAviso = nil then
     CrearAviso;
   FDetalle.Caption := AValor;
+  SeguirFuente;
   RevisarVacio;
 end;
 
@@ -259,10 +262,8 @@ var
   lDatos: TDataSet;
   lVacio: Boolean;
 begin
-  if FAviso = nil then
+  if (FAviso = nil) or FSiguiendoFuente then
     Exit;
-  if FEnlace.DataSource <> FGrid.DataSource then
-    FEnlace.DataSource := FGrid.DataSource;
 
   lVacio := False;
   if FGrid.DataSource <> nil then
@@ -517,10 +518,24 @@ begin
   lColumna.Width := AnchoAcciones;
 end;
 
+procedure TCeldasRejilla.SeguirFuente;
+begin
+  if (FEnlace = nil) or FSiguiendoFuente or
+    (FEnlace.DataSource = FGrid.DataSource) then
+    Exit;
+  FSiguiendoFuente := True;
+  try
+    FEnlace.DataSource := FGrid.DataSource;
+  finally
+    FSiguiendoFuente := False;
+  end;
+end;
+
 procedure TCeldasRejilla.AjustarColumnas;
 begin
   AjustarAcciones;
   Anovo.UI.CeldasRejilla.AjustarColumnas(FGrid);
+  SeguirFuente;
   RevisarVacio;
 end;
 

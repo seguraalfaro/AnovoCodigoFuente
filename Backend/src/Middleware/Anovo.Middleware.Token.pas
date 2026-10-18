@@ -89,7 +89,7 @@ begin
     Exit;
 
   AContext.Response.StatusCode := HTTP_STATUS.Unauthorized;
-  AContext.Response.ContentType := TMVCMediaType.APPLICATION_JSON;
+  AContext.Response.ContentType := TIPO_JSON_UTF8;
   AContext.Response.Content := CuerpoError('TOKEN_INVALIDO',
     STokenAccesoInvalido);
   AHandled := True;

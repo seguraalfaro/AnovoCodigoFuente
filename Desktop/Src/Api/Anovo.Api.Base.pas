@@ -61,6 +61,8 @@ const
 
   ESTADO_DEMASIADAS_PETICIONES = 429;
 
+  CODIGO_SESION_REVOCADA = 'SESION_REVOCADA';
+
   ESTADO_SIN_RESPUESTA = 0;
 
 threadvar
@@ -157,12 +159,6 @@ begin
   if Result.Success then
     Exit;
 
-  if (Result.StatusCode = 401) and not AEsLogin then
-  begin
-    TSesion.Vencer(SSesionVencida);
-    raise EAnovoSesionVencida.Create(SSesionVencida);
-  end;
-
   lCodigo := 'ERROR';
   lMensaje := Format(SErrorServidor,
     [Result.StatusCode]);
@@ -180,6 +176,16 @@ begin
   except
     on EJsonException do
       ;
+  end;
+
+  if (Result.StatusCode = 401) and not AEsLogin then
+  begin
+    if lCodigo = CODIGO_SESION_REVOCADA then
+      lMensaje := SSesionRevocada
+    else
+      lMensaje := SSesionVencida;
+    TSesion.Vencer(lMensaje);
+    raise EAnovoSesionVencida.Create(lMensaje);
   end;
 
   if (Result.StatusCode = ESTADO_DEMASIADAS_PETICIONES) and (lCodigo = 'ERROR') then

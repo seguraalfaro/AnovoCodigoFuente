@@ -233,7 +233,11 @@ resourcestring
     'caracteres.';
   SConsentimientoYaRevocado = 'El consentimiento de este cliente ya estaba ' +
     'revocado.';
+  SConsentimientoNoFirmado = 'Este cliente no tiene un consentimiento ' +
+    'firmado que revocar.';
   SCotizacionNoEditable = 'Una cotización en estado %s ya no admite cambios.';
+  SCotizacionDeOtro = 'Esta cotización la tomó otra persona: solo quien la ' +
+    'tomó puede cambiarla o presentarla. Para corregirla, devuélvala.';
   SLineaSinManoObra = 'Una línea de mano de obra necesita la mano de obra.';
   SLineaSinPrecio = 'El ítem no tiene precio vigente en el catálogo. Cargue ' +
     'el precio o indíquelo en la línea.';
@@ -396,6 +400,12 @@ resourcestring
   SDemasiadasPeticiones = 'Se hicieron demasiadas consultas en poco tiempo. ' +
     'Espere un minuto e intente de nuevo.';
   SSesionVencida = 'Su sesión venció. Vuelva a ingresar.';
+  SDialogoError = 'Error';
+  SDialogoAviso = 'Aviso';
+  SDialogoConfirmar = 'Confirmar';
+  SDialogoAceptar = 'Aceptar';
+  SDialogoSi = 'Sí';
+  SDialogoNo = 'No';
   SCertificadoInvalido = 'No se pudo verificar el certificado del servidor ' +
     'de Anovo. Avise al administrador.';
   SCredencialesInvalidas = 'El correo o la clave no son correctos.';

@@ -331,6 +331,8 @@ begin
     raise EConflictoDeEstado.Create('COTIZACION_NO_EDITABLE',
       Format(SCotizacionNoEditable,
       [ACotizacion.Estado]));
+  if not (ACotizacion.ElaboradaPor = UsuarioActual) then
+    raise EConflictoDeEstado.Create('COTIZACION_DE_OTRO', SCotizacionDeOtro);
 end;
 
 procedure TCotizacionService.ExigirAlcance(const ACotizacion: TCotizaciones;

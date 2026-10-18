@@ -34,6 +34,7 @@ uses
   System.SysUtils,
   System.Rtti,
   System.TypInfo,
+  System.MaskUtils,
   MVCFramework.Nullables,
   MVCFramework.Serializer.Commons;
 
@@ -110,6 +111,28 @@ begin
     (ATipo = TypeInfo(TTime));
 end;
 
+function ConMascara(const ACampo: TField; const ATexto: string): string;
+const
+  POSICIONES = ['0', '9', '#', 'L', 'l', 'A', 'a', 'C', 'c'];
+var
+  lMascara: string;
+  lPosiciones: Integer;
+  lCaracter: Char;
+begin
+  Result := ATexto;
+  if (ACampo.EditMask = '') or (ATexto = '') then
+    Exit;
+  lMascara := string(ACampo.EditMask);
+  if Pos(';', lMascara) > 0 then
+    lMascara := Copy(lMascara, 1, Pos(';', lMascara) - 1);
+  lPosiciones := 0;
+  for lCaracter in lMascara do
+    if CharInSet(lCaracter, POSICIONES) then
+      Inc(lPosiciones);
+  if Length(ATexto) = lPosiciones then
+    Result := FormatMaskText(lMascara + ';0;_', ATexto);
+end;
+
 procedure AlCampo(const ACampo: TField; const AValor: TValue;
   const ATipo: PTypeInfo);
 begin
@@ -127,7 +150,7 @@ begin
       else
         ACampo.AsInteger := AValor.AsOrdinal;
     tkString, tkLString, tkWString, tkUString:
-      ACampo.AsString := AValor.AsString;
+      ACampo.AsString := ConMascara(ACampo, AValor.AsString);
   end;
 end;
 

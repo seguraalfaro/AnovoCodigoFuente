@@ -771,6 +771,9 @@ begin
     if lCliente.ConsentimientoEstado = CONSENTIMIENTO_REVOCADO then
       raise EConflictoDeEstado.Create('CONSENTIMIENTO_YA_REVOCADO',
         SConsentimientoYaRevocado);
+    if lCliente.ConsentimientoEstado <> CONSENTIMIENTO_FIRMADO then
+      raise EConflictoDeEstado.Create('CONSENTIMIENTO_NO_FIRMADO',
+        SConsentimientoNoFirmado);
 
     lFecha := Now;
 

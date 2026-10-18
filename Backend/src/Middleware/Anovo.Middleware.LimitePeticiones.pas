@@ -44,7 +44,7 @@ begin
   if AHandled and (AContext.Response.StatusCode = HTTP_STATUS.TooManyRequests)
   then
   begin
-    AContext.Response.ContentType := TMVCMediaType.APPLICATION_JSON;
+    AContext.Response.ContentType := TIPO_JSON_UTF8;
     AContext.Response.Content := CuerpoError('DEMASIADAS_PETICIONES',
       SDemasiadasPeticiones);
   end;
