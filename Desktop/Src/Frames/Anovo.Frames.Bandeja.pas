@@ -10,6 +10,8 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.BotonWin, VclPlano.Tarjeta,
+  Anovo.PeriodoBusqueda,
+  Anovo.Forms.Periodo,
   Anovo.Frames.Listado,
   Anovo.DTOs.Cotizaciones,
   Anovo.Vistas.Intf.Bandeja,
@@ -24,9 +26,13 @@ type
     lblAntigua: TLabel;
     tjEspera: TPlanoTarjeta;
     lblEspera: TLabel;
+    btnPeriodo: TPlanoBotonWin;
     procedure grDatosDblClick(Sender: TObject);
   private
     FPresentador: TPresentadorBandeja;
+    FSelector: TSelectorPeriodo;
+    procedure PeriodoCambio(const APeriodo: TPeriodoBusqueda);
+    procedure MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
     procedure MostrarAcciones(const AAcciones: TAccionesBandeja);
     procedure Accion(Sender: TObject; const AClave: string);
     procedure Revisar;
@@ -37,6 +43,7 @@ type
     procedure Limpiar; override;
     procedure PaginaAnterior; override;
     procedure PaginaSiguiente; override;
+    procedure MostrarCargando(const AActivo: Boolean); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -73,6 +80,8 @@ begin
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
   lRejilla.OnAccion := Accion;
 
+  FSelector := TSelectorPeriodo.Crear(btnPeriodo, False, PeriodoCambio);
+
   FPresentador := TPresentadorBandeja.Create(Self, TApiCotizaciones.Create);
   FPresentador.Iniciar;
 end;
@@ -91,6 +100,22 @@ end;
 procedure TfraBandeja.Limpiar;
 begin
   FPresentador.Limpiar;
+end;
+
+procedure TfraBandeja.MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
+begin
+  FSelector.Mostrar(APeriodo);
+end;
+
+procedure TfraBandeja.PeriodoCambio(const APeriodo: TPeriodoBusqueda);
+begin
+  FPresentador.FiltrarPeriodo(APeriodo);
+end;
+
+procedure TfraBandeja.MostrarCargando(const AActivo: Boolean);
+begin
+  inherited;
+  btnPeriodo.Enabled := not AActivo;
 end;
 
 procedure TfraBandeja.PaginaAnterior;

@@ -101,6 +101,17 @@ inherited fraBandeja: TfraBandeja
     inherited sbBuscar: TSearchBox
       TextHint = 'Cliente o descripci'#243'n'
     end
+    object btnPeriodo: TPlanoBotonWin
+      Left = 432
+      Top = 12
+      Width = 330
+      Height = 28
+      Cursor = crHandPoint
+      Caption = 'Todas las fechas'
+      TabOrder = 2
+      StyleElements = []
+      Kind = fkSecondary
+    end
   end
   inherited pnclient: TRelativePanel
     Top = 243

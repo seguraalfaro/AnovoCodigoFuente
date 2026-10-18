@@ -35,10 +35,10 @@ type
     function EnviadasSinRespuesta(const ADias: Integer)
       : TObjectList<TCotizaciones>;
     function Bandeja(const AUsuarioId: Integer; const ATexto: string;
-      const APagina, APorPagina: Integer)
+      const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer)
       : TObjectList<TBandejaCotizaciones>;
-    function ContarBandeja(const AUsuarioId: Integer;
-      const ATexto: string): Int64;
+    function ContarBandeja(const AUsuarioId: Integer; const ATexto: string;
+      const ADesde, AHasta: TDateTime): Int64;
     function ResumenBandeja(const AUsuarioId: Integer)
       : TTrabajoUsuario;
     function TieneEnCurso(const ASolicitudId: Integer): Boolean;
@@ -129,19 +129,30 @@ begin
 end;
 
 function TCotizacionRepository.Bandeja(const AUsuarioId: Integer;
-  const ATexto: string; const APagina, APorPagina: Integer)
-  : TObjectList<TBandejaCotizaciones>;
+  const ATexto: string; const ADesde, AHasta: TDateTime;
+  const APagina, APorPagina: Integer): TObjectList<TBandejaCotizaciones>;
 begin
-  Result := ListarConsulta<TBandejaCotizaciones>(CONSULTA_DE_OTROS,
-    [AUsuarioId, TextoParaRQL(ATexto), TextoParaRQL(ATexto), (APagina - 1) * APorPagina,
-    APorPagina]);
+  if (ADesde > 0) and (AHasta > 0) then
+    Result := ListarConsulta<TBandejaCotizaciones>(CONSULTA_ENTRE,
+      [AUsuarioId, FechaParaRQL(ADesde), FechaParaRQL(AHasta),
+      TextoParaRQL(ATexto), TextoParaRQL(ATexto), (APagina - 1) * APorPagina,
+      APorPagina])
+  else
+    Result := ListarConsulta<TBandejaCotizaciones>(CONSULTA_DE_OTROS,
+      [AUsuarioId, TextoParaRQL(ATexto), TextoParaRQL(ATexto),
+      (APagina - 1) * APorPagina, APorPagina]);
 end;
 
 function TCotizacionRepository.ContarBandeja(const AUsuarioId: Integer;
-  const ATexto: string): Int64;
+  const ATexto: string; const ADesde, AHasta: TDateTime): Int64;
 begin
-  Result := ContarConsulta<TBandejaCotizaciones>(CONSULTA_DE_OTROS,
-    [AUsuarioId, TextoParaRQL(ATexto), TextoParaRQL(ATexto), 0, 0]);
+  if (ADesde > 0) and (AHasta > 0) then
+    Result := ContarConsulta<TBandejaCotizaciones>(CONSULTA_ENTRE,
+      [AUsuarioId, FechaParaRQL(ADesde), FechaParaRQL(AHasta),
+      TextoParaRQL(ATexto), TextoParaRQL(ATexto), 0, 0])
+  else
+    Result := ContarConsulta<TBandejaCotizaciones>(CONSULTA_DE_OTROS,
+      [AUsuarioId, TextoParaRQL(ATexto), TextoParaRQL(ATexto), 0, 0]);
 end;
 
 function TCotizacionRepository.ResumenBandeja(const AUsuarioId: Integer)

@@ -86,6 +86,7 @@ type
       const AUsuarioId, APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TCotizacionDTO>;
     function Bandeja(const AUsuarioId: Integer; const ATexto: string;
+      const AFiltroDesde, AFiltroHasta: TDateTime;
       const APagina, APorPagina: Integer): TBandejaPaginaDTO;
     function Obtener(const AId, AUsuarioId: Integer;
       const ARoles: TArray<string>): TCotizacionDTO;
@@ -502,17 +503,20 @@ begin
 end;
 
 function TCotizacionService.Bandeja(const AUsuarioId: Integer;
-  const ATexto: string; const APagina, APorPagina: Integer)
-  : TBandejaPaginaDTO;
+  const ATexto: string; const AFiltroDesde, AFiltroHasta: TDateTime;
+  const APagina, APorPagina: Integer): TBandejaPaginaDTO;
 var
   lResumen: TTrabajoUsuario;
   lFilas: TObjectList<TBandejaCotizaciones>;
+  lPeriodo: TPeriodo;
 begin
+  lPeriodo := TPeriodo.De(AFiltroDesde, AFiltroHasta);
   Result := TBandejaPaginaDTO.Create;
   try
     Result.Pagina := APagina;
     Result.PorPagina := APorPagina;
-    Result.Total := fRepo.ContarBandeja(AUsuarioId, ATexto);
+    Result.Total := fRepo.ContarBandeja(AUsuarioId, ATexto, lPeriodo.Inicio,
+      lPeriodo.Fin);
 
     lResumen := fRepo.ResumenBandeja(AUsuarioId);
     if lResumen <> nil then
@@ -522,7 +526,8 @@ begin
         lResumen.Free;
       end;
 
-    lFilas := fRepo.Bandeja(AUsuarioId, ATexto, APagina, APorPagina);
+    lFilas := fRepo.Bandeja(AUsuarioId, ATexto, lPeriodo.Inicio, lPeriodo.Fin,
+      APagina, APorPagina);
     try
       FreeAndNil(Result.Data);
       Result.Data := TMapeo.AListaDto<TBandejaCotizaciones,

@@ -35,9 +35,11 @@ type
       const APagina, APorPagina: Integer; out ADesde, AHasta: TDateTime;
       out ATotal: Int64): TObjectList<TSolicitudAsesorDTO>;
 
-    function Cola(const ATexto: string; const APagina, APorPagina: Integer;
-      out ATotal: Int64): TObjectList<TSolicitudPorCotizarDTO>;
+    function Cola(const ATexto: string; const AFiltroDesde, AFiltroHasta: TDateTime;
+      const APagina, APorPagina: Integer; out ATotal: Int64)
+      : TObjectList<TSolicitudPorCotizarDTO>;
     function EnTrabajo(const AUsuarioId: Integer; const ATexto: string;
+      const AFiltroDesde, AFiltroHasta: TDateTime;
       const APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TSolicitudEnTrabajoDTO>;
 

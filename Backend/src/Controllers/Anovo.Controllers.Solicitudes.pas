@@ -71,9 +71,15 @@ type
       ptInteger, False)]
     [MVCSwagParam(plQuery, 'por_pagina', 'Cuantos por pagina. Maximo 200',
       ptInteger, False)]
+    [MVCSwagParam(plQuery, 'desde', 'Fecha desde, aaaa-mm-dd', ptString,
+      False)]
+    [MVCSwagParam(plQuery, 'hasta', 'Fecha hasta, aaaa-mm-dd, incluida',
+      ptString, False)]
     [MVCSwagResponses(200, 'Pagina de la cola', TColaPaginaDTO)]
     function Cola([MVCInject] AServicio: ISolicitudService;
       const [MVCFromQueryString('q', '')] ABusqueda: string;
+      const [MVCFromQueryString('desde', '')] AFiltroDesde: string;
+      const [MVCFromQueryString('hasta', '')] AFiltroHasta: string;
       const [MVCFromQueryString('pagina', 1)] APagina: Integer;
       const [MVCFromQueryString('por_pagina', POR_PAGINA_POR_DEFECTO)
       ] APorPagina: Integer): TColaPaginaDTO;
@@ -90,9 +96,15 @@ type
       ptInteger, False)]
     [MVCSwagParam(plQuery, 'por_pagina', 'Cuantos por pagina. Maximo 200',
       ptInteger, False)]
+    [MVCSwagParam(plQuery, 'desde', 'Fecha desde, aaaa-mm-dd', ptString,
+      False)]
+    [MVCSwagParam(plQuery, 'hasta', 'Fecha hasta, aaaa-mm-dd, incluida',
+      ptString, False)]
     [MVCSwagResponses(200, 'Pagina de las propias', TEnTrabajoPaginaDTO)]
     function EnTrabajo([MVCInject] AServicio: ISolicitudService;
       const [MVCFromQueryString('q', '')] ABusqueda: string;
+      const [MVCFromQueryString('desde', '')] AFiltroDesde: string;
+      const [MVCFromQueryString('hasta', '')] AFiltroHasta: string;
       const [MVCFromQueryString('pagina', 1)] APagina: Integer;
       const [MVCFromQueryString('por_pagina', POR_PAGINA_POR_DEFECTO)
       ] APorPagina: Integer): TEnTrabajoPaginaDTO;
@@ -400,7 +412,8 @@ begin
 end;
 
 function TSolicitudesController.Cola(AServicio: ISolicitudService;
-  const ABusqueda: string; const APagina, APorPagina: Integer)
+  const ABusqueda, AFiltroDesde, AFiltroHasta: string;
+  const APagina, APorPagina: Integer)
   : TColaPaginaDTO;
 var
   lTotal: Int64;
@@ -409,12 +422,14 @@ var
 begin
   lPagina := PaginaValida(APagina);
   lPorPagina := PorPaginaValida(APorPagina);
-  lDatos := AServicio.Cola(ABusqueda, lPagina, lPorPagina, lTotal);
+  lDatos := AServicio.Cola(ABusqueda, ComoFecha(AFiltroDesde),
+    ComoFecha(AFiltroHasta), lPagina, lPorPagina, lTotal);
   Result := TColaPaginaDTO.Create(lDatos, lTotal, lPagina, lPorPagina);
 end;
 
 function TSolicitudesController.EnTrabajo(AServicio: ISolicitudService;
-  const ABusqueda: string; const APagina, APorPagina: Integer)
+  const ABusqueda, AFiltroDesde, AFiltroHasta: string;
+  const APagina, APorPagina: Integer)
   : TEnTrabajoPaginaDTO;
 var
   lTotal: Int64;
@@ -423,8 +438,8 @@ var
 begin
   lPagina := PaginaValida(APagina);
   lPorPagina := PorPaginaValida(APorPagina);
-  lDatos := AServicio.EnTrabajo(UsuarioId, ABusqueda, lPagina, lPorPagina,
-    lTotal);
+  lDatos := AServicio.EnTrabajo(UsuarioId, ABusqueda, ComoFecha(AFiltroDesde),
+    ComoFecha(AFiltroHasta), lPagina, lPorPagina, lTotal);
   Result := TEnTrabajoPaginaDTO.Create(lDatos, lTotal, lPagina, lPorPagina);
 end;
 

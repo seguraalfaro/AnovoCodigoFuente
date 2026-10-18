@@ -6,6 +6,7 @@ interface
 
 uses
   Anovo.Api.Intf.Cotizaciones,
+  Anovo.PeriodoBusqueda,
   Anovo.Presentadores.Base,
   Anovo.Presentadores.Listado,
   Anovo.Vistas.Intf.Bandeja,
@@ -18,6 +19,8 @@ type
     FApi: IApiCotizaciones;
   protected
     procedure Cargar; override;
+    function UsaPeriodo: Boolean; override;
+    procedure PintarPeriodo; override;
   public
     constructor Create(const AVista: IVistaBandeja;
       const AApi: IApiCotizaciones);
@@ -52,8 +55,19 @@ begin
     Include(Result, abRevisar);
 end;
 
+function TPresentadorBandeja.UsaPeriodo: Boolean;
+begin
+  Result := True;
+end;
+
+procedure TPresentadorBandeja.PintarPeriodo;
+begin
+  FVista.MostrarPeriodo(FPeriodo);
+end;
+
 procedure TPresentadorBandeja.Iniciar;
 begin
+  FVista.MostrarPeriodo(FPeriodo);
   FVista.MostrarAcciones(AccionesPermitidas);
   FVista.MostrarBusqueda('', False);
   Cargar;
@@ -71,16 +85,20 @@ procedure TPresentadorBandeja.Cargar;
 var
   lApi: IApiCotizaciones;
   lTexto: string;
+  lFiltroDesde, lFiltroHasta: TDateTime;
   lPagina: Integer;
 begin
   lApi := FApi;
   lTexto := FTexto;
+  lFiltroDesde := FPeriodo.Desde;
+  lFiltroHasta := FPeriodo.Hasta;
   lPagina := FPagina;
 
   EjecutarUltima<TBandejaPaginaDTO>(SAccionCargarBandeja,
     function: TBandejaPaginaDTO
     begin
-      Result := lApi.Bandeja(lTexto, lPagina, BANDEJA_POR_PAGINA);
+      Result := lApi.Bandeja(lTexto, lFiltroDesde, lFiltroHasta, lPagina,
+        BANDEJA_POR_PAGINA);
     end,
     procedure(ADatos: TBandejaPaginaDTO)
     begin

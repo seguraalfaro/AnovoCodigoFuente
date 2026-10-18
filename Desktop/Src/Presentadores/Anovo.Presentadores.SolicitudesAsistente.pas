@@ -8,6 +8,7 @@ interface
 uses
   Anovo.Api.Intf.Solicitudes,
   Anovo.Api.Intf.Cotizaciones,
+  Anovo.PeriodoBusqueda,
   Anovo.Presentadores.Base,
   Anovo.Presentadores.Listado,
   Anovo.Vistas.Intf.SolicitudesAsistente,
@@ -23,6 +24,8 @@ type
     procedure PublicarAcciones;
   protected
     procedure Cargar; override;
+    function UsaPeriodo: Boolean; override;
+    procedure PintarPeriodo; override;
   public
     constructor Create(const AVista: IVistaSolicitudesAsistente;
       const AApi: IApiSolicitudes; const ACotizaciones: IApiCotizaciones);
@@ -79,8 +82,19 @@ begin
     FVista.AbrirCotizacion(ACotizacionId);
 end;
 
+function TPresentadorSolicitudesAsistente.UsaPeriodo: Boolean;
+begin
+  Result := True;
+end;
+
+procedure TPresentadorSolicitudesAsistente.PintarPeriodo;
+begin
+  FVista.MostrarPeriodo(FPeriodo);
+end;
+
 procedure TPresentadorSolicitudesAsistente.Iniciar;
 begin
+  FVista.MostrarPeriodo(FPeriodo);
   PublicarAcciones;
   FVista.MostrarModo(FModo);
   FVista.MostrarBusqueda('', False);
@@ -103,11 +117,14 @@ procedure TPresentadorSolicitudesAsistente.Cargar;
 var
   lApi: IApiSolicitudes;
   lTexto: string;
+  lFiltroDesde, lFiltroHasta: TDateTime;
   lPagina: Integer;
   lTotal: Int64;
 begin
   lApi := FApi;
   lTexto := FTexto;
+  lFiltroDesde := FPeriodo.Desde;
+  lFiltroHasta := FPeriodo.Hasta;
   lPagina := FPagina;
   lTotal := 0;
 
@@ -116,7 +133,8 @@ begin
       (SAccionCargarSolicitudes,
       function: TObjectList<TSolicitudPorCotizarDTO>
       begin
-        Result := lApi.Cola(lTexto, lPagina, SOLICITUDES_POR_PAGINA, lTotal);
+        Result := lApi.Cola(lTexto, lFiltroDesde, lFiltroHasta, lPagina,
+          SOLICITUDES_POR_PAGINA, lTotal);
       end,
       procedure(ALista: TObjectList<TSolicitudPorCotizarDTO>)
       begin
@@ -128,8 +146,8 @@ begin
       (SAccionCargarSolicitudes,
       function: TObjectList<TSolicitudEnTrabajoDTO>
       begin
-        Result := lApi.EnTrabajo(lTexto, lPagina, SOLICITUDES_POR_PAGINA,
-          lTotal);
+        Result := lApi.EnTrabajo(lTexto, lFiltroDesde, lFiltroHasta, lPagina,
+          SOLICITUDES_POR_PAGINA, lTotal);
       end,
       procedure(ALista: TObjectList<TSolicitudEnTrabajoDTO>)
       begin

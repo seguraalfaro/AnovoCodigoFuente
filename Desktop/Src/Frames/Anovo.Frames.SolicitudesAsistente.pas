@@ -11,6 +11,8 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.BotonWin, VclPlano.Pestanas,
+  Anovo.PeriodoBusqueda,
+  Anovo.Forms.Periodo,
   Anovo.Frames.Listado,
   Anovo.Frames.Cotizacion,
   Anovo.DTOs.Dashboard,
@@ -21,9 +23,13 @@ uses
 type
   TfraSolicitudesAsistente = class(TfraListado, IVistaSolicitudesAsistente)
     pstModo: TPlanoPestanas;
+    btnPeriodo: TPlanoBotonWin;
     procedure pstModoChange(Sender: TObject);
   private
     FPresentador: TPresentadorSolicitudesAsistente;
+    FSelector: TSelectorPeriodo;
+    procedure PeriodoCambio(const APeriodo: TPeriodoBusqueda);
+    procedure MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
     procedure Accion(Sender: TObject; const AClave: string);
     procedure AbrirCotizacion(const AId: Integer);
     procedure CerrarCotizacion(Sender: TObject);
@@ -78,6 +84,8 @@ begin
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
   lRejilla.OnAccion := Accion;
 
+  FSelector := TSelectorPeriodo.Crear(btnPeriodo, False, PeriodoCambio);
+
   FPresentador := TPresentadorSolicitudesAsistente.Create(Self,
     TApiSolicitudes.Create, TApiCotizaciones.Create);
   FPresentador.Iniciar;
@@ -99,6 +107,16 @@ begin
   FPresentador.Limpiar;
 end;
 
+procedure TfraSolicitudesAsistente.MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
+begin
+  FSelector.Mostrar(APeriodo);
+end;
+
+procedure TfraSolicitudesAsistente.PeriodoCambio(const APeriodo: TPeriodoBusqueda);
+begin
+  FPresentador.FiltrarPeriodo(APeriodo);
+end;
+
 procedure TfraSolicitudesAsistente.PaginaAnterior;
 begin
   FPresentador.PaginaAnterior;
@@ -113,6 +131,7 @@ procedure TfraSolicitudesAsistente.MostrarCargando(const AActivo: Boolean);
 begin
   inherited;
   pstModo.Enabled := not AActivo;
+  btnPeriodo.Enabled := not AActivo;
 end;
 
 procedure TfraSolicitudesAsistente.MostrarModo(const AModo: TModoSolicitudes);

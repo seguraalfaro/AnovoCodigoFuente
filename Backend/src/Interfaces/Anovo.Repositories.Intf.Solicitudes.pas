@@ -36,14 +36,15 @@ type
       const ADesde, AHasta: TDateTime): Int64;
     function SeguimientoParaBajar(const AAsesorId: Integer;
       const ADesde: NullableTDateTime): TObjectList<TSeguimientoAsesor>;
-    function Cola(const ATexto: string; const APagina, APorPagina: Integer)
-      : TObjectList<TColaSolicitudes>;
-    function ContarCola(const ATexto: string): Int64;
+    function Cola(const ATexto: string; const ADesde, AHasta: TDateTime;
+      const APagina, APorPagina: Integer): TObjectList<TColaSolicitudes>;
+    function ContarCola(const ATexto: string;
+      const ADesde, AHasta: TDateTime): Int64;
     function EnTrabajo(const AUsuarioId: Integer; const ATexto: string;
-      const APagina, APorPagina: Integer)
+      const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer)
       : TObjectList<TCotizacionesEnTrabajo>;
-    function ContarEnTrabajo(const AUsuarioId: Integer;
-      const ATexto: string): Int64;
+    function ContarEnTrabajo(const AUsuarioId: Integer; const ATexto: string;
+      const ADesde, AHasta: TDateTime): Int64;
   end;
 
   ISolicitudMedidaRepository = interface(IMVCRepository<TSolicitudMedidas>)

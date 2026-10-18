@@ -38,14 +38,15 @@ type
       const ADesde, AHasta: TDateTime): Int64;
     function SeguimientoParaBajar(const AAsesorId: Integer;
       const ADesde: NullableTDateTime): TObjectList<TSeguimientoAsesor>;
-    function Cola(const ATexto: string; const APagina, APorPagina: Integer)
-      : TObjectList<TColaSolicitudes>;
-    function ContarCola(const ATexto: string): Int64;
+    function Cola(const ATexto: string; const ADesde, AHasta: TDateTime;
+      const APagina, APorPagina: Integer): TObjectList<TColaSolicitudes>;
+    function ContarCola(const ATexto: string;
+      const ADesde, AHasta: TDateTime): Int64;
     function EnTrabajo(const AUsuarioId: Integer; const ATexto: string;
-      const APagina, APorPagina: Integer)
+      const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer)
       : TObjectList<TCotizacionesEnTrabajo>;
-    function ContarEnTrabajo(const AUsuarioId: Integer;
-      const ATexto: string): Int64;
+    function ContarEnTrabajo(const AUsuarioId: Integer; const ATexto: string;
+      const ADesde, AHasta: TDateTime): Int64;
   end;
 
   TSolicitudMedidaRepository = class(TAnovoRepository<TSolicitudMedidas>,
@@ -258,32 +259,56 @@ begin
 end;
 
 function TSolicitudRepository.Cola(const ATexto: string;
-  const APagina, APorPagina: Integer): TObjectList<TColaSolicitudes>;
+  const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer)
+  : TObjectList<TColaSolicitudes>;
 begin
-  Result := ListarConsulta<TColaSolicitudes>(CONSULTA_BUSCAR,
-    [TextoParaRQL(ATexto), TextoParaRQL(ATexto), (APagina - 1) * APorPagina, APorPagina]);
+  if (ADesde > 0) and (AHasta > 0) then
+    Result := ListarConsulta<TColaSolicitudes>(CONSULTA_ENTRE,
+      [FechaParaRQL(ADesde), FechaParaRQL(AHasta), TextoParaRQL(ATexto),
+      TextoParaRQL(ATexto), (APagina - 1) * APorPagina, APorPagina])
+  else
+    Result := ListarConsulta<TColaSolicitudes>(CONSULTA_BUSCAR,
+      [TextoParaRQL(ATexto), TextoParaRQL(ATexto), (APagina - 1) * APorPagina,
+      APorPagina]);
 end;
 
-function TSolicitudRepository.ContarCola(const ATexto: string): Int64;
+function TSolicitudRepository.ContarCola(const ATexto: string;
+  const ADesde, AHasta: TDateTime): Int64;
 begin
-  Result := ContarConsulta<TColaSolicitudes>(CONSULTA_BUSCAR,
-    [TextoParaRQL(ATexto), TextoParaRQL(ATexto), 0, 0]);
+  if (ADesde > 0) and (AHasta > 0) then
+    Result := ContarConsulta<TColaSolicitudes>(CONSULTA_ENTRE,
+      [FechaParaRQL(ADesde), FechaParaRQL(AHasta), TextoParaRQL(ATexto),
+      TextoParaRQL(ATexto), 0, 0])
+  else
+    Result := ContarConsulta<TColaSolicitudes>(CONSULTA_BUSCAR,
+      [TextoParaRQL(ATexto), TextoParaRQL(ATexto), 0, 0]);
 end;
 
 function TSolicitudRepository.EnTrabajo(const AUsuarioId: Integer;
-  const ATexto: string; const APagina, APorPagina: Integer)
-  : TObjectList<TCotizacionesEnTrabajo>;
+  const ATexto: string; const ADesde, AHasta: TDateTime;
+  const APagina, APorPagina: Integer): TObjectList<TCotizacionesEnTrabajo>;
 begin
-  Result := ListarConsulta<TCotizacionesEnTrabajo>(CONSULTA_DE_USUARIO,
-    [AUsuarioId, TextoParaRQL(ATexto), TextoParaRQL(ATexto), (APagina - 1) * APorPagina,
-    APorPagina]);
+  if (ADesde > 0) and (AHasta > 0) then
+    Result := ListarConsulta<TCotizacionesEnTrabajo>(CONSULTA_ENTRE,
+      [AUsuarioId, FechaParaRQL(ADesde), FechaParaRQL(AHasta),
+      TextoParaRQL(ATexto), TextoParaRQL(ATexto), (APagina - 1) * APorPagina,
+      APorPagina])
+  else
+    Result := ListarConsulta<TCotizacionesEnTrabajo>(CONSULTA_DE_USUARIO,
+      [AUsuarioId, TextoParaRQL(ATexto), TextoParaRQL(ATexto),
+      (APagina - 1) * APorPagina, APorPagina]);
 end;
 
 function TSolicitudRepository.ContarEnTrabajo(const AUsuarioId: Integer;
-  const ATexto: string): Int64;
+  const ATexto: string; const ADesde, AHasta: TDateTime): Int64;
 begin
-  Result := ContarConsulta<TCotizacionesEnTrabajo>(CONSULTA_DE_USUARIO,
-    [AUsuarioId, TextoParaRQL(ATexto), TextoParaRQL(ATexto), 0, 0]);
+  if (ADesde > 0) and (AHasta > 0) then
+    Result := ContarConsulta<TCotizacionesEnTrabajo>(CONSULTA_ENTRE,
+      [AUsuarioId, FechaParaRQL(ADesde), FechaParaRQL(AHasta),
+      TextoParaRQL(ATexto), TextoParaRQL(ATexto), 0, 0])
+  else
+    Result := ContarConsulta<TCotizacionesEnTrabajo>(CONSULTA_DE_USUARIO,
+      [AUsuarioId, TextoParaRQL(ATexto), TextoParaRQL(ATexto), 0, 0]);
 end;
 
 end.

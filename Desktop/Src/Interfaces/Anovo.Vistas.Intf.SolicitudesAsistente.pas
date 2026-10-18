@@ -9,7 +9,8 @@ uses
   Anovo.Vistas.Intf.Listado,
   System.Generics.Collections,
   Anovo.DTOs.Dashboard,
-  Anovo.DTOs.Solicitudes;
+  Anovo.DTOs.Solicitudes,
+  Anovo.PeriodoBusqueda;
 
 type
   TModoSolicitudes = (msCola, msEnTrabajo);
@@ -20,6 +21,7 @@ type
     ['{8346550D-2F58-4EDB-9829-B75763CB7E68}']
     procedure MostrarAcciones(const AAcciones: TAccionesCola);
     procedure MostrarModo(const AModo: TModoSolicitudes);
+    procedure MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
     procedure MostrarCola(const AFilas: TObjectList<TSolicitudPorCotizarDTO>);
     procedure MostrarEnTrabajo(const AFilas
       : TObjectList<TSolicitudEnTrabajoDTO>);

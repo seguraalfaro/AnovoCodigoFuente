@@ -104,9 +104,11 @@ type
       const APagina, APorPagina: Integer; out ADesde, AHasta: TDateTime;
       out ATotal: Int64): TObjectList<TSolicitudAsesorDTO>;
 
-    function Cola(const ATexto: string; const APagina, APorPagina: Integer;
-      out ATotal: Int64): TObjectList<TSolicitudPorCotizarDTO>;
+    function Cola(const ATexto: string; const AFiltroDesde, AFiltroHasta: TDateTime;
+      const APagina, APorPagina: Integer; out ATotal: Int64)
+      : TObjectList<TSolicitudPorCotizarDTO>;
     function EnTrabajo(const AUsuarioId: Integer; const ATexto: string;
+      const AFiltroDesde, AFiltroHasta: TDateTime;
       const APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TSolicitudEnTrabajoDTO>;
     function Piezas(const AId: Integer; const AUsuarioId: Integer;
@@ -966,13 +968,17 @@ begin
 end;
 
 function TSolicitudService.Cola(const ATexto: string;
+  const AFiltroDesde, AFiltroHasta: TDateTime;
   const APagina, APorPagina: Integer; out ATotal: Int64)
   : TObjectList<TSolicitudPorCotizarDTO>;
 var
   lFilas: TObjectList<TColaSolicitudes>;
+  lPeriodo: TPeriodo;
 begin
-  ATotal := fRepo.ContarCola(ATexto);
-  lFilas := fRepo.Cola(ATexto, APagina, APorPagina);
+  lPeriodo := TPeriodo.De(AFiltroDesde, AFiltroHasta);
+  ATotal := fRepo.ContarCola(ATexto, lPeriodo.Inicio, lPeriodo.Fin);
+  lFilas := fRepo.Cola(ATexto, lPeriodo.Inicio, lPeriodo.Fin, APagina,
+    APorPagina);
   try
     Result := TMapeo.AListaDto<TColaSolicitudes,
       TSolicitudPorCotizarDTO>(lFilas);
@@ -982,13 +988,18 @@ begin
 end;
 
 function TSolicitudService.EnTrabajo(const AUsuarioId: Integer;
-  const ATexto: string; const APagina, APorPagina: Integer;
-  out ATotal: Int64): TObjectList<TSolicitudEnTrabajoDTO>;
+  const ATexto: string; const AFiltroDesde, AFiltroHasta: TDateTime;
+  const APagina, APorPagina: Integer; out ATotal: Int64)
+  : TObjectList<TSolicitudEnTrabajoDTO>;
 var
   lFilas: TObjectList<TCotizacionesEnTrabajo>;
+  lPeriodo: TPeriodo;
 begin
-  ATotal := fRepo.ContarEnTrabajo(AUsuarioId, ATexto);
-  lFilas := fRepo.EnTrabajo(AUsuarioId, ATexto, APagina, APorPagina);
+  lPeriodo := TPeriodo.De(AFiltroDesde, AFiltroHasta);
+  ATotal := fRepo.ContarEnTrabajo(AUsuarioId, ATexto, lPeriodo.Inicio,
+    lPeriodo.Fin);
+  lFilas := fRepo.EnTrabajo(AUsuarioId, ATexto, lPeriodo.Inicio, lPeriodo.Fin,
+    APagina, APorPagina);
   try
     Result := TMapeo.AListaDto<TCotizacionesEnTrabajo,
       TSolicitudEnTrabajoDTO>(lFilas);

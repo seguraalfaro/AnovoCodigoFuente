@@ -56,6 +56,10 @@ type
   [MVCNamedRQLQuery(CONSULTA_BUSCAR,
     'and(eq(Estado,"recibida"),eq(TieneCotizacion,false),' +
     RQL_TEXTO_SOLICITUD + ');sort(+FechaRecepcion,+ID)' + RQL_PAGINA)]
+  [MVCNamedRQLQuery(CONSULTA_ENTRE,
+    'and(eq(Estado,"recibida"),eq(TieneCotizacion,false),' +
+    'ge(FechaRecepcion,"%s"),lt(FechaRecepcion,"%s"),' +
+    RQL_TEXTO_SOLICITUD + ');sort(+FechaRecepcion,+ID)' + RQL_PAGINA)]
   TColaSolicitudes = class(TVSolicitudes)
   end;
 
@@ -65,6 +69,10 @@ type
   [MVCNamedRQLQuery(CONSULTA_DE_OTROS,
     'and(eq(Estado,"pendiente"),ne(ElaboradaPor,%d),' +
     RQL_TEXTO_COTIZACION + ');sort(+FechaModificacion,+ID)' + RQL_PAGINA)]
+  [MVCNamedRQLQuery(CONSULTA_ENTRE,
+    'and(eq(Estado,"pendiente"),ne(ElaboradaPor,%d),' +
+    'ge(FechaModificacion,"%s"),lt(FechaModificacion,"%s"),' +
+    RQL_TEXTO_COTIZACION + ');sort(+FechaModificacion,+ID)' + RQL_PAGINA)]
   TBandejaCotizaciones = class(TVCotizaciones)
   end;
 
@@ -73,6 +81,10 @@ type
   [MVCTable('V_COTIZACIONES')]
   [MVCNamedRQLQuery(CONSULTA_DE_USUARIO,
     'and(eq(ElaboradaPor,%d),' + RQL_EN_CURSO + ',' +
+    RQL_TEXTO_COTIZACION + ');sort(-FechaModificacion,-ID)' + RQL_PAGINA)]
+  [MVCNamedRQLQuery(CONSULTA_ENTRE,
+    'and(eq(ElaboradaPor,%d),' + RQL_EN_CURSO + ',' +
+    'ge(FechaModificacion,"%s"),lt(FechaModificacion,"%s"),' +
     RQL_TEXTO_COTIZACION + ');sort(-FechaModificacion,-ID)' + RQL_PAGINA)]
   TCotizacionesEnTrabajo = class(TVCotizaciones)
   end;

@@ -18,6 +18,7 @@ type
       : TObjectList<TCotizacionDTO>;
 
     function Bandeja(const AUsuarioId: Integer; const ATexto: string;
+      const AFiltroDesde, AFiltroHasta: TDateTime;
       const APagina, APorPagina: Integer): TBandejaPaginaDTO;
     function Obtener(const AId, AUsuarioId: Integer;
       const ARoles: TArray<string>): TCotizacionDTO;

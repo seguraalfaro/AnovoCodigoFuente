@@ -33,10 +33,10 @@ type
     function EnviadasSinRespuesta(const ADias: Integer)
       : TObjectList<TCotizaciones>;
     function Bandeja(const AUsuarioId: Integer; const ATexto: string;
-      const APagina, APorPagina: Integer)
+      const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer)
       : TObjectList<TBandejaCotizaciones>;
-    function ContarBandeja(const AUsuarioId: Integer;
-      const ATexto: string): Int64;
+    function ContarBandeja(const AUsuarioId: Integer; const ATexto: string;
+      const ADesde, AHasta: TDateTime): Int64;
     function ResumenBandeja(const AUsuarioId: Integer)
       : TTrabajoUsuario;
     function TieneEnCurso(const ASolicitudId: Integer): Boolean;

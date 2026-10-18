@@ -19,9 +19,12 @@ type
       const AFiltroDesde, AFiltroHasta: TDateTime;
       const APagina, APorPagina: Integer; out ATotal: Int64;
       out ADesde: TDateTime): TObjectList<TSolicitudAsesorDTO>;
-    function Cola(const ATexto: string; const APagina, APorPagina: Integer;
-      out ATotal: Int64): TObjectList<TSolicitudPorCotizarDTO>;
+    function Cola(const ATexto: string;
+      const AFiltroDesde, AFiltroHasta: TDateTime;
+      const APagina, APorPagina: Integer; out ATotal: Int64)
+      : TObjectList<TSolicitudPorCotizarDTO>;
     function EnTrabajo(const ATexto: string;
+      const AFiltroDesde, AFiltroHasta: TDateTime;
       const APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TSolicitudEnTrabajoDTO>;
     function Obtener(const AId: Integer): TSolicitudDTO;
@@ -33,6 +36,7 @@ type
     function Leer(const ARuta: string;
       const ALarga: Boolean = False): IMVCRESTResponse;
     function Pagina(const ARuta, ATexto: string;
+      const AFiltroDesde, AFiltroHasta: TDateTime;
       const APagina, APorPagina: Integer; out ATotal: Int64;
       const ALista: TObject; const AClase: TClass): IMVCRESTResponse;
   end;
@@ -104,6 +108,7 @@ begin
 end;
 
 function TApiSolicitudes.Pagina(const ARuta, ATexto: string;
+  const AFiltroDesde, AFiltroHasta: TDateTime;
   const APagina, APorPagina: Integer; out ATotal: Int64;
   const ALista: TObject; const AClase: TClass): IMVCRESTResponse;
 var
@@ -114,6 +119,8 @@ begin
     begin
       Result := NuevoCliente
         .AddQueryStringParam('q', ATexto)
+        .AddQueryStringParam('desde', FechaParaApi(AFiltroDesde))
+        .AddQueryStringParam('hasta', FechaParaApi(AFiltroHasta))
         .AddQueryStringParam('pagina', APagina)
         .AddQueryStringParam('por_pagina', APorPagina)
         .Get(ARuta);
@@ -199,12 +206,13 @@ begin
 end;
 
 function TApiSolicitudes.Cola(const ATexto: string;
+  const AFiltroDesde, AFiltroHasta: TDateTime;
   const APagina, APorPagina: Integer; out ATotal: Int64)
   : TObjectList<TSolicitudPorCotizarDTO>;
 begin
   Result := TObjectList<TSolicitudPorCotizarDTO>.Create(True);
   try
-    Pagina(RUTA_COLA, ATexto, APagina, APorPagina, ATotal, Result,
+    Pagina(RUTA_COLA, ATexto, AFiltroDesde, AFiltroHasta, APagina, APorPagina, ATotal, Result,
       TSolicitudPorCotizarDTO);
   except
     Result.Free;
@@ -213,12 +221,14 @@ begin
 end;
 
 function TApiSolicitudes.EnTrabajo(const ATexto: string;
+  const AFiltroDesde, AFiltroHasta: TDateTime;
   const APagina, APorPagina: Integer; out ATotal: Int64)
   : TObjectList<TSolicitudEnTrabajoDTO>;
 begin
   Result := TObjectList<TSolicitudEnTrabajoDTO>.Create(True);
   try
-    Pagina(RUTA_EN_TRABAJO, ATexto, APagina, APorPagina, ATotal, Result,
+    Pagina(RUTA_EN_TRABAJO, ATexto, AFiltroDesde, AFiltroHasta,
+      APagina, APorPagina, ATotal, Result,
       TSolicitudEnTrabajoDTO);
   except
     Result.Free;

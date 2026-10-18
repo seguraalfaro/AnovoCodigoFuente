@@ -73,11 +73,17 @@ type
       ptInteger, False)]
     [MVCSwagParam(plQuery, 'por_pagina', 'Cuantos por pagina. Maximo 200',
       ptInteger, False)]
+    [MVCSwagParam(plQuery, 'desde', 'Fecha desde, aaaa-mm-dd', ptString,
+      False)]
+    [MVCSwagParam(plQuery, 'hasta', 'Fecha hasta, aaaa-mm-dd, incluida',
+      ptString, False)]
     [MVCSwagResponses(200, 'Pagina de la bandeja', TBandejaPaginaDTO)]
     [MVCSwagResponses(401, 'Sin token o token vencido')]
     [MVCSwagResponses(403, 'El rol no tiene el permiso para esta operacion')]
     function Bandeja([MVCInject] AServicio: ICotizacionService;
       const [MVCFromQueryString('q', '')] ABusqueda: string;
+      const [MVCFromQueryString('desde', '')] AFiltroDesde: string;
+      const [MVCFromQueryString('hasta', '')] AFiltroHasta: string;
       const [MVCFromQueryString('pagina', 1)] APagina: Integer;
       const [MVCFromQueryString('por_pagina', POR_PAGINA_POR_DEFECTO)
       ] APorPagina: Integer): TBandejaPaginaDTO;
@@ -299,11 +305,11 @@ begin
 end;
 
 function TCotizacionesController.Bandeja(AServicio: ICotizacionService;
-  const ABusqueda: string; const APagina, APorPagina: Integer)
-  : TBandejaPaginaDTO;
+  const ABusqueda, AFiltroDesde, AFiltroHasta: string;
+  const APagina, APorPagina: Integer): TBandejaPaginaDTO;
 begin
-  Result := AServicio.Bandeja(UsuarioId, ABusqueda, PaginaValida(APagina),
-    PorPaginaValida(APorPagina));
+  Result := AServicio.Bandeja(UsuarioId, ABusqueda, ComoFecha(AFiltroDesde),
+    ComoFecha(AFiltroHasta), PaginaValida(APagina), PorPaginaValida(APorPagina));
 end;
 
 function TCotizacionesController.SinRespuesta(AServicio: ICotizacionService)

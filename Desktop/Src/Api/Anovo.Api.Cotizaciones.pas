@@ -15,8 +15,9 @@ uses
 type
   TApiCotizaciones = class(TApiBase, IApiCotizaciones)
   public
-    function Bandeja(const ATexto: string; const APagina, APorPagina: Integer)
-      : TBandejaPaginaDTO;
+    function Bandeja(const ATexto: string;
+      const AFiltroDesde, AFiltroHasta: TDateTime;
+      const APagina, APorPagina: Integer): TBandejaPaginaDTO;
     function Obtener(const AId: Integer): TCotizacionDTO;
     function Documento(const AId: Integer): TCotizacionDocumentoDTO;
     function EstadoCorreo: TEstadoCorreoDTO;
@@ -72,6 +73,7 @@ const
   RUTA_ENVIO = '/api/cotizaciones/%d/envio';
 
 function TApiCotizaciones.Bandeja(const ATexto: string;
+  const AFiltroDesde, AFiltroHasta: TDateTime;
   const APagina, APorPagina: Integer): TBandejaPaginaDTO;
 var
   lRespuesta: IMVCRESTResponse;
@@ -81,6 +83,8 @@ begin
     begin
       Result := NuevoCliente
         .AddQueryStringParam('q', ATexto)
+        .AddQueryStringParam('desde', FechaParaApi(AFiltroDesde))
+        .AddQueryStringParam('hasta', FechaParaApi(AFiltroHasta))
         .AddQueryStringParam('pagina', APagina)
         .AddQueryStringParam('por_pagina', APorPagina)
         .Get(RUTA_BANDEJA);
