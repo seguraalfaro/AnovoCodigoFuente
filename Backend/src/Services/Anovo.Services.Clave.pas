@@ -26,7 +26,7 @@ const
 implementation
 
 uses
-  System.SysUtils, BCrypt, BCrypt.Types,
+  System.SysUtils, BCrypt, BCrypt.Types, MVCFramework.Logger,
   Anovo.Textos;
 
 function TClaveService.Hashear(const AClave: string): string;
@@ -46,7 +46,11 @@ begin
   try
     Result := TBCrypt.CompareHash(AClave, AHash);
   except
-    Result := False;
+    on E: Exception do
+    begin
+      LogE('Hash de clave que no se pudo comparar: ' + E.ClassName);
+      Result := False;
+    end;
   end;
 end;
 

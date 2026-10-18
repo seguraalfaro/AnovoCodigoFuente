@@ -368,6 +368,9 @@ resourcestring
 
   SErrorInterno = 'Ocurrió un error inesperado. Intente de nuevo; ' +
     'si persiste, avise al administrador.';
+  SPedidoInvalido = 'El servidor no pudo leer el pedido. Actualice la ' +
+    'aplicación o vuelva a intentarlo.';
+  SDatosPorCorregir = 'Hay %d datos por corregir.';
 
   SSinConexion = 'No se pudo conectar con el servidor de Anovo. ' +
     'Revise la red o avise al administrador.';

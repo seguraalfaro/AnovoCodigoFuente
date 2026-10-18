@@ -485,56 +485,47 @@ begin
   lContacto := nil;
   lFirma := nil;
   try
-    try
-      lCliente := TClientes.Create;
-      TMapeo.Copiar(ADto.Cliente, lCliente);
-      EstadoInicial(lCliente);
-      if ADto.Firma.Accion = ACCION_OTORGADO then
-      begin
-        lCliente.ConsentimientoEstado := CONSENTIMIENTO_FIRMADO;
-        lCliente.ConsentimientoVersion := ADto.Firma.VersionTexto;
-        if ADto.Firma.Fecha.HasValue then
-          lCliente.ConsentimientoFecha := ADto.Firma.Fecha.Value
-        else
-          lCliente.ConsentimientoFecha := Now;
-      end;
-      FijarDetalle(SDetalleRegistroCompletoMovil);
-      fRepo.Insert(lCliente);
-      lId := lCliente.ID.Value;
-
-      for lDatos in ADto.Contactos do
-      begin
-        lContacto := TClienteContactos.Create;
-        TMapeo.Copiar(lDatos, lContacto);
-        EstadoInicial(lContacto);
-        if (ADto.Firma.Accion = ACCION_OTORGADO) and
-          ADto.Firma.ClienteContactoUuid.HasValue and lDatos.UuidLocal.HasValue
-          and (ADto.Firma.ClienteContactoUuid.Value = lDatos.UuidLocal.Value) then
-        begin
-          lContacto.ConsentimientoEstado := CONSENTIMIENTO_FIRMADO;
-          lContacto.ConsentimientoVersion := ADto.Firma.VersionTexto;
-          lContacto.ConsentimientoFecha := lCliente.ConsentimientoFecha;
-        end;
-        lContacto.ClienteId := lId;
-        fContactos.Insert(lContacto);
-        FreeAndNil(lContacto);
-      end;
-
-      lFirma := TClienteConsentimientoHistorial.Create;
-      TMapeo.Copiar(ADto.Firma, lFirma);
-      lFirma.ClienteId := lId;
-      lFirma.FirmaImagen.WriteBuffer(lImagen, Length(lImagen));
-      fConsentimientos.Insert(lFirma);
-
-      Result := lId;
-    except
-      on EAnovoError do
-        raise;
-      on E: Exception do
-        raise EConflictoDeEstado.Create('REGISTRO_NO_GUARDADO',
-          Format(SRegistroNoGuardado,
-          [ADto.Cliente.Nombre, E.Message]));
+    lCliente := TClientes.Create;
+    TMapeo.Copiar(ADto.Cliente, lCliente);
+    EstadoInicial(lCliente);
+    if ADto.Firma.Accion = ACCION_OTORGADO then
+    begin
+      lCliente.ConsentimientoEstado := CONSENTIMIENTO_FIRMADO;
+      lCliente.ConsentimientoVersion := ADto.Firma.VersionTexto;
+      if ADto.Firma.Fecha.HasValue then
+        lCliente.ConsentimientoFecha := ADto.Firma.Fecha.Value
+      else
+        lCliente.ConsentimientoFecha := Now;
     end;
+    FijarDetalle(SDetalleRegistroCompletoMovil);
+    fRepo.Insert(lCliente);
+    lId := lCliente.ID.Value;
+
+    for lDatos in ADto.Contactos do
+    begin
+      lContacto := TClienteContactos.Create;
+      TMapeo.Copiar(lDatos, lContacto);
+      EstadoInicial(lContacto);
+      if (ADto.Firma.Accion = ACCION_OTORGADO) and
+        ADto.Firma.ClienteContactoUuid.HasValue and lDatos.UuidLocal.HasValue
+        and (ADto.Firma.ClienteContactoUuid.Value = lDatos.UuidLocal.Value) then
+      begin
+        lContacto.ConsentimientoEstado := CONSENTIMIENTO_FIRMADO;
+        lContacto.ConsentimientoVersion := ADto.Firma.VersionTexto;
+        lContacto.ConsentimientoFecha := lCliente.ConsentimientoFecha;
+      end;
+      lContacto.ClienteId := lId;
+      fContactos.Insert(lContacto);
+      FreeAndNil(lContacto);
+    end;
+
+    lFirma := TClienteConsentimientoHistorial.Create;
+    TMapeo.Copiar(ADto.Firma, lFirma);
+    lFirma.ClienteId := lId;
+    lFirma.FirmaImagen.WriteBuffer(lImagen, Length(lImagen));
+    fConsentimientos.Insert(lFirma);
+
+    Result := lId;
   finally
     lFirma.Free;
     lContacto.Free;

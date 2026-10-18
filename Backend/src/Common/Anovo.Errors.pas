@@ -65,6 +65,7 @@ procedure ExigirLargoUuid(const AUuid: string);
 implementation
 
 uses
+  System.Generics.Collections,
   JsonDataObjects,
   MVCFramework.Logger,
   MVCFramework.Serializer.Commons,
@@ -129,6 +130,20 @@ begin
     raise EDatoInvalido.Create(Format(SUuidLocalLargo, [LARGO_UUID_LOCAL]));
 end;
 
+const
+  MARCA_DATO_PERSONAL = 'Problematic key value';
+
+function MensajeParaBitacora(const E: Exception): string;
+var
+  lCorte: Integer;
+begin
+  Result := E.Message;
+  lCorte := Pos(MARCA_DATO_PERSONAL, Result);
+  if lCorte > 0 then
+    Result := Trim(Copy(Result, 1, lCorte - 1));
+  Result := E.ClassName + ': ' + Result;
+end;
+
 function ManejadorDeErrores: TMVCExceptionHandlerProc;
 begin
   Result := procedure(E: Exception; SelectedController: TMVCController;
@@ -139,6 +154,10 @@ begin
       lCodigo: string;
       lMensaje: string;
       lStatus: Integer;
+      lDetalles: TJsonArray;
+      lDetalle: TJsonObject;
+      lErrores: TDictionary<string, string>;
+      lPar: TPair<string, string>;
     begin
       if E = nil then
       begin
@@ -157,8 +176,15 @@ begin
       else if E is EMVCValidationException then
       begin
         lCodigo := 'VALIDACION';
-        lMensaje := E.Message;
         lStatus := HTTP_STATUS.UnprocessableEntity;
+        lErrores := EMVCValidationException(E).ValidationErrors;
+        if (lErrores <> nil) and (lErrores.Count = 1) then
+          for lPar in lErrores do
+            lMensaje := lPar.Value
+        else if lErrores <> nil then
+          lMensaje := Format(SDatosPorCorregir, [lErrores.Count])
+        else
+          lMensaje := E.Message;
       end
       else if E is EMVCActiveRecordVersionedItemNotFound then
       begin
@@ -172,15 +198,18 @@ begin
         lMensaje := SRecursoNoExisteGenerico;
         lStatus := HTTP_STATUS.NotFound;
       end
-      else if E is EMVCException then
+      else if (E is EMVCException) and not (E is EMVCActiveRecord) and
+        (EMVCException(E).HTTPStatusCode >= 400) and
+        (EMVCException(E).HTTPStatusCode < 500) then
       begin
-        lCodigo := 'ERROR';
-        lMensaje := E.Message;
+        LogW('Pedido rechazado por el framework: ' + MensajeParaBitacora(E));
+        lCodigo := 'PEDIDO_INVALIDO';
+        lMensaje := SPedidoInvalido;
         lStatus := EMVCException(E).HTTPStatusCode;
       end
       else
       begin
-        LogE(Format('Excepcion no controlada %s: %s', [E.ClassName, E.Message]));
+        LogE('Excepcion no controlada ' + MensajeParaBitacora(E));
         lCodigo := 'ERROR_INTERNO';
         lMensaje := SErrorInterno;
         lStatus := HTTP_STATUS.InternalServerError;
@@ -191,7 +220,18 @@ begin
         lError := lCuerpo.O['error'];
         lError.S['codigo'] := lCodigo;
         lError.S['mensaje'] := lMensaje;
-        lError.A['detalles'];
+        lDetalles := lError.A['detalles'];
+        if E is EMVCValidationException then
+        begin
+          lErrores := EMVCValidationException(E).ValidationErrors;
+          if lErrores <> nil then
+            for lPar in lErrores do
+            begin
+              lDetalle := lDetalles.AddObject;
+              lDetalle.S['campo'] := lPar.Key;
+              lDetalle.S['mensaje'] := lPar.Value;
+            end;
+        end;
 
         WebContext.Response.StatusCode := lStatus;
         WebContext.Response.ContentType := TMVCMediaType.APPLICATION_JSON;
