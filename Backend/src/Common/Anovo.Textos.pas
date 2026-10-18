@@ -1055,8 +1055,6 @@ resourcestring
   SVacioConsentimientos = 'Este cliente no tiene registros de consentimiento';
   SVacioDashboard = 'Todavía no hay registros para mostrar';
   SVacioEstados = 'No hay cotizaciones este mes';
-  SVacioPiezas = 'La solicitud no tiene piezas';
-  SVacioMedidas = 'La pieza no tiene medidas';
   SVacioLineas = 'La cotización todavía no tiene líneas';
   SVacioHistorialPrecio = 'Este ítem no tiene cambios de precio';
   SVacioHistorialEstados = 'La cotización no tiene cambios de estado';

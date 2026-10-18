@@ -55,6 +55,7 @@ type
     pnlFotos: TPanel;
     pbCroquis: TPaintBox;
     lblSinCroquis: TLabel;
+    pbFotos: TPaintBox;
     lblSinFotos: TLabel;
     sbFotos: TScrollBox;
     tjMedidas: TPlanoTarjeta;
@@ -85,6 +86,8 @@ type
     edGarantia: TrDBEdit;
     cbGarantiaUnidad: TrDBLookupComboBox;
     tjLineas: TPlanoTarjeta;
+    pnlCabeceraLineas: TRelativePanel;
+    lblLineas: TLabel;
     btnMaterial: TPlanoBotonWin;
     btnManoObra: TPlanoBotonWin;
     btnMaquina: TPlanoBotonWin;
@@ -97,6 +100,7 @@ type
     btnNuevoTipo: TPlanoBotonWin;
     pstEstado: TPlanoPastilla;
     procedure pbCroquisPaint(Sender: TObject);
+    procedure pbFotosPaint(Sender: TObject);
     procedure imgFotoClick(Sender: TObject);
     procedure btnVolverClick(Sender: TObject);
     procedure btnGuardarClick(Sender: TObject);
@@ -124,6 +128,7 @@ type
     FTituloCroquis: string;
     FTituloFotos: string;
     procedure ElegirPieza;
+    procedure PonerTitulo(ATarjeta: TPlanoTarjeta; const ATexto: string);
     procedure PonerFotos(const AFotos: TList<TBytes>);
     procedure Accion(Sender: TObject; const AClave: string);
     procedure AbrirLinea(const AModo: TModoLinea; const ALinea: TLineaDTO);
@@ -200,6 +205,10 @@ const
   PORCENTAJE_EVIDENCIA = 35;
   ANCHO_EVIDENCIA_MINIMO = 330;
   ANCHO_EVIDENCIA_MAXIMO = 420;
+  ANCHO_DESCRIPCION_MINIMO = 160;
+  RADIO_RECUADRO = 10;
+  PUNTOS_SUSPENSIVOS = #$2026;
+  MARGEN_RECUADRO = 6;
 
 constructor TfraCotizacion.Crear(AOwner: TComponent; const AId: Integer);
 var
@@ -209,9 +218,6 @@ begin
   AplicarTemaGrid(grLineas);
   AplicarTemaGrid(grPiezas);
   AplicarTemaGrid(grMedidas);
-  TCeldasRejilla.De(grLineas).TextoVacio := SVacioLineas;
-  TCeldasRejilla.De(grPiezas).TextoVacio := SVacioPiezas;
-  TCeldasRejilla.De(grMedidas).TextoVacio := SVacioMedidas;
   lblSinCroquis.Caption := SSinCroquis;
   lblSinFotos.Caption := SSinFotos;
 
@@ -348,7 +354,7 @@ end;
 
 procedure TfraCotizacion.MostrarPiezas(const APiezas: TObjectList<TPiezaDTO>);
 begin
-  tjPiezas.Caption := Format(SPiezasTotal, [APiezas.Count]);
+  PonerTitulo(tjPiezas, Format(SPiezasTotal, [APiezas.Count]));
   TMapeoDatos.AListaTabla<TPiezaDTO>(APiezas, dmMemoria.mtPiezas);
   dmMemoria.mtPiezas.First;
   TCeldasRejilla.De(grPiezas).AjustarColumnas;
@@ -357,7 +363,8 @@ end;
 procedure TfraCotizacion.MostrarMedidas(const APieza: string;
   const AMedidas: TObjectList<TMedidaDTO>);
 begin
-  tjMedidas.Caption := Format(SMedidasDePieza, [APieza]);
+  if not APieza.IsEmpty then
+    PonerTitulo(tjMedidas, Format(SMedidasDePieza, [APieza]));
   TMapeoDatos.AListaTabla<TMedidaDTO>(AMedidas, dmMemoria.mtMedidas);
   TCeldasRejilla.De(grMedidas).AjustarColumnas;
 end;
@@ -372,7 +379,7 @@ begin
     lTotal := AFotos.Count;
   if not APieza.IsEmpty then
   begin
-    tjEvidencia.Caption := Format(SEvidenciaDePieza, [APieza]);
+    PonerTitulo(tjEvidencia, Format(SEvidenciaDePieza, [APieza]));
     FTituloCroquis := Format(SCroquisDePieza, [APieza]);
     FTituloFotos := Format(SFotografiasDePieza, [APieza, lTotal]);
   end
@@ -392,12 +399,12 @@ begin
 
   FCroquis := ACroquis;
   lblSinCroquis.Visible := ACroquis.IsEmpty;
-  pbCroquis.Visible := not ACroquis.IsEmpty;
   pbCroquis.Invalidate;
 
   PonerFotos(AFotos);
   lblSinFotos.Visible := lTotal = 0;
   sbFotos.Visible := lTotal > 0;
+  pbFotos.Invalidate;
 end;
 
 procedure TfraCotizacion.PonerFotos(const AFotos: TList<TBytes>);
@@ -449,10 +456,56 @@ begin
     FPresentador.ElegirPieza(dmMemoria.mtPiezasID.AsInteger);
 end;
 
-procedure TfraCotizacion.FrameResize(Sender: TObject);
+procedure TfraCotizacion.PonerTitulo(ATarjeta: TPlanoTarjeta;
+  const ATexto: string);
+var
+  lMedida: TBitmap;
+  lAncho: Integer;
+  lTitulo: string;
 begin
-  pnlEvidencia.Width := EnsureRange(ClientWidth * PORCENTAJE_EVIDENCIA div 100,
+  lTitulo := ATexto;
+  lMedida := TBitmap.Create;
+  try
+    lMedida.Canvas.Font := ATarjeta.Font;
+    lAncho := ATarjeta.ClientWidth - 2 * ATarjeta.TitleIndent;
+    if (lAncho > 0) and (lMedida.Canvas.TextWidth(lTitulo) > lAncho) then
+    begin
+      while (lTitulo.Length > 1) and
+        (lMedida.Canvas.TextWidth(lTitulo + PUNTOS_SUSPENSIVOS) > lAncho) do
+        lTitulo := lTitulo.Remove(lTitulo.Length - 1);
+      lTitulo := lTitulo.TrimRight + PUNTOS_SUSPENSIVOS;
+    end;
+  finally
+    lMedida.Free;
+  end;
+  ATarjeta.Hint := ATexto;
+  ATarjeta.ShowHint := lTitulo <> ATexto;
+  ATarjeta.Caption := lTitulo;
+end;
+
+procedure TfraCotizacion.FrameResize(Sender: TObject);
+var
+  lAncho: Integer;
+  lGrid: TrDBGrid;
+  lTarjeta: TPlanoTarjeta;
+begin
+  lAncho := EnsureRange(ClientWidth * PORCENTAJE_EVIDENCIA div 100,
     ScaleValue(ANCHO_EVIDENCIA_MINIMO), ScaleValue(ANCHO_EVIDENCIA_MAXIMO));
+  if pnlEvidencia.Width <> lAncho then
+  begin
+    pnlEvidencia.Width := lAncho;
+    pnlCuerpo.Realign;
+    pnlEvidencia.Realign;
+  end;
+  for lTarjeta in [tjPiezas, tjEvidencia, tjMedidas] do
+    if not lTarjeta.Hint.IsEmpty then
+      PonerTitulo(lTarjeta, lTarjeta.Hint);
+  edDescripcion.Width := Max(ScaleValue(ANCHO_DESCRIPCION_MINIMO),
+    RelativePanel1.ClientWidth - edDescripcion.Left -
+    edDescripcion.Margins.Right);
+  for lGrid in [grPiezas, grMedidas, grLineas] do
+    if lGrid.DataSource.DataSet.Active then
+      TCeldasRejilla.De(lGrid).AjustarColumnas;
 end;
 
 procedure TfraCotizacion.grPiezasCellClick(Column: TColumn);
@@ -466,11 +519,50 @@ begin
   ElegirPieza;
 end;
 
-procedure TfraCotizacion.pbCroquisPaint(Sender: TObject);
+procedure DibujarRecuadro(ACanvas: TCanvas; const ARect: TRect;
+  const AFondo: Boolean);
+var
+  lRect: TRect;
 begin
-  pbCroquis.Canvas.Brush.Color := clWhite;
+  lRect := ARect;
+  InflateRect(lRect, -1, -1);
+  if AFondo then
+  begin
+    ACanvas.Brush.Style := bsSolid;
+    ACanvas.Brush.Color := clAnovoFondo;
+    ACanvas.Pen.Style := psClear;
+    ACanvas.RoundRect(lRect, RADIO_RECUADRO, RADIO_RECUADRO);
+  end;
+  ACanvas.Brush.Style := bsClear;
+  ACanvas.Pen.Style := psDash;
+  ACanvas.Pen.Width := 1;
+  ACanvas.Pen.Color := clAnovoDeshabilitado;
+  ACanvas.RoundRect(lRect, RADIO_RECUADRO, RADIO_RECUADRO);
+  ACanvas.Pen.Style := psSolid;
+  ACanvas.Brush.Style := bsSolid;
+end;
+
+procedure TfraCotizacion.pbCroquisPaint(Sender: TObject);
+var
+  lArea: TRect;
+begin
+  pbCroquis.Canvas.Brush.Color := clAnovoTarjeta;
   pbCroquis.Canvas.FillRect(pbCroquis.ClientRect);
-  DibujarCroquis(pbCroquis.Canvas, pbCroquis.ClientRect, FCroquis);
+  DibujarRecuadro(pbCroquis.Canvas, pbCroquis.ClientRect, FCroquis.IsEmpty);
+  if not FCroquis.IsEmpty then
+  begin
+    lArea := pbCroquis.ClientRect;
+    InflateRect(lArea, -MARGEN_RECUADRO, -MARGEN_RECUADRO);
+    DibujarCroquis(pbCroquis.Canvas, lArea, FCroquis);
+    DibujarRecuadro(pbCroquis.Canvas, pbCroquis.ClientRect, False);
+  end;
+end;
+
+procedure TfraCotizacion.pbFotosPaint(Sender: TObject);
+begin
+  pbFotos.Canvas.Brush.Color := clAnovoTarjeta;
+  pbFotos.Canvas.FillRect(pbFotos.ClientRect);
+  DibujarRecuadro(pbFotos.Canvas, pbFotos.ClientRect, not sbFotos.Visible);
 end;
 
 procedure TfraCotizacion.imgFotoClick(Sender: TObject);

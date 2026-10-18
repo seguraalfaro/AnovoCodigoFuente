@@ -414,6 +414,7 @@ begin
     var
       lProyecto: string;
       lPieza: TPiezaDTO;
+      lSinMedidas: TObjectList<TMedidaDTO>;
     begin
       lProyecto := lSolicitud.NombreProyecto.ValueOrDefault.Trim;
       if lProyecto.IsEmpty then
@@ -429,7 +430,15 @@ begin
       if lPiezas.Count > 0 then
         ElegirPieza(lPiezas[0].ID)
       else
+      begin
+        lSinMedidas := TObjectList<TMedidaDTO>.Create(False);
+        try
+          FVista.MostrarMedidas('', lSinMedidas);
+        finally
+          lSinMedidas.Free;
+        end;
         FVista.MostrarEvidencia('', '', nil, False);
+      end;
     end,
     procedure(AMensaje: string)
     begin

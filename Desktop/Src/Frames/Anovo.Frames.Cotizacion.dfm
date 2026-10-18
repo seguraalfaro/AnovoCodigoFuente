@@ -179,10 +179,10 @@ object fraCotizacion: TfraCotizacion
           Value = 30.000000000000000000
         end
         item
-          Value = 45.000000000000000000
+          Value = 38.000000000000000000
         end
         item
-          Value = 25.000000000000000000
+          Value = 32.000000000000000000
         end>
       TabOrder = 0
       object tjPiezas: TPlanoTarjeta
@@ -223,6 +223,35 @@ object fraCotizacion: TfraCotizacion
           StyleElements = [seFont]
           OnCellClick = grPiezasCellClick
           OnKeyUp = grPiezasKeyUp
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'NOMBRE'
+              Title.Caption = 'Pieza'
+              Width = 200
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'TIPO_TRABAJO_NOMBRE'
+              Title.Caption = 'Trabajo'
+              Width = 200
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'TIPO_MATERIAL_NOMBRE'
+              Title.Caption = 'Material'
+              Width = 200
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ACABADO_NOMBRE'
+              Title.Caption = 'Acabado'
+              Width = 200
+              Visible = True
+            end>
         end
       end
       object tjEvidencia: TPlanoTarjeta
@@ -231,7 +260,7 @@ object fraCotizacion: TfraCotizacion
         Left = 0
         Top = 172
         Width = 420
-        Height = 232
+        Height = 195
         Margins.Left = 0
         Margins.Top = 10
         Margins.Right = 0
@@ -247,7 +276,7 @@ object fraCotizacion: TfraCotizacion
           Left = 12
           Top = 40
           Width = 304
-          Height = 180
+          Height = 143
           Cursor = crHandPoint
           Align = alClient
           OnClick = imgFotoClick
@@ -260,22 +289,22 @@ object fraCotizacion: TfraCotizacion
           Left = 12
           Top = 40
           Width = 304
-          Height = 180
+          Height = 143
           Align = alClient
           Alignment = taCenter
           AutoSize = False
           Layout = tlCenter
+          Transparent = True
           Visible = False
           ExplicitWidth = 396
           ExplicitHeight = 118
         end
         object pnlFotos: TPanel
-          Tag = 3
           AlignWithMargins = True
           Left = 324
           Top = 40
           Width = 84
-          Height = 180
+          Height = 143
           Margins.Left = 8
           Margins.Top = 0
           Margins.Right = 0
@@ -283,26 +312,41 @@ object fraCotizacion: TfraCotizacion
           Align = alRight
           BevelOuter = bvNone
           TabOrder = 0
+          object pbFotos: TPaintBox
+            Tag = 1
+            Left = 0
+            Top = 0
+            Width = 84
+            Height = 143
+            Align = alClient
+            OnPaint = pbFotosPaint
+          end
           object lblSinFotos: TLabel
             Tag = 13
             Left = 0
             Top = 0
             Width = 84
-            Height = 180
+            Height = 143
             Align = alClient
             Alignment = taCenter
             AutoSize = False
             Layout = tlCenter
+            Transparent = True
             Visible = False
             WordWrap = True
             ExplicitHeight = 118
           end
           object sbFotos: TScrollBox
             Tag = 3
-            Left = 0
-            Top = 0
-            Width = 84
-            Height = 180
+            AlignWithMargins = True
+            Left = 6
+            Top = 6
+            Width = 72
+            Height = 131
+            Margins.Left = 6
+            Margins.Top = 6
+            Margins.Right = 6
+            Margins.Bottom = 6
             HorzScrollBar.Visible = False
             VertScrollBar.Tracking = True
             Align = alClient
@@ -315,9 +359,9 @@ object fraCotizacion: TfraCotizacion
         Tag = 3
         AlignWithMargins = True
         Left = 0
-        Top = 414
+        Top = 377
         Width = 420
-        Height = 125
+        Height = 162
         Margins.Left = 0
         Margins.Top = 10
         Margins.Right = 0
@@ -333,7 +377,7 @@ object fraCotizacion: TfraCotizacion
           Left = 12
           Top = 40
           Width = 396
-          Height = 73
+          Height = 110
           Align = alClient
           BorderStyle = bsNone
           DataSource = dmMemoria.dsMedidas
@@ -347,6 +391,44 @@ object fraCotizacion: TfraCotizacion
           TitleFont.Name = 'Tahoma'
           TitleFont.Style = []
           StyleElements = [seFont]
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'ETIQUETA'
+              Title.Caption = 'Etiqueta'
+              Width = 200
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'TIPO_MEDIDA'
+              Title.Caption = 'Tipo de medida'
+              Width = 90
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'UNIDAD_MEDIDA'
+              Title.Caption = 'Unidad'
+              Width = 90
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'VALOR'
+              Title.Alignment = taRightJustify
+              Title.Caption = 'Valor'
+              Width = 100
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'CANTIDAD'
+              Title.Alignment = taRightJustify
+              Title.Caption = 'Cantidad'
+              Width = 70
+              Visible = True
+            end>
         end
       end
     end
@@ -421,6 +503,7 @@ object fraCotizacion: TfraCotizacion
               AlignRightWithPanel = False
               AlignTopWithPanel = False
               AlignVerticalCenterWithPanel = False
+              RightOf = cbTipoTrabajo
             end
             item
               AlignBottomWithPanel = False
@@ -491,10 +574,12 @@ object fraCotizacion: TfraCotizacion
           end
           object edDescripcion: TrDBEdit
             AlignWithMargins = True
-            Left = 312
+            Left = 315
             Top = 52
-            Width = 334
+            Width = 365
             Height = 21
+            Margins.Left = 70
+            Margins.Right = 20
             Margins.Bottom = 10
             Anchors = [akLeft, akTop, akRight]
             DataField = 'DESCRIPCION_TRABAJO'
@@ -723,9 +808,6 @@ object fraCotizacion: TfraCotizacion
           Caption = 'Condiciones para el cliente'
           Align = alClient
           TabOrder = 0
-          DesignSize = (
-            386
-            206)
           object cbFormaPago: TrDBLookupComboBox
             Left = 16
             Top = 58
@@ -824,110 +906,240 @@ object fraCotizacion: TfraCotizacion
         Margins.Top = 10
         Margins.Right = 0
         Margins.Bottom = 0
-        Caption = 'L'#237'neas de la cotizaci'#243'n'
         Align = alClient
         Padding.Left = 12
-        Padding.Top = 44
         Padding.Right = 12
         Padding.Bottom = 12
         TabOrder = 1
-        DesignSize = (
-          706
-          224)
-        object btnMaterial: TPlanoBotonWin
-          Left = 366
-          Top = 6
-          Width = 96
-          Height = 28
-          Cursor = crHandPoint
-          Anchors = [akTop, akRight]
-          Caption = '+ Material'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -12
-          Font.Name = 'Segoe UI'
-          Font.Style = []
-          ParentFont = False
+        object pnlCabeceraLineas: TRelativePanel
+          Left = 12
+          Top = 0
+          Width = 682
+          Height = 44
+          ControlCollection = <
+            item
+              Control = lblLineas
+              AlignBottomWithPanel = False
+              AlignHorizontalCenterWithPanel = False
+              AlignLeftWithPanel = True
+              AlignRightWithPanel = False
+              AlignTopWithPanel = False
+              AlignVerticalCenterWithPanel = True
+            end
+            item
+              Control = btnNota
+              AlignBottomWithPanel = False
+              AlignHorizontalCenterWithPanel = False
+              AlignLeftWithPanel = False
+              AlignRightWithPanel = True
+              AlignTopWithPanel = False
+              AlignVerticalCenterWithPanel = True
+            end
+            item
+              Control = btnMaquina
+              AlignBottomWithPanel = False
+              AlignHorizontalCenterWithPanel = False
+              AlignLeftWithPanel = False
+              AlignRightWithPanel = False
+              AlignTopWithPanel = False
+              AlignVerticalCenterWithPanel = True
+              LeftOf = btnNota
+            end
+            item
+              Control = btnManoObra
+              AlignBottomWithPanel = False
+              AlignHorizontalCenterWithPanel = False
+              AlignLeftWithPanel = False
+              AlignRightWithPanel = False
+              AlignTopWithPanel = False
+              AlignVerticalCenterWithPanel = True
+              LeftOf = btnMaquina
+            end
+            item
+              Control = btnMaterial
+              AlignBottomWithPanel = False
+              AlignHorizontalCenterWithPanel = False
+              AlignLeftWithPanel = False
+              AlignRightWithPanel = False
+              AlignTopWithPanel = False
+              AlignVerticalCenterWithPanel = True
+              LeftOf = btnManoObra
+            end>
+          Align = alTop
+          BevelOuter = bvNone
           TabOrder = 0
-          StyleElements = []
-          OnClick = btnMaterialClick
-          Kind = fkSecondary
-        end
-        object btnManoObra: TPlanoBotonWin
-          Left = 468
-          Top = 6
-          Width = 122
-          Height = 28
-          Cursor = crHandPoint
-          Anchors = [akTop, akRight]
-          Caption = '+ Mano de obra'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -12
-          Font.Name = 'Segoe UI'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 1
-          StyleElements = []
-          OnClick = btnManoObraClick
-          Kind = fkSecondary
-        end
-        object btnMaquina: TPlanoBotonWin
-          Left = 596
-          Top = 6
-          Width = 96
-          Height = 28
-          Cursor = crHandPoint
-          Anchors = [akTop, akRight]
-          Caption = '+ M'#225'quina'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -12
-          Font.Name = 'Segoe UI'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 2
-          StyleElements = []
-          OnClick = btnMaquinaClick
-          Kind = fkSecondary
-        end
-        object btnNota: TPlanoBotonWin
-          Left = 698
-          Top = 6
-          Width = 84
-          Height = 28
-          Cursor = crHandPoint
-          Anchors = [akTop, akRight]
-          Caption = '+ Nota'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -12
-          Font.Name = 'Segoe UI'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 3
-          StyleElements = []
-          OnClick = btnNotaClick
-          Kind = fkSecondary
+          DesignSize = (
+            682
+            44)
+          object lblLineas: TLabel
+            Tag = 12
+            AlignWithMargins = True
+            Left = 3
+            Top = 15
+            Width = 106
+            Height = 13
+            Caption = 'L'#237'neas de la cotizaci'#243'n'
+          end
+          object btnNota: TPlanoBotonWin
+            AlignWithMargins = True
+            Left = 612
+            Top = 8
+            Width = 70
+            Height = 28
+            Cursor = crHandPoint
+            Margins.Left = 6
+            Margins.Right = 0
+            Anchors = []
+            Caption = '+ Nota'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -12
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 3
+            StyleElements = []
+            OnClick = btnNotaClick
+            Kind = fkSecondary
+          end
+          object btnMaquina: TPlanoBotonWin
+            AlignWithMargins = True
+            Left = 522
+            Top = 8
+            Width = 84
+            Height = 28
+            Cursor = crHandPoint
+            Margins.Left = 6
+            Margins.Right = 0
+            Anchors = []
+            Caption = '+ M'#225'quina'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -12
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 2
+            StyleElements = []
+            OnClick = btnMaquinaClick
+            Kind = fkSecondary
+          end
+          object btnManoObra: TPlanoBotonWin
+            AlignWithMargins = True
+            Left = 406
+            Top = 8
+            Width = 110
+            Height = 28
+            Cursor = crHandPoint
+            Margins.Left = 6
+            Margins.Right = 0
+            Anchors = []
+            Caption = '+ Mano de obra'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -12
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 1
+            StyleElements = []
+            OnClick = btnManoObraClick
+            Kind = fkSecondary
+          end
+          object btnMaterial: TPlanoBotonWin
+            AlignWithMargins = True
+            Left = 316
+            Top = 8
+            Width = 84
+            Height = 28
+            Cursor = crHandPoint
+            Margins.Left = 6
+            Margins.Right = 0
+            Anchors = []
+            Caption = '+ Material'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -12
+            Font.Name = 'Segoe UI'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+            StyleElements = []
+            OnClick = btnMaterialClick
+            Kind = fkSecondary
+          end
         end
         object grLineas: TrDBGrid
           Left = 12
-          Top = 80
+          Top = 44
           Width = 682
-          Height = 132
+          Height = 168
           Align = alClient
           BorderStyle = bsNone
           DataSource = dmMemoria.dsLineasCotizacion
           DefaultDrawing = False
           Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect]
           ReadOnly = True
-          TabOrder = 4
+          TabOrder = 1
           TitleFont.Charset = DEFAULT_CHARSET
           TitleFont.Color = clWindowText
           TitleFont.Height = -11
           TitleFont.Name = 'Tahoma'
           TitleFont.Style = []
           StyleElements = [seFont]
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'TIPO'
+              Title.Caption = 'Tipo'
+              Width = 90
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'DESCRIPCION'
+              Title.Caption = 'Descripci'#243'n'
+              Width = 200
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'UNIDAD_MEDIDA'
+              Title.Caption = 'Unidad'
+              Width = 90
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'CANTIDAD'
+              Title.Alignment = taRightJustify
+              Title.Caption = 'Cantidad'
+              Width = 100
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'PRECIO_UNITARIO'
+              Title.Alignment = taRightJustify
+              Title.Caption = 'Precio'
+              Width = 100
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'SUBTOTAL'
+              Title.Alignment = taRightJustify
+              Title.Caption = 'Subtotal'
+              Width = 100
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ACCIONES'
+              Title.Caption = 'Acciones'
+              Width = 120
+              Visible = True
+            end>
         end
       end
     end
