@@ -70,10 +70,9 @@ Public Sub getKpiTitulos As List
 End Sub
 
 Public Sub getKpiValores As List
-	Dim d As Map = DbInicio.Indicadores
-	If d.Size = 0 Then Return Array(Mensajes.KPI_SIN_DATO, Mensajes.KPI_SIN_DATO, Mensajes.KPI_SIN_DATO, Mensajes.KPI_SIN_DATO)
-	Return Array(Cantidad(d, "solicitudes_mes"), Cantidad(d, "esperando_cotizacion"), Cantidad(d, "aprobadas_mes"), _
-		Mensajes.Colones(d.GetDefault("monto_aprobado_mes", 0)))
+	Dim d As IndicadoresAsesor = DbInicio.Indicadores
+	If d.HayDatos = False Then Return Array(Mensajes.KPI_SIN_DATO, Mensajes.KPI_SIN_DATO, Mensajes.KPI_SIN_DATO, Mensajes.KPI_SIN_DATO)
+	Return Array(d.SolicitudesMes & "", d.EsperandoCotizacion & "", d.AprobadasMes & "", Mensajes.Colones(d.MontoAprobadoMes))
 End Sub
 
 Public Sub getRecientes As List
@@ -121,11 +120,6 @@ End Sub
 #End Region
 
 #Region Ayudantes
-Private Sub Cantidad (d As Map, Llave As String) As String
-	Dim v As Int = d.GetDefault(Llave, 0)
-	Return v
-End Sub
-
 Private Sub ArmarFranja (Pendientes As Int, Errores As Int, EnCurso As Boolean) As FranjaSync
 	Dim f As FranjaSync
 	f.Initialize

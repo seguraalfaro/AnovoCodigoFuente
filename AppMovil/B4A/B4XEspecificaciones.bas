@@ -283,20 +283,19 @@ Private Sub PintarMedidas
 		CvMedidas.Add(CrearAvisoMedidas, Null)
 		Return
 	End If
-	For Each m As Map In medidas
-		CvMedidas.Add(CrearCardMedida(m), m.Get("id"))
+	For Each m As MedidaPieza In medidas
+		CvMedidas.Add(CrearCardMedida(m), m.Id)
 	Next
 End Sub
 
-Private Sub CrearCardMedida (m As Map) As B4XView
+Private Sub CrearCardMedida (m As MedidaPieza) As B4XView
 	Dim item As B4XView = xui.CreatePanel("")
 	item.SetLayoutAnimated(0, 0, 0, CvMedidas.AsView.Width, ALTO_MEDIDA)
 	item.LoadLayout("ItemMedida")
-	lblMedidaLetra.Text = m.Get("etiqueta")
-	lblMedidaNombre.Text = m.Get("medida")
-	Dim valor As Double = m.Get("valor")
-	If valor > 0 Then
-		lblMedidaDetalle.Text = Mensajes.DetalleMedida(valor, m.Get("unidad"), m.Get("cantidad"))
+	lblMedidaLetra.Text = m.Etiqueta
+	lblMedidaNombre.Text = m.TipoMedida
+	If m.Valor > 0 Then
+		lblMedidaDetalle.Text = Mensajes.DetalleMedida(m.Valor, m.Unidad, m.Cantidad)
 	Else
 		lblMedidaDetalle.Text = Mensajes.MEDIDA_SIN_VALOR
 		lblMedidaDetalle.TextColor = Colores.COLOR_ADVERTENCIA

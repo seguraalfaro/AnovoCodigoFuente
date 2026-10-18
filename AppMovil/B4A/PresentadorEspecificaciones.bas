@@ -9,11 +9,6 @@ Version=13.7
 
 Sub Class_Globals
 	Private Const EXTENSION_FOTO As String = ".jpg"
-	Private Const CLAVE_ETIQUETA As String = "etiqueta"
-	Private Const CLAVE_MEDIDA As String = "medida"
-	Private Const CLAVE_VALOR As String = "valor"
-	Private Const CLAVE_UNIDAD As String = "unidad"
-	Private Const CLAVE_CANTIDAD As String = "cantidad"
 	Private Const TIPO_BORRADOR As String = "pieza"
 	Private Const CLAVE_UUID As String = "uuid"
 	Private Const CLAVE_NOMBRE As String = "nombre"
@@ -261,9 +256,7 @@ Public Sub ArmarPieza (NombrePieza As String, Croquis As String, MedidasCroquis 
 	p.Acabado = getTextoAcabado
 	p.CroquisJson = Croquis
 	p.Croquis = Croquis <> ""
-	For i = 0 To MedidasCroquis.Size - 1
-		p.ListaMedidas.Add(MedidaDe(MedidasCroquis.Get(i), i))
-	Next
+	p.ListaMedidas.AddAll(MedidasCroquis)
 	p.Medidas = p.ListaMedidas.Size
 	p.ListaFotos.AddAll(mFotos)
 	p.Fotos = mFotos.Size
@@ -275,18 +268,6 @@ End Sub
 #End Region
 
 #Region Ayudantes
-Private Sub MedidaDe (m As Map, Orden As Int) As MedidaPieza
-	Dim r As MedidaPieza
-	r.Initialize
-	r.Etiqueta = m.GetDefault(CLAVE_ETIQUETA, "")
-	r.TipoMedida = m.GetDefault(CLAVE_MEDIDA, "")
-	r.Valor = m.GetDefault(CLAVE_VALOR, 0)
-	r.Unidad = m.GetDefault(CLAVE_UNIDAD, "")
-	r.Cantidad = m.GetDefault(CLAVE_CANTIDAD, 1)
-	r.Orden = Orden
-	Return r
-End Sub
-
 Private Sub NombreDe (Opciones As List, Id As Int) As String
 	If Id <= 0 Then Return ""
 	For Each o As OpcionBusqueda In Opciones

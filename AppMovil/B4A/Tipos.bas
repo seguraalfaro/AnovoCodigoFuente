@@ -18,7 +18,9 @@ Sub Process_Globals
 		TipoTrabajoId As Int, TipoMaterialId As Int, AcabadoId As Int, CroquisJson As String, _
 		ListaMedidas As List, ListaFotos As List)
 	Type MedidaPieza (Etiqueta As String, TipoMedida As String, Valor As Double, Unidad As String, _
-		Cantidad As Int, Orden As Int)
+		Cantidad As Int, Orden As Int, Id As Int)
+	Type IndicadoresAsesor (HayDatos As Boolean, SolicitudesMes As Int, EsperandoCotizacion As Int, _
+		AprobadasMes As Int, MontoAprobadoMes As Double)
 	Type OpcionBusqueda (Titulo As String, Detalle As String, Valor As Object)
 	Type Solicitud (UuidLocal As String, ClienteUuid As String, ContactoUuid As String, _
 		NombreProyecto As String, Descripcion As String, Observaciones As String)

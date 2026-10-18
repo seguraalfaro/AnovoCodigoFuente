@@ -16,6 +16,12 @@ Sub Class_Globals
 	Private Const ANCHO_MENU As Int = 210dip
 	Private Const ALTO_MENU As Int = 430dip
 	Private Const ALTO_TITULO As Int = 26dip
+	Private Const CLAVE_ID As String = "id"
+	Private Const CLAVE_ETIQUETA As String = "etiqueta"
+	Private Const CLAVE_MEDIDA As String = "medida"
+	Private Const CLAVE_VALOR As String = "valor"
+	Private Const CLAVE_UNIDAD As String = "unidad"
+	Private Const CLAVE_CANTIDAD As String = "cantidad"
 
 	Private mRaiz As B4XView
 	Private mDibujo As ASDrawIso
@@ -127,7 +133,25 @@ Public Sub Cargar (Contenido As String) As Boolean
 End Sub
 
 Public Sub getMedidas As List
-	Return mDibujo.Medidas
+	Dim res As List
+	res.Initialize
+	For Each m As Map In mDibujo.Medidas
+		res.Add(MedidaDe(m, res.Size))
+	Next
+	Return res
+End Sub
+
+Private Sub MedidaDe (m As Map, Orden As Int) As MedidaPieza
+	Dim r As MedidaPieza
+	r.Initialize
+	r.Id = m.GetDefault(CLAVE_ID, 0)
+	r.Etiqueta = m.GetDefault(CLAVE_ETIQUETA, "")
+	r.TipoMedida = m.GetDefault(CLAVE_MEDIDA, "")
+	r.Valor = m.GetDefault(CLAVE_VALOR, 0)
+	r.Unidad = m.GetDefault(CLAVE_UNIDAD, "")
+	r.Cantidad = m.GetDefault(CLAVE_CANTIDAD, 1)
+	r.Orden = Orden
+	Return r
 End Sub
 #End Region
 
@@ -145,12 +169,12 @@ Public Sub PedirMedida (Id As Int) As ResumableSub
 	Dim m As Map = mDibujo.getMedida(Id)
 	If m.Size = 0 Then Return False
 	PrepararDialogos
-	spnMedida.SelectedIndex = Max(0, spnMedida.IndexOf(m.Get("medida")))
-	spnUnidad.SelectedIndex = Max(0, spnUnidad.IndexOf(m.Get("unidad")))
-	Dim valor As Double = m.Get("valor")
-	If valor > 0 Then txtValor.Text = NumberFormat2(valor, 1, 2, 0, False) Else txtValor.Text = ""
-	txtCantidad.Text = m.Get("cantidad")
-	dialogo.Title = Mensajes.TituloMedida(m.Get("etiqueta"))
+	Dim medida As MedidaPieza = MedidaDe(m, 0)
+	spnMedida.SelectedIndex = Max(0, spnMedida.IndexOf(medida.TipoMedida))
+	spnUnidad.SelectedIndex = Max(0, spnUnidad.IndexOf(medida.Unidad))
+	If medida.Valor > 0 Then txtValor.Text = NumberFormat2(medida.Valor, 1, 2, 0, False) Else txtValor.Text = ""
+	txtCantidad.Text = medida.Cantidad
+	dialogo.Title = Mensajes.TituloMedida(medida.Etiqueta)
 	Dim rs As Object = dialogo.ShowCustom(pnlMedida, Mensajes.GUARDAR, Mensajes.QUITAR, Mensajes.CANCELAR)
 	UI.AjustarBarraTitulo(dialogo)
 	UI.CentrarDialogo(dialogo)
@@ -162,7 +186,7 @@ Public Sub PedirMedida (Id As Int) As ResumableSub
 	If Resultado <> xui.DialogResponse_Positive Then Return False
 	Dim texto As String = txtValor.Text.Trim.Replace(",", ".")
 	If texto = "" Or IsNumber(texto) = False Then
-		xui.MsgboxAsync(Mensajes.FALTA_VALOR_MEDIDA, Mensajes.TituloMedida(m.Get("etiqueta")))
+		xui.MsgboxAsync(Mensajes.FALTA_VALOR_MEDIDA, Mensajes.TituloMedida(medida.Etiqueta))
 		Return False
 	End If
 	Dim cantidad As Int = 1
@@ -187,10 +211,9 @@ Public Sub PedirTexto (Id As Int) As ResumableSub
 End Sub
 
 Private Sub LlenarPendientes
-	For Each m As Map In mDibujo.getMedidas
-		Dim valor As Double = m.Get("valor")
-		If valor > 0 Then Continue
-		Wait For (PedirMedida(m.Get("id"))) Complete (Listo As Boolean)
+	For Each m As MedidaPieza In getMedidas
+		If m.Valor > 0 Then Continue
+		Wait For (PedirMedida(m.Id)) Complete (Listo As Boolean)
 		If Listo = False Then Exit
 	Next
 	Refrescar

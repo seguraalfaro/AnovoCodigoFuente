@@ -193,17 +193,17 @@ End Sub
 #Region Paso 1: datos
 Private Sub EditText_TextChanged (Old As String, New As String)
 	If restaurando Then Return
-	Formato.EventoCambioText(Sender, Old, New)
+	UI.MascaraAlEscribir(Sender, New)
 End Sub
 
 Private Sub EditText_FocusChanged (HasFocus As Boolean)
 	If HasFocus Or restaurando Then Return
-	If Formato.EventoCambioFocusText(Sender) Then Persistir
+	If UI.ValidarCampo(Sender) Then Persistir
 End Sub
 
 Private Sub CbTipoIdentificacion_SelectedIndexChanged (Index As Int)
 	If restaurando Then Return
-	Formato.SetTipoIdentificacion(Index, TextIdentificacion)
+	UI.CambiarIdentificacion(Index, TextIdentificacion)
 End Sub
 #End Region
 

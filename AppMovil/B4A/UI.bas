@@ -8,6 +8,7 @@ Version=13.7
 ' ayudantes de pantalla. La lista de tags esta en la referencia b4a-arquitectura de la skill.
 Sub Process_Globals
 	Private Const TAG_OBLIGATORIO As String = "_oblig"
+	Private MascaraEnCurso As Boolean
 	Private xui As XUI
 	Public RADIO_BOTON     As Int = 10dip
 	Public RADIO_CAMPO     As Int = 8dip
@@ -474,6 +475,54 @@ Public Sub MarcarNormal (Remitente As Object, hint As String = "")
 		Dim et As EditText = v
 		et.Hint = hint
 	End If
+End Sub
+
+Public Sub MascaraAlEscribir (Remitente As Object, Nuevo As String)
+	If MascaraEnCurso Then Return
+	Dim et As EditText = RetornarTextField(Remitente)
+	If et = Null Then Return
+	Dim t As String = TagDeCampo(et)
+	If t = "" Then Return
+	Dim texto As String = Formato.Aplicar(Formato.MascaraDeTag(t), Nuevo)
+	If texto = Nuevo Then Return
+	MascaraEnCurso = True
+	et.Text = texto
+	et.SelectionStart = texto.Length
+	MascaraEnCurso = False
+End Sub
+
+Public Sub ValidarCampo (Remitente As Object) As Boolean
+	Dim et As EditText = RetornarTextField(Remitente)
+	If et = Null Then Return True
+	If Utils.EstaVacio(et.Text) Then Return False
+	Dim mascara As Int = Formato.MascaraDeTag(TagDeCampo(et))
+	If mascara = Formato.MASCARA_MONTO Then Return False
+	Dim valido As Boolean = Formato.EsValido(mascara, et.Text)
+	If valido Then
+		MarcarNormal(Remitente, Formato.AyudaNormal(mascara))
+	Else
+		MarcarError(Remitente, Formato.AyudaError(mascara))
+	End If
+	Return valido
+End Sub
+
+Public Sub CambiarIdentificacion (Indice As Int, Campo As B4XFloatTextField)
+	Dim actual As String = TagDelPadre(Campo.TextField)
+	Dim viejo As String = Formato.TagIdentificacionEn(actual)
+	Dim nuevo As String = Formato.TagIdentificacion(Indice)
+	Dim tag As String = actual & nuevo
+	If viejo <> "" Then tag = actual.Replace(viejo, nuevo)
+	Campo.Tag = tag
+	MascaraEnCurso = True
+	Campo.Text = ""
+	MascaraEnCurso = False
+	ConfigurarIdentificacion(Campo, Formato.MascaraDeTag(tag))
+End Sub
+
+Private Sub TagDeCampo (et As EditText) As String
+	Dim tag As String = ObtenerTag(et)
+	If tag = "" Then tag = TagDelPadre(et)
+	Return tag
 End Sub
 
 Public Sub ConfigurarMemo (Campo As EditText, Ayuda As String)
