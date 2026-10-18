@@ -44,6 +44,8 @@ uses
   Anovo.Red,
   Anovo.Services.Intf.Permisos,
   Anovo.Services.Intf.Sesion,
+  Anovo.Errors,
+  Anovo.Auth.Token,
   Anovo.Textos;
 
 const
@@ -150,7 +152,7 @@ begin
   lToken := AContext.Request.Cookie(NOMBRE_COOKIE).Trim;
   if lToken.IsEmpty then
     Exit(False);
-  lJwt := TJWT.Create(dotEnv.Env('JWT_SECRET'), 0);
+  lJwt := TJWT.Create(SecretoDocumentacion, 0);
   try
     lJwt.RegClaimsToChecks := [TJWTCheckableClaim.ExpirationTime,
       TJWTCheckableClaim.NotBefore, TJWTCheckableClaim.IssuedAt];
@@ -207,9 +209,9 @@ begin
     Exit;
   end;
 
-  lJwt := TJWT.Create(dotEnv.Env('JWT_SECRET'), 0);
+  lJwt := TJWT.Create(SecretoDocumentacion, 0);
   try
-    lJwt.Claims.Issuer := dotEnv.Env('JWT_ISSUER', 'AnovoAPI');
+    lJwt.Claims.Issuer := EmisorJWT;
     lJwt.Claims.Subject := lResultado.UsuarioId.ToString;
     lJwt.Claims.IssuedAt := Now;
     lJwt.Claims.NotBefore := IncMinute(Now, -1);
@@ -244,7 +246,8 @@ begin
   begin
     if not Habilitada then
     begin
-      Responder(AContext, HTTP_STATUS.NotFound, TIPO_JSON, '{}');
+      Responder(AContext, HTTP_STATUS.NotFound, TIPO_JSON,
+        CuerpoError('RUTA_NO_ENCONTRADA', SRutaNoExiste));
       AHandled := True;
       Exit;
     end;
@@ -276,8 +279,7 @@ begin
     Redirigir(AContext, RUTA_ACCESO)
   else
     Responder(AContext, HTTP_STATUS.Unauthorized, TIPO_JSON,
-      '{"error":{"codigo":"DOCUMENTACION_SIN_ACCESO","mensaje":"' +
-      SDocsSinAcceso + '","detalles":[]}}');
+      CuerpoError('DOCUMENTACION_SIN_ACCESO', SDocsSinAcceso));
   AHandled := True;
 end;
 

@@ -148,6 +148,7 @@ uses
   Anovo.Auth.EstadoUsuarios in 'src\Auth\Anovo.Auth.EstadoUsuarios.pas',
   Anovo.Middleware.Documentacion in 'src\Middleware\Anovo.Middleware.Documentacion.pas',
   Anovo.Middleware.Token in 'src\Middleware\Anovo.Middleware.Token.pas',
+  Anovo.Middleware.LimitePeticiones in 'src\Middleware\Anovo.Middleware.LimitePeticiones.pas',
   Anovo.Services.Intf.Sesion in 'src\Interfaces\Anovo.Services.Intf.Sesion.pas',
   Anovo.Services.Sesion in 'src\Services\Anovo.Services.Sesion.pas',
   Anovo.Controllers.Version in 'src\Controllers\Anovo.Controllers.Version.pas',

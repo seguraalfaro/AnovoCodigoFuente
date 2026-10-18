@@ -35,6 +35,8 @@ uses
   Anovo.Red,
   Anovo.Middleware.Documentacion,
   Anovo.Middleware.Token,
+  Anovo.Middleware.LimitePeticiones,
+  Anovo.Textos,
   Anovo.Auth.RoleHandler,
   Anovo.Errors,
   Anovo.Middleware.ContextoAuditoria,
@@ -94,9 +96,7 @@ begin
     procedure(const AContext: TWebContext; const AKey: string;
       const ALimit: Integer; const AWindowSeconds: Integer)
     begin
-      LogW(Format
-        ('Rate limit exceeded for key: %s (Limit: %d requests per %d seconds)',
-        [AKey, ALimit, AWindowSeconds]));
+      LogW(Format(SLogLimitePeticiones, [AKey, ALimit, AWindowSeconds]));
     end);
 
   LJWTClaimsSetup := procedure(const JWT: TJWT)
@@ -122,7 +122,7 @@ begin
     AEngine.AddMiddleware(TMVCCORSMiddleware.Create(LOrigenesCORS, False,
       TMVCCORSDefaults.EXPOSE_HEADERS, TMVCCORSDefaults.ALLOWS_HEADERS));
 
-  AEngine.AddMiddleware(LRateLimitMiddleware);
+  AEngine.AddMiddleware(TLimitePeticionesMiddleware.Create(LRateLimitMiddleware));
 
   AEngine.AddMiddleware(TMVCActiveRecordMiddleware.Create
     (dotEnv.Env('firedac.connection_definition_name', 'AnovoDef'),

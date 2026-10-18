@@ -27,6 +27,7 @@ uses
   System.SysUtils,
   JsonDataObjects,
   MVCFramework.Commons,
+  Anovo.Errors,
   Anovo.Textos;
 
 const
@@ -89,9 +90,8 @@ begin
 
   AContext.Response.StatusCode := HTTP_STATUS.Unauthorized;
   AContext.Response.ContentType := TMVCMediaType.APPLICATION_JSON;
-  AContext.Response.Content :=
-    '{"error":{"codigo":"TOKEN_INVALIDO","mensaje":"' + STokenAccesoInvalido +
-    '","detalles":[]}}';
+  AContext.Response.Content := CuerpoError('TOKEN_INVALIDO',
+    STokenAccesoInvalido);
   AHandled := True;
 end;
 

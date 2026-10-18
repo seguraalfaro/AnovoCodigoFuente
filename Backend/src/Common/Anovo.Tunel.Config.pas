@@ -52,7 +52,7 @@ begin
   Result.Exe := dotEnv.Env(CLAVE_TUNEL_EXE, EXE_POR_DEFECTO).Trim;
   Result.ArchivoConfig := dotEnv.Env(CLAVE_TUNEL_CONFIG, '').Trim;
   Result.Nombre := dotEnv.Env(CLAVE_TUNEL_NOMBRE, '').Trim;
-  Result.Automatico := dotEnv.Env(CLAVE_TUNEL_AUTOMATICO, True);
+  Result.Automatico := dotEnv.Env(CLAVE_TUNEL_AUTOMATICO, False);
 end;
 
 function TConfigTunel.Configurado: Boolean;

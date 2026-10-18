@@ -60,6 +60,7 @@ const
   LARGO_UUID_LOCAL = 36;
 
 function ManejadorDeErrores: TMVCExceptionHandlerProc;
+function CuerpoError(const ACodigo, AMensaje: string): string;
 procedure ExigirLargoUuid(const AUuid: string);
 
 implementation
@@ -122,6 +123,23 @@ constructor EDemasiadosIntentos.Create(const AMinutos: Integer);
 begin
   inherited Create('INGRESO_BLOQUEADO', Format(SIngresoBloqueado, [AMinutos]),
     HTTP_STATUS.TooManyRequests);
+end;
+
+function CuerpoError(const ACodigo, AMensaje: string): string;
+var
+  lCuerpo: TJSONObject;
+  lError: TJSONObject;
+begin
+  lCuerpo := TJSONObject.Create;
+  try
+    lError := lCuerpo.O['error'];
+    lError.S['codigo'] := ACodigo;
+    lError.S['mensaje'] := AMensaje;
+    lError.A['detalles'];
+    Result := lCuerpo.ToJSON;
+  finally
+    lCuerpo.Free;
+  end;
 end;
 
 procedure ExigirLargoUuid(const AUuid: string);

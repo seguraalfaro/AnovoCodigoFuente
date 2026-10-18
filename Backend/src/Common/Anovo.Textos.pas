@@ -374,6 +374,10 @@ resourcestring
 
   SSinConexion = 'No se pudo conectar con el servidor de Anovo. ' +
     'Revise la red o avise al administrador.';
+  SFaltaSecretoJWT = 'Falta JWT_SECRET en el .env: el servidor no puede firmar ni ' +
+    'validar tokens.';
+  SSinDefinirEnv = '(sin definir en el .env)';
+  SLogLimitePeticiones = 'Límite de peticiones superado para %s (%d en %d segundos)';
   SDemasiadasPeticiones = 'Se hicieron demasiadas consultas en poco tiempo. ' +
     'Espere un minuto e intente de nuevo.';
   SSesionVencida = 'Su sesión venció. Vuelva a ingresar.';

@@ -28,7 +28,9 @@ uses
   MVCFramework.DotEnv,
   MVCFramework.Container,
   Anovo.Config.Engine,
-  Anovo.Config.Servicios;
+  Anovo.Config.Servicios,
+  Anovo.Auth.Token,
+  Anovo.Textos;
 
 var
   gServiciosListos: Boolean = False;
@@ -40,12 +42,12 @@ end;
 
 function BaseConfigurada: string;
 begin
-  Result := dotEnv.Env('firebird.database', '(sin definir en el .env)');
+  Result := dotEnv.Env('firebird.database', SSinDefinirEnv);
 end;
 
 function UsuarioDeBase: string;
 begin
-  Result := dotEnv.Env('firebird.user', '(sin definir en el .env)');
+  Result := dotEnv.Env('firebird.user', SSinDefinirEnv);
 end;
 
 procedure PrepararServicios;
@@ -61,6 +63,7 @@ function CrearServidor: IMVCServer;
 var
   lEngine: TMVCEngine;
 begin
+  SecretoJWT;
   lEngine := TMVCEngine.Create(
     procedure(Config: TMVCConfig)
     begin
@@ -73,7 +76,7 @@ begin
       Config[TMVCConfigKey.AllowUnhandledAction] :=
         dotEnv.Env('dmvc.allow_unhandled_actions', 'false');
       Config[TMVCConfigKey.LoadSystemControllers] :=
-        dotEnv.Env('dmvc.load_system_controllers', 'true');
+        dotEnv.Env('dmvc.load_system_controllers', 'false');
       Config[TMVCConfigKey.DefaultViewFileExtension] :=
         dotEnv.Env('dmvc.default.view_file_extension', 'html');
       Config[TMVCConfigKey.ViewPath] := dotEnv.Env('dmvc.view_path',

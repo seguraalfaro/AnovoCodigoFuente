@@ -16,6 +16,8 @@ const
 
 procedure ConfigurarClaims(const AJWT: TJWT);
 function SecretoJWT: string;
+function SecretoDocumentacion: string;
+function EmisorJWT: string;
 function EmitirToken(const AAutenticacion: TAutenticacion;
   const ADispositivoId: Integer = 0): string;
 
@@ -25,11 +27,16 @@ uses
   System.SysUtils,
   System.DateUtils,
   MVCFramework.Commons,
-  Anovo.Auth.Permisos;
+  Anovo.Auth.Permisos,
+  Anovo.Textos;
+
+const
+  EMISOR_POR_DEFECTO = 'AnovoAPI';
+  SUFIJO_SECRETO_DOCUMENTACION = '|documentacion';
 
 procedure ConfigurarClaims(const AJWT: TJWT);
 begin
-  AJWT.Claims.Issuer := dotEnv.Env('JWT_ISSUER', 'AnovoAPI');
+  AJWT.Claims.Issuer := EmisorJWT;
   AJWT.Claims.ExpirationTime := Now + OneHour;
   AJWT.Claims.NotBefore := Now - OneMinute * 5;
   AJWT.Claims.IssuedAt := Now;
@@ -38,7 +45,19 @@ end;
 
 function SecretoJWT: string;
 begin
-  Result := dotEnv.Env('JWT_SECRET');
+  Result := dotEnv.Env('JWT_SECRET', '').Trim;
+  if Result.IsEmpty then
+    raise Exception.Create(SFaltaSecretoJWT);
+end;
+
+function SecretoDocumentacion: string;
+begin
+  Result := SecretoJWT + SUFIJO_SECRETO_DOCUMENTACION;
+end;
+
+function EmisorJWT: string;
+begin
+  Result := dotEnv.Env('JWT_ISSUER', EMISOR_POR_DEFECTO);
 end;
 
 function EmitirToken(const AAutenticacion: TAutenticacion;

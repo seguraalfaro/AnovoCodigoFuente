@@ -53,10 +53,8 @@ desktop.ini
 .DS_Store
 
 # ============ HERRAMIENTAS ============
-# Scripts de apoyo al desarrollo; no se publican, salvo el paso que se
-# corre despues de MVCEntGen, que hace falta para regenerar las entidades.
-/Herramientas/*
-!/Herramientas/entidades/
+# Scripts de apoyo al desarrollo; no se publican.
+/Herramientas/
 
 # ============ NOTA ============
 # SI se versionan: .dpr .dproj .pas .dfm .b4a, la carpeta Files/ de B4A
