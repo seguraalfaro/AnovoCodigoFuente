@@ -11,7 +11,6 @@ uses
   MVCFramework.Swagger.Commons,
   Anovo.Controllers.Base,
   Anovo.DTOs.Sesion,
-  Anovo.Services.Intf.Permisos,
   Anovo.Services.Intf.Sesion;
 
 type
@@ -25,7 +24,7 @@ type
       'obtenerSesion')]
     [MVCSwagResponses(200, 'Rol y permisos', TSesionDTO)]
     [MVCSwagResponses(401, 'Sin token o token vencido')]
-    function Obtener([MVCInject] APermisos: IPermisoService): IMVCResponse;
+    function Obtener([MVCInject] AServicio: ISesionService): IMVCResponse;
 
     [MVCPath('/cuenta')]
     [MVCHTTPMethods([httpGET])]
@@ -55,14 +54,9 @@ implementation
 uses
   System.SysUtils;
 
-function TSesionController.Obtener(APermisos: IPermisoService): IMVCResponse;
-var
-  lSesion: TSesionDTO;
+function TSesionController.Obtener(AServicio: ISesionService): IMVCResponse;
 begin
-  lSesion := TSesionDTO.Create;
-  lSesion.Rol := Rol;
-  lSesion.Permisos := APermisos.PermisosDe(UsuarioId, lSesion.Rol);
-  Result := OKResponse(lSesion);
+  Result := OKResponse(AServicio.Sesion(UsuarioId, Rol));
 end;
 
 function TSesionController.ObtenerCuenta(AServicio: ISesionService)

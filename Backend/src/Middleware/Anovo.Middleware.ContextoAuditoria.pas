@@ -27,7 +27,8 @@ uses
   System.SysUtils,
   MVCFramework.Logger,
   Anovo.Auth.Permisos,
-  Anovo.Auditoria.Contexto;
+  Anovo.Auditoria.Contexto,
+  Anovo.Textos;
 
 procedure TContextoAuditoriaMiddleware.OnBeforeRouting(Context: TWebContext;
   var Handled: Boolean);
@@ -39,17 +40,14 @@ procedure TContextoAuditoriaMiddleware.OnBeforeControllerAction
   (Context: TWebContext; const AControllerQualifiedClassName: string;
   const AActionName: string; var Handled: Boolean);
 var
-  lTexto: string;
   lUsuarioId: Integer;
 begin
-  lTexto := '';
-  if Assigned(Context.LoggedUser.CustomData) then
-    Context.LoggedUser.CustomData.TryGetValue(DATO_USUARIO_ID, lTexto);
-
-  if not TryStrToInt(lTexto, lUsuarioId) then
+  lUsuarioId := UsuarioDelToken(Context);
+  if lUsuarioId <= 0 then
   begin
-    if lTexto <> '' then
-      LogE(Format('Token con USUARIO_ID no numerico: %s', [lTexto]));
+    if Assigned(Context.LoggedUser.CustomData) and
+      Context.LoggedUser.CustomData.ContainsKey(DATO_USUARIO_ID) then
+      LogW(SLogTokenUsuarioInvalido);
     LimpiarUsuario;
     Exit;
   end;
@@ -66,14 +64,13 @@ begin
     LimpiarDetalle;
   except
     on E: Exception do
-        LogE('No se pudo limpiar el contexto de auditoria: ' + E.Message);
+      LogE(SLogContextoNoLimpio + E.ClassName);
   end;
 end;
 
 procedure TContextoAuditoriaMiddleware.OnAfterRouting(Context: TWebContext;
   const AHandled: Boolean);
 begin
-
 end;
 
 end.

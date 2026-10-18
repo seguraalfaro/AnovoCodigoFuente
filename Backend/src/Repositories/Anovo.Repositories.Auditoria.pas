@@ -20,7 +20,7 @@ type
     function ParametrosSegun(const ADesde, AHasta: TDateTime;
       const AUsuarioId: Integer; const AEntidad, AAccion, ATexto: string)
       : TArray<Variant>;
-    function HastaElFinal(const AHasta: TDateTime): TDateTime;
+    function FinExclusivo(const AHasta: TDateTime): TDateTime;
   public
     function Buscar(const ADesde, AHasta: TDateTime;
       const APagina, APorPagina: Integer; const AUsuarioId: Integer = 0;
@@ -83,10 +83,10 @@ begin
     Result := Result + AUDITORIA_POR_TEXTO;
 end;
 
-function TAuditoriaRepository.HastaElFinal(const AHasta: TDateTime): TDateTime;
+function TAuditoriaRepository.FinExclusivo(const AHasta: TDateTime): TDateTime;
 begin
   if Frac(AHasta) = 0 then
-    Result := EndOfTheDay(AHasta)
+    Result := IncDay(AHasta)
   else
     Result := AHasta;
 end;
@@ -95,7 +95,7 @@ function TAuditoriaRepository.ParametrosSegun(const ADesde, AHasta: TDateTime;
   const AUsuarioId: Integer; const AEntidad, AAccion, ATexto: string)
   : TArray<Variant>;
 begin
-  Result := [Variant(ADesde), Variant(HastaElFinal(AHasta))];
+  Result := [Variant(ADesde), Variant(FinExclusivo(AHasta))];
   if AUsuarioId > 0 then
     Result := Result + [Variant(AUsuarioId)];
   if (AEntidad <> '') and (AEntidad <> ENTIDAD_GRUPO_CUENTAS) then

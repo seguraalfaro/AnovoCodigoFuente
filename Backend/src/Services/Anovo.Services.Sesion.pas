@@ -13,6 +13,7 @@ uses
   Anovo.Repositories.Intf.Empresa,
   Anovo.Repositories.Intf.Clientes,
   Anovo.Services.Intf.Sesion,
+  Anovo.Services.Intf.Permisos,
   Anovo.Services.Clave;
 
 type
@@ -25,6 +26,7 @@ type
     fExcepciones: IUsuarioPermisoRepository;
     fEmpresa: IEmpresaRepository;
     fTextos: IConsentimientoTextoRepository;
+    fPermisos: IPermisoService;
     procedure ValidarClaveNueva(const AClave: string);
     procedure GuardarCambioClave(const AUsuarioId: Integer;
       const ADto: TCambioClaveDTO);
@@ -34,8 +36,9 @@ type
     constructor Create(AUsuarios: IUsuarioRepository;
       AClaves: IUsuarioClaveRepository; ARoles: IRolRepository;
       AClave: IClaveService; AExcepciones: IUsuarioPermisoRepository;
-      AEmpresa: IEmpresaRepository;
-      ATextos: IConsentimientoTextoRepository); reintroduce;
+      AEmpresa: IEmpresaRepository; ATextos: IConsentimientoTextoRepository;
+      APermisos: IPermisoService); reintroduce;
+    function Sesion(const AUsuarioId: Integer; const ARol: string): TSesionDTO;
     function Cuenta(const AUsuarioId: Integer; const ARol: string): TCuentaDTO;
     procedure CambiarClave(const AUsuarioId: Integer;
       const ADto: TCambioClaveDTO);
@@ -66,10 +69,12 @@ const
 constructor TSesionService.Create(AUsuarios: IUsuarioRepository;
   AClaves: IUsuarioClaveRepository; ARoles: IRolRepository;
   AClave: IClaveService; AExcepciones: IUsuarioPermisoRepository;
-  AEmpresa: IEmpresaRepository; ATextos: IConsentimientoTextoRepository);
+  AEmpresa: IEmpresaRepository; ATextos: IConsentimientoTextoRepository;
+  APermisos: IPermisoService);
 begin
   inherited Create;
   fTextos := ATextos;
+  fPermisos := APermisos;
   fUsuarios := AUsuarios;
   fClaves := AClaves;
   fRoles := ARoles;
@@ -123,6 +128,7 @@ begin
       begin
         FijarUsuario(lUsuario.ID.Value);
         try
+          FijarDetalle(Format(SDetalleClaveRecifrada, [lUsuario.ID.Value]));
           lFila.ClaveHash := fClave.Hashear(AClave);
           fClaves.Update(lFila);
         finally
@@ -185,6 +191,14 @@ begin
   finally
     lUsuario.Free;
   end;
+end;
+
+function TSesionService.Sesion(const AUsuarioId: Integer;
+  const ARol: string): TSesionDTO;
+begin
+  Result := TSesionDTO.Create;
+  Result.Rol := ARol;
+  Result.Permisos := fPermisos.PermisosDe(AUsuarioId, ARol);
 end;
 
 function TSesionService.Cuenta(const AUsuarioId: Integer;
@@ -285,6 +299,7 @@ begin
       if fClave.Verificar(ADto.ClaveNueva, lVigente.ClaveHash) then
         raise EDatoInvalido.Create(SClaveIgualALaActual);
 
+      FijarDetalle(Format(SDetalleCambioClavePropio, [AUsuarioId]));
       lVigente.Activo := False;
       fClaves.Update(lVigente);
     finally
