@@ -18,6 +18,7 @@ Sub Process_Globals
 	Public Const HTTP_OK As Int = 200
 	Public Const HTTP_CREADO As Int = 201
 	Public Const HTTP_NO_AUTORIZADO As Int = 401
+	Public Const HTTP_PROHIBIDO As Int = 403
 	Public Const HTTP_DEMASIADAS As Int = 429
 	Public Const HTTP_SERVIDOR As Int = 500
 	Private Const PAGINA_INGRESO As String = "MainPage"

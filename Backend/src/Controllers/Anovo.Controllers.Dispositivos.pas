@@ -9,7 +9,9 @@ uses
   MVCFramework,
   MVCFramework.Commons,
   MVCFramework.Swagger.Commons,
+  Anovo.Auth.Permisos,
   Anovo.Controllers.Base,
+  Anovo.Permisos,
   Anovo.DTOs.Dispositivos,
   Anovo.Services.Intf.Dispositivos;
 
@@ -19,13 +21,15 @@ type
   public
     [MVCPath('/dispositivos')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresAuthentication]
+    [MVCRequiresPermiso(PERMISO_ADJUNTOS_CREAR)]
     [MVCSwagSummary('Sesion', 'Registra el telefono y entrega su llave. La ' +
       'llave se muestra una sola vez', 'registrarDispositivo')]
     [MVCSwagParam(plBody, 'body', 'Uuid y nombre del telefono',
       TDispositivoNuevoDTO)]
     [MVCSwagResponses(201, 'Llave y fecha de vencimiento', TLlaveDispositivoDTO)]
     [MVCSwagResponses(401, 'Sin token o token vencido')]
+    [MVCSwagResponses(403, 'La cuenta no tiene acceso a la app movil: le ' +
+      'falta adjuntos.crear')]
     [MVCSwagResponses(422, 'Falta el uuid del dispositivo')]
     function Registrar([MVCInject] AServicio: IDispositivoService;
       const [MVCFromBody] ADto: TDispositivoNuevoDTO): IMVCResponse;

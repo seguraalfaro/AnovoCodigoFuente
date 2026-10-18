@@ -12,7 +12,6 @@ Sub Process_Globals
 	Public Nombre As String
 	Public Rol As String
 	Public DebeCambiarClave As Boolean
-	Public Const ROL_ADMIN As String = "admin"
 	Private mToken As String
 	Private mVence As Long
 	Private mLocal As Boolean

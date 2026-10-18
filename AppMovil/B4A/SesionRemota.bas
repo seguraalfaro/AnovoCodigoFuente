@@ -34,11 +34,11 @@ Public Sub RegistrarTelefono As ResumableSub
 	Wait For (ApiAutenticacion.RegistrarDispositivo(LlaveDispositivo.Uuid, LlaveDispositivo.NombreTelefono).Enviar) Complete (Respuesta As RestRespuesta)
 	If Respuesta.Success = False Then
 		Log("Registro del telefono: " & Respuesta.StatusCode)
-		Return False
+		Return Respuesta.StatusCode
 	End If
 	Dim datos As Map = Respuesta.DatosMap
-	If LlaveDispositivo.Guardar(datos.GetDefault(CAMPO_LLAVE, "")) = False Then Return False
+	If LlaveDispositivo.Guardar(datos.GetDefault(CAMPO_LLAVE, "")) = False Then Return 0
 	Dim nuevo As String = datos.GetDefault(CAMPO_TOKEN, "")
 	If nuevo <> "" Then Sesion.Abrir(nuevo)
-	Return True
+	Return Api.HTTP_CREADO
 End Sub

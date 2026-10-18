@@ -18,7 +18,7 @@ Sub Process_Globals
 	Public Const TOKEN_INVALIDO As String = "El servidor devolvió un token con formato inválido."
 	Public Const URL_VACIA As String = "Escriba la dirección del servidor."
 	Public Const URL_SIN_HTTPS As String = "La dirección del servidor debe empezar por https://"
-	Public Const SIN_ACCESO_MOVIL As String = "Su usuario no usa la aplicación móvil."
+	Public Const SIN_ACCESO_MOVIL As String = "Su usuario no tiene acceso a la aplicación móvil. Si lo necesita, pida a TI el permiso de croquis y fotografías."
 	Public Const CLAVE_TEMPORAL As String = "Su clave es temporal. Cámbiela en la aplicación de escritorio y vuelva a ingresar."
 	Public Const TITULO_SERVIDOR As String = "Dirección del servidor"
 	Public Const SERVIDOR_EN As String = "Servidor: "

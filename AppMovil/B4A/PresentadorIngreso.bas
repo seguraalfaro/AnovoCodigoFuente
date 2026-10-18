@@ -26,18 +26,18 @@ Public Sub Ingresar (Correo As String, Clave As String) As ResumableSub
 	End If
 
 	If Sesion.Abrir(Respuesta.Valor("token")) = False Then Return Tipos.Falla(Mensajes.TOKEN_INVALIDO)
-	If Sesion.Rol = Sesion.ROL_ADMIN Then
-		Sesion.Cerrar
-		Return Tipos.Falla(Mensajes.SIN_ACCESO_MOVIL)
-	End If
 	If Sesion.DebeCambiarClave Then
 		Sesion.Cerrar
 		Return Tipos.Falla(Mensajes.CLAVE_TEMPORAL)
 	End If
+	Wait For (remota.RegistrarTelefono) Complete (Registro As Int)
+	If Registro = Api.HTTP_PROHIBIDO Then
+		Sesion.Cerrar
+		Return Tipos.Falla(Mensajes.SIN_ACCESO_MOVIL)
+	End If
 	LlaveDispositivo.GuardarPerfil(Sesion.UsuarioId, Sesion.Correo, Sesion.Nombre, Sesion.Rol)
-	Wait For (remota.RegistrarTelefono) Complete (Registrado As Boolean)
 	Dim r As Resultado = Tipos.Correcto(Null)
-	If Registrado = False Then r.Mensaje = Mensajes.TELEFONO_NO_REGISTRADO
+	If Registro <> Api.HTTP_CREADO Then r.Mensaje = Mensajes.TELEFONO_NO_REGISTRADO
 	Return r
 End Sub
 

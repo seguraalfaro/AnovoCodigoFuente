@@ -12,6 +12,7 @@ uses
   Anovo.Entities.Usuarios,
   Anovo.Repositories.Intf.Usuarios,
   Anovo.Services.Intf.Dispositivos,
+  Anovo.Services.Intf.Permisos,
   Anovo.Services.Intf.Sesion;
 
 type
@@ -20,6 +21,7 @@ type
     fDispositivos: IDispositivoRepository;
     fClaves: IUsuarioClaveRepository;
     fSesion: ISesionService;
+    fPermisos: IPermisoService;
     function NuevaLlave: string;
     function Hash(const ALlave: string): string;
     function Vence: TDateTime;
@@ -38,7 +40,8 @@ type
   public
     [MVCInject]
     constructor Create(ADispositivos: IDispositivoRepository;
-      AClaves: IUsuarioClaveRepository; ASesion: ISesionService); reintroduce;
+      AClaves: IUsuarioClaveRepository; ASesion: ISesionService;
+      APermisos: IPermisoService); reintroduce;
     function Registrar(const AUsuarioId: Integer;
       const ADto: TDispositivoNuevoDTO): TLlaveDispositivoDTO;
     function Renovar(const ADto: TRenovacionDTO): TSesionRenovadaDTO;
@@ -60,6 +63,7 @@ uses
   Anovo.Auth.Token,
   Anovo.Errors,
   Anovo.Mapeo,
+  Anovo.Permisos,
   Anovo.Textos;
 
 const
@@ -67,12 +71,14 @@ const
   LARGO_NOMBRE = 120;
 
 constructor TDispositivoService.Create(ADispositivos: IDispositivoRepository;
-  AClaves: IUsuarioClaveRepository; ASesion: ISesionService);
+  AClaves: IUsuarioClaveRepository; ASesion: ISesionService;
+  APermisos: IPermisoService);
 begin
   inherited Create;
   fDispositivos := ADispositivos;
   fClaves := AClaves;
   fSesion := ASesion;
+  fPermisos := APermisos;
 end;
 
 function TDispositivoService.NuevaLlave: string;
@@ -181,7 +187,8 @@ begin
   if ADispositivo.FechaVence < Now then
     Exit(MOTIVO_VENCIDO);
   ASesion := fSesion.SesionDe(ADispositivo.UsuarioId);
-  if not ASesion.Valido then
+  if not ASesion.Valido or not fPermisos.Tiene(ASesion.UsuarioId, ASesion.Rol,
+    PERMISO_ADJUNTOS_CREAR) then
     Exit(MOTIVO_USUARIO);
   if ASesion.DebeCambiarClave or ClaveCambiadaDespues(ADispositivo) then
     Exit(MOTIVO_CLAVE);

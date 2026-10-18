@@ -168,10 +168,10 @@ Public Sub CambiarClave (Actual As String, Nueva As String, Repetida As String) 
 	Wait For (ApiAutenticacion.IniciarSesion(Sesion.Correo, Nueva).Enviar) Complete (Ingreso As RestRespuesta)
 	If Ingreso.Success = False Or Sesion.Abrir(Ingreso.Valor(CAMPO_TOKEN)) = False Then Return Tipos.Falla(Mensajes.CLAVE_CAMBIADA_REINGRESO)
 	LlaveDispositivo.GuardarPerfil(Sesion.UsuarioId, Sesion.Correo, Sesion.Nombre, Sesion.Rol)
-	Wait For (remota.RegistrarTelefono) Complete (Registrado As Boolean)
+	Wait For (remota.RegistrarTelefono) Complete (Registro As Int)
 	Wait For (Cargar) Complete (Hecho As Boolean)
 	Dim aviso As String = Mensajes.CLAVE_CAMBIADA
-	If Registrado = False Then aviso = aviso & " " & Mensajes.TELEFONO_NO_REGISTRADO
+	If Registro <> Api.HTTP_CREADO Then aviso = aviso & " " & Mensajes.TELEFONO_NO_REGISTRADO
 	Return Tipos.Correcto(aviso)
 End Sub
 
