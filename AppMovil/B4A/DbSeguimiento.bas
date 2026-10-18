@@ -19,7 +19,7 @@ Sub Process_Globals
 	Public Const ESTADO_APROBADA As String = "aprobada"
 	Public Const ESTADO_RECHAZADA As String = "rechazada"
 	Public Const ESTADO_ENVIADA As String = "enviada"
-	Private Const SQL_LISTA As String = "SELECT uuid_local, proyecto, cliente, fecha, estado, monto FROM (SELECT g.uuid_local, COALESCE(NULLIF(TRIM(g.nombre_proyecto), ''), g.descripcion, '') AS proyecto, COALESCE(g.cliente_nombre, '') AS cliente, g.fecha_captura AS fecha, g.estado, g.monto_aprobado AS monto FROM seguimiento g UNION ALL SELECT s.uuid_local, COALESCE(NULLIF(TRIM(s.nombre_proyecto), ''), s.descripcion), COALESCE(c.nombre, ''), s.fecha_captura, CASE WHEN s.estado_sync = 'confirmado' THEN 'recibida' ELSE 'por_subir' END, NULL FROM solicitudes s LEFT JOIN clientes c ON c.uuid_local = s.cliente_uuid WHERE NOT EXISTS (SELECT 1 FROM seguimiento g WHERE g.uuid_local = s.uuid_local)) WHERE fecha >= ? AND fecha < ? ORDER BY fecha DESC"
+	Private Const SQL_LISTA As String = "SELECT uuid_local, proyecto, cliente, fecha, estado, monto, cotizacion FROM (SELECT g.uuid_local, COALESCE(NULLIF(TRIM(g.nombre_proyecto), ''), g.descripcion, '') AS proyecto, COALESCE(g.cliente_nombre, '') AS cliente, g.fecha_captura AS fecha, g.estado, g.monto_aprobado AS monto, g.cotizacion_numero AS cotizacion FROM seguimiento g UNION ALL SELECT s.uuid_local, COALESCE(NULLIF(TRIM(s.nombre_proyecto), ''), s.descripcion), COALESCE(c.nombre, ''), s.fecha_captura, CASE WHEN s.estado_sync = 'confirmado' THEN 'recibida' ELSE 'por_subir' END, NULL, NULL FROM solicitudes s LEFT JOIN clientes c ON c.uuid_local = s.cliente_uuid WHERE NOT EXISTS (SELECT 1 FROM seguimiento g WHERE g.uuid_local = s.uuid_local)) WHERE fecha >= ? AND fecha < ? ORDER BY fecha DESC"
 End Sub
 
 Public Sub Lista (Desde As String, Hasta As String) As List
@@ -35,6 +35,7 @@ Public Sub Lista (Desde As String, Hasta As String) As List
 		f.Fecha = rs.GetString("fecha")
 		f.Estado = rs.GetString("estado")
 		If rs.GetString("monto") <> Null Then f.Monto = rs.GetDouble("monto")
+		f.ConCotizacion = rs.GetString("cotizacion") <> Null
 		res.Add(f)
 	Loop
 	rs.Close

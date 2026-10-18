@@ -29,7 +29,7 @@ Sub Process_Globals
 		SesionVencida As Boolean, ServidorOcupado As Boolean, FalloBajada As Boolean, Mensaje As String)
 	Type FranjaSync (Texto As String, Accion As String, Glifo As String, Tinta As Int, Fondo As Int)
 	Type SolicitudReciente (Proyecto As String, Cliente As String, Fecha As String, EstadoSync As String)
-	Type SeguimientoFila (Uuid As String, Proyecto As String, Cliente As String, Fecha As String, Estado As String, Monto As Double)
+	Type SeguimientoFila (Uuid As String, Proyecto As String, Cliente As String, Fecha As String, Estado As String, Monto As Double, ConCotizacion As Boolean)
 	Type ClienteFila (Datos As Cliente, EstadoSync As String)
 	Type PerfilLocal (UsuarioId As Int, Correo As String, Nombre As String, Rol As String)
 	Type UbicacionGps (Ok As Boolean, Latitud As Double, Longitud As Double, Precision As Double)

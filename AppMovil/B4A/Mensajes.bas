@@ -88,6 +88,7 @@ Sub Process_Globals
 	Public Const SEG_ENVIADA As String = "Enviada al cliente"
 	Public Const SEG_APROBADA As String = "Aprobada"
 	Public Const SEG_RECHAZADA As String = "Rechazada"
+	Public Const SEG_SIN_RESPUESTA As String = "Sin respuesta"
 	Private Const EST_CAPTURADA As String = "Capturada"
 	Private Const EST_RECIBIDA As String = "Recibida"
 	Private Const EST_EN_COTIZACION As String = "En cotización"

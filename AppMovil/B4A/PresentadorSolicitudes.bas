@@ -41,7 +41,7 @@ Public Sub Actualizar
 	Dim todas As List = DbSeguimiento.Lista(desde, hasta)
 	mFilas.Initialize
 	For Each f As SeguimientoFila In todas
-		If mEstado = "" Or Grupo(f.Estado) = mEstado Then mFilas.Add(f)
+		If mEstado = "" Or Grupo(f) = mEstado Then mFilas.Add(f)
 	Next
 End Sub
 
@@ -73,7 +73,7 @@ End Sub
 
 Public Sub getEstados As List
 	Return Array As String(Mensajes.FILTRO_TODAS, Mensajes.SEG_POR_SUBIR, Mensajes.SEG_ESPERANDO, _
-		Mensajes.SEG_ELABORACION, Mensajes.SEG_ENVIADA, Mensajes.SEG_APROBADA, Mensajes.SEG_RECHAZADA)
+		Mensajes.SEG_ELABORACION, Mensajes.SEG_ENVIADA, Mensajes.SEG_APROBADA, Mensajes.SEG_RECHAZADA, Mensajes.SEG_SIN_RESPUESTA)
 End Sub
 
 Public Sub setEstado (Texto As String)
@@ -128,6 +128,7 @@ Public Sub DetalleDe (f As SeguimientoFila) As String
 End Sub
 
 Public Sub EstadoDe (f As SeguimientoFila) As String
+	If SinRespuesta(f) Then Return Mensajes.SEG_SIN_RESPUESTA
 	Return Mensajes.TextoEstado(f.Estado)
 End Sub
 
@@ -141,8 +142,13 @@ End Sub
 #End Region
 
 #Region Ayudantes
-Private Sub Grupo (Estado As String) As String
-	Select Estado
+Private Sub SinRespuesta (f As SeguimientoFila) As Boolean
+	Return f.Estado = DbSeguimiento.ESTADO_DESCARTADA And f.ConCotizacion
+End Sub
+
+Private Sub Grupo (f As SeguimientoFila) As String
+	If SinRespuesta(f) Then Return Mensajes.SEG_SIN_RESPUESTA
+	Select f.Estado
 		Case DbSeguimiento.ESTADO_POR_SUBIR
 			Return Mensajes.SEG_POR_SUBIR
 		Case DbSeguimiento.ESTADO_BORRADOR, DbSeguimiento.ESTADO_PENDIENTE, DbSeguimiento.ESTADO_DEVUELTA, DbSeguimiento.ESTADO_VISTO_BUENO
