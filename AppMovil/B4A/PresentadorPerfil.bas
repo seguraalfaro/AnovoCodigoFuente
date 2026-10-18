@@ -167,7 +167,9 @@ Public Sub CambiarClave (Actual As String, Nueva As String, Repetida As String) 
 	LlaveDispositivo.GuardarPerfil(Sesion.UsuarioId, Sesion.Correo, Sesion.Nombre, Sesion.Rol)
 	Wait For (remota.RegistrarTelefono) Complete (Registrado As Boolean)
 	Wait For (Cargar) Complete (Hecho As Boolean)
-	Return Tipos.Correcto(Mensajes.CLAVE_CAMBIADA)
+	Dim texto As String = Mensajes.CLAVE_CAMBIADA
+	If Registrado = False Then texto = texto & " " & Mensajes.TELEFONO_NO_REGISTRADO
+	Return Tipos.Correcto(texto)
 End Sub
 
 Private Sub ValidarClave (Actual As String, Nueva As String, Repetida As String) As String

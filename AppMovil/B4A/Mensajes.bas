@@ -165,6 +165,7 @@ Sub Process_Globals
 	Public Const CLAVE_IGUAL As String = "La clave nueva debe ser distinta de la actual."
 	Public Const CLAVE_SIN_CONEXION As String = "Para cambiar la clave se necesita conexión con el servidor."
 	Public Const CLAVE_CAMBIADA As String = "Su clave quedó cambiada."
+	Public Const TELEFONO_NO_REGISTRADO As String = "Este teléfono no quedó registrado en el servidor. Podrá trabajar, pero al vencer la sesión tendrá que ingresar de nuevo con su clave."
 	Public Const CLAVE_CAMBIADA_REINGRESO As String = "Su clave quedó cambiada. Vuelva a ingresar con la clave nueva."
 	Public Const DESBLOQUEO_ENTRAR As String = "Entrar con huella o PIN"
 	Public Const DESBLOQUEO_ACTIVAR As String = "Confirme que es usted para activar el ingreso sin conexión"

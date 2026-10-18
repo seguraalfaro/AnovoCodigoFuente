@@ -157,6 +157,11 @@ Private Sub btnIngresar_Click
 		Return
 	End If
 	Textpassword.Text = ""
+	If r.Mensaje <> "" Then
+		xui.MsgboxAsync(r.Mensaje, Mensajes.TITULO)
+		Wait For Msgbox_Result (Boton As Int)
+		If visible = False Then Return
+	End If
 	B4XPages.ShowPageAndRemovePreviousPages(Layouts.PAGINA_INICIO)
 End Sub
 #End Region

@@ -37,7 +37,9 @@ Public Sub Ingresar (Correo As String, Clave As String) As ResumableSub
 	End If
 	LlaveDispositivo.GuardarPerfil(Sesion.UsuarioId, Sesion.Correo, Sesion.Nombre, Sesion.Rol)
 	Wait For (remota.RegistrarTelefono) Complete (Registrado As Boolean)
-	Return Tipos.Correcto(Null)
+	Dim r As Resultado = Tipos.Correcto(Null)
+	If Registrado = False Then r.Mensaje = Mensajes.TELEFONO_NO_REGISTRADO
+	Return r
 End Sub
 
 Public Sub getPuedeDesbloquear As Boolean

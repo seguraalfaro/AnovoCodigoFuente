@@ -7,7 +7,7 @@ Version=13.7
 ' Datos de demostracion tomados de la base central (datos_prueba.json): clientes, contactos y
 ' catalogos con el mismo uuid e id del servidor. Cada grupo carga solo si su tabla esta vacia.
 Sub Process_Globals
-	Public Const CARGAR_DATOS As Boolean = True
+	Public Const CARGAR_DATOS As Boolean = False
 	Private Const ARCHIVO As String = "datos_prueba.json"
 	Private Const SQL_HAY_CLIENTES As String = "SELECT count(*) FROM clientes"
 	Private Const SQL_HAY_TIPOS_TRABAJO As String = "SELECT count(*) FROM tipos_trabajo"
