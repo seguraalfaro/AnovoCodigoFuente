@@ -23,8 +23,6 @@ const
   PERMISO_VER = PERMISO_COTIZACIONES_VER_APROBADAS_PROPIAS + SEPARADOR_PERMISOS +
     PERMISO_COTIZACIONES_VER_TODAS;
 
-  POR_PAGINA_POR_DEFECTO = 50;
-  POR_PAGINA_MAXIMO = 200;
 
 
 type
@@ -278,7 +276,6 @@ type
 implementation
 
 uses
-  System.Math,
   System.SysUtils,
   System.Generics.Collections;
 
@@ -291,8 +288,8 @@ var
   lPagina, lPorPagina: Integer;
   lDatos: TObjectList<TCotizacionDTO>;
 begin
-  lPagina := Max(APagina, 1);
-  lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
+  lPagina := PaginaValida(APagina);
+  lPorPagina := PorPaginaValida(APorPagina);
 
   lDatos := AServicio.Buscar(ABusqueda, AEstado, AClienteId,
     ComoFecha(ADesde), ComoFecha(AHasta), Roles, UsuarioId,
@@ -305,8 +302,8 @@ function TCotizacionesController.Bandeja(AServicio: ICotizacionService;
   const ABusqueda: string; const APagina, APorPagina: Integer)
   : TBandejaPaginaDTO;
 begin
-  Result := AServicio.Bandeja(UsuarioId, ABusqueda, Max(APagina, 1),
-    EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO));
+  Result := AServicio.Bandeja(UsuarioId, ABusqueda, PaginaValida(APagina),
+    PorPaginaValida(APorPagina));
 end;
 
 function TCotizacionesController.SinRespuesta(AServicio: ICotizacionService)

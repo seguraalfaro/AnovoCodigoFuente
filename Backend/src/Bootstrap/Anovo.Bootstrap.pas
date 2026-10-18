@@ -57,7 +57,7 @@ begin
   lBuilder := lBuilder
     .WriteToFile
       .WithLogsFolder(dotEnv.Env('logger.file.folder', 'logs'))
-      .WithFileBaseName(dotEnv.Env('logger.file.basename', 'DMVCFrameworkProject1'))
+      .WithFileBaseName(dotEnv.Env('logger.file.basename', 'AnovoAPI'))
       .WithMaxFileSizeInKB(dotEnv.Env('logger.file.max_kb', 10000))
       .WithMaxBackupFiles(dotEnv.Env('logger.file.max_backups', 5))
       .Done

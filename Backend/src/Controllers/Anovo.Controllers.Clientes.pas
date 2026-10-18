@@ -11,21 +11,17 @@ uses
   MVCFramework.Serializer.Commons,
   MVCFramework.Swagger.Commons,
   Anovo.Auth.Permisos,
+  Anovo.Controllers.Base,
   Anovo.DTOs.Clientes,
   Anovo.DTOs.Cotizaciones,
   Anovo.Services.Intf.Clientes,
   Anovo.Permisos;
 
-const
-
-  POR_PAGINA_POR_DEFECTO = 50;
-  POR_PAGINA_MAXIMO = 200;
-
 type
 
   [MVCPath('/api/clientes')]
   [MVCRequiresPermiso(PERMISO_CLIENTES_VER)]
-  TClientesController = class(TMVCController)
+  TClientesController = class(TControllerBase)
   public
     [MVCPath]
     [MVCHTTPMethods([httpGET])]
@@ -262,7 +258,6 @@ type
 implementation
 
 uses
-  System.Math,
   System.SysUtils,
   System.Generics.Collections;
 
@@ -275,8 +270,8 @@ var
   lPagina, lPorPagina: Integer;
   lDatos: TObjectList<TClienteDTO>;
 begin
-  lPagina := Max(APagina, 1);
-  lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
+  lPagina := PaginaValida(APagina);
+  lPorPagina := PorPaginaValida(APorPagina);
 
   lDatos := AServicio.Buscar(ABusqueda, lPagina, lPorPagina,
     AIncluirInactivos, AConsentimiento, lTotal);

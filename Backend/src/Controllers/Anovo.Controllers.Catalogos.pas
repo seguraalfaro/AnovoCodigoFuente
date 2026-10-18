@@ -10,22 +10,18 @@ uses
   MVCFramework.Commons,
   MVCFramework.Swagger.Commons,
   Anovo.Auth.Permisos,
+  Anovo.Controllers.Base,
   Anovo.DTOs.Catalogos,
   Anovo.DTOs.Importacion,
   Anovo.Services.Intf.Catalogos,
   Anovo.Services.Intf.Importacion,
   Anovo.Permisos;
 
-const
-
-  POR_PAGINA_POR_DEFECTO = 50;
-  POR_PAGINA_MAXIMO = 200;
-
 type
 
   [MVCPath('/api/catalogos')]
   [MVCRequiresPermiso(PERMISO_CATALOGOS_VER)]
-  TCatalogosController = class(TMVCController)
+  TCatalogosController = class(TControllerBase)
   public
 
     [MVCPath('')]
@@ -555,7 +551,6 @@ type
 implementation
 
 uses
-  System.Math,
   System.SysUtils,
   System.Generics.Collections;
 
@@ -567,8 +562,8 @@ var
   lPagina, lPorPagina: Integer;
   lDatos: TObjectList<TCatalogoItemDTO>;
 begin
-  lPagina := Max(APagina, 1);
-  lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
+  lPagina := PaginaValida(APagina);
+  lPorPagina := PorPaginaValida(APorPagina);
 
   lDatos := AServicio.BuscarTodos(ABusqueda, lPagina, lPorPagina,
     AIncluirInactivos, lTotal);
@@ -584,8 +579,8 @@ var
   lPagina, lPorPagina: Integer;
   lDatos: TObjectList<TMaterialDTO>;
 begin
-  lPagina := Max(APagina, 1);
-  lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
+  lPagina := PaginaValida(APagina);
+  lPorPagina := PorPaginaValida(APorPagina);
 
   lDatos := AServicio.BuscarMateriales(ABusqueda, lPagina, lPorPagina,
     AIncluirInactivos, lTotal);
@@ -642,8 +637,8 @@ var
   lPagina, lPorPagina: Integer;
   lDatos: TObjectList<TManoObraDTO>;
 begin
-  lPagina := Max(APagina, 1);
-  lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
+  lPagina := PaginaValida(APagina);
+  lPorPagina := PorPaginaValida(APorPagina);
 
   lDatos := AServicio.BuscarManoObra(ABusqueda, lPagina, lPorPagina,
     AIncluirInactivos, ACategoriaId, lTotal);
@@ -705,8 +700,8 @@ var
   lPagina, lPorPagina: Integer;
   lDatos: TObjectList<TMaquinaDTO>;
 begin
-  lPagina := Max(APagina, 1);
-  lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
+  lPagina := PaginaValida(APagina);
+  lPorPagina := PorPaginaValida(APorPagina);
 
   lDatos := AServicio.BuscarMaquinas(ABusqueda, lPagina, lPorPagina,
     AIncluirInactivos, lTotal);

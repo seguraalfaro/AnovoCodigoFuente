@@ -9,9 +9,15 @@ uses
   MVCFramework,
   MVCFramework.Nullables;
 
+const
+  POR_PAGINA_POR_DEFECTO = 50;
+  POR_PAGINA_MAXIMO = 200;
+
 type
   TControllerBase = class(TMVCController)
   protected
+    function PaginaValida(const APagina: Integer): Integer;
+    function PorPaginaValida(const APorPagina: Integer): Integer;
     function UsuarioId: Integer;
     function Rol: string;
     function Roles: TArray<string>;
@@ -24,6 +30,7 @@ implementation
 
 uses
   System.SysUtils,
+  System.Math,
   MVCFramework.Serializer.Commons,
   Anovo.Auth.Permisos,
   Anovo.Errors,
@@ -36,6 +43,16 @@ const
 function TControllerBase.UsuarioId: Integer;
 begin
   Result := UsuarioDelToken(Context);
+end;
+
+function TControllerBase.PaginaValida(const APagina: Integer): Integer;
+begin
+  Result := Max(APagina, 1);
+end;
+
+function TControllerBase.PorPaginaValida(const APorPagina: Integer): Integer;
+begin
+  Result := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
 end;
 
 function TControllerBase.Rol: string;

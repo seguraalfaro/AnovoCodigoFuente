@@ -23,8 +23,6 @@ const
   PERMISO_EDITAR = PERMISO_SOLICITUDES_EDITAR_PROPIAS + SEPARADOR_PERMISOS +
     PERMISO_SOLICITUDES_EDITAR_TODAS;
 
-  POR_PAGINA_POR_DEFECTO = 50;
-  POR_PAGINA_MAXIMO = 200;
 
   PERIODO_MES = 'mes';
   PERIODO_TODO = 'todo';
@@ -278,9 +276,10 @@ type
 implementation
 
 uses
-  System.Math,
   System.SysUtils,
-  System.Generics.Collections;
+  System.Generics.Collections,
+  Anovo.Errors,
+  Anovo.Textos;
 
 function TSolicitudesController.Listar(AServicio: ISolicitudService;
   const ABusqueda, AEstado, ADesde, AHasta: string;
@@ -290,8 +289,8 @@ var
   lPagina, lPorPagina: Integer;
   lDatos: TObjectList<TSolicitudDTO>;
 begin
-  lPagina := Max(APagina, 1);
-  lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
+  lPagina := PaginaValida(APagina);
+  lPorPagina := PorPaginaValida(APorPagina);
 
   lDatos := AServicio.Buscar(ABusqueda, AEstado, ComoFecha(ADesde),
     ComoFecha(AHasta),
@@ -408,8 +407,8 @@ var
   lPagina, lPorPagina: Integer;
   lDatos: TObjectList<TSolicitudPorCotizarDTO>;
 begin
-  lPagina := Max(APagina, 1);
-  lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
+  lPagina := PaginaValida(APagina);
+  lPorPagina := PorPaginaValida(APorPagina);
   lDatos := AServicio.Cola(ABusqueda, lPagina, lPorPagina, lTotal);
   Result := TColaPaginaDTO.Create(lDatos, lTotal, lPagina, lPorPagina);
 end;
@@ -422,8 +421,8 @@ var
   lPagina, lPorPagina: Integer;
   lDatos: TObjectList<TSolicitudEnTrabajoDTO>;
 begin
-  lPagina := Max(APagina, 1);
-  lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
+  lPagina := PaginaValida(APagina);
+  lPorPagina := PorPaginaValida(APorPagina);
   lDatos := AServicio.EnTrabajo(UsuarioId, ABusqueda, lPagina, lPorPagina,
     lTotal);
   Result := TEnTrabajoPaginaDTO.Create(lDatos, lTotal, lPagina, lPorPagina);
@@ -438,8 +437,11 @@ var
   lDesde, lHasta: TDateTime;
   lDatos: TObjectList<TSolicitudAsesorDTO>;
 begin
-  lPagina := Max(APagina, 1);
-  lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
+  if not SameText(APeriodo, PERIODO_MES) and
+    not SameText(APeriodo, PERIODO_TODO) then
+    raise EDatoInvalido.Create(Format(SPeriodoNoValido, [APeriodo]));
+  lPagina := PaginaValida(APagina);
+  lPorPagina := PorPaginaValida(APorPagina);
 
   lDatos := AServicio.Seguimiento(UsuarioId, ABusqueda,
     not SameText(APeriodo, PERIODO_TODO), ComoFecha(AFiltroDesde),

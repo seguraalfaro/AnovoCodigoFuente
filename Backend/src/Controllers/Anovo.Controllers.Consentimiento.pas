@@ -11,9 +11,13 @@ uses
   MVCFramework.Swagger.Commons,
   Anovo.Auth.Permisos,
   Anovo.Controllers.Base,
-  Anovo.Controllers.Empresa,
   Anovo.DTOs.Clientes,
-  Anovo.Services.Intf.Consentimiento;
+  Anovo.Services.Intf.Consentimiento,
+  Anovo.Permisos;
+
+const
+  PERMISO_PUBLICAR = PERMISO_EMPRESA_EDITAR + SEPARADOR_PERMISOS +
+    PERMISO_EMPRESA_ADMINISTRAR;
 
 type
 
@@ -43,7 +47,7 @@ type
 
     [MVCPath('/versiones')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_EMPRESA)]
+    [MVCRequiresPermiso(PERMISO_PUBLICAR)]
     [MVCSwagSummary('Consentimiento', 'Todas las versiones, la mas reciente ' +
       'primero', 'listarConsentimientos')]
     [MVCSwagResponses(200, 'Las versiones')]
@@ -52,7 +56,7 @@ type
 
     [MVCPath('/versiones')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_EMPRESA)]
+    [MVCRequiresPermiso(PERMISO_PUBLICAR)]
     [MVCSwagSummary('Consentimiento', 'Publica una version nueva: queda ' +
       'vigente y la anterior deja de regir. Una version no se edita',
       'publicarConsentimiento')]
@@ -67,7 +71,8 @@ type
 implementation
 
 uses
-  System.SysUtils;
+  System.SysUtils,
+  System.NetEncoding;
 
 function TConsentimientoController.Vigente(AServicio
   : IConsentimientoTextoService): IMVCResponse;
@@ -93,7 +98,7 @@ function TConsentimientoController.Publicar(AServicio
 begin
   AServicio.Publicar(ADto, UsuarioId);
   Result := CreatedResponse('/api/consentimiento/versiones/' +
-    ADto.Version.Trim);
+    TNetEncoding.URL.Encode(ADto.Version.Trim));
 end;
 
 end.

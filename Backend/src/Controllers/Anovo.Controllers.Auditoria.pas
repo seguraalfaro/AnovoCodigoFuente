@@ -17,8 +17,6 @@ uses
 
 const
 
-  POR_PAGINA_POR_DEFECTO = 50;
-  POR_PAGINA_MAXIMO = 200;
 
   DIAS_POR_DEFECTO = 30;
 
@@ -135,7 +133,6 @@ implementation
 
 uses
   System.SysUtils,
-  System.Math,
   System.DateUtils,
   System.Generics.Collections,
   Anovo.Errors,
@@ -151,8 +148,8 @@ var
   lDesde, lHasta: TDateTime;
   lDatos: TObjectList<TAuditoriaDTO>;
 begin
-  lPagina := Max(APagina, 1);
-  lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
+  lPagina := PaginaValida(APagina);
+  lPorPagina := PorPaginaValida(APorPagina);
 
   lHasta := ComoFecha(AHasta, Date);
   lDesde := ComoFecha(ADesde, IncDay(lHasta, -DIAS_POR_DEFECTO));

@@ -42,13 +42,11 @@ uses
   Anovo.Auth.Intentos,
   Anovo.Auth.Permisos,
   Anovo.Auth.Token,
+  Anovo.Controllers.Sesion,
   Anovo.Errors,
   Anovo.Red,
   Anovo.Services.Intf.Sesion,
   Anovo.Textos;
-
-const
-  CONTROLLER_CUENTA_PROPIA = 'Anovo.Controllers.Sesion.TSesionController';
 
 constructor TAuthentication.Create;
 begin
@@ -126,7 +124,7 @@ begin
   if not lResultado.Valido then
   begin
     if TIntentosIngreso.RegistrarFallo(UserName, lIp) then
-      LogW(Format('Ingreso bloqueado por intentos fallidos desde %s', [lIp]));
+      LogW(Format(SLogIngresoBloqueado, [lIp]));
     raise EAnovoError.Create('CREDENCIALES_INVALIDAS', SCredencialesInvalidas,
       HTTP_STATUS.Unauthorized);
   end;
@@ -158,11 +156,15 @@ begin
       HTTP_STATUS.Unauthorized);
 
   if DebeCambiarClave(AContext) and
-    not SameText(ControllerQualifiedClassName, CONTROLLER_CUENTA_PROPIA) then
+    not SameText(ControllerQualifiedClassName,
+    TSesionController.QualifiedClassName) then
     raise EAnovoError.Create('CAMBIO_CLAVE_PENDIENTE', SCambioClavePendiente,
       HTTP_STATUS.Forbidden);
 
   lTipo := fRtti.FindType(ControllerQualifiedClassName);
+  if lTipo = nil then
+    raise EAnovoError.Create('SIN_PERMISO', SSinPermisoOperacion,
+      HTTP_STATUS.Forbidden);
   lMetodo := lTipo.GetMethod(ActionName);
   if not CumplePermisos(AContext, UserRoles, lTipo.GetAttributes) or
     ((lMetodo <> nil) and not CumplePermisos(AContext, UserRoles,

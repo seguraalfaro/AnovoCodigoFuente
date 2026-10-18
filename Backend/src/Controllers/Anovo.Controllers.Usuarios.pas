@@ -10,21 +10,17 @@ uses
   MVCFramework.Commons,
   MVCFramework.Swagger.Commons,
   Anovo.Auth.Permisos,
+  Anovo.Controllers.Base,
   Anovo.DTOs.Usuarios,
   Anovo.Services.Intf.Dispositivos,
   Anovo.Services.Intf.Usuarios,
   Anovo.Permisos;
 
-const
-
-  POR_PAGINA_POR_DEFECTO = 50;
-  POR_PAGINA_MAXIMO = 200;
-
 type
 
   [MVCPath('/api/usuarios')]
   [MVCRequiresPermiso(PERMISO_USUARIOS_ADMINISTRAR)]
-  TUsuariosController = class(TMVCController)
+  TUsuariosController = class(TControllerBase)
   public
 
     [MVCPath('')]
@@ -185,7 +181,6 @@ type
 implementation
 
 uses
-  System.Math,
   System.SysUtils,
   System.Generics.Collections;
 
@@ -197,8 +192,8 @@ var
   lPagina, lPorPagina: Integer;
   lDatos: TObjectList<TUsuarioDTO>;
 begin
-  lPagina := Max(APagina, 1);
-  lPorPagina := EnsureRange(APorPagina, 1, POR_PAGINA_MAXIMO);
+  lPagina := PaginaValida(APagina);
+  lPorPagina := PorPaginaValida(APorPagina);
   lDatos := AServicio.Buscar(ABusqueda, AEstado, lPagina, lPorPagina, lTotal);
   Result := TUsuariosPaginaDTO.Create(lDatos, lTotal, lPagina, lPorPagina);
 end;

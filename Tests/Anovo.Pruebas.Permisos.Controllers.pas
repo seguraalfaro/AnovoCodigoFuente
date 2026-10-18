@@ -38,7 +38,6 @@ uses
   Anovo.Controllers.Dashboard,
   Anovo.Controllers.Dispositivos,
   Anovo.Controllers.Empresa,
-  Anovo.Controllers.Home,
   Anovo.Controllers.Reportes,
   Anovo.Controllers.Roles,
   Anovo.Controllers.Sesion,
