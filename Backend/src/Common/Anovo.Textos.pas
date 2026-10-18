@@ -154,6 +154,16 @@ resourcestring
   SClienteAnonimizado = 'Este cliente fue anonimizado (Ley 8968) y ya no ' +
     'admite cambios.';
   SClienteAnonimizadoNombre = 'Cliente anonimizado %d';
+  SClienteInactivoEdicion = 'Este cliente está inactivo. Reactívelo antes de ' +
+    'agregarle o cambiarle datos.';
+  SContactoAnonimizado = 'Este contacto fue anonimizado (Ley 8968) y ya no ' +
+    'se puede modificar.';
+  SContactoUuidOtroCliente = 'Ese identificador local ya pertenece a un ' +
+    'contacto de otro cliente.';
+  SClienteNoDisponible = 'El cliente está inactivo o anonimizado y no puede ' +
+    'recibir solicitudes nuevas.';
+  SContactoNoDisponible = 'El contacto está inactivo o anonimizado.';
+  SAsesorNoValido = 'El asesor indicado no existe o está inactivo.';
   SContactoAnonimizadoNombre = 'Contacto anonimizado';
   SContactoYaAnonimizado = 'Este contacto ya fue anonimizado (Ley 8968).';
   SSinTextoConsentimiento = 'Todavía no se ha publicado el texto del ' +
@@ -216,7 +226,6 @@ resourcestring
   SFaltaUuidLocal = 'El registro no trae su identificador local (uuid_local).';
   SUuidLocalLargo = 'El identificador local (uuid_local) no puede pasar de %d ' +
     'caracteres.';
-  SRegistroNoGuardado = 'No se pudo guardar el registro de %s: %s';
   SConsentimientoYaRevocado = 'El consentimiento de este cliente ya estaba ' +
     'revocado.';
   SCotizacionNoEditable = 'Una cotización en estado %s ya no admite cambios.';
@@ -267,6 +276,7 @@ resourcestring
   SSinTipoTrabajo = 'Sin tipo de trabajo';
 
   SPeriodoInvertido = 'La fecha de inicio es posterior a la del fin.';
+  SPeriodoNoValido = 'El periodo "%s" no es válido: use mes o todo.';
   SPeriodoTodas = 'Todas las fechas';
   SPeriodoHoy = 'Hoy';
   SPeriodoEstaSemana = 'Esta semana';
@@ -444,6 +454,11 @@ resourcestring
     'por el cambio de rol.';
   SDetalleUsuarioInactivado = 'Se inactivó la cuenta de %s.';
   SDetalleUsuarioActivado = 'Se activó la cuenta de %s.';
+  SDetalleCambioClavePropio = 'El usuario %d cambió su clave.';
+  SDetalleClaveRecifrada = 'Se actualizó el cifrado de la clave del usuario %d.';
+  SLogIngresoBloqueado = 'Ingreso bloqueado por intentos fallidos desde %s';
+  SLogContextoNoLimpio = 'No se pudo limpiar el contexto de auditoría: ';
+  SLogTokenUsuarioInvalido = 'Token sin USUARIO_ID válido: se limpia el contexto de auditoría';
   SDetalleClaveRestablecida = 'Se restableció la clave de %s; debe ' +
     'cambiarla en su próximo ingreso.';
   SDetalleClaveAnterior = 'Clave anterior de %s desactivada por ' +
@@ -658,9 +673,6 @@ resourcestring
     'el %s.';
   SProgramadoExistente = 'Este ítem ya tiene un cambio programado para el %s.';
 
-  SEstadoActivo = 'activo';
-  SEstadoInactivo = 'inactivo';
-  SEstadoProgramado = 'programado';
 
   SMenuDashboard = 'Dashboard';
   SMenuSolicitudes = 'Solicitudes';
@@ -671,7 +683,6 @@ resourcestring
   SMenuClientes = 'Clientes';
   SMenuMateriales = 'Materiales';
   SMenuReportes = 'Reportes';
-  SMenuGerencia = 'Vista de gerencia';
   SMenuUsuarios = 'Usuarios';
   SMenuRoles = 'Roles';
   SMenuAuditoria = 'Auditoría';
@@ -736,7 +747,6 @@ resourcestring
 
   SAccionCargarUsuarios = 'cargar los usuarios';
   SAccionCargarUsuario = 'cargar el usuario';
-  SAccionRestablecerClave = 'restablecer la clave';
   SAccionCambiarEstadoUsuario = 'cambiar el estado de la cuenta';
   SConfirmarInactivarUsuario = '¿Inactivar la cuenta de %s? Ya no podrá ' +
     'ingresar; sus registros se conservan y se puede volver a activar.';
@@ -762,7 +772,6 @@ resourcestring
     'vez que entre.';
   SCopiar = 'Copiar';
   SCopiada = 'Copiada';
-  SListo = 'Listo';
   SBotonGuardar = 'Guardar';
   SNuevoUsuarioTitulo = 'Nuevo usuario';
   SNuevoUsuarioAyuda = 'Se genera una clave temporal que la persona cambia ' +
@@ -836,7 +845,6 @@ resourcestring
   SCampoObligatorio = '%s es obligatorio.';
   SSinDato = '-';
   SCerrar = 'Cerrar';
-  SHistorialCompleto = 'Historial completo';
   SSalir = 'Salir';
 
   SProbando = 'Probando...';
@@ -850,7 +858,6 @@ resourcestring
   SReglaClave = 'Mínimo 10 caracteres, con letras y números.';
   SFaltaClaveNueva = 'Escriba la clave nueva.';
   SClavesNoCoinciden = 'La clave nueva y su repetición no coinciden.';
-  SClaveCambiada = 'Su clave quedó cambiada.';
   SClaveCambiadaReingreso = 'Su clave quedó cambiada. Vuelva a ingresar ' +
     'con la clave nueva.';
   SClaveProvisional = 'Su clave es provisional: cámbiela para continuar';
@@ -942,8 +949,6 @@ resourcestring
   SEvidenciaDePieza = 'Croquis y fotografías · %s';
   SMenuColumnas = 'Columnas…';
   SMenuRestablecerColumnas = 'Restablecer columnas';
-  STituloColumnas = 'Columnas de la tabla';
-  SAyudaColumnas = 'Elija qué columnas ver, en qué orden y cómo se alinean.';
   SColumnasFalta = 'Deje al menos una columna visible.';
   SMenuEnPagina = 'En esta página (%d filas)';
   SMenuOrdenarAsc = 'Ordenar de la A a la Z';
@@ -1041,12 +1046,6 @@ resourcestring
   SVacioHistorialEstados = 'La cotización no tiene cambios de estado';
   SVacioItems = 'No hay ítems que coincidan';
   SPaginacionCotizaciones = '%d cotizaciones · página %d de %d';
-  SFiltroTodas = 'Todas';
-  SFiltroBorrador = 'Borrador';
-  SFiltroPendiente = 'Pendientes';
-  SFiltroAprobada = 'Aprobadas';
-  SFiltroEnviada = 'Enviadas';
-  SFiltroRechazada = 'Rechazadas';
 
 implementation
 

@@ -14,6 +14,8 @@ uses
   Anovo.Repositories.Intf.Catalogos,
   Anovo.Repositories.Intf.Clientes,
   Anovo.Repositories.Intf.Solicitudes,
+  Anovo.Repositories.Intf.Usuarios,
+  Anovo.Entities.Usuarios,
   Anovo.Services.Intf.Solicitudes,
   Anovo.Services.Intf.Permisos,
   Anovo.DTOs.Dashboard;
@@ -47,6 +49,7 @@ type
     fTiposMaterial: ITipoMaterialRepository;
     fAcabados: IAcabadoRepository;
     fPermisos: IPermisoService;
+    fUsuarios: IUsuarioRepository;
 
     function TraerVigente(const AId: Integer): TSolicitudes;
     procedure ExigirAlcance(const ASolicitud: TSolicitudes;
@@ -60,6 +63,9 @@ type
     function ADto(const ASolicitud: TSolicitudes): TSolicitudDTO;
     procedure ValidarTransicion(const ADesde, AHacia: string);
     procedure ValidarCliente(const AClienteId: Integer);
+    procedure ExigirEditable(const ASolicitud: TSolicitudes);
+    procedure ExigirEditableDe(const AId: Integer);
+    function AsesorValido(const AAsesorId, AUsuarioId: Integer): Integer;
     function ResolverCliente(const ADto: TSolicitudNuevaDTO): Integer;
     function ResolverContacto(const ADto: TSolicitudNuevaDTO;
       const AClienteId: Integer): NullableInt32;
@@ -80,7 +86,8 @@ type
       AAdjuntos: ISolicitudAdjuntoRepository;
       AClientes: IClienteRepository; AContactos: IClienteContactoRepository;
       ATipos: ITipoTrabajoRepository; ATiposMaterial: ITipoMaterialRepository;
-      AAcabados: IAcabadoRepository; APermisos: IPermisoService); reintroduce;
+      AAcabados: IAcabadoRepository; APermisos: IPermisoService;
+      AUsuarios: IUsuarioRepository); reintroduce;
 
     function Buscar(const ATexto, AEstado: string;
       const ADesde, AHasta: TDateTime; const ARoles: TArray<string>;
@@ -144,7 +151,7 @@ constructor TSolicitudService.Create(ARepo: ISolicitudRepository;
   AAdjuntos: ISolicitudAdjuntoRepository; AClientes: IClienteRepository;
   AContactos: IClienteContactoRepository; ATipos: ITipoTrabajoRepository;
   ATiposMaterial: ITipoMaterialRepository; AAcabados: IAcabadoRepository;
-  APermisos: IPermisoService);
+  APermisos: IPermisoService; AUsuarios: IUsuarioRepository);
 begin
   inherited Create;
   fRepo := ARepo;
@@ -157,6 +164,7 @@ begin
   fTiposMaterial := ATiposMaterial;
   fAcabados := AAcabados;
   fPermisos := APermisos;
+  fUsuarios := AUsuarios;
 end;
 
 procedure TSolicitudService.ValidarCatalogos(const ADto: TPiezaNuevaDTO);
@@ -223,6 +231,8 @@ begin
   try
     if (lContacto = nil) or (lContacto.ClienteId <> AClienteId) then
       raise EDatoInvalido.Create(SContactoNoEsDelCliente);
+    if lContacto.Anonimizado or not lContacto.Activo.ValueOrDefault then
+      raise EDatoInvalido.Create(SContactoNoDisponible);
     Result := lContacto.ID.Value;
   finally
     lContacto.Free;
@@ -348,7 +358,47 @@ begin
   lCliente := fClientes.GetByPK(AClienteId, False);
   if lCliente = nil then
     raise EDatoInvalido.Create(SClienteNoExiste);
-  lCliente.Free;
+  try
+    if lCliente.Anonimizado or not lCliente.Activo.ValueOrDefault then
+      raise EDatoInvalido.Create(SClienteNoDisponible);
+  finally
+    lCliente.Free;
+  end;
+end;
+
+procedure TSolicitudService.ExigirEditable(const ASolicitud: TSolicitudes);
+begin
+  if ASolicitud.Estado = ESTADO_EN_COTIZACION then
+    raise EConflictoDeEstado.Create('SOLICITUD_COTIZADA', SSolicitudCotizada);
+end;
+
+procedure TSolicitudService.ExigirEditableDe(const AId: Integer);
+var
+  lSolicitud: TSolicitudes;
+begin
+  lSolicitud := TraerVigente(AId);
+  try
+    ExigirEditable(lSolicitud);
+  finally
+    lSolicitud.Free;
+  end;
+end;
+
+function TSolicitudService.AsesorValido(const AAsesorId,
+  AUsuarioId: Integer): Integer;
+var
+  lAsesor: TUsuarios;
+begin
+  if AAsesorId <= 0 then
+    Exit(AUsuarioId);
+  lAsesor := fUsuarios.GetByPK(AAsesorId, False);
+  try
+    if (lAsesor = nil) or not lAsesor.Activo.ValueOrDefault then
+      raise EDatoInvalido.Create(SAsesorNoValido);
+    Result := AAsesorId;
+  finally
+    lAsesor.Free;
+  end;
 end;
 
 function TSolicitudService.Buscar(const ATexto, AEstado: string;
@@ -426,7 +476,9 @@ begin
     lSolicitud.ClienteContactoId := ResolverContacto(ADto, lClienteId);
     if not fPermisos.TieneAlguno(AUsuarioId, ARoles,
       [PERMISO_SOLICITUDES_VER_TODAS]) then
-      lSolicitud.AsesorId := AUsuarioId;
+      lSolicitud.AsesorId := AUsuarioId
+    else
+      lSolicitud.AsesorId := AsesorValido(lSolicitud.AsesorId, AUsuarioId);
     if ADto.FechaCaptura.HasValue then
       lSolicitud.FechaCaptura := ADto.FechaCaptura.Value
     else
@@ -456,9 +508,7 @@ begin
   try
     ExigirAlcance(lSolicitud, AUsuarioId, ARoles,
       PERMISO_SOLICITUDES_EDITAR_TODAS);
-    if lSolicitud.Estado = ESTADO_EN_COTIZACION then
-      raise EConflictoDeEstado.Create('SOLICITUD_COTIZADA',
-        SSolicitudCotizada);
+    ExigirEditable(lSolicitud);
 
     if lSolicitud.Objversion <> ADto.ObjVersion.Value then
       raise EVersionVencida.Create(SRecursoSolicitud, AId);
@@ -676,6 +726,7 @@ begin
   try
     ExigirAlcance(lSolicitud, AUsuarioId, ARoles,
       PERMISO_SOLICITUDES_EDITAR_TODAS);
+    ExigirEditable(lSolicitud);
     FijarDetalle(Format(SDetalleMedidaAgregada, [AId]));
     Result := InsertarMedida(ResolverPieza(AId, ADto.PiezaId, ADto.PiezaUuid),
       ADto);
@@ -694,6 +745,7 @@ begin
   lTx := TMVCRepository.UseTransactionContext;
 
   ExigirAlcanceDe(AId, AUsuarioId, ARoles, PERMISO_SOLICITUDES_EDITAR_TODAS);
+  ExigirEditableDe(AId);
   ValidarCantidad(ADto);
   lMedida := TraerMedida(AId, AMedidaId);
   try
@@ -716,6 +768,7 @@ begin
   lTx := TMVCRepository.UseTransactionContext;
 
   ExigirAlcanceDe(AId, AUsuarioId, ARoles, PERMISO_SOLICITUDES_EDITAR_TODAS);
+  ExigirEditableDe(AId);
   lMedida := TraerMedida(AId, AMedidaId);
   try
     FijarDetalle(Format(SDetalleMedidaEliminada, [AId]));
@@ -881,6 +934,7 @@ begin
   try
     ExigirAlcance(lSolicitud, AUsuarioId, ARoles,
       PERMISO_SOLICITUDES_EDITAR_TODAS);
+    ExigirEditable(lSolicitud);
     FijarDetalle(Format(SDetalleAdjuntoAgregado, [AId]));
     Result := InsertarAdjunto(ResolverPieza(AId, ADto.PiezaId, ADto.PiezaUuid),
       ADto);
@@ -897,6 +951,7 @@ begin
   lTx := TMVCRepository.UseTransactionContext;
 
   ExigirAlcanceDe(AId, AUsuarioId, ARoles, PERMISO_SOLICITUDES_EDITAR_TODAS);
+  ExigirEditableDe(AId);
   lAdjunto := TraerAdjunto(AId, AAdjuntoId);
   try
     lAdjunto.Activo := False;

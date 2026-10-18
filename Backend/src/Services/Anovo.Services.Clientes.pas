@@ -26,6 +26,7 @@ type
     fAdjuntos: ISolicitudAdjuntoRepository;
     function TraerVigente(const AId: Integer): TClientes;
     function TraerContacto(const AId, AContactoId: Integer): TClienteContactos;
+    procedure ExigirClienteEditable(const AId: Integer);
     function ValidarUuidLocal(const AUuid: NullableString): Integer;
     function VerificarImagen(const ABase64: string): Boolean;
     procedure EstadoInicial(const ACliente: TClientes); overload;
@@ -117,6 +118,23 @@ begin
   Result := fContactos.ContactoDe(AId, AContactoId);
   if Result = nil then
     raise ERecursoNoEncontrado.Create(SRecursoContacto, AContactoId);
+end;
+
+procedure TClienteService.ExigirClienteEditable(const AId: Integer);
+var
+  lCliente: TClientes;
+begin
+  lCliente := TraerVigente(AId);
+  try
+    if lCliente.Anonimizado then
+      raise EConflictoDeEstado.Create('CLIENTE_ANONIMIZADO',
+        SClienteAnonimizado);
+    if not lCliente.Activo.ValueOrDefault then
+      raise EConflictoDeEstado.Create('CLIENTE_INACTIVO',
+        SClienteInactivoEdicion);
+  finally
+    lCliente.Free;
+  end;
 end;
 
 function TClienteService.ValidarUuidLocal(const AUuid: NullableString): Integer;
@@ -556,6 +574,21 @@ begin
 
   if ADto.UuidLocal.HasValue then
     ExigirLargoUuid(ADto.UuidLocal.Value);
+  ExigirClienteEditable(AId);
+
+  if ADto.UuidLocal.HasValue and not ADto.UuidLocal.Value.Trim.IsEmpty then
+  begin
+    lContacto := fContactos.PorUuidLocal(ADto.UuidLocal.Value.Trim);
+    if lContacto <> nil then
+      try
+        if lContacto.ClienteId <> AId then
+          raise EConflictoDeEstado.Create('UUID_LOCAL_REPETIDO',
+            SContactoUuidOtroCliente);
+        Exit(lContacto.ID.Value);
+      finally
+        lContacto.Free;
+      end;
+  end;
 
   lContacto := TClienteContactos.Create;
   try
@@ -580,10 +613,14 @@ begin
 
   if not ADto.ObjVersion.HasValue then
     raise EDatoInvalido.Create(Format(SFaltaVersion, [SRecursoContacto]));
+  ExigirClienteEditable(AId);
 
   lContacto := TraerContacto(AId, AContactoId);
   lAntes := TClienteContactos.Create;
   try
+    if lContacto.Anonimizado then
+      raise EConflictoDeEstado.Create('CONTACTO_ANONIMIZADO',
+        SContactoAnonimizado);
     if lContacto.ObjVersion <> ADto.ObjVersion.Value then
       raise EVersionVencida.Create(SRecursoContacto, AContactoId);
 
