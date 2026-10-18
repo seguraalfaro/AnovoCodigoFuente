@@ -642,6 +642,7 @@ type
     mtSinRespuestaFECHA_ENVIO: TDateTimeField;
     mtSinRespuestaDIAS: TIntegerField;
     mtSinRespuestaMONTO_TOTAL: TCurrencyField;
+    mtSinRespuestaACCIONES: TStringField;
     dsSinRespuesta: TDataSource;
     mtHistorialEstados: TFDMemTable;
     mtHistorialEstadosFECHA: TDateTimeField;

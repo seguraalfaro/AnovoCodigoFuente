@@ -3388,6 +3388,10 @@ object dmMemoria: TdmMemoria
       DisplayFormat = '#,##0.00'
       currency = False
     end
+    object mtSinRespuestaACCIONES: TStringField
+      DisplayLabel = 'Acciones'
+      FieldName = 'ACCIONES'
+    end
   end
   object dsSinRespuesta: TDataSource
     AutoEdit = False

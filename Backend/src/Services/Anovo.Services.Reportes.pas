@@ -42,9 +42,9 @@ uses
   Anovo.Textos;
 
 const
-  ORDEN_ESTADOS: array [0 .. 6] of string = (ESTADO_BORRADOR,
+  ORDEN_ESTADOS: array [0 .. 7] of string = (ESTADO_BORRADOR,
     ESTADO_PENDIENTE, ESTADO_DEVUELTA, ESTADO_VISTO_BUENO, ESTADO_ENVIADA,
-    ESTADO_APROBADA, ESTADO_RECHAZADA);
+    ESTADO_APROBADA, ESTADO_RECHAZADA, ESTADO_DESCARTADA);
 
 function EsEnvio(const AFila: TCotizacionesDia): Boolean;
 begin

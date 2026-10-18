@@ -28,6 +28,7 @@ const
   ESTADO_ENVIADA = 'enviada';
   ESTADO_APROBADA = 'aprobada';
   ESTADO_RECHAZADA = 'rechazada';
+  ESTADO_DESCARTADA = 'descartada';
 
   SOLICITUD_RECIBIDA = 'recibida';
   SOLICITUD_EN_COTIZACION = 'en_cotizacion';
@@ -124,6 +125,8 @@ type
     procedure Devolver(const AId: Integer; const ADto: TMotivoDTO; const AUsuarioId: Integer;
       const ARoles: TArray<string>);
     procedure Enviar(const AId: Integer; const AUsuarioId: Integer;
+      const ARoles: TArray<string>);
+    procedure Descartar(const AId: Integer; const AUsuarioId: Integer;
       const ARoles: TArray<string>);
 
     function EnviadasSinRespuesta: TObjectList<TCotizacionDTO>;
@@ -961,7 +964,8 @@ begin
   lCotizacion := TraerVigente(AId);
   try
     ExigirAlcance(lCotizacion, AUsuarioId, ARoles);
-    if lCotizacion.Estado <> ESTADO_ENVIADA then
+    if (lCotizacion.Estado <> ESTADO_ENVIADA) and
+      (lCotizacion.Estado <> ESTADO_DESCARTADA) then
       raise EConflictoDeEstado.Create('TRANSICION_INVALIDA',
         Format(SCotizacionSinRespuesta,
         [lCotizacion.Estado]));
@@ -1033,6 +1037,30 @@ begin
     lCotizacion.Estado := ESTADO_ENVIADA;
     lCotizacion.FechaEnvio := Now;
     FijarDetalle(Format(SDetalleEnvioCotizacion, [lCotizacion.Numero]));
+    fRepo.Update(lCotizacion);
+  finally
+    lCotizacion.Free;
+  end;
+end;
+
+procedure TCotizacionService.Descartar(const AId: Integer;
+  const AUsuarioId: Integer; const ARoles: TArray<string>);
+var
+  lCotizacion: TCotizaciones;
+begin
+  var
+  lTx := TMVCRepository.UseTransactionContext;
+
+  lCotizacion := TraerVigente(AId);
+  try
+    ExigirAlcance(lCotizacion, AUsuarioId, ARoles);
+    if lCotizacion.Estado <> ESTADO_ENVIADA then
+      raise EConflictoDeEstado.Create('TRANSICION_INVALIDA',
+        Format(SCotizacionNoDescartable,
+        [lCotizacion.Estado]));
+
+    lCotizacion.Estado := ESTADO_DESCARTADA;
+    FijarDetalle(Format(SDetalleDescarteCotizacion, [lCotizacion.Numero]));
     fRepo.Update(lCotizacion);
   finally
     lCotizacion.Free;

@@ -55,12 +55,15 @@ type
     FlatNavItem1: TFlatNavItem;
     AcSalir: TAction;
     tmrAvisos: TTimer;
+    imgCampana: TVirtualImage;
+    imgContador: TVirtualImage;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure VirtualImage1Click(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure AcSalirExecute(Sender: TObject);
     procedure tmrAvisosTimer(Sender: TObject);
+    procedure imgCampanaClick(Sender: TObject);
   private
     FPresentador: TPresentadorPrincipal;
     FFrameTemp: TFrame;
@@ -74,6 +77,8 @@ type
     procedure SesionVencida(const AMensaje: string);
     procedure Ingreso(Sender: TObject);
     procedure ContenidoResize(Sender: TObject);
+    procedure FormularioResize(Sender: TObject);
+    procedure UbicarCampana;
     function ObtenerFrame(ASeccion: TSeccion): TFrame;
     procedure PonerFrame(const ASeccion: TSeccion; AFrame: TFrame);
     procedure LimpiarMenu;
@@ -86,8 +91,14 @@ type
     procedure ProgramarAvisos(const AMinutos: Integer);
     procedure MostrarAviso(const ASeccion: TSeccion;
       const ACantidad: Integer);
-    procedure MostrarRecordatorio(const ACotizaciones
-      : TObjectList<TCotizacionDTO>);
+    procedure MostrarCampana(const AVisible: Boolean);
+    procedure MostrarNotificaciones(const ACantidad: Integer);
+    function PreguntarNotificaciones(const ACantidad: Integer): Boolean;
+    function AbrirNotificaciones(const ACotizaciones
+      : TObjectList<TCotizacionDTO>;
+      const AAcciones: TAccionesNotificacion): Integer;
+    function Confirmar(const AMensaje: string): Boolean;
+    procedure MostrarError(const AMensaje: string);
     procedure AbrirCotizacion(const AId: Integer);
   public
   end;
@@ -100,6 +111,7 @@ implementation
 {$R *.dfm}
 
 uses
+  System.Math,
   Anovo.UI.Iconos,
   Anovo.Config,
   Anovo.Datos.Memoria,
@@ -112,6 +124,14 @@ uses
 
 const
   ALTO_ITEM = 40;
+  ICONO_CONTADOR = 'Notificacion\contador-%d';
+  ICONO_CONTADOR_MAS = 'Notificacion\contador-mas';
+  MAXIMO_CONTADOR = 9;
+  SEPARACION_CAMPANA = 10;
+  ANCHO_BOTON_SISTEMA = 46;
+  BOTONES_SISTEMA = 3;
+  ALTO_FILA_BOTONES = 31;
+  CORRIMIENTO_CONTADOR = 4;
 
   ICONOS_MENU: array [TSeccion] of string = (
      'Blanco\06-dashboard-blanco',
@@ -174,6 +194,7 @@ begin
   FPresentador := TPresentadorPrincipal.Create(Self, TApiDashboard.Create,
     TApiCotizaciones.Create);
   pnlContenido.OnResize := ContenidoResize;
+  OnResize := FormularioResize;
   TSesion.AlVencer(
     procedure(AMensaje: string)
     begin
@@ -195,6 +216,8 @@ procedure TfrmPrincipal.MostrarIngreso;
 begin
   SV.Visible := False;
   VirtualImage1.Visible := False;
+  imgCampana.Visible := False;
+  imgContador.Visible := False;
   pnlContenido.Color := clAnovoFondoIngreso;
 
   FSombra := TPaintBox.Create(Self);
@@ -367,10 +390,90 @@ begin
       lItem.Badge := ACantidad;
 end;
 
-procedure TfrmPrincipal.MostrarRecordatorio(const ACotizaciones
-  : TObjectList<TCotizacionDTO>);
+procedure TfrmPrincipal.FormularioResize(Sender: TObject);
 begin
-  FPresentador.AbrirCotizacion(TfrmRecordatorio.Mostrar(Self, ACotizaciones));
+  UbicarCampana;
+end;
+
+procedure TfrmPrincipal.UbicarCampana;
+var
+  lBotones: TRect;
+  lIzquierda, lAlto: Integer;
+begin
+  lBotones := CustomTitleBar.CaptionButtonsRect;
+  if lBotones.IsEmpty then
+  begin
+    lIzquierda := TitleBarPanel1.ClientWidth -
+      ScaleValue(ANCHO_BOTON_SISTEMA * BOTONES_SISTEMA);
+    lAlto := ScaleValue(ALTO_FILA_BOTONES);
+  end
+  else
+  begin
+    lIzquierda := lBotones.Left;
+    lAlto := lBotones.Height;
+  end;
+  imgCampana.SetBounds(lIzquierda - ScaleValue(SEPARACION_CAMPANA) -
+    imgCampana.Width, (lAlto - imgCampana.Height) div 2, imgCampana.Width,
+    imgCampana.Height);
+  imgContador.SetBounds(imgCampana.Left + imgCampana.Width -
+    imgContador.Width + ScaleValue(CORRIMIENTO_CONTADOR),
+    Max(0, imgCampana.Top - ScaleValue(CORRIMIENTO_CONTADOR)),
+    imgContador.Width, imgContador.Height);
+end;
+
+procedure TfrmPrincipal.MostrarCampana(const AVisible: Boolean);
+begin
+  UbicarCampana;
+  imgCampana.Visible := AVisible;
+  imgContador.Visible := False;
+end;
+
+procedure TfrmPrincipal.MostrarNotificaciones(const ACantidad: Integer);
+begin
+  if ACantidad > MAXIMO_CONTADOR then
+    imgContador.ImageName := ICONO_CONTADOR_MAS
+  else if ACantidad > 0 then
+    imgContador.ImageName := Format(ICONO_CONTADOR, [ACantidad]);
+  imgContador.Visible := imgCampana.Visible and (ACantidad > 0);
+end;
+
+function TfrmPrincipal.PreguntarNotificaciones(const ACantidad
+  : Integer): Boolean;
+var
+  lMensaje: string;
+begin
+  if ACantidad = 1 then
+    lMensaje := SNotificacionesUna
+  else
+    lMensaje := Format(SNotificacionesVarias, [ACantidad]);
+  Result := Preguntar(lMensaje, SNotificacionesTitulo,
+    SBotonVerNotificaciones, SBotonDespues);
+end;
+
+function TfrmPrincipal.AbrirNotificaciones(const ACotizaciones
+  : TObjectList<TCotizacionDTO>;
+  const AAcciones: TAccionesNotificacion): Integer;
+begin
+  Result := TfrmRecordatorio.Mostrar(Self, ACotizaciones, AAcciones,
+    procedure(const AId, ANumero: Integer; const AListo: TProc)
+    begin
+      FPresentador.Descartar(AId, ANumero, AListo);
+    end);
+end;
+
+function TfrmPrincipal.Confirmar(const AMensaje: string): Boolean;
+begin
+  Result := Anovo.UI.Vista.Confirmar(AMensaje);
+end;
+
+procedure TfrmPrincipal.MostrarError(const AMensaje: string);
+begin
+  AvisarError(AMensaje);
+end;
+
+procedure TfrmPrincipal.imgCampanaClick(Sender: TObject);
+begin
+  FPresentador.VerNotificaciones;
 end;
 
 procedure TfrmPrincipal.AbrirCotizacion(const AId: Integer);

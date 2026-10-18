@@ -6,6 +6,9 @@ unit Anovo.Presentadores.Principal;
 interface
 
 uses
+  System.SysUtils,
+  System.Generics.Collections,
+  Anovo.DTOs.Cotizaciones,
   Anovo.Api.Intf.Dashboard,
   Anovo.Api.Intf.Cotizaciones,
   Anovo.Presentadores.Base,
@@ -28,6 +31,9 @@ type
     FSuscripcionCotizacion: Integer;
     function TieneAvisos: Boolean;
     function SigueSinRespuesta: Boolean;
+    function AccionesNotificacion: TAccionesNotificacion;
+    procedure MostrarLista(const ACotizaciones: TObjectList<TCotizacionDTO>;
+      const APreguntar: Boolean);
   public
     constructor Create(const AVista: IVistaPrincipal;
       const AApi: IApiDashboard; const AApiCotizaciones: IApiCotizaciones);
@@ -37,6 +43,8 @@ type
     procedure CerrarSesion;
     procedure RefrescarAvisos;
     procedure RevisarSinRespuesta;
+    procedure VerNotificaciones;
+    procedure Descartar(const AId, ANumero: Integer; const AListo: TProc);
     procedure RefrescarTodo;
     procedure AbrirCotizacion(const AId: Integer);
     class function SeccionesPermitidas: TSecciones;
@@ -48,16 +56,14 @@ type
 implementation
 
 uses
-  System.SysUtils,
   System.Classes,
   System.Messaging,
-  System.Generics.Collections,
   Anovo.Cancelacion,
   Anovo.Config,
   Anovo.Mensajes,
   Anovo.DTOs.Dashboard,
-  Anovo.DTOs.Cotizaciones,
-  Anovo.Sesion;
+  Anovo.Sesion,
+  Anovo.Textos;
 
 const
   SIEMPRE = '*';
@@ -206,6 +212,7 @@ begin
   FVista.MostrarSecciones(MenuOrdenado(FPermitidas));
 
   FRecordar := True;
+  FVista.MostrarCampana(SigueSinRespuesta);
   if TieneAvisos then
   begin
     FVista.ProgramarAvisos(TConfig.MinutosAvisos);
@@ -286,6 +293,31 @@ begin
   Result := TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR);
 end;
 
+function TPresentadorPrincipal.AccionesNotificacion: TAccionesNotificacion;
+begin
+  Result := [anDescartar];
+  if secCotizaciones in FPermitidas then
+    Include(Result, anAbrir);
+end;
+
+procedure TPresentadorPrincipal.MostrarLista(const ACotizaciones
+  : TObjectList<TCotizacionDTO>; const APreguntar: Boolean);
+begin
+  Diferir(
+    procedure
+    begin
+      if APreguntar and not FVista.PreguntarNotificaciones
+        (ACotizaciones.Count) then
+        Exit;
+      AbrirCotizacion(FVista.AbrirNotificaciones(ACotizaciones,
+        AccionesNotificacion));
+    end,
+    procedure
+    begin
+      ACotizaciones.Free;
+    end);
+end;
+
 procedure TPresentadorPrincipal.RevisarSinRespuesta;
 var
   lApi: IApiCotizaciones;
@@ -309,21 +341,14 @@ begin
     begin
       FRevisando := False;
       FVista.MostrarAviso(secCotizaciones, lLista.Count);
+      FVista.MostrarNotificaciones(lLista.Count);
       lMostrar := FRecordar and (lLista.Count > 0);
       FRecordar := False;
       if not lMostrar then
         Exit;
       lTomada := lLista;
       lLista := nil;
-      Diferir(
-        procedure
-        begin
-          FVista.MostrarRecordatorio(lTomada);
-        end,
-        procedure
-        begin
-          lTomada.Free;
-        end);
+      MostrarLista(lTomada, True);
     end,
     procedure(AMensaje: string)
     begin
@@ -333,6 +358,65 @@ begin
     procedure
     begin
       lLista.Free;
+    end);
+end;
+
+procedure TPresentadorPrincipal.VerNotificaciones;
+var
+  lApi: IApiCotizaciones;
+  lLista: TObjectList<TCotizacionDTO>;
+begin
+  if not SigueSinRespuesta then
+    Exit;
+  lApi := FApiCotizaciones;
+  lLista := nil;
+  Ejecutar('',
+    procedure
+    begin
+      lLista := lApi.SinRespuesta;
+    end,
+    procedure
+    var
+      lTomada: TObjectList<TCotizacionDTO>;
+    begin
+      FVista.MostrarAviso(secCotizaciones, lLista.Count);
+      FVista.MostrarNotificaciones(lLista.Count);
+      lTomada := lLista;
+      lLista := nil;
+      MostrarLista(lTomada, False);
+    end,
+    procedure(AMensaje: string)
+    begin
+      FVista.MostrarError(AMensaje);
+    end, nil,
+    procedure
+    begin
+      lLista.Free;
+    end);
+end;
+
+procedure TPresentadorPrincipal.Descartar(const AId, ANumero: Integer;
+  const AListo: TProc);
+var
+  lApi: IApiCotizaciones;
+begin
+  if not SigueSinRespuesta or
+    not FVista.Confirmar(Format(SConfirmarDescartar, [ANumero])) then
+    Exit;
+  lApi := FApiCotizaciones;
+  Ejecutar('',
+    procedure
+    begin
+      lApi.Descartar(AId);
+    end,
+    procedure
+    begin
+      AListo;
+      RevisarSinRespuesta;
+    end,
+    procedure(AMensaje: string)
+    begin
+      FVista.MostrarError(AMensaje);
     end);
 end;
 

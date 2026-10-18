@@ -147,6 +147,7 @@ const
   ESTADO_ENVIADA = 'enviada';
   ESTADO_APROBADA = 'aprobada';
   ESTADO_RECHAZADA = 'rechazada';
+  ESTADO_DESCARTADA = 'descartada';
   ADJUNTO_CROQUIS = 'croquis';
   ADJUNTO_FOTO = 'foto';
   ITEMS_POR_BUSQUEDA = 50;
@@ -259,11 +260,12 @@ begin
   else if (FEstado = ESTADO_VISTO_BUENO) and
     TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR) then
     lBotones := [bcEnviar]
-  else if (FEstado = ESTADO_ENVIADA) and
+  else if ((FEstado = ESTADO_ENVIADA) or (FEstado = ESTADO_DESCARTADA)) and
     TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR) then
     lBotones := [bcRespuesta];
   if ((FEstado = ESTADO_VISTO_BUENO) or (FEstado = ESTADO_ENVIADA) or
-    (FEstado = ESTADO_APROBADA) or (FEstado = ESTADO_RECHAZADA)) and
+    (FEstado = ESTADO_APROBADA) or (FEstado = ESTADO_RECHAZADA) or
+    (FEstado = ESTADO_DESCARTADA)) and
     (TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR) or
     TSesion.Tiene(PERMISO_COTIZACIONES_APROBAR)) then
     Include(lBotones, bcDocumento);

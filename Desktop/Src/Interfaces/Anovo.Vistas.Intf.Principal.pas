@@ -5,6 +5,7 @@ unit Anovo.Vistas.Intf.Principal;
 interface
 
 uses
+  System.SysUtils,
   System.Generics.Collections,
   Anovo.DTOs.Cotizaciones;
 
@@ -17,6 +18,12 @@ type
     secConfiguracion);
   TSecciones = set of TSeccion;
 
+  TAccionNotificacion = (anAbrir, anDescartar);
+  TAccionesNotificacion = set of TAccionNotificacion;
+
+  TDescartarNotificacion = reference to procedure(const AId, ANumero: Integer;
+    const AListo: TProc);
+
   IVistaPrincipal = interface
     ['{C4E81B27-9A3D-4F60-B5C2-7D19E0A4F638}']
     procedure MostrarUsuario(const ANombre, ARol, AIniciales: string);
@@ -25,8 +32,14 @@ type
     procedure ProgramarAvisos(const AMinutos: Integer);
     procedure MostrarAviso(const ASeccion: TSeccion;
       const ACantidad: Integer);
-    procedure MostrarRecordatorio(const ACotizaciones
-      : TObjectList<TCotizacionDTO>);
+    procedure MostrarCampana(const AVisible: Boolean);
+    procedure MostrarNotificaciones(const ACantidad: Integer);
+    function PreguntarNotificaciones(const ACantidad: Integer): Boolean;
+    function AbrirNotificaciones(const ACotizaciones
+      : TObjectList<TCotizacionDTO>;
+      const AAcciones: TAccionesNotificacion): Integer;
+    function Confirmar(const AMensaje: string): Boolean;
+    procedure MostrarError(const AMensaje: string);
     procedure AbrirCotizacion(const AId: Integer);
   end;
 

@@ -16,6 +16,8 @@ procedure Informar(const AMensaje: string);
 
 function Confirmar(const AMensaje: string): Boolean;
 
+function Preguntar(const AMensaje, ATitulo, ASi, ANo: string): Boolean;
+
 function AvisarReparos(const AReparos: TStrings;
   const AEncabezado: string): Boolean;
 
@@ -32,7 +34,8 @@ procedure PintarPaginacion(AEtiqueta: TLabel; AAnterior, ASiguiente: TControl;
 implementation
 
 uses
-  System.SysUtils, System.UITypes, Vcl.Forms, Vcl.Dialogs, Anovo.Textos,
+  System.SysUtils, System.UITypes, System.Math, Vcl.Forms, Vcl.Dialogs,
+  Anovo.Textos,
   Anovo.UI.Cargando;
 
 var
@@ -52,8 +55,42 @@ begin
   IndicadorCarga(Ocupados > 0);
 end;
 
+procedure AnchoDeBotones(AForma: TForm);
+const
+  RELLENO = 24;
+  MARGEN = 16;
+var
+  I, lSeparacion, lTotal, lX: Integer;
+  lBotones: TArray<TButton>;
+begin
+  lBotones := nil;
+  for I := 0 to AForma.ComponentCount - 1 do
+    if AForma.Components[I] is TButton then
+      lBotones := lBotones + [TButton(AForma.Components[I])];
+  if Length(lBotones) < 2 then
+    Exit;
+  lSeparacion := lBotones[1].Left - lBotones[0].Left - lBotones[0].Width;
+  lTotal := lSeparacion * (Length(lBotones) - 1);
+  AForma.Canvas.Font := lBotones[0].Font;
+  for I := 0 to High(lBotones) do
+  begin
+    lBotones[I].Width := Max(lBotones[I].Width,
+      AForma.Canvas.TextWidth(lBotones[I].Caption) + RELLENO);
+    Inc(lTotal, lBotones[I].Width);
+  end;
+  if lTotal + 2 * MARGEN > AForma.ClientWidth then
+    AForma.ClientWidth := lTotal + 2 * MARGEN;
+  lX := (AForma.ClientWidth - lTotal) div 2;
+  for I := 0 to High(lBotones) do
+  begin
+    lBotones[I].Left := lX;
+    Inc(lX, lBotones[I].Width + lSeparacion);
+  end;
+end;
+
 function Dialogo(const AMensaje, ATitulo: string; const ATipo: TMsgDlgType;
-  const ABotones: TMsgDlgButtons): Integer;
+  const ABotones: TMsgDlgButtons; const ASi: string = '';
+  const ANo: string = ''): Integer;
 var
   lForma: TForm;
   I: Integer;
@@ -70,11 +107,19 @@ begin
           mrOk:
             lBoton.Caption := SDialogoAceptar;
           mrYes:
-            lBoton.Caption := SDialogoSi;
+            if ASi.IsEmpty then
+              lBoton.Caption := SDialogoSi
+            else
+              lBoton.Caption := ASi;
           mrNo:
-            lBoton.Caption := SDialogoNo;
+            if ANo.IsEmpty then
+              lBoton.Caption := SDialogoNo
+            else
+              lBoton.Caption := ANo;
         end;
       end;
+    if not (ASi.IsEmpty and ANo.IsEmpty) then
+      AnchoDeBotones(lForma);
     Result := lForma.ShowModal;
   finally
     lForma.Free;
@@ -103,6 +148,12 @@ function Confirmar(const AMensaje: string): Boolean;
 begin
   Result := Dialogo(AMensaje, SDialogoConfirmar, mtConfirmation,
     [mbYes, mbNo]) = mrYes;
+end;
+
+function Preguntar(const AMensaje, ATitulo, ASi, ANo: string): Boolean;
+begin
+  Result := Dialogo(AMensaje, ATitulo, mtInformation, [mbYes, mbNo], ASi,
+    ANo) = mrYes;
 end;
 
 function AvisarReparos(const AReparos: TStrings;

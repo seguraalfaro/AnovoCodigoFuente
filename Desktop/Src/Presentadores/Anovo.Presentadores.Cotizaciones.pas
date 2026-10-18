@@ -44,7 +44,8 @@ uses
 
 const
   ESTADO_API: array [TFiltroCotizaciones] of string = ('', 'borrador',
-    'pendiente', 'devuelta', 'visto_bueno', 'enviada', 'aprobada', 'rechazada');
+    'pendiente', 'devuelta', 'visto_bueno', 'enviada', 'aprobada', 'rechazada',
+    'descartada');
 
 constructor TPresentadorCotizaciones.Create(const AVista: IVistaCotizaciones;
   const AApi: IApiCotizaciones);

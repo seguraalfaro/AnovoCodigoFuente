@@ -113,7 +113,8 @@ inherited fraCotizaciones: TfraCotizaciones
       'Con visto bueno'
       'Enviadas'
       'Aprobadas'
-      'Rechazadas')
+      'Rechazadas'
+      'Descartadas')
     Style = pesPastilla
     Indent = 20
     BackColor = 16447477

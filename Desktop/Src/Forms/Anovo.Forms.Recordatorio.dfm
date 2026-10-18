@@ -99,6 +99,11 @@ inherited frmRecordatorio: TfrmRecordatorio
         Expanded = False
         FieldName = 'MONTO_TOTAL'
         Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'ACCIONES'
+        Visible = True
       end>
   end
 end

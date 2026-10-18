@@ -12,7 +12,7 @@ uses
 
 type
   TFiltroCotizaciones = (fcTodas, fcBorrador, fcPendiente, fcDevuelta,
-    fcVistoBueno, fcEnviada, fcAprobada, fcRechazada);
+    fcVistoBueno, fcEnviada, fcAprobada, fcRechazada, fcDescartada);
 
   TAccionListaCotizacion = (alcAbrir);
   TAccionesListaCotizacion = set of TAccionListaCotizacion;

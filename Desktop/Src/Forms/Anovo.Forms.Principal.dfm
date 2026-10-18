@@ -42,6 +42,7 @@ object frmPrincipal: TfrmPrincipal
     Width = 1180
     Height = 30
     CustomButtons = <>
+    ExplicitWidth = 304
     object VirtualImage1: TVirtualImage
       Left = 10
       Top = 28
@@ -54,6 +55,34 @@ object frmPrincipal: TfrmPrincipal
       ImageIndex = 175
       ImageName = 'Blanco\25-menu-blanco'
       OnClick = VirtualImage1Click
+    end
+    object imgCampana: TVirtualImage
+      Left = 1024
+      Top = 5
+      Width = 20
+      Height = 20
+      Cursor = crHandPoint
+      ImageCollection = dmIconos.IcAnovo
+      ImageWidth = 0
+      ImageHeight = 0
+      ImageIndex = 178
+      ImageName = 'Blanco\28-campana-blanco'
+      Visible = False
+      OnClick = imgCampanaClick
+    end
+    object imgContador: TVirtualImage
+      Left = 1033
+      Top = 1
+      Width = 15
+      Height = 15
+      Cursor = crHandPoint
+      ImageCollection = dmIconos.IcAnovo
+      ImageWidth = 0
+      ImageHeight = 0
+      ImageIndex = 179
+      ImageName = 'Notificacion\contador-1'
+      Visible = False
+      OnClick = imgCampanaClick
     end
   end
   object pnlContenido: TPanel
@@ -173,8 +202,8 @@ object frmPrincipal: TfrmPrincipal
           Tag = 1
           Left = 0
           Top = 0
-          Width = 36
-          Height = 36
+          Width = 19
+          Height = 17
           Align = alClient
           Alignment = taCenter
           Caption = 'MS'
@@ -187,8 +216,6 @@ object frmPrincipal: TfrmPrincipal
           Transparent = True
           Layout = tlCenter
           StyleElements = [seFont, seBorder]
-          ExplicitWidth = 19
-          ExplicitHeight = 17
         end
       end
     end

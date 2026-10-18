@@ -60,6 +60,8 @@ type
       const ARoles: TArray<string>);
     procedure Enviar(const AId: Integer; const AUsuarioId: Integer;
       const ARoles: TArray<string>);
+    procedure Descartar(const AId: Integer; const AUsuarioId: Integer;
+      const ARoles: TArray<string>);
 
     function EnviadasSinRespuesta: TObjectList<TCotizacionDTO>;
   end;

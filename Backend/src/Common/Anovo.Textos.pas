@@ -196,7 +196,17 @@ resourcestring
   SRecordatorioTitulo = 'Cotizaciones sin respuesta';
   SRecordatorioAyuda = 'Se enviaron al cliente hace más del plazo de ' +
     'seguimiento y todavía no las aprobó ni rechazó. Conviene llamarle o ' +
-    'registrar su respuesta.';
+    'registrar su respuesta; si ya no la espera, descártela.';
+  SNotificacionesTitulo = 'Notificaciones';
+  SNotificacionesUna = 'Tiene 1 cotización sin respuesta del cliente: se ' +
+    'envió hace más del plazo de seguimiento.';
+  SNotificacionesVarias = 'Tiene %d cotizaciones sin respuesta del cliente: ' +
+    'se enviaron hace más del plazo de seguimiento.';
+  SBotonVerNotificaciones = 'Ver notificaciones';
+  SBotonDespues = 'Después';
+  SConfirmarDescartar = '¿Descartar el aviso de la cotización %d? Deja de ' +
+    'aparecer en las notificaciones; si el cliente responde, la respuesta se ' +
+    'registra igual desde la cotización.';
   SRecordatorioPie = '%d cotizaciones. El plazo (7 días si no se cambia) se ' +
     'ajusta en Configuración, Empresa.';
   SBotonAbrirCotizacion = 'Abrir cotización';
@@ -250,6 +260,8 @@ resourcestring
   SCotizacionNoDevolvible = 'Una cotización en estado %s no se puede devolver.';
   SCotizacionNoEnviable = 'Una cotización en estado %s no se puede enviar al ' +
     'cliente.';
+  SCotizacionNoDescartable = 'Solo se descarta una cotización enviada al ' +
+    'cliente; esta está en estado %s.';
   SSolicitudTransicionInvalida = 'Una solicitud en estado %s no puede pasar a ' +
     '%s.';
   SSolicitudCotizada = 'Esta solicitud ya tiene cotización y no admite cambios.';
@@ -933,6 +945,7 @@ resourcestring
   SDetalleAceptacionCotizacion = 'El cliente aprobó la cotización %d';
   SDetalleDevolucionCotizacion = 'Devolución de la cotización %d';
   SDetalleEnvioCotizacion = 'Envío al cliente de la cotización %d';
+  SDetalleDescarteCotizacion = 'Descarte del aviso de la cotización %d';
   SDetalleRegistroSolicitud = 'Registro de la solicitud %s';
   SDetalleCambioSolicitud = 'Cambio en la solicitud %d';
   SDetalleRecepcionSolicitud = 'Recepción de la solicitud %d';
@@ -944,6 +957,7 @@ resourcestring
   SDetalleAdjuntoInactivado = 'Adjunto inactivado en la solicitud %d';
 
   SAccionAbrir = 'Abrir';
+  SAccionDescartar = 'Descartar';
   SAccionVerCotizacion = 'Ver cotizaci'#243'n';
   SAccionEnviarCotizacion = 'enviar la cotización';
   SAccionPresentarCotizacion = 'presentar la cotización';
@@ -1058,6 +1072,7 @@ resourcestring
   SVacioDashboard = 'Todavía no hay registros para mostrar';
   SVacioEstados = 'No hay cotizaciones este mes';
   SVacioLineas = 'La cotización todavía no tiene líneas';
+  SVacioNotificaciones = 'No hay cotizaciones esperando respuesta del cliente';
   SVacioHistorialPrecio = 'Este ítem no tiene cambios de precio';
   SVacioHistorialEstados = 'La cotización no tiene cambios de estado';
   SVacioItems = 'No hay ítems que coincidan';

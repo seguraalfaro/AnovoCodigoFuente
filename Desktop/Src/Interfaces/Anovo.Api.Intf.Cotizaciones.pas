@@ -40,6 +40,7 @@ type
     procedure AplicarAjuste(const AId: Integer; const ADto: TAjusteDTO);
     procedure Presentar(const AId: Integer);
     procedure Enviar(const AId: Integer);
+    procedure Descartar(const AId: Integer);
   end;
 
 implementation

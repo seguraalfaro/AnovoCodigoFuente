@@ -42,6 +42,7 @@ type
     procedure AplicarAjuste(const AId: Integer; const ADto: TAjusteDTO);
     procedure Presentar(const AId: Integer);
     procedure Enviar(const AId: Integer);
+    procedure Descartar(const AId: Integer);
   private
     procedure Accion(const AId: Integer; const ARuta: string);
     procedure Decidir(const AId: Integer; const ARuta, AMotivo: string);
@@ -71,6 +72,7 @@ const
   RUTA_AJUSTE = '/api/cotizaciones/%d/ajuste';
   RUTA_PRESENTACION = '/api/cotizaciones/%d/presentacion';
   RUTA_ENVIO = '/api/cotizaciones/%d/envio';
+  RUTA_DESCARTE = '/api/cotizaciones/%d/descarte';
 
 function TApiCotizaciones.Bandeja(const ATexto: string;
   const AFiltroDesde, AFiltroHasta: TDateTime;
@@ -248,6 +250,11 @@ end;
 procedure TApiCotizaciones.Enviar(const AId: Integer);
 begin
   Accion(AId, RUTA_ENVIO);
+end;
+
+procedure TApiCotizaciones.Descartar(const AId: Integer);
+begin
+  Accion(AId, RUTA_DESCARTE);
 end;
 
 function TApiCotizaciones.Listar(const ATexto, AEstado: string;

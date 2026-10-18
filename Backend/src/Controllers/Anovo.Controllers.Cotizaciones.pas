@@ -245,6 +245,17 @@ type
     function Enviar([MVCInject] AServicio: ICotizacionService;
       const AId: Integer): IMVCResponse;
 
+    [MVCPath('/($AId)/descarte')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCSwagSummary('Cotizaciones', 'Descarta el aviso de una cotizacion ' +
+      'enviada sin respuesta del cliente. La respuesta se puede registrar ' +
+      'despues', 'descartarCotizacion')]
+    [MVCSwagResponses(204, 'Descartada')]
+    [MVCSwagResponses(409, 'No esta enviada al cliente')]
+    function Descartar([MVCInject] AServicio: ICotizacionService;
+      const AId: Integer): IMVCResponse;
+
     [MVCPath('/($AId)/visto-bueno')]
     [MVCHTTPMethods([httpPOST])]
     [MVCRequiresPermiso(PERMISO_COTIZACIONES_APROBAR)]
@@ -262,7 +273,7 @@ type
       'cotizacion enviada: aceptada queda aprobada; si no, rechazada',
       'respuestaCotizacion')]
     [MVCSwagResponses(204, 'Respuesta registrada')]
-    [MVCSwagResponses(409, 'No esta enviada al cliente')]
+    [MVCSwagResponses(409, 'No esta enviada al cliente ni descartada')]
     function RegistrarRespuesta([MVCInject] AServicio: ICotizacionService;
       const AId: Integer;
       const [MVCFromBody] ADto: TRespuestaClienteDTO): IMVCResponse;
@@ -410,6 +421,13 @@ function TCotizacionesController.Enviar(AServicio: ICotizacionService;
   const AId: Integer): IMVCResponse;
 begin
   AServicio.Enviar(AId, UsuarioId, Roles);
+  Result := NoContentResponse;
+end;
+
+function TCotizacionesController.Descartar(AServicio: ICotizacionService;
+  const AId: Integer): IMVCResponse;
+begin
+  AServicio.Descartar(AId, UsuarioId, Roles);
   Result := NoContentResponse;
 end;
 
