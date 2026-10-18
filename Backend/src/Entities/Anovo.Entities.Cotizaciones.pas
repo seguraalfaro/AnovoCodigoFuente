@@ -158,6 +158,8 @@ type
     [MVCTableField('UNIDAD_MEDIDA')]
     [MVCMaxLength(20)]
     fUnidadMedida: NullableString;
+    [MVCTableField('ACTIVO')]
+    fActivo: NullableBoolean;
     [MVCTableField('CANTIDAD')]
     fCantidad: NullableCurrency;
     [MVCTableField('PRECIO_UNITARIO')]
@@ -179,6 +181,7 @@ type
     property MaquinaId: NullableInt32 read fMaquinaId write fMaquinaId;
     property Descripcion: String read fDescripcion write fDescripcion;
     property UnidadMedida: NullableString read fUnidadMedida write fUnidadMedida;
+    property Activo: NullableBoolean read fActivo write fActivo;
     property Cantidad: NullableCurrency read fCantidad write fCantidad;
     property PrecioUnitario: Currency read fPrecioUnitario write fPrecioUnitario;
     property Subtotal: Currency read fSubtotal write fSubtotal;

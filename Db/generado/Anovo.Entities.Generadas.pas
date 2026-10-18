@@ -502,6 +502,8 @@ type
     [MVCTableField('ORDEN')]
     [MVCRequired]
     fOrden: Int16;
+    [MVCTableField('ACTIVO')]
+    fActivo: NullableBoolean;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -516,6 +518,7 @@ type
     property PrecioUnitario: Currency read fPrecioUnitario write fPrecioUnitario;
     property Subtotal: Currency read fSubtotal write fSubtotal;
     property Orden: Int16 read fOrden write fOrden;
+    property Activo: NullableBoolean read fActivo write fActivo;
   end;
 
   [MVCNameCase(ncSnakeCase)]

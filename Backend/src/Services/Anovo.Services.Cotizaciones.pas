@@ -733,6 +733,7 @@ begin
     ExigirEditable(lCotizacion);
 
     lLinea := TCotizacionDetalle.Create;
+    lLinea.Activo := True;
     try
       lLinea.CotizacionId := AId;
       LlenarLinea(lLinea, ADto, 0);
@@ -800,7 +801,8 @@ begin
     lLinea := TraerLinea(AId, ALineaId);
     try
       FijarDetalle(Format(SDetalleLineaEliminada, [lCotizacion.Numero]));
-      fDetalle.Delete(lLinea);
+      lLinea.Activo := False;
+      fDetalle.Update(lLinea);
     finally
       lLinea.Free;
     end;
