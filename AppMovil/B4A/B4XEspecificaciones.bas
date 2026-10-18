@@ -18,6 +18,7 @@ Sub Class_Globals
 	Private Const PageDetalles As Int = 0
 	Private Const PageCROQUIS As Int = 1
 	Private Const PageFOTOS As Int = 2
+	Private Const INTERVALO_GUARDADO As Long = 5000
 
 	Private presentador As PresentadorEspecificaciones
 	Private croquis As EditorCroquis
@@ -25,6 +26,8 @@ Sub Class_Globals
 	Private pendiente As Int
 	Private piezaEditar As Pieza
 	Private enCaptura As Boolean
+	Private visible As Boolean
+	Private ultimoGuardado As Long
 
 	Private TextNombrePieza As B4XFloatTextField
 	Private CampoTipoTrabajo, CampoMaterial, CampoAcabado As CampoBusqueda
@@ -125,6 +128,7 @@ Public Sub getNombrePiezaSinTerminar As String
 End Sub
 
 Private Sub B4XPage_Appear
+	visible = True
 	If pendiente = SIN_PENDIENTE Then Return
 	Dim accion As Int = pendiente
 	pendiente = SIN_PENDIENTE
@@ -132,6 +136,7 @@ Private Sub B4XPage_Appear
 	If accion <> PENDIENTE_RETOMAR And presentador.HayBorrador Then
 		Dim sf As Object = xui.Msgbox2Async(Mensajes.RetomarPieza(presentador.NombreBorrador), Mensajes.TITULO, Mensajes.SI, "", Mensajes.NO, Null)
 		Wait For (sf) Msgbox_Result (Respuesta As Int)
+		If visible = False Then Return
 		If Respuesta = xui.DialogResponse_Positive Then accion = PENDIENTE_RETOMAR Else presentador.DescartarBorrador
 	End If
 	Limpiar
@@ -145,6 +150,7 @@ Private Sub B4XPage_Appear
 End Sub
 
 Private Sub B4XPage_Disappear
+	visible = False
 	camara.Cerrar
 	Persistir
 End Sub
@@ -160,6 +166,7 @@ End Sub
 
 Private Sub Persistir
 	If enCaptura = False Then Return
+	ultimoGuardado = DateTime.Now
 	presentador.GuardarBorrador(TextNombrePieza.Text, croquis.Json, AHViewEspecificaciones.CurrentPage)
 End Sub
 
@@ -199,6 +206,7 @@ End Sub
 Private Sub CampoTipoTrabajo_Elegido (Valor As Object)
 	presentador.ElegirTipoTrabajo(Valor)
 	PintarCatalogos
+	Persistir
 End Sub
 
 Private Sub CampoMaterial_Opciones As List
@@ -208,6 +216,7 @@ End Sub
 Private Sub CampoMaterial_Elegido (Valor As Object)
 	presentador.ElegirTipoMaterial(Valor)
 	PintarCatalogos
+	Persistir
 End Sub
 
 Private Sub CampoAcabado_Opciones As List
@@ -217,6 +226,7 @@ End Sub
 Private Sub CampoAcabado_Elegido (Valor As Object)
 	presentador.ElegirAcabado(Valor)
 	PintarCatalogos
+	Persistir
 End Sub
 
 Private Sub BtnDetalles_Click
@@ -236,6 +246,7 @@ Private Sub BtnCancelar_Click
 	If presentador.Editando Then pregunta = Mensajes.DESCARTAR_CAMBIOS_PIEZA
 	Dim sf As Object = xui.Msgbox2Async(pregunta, Mensajes.TITULO, Mensajes.SI, "", Mensajes.NO, Null)
 	Wait For (sf) Msgbox_Result (Respuesta As Int)
+	If visible = False Then Return
 	If Respuesta <> xui.DialogResponse_Positive Then Return
 	presentador.DescartarFotos
 	Limpiar
@@ -306,7 +317,9 @@ End Sub
 Private Sub CvMedidas_ItemClick (Index As Int, Value As Object)
 	If Value = Null Then Return
 	Wait For (croquis.PedirMedida(Value)) Complete (Hecho As Boolean)
+	If visible = False Then Return
 	PintarMedidas
+	Persistir
 End Sub
 #End Region
 
@@ -341,16 +354,21 @@ End Sub
 
 Private Sub ASDrawIso1_Cambio
 	croquis.Refrescar
+	If DateTime.Now - ultimoGuardado >= INTERVALO_GUARDADO Then Persistir
 End Sub
 
 Private Sub ASDrawIso1_Medida (Id As Int)
 	Wait For (croquis.PedirMedida(Id)) Complete (Hecho As Boolean)
+	If visible = False Then Return
 	croquis.Refrescar
+	Persistir
 End Sub
 
 Private Sub ASDrawIso1_Texto (Id As Int)
 	Wait For (croquis.PedirTexto(Id)) Complete (Hecho As Boolean)
+	If visible = False Then Return
 	croquis.Refrescar
+	Persistir
 End Sub
 #End Region
 
@@ -362,6 +380,7 @@ Private Sub AbrirCamara
 	If rp.Check(rp.PERMISSION_CAMERA) = False Then
 		rp.CheckAndRequest(rp.PERMISSION_CAMERA)
 		Wait For B4XPage_PermissionResult (Permission As String, Result As Boolean)
+		If visible = False Then Return
 		If Permission <> rp.PERMISSION_CAMERA Then Return
 		If Result = False Then
 			camara.Denegada(Adjuntos.PermisoBloqueado(rp.PERMISSION_CAMERA))
@@ -404,6 +423,7 @@ Private Sub BtnGaleria_Click
 	selector.Initialize("selector")
 	selector.Show(TIPO_IMAGEN, Mensajes.ELEGIR_FOTO)
 	Wait For selector_Result (Success As Boolean, Dir As String, FileName As String)
+	If visible = False Then Return
 	If Success = False Then Return
 	MostrarFoto(presentador.AgregarFotoDeGaleria(Dir, FileName), Mensajes.FOTO_NO_VALIDA)
 End Sub
