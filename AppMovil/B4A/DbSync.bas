@@ -228,23 +228,23 @@ Private Sub PaqueteCliente (Uuid As String) As Map
 End Sub
 
 Private Sub DatosFirma (Consulta As String, Uuid As String) As Map
-	Dim datosFirma As Map
-	datosFirma.Initialize
+	Dim datos As Map
+	datos.Initialize
 	Dim rs As ResultSet = Db.DbSQL.ExecQuery2(Consulta, Array As String(Uuid))
 	If rs.NextRow Then
 		Dim su As StringUtils
-		datosFirma.Put("cliente_contacto_uuid", rs.GetString("cliente_contacto_uuid"))
-		datosFirma.Put("accion", rs.GetString("accion"))
-		datosFirma.Put("version_texto", rs.GetString("version_texto"))
-		datosFirma.Put("fecha", Utils.BdAApi(rs.GetString("fecha")))
-		datosFirma.Put("firmante_nombre", Utils.TextoONada(rs.GetString("firmante_nombre")))
-		datosFirma.Put("firmante_identificacion", Utils.TextoONada(rs.GetString("firmante_identificacion")))
-		datosFirma.Put("firma_base_64", su.EncodeBase64(rs.GetBlob("firma")))
-		datosFirma.Put("firma_mime", rs.GetString("mime"))
-		datosFirma.Put("origen", ORIGEN_MOVIL)
+		datos.Put("cliente_contacto_uuid", rs.GetString("cliente_contacto_uuid"))
+		datos.Put("accion", rs.GetString("accion"))
+		datos.Put("version_texto", rs.GetString("version_texto"))
+		datos.Put("fecha", Utils.BdAApi(rs.GetString("fecha")))
+		datos.Put("firmante_nombre", Utils.TextoONada(rs.GetString("firmante_nombre")))
+		datos.Put("firmante_identificacion", Utils.TextoONada(rs.GetString("firmante_identificacion")))
+		datos.Put("firma_base_64", su.EncodeBase64(rs.GetBlob("firma")))
+		datos.Put("firma_mime", rs.GetString("mime"))
+		datos.Put("origen", ORIGEN_MOVIL)
 	End If
 	rs.Close
-	Return datosFirma
+	Return datos
 End Sub
 
 Private Sub PaqueteSolicitud (Uuid As String) As Map

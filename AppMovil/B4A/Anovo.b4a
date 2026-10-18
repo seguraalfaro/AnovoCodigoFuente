@@ -166,7 +166,9 @@ Module8=ASDrawSteps
 Module9=B4XClienteDetalle
 NumberOfFiles=40
 NumberOfLibraries=23
-NumberOfModules=60
+Module61=B4XConsentimiento
+Module62=PresentadorConsentimiento
+NumberOfModules=62
 Version=14
 @EndOfDesignText@
 #Region  Project Attributes 
