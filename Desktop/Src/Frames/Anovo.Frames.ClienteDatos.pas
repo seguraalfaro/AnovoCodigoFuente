@@ -132,6 +132,7 @@ implementation
 uses
   Winapi.ShellAPI,
   Anovo.UI.ColumnasRejilla,
+  Anovo.UI.Mascara,
   Anovo.UI.Vista,
   Anovo.Formato,
   Anovo.Api.Clientes,
@@ -162,6 +163,7 @@ begin
   AplicarTemaGrid(grContactos);
   AplicarTemaGrid(grCotizaciones);
   AplicarTemaGrid(grHistorial);
+  CursorAlInicioEnMascaras(Self);
   TCeldasRejilla.De(grContactos).TextoVacio := SVacioContactos;
   TCeldasRejilla.De(grCotizaciones).TextoVacio := SVacioCotizacionesCliente;
   TCeldasRejilla.De(grHistorial).TextoVacio := SVacioConsentimientos;

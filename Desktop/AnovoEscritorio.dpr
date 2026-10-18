@@ -123,6 +123,7 @@ uses
   Anovo.Presentadores.SolicitudesAsistente in 'Src\Presentadores\Anovo.Presentadores.SolicitudesAsistente.pas',
   Anovo.UI.Vigencia in 'Src\Recursos\Anovo.UI.Vigencia.pas',
   Anovo.UI.Vista in 'Src\Recursos\Anovo.UI.Vista.pas',
+  Anovo.UI.Mascara in 'Src\Recursos\Anovo.UI.Mascara.pas',
   Anovo.DTOs.Catalogos in '..\Backend\src\DTOs\Anovo.DTOs.Catalogos.pas',
   Anovo.Api.Intf.Auditoria in 'Src\Interfaces\Anovo.Api.Intf.Auditoria.pas',
   Anovo.Api.Auditoria in 'Src\Api\Anovo.Api.Auditoria.pas',

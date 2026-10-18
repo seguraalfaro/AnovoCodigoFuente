@@ -36,6 +36,7 @@ implementation
 
 uses
   Anovo.UI.Tema,
+  Anovo.UI.Mascara,
   Anovo.UI.Vista;
 
 procedure TfrmEdicion.DoCreate;
@@ -43,6 +44,7 @@ begin
   AplicarTema(Self);
   AplicarTemaBarraTitulo(Self, TitleBarPanel1);
   inherited;
+  CursorAlInicioEnMascaras(Self);
 end;
 
 function TfrmEdicion.ControlesEdicion: TArray<TControl>;

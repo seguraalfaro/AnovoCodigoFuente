@@ -333,6 +333,7 @@
         <DCCReference Include="Src\Presentadores\Anovo.Presentadores.SolicitudesAsistente.pas"/>
         <DCCReference Include="Src\Recursos\Anovo.UI.Vigencia.pas"/>
         <DCCReference Include="Src\Recursos\Anovo.UI.Vista.pas"/>
+        <DCCReference Include="Src\Recursos\Anovo.UI.Mascara.pas"/>
         <DCCReference Include="..\Backend\src\DTOs\Anovo.DTOs.Catalogos.pas"/>
         <DCCReference Include="Src\Interfaces\Anovo.Api.Intf.Auditoria.pas"/>
         <DCCReference Include="Src\Api\Anovo.Api.Auditoria.pas"/>
