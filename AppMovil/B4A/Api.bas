@@ -63,7 +63,7 @@ Public Sub MensajeDe (Respuesta As RestRespuesta) As String
 		Return Mensajes.SIN_CONEXION
 	End If
 	If Respuesta.StatusCode = ESTADO_NO_AUTORIZADO Then Return Mensajes.SESION_VENCIDA
-	If Respuesta.Mensaje <> "" Then Return Respuesta.Mensaje
+	If Respuesta.Mensaje <> "" Then Return Mensajes.ConDetalles(Respuesta.Mensaje, Respuesta.Detalles)
 	If Respuesta.StatusCode = ESTADO_DEMASIADAS Then Return Mensajes.DEMASIADAS_PETICIONES
 	Return Mensajes.ErrorServidor(Respuesta.StatusCode)
 End Sub

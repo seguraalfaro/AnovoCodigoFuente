@@ -60,6 +60,9 @@ Sub Process_Globals
 	Public Const SYNC_CON_ERRORES As String = "Algunos registros no se pudieron subir: revíselos en Inicio."
 	Public Const SYNC_SIN_CONEXION As String = "Sin conexión con el servidor. Se reintenta más tarde."
 	Public Const SYNC_SESION As String = "La sesión venció. Ingrese de nuevo para terminar de subir."
+	Public Const SYNC_CONFLICTO As String = "Alguien cambió este registro en el servidor. Revíselo en el escritorio."
+	Public Const SYNC_BAJADA_FALLO As String = "Lo capturado subió, pero no se pudo traer lo nuevo del servidor. Se reintenta más tarde."
+	Public Const SYNC_OCUPADO As String = "El servidor está ocupado. La sincronización se reintenta más tarde."
 	Public Const MENU_CERRAR_SESION As String = "Cerrar sesión"
 	Public Const TAB_INICIO As String = "Inicio"
 	Public Const TAB_CLIENTES As String = "Clientes"
@@ -557,6 +560,17 @@ End Sub
 
 Public Sub Contador (Cantidad As Int, Maximo As Int) As String
 	Return TEXTO_CONTADOR.Replace("$1", Cantidad).Replace("$2", Maximo)
+End Sub
+
+Public Sub ConDetalles (Mensaje As String, Detalles As List) As String
+	If Detalles.IsInitialized = False Or Detalles.Size < 2 Then Return Mensaje
+	Dim sb As StringBuilder
+	sb.Initialize
+	sb.Append(Mensaje)
+	For Each d As String In Detalles
+		sb.Append(CRLF).Append("• ").Append(d)
+	Next
+	Return sb.ToString
 End Sub
 
 Public Sub Colones (Monto As Double) As String

@@ -101,7 +101,7 @@ Public Sub RegistrarIntento (r As ResumenSync)
 		resultado = RESULTADO_SESION
 	Else If r.SinConexion And r.Subidos = 0 Then
 		resultado = RESULTADO_SIN_CONEXION
-	Else If r.ConError > 0 Or r.Pendientes > 0 Then
+	Else If r.ConError > 0 Or r.Pendientes > 0 Or r.ServidorOcupado Or r.FalloBajada Then
 		resultado = RESULTADO_PARCIAL
 	End If
 	Db.DbSQL.ExecNonQuery2(SQL_INTENTO, Array As Object(Utils.AhoraBd, resultado, r.Subidos, r.Bajados, r.ConError, r.Pendientes))

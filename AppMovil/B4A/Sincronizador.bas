@@ -13,6 +13,8 @@ Sub Class_Globals
 	Private Const ESTADO_NO_AUTORIZADO As Int = 401
 	Private Const ESTADO_DEMASIADAS As Int = 429
 	Private Const ESTADO_SERVIDOR As Int = 500
+	Private Const CODIGO_CAMBIO_CLAVE As String = "CAMBIO_CLAVE_PENDIENTE"
+	Private Const CODIGO_VERSION_VENCIDA As String = "VERSION_VENCIDA"
 	Private mCorriendo As Boolean
 	Private remota As SesionRemota
 End Sub
@@ -34,33 +36,40 @@ Public Sub Ejecutar As ResumableSub
 	For Each clase As String In Array As String(DbSync.CLASE_CLIENTE, DbSync.CLASE_SOLICITUD, DbSync.CLASE_FOTO)
 		For Each u As UnidadSync In DbSync.Listas(clase)
 			Wait For (remota.AsegurarSesion) Complete (Estado As Int)
-			If Estado = ESTADO_NO_AUTORIZADO Then
-				r.SesionVencida = True
-				Exit
-			End If
 			If Estado <> ESTADO_OK Then
-				r.SinConexion = True
+				MarcarCaida(r, Estado)
 				Exit
 			End If
 			Wait For (Enviar(u)) Complete (Respuesta As RestRespuesta)
 			If Respuesta.StatusCode = ESTADO_CREADO Or Respuesta.StatusCode = ESTADO_OK Then
-				DbSync.Confirmar(u, ApiSincronizacion.IdCreado(Respuesta))
-				r.Subidos = r.Subidos + 1
-			Else If Respuesta.StatusCode = ESTADO_NO_AUTORIZADO Then
+				Dim id As Int = ApiSincronizacion.IdCreado(Respuesta)
+				If id > 0 Then
+					DbSync.Confirmar(u, id)
+					r.Subidos = r.Subidos + 1
+				Else
+					Log("Sincronizador: respuesta sin id para " & u.Uuid)
+					DbSync.Reprogramar(u)
+				End If
+			Else If Respuesta.StatusCode = ESTADO_NO_AUTORIZADO Or Respuesta.Codigo = CODIGO_CAMBIO_CLAVE Then
 				r.SesionVencida = True
 				Exit
 			Else If Reintentable(Respuesta.StatusCode) Then
 				DbSync.Reprogramar(u)
-				r.SinConexion = (Respuesta.StatusCode = 0)
-				If r.SinConexion Then Exit
+				If Respuesta.StatusCode = 0 Or Respuesta.StatusCode = ESTADO_DEMASIADAS Then
+					MarcarCaida(r, Respuesta.StatusCode)
+					Exit
+				End If
+			Else If Respuesta.Codigo = CODIGO_VERSION_VENCIDA Then
+				DbSync.MarcarError(u, Mensajes.SYNC_CONFLICTO)
+				r.ConError = r.ConError + 1
 			Else
 				DbSync.MarcarError(u, Api.MensajeDe(Respuesta))
 				r.ConError = r.ConError + 1
 			End If
 		Next
-		If r.SesionVencida Or r.SinConexion Then Exit
+		If Detenido(r) Then Exit
 	Next
-	If r.SesionVencida = False And r.SinConexion = False Then
+	If Detenido(r) = False Then
 		Wait For (Bajar(r)) Complete (Bajado As Boolean)
 	End If
 	r.Pendientes = DbSync.Pendientes
@@ -88,6 +97,20 @@ Private Sub Enviar (u As UnidadSync) As ResumableSub
 	Return Respuesta
 End Sub
 
+Private Sub MarcarCaida (r As ResumenSync, Estado As Int)
+	If Estado = 0 Then
+		r.SinConexion = True
+	Else If Estado = ESTADO_DEMASIADAS Or Estado >= ESTADO_SERVIDOR Then
+		r.ServidorOcupado = True
+	Else
+		r.SesionVencida = True
+	End If
+End Sub
+
+Private Sub Detenido (r As ResumenSync) As Boolean
+	Return r.SesionVencida Or r.SinConexion Or r.ServidorOcupado
+End Sub
+
 Private Sub Reintentable (Estado As Int) As Boolean
 	Return Estado = 0 Or Estado = ESTADO_DEMASIADAS Or Estado >= ESTADO_SERVIDOR
 End Sub
@@ -97,20 +120,29 @@ End Sub
 Private Sub Bajar (r As ResumenSync) As ResumableSub
 	Wait For (remota.AsegurarSesion) Complete (Estado As Int)
 	If Estado <> ESTADO_OK Then
-		r.SesionVencida = (Estado = ESTADO_NO_AUTORIZADO)
-		r.SinConexion = Not(r.SesionVencida)
+		MarcarCaida(r, Estado)
 		Return False
 	End If
 	Wait For (ApiSincronizacion.Bajar(DbBajada.Desde).Enviar) Complete (Respuesta As RestRespuesta)
 	If Respuesta.StatusCode <> ESTADO_OK Then
-		r.SesionVencida = (Respuesta.StatusCode = ESTADO_NO_AUTORIZADO)
-		r.SinConexion = (Respuesta.StatusCode = 0)
+		If Respuesta.StatusCode = ESTADO_NO_AUTORIZADO Then
+			r.SesionVencida = True
+		Else If Respuesta.StatusCode = 0 Then
+			r.SinConexion = True
+		Else
+			r.FalloBajada = True
+		End If
 		Return False
 	End If
 	Dim datos As Map = Respuesta.DatosMap
 	Dim lote As Object = DbBajada.Aplicar(datos)
 	Wait For (lote) Lote_NonQueryComplete (Exito As Boolean)
-	If Exito Then r.Bajados = DbBajada.Contar(datos) Else Log("Sincronizador.Bajar: " & LastException.Message)
+	If Exito Then
+		r.Bajados = DbBajada.Contar(datos)
+	Else
+		Log("Sincronizador.Bajar: " & LastException.Message)
+		r.FalloBajada = True
+	End If
 	Wait For (ApiSincronizacion.Indicadores.Enviar) Complete (Tablero As RestRespuesta)
 	If Tablero.StatusCode = ESTADO_OK Then DbInicio.GuardarIndicadores(Tablero.DatosMap)
 	Return Exito
@@ -121,7 +153,9 @@ End Sub
 Private Sub Resumen (r As ResumenSync) As String
 	If r.SesionVencida Then Return Mensajes.SYNC_SESION
 	If r.SinConexion Then Return Mensajes.SYNC_SIN_CONEXION
+	If r.ServidorOcupado Then Return Mensajes.SYNC_OCUPADO
 	If r.ConError > 0 Then Return Mensajes.SYNC_CON_ERRORES
+	If r.FalloBajada Then Return Mensajes.SYNC_BAJADA_FALLO
 	Return Mensajes.SYNC_LISTO
 End Sub
 #End Region

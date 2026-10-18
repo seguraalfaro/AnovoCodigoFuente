@@ -24,7 +24,7 @@ Sub Process_Globals
 		NombreProyecto As String, Descripcion As String, Observaciones As String)
 	Type UnidadSync (Clase As String, Uuid As String, Paquete As Map, SolicitudId As Int, Ruta As String)
 	Type ResumenSync (Subidos As Int, Bajados As Int, ConError As Int, Pendientes As Int, SinConexion As Boolean, _
-		SesionVencida As Boolean, Mensaje As String)
+		SesionVencida As Boolean, ServidorOcupado As Boolean, FalloBajada As Boolean, Mensaje As String)
 	Type FranjaSync (Texto As String, Accion As String, Glifo As String, Tinta As Int, Fondo As Int)
 	Type SolicitudReciente (Proyecto As String, Cliente As String, Fecha As String, EstadoSync As String)
 	Type SeguimientoFila (Uuid As String, Proyecto As String, Cliente As String, Fecha As String, Estado As String, Monto As Double)

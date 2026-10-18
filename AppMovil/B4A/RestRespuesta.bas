@@ -12,6 +12,7 @@ Sub Class_Globals
 	Public Content As String
 	Public Codigo As String
 	Public Mensaje As String
+	Public Detalles As List
 	Private mEncabezados As Map
 	Private mJson As Map
 End Sub
@@ -34,6 +35,7 @@ Public Sub Initialize (Job As HttpJob)
 	mJson = LeerJson(Content)
 	Codigo = ""
 	Mensaje = ""
+	Detalles.Initialize
 	If Success = False Then LeerError
 End Sub
 
@@ -58,6 +60,15 @@ Private Sub LeerError
 		Dim m As Map = e
 		Codigo = m.GetDefault("codigo", "ERROR")
 		Mensaje = m.GetDefault("mensaje", "")
+		Dim lista As Object = m.Get("detalles")
+		If lista Is List Then
+			For Each d As Object In lista.As(List)
+				If d Is Map Then
+					Dim texto As String = d.As(Map).GetDefault("mensaje", "")
+					If texto.Trim <> "" Then Detalles.Add(texto.Trim)
+				End If
+			Next
+		End If
 	End If
 End Sub
 

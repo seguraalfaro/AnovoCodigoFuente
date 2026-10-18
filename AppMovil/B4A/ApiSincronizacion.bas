@@ -42,8 +42,11 @@ End Sub
 Public Sub IdCreado (Respuesta As RestRespuesta) As Int
 	Dim destino As String = Respuesta.HeaderValue(ENCABEZADO_UBICACION)
 	Dim i As Int = destino.LastIndexOf("/")
-	If i < 0 Then Return 0
-	Dim id As String = destino.SubString(i + 1)
-	If IsNumber(id) Then Return id
+	If i >= 0 Then
+		Dim id As String = destino.SubString(i + 1)
+		If IsNumber(id) Then Return id
+	End If
+	Dim cuerpo As Object = Respuesta.DatosMap.GetDefault(PARAM_ID, 0)
+	If IsNumber(cuerpo) Then Return cuerpo
 	Return 0
 End Sub
