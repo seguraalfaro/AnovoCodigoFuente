@@ -106,6 +106,7 @@ inherited fraReportes: TfraReportes
     inherited grLista: TrDBGrid
       Top = 86
       Height = 274
+      DataSource = dmMemoria.dsReporteEstados
     end
   end
   object pnlFiltros: TPanel

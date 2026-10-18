@@ -66,6 +66,7 @@ type
     mtClienteCotizacionesMONTO_TOTAL: TCurrencyField;
     mtClienteCotizacionesESTADO: TStringField;
     mtClienteCotizacionesACCIONES: TStringField;
+    dsClienteCotizaciones: TDataSource;
     mtSolicitudes: TFDMemTable;
     mtSolicitudesID: TIntegerField;
     mtSolicitudesCODIGO: TStringField;
@@ -348,6 +349,13 @@ type
     mtHistorialPrecioACTIVO: TBooleanField;
     mtHistorialPrecioESTADO: TStringField;
     dsCatalogo: TDataSource;
+    dsTodos: TDataSource;
+    dsMateriales: TDataSource;
+    dsManoObra: TDataSource;
+    dsMaquinas: TDataSource;
+    dsTiposTrabajo: TDataSource;
+    dsUnidadesLista: TDataSource;
+    dsCatalogoSimple: TDataSource;
     mtUnidadesMedida: TFDMemTable;
     mtUnidadesMedidaID: TIntegerField;
     mtUnidadesMedidaNOMBRE: TStringField;

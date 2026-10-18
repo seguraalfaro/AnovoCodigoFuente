@@ -41,6 +41,7 @@ type
     procedure PaginaAnterior; virtual; abstract;
     procedure PaginaSiguiente; virtual; abstract;
     procedure MostrarCargando(const AActivo: Boolean); virtual;
+    function RejillaActiva: TrDBGrid; virtual;
     procedure MostrarBusqueda(const ATexto: string;
       const APuedeLimpiar: Boolean);
     procedure MostrarPaginacion(const APagina, ATotalPaginas: Integer;
@@ -100,9 +101,14 @@ begin
   PintarPaginacion(lblPaginacion, btnAnterior, btnSiguiente, APagina,
     ATotalPaginas, ATotal, FTextoSinRegistros, FTextoPaginacion,
     FTextoSoloTotal);
-  TCeldasRejilla.De(grDatos).TextoVacio := FTextoSinRegistros;
+  TCeldasRejilla.De(RejillaActiva).TextoVacio := FTextoSinRegistros;
   if ATotal > 0 then
-    TCeldasRejilla.De(grDatos).AjustarColumnas;
+    TCeldasRejilla.De(RejillaActiva).AjustarColumnas;
+end;
+
+function TfraListado.RejillaActiva: TrDBGrid;
+begin
+  Result := grDatos;
 end;
 
 procedure TfraListado.MostrarError(const AMensaje: string);

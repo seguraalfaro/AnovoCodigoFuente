@@ -234,6 +234,11 @@ object dmMemoria: TdmMemoria
       Size = 1
     end
   end
+  object dsClienteCotizaciones: TDataSource
+    DataSet = mtClienteCotizaciones
+    Left = 808
+    Top = 24
+  end
   object mtSolicitudes: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll
@@ -1827,6 +1832,48 @@ object dmMemoria: TdmMemoria
   object dsCatalogo: TDataSource
     AutoEdit = False
     Left = 152
+    Top = 440
+  end
+  object dsTodos: TDataSource
+    AutoEdit = False
+    DataSet = mtTodos
+    Left = 248
+    Top = 440
+  end
+  object dsMateriales: TDataSource
+    AutoEdit = False
+    DataSet = mtMateriales
+    Left = 344
+    Top = 440
+  end
+  object dsManoObra: TDataSource
+    AutoEdit = False
+    DataSet = mtManoObra
+    Left = 440
+    Top = 440
+  end
+  object dsMaquinas: TDataSource
+    AutoEdit = False
+    DataSet = mtMaquinas
+    Left = 536
+    Top = 440
+  end
+  object dsTiposTrabajo: TDataSource
+    AutoEdit = False
+    DataSet = mtTiposTrabajo
+    Left = 632
+    Top = 440
+  end
+  object dsUnidadesLista: TDataSource
+    AutoEdit = False
+    DataSet = mtUnidadesLista
+    Left = 728
+    Top = 440
+  end
+  object dsCatalogoSimple: TDataSource
+    AutoEdit = False
+    DataSet = mtCatalogoSimple
+    Left = 824
     Top = 440
   end
   object dsClientes: TDataSource

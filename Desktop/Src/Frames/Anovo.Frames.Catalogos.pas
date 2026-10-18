@@ -27,6 +27,21 @@ type
     btnNuevo: TPlanoBotonWin;
     cbCategoria: TrDBLookupComboBox;
     pstCatalogo: TPlanoPestanas;
+    cpCatalogo: TCardPanel;
+    crdTodos: TCard;
+    grTodos: TrDBGrid;
+    crdMateriales: TCard;
+    grMateriales: TrDBGrid;
+    crdManoObra: TCard;
+    grManoObra: TrDBGrid;
+    crdMaquinas: TCard;
+    grMaquinas: TrDBGrid;
+    crdTiposTrabajo: TCard;
+    grTiposTrabajo: TrDBGrid;
+    crdUnidades: TCard;
+    grUnidades: TrDBGrid;
+    crdSimples: TCard;
+    grSimples: TrDBGrid;
     procedure pstCatalogoChange(Sender: TObject);
     procedure cbCategoriaClick(Sender: TObject);
     procedure btnNuevoClick(Sender: TObject);
@@ -35,6 +50,8 @@ type
   private
     FPresentador: TPresentadorCatalogos;
     FCatalogo: TCatalogo;
+    function Rejillas: TArray<TrDBGrid>;
+    function TarjetaDe(const ACatalogo: TCatalogo): TCard;
     procedure Accion(Sender: TObject; const AClave: string);
     function IdDeLaFila: Integer;
     function NombreDeLaFila: string;
@@ -70,6 +87,7 @@ type
     procedure PaginaSiguiente; override;
     procedure MostrarCargando(const AActivo: Boolean); override;
     procedure Resize; override;
+    function RejillaActiva: TrDBGrid; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -165,6 +183,7 @@ end;
 
 constructor TfraCatalogos.Create(AOwner: TComponent);
 var
+  lGrid: TrDBGrid;
   lRejilla: TCeldasRejilla;
 begin
   inherited Create(AOwner);
@@ -172,10 +191,14 @@ begin
   FTextoPaginacion := SPaginacionRegistros;
   FTextoSoloTotal := SRegistrosTotal;
 
-  lRejilla := TCeldasRejilla.De(grDatos);
-  lRejilla.ColumnaEstado(CAMPO_ESTADO);
-  lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
-  lRejilla.OnAccion := Accion;
+  for lGrid in Rejillas do
+  begin
+    AplicarTemaGrid(lGrid);
+    lRejilla := TCeldasRejilla.De(lGrid);
+    lRejilla.ColumnaEstado(CAMPO_ESTADO);
+    lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
+    lRejilla.OnAccion := Accion;
+  end;
 
   FPresentador := TPresentadorCatalogos.Create(Self, TApiCatalogos.Create);
   FPresentador.Iniciar;
@@ -187,6 +210,52 @@ begin
   dmMemoria.mtCategorias.Close;
   dmMemoria.mtCatalogoSimple.Close;
   inherited;
+end;
+
+function TfraCatalogos.Rejillas: TArray<TrDBGrid>;
+begin
+  Result := [grTodos, grMateriales, grManoObra, grMaquinas, grTiposTrabajo,
+    grUnidades, grSimples];
+end;
+
+function TfraCatalogos.TarjetaDe(const ACatalogo: TCatalogo): TCard;
+begin
+  case ACatalogo of
+    ctTodos:
+      Result := crdTodos;
+    ctManoObra:
+      Result := crdManoObra;
+    ctMaquinas:
+      Result := crdMaquinas;
+    ctTiposTrabajo:
+      Result := crdTiposTrabajo;
+    ctUnidadesMedida:
+      Result := crdUnidades;
+    ctTiposMaterial, ctAcabados, ctFormasPago:
+      Result := crdSimples;
+  else
+    Result := crdMateriales;
+  end;
+end;
+
+function TfraCatalogos.RejillaActiva: TrDBGrid;
+begin
+  case FCatalogo of
+    ctTodos:
+      Result := grTodos;
+    ctManoObra:
+      Result := grManoObra;
+    ctMaquinas:
+      Result := grMaquinas;
+    ctTiposTrabajo:
+      Result := grTiposTrabajo;
+    ctUnidadesMedida:
+      Result := grUnidades;
+    ctTiposMaterial, ctAcabados, ctFormasPago:
+      Result := grSimples;
+  else
+    Result := grMateriales;
+  end;
 end;
 
 function TfraCatalogos.IdDeLaFila: Integer;
@@ -249,29 +318,31 @@ begin
   else
     dmMemoria.dsCatalogo.DataSet := dmMemoria.mtMateriales;
   end;
-  grDatos.DataSource := dmMemoria.dsCatalogo;
-  grDatos.Columns.State := csDefault;
+  cpCatalogo.ActiveCard := TarjetaDe(ACatalogo);
 end;
 
 procedure TfraCatalogos.MostrarAcciones(const AAcciones: TAccionesCatalogo;
   const APuedeCrear: Boolean);
+var
+  lGrid: TrDBGrid;
 begin
   btnNuevo.Visible := APuedeCrear;
-  TCeldasRejilla.De(grDatos).PonerAcciones<TAccionesCatalogo>(ACCIONES,
-    AAcciones);
+  for lGrid in Rejillas do
+    TCeldasRejilla.De(lGrid).PonerAcciones<TAccionesCatalogo>(ACCIONES,
+      AAcciones);
 end;
 
 procedure TfraCatalogos.Cargar<T>(const AFilas: TObjectList<T>;
   const ATabla: TFDMemTable);
 begin
   TMapeoDatos.AListaTabla<T>(AFilas, ATabla);
-  TCeldasRejilla.De(grDatos).AjustarColumnas;
+  TCeldasRejilla.De(RejillaActiva).AjustarColumnas;
 end;
 
 procedure TfraCatalogos.Resize;
 begin
   inherited;
-  Anovo.UI.CeldasRejilla.AjustarColumnas(grDatos);
+  Anovo.UI.CeldasRejilla.AjustarColumnas(RejillaActiva);
 end;
 
 procedure TfraCatalogos.Buscar(const ATexto: string);
@@ -424,7 +495,7 @@ end;
 
 procedure TfraCatalogos.btnExportarClick(Sender: TObject);
 begin
-  TColumnasRejilla.ExportarRejilla(grDatos);
+  TColumnasRejilla.ExportarRejilla(RejillaActiva);
 end;
 
 end.

@@ -9,7 +9,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
   System.Generics.Collections,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Vcl.ExtCtrls, Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
+  Vcl.ExtCtrls, Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Vcl.WinXPanels, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.BotonWin, VclPlano.Pestanas,
   Anovo.PeriodoBusqueda,
   Anovo.Forms.Periodo,
@@ -24,6 +24,11 @@ type
   TfraSolicitudesAsistente = class(TfraListado, IVistaSolicitudesAsistente)
     pstModo: TPlanoPestanas;
     btnPeriodo: TPlanoBotonWin;
+    cpModo: TCardPanel;
+    crdCola: TCard;
+    grCola: TrDBGrid;
+    crdEnTrabajo: TCard;
+    grEnTrabajo: TrDBGrid;
     procedure pstModoChange(Sender: TObject);
   private
     FPresentador: TPresentadorSolicitudesAsistente;
@@ -45,6 +50,7 @@ type
     procedure PaginaAnterior; override;
     procedure PaginaSiguiente; override;
     procedure MostrarCargando(const AActivo: Boolean); override;
+    function RejillaActiva: TrDBGrid; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -79,7 +85,12 @@ begin
   FTextoCargando := SCargandoSolicitudes;
   FTextoPaginacion := SPaginacionSolicitudes;
 
-  lRejilla := TCeldasRejilla.De(grDatos);
+  AplicarTemaGrid(grCola);
+  lRejilla := TCeldasRejilla.De(grCola);
+  lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
+  lRejilla.OnAccion := Accion;
+  AplicarTemaGrid(grEnTrabajo);
+  lRejilla := TCeldasRejilla.De(grEnTrabajo);
   lRejilla.ColumnaEstado(CAMPO_ESTADO);
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
   lRejilla.OnAccion := Accion;
@@ -127,6 +138,14 @@ begin
   FPresentador.PaginaSiguiente;
 end;
 
+function TfraSolicitudesAsistente.RejillaActiva: TrDBGrid;
+begin
+  if cpModo.ActiveCard = crdEnTrabajo then
+    Result := grEnTrabajo
+  else
+    Result := grCola;
+end;
+
 procedure TfraSolicitudesAsistente.MostrarCargando(const AActivo: Boolean);
 begin
   inherited;
@@ -138,16 +157,15 @@ procedure TfraSolicitudesAsistente.MostrarModo(const AModo: TModoSolicitudes);
 begin
   pstModo.ItemIndex := Ord(AModo);
   if AModo = msCola then
-  begin
-    FTextoSinRegistros := SSinCola;
-    grDatos.DataSource := dmMemoria.dsSolicitudesCola;
-  end
+    FTextoSinRegistros := SSinCola
   else
-  begin
     FTextoSinRegistros := SSinEnTrabajo;
-    grDatos.DataSource := dmMemoria.dsSolicitudesEnTrabajo;
-  end;
-  TCeldasRejilla.De(grDatos).AjustarColumnas;
+  if AModo = msCola then
+    cpModo.ActiveCard := crdCola
+  else
+    cpModo.ActiveCard := crdEnTrabajo;
+  TCeldasRejilla.De(RejillaActiva).TextoVacio := FTextoSinRegistros;
+  TCeldasRejilla.De(RejillaActiva).AjustarColumnas;
 end;
 
 procedure TfraSolicitudesAsistente.MostrarCola(const AFilas
@@ -155,7 +173,7 @@ procedure TfraSolicitudesAsistente.MostrarCola(const AFilas
 begin
   TMapeoDatos.AListaTabla<TSolicitudPorCotizarDTO>(AFilas,
     dmMemoria.mtSolicitudesCola);
-  TCeldasRejilla.De(grDatos).AjustarColumnas;
+  TCeldasRejilla.De(grCola).AjustarColumnas;
 end;
 
 procedure TfraSolicitudesAsistente.MostrarEnTrabajo(const AFilas
@@ -163,13 +181,15 @@ procedure TfraSolicitudesAsistente.MostrarEnTrabajo(const AFilas
 begin
   TMapeoDatos.AListaTabla<TSolicitudEnTrabajoDTO>(AFilas,
     dmMemoria.mtSolicitudesEnTrabajo);
-  TCeldasRejilla.De(grDatos).AjustarColumnas;
+  TCeldasRejilla.De(grEnTrabajo).AjustarColumnas;
 end;
 
 procedure TfraSolicitudesAsistente.MostrarAcciones(const AAcciones
   : TAccionesCola);
 begin
-  TCeldasRejilla.De(grDatos).PonerAcciones<TAccionesCola>(ACCIONES, AAcciones);
+  TCeldasRejilla.De(grCola).PonerAcciones<TAccionesCola>(ACCIONES, AAcciones);
+  TCeldasRejilla.De(grEnTrabajo).PonerAcciones<TAccionesCola>(ACCIONES,
+    AAcciones);
 end;
 
 procedure TfraSolicitudesAsistente.Accion(Sender: TObject;

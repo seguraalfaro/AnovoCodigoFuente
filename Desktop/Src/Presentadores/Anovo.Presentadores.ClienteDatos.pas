@@ -11,6 +11,7 @@ uses
   Anovo.Presentadores.Base,
   Anovo.DTOs.Clientes,
   Anovo.Vistas.Intf.ClienteDatos,
+  Anovo.PeriodoBusqueda,
   Anovo.Permisos;
 
 type
@@ -21,6 +22,7 @@ type
     FApiCotizaciones: IApiCotizaciones;
     FTextoCotizaciones: string;
     FEstadoCotizaciones: string;
+    FPeriodoCotizaciones: TPeriodoBusqueda;
     FClienteId: Integer;
     FCargadas: set of TPestanaCliente;
     FPersonaFisica: Boolean;
@@ -38,6 +40,7 @@ type
       const AClienteId: Integer);
     procedure BuscarCotizaciones(const ATexto: string);
     procedure FiltrarCotizaciones(const AFiltro: Integer);
+    procedure FiltrarPeriodoCotizaciones(const APeriodo: TPeriodoBusqueda);
     procedure VerCotizacion(const AId: Integer);
     procedure Iniciar;
     procedure AbrirPestana(const APestana: TPestanaCliente);
@@ -112,6 +115,7 @@ begin
   FApi := AApi;
   FApiCotizaciones := AApiCotizaciones;
   FClienteId := AClienteId;
+  FPeriodoCotizaciones := TPeriodoBusqueda.De(apTodas);
 end;
 
 class function TPresentadorClienteDatos.PuedeEditar: Boolean;
@@ -156,6 +160,7 @@ procedure TPresentadorClienteDatos.Iniciar;
 begin
   FVista.MostrarAcciones(PuedeEditar, PuedeRevocar, PuedeVerCotizaciones,
     AccionesContacto, AccionesCotizacion);
+  FVista.MostrarPeriodoCotizaciones(FPeriodoCotizaciones);
   AbrirPestana(pcDatos);
 end;
 
@@ -187,9 +192,12 @@ var
   lApi: IApiCotizaciones;
   lTexto, lEstado: string;
   lClienteId: Integer;
+  lDesde, lHasta: TDateTime;
   lTotal: Int64;
 begin
   lApi := FApiCotizaciones;
+  lDesde := FPeriodoCotizaciones.Desde;
+  lHasta := FPeriodoCotizaciones.Hasta;
   lTexto := FTextoCotizaciones;
   lEstado := FEstadoCotizaciones;
   lClienteId := FClienteId;
@@ -198,7 +206,7 @@ begin
   EjecutarUltima<TObjectList<TCotizacionDTO>>(SAccionCargarCotizaciones,
     function: TObjectList<TCotizacionDTO>
     begin
-      Result := lApi.Listar(lTexto, lEstado, lClienteId, 0, 0, 1,
+      Result := lApi.Listar(lTexto, lEstado, lClienteId, lDesde, lHasta, 1,
         COTIZACIONES_DEL_CLIENTE, lTotal);
     end,
     procedure(ALista: TObjectList<TCotizacionDTO>)
@@ -219,6 +227,21 @@ begin
     (AFiltro > High(ESTADOS_COTIZACION)) then
     Exit;
   FEstadoCotizaciones := ESTADOS_COTIZACION[AFiltro];
+  CargarCotizaciones;
+end;
+
+procedure TPresentadorClienteDatos.FiltrarPeriodoCotizaciones
+  (const APeriodo: TPeriodoBusqueda);
+var
+  lMensaje: string;
+begin
+  if not APeriodo.Validar(lMensaje) then
+  begin
+    FVista.MostrarError(lMensaje);
+    FVista.MostrarPeriodoCotizaciones(FPeriodoCotizaciones);
+    Exit;
+  end;
+  FPeriodoCotizaciones := APeriodo;
   CargarCotizaciones;
 end;
 

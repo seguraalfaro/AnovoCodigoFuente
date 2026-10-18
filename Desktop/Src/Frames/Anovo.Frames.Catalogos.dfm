@@ -81,13 +81,568 @@ inherited fraCatalogos: TfraCatalogos
   inherited pnclient: TRelativePanel
     Top = 175
     Height = 392
+    ControlCollection = <
+      item
+        Control = grDatos
+        AlignBottomWithPanel = True
+        AlignHorizontalCenterWithPanel = False
+        AlignLeftWithPanel = True
+        AlignRightWithPanel = True
+        AlignTopWithPanel = True
+        AlignVerticalCenterWithPanel = False
+      end
+      item
+        Control = cpCatalogo
+        AlignBottomWithPanel = True
+        AlignHorizontalCenterWithPanel = False
+        AlignLeftWithPanel = True
+        AlignRightWithPanel = True
+        AlignTopWithPanel = True
+        AlignVerticalCenterWithPanel = False
+      end>
     ExplicitTop = 175
     ExplicitHeight = 392
     inherited grDatos: TrDBGrid
       Width = 914
       Height = 386
       Margins.Right = 20
-      ColumnWidth = cwAutoWidth
+      Visible = False
+    end
+    object cpCatalogo: TCardPanel
+      Tag = 2
+      Left = 0
+      Top = 0
+      Width = 954
+      Height = 392
+      Align = alClient
+      ActiveCard = crdTodos
+      BevelOuter = bvNone
+      Caption = ''
+      TabOrder = 1
+      object crdTodos: TCard
+        Tag = 2
+        Left = 0
+        Top = 0
+        Width = 954
+        Height = 392
+        Caption = ''
+        CardIndex = 0
+        TabOrder = 0
+        object grTodos: TrDBGrid
+          AlignWithMargins = True
+          Left = 20
+          Top = 3
+          Width = 931
+          Height = 380
+          Margins.Left = 20
+        Margins.Right = 20
+          Align = alClient
+          BorderStyle = bsNone
+          DataSource = dmMemoria.dsTodos
+          DefaultDrawing = False
+          Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
+          TabOrder = 0
+          TitleFont.Charset = ANSI_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -12
+          TitleFont.Name = 'Segoe UI'
+          TitleFont.Style = []
+          StyleElements = [seFont]
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'TIPO'
+              Title.Caption = 'Tipo'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'CODIGO'
+              Title.Caption = 'C'#243'digo'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'NOMBRE'
+              Title.Caption = 'Nombre'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'UNIDAD_MEDIDA'
+              Title.Caption = 'Unidad'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'COSTO'
+              Title.Alignment = taRightJustify
+              Title.Caption = 'Costo'
+              Width = 90
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'PRECIO_UNITARIO'
+              Title.Alignment = taRightJustify
+              Title.Caption = 'P. venta'
+              Width = 90
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ESTADO'
+              Title.Caption = 'Estado'
+              Width = 110
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ACCIONES'
+              Title.Caption = 'Acciones'
+              Width = 200
+              Visible = True
+            end>
+        end
+      end
+      object crdMateriales: TCard
+        Tag = 2
+        Left = 0
+        Top = 0
+        Width = 954
+        Height = 392
+        Caption = ''
+        CardIndex = 1
+        TabOrder = 1
+        object grMateriales: TrDBGrid
+          AlignWithMargins = True
+          Left = 20
+          Top = 3
+          Width = 931
+          Height = 380
+          Margins.Left = 20
+        Margins.Right = 20
+          Align = alClient
+          BorderStyle = bsNone
+          DataSource = dmMemoria.dsMateriales
+          DefaultDrawing = False
+          Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
+          TabOrder = 0
+          TitleFont.Charset = ANSI_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -12
+          TitleFont.Name = 'Segoe UI'
+          TitleFont.Style = []
+          StyleElements = [seFont]
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'CODIGO'
+              Title.Caption = 'C'#243'digo'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'NOMBRE'
+              Title.Caption = 'Nombre'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'UNIDAD_MEDIDA'
+              Title.Caption = 'Unidad'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'COSTO_UNITARIO'
+              Title.Alignment = taRightJustify
+              Title.Caption = 'Costo'
+              Width = 90
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'PRECIO_UNITARIO'
+              Title.Alignment = taRightJustify
+              Title.Caption = 'Precio'
+              Width = 90
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'FECHA_VIGENCIA'
+              Title.Caption = 'Vigente desde'
+              Width = 100
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ESTADO'
+              Title.Caption = 'Estado'
+              Width = 110
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ACCIONES'
+              Title.Caption = 'Acciones'
+              Width = 200
+              Visible = True
+            end>
+        end
+      end
+      object crdManoObra: TCard
+        Tag = 2
+        Left = 0
+        Top = 0
+        Width = 954
+        Height = 392
+        Caption = ''
+        CardIndex = 2
+        TabOrder = 2
+        object grManoObra: TrDBGrid
+          AlignWithMargins = True
+          Left = 20
+          Top = 3
+          Width = 931
+          Height = 380
+          Margins.Left = 20
+        Margins.Right = 20
+          Align = alClient
+          BorderStyle = bsNone
+          DataSource = dmMemoria.dsManoObra
+          DefaultDrawing = False
+          Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
+          TabOrder = 0
+          TitleFont.Charset = ANSI_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -12
+          TitleFont.Name = 'Segoe UI'
+          TitleFont.Style = []
+          StyleElements = [seFont]
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'CODIGO'
+              Title.Caption = 'C'#243'digo'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'NOMBRE'
+              Title.Caption = 'Nombre'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'CATEGORIA_NOMBRE'
+              Title.Caption = 'Categor'#237'a'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'UNIDAD_MEDIDA'
+              Title.Caption = 'Unidad'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'COSTO_UNITARIO'
+              Title.Alignment = taRightJustify
+              Title.Caption = 'Costo'
+              Width = 90
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'FECHA_VIGENCIA'
+              Title.Caption = 'Vigente desde'
+              Width = 100
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ESTADO'
+              Title.Caption = 'Estado'
+              Width = 110
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ACCIONES'
+              Title.Caption = 'Acciones'
+              Width = 200
+              Visible = True
+            end>
+        end
+      end
+      object crdMaquinas: TCard
+        Tag = 2
+        Left = 0
+        Top = 0
+        Width = 954
+        Height = 392
+        Caption = ''
+        CardIndex = 3
+        TabOrder = 3
+        object grMaquinas: TrDBGrid
+          AlignWithMargins = True
+          Left = 20
+          Top = 3
+          Width = 931
+          Height = 380
+          Margins.Left = 20
+        Margins.Right = 20
+          Align = alClient
+          BorderStyle = bsNone
+          DataSource = dmMemoria.dsMaquinas
+          DefaultDrawing = False
+          Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
+          TabOrder = 0
+          TitleFont.Charset = ANSI_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -12
+          TitleFont.Name = 'Segoe UI'
+          TitleFont.Style = []
+          StyleElements = [seFont]
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'CODIGO'
+              Title.Caption = 'C'#243'digo'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'NOMBRE'
+              Title.Caption = 'Nombre'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'DESCRIPCION'
+              Title.Caption = 'Descripci'#243'n'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'COSTO_HORA'
+              Title.Alignment = taRightJustify
+              Title.Caption = 'Costo por hora'
+              Width = 90
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'FECHA_VIGENCIA'
+              Title.Caption = 'Vigente desde'
+              Width = 100
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ESTADO'
+              Title.Caption = 'Estado'
+              Width = 110
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ACCIONES'
+              Title.Caption = 'Acciones'
+              Width = 200
+              Visible = True
+            end>
+        end
+      end
+      object crdTiposTrabajo: TCard
+        Tag = 2
+        Left = 0
+        Top = 0
+        Width = 954
+        Height = 392
+        Caption = ''
+        CardIndex = 4
+        TabOrder = 4
+        object grTiposTrabajo: TrDBGrid
+          AlignWithMargins = True
+          Left = 20
+          Top = 3
+          Width = 931
+          Height = 380
+          Margins.Left = 20
+        Margins.Right = 20
+          Align = alClient
+          BorderStyle = bsNone
+          DataSource = dmMemoria.dsTiposTrabajo
+          DefaultDrawing = False
+          Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
+          TabOrder = 0
+          TitleFont.Charset = ANSI_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -12
+          TitleFont.Name = 'Segoe UI'
+          TitleFont.Style = []
+          StyleElements = [seFont]
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'NOMBRE'
+              Title.Caption = 'Nombre'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ESTADO'
+              Title.Caption = 'Estado'
+              Width = 110
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ACCIONES'
+              Title.Caption = 'Acciones'
+              Width = 200
+              Visible = True
+            end>
+        end
+      end
+      object crdUnidades: TCard
+        Tag = 2
+        Left = 0
+        Top = 0
+        Width = 954
+        Height = 392
+        Caption = ''
+        CardIndex = 5
+        TabOrder = 5
+        object grUnidades: TrDBGrid
+          AlignWithMargins = True
+          Left = 20
+          Top = 3
+          Width = 931
+          Height = 380
+          Margins.Left = 20
+        Margins.Right = 20
+          Align = alClient
+          BorderStyle = bsNone
+          DataSource = dmMemoria.dsUnidadesLista
+          DefaultDrawing = False
+          Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
+          TabOrder = 0
+          TitleFont.Charset = ANSI_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -12
+          TitleFont.Name = 'Segoe UI'
+          TitleFont.Style = []
+          StyleElements = [seFont]
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'NOMBRE'
+              Title.Caption = 'Nombre'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ABREVIATURA'
+              Title.Caption = 'Abreviatura'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'MAGNITUD'
+              Title.Caption = 'Magnitud'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ESTADO'
+              Title.Caption = 'Estado'
+              Width = 110
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ACCIONES'
+              Title.Caption = 'Acciones'
+              Width = 200
+              Visible = True
+            end>
+        end
+      end
+      object crdSimples: TCard
+        Tag = 2
+        Left = 0
+        Top = 0
+        Width = 954
+        Height = 392
+        Caption = ''
+        CardIndex = 6
+        TabOrder = 6
+        object grSimples: TrDBGrid
+          AlignWithMargins = True
+          Left = 20
+          Top = 3
+          Width = 931
+          Height = 380
+          Margins.Left = 20
+        Margins.Right = 20
+          Align = alClient
+          BorderStyle = bsNone
+          DataSource = dmMemoria.dsCatalogoSimple
+          DefaultDrawing = False
+          Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
+          TabOrder = 0
+          TitleFont.Charset = ANSI_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -12
+          TitleFont.Name = 'Segoe UI'
+          TitleFont.Style = []
+          StyleElements = [seFont]
+          Columns = <
+            item
+              Expanded = False
+              FieldName = 'NOMBRE'
+              Title.Caption = 'Nombre'
+              Width = 160
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ESTADO'
+              Title.Caption = 'Estado'
+              Width = 110
+              Visible = True
+            end
+            item
+              Expanded = False
+              FieldName = 'ACCIONES'
+              Title.Caption = 'Acciones'
+              Width = 200
+              Visible = True
+            end>
+        end
+      end
     end
   end
   object pstCatalogo: TPlanoPestanas

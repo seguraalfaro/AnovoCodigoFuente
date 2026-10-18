@@ -20,6 +20,8 @@ uses
   Anovo.DTOs.Clientes,
   Anovo.DTOs.Cotizaciones,
   Anovo.Vistas.Intf.ClienteDatos,
+  Anovo.PeriodoBusqueda,
+  Anovo.Forms.Periodo,
   Anovo.Presentadores.ClienteDatos, rHTMLLabel;
 
 type
@@ -77,6 +79,7 @@ type
     lblUbicacionRot: TLabel;
     lblUbicacion: TLabel;
     lblVerMapa: TLabel;
+    btnPeriodo: TPlanoBotonWin;
     procedure AcRegregsarExecute(Sender: TObject);
     procedure lblVerMapaClick(Sender: TObject);
     procedure SearchBox1InvokeSearch(Sender: TObject);
@@ -95,6 +98,9 @@ type
     FPuedeAnonimizar: Boolean;
     FClienteId: Integer;
     FUrlMapa: string;
+    FSelector: TSelectorPeriodo;
+    procedure PeriodoCambio(const APeriodo: TPeriodoBusqueda);
+    procedure MostrarPeriodoCotizaciones(const APeriodo: TPeriodoBusqueda);
     function ClienteEditado: TClienteEdicionDTO;
     procedure BotonesDeEdicion(const AEdicion: Boolean);
     procedure MostrarCargando(const AActivo: Boolean);
@@ -170,6 +176,7 @@ begin
   PrepararRejilla(grContactos, AccionContacto);
   PrepararRejilla(grCotizaciones, AccionCotizacion);
   FClienteId := AClienteId;
+  FSelector := TSelectorPeriodo.Crear(btnPeriodo, False, PeriodoCambio);
   FPresentador := TPresentadorClienteDatos.Create(Self, TApiClientes.Create,
     TApiCotizaciones.Create,
     AClienteId);
@@ -347,6 +354,17 @@ begin
   if dmMemoria.mtClienteCotizaciones.IsEmpty then
     Exit;
   FPresentador.VerCotizacion(dmMemoria.mtClienteCotizacionesID.AsInteger);
+end;
+
+procedure TfraClienteDatos.MostrarPeriodoCotizaciones(const APeriodo
+  : TPeriodoBusqueda);
+begin
+  FSelector.Mostrar(APeriodo);
+end;
+
+procedure TfraClienteDatos.PeriodoCambio(const APeriodo: TPeriodoBusqueda);
+begin
+  FPresentador.FiltrarPeriodoCotizaciones(APeriodo);
 end;
 
 procedure TfraClienteDatos.MostrarCotizaciones(const ACotizaciones

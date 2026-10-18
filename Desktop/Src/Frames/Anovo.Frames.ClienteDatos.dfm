@@ -969,6 +969,17 @@ object fraClienteDatos: TfraClienteDatos
             StyleElements = [seFont]
             OnInvokeSearch = SearchBox1InvokeSearch
           end
+          object btnPeriodo: TPlanoBotonWin
+            Left = 332
+            Top = 12
+            Width = 300
+            Height = 28
+            Cursor = crHandPoint
+            Caption = 'Todas las fechas'
+            TabOrder = 1
+            StyleElements = []
+            Kind = fkSecondary
+          end
           object btnExportar: TPlanoBotonWin
             Left = 812
             Top = 12
@@ -977,7 +988,7 @@ object fraClienteDatos: TfraClienteDatos
             Cursor = crHandPoint
             Anchors = [akTop, akRight]
             Caption = 'Exportar listado'
-            TabOrder = 1
+            TabOrder = 2
             StyleElements = []
             OnClick = btnExportarClick
             Kind = fkSecondary
@@ -1038,6 +1049,7 @@ object fraClienteDatos: TfraClienteDatos
             Height = 371
             Align = alClient
             BorderStyle = bsNone
+            DataSource = dmMemoria.dsClienteCotizaciones
             Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
             TabOrder = 0
             TitleFont.Charset = DEFAULT_CHARSET
