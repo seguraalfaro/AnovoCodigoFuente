@@ -299,6 +299,71 @@ inherited frmImportacionCatalogo: TfrmImportacionCatalogo
       TitleFont.Style = [fsBold]
       StyleElements = [seFont]
       OnCanEdit = grFilasCanEdit
+      Columns = <
+        item
+          Expanded = False
+          FieldName = 'FILA'
+          Title.Alignment = taRightJustify
+          Title.Caption = 'Fila'
+          Width = 70
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'CODIGO'
+          Title.Caption = 'C'#243'digo'
+          Width = 90
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'CATEGORIA'
+          Title.Caption = 'Categor'#237'a'
+          Width = 140
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'NOMBRE'
+          Title.Caption = 'Nombre'
+          Width = 200
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'DESCRIPCION'
+          Title.Caption = 'Descripci'#243'n'
+          Width = 200
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'UNIDAD'
+          Title.Caption = 'Unidad'
+          Width = 90
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'COSTO'
+          Title.Caption = 'Costo'
+          Width = 90
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'PRECIO'
+          Title.Caption = 'Precio'
+          Width = 90
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'REVISION'
+          Title.Caption = 'Revisi'#243'n'
+          Width = 200
+          Visible = True
+        end>
     end
   end
 end

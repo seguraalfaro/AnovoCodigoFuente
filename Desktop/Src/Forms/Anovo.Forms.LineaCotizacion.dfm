@@ -96,6 +96,50 @@ inherited frmLineaCotizacion: TfrmLineaCotizacion
     StyleElements = [seFont]
     OnCellClick = grItemsCellClick
     OnKeyUp = grItemsKeyUp
+    Columns = <
+      item
+        Expanded = False
+        FieldName = 'CODIGO'
+        Title.Caption = 'C'#243'digo'
+        Width = 90
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'NOMBRE'
+        Title.Caption = 'Nombre'
+        Width = 200
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'CATEGORIA'
+        Title.Caption = 'Categor'#237'a'
+        Width = 200
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'UNIDAD_MEDIDA'
+        Title.Caption = 'Unidad'
+        Width = 90
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'PRECIO'
+        Title.Alignment = taRightJustify
+        Title.Caption = 'Precio vigente'
+        Width = 100
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'PROGRAMADO_FECHA'
+        Title.Caption = 'Nuevo precio desde'
+        Width = 90
+        Visible = True
+      end>
   end
   object pnlCantidad: TPanel
     Tag = 2

@@ -96,7 +96,6 @@ type
     FClienteId: Integer;
     FUrlMapa: string;
     function ClienteEditado: TClienteEdicionDTO;
-    procedure OcultarBarras;
     procedure BotonesDeEdicion(const AEdicion: Boolean);
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarError(const AMensaje: string);
@@ -123,7 +122,6 @@ type
 
     constructor Crear(AOwner: TComponent; const AClienteId: Integer);
     destructor Destroy; override;
-    procedure Resize; override;
     property OnRegresar: TNotifyEvent read FOnRegresar write FOnRegresar;
   end;
 
@@ -355,19 +353,6 @@ begin
   TMapeoDatos.AListaTabla<TCotizacionDTO>(ACotizaciones,
     dmMemoria.mtClienteCotizaciones);
   TCeldasRejilla.De(grCotizaciones).AjustarColumnas;
-  OcultarBarras;
-end;
-
-procedure TfraClienteDatos.Resize;
-begin
-  inherited;
-  OcultarBarras;
-end;
-
-procedure TfraClienteDatos.OcultarBarras;
-begin
-  OcultarScrollVertical(grContactos);
-  OcultarScrollVertical(grCotizaciones);
 end;
 
 procedure TfraClienteDatos.SearchBox1InvokeSearch(Sender: TObject);
@@ -418,7 +403,6 @@ procedure TfraClienteDatos.MostrarContactos(const AContactos
   : TObjectList<TContactoDTO>);
 begin
   TMapeoDatos.AListaTabla<TContactoDTO>(AContactos, dmMemoria.mtContactos);
-  OcultarBarras;
 end;
 
 procedure TfraClienteDatos.MostrarConsentimientos(const AConsentimientos

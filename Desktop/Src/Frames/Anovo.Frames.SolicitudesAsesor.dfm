@@ -42,6 +42,50 @@ inherited fraSolicitudesAsesor: TfraSolicitudesAsesor
       Margins.Right = 20
       DataSource = dmMemoria.dsSeguimiento
       ColumnWidth = cwAutoWidth
+      Columns = <
+        item
+          Expanded = False
+          FieldName = 'FECHA_CAPTURA'
+          Title.Caption = 'Fecha'
+          Width = 90
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'CLIENTE_NOMBRE'
+          Title.Caption = 'Cliente'
+          Width = 200
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'DESCRIPCION'
+          Title.Caption = 'Descripci'#243'n'
+          Width = 200
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'ESTADO'
+          Title.Caption = 'Estado'
+          Width = 90
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'MONTO_APROBADO'
+          Title.Alignment = taRightJustify
+          Title.Caption = 'Monto aprobado'
+          Width = 100
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'ACCIONES'
+          Title.Caption = 'Acciones'
+          Width = 120
+          Visible = True
+        end>
     end
   end
   object pstPeriodo: TPlanoPestanas

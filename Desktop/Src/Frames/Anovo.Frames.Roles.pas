@@ -49,7 +49,6 @@ type
     procedure MostrarCambios(const ACantidad: Integer);
     procedure MostrarError(const AMensaje: string);
   protected
-    procedure Resize; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -101,12 +100,6 @@ begin
       grMatriz.Columns[I].Title.Caption :=
         Format(SSuRol, [grMatriz.Columns[I].Title.Caption]);
     end;
-end;
-
-procedure TfraRoles.Resize;
-begin
-  inherited;
-  OcultarScrollVertical(grMatriz);
 end;
 
 procedure TfraRoles.MostrarCargando(const AActivo: Boolean);

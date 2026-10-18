@@ -102,6 +102,35 @@ inherited frmConsentimiento: TfrmConsentimiento
         TitleFont.Name = 'Segoe UI'
         TitleFont.Style = []
         StyleElements = [seFont]
+        Columns = <
+          item
+            Expanded = False
+            FieldName = 'VERSION'
+            Title.Caption = 'Versi'#243'n'
+            Width = 90
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'TITULO'
+            Title.Caption = 'T'#237'tulo'
+            Width = 200
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'VIGENTE_DESDE'
+            Title.Caption = 'Rige desde'
+            Width = 90
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ESTADO'
+            Title.Caption = 'Estado'
+            Width = 90
+            Visible = True
+          end>
       end
       object meVersion: TrDBMemo
         AlignWithMargins = True

@@ -174,6 +174,45 @@ inherited frmPrecioCatalogo: TfrmPrecioCatalogo
       TitleFont.Height = -12
       TitleFont.Name = 'Segoe UI'
       TitleFont.Style = []
+      Columns = <
+        item
+          Expanded = False
+          FieldName = 'FECHA_VIGENCIA'
+          Title.Caption = 'Vigente desde'
+          Width = 90
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'COSTO_UNITARIO'
+          Title.Alignment = taRightJustify
+          Title.Caption = 'Costo'
+          Width = 100
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'PRECIO_UNITARIO'
+          Title.Alignment = taRightJustify
+          Title.Caption = 'Precio'
+          Width = 100
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'COSTO_HORA'
+          Title.Alignment = taRightJustify
+          Title.Caption = 'Costo por hora'
+          Width = 100
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'ESTADO'
+          Title.Caption = 'Estado'
+          Width = 90
+          Visible = True
+        end>
     end
   end
 end

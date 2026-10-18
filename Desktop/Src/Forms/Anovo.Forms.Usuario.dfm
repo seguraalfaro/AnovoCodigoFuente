@@ -350,6 +350,49 @@ inherited frmUsuario: TfrmUsuario
         StyleElements = [seFont]
         OnCanEdit = grTelefonosCanEdit
         OnBoolClick = grTelefonosBoolClick
+        Columns = <
+          item
+            Expanded = False
+            FieldName = 'NOMBRE'
+            Title.Caption = 'Tel'#233'fono'
+            Width = 200
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'FECHA_CREACION'
+            Title.Caption = 'Registrado'
+            Width = 90
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'FECHA_ULTIMO_USO'
+            Title.Caption = #218'ltimo uso'
+            Width = 90
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'ESTADO'
+            Title.Caption = 'Estado'
+            Width = 90
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'MOTIVO'
+            Title.Caption = 'Motivo'
+            Width = 90
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'INACTIVAR'
+            Title.Caption = 'Inactivar al guardar'
+            Width = 70
+            Visible = True
+          end>
       end
     end
     object crdPermisos: TCard

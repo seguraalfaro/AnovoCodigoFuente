@@ -46,7 +46,6 @@ type
     procedure MostrarPaginacion(const APagina, ATotalPaginas: Integer;
       const ATotal: Int64);
     procedure MostrarError(const AMensaje: string);
-    procedure Resize; override;
     procedure MostrarEncima(AFrame: TFrame);
     procedure CerrarEncima(const ADespues: TProc = nil);
   public
@@ -73,12 +72,6 @@ end;
 destructor TfraListado.Destroy;
 begin
   inherited;
-end;
-
-procedure TfraListado.Resize;
-begin
-  inherited;
-  OcultarScrollVertical(grDatos);
 end;
 
 procedure TfraListado.MostrarCargando(const AActivo: Boolean);

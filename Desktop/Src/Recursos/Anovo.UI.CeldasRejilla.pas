@@ -24,8 +24,6 @@ procedure AjustarColumnas(AGrid: TrDBGrid);
 
 procedure AnchosAutomaticos(AGrid: TrDBGrid);
 
-procedure OcultarScrollVertical(AGrid: TrDBGrid);
-
 function EstadoPlano(const AEstado: string): TPlanoEstado;
 
 function ComponenteDe(AGrid: TrDBGrid; AClase: TComponentClass): TComponent;
@@ -113,7 +111,7 @@ implementation
 
 uses
   Winapi.Windows, System.SysUtils, System.Math, System.UITypes,
-  Vcl.Forms, Vcl.WinXCtrls, RosiCompGlobalCfg, VclPlano.Dibujo, VclPlano.Pastilla, Anovo.UI.Tema, Anovo.UI.ColumnasRejilla,
+  Vcl.Forms, RosiCompGlobalCfg, VclPlano.Dibujo, VclPlano.Pastilla, Anovo.UI.Tema, Anovo.UI.ColumnasRejilla,
   Anovo.UI.Iconos, Anovo.Textos;
 
 const
@@ -892,48 +890,6 @@ begin
   if TColumnasRejilla.De(AGrid) <> nil then
     TColumnasRejilla.De(AGrid).Aplicar;
   TemarTitulos(AGrid);
-end;
-
-procedure OcultarScrollVertical(AGrid: TrDBGrid);
-var
-  lBarra, lIndice, lIzquierda, lArriba, lAbajo: Integer;
-  lRelativo: Vcl.WinXCtrls.TRelativePanel;
-begin
-  if (AGrid = nil) or (AGrid.Parent = nil) then
-    Exit;
-
-  if (AGrid.Parent.ClientWidth <= 0) or (AGrid.Parent.ClientHeight <= 0) then
-    Exit;
-
-  if AGrid.Parent is Vcl.WinXCtrls.TRelativePanel then
-  begin
-    lRelativo := Vcl.WinXCtrls.TRelativePanel(AGrid.Parent);
-    lIndice := lRelativo.ControlCollection.IndexOf(AGrid);
-    if (lIndice >= 0) and lRelativo.ControlCollection[lIndice].AlignRightWithPanel then
-    begin
-      lRelativo.ControlCollection[lIndice].AlignRightWithPanel := False;
-      lRelativo.ControlCollection[lIndice].AlignBottomWithPanel := False;
-      lRelativo.Realign;
-    end;
-  end;
-
-  lIzquierda := 0;
-  lArriba := 0;
-  lAbajo := 0;
-  if AGrid.AlignWithMargins then
-  begin
-    lIzquierda := AGrid.Margins.Left;
-    lArriba := AGrid.Margins.Top;
-    lAbajo := AGrid.Margins.Bottom;
-  end;
-
-  lBarra := GetSystemMetrics(SM_CXVSCROLL);
-
-  AGrid.Align := alNone;
-  AGrid.Anchors := [akLeft, akTop, akRight, akBottom];
-  AGrid.SetBounds(lIzquierda, lArriba,
-    AGrid.Parent.ClientWidth - lIzquierda + lBarra,
-    AGrid.Parent.ClientHeight - lArriba - lAbajo);
 end;
 
 end.
