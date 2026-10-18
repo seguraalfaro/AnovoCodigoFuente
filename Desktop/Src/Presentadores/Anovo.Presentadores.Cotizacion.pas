@@ -721,13 +721,15 @@ procedure TPresentadorCotizacion.RegistrarRespuesta(const AAceptada: Boolean);
 var
   lApi: IApiCotizaciones;
   lId: Integer;
-  lPregunta: string;
+  lOrden: string;
 begin
+  lOrden := '';
   if AAceptada then
-    lPregunta := SConfirmarClienteAprobo
-  else
-    lPregunta := SConfirmarClienteRechazo;
-  if not FVista.Confirmar(Format(lPregunta, [FNumero])) then
+  begin
+    if not FVista.PedirOrdenCompra(FNumero, lOrden) then
+      Exit;
+  end
+  else if not FVista.Confirmar(Format(SConfirmarClienteRechazo, [FNumero])) then
     Exit;
   lApi := FApi;
   lId := FId;
@@ -735,7 +737,7 @@ begin
   Ejecutar(SAccionRegistrarRespuesta,
     procedure
     begin
-      lApi.RegistrarRespuesta(lId, AAceptada);
+      lApi.RegistrarRespuesta(lId, AAceptada, lOrden);
     end,
     procedure
     begin

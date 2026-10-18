@@ -25,7 +25,8 @@ type
     function Estados(const AId: Integer): TObjectList<TEstadoCotizacionDTO>;
     procedure DarVistoBueno(const AId: Integer);
     procedure Devolver(const AId: Integer; const AMotivo: string);
-    procedure RegistrarRespuesta(const AId: Integer; const AAceptada: Boolean);
+    procedure RegistrarRespuesta(const AId: Integer; const AAceptada: Boolean;
+      const AOrdenCompra: string);
     procedure Tomar(const ASolicitudId: Integer);
     function Listar(const ATexto, AEstado: string; const AClienteId: Integer;
       const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer;

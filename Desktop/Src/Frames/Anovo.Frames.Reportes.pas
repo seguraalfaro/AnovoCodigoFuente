@@ -1,7 +1,7 @@
 unit Anovo.Frames.Reportes;
 
 // Seccion Reportes (HU-06): cifras del periodo y detalle por estado, asesor,
-// tipo de trabajo y mes, con exportacion.
+// tipo de trabajo, mes y clientes sin respuesta, con exportacion.
 
 interface
 
@@ -69,17 +69,20 @@ const
   CAMPO_ESTADO = 'ESTADO';
   CAMPO_CANTIDAD = 'CANTIDAD';
   CAMPO_TASA = 'TASA_APROBACION';
+  CAMPO_SIN_RESPUESTA = 'PORCENTAJE_SIN_RESPUESTA';
   SUMA = '%SUM';
   TASA_MAXIMA = 100;
 
   CAMPO_ROTULO: array [TVistaReporte] of string = ('ESTADO', 'ASESOR_NOMBRE',
-    'TIPO_TRABAJO_NOMBRE', 'MES_NOMBRE');
+    'TIPO_TRABAJO_NOMBRE', 'MES_NOMBRE', 'CLIENTE_NOMBRE');
 
   CAMPOS_SUMA: array [TVistaReporte] of TArray<string> = (
     ['CANTIDAD', 'MONTO'],
     ['CANTIDAD', 'APROBADAS', 'RECHAZADAS', 'MONTO_APROBADO', 'MONTO_TOTAL'],
     ['CANTIDAD', 'APROBADAS', 'MONTO_TOTAL'],
-    ['CANTIDAD', 'APROBADAS', 'RECHAZADAS', 'MONTO_TOTAL']);
+    ['CANTIDAD', 'APROBADAS', 'RECHAZADAS', 'MONTO_TOTAL'],
+    ['ENVIADAS', 'APROBADAS', 'RECHAZADAS', 'EN_ESPERA', 'SIN_RESPUESTA',
+    'MONTO_SIN_RESPUESTA']);
 
 constructor TfraReportes.Create(AOwner: TComponent);
 begin
@@ -131,6 +134,8 @@ begin
       grLista.DataSource := dmMemoria.dsReporteTipos;
     vrMes:
       grLista.DataSource := dmMemoria.dsReporteMeses;
+    vrCliente:
+      grLista.DataSource := dmMemoria.dsReporteClientes;
   end;
   PonerPie;
   PonerBarras;
@@ -166,6 +171,8 @@ begin
     dmMemoria.mtReporteTipos);
   TMapeoDatos.AListaTabla<TReporteMesDTO>(ADatos.PorMes,
     dmMemoria.mtReporteMeses);
+  TMapeoDatos.AListaTabla<TReporteClienteDTO>(ADatos.PorCliente,
+    dmMemoria.mtReporteClientes);
   MostrarVista(FVistaActual);
 end;
 
@@ -194,6 +201,9 @@ begin
       if FMaximoMes > 0 then
         grLista.Fields_SetDataBarSettings(CAMPO_CANTIDAD, 0, FMaximoMes,
           dbtValue);
+    vrCliente:
+      grLista.Fields_SetDataBarSettings(CAMPO_SIN_RESPUESTA, 0, TASA_MAXIMA,
+        dbtValue);
   end;
 end;
 

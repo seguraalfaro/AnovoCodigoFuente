@@ -260,6 +260,9 @@ resourcestring
   SCotizacionNoDevolvible = 'Una cotización en estado %s no se puede devolver.';
   SCotizacionNoEnviable = 'Una cotización en estado %s no se puede enviar al ' +
     'cliente.';
+  SOrdenCompraFalta = 'El cliente tiene cédula jurídica: indique el número ' +
+    'de su orden de compra para registrar la aprobación.';
+  SOrdenCompraLarga = 'El número de orden de compra admite hasta %d caracteres.';
   SCotizacionNoDescartable = 'Solo se descarta una cotización enviada al ' +
     'cliente; esta está en estado %s.';
   SSolicitudTransicionInvalida = 'Una solicitud en estado %s no puede pasar a ' +
@@ -747,6 +750,7 @@ resourcestring
   SVistaPorEstado = 'Por estado';
   SVistaPorAsesor = 'Por asesor';
   SVistaPorTipo = 'Por tipo de trabajo';
+  SVistaSinRespuesta = 'Clientes sin respuesta';
   SVistaPorMes = 'Por mes';
   STotalReporte = 'Total';
   SDecididasMes = '%d de %d decididas';
@@ -1039,6 +1043,14 @@ resourcestring
   SConfirmarQuitarLinea = '¿Quitar la línea «%s»?';
   SConfirmarPresentar = '¿Enviar la cotización Nº %d a revisión? ' +
     'Mientras la revisan no se puede editar.';
+  SOrdenCompraTitulo = 'El cliente aprobó la cotización Nº %d';
+  SOrdenCompraAyuda = 'Registre el número de la orden de compra que envió ' +
+    'el cliente.';
+  SOrdenCompraRotulo = 'Orden de compra';
+  SOrdenCompraNota = 'Obligatoria si el cliente tiene cédula jurídica. ' +
+    'Una persona física puede no tenerla.';
+  SBotonRegistrarAprobacion = 'Registrar aprobación';
+  SCotizacionOrdenCompra = ' · Orden de compra: %s';
   SConfirmarClienteAprobo = '¿Registrar que el cliente aprobó la cotización Nº %d?';
   SConfirmarClienteRechazo = '¿Registrar que el cliente rechazó la cotización Nº %d?';
   SAccionRegistrarRespuesta = 'registrar la respuesta del cliente';

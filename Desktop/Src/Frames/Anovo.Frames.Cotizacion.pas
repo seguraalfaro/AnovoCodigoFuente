@@ -136,6 +136,8 @@ type
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarError(const AMensaje: string);
     function Confirmar(const AMensaje: string): Boolean;
+    function PedirOrdenCompra(const ANumero: Integer;
+      out AOrden: string): Boolean;
     procedure MostrarCotizacion(const ACotizacion: TCotizacionDTO;
       const AConEncabezado: Boolean);
     procedure MostrarDevolucion(const AMotivo: string);
@@ -169,6 +171,7 @@ implementation
 
 uses
   Anovo.Forms.HistorialCotizacion,
+  Anovo.Forms.OrdenCompra,
   System.Math,
   Anovo.UI.Vista,
   Anovo.UI.Tema,
@@ -257,6 +260,13 @@ begin
   Result := Anovo.UI.Vista.Confirmar(AMensaje);
 end;
 
+function TfraCotizacion.PedirOrdenCompra(const ANumero: Integer;
+  out AOrden: string): Boolean;
+begin
+  Result := TfrmOrdenCompra.Pedir(Self, Format(SOrdenCompraTitulo, [ANumero]),
+    AOrden);
+end;
+
 procedure TfraCotizacion.MostrarCotizacion(const ACotizacion: TCotizacionDTO;
   const AConEncabezado: Boolean);
 var
@@ -267,6 +277,9 @@ begin
   lblSubtitulo.Caption := Format(SCotizacionSubtitulo,
     [ACotizacion.SolicitudId, ACotizacion.AsesorNombre,
     ACotizacion.ElaboradaPorNombre]);
+  if ACotizacion.OrdenCompra.HasValue then
+    lblSubtitulo.Caption := lblSubtitulo.Caption +
+      Format(SCotizacionOrdenCompra, [ACotizacion.OrdenCompra.Value]);
   pstEstado.Caption := TFormato.Estado(ACotizacion.Estado);
   pstEstado.Status := EstadoPlano(ACotizacion.Estado);
 

@@ -50,6 +50,8 @@ type
     procedure MostrarCargando(const AActivo: Boolean);
     procedure MostrarError(const AMensaje: string);
     function Confirmar(const AMensaje: string): Boolean;
+    function PedirOrdenCompra(const ANumero: Integer;
+      out AOrden: string): Boolean;
     procedure MostrarCotizacion(const ACotizacion: TCotizacionDTO;
       const AConEncabezado: Boolean);
     procedure MostrarDevolucion(const AMotivo: string);

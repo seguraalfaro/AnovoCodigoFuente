@@ -98,6 +98,9 @@ type
     [MVCTableField('GARANTIA_UNIDAD')]
     [MVCMaxLength(15)]
     fGarantiaUnidad: NullableString;
+    [MVCTableField('ORDEN_COMPRA')]
+    [MVCMaxLength(40)]
+    fOrdenCompra: NullableString;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -130,6 +133,7 @@ type
     property PlazoEntregaUnidad: NullableString read fPlazoEntregaUnidad write fPlazoEntregaUnidad;
     property GarantiaCantidad: NullableInt16 read fGarantiaCantidad write fGarantiaCantidad;
     property GarantiaUnidad: NullableString read fGarantiaUnidad write fGarantiaUnidad;
+    property OrdenCompra: NullableString read fOrdenCompra write fOrdenCompra;
   end;
 
   [MVCNameCase(ncSnakeCase)]

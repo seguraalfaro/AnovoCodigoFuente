@@ -196,6 +196,16 @@ type
 
   [MVCNameCase(ncSnakeCase)]
   [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_CLIENTES_RESPUESTA')]
+  [MVCNamedRQLQuery(CONSULTA_ENTRE,
+    'and(ge(FechaEnvio,"%s"),lt(FechaEnvio,"%s"))')]
+  [MVCNamedRQLQuery(CONSULTA_ENTRE_PROPIAS,
+    'and(ge(FechaEnvio,"%s"),lt(FechaEnvio,"%s"),or(eq(AsesorId,%d),eq(ElaboradaPor,%d)))')]
+  TClientesRespuesta = class(TVClientesRespuesta)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
   [MVCTable('V_COTIZACIONES_DIA')]
   [MVCNamedRQLQuery(CONSULTA_ENTRE,
     'and(ge(Fecha,"%s"),lt(Fecha,"%s"))')]

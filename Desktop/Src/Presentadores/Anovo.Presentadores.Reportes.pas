@@ -38,9 +38,10 @@ uses
 
 const
   ROTULO_VISTA: array [TVistaReporte] of string = (SVistaPorEstado,
-    SVistaPorAsesor, SVistaPorTipo, SVistaPorMes);
+    SVistaPorAsesor, SVistaPorTipo, SVistaPorMes, SVistaSinRespuesta);
 
-  VISTAS_TODAS: TArray<TVistaReporte> = [vrEstado, vrAsesor, vrTipo, vrMes];
+  VISTAS_TODAS: TArray<TVistaReporte> = [vrEstado, vrAsesor, vrTipo, vrMes,
+    vrCliente];
   VISTAS_PROPIAS: TArray<TVistaReporte> = [vrEstado, vrTipo, vrMes];
 
 constructor TPresentadorReportes.Create(const AVista: IVistaReportes;

@@ -29,6 +29,8 @@ const
   ESTADO_APROBADA = 'aprobada';
   ESTADO_RECHAZADA = 'rechazada';
   ESTADO_DESCARTADA = 'descartada';
+  TIPO_IDENT_JURIDICA = 2;
+  LARGO_ORDEN_COMPRA = 40;
 
   SOLICITUD_RECIBIDA = 'recibida';
   SOLICITUD_EN_COTIZACION = 'en_cotizacion';
@@ -69,6 +71,9 @@ type
       const ADto: TLineaNuevaDTO): Boolean;
     function PrecioDeCatalogo(const ADto: TLineaNuevaDTO): Currency;
     function IvaPara(const AClienteId: Integer): Currency;
+    function EsJuridico(const AClienteId: Integer): Boolean;
+    procedure FijarOrdenCompra(const ACotizacion: TCotizaciones;
+      const AOrden: NullableString);
     procedure ValidarTipoTrabajo(const ATipoId, AActual: NullableInt32);
     function TipoTrabajoDePiezas(const ASolicitudId: Integer): NullableInt32;
   public
@@ -254,6 +259,35 @@ begin
   ACotizacion.PlazoEntregaUnidad := UnidadONula(ADto.PlazoEntregaUnidad);
   ACotizacion.GarantiaCantidad := ACorto(ADto.GarantiaCantidad);
   ACotizacion.GarantiaUnidad := UnidadONula(ADto.GarantiaUnidad);
+end;
+
+function TCotizacionService.EsJuridico(const AClienteId: Integer): Boolean;
+var
+  lCliente: TClientes;
+begin
+  lCliente := fClientes.GetByPK(AClienteId, False);
+  try
+    Result := (lCliente <> nil) and
+      (lCliente.TipoIdentificacion.ValueOrDefault = TIPO_IDENT_JURIDICA);
+  finally
+    lCliente.Free;
+  end;
+end;
+
+procedure TCotizacionService.FijarOrdenCompra(const ACotizacion: TCotizaciones;
+  const AOrden: NullableString);
+var
+  lOrden: string;
+begin
+  lOrden := Trim(AOrden.ValueOrDefault);
+  if Length(lOrden) > LARGO_ORDEN_COMPRA then
+    raise EDatoInvalido.Create(Format(SOrdenCompraLarga, [LARGO_ORDEN_COMPRA]));
+  if lOrden.IsEmpty and EsJuridico(ACotizacion.ClienteId) then
+    raise EDatoInvalido.Create(SOrdenCompraFalta);
+  if lOrden.IsEmpty then
+    ACotizacion.OrdenCompra.Clear
+  else
+    ACotizacion.OrdenCompra := lOrden;
 end;
 
 function TCotizacionService.IvaPara(const AClienteId: Integer): Currency;
@@ -972,6 +1006,7 @@ begin
 
     if ADto.Aceptada then
     begin
+      FijarOrdenCompra(lCotizacion, ADto.OrdenCompra);
       lCotizacion.Estado := ESTADO_APROBADA;
       FijarDetalle(Format(SDetalleAceptacionCotizacion, [lCotizacion.Numero]));
     end

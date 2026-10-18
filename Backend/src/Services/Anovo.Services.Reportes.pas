@@ -2,7 +2,7 @@ unit Anovo.Services.Reportes;
 
 // Servicio de reportes: cada paso del flujo cuenta en el dia en que ocurrio.
 // Envios al cliente, respuestas (aprobadas y rechazadas) y tasas por asesor,
-// tipo y mes. Sin reportes.ver, solo lo propio.
+// tipo, mes y cliente (sin respuesta). Sin reportes.ver, solo lo propio.
 
 interface
 
@@ -258,6 +258,65 @@ begin
     end));
 end;
 
+procedure SumarClientes(const AFilas: TObjectList<TClientesRespuesta>;
+  const ALista: TObjectList<TReporteClienteDTO>);
+var
+  lFila: TClientesRespuesta;
+  lPorClave: TDictionary<Integer, TReporteClienteDTO>;
+  lCliente: TReporteClienteDTO;
+  lEstado: string;
+  lVencida: Boolean;
+begin
+  lPorClave := TDictionary<Integer, TReporteClienteDTO>.Create;
+  try
+    for lFila in AFilas do
+    begin
+      if not lPorClave.TryGetValue(lFila.ClienteId.ValueOrDefault, lCliente) then
+      begin
+        lCliente := TReporteClienteDTO.Create;
+        ALista.Add(lCliente);
+        lCliente.ClienteId := lFila.ClienteId.ValueOrDefault;
+        lCliente.ClienteNombre := lFila.ClienteNombre.ValueOrDefault;
+        lPorClave.Add(lCliente.ClienteId, lCliente);
+      end;
+      lCliente.Enviadas := lCliente.Enviadas + 1;
+      if (not lCliente.UltimoEnvio.HasValue) or
+        (lFila.FechaEnvio.ValueOrDefault > lCliente.UltimoEnvio.Value) then
+        lCliente.UltimoEnvio := lFila.FechaEnvio;
+      lEstado := lFila.Estado.ValueOrDefault;
+      lVencida := (lEstado = ESTADO_ENVIADA) and
+        (IncDay(lFila.FechaEnvio.ValueOrDefault,
+        lFila.DiasSinRespuesta.ValueOrDefault) < Now);
+      if lEstado = ESTADO_APROBADA then
+        lCliente.Aprobadas := lCliente.Aprobadas + 1
+      else if lEstado = ESTADO_RECHAZADA then
+        lCliente.Rechazadas := lCliente.Rechazadas + 1
+      else if (lEstado = ESTADO_DESCARTADA) or lVencida then
+      begin
+        lCliente.SinRespuesta := lCliente.SinRespuesta + 1;
+        lCliente.MontoSinRespuesta := lCliente.MontoSinRespuesta.ValueOrDefault
+          + lFila.MontoTotal.ValueOrDefault;
+      end
+      else
+        lCliente.EnEspera := lCliente.EnEspera + 1;
+    end;
+  finally
+    lPorClave.Free;
+  end;
+  for lCliente in ALista do
+    lCliente.PorcentajeSinRespuesta :=
+      Round(lCliente.SinRespuesta * 100 / lCliente.Enviadas);
+  ALista.Sort(TComparer<TReporteClienteDTO>.Construct(
+    function(const A, B: TReporteClienteDTO): Integer
+    begin
+      Result := B.SinRespuesta - A.SinRespuesta;
+      if Result = 0 then
+        Result := B.PorcentajeSinRespuesta - A.PorcentajeSinRespuesta;
+      if Result = 0 then
+        Result := CompareText(A.ClienteNombre, B.ClienteNombre);
+    end));
+end;
+
 constructor TReporteService.Create(ARepo: IReporteRepository;
   APermisos: IPermisoService);
 begin
@@ -271,6 +330,7 @@ function TReporteService.Cotizaciones(const ADesde, AHasta: TDateTime;
   : TReporteCotizacionesDTO;
 var
   lFilas: TObjectList<TCotizacionesDia>;
+  lEnviadas: TObjectList<TClientesRespuesta>;
   lFila: TCotizacionesDia;
   lSumaDias, lConRespuesta, lFiltroUsuario: Integer;
 begin
@@ -312,6 +372,14 @@ begin
       SumarMeses(lFilas, Result.PorMes);
     finally
       lFilas.Free;
+    end;
+
+    lEnviadas := fRepo.EnviadasEntre(Result.Desde, IncDay(Result.Hasta, 1),
+      lFiltroUsuario);
+    try
+      SumarClientes(lEnviadas, Result.PorCliente);
+    finally
+      lEnviadas.Free;
     end;
   except
     Result.Free;

@@ -431,6 +431,9 @@ type
     [MVCTableField('GARANTIA_UNIDAD')]
     [MVCMaxLength(15)]
     fGarantiaUnidad: NullableString;
+    [MVCTableField('ORDEN_COMPRA')]
+    [MVCMaxLength(40)]
+    fOrdenCompra: NullableString;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -463,6 +466,7 @@ type
     property PlazoEntregaUnidad: NullableString read fPlazoEntregaUnidad write fPlazoEntregaUnidad;
     property GarantiaCantidad: NullableInt16 read fGarantiaCantidad write fGarantiaCantidad;
     property GarantiaUnidad: NullableString read fGarantiaUnidad write fGarantiaUnidad;
+    property OrdenCompra: NullableString read fOrdenCompra write fOrdenCompra;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -738,6 +742,10 @@ type
     [MVCTableField('CATEGORIA_ID')]
     [MVCRequired]
     fCategoriaId: Int32;
+    [MVCTableField('NOMBRE')]
+    [MVCRequired]
+    [MVCMaxLength(120)]
+    fNombre: String;
     [MVCTableField('DESCRIPCION')]
     [MVCMaxLength(500)]
     fDescripcion: NullableString;
@@ -747,10 +755,6 @@ type
     fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
     fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
-    [MVCTableField('NOMBRE')]
-    [MVCRequired]
-    [MVCMaxLength(120)]
-    fNombre: String;
     [MVCTableField('UNIDAD_MEDIDA_ID')]
     [MVCRequired]
     fUnidadMedidaId: Int32;
@@ -759,11 +763,11 @@ type
     property ID: NullableInt32 read fID write fID;
     property Codigo: String read fCodigo write fCodigo;
     property CategoriaId: Int32 read fCategoriaId write fCategoriaId;
+    property Nombre: String read fNombre write fNombre;
     property Descripcion: NullableString read fDescripcion write fDescripcion;
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
     property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
-    property Nombre: String read fNombre write fNombre;
     property UnidadMedidaId: Int32 read fUnidadMedidaId write fUnidadMedidaId;
   end;
 
@@ -1695,6 +1699,45 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_CLIENTES_RESPUESTA')]
+  TVClientesRespuesta = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ID')]
+    fID: NullableInt32;
+    [MVCTableField('NUMERO')]
+    fNumero: NullableInt32;
+    [MVCTableField('CLIENTE_ID')]
+    fClienteId: NullableInt32;
+    [MVCTableField('CLIENTE_NOMBRE')]
+    [MVCMaxLength(120)]
+    fClienteNombre: NullableString;
+    [MVCTableField('ASESOR_ID')]
+    fAsesorId: NullableInt32;
+    [MVCTableField('ELABORADA_POR')]
+    fElaboradaPor: NullableInt32;
+    [MVCTableField('ESTADO')]
+    [MVCMaxLength(20)]
+    fEstado: NullableString;
+    [MVCTableField('FECHA_ENVIO')]
+    fFechaEnvio: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('MONTO_TOTAL')]
+    fMontoTotal: NullableCurrency;
+    [MVCTableField('DIAS_SIN_RESPUESTA')]
+    fDiasSinRespuesta: NullableInt32;
+  public
+    property ID: NullableInt32 read fID write fID;
+    property Numero: NullableInt32 read fNumero write fNumero;
+    property ClienteId: NullableInt32 read fClienteId write fClienteId;
+    property ClienteNombre: NullableString read fClienteNombre write fClienteNombre;
+    property AsesorId: NullableInt32 read fAsesorId write fAsesorId;
+    property ElaboradaPor: NullableInt32 read fElaboradaPor write fElaboradaPor;
+    property Estado: NullableString read fEstado write fEstado;
+    property FechaEnvio: NullableTDateTime {dtDateTimeStamp} read fFechaEnvio write fFechaEnvio;
+    property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
+    property DiasSinRespuesta: NullableInt32 read fDiasSinRespuesta write fDiasSinRespuesta;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
   [MVCTable('V_CONSENTIMIENTOS')]
   TVConsentimientos = class(TMVCActiveRecord)
   private
@@ -2564,6 +2607,7 @@ ActiveRecordMappingRegistry.AddEntity('usuarios_permisos', TUsuariosPermisos);
 ActiveRecordMappingRegistry.AddEntity('v_asesores_mes', TVAsesoresMes);
 ActiveRecordMappingRegistry.AddEntity('v_auditoria', TVAuditoria);
 ActiveRecordMappingRegistry.AddEntity('v_catalogo_items', TVCatalogoItems);
+ActiveRecordMappingRegistry.AddEntity('v_clientes_respuesta', TVClientesRespuesta);
 ActiveRecordMappingRegistry.AddEntity('v_consentimientos', TVConsentimientos);
 ActiveRecordMappingRegistry.AddEntity('v_cotizaciones', TVCotizaciones);
 ActiveRecordMappingRegistry.AddEntity('v_cotizaciones_dia', TVCotizacionesDia);

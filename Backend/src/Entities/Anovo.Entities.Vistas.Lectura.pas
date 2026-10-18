@@ -259,6 +259,46 @@ type
 
   [MVCNameCase(ncSnakeCase)]
   [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_CLIENTES_RESPUESTA')]
+  TVClientesRespuesta = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ID')]
+    fID: NullableInt32;
+    [MVCTableField('NUMERO')]
+    fNumero: NullableInt32;
+    [MVCTableField('CLIENTE_ID')]
+    fClienteId: NullableInt32;
+    [MVCTableField('CLIENTE_NOMBRE')]
+    [MVCMaxLength(120)]
+    fClienteNombre: NullableString;
+    [MVCTableField('ASESOR_ID')]
+    fAsesorId: NullableInt32;
+    [MVCTableField('ELABORADA_POR')]
+    fElaboradaPor: NullableInt32;
+    [MVCTableField('ESTADO')]
+    [MVCMaxLength(20)]
+    fEstado: NullableString;
+    [MVCTableField('FECHA_ENVIO')]
+    fFechaEnvio: NullableTDateTime;
+    [MVCTableField('MONTO_TOTAL')]
+    fMontoTotal: NullableCurrency;
+    [MVCTableField('DIAS_SIN_RESPUESTA')]
+    fDiasSinRespuesta: NullableInt32;
+  public
+    property ID: NullableInt32 read fID write fID;
+    property Numero: NullableInt32 read fNumero write fNumero;
+    property ClienteId: NullableInt32 read fClienteId write fClienteId;
+    property ClienteNombre: NullableString read fClienteNombre write fClienteNombre;
+    property AsesorId: NullableInt32 read fAsesorId write fAsesorId;
+    property ElaboradaPor: NullableInt32 read fElaboradaPor write fElaboradaPor;
+    property Estado: NullableString read fEstado write fEstado;
+    property FechaEnvio: NullableTDateTime read fFechaEnvio write fFechaEnvio;
+    property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
+    property DiasSinRespuesta: NullableInt32 read fDiasSinRespuesta write fDiasSinRespuesta;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
   [MVCTable('V_COTIZACIONES_DIA')]
   TVCotizacionesDia = class(TMVCActiveRecord)
   private

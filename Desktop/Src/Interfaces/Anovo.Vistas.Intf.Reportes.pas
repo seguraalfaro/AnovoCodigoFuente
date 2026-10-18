@@ -9,7 +9,7 @@ uses
   Anovo.PeriodoBusqueda;
 
 type
-  TVistaReporte = (vrEstado, vrAsesor, vrTipo, vrMes);
+  TVistaReporte = (vrEstado, vrAsesor, vrTipo, vrMes, vrCliente);
 
   IVistaReportes = interface
     ['{C4E8A2B7-5D19-4F63-8A0E-7B3D91F2C658}']

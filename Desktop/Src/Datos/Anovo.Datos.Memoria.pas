@@ -572,6 +572,18 @@ type
     mtReporteAsesoresMONTO_APROBADO: TCurrencyField;
     mtReporteAsesoresMONTO_TOTAL: TCurrencyField;
     dsReporteAsesores: TDataSource;
+    mtReporteClientes: TFDMemTable;
+    mtReporteClientesCLIENTE_ID: TIntegerField;
+    mtReporteClientesCLIENTE_NOMBRE: TStringField;
+    mtReporteClientesENVIADAS: TIntegerField;
+    mtReporteClientesAPROBADAS: TIntegerField;
+    mtReporteClientesRECHAZADAS: TIntegerField;
+    mtReporteClientesEN_ESPERA: TIntegerField;
+    mtReporteClientesSIN_RESPUESTA: TIntegerField;
+    mtReporteClientesPORCENTAJE_SIN_RESPUESTA: TIntegerField;
+    mtReporteClientesMONTO_SIN_RESPUESTA: TCurrencyField;
+    mtReporteClientesULTIMO_ENVIO: TDateTimeField;
+    dsReporteClientes: TDataSource;
     mtReporteTipos: TFDMemTable;
     mtReporteTiposTIPO_TRABAJO_ID: TIntegerField;
     mtReporteTiposTIPO_TRABAJO_NOMBRE: TStringField;

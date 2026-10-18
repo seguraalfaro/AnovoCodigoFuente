@@ -50,6 +50,7 @@ type
     fPlazoEntregaUnidad: NullableString;
     fGarantiaCantidad: NullableInt32;
     fGarantiaUnidad: NullableString;
+    fOrdenCompra: NullableString;
   public
     property ID: Integer read fID write fID;
     property Numero: Integer read fNumero write fNumero;
@@ -106,6 +107,7 @@ type
       write fGarantiaCantidad;
     property GarantiaUnidad: NullableString read fGarantiaUnidad
       write fGarantiaUnidad;
+    property OrdenCompra: NullableString read fOrdenCompra write fOrdenCompra;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -244,8 +246,10 @@ type
   TRespuestaClienteDTO = class
   private
     fAceptada: Boolean;
+    fOrdenCompra: NullableString;
   public
     property Aceptada: Boolean read fAceptada write fAceptada;
+    property OrdenCompra: NullableString read fOrdenCompra write fOrdenCompra;
   end;
 
   [MVCNameCase(ncSnakeCase)]

@@ -2979,6 +2979,68 @@ object dmMemoria: TdmMemoria
       currency = False
     end
   end
+  object mtReporteClientes: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1280
+    Top = 1656
+    object mtReporteClientesCLIENTE_ID: TIntegerField
+      FieldName = 'CLIENTE_ID'
+      Visible = False
+    end
+    object mtReporteClientesCLIENTE_NOMBRE: TStringField
+      DisplayLabel = 'Cliente'
+      FieldName = 'CLIENTE_NOMBRE'
+      Size = 120
+    end
+    object mtReporteClientesENVIADAS: TIntegerField
+      DisplayLabel = 'Enviadas'
+      FieldName = 'ENVIADAS'
+    end
+    object mtReporteClientesAPROBADAS: TIntegerField
+      DisplayLabel = 'Aprobadas'
+      FieldName = 'APROBADAS'
+    end
+    object mtReporteClientesRECHAZADAS: TIntegerField
+      DisplayLabel = 'Rechazadas'
+      FieldName = 'RECHAZADAS'
+    end
+    object mtReporteClientesEN_ESPERA: TIntegerField
+      DisplayLabel = 'En espera'
+      FieldName = 'EN_ESPERA'
+    end
+    object mtReporteClientesSIN_RESPUESTA: TIntegerField
+      DisplayLabel = 'Sin respuesta'
+      FieldName = 'SIN_RESPUESTA'
+    end
+    object mtReporteClientesPORCENTAJE_SIN_RESPUESTA: TIntegerField
+      Alignment = taCenter
+      DisplayLabel = '% sin respuesta'
+      FieldName = 'PORCENTAJE_SIN_RESPUESTA'
+      OnGetText = PorcentajeGetText
+    end
+    object mtReporteClientesMONTO_SIN_RESPUESTA: TCurrencyField
+      DisplayLabel = 'Monto sin respuesta'
+      FieldName = 'MONTO_SIN_RESPUESTA'
+      DisplayFormat = '#,##0.00'
+      currency = False
+    end
+    object mtReporteClientesULTIMO_ENVIO: TDateTimeField
+      DisplayLabel = #218'ltimo env'#237'o'
+      FieldName = 'ULTIMO_ENVIO'
+      DisplayFormat = 'dd/mm/yyyy'
+    end
+  end
+  object dsReporteClientes: TDataSource
+    DataSet = mtReporteClientes
+    Left = 1384
+    Top = 1656
+  end
   object dsReporteAsesores: TDataSource
     DataSet = mtReporteAsesores
     Left = 1384

@@ -508,6 +508,8 @@ for c, (n, estado) in enumerate(sorted(asignadas.items(), key=lambda x: -solicit
             extra = f", APROBADA_POR = {usuario(revisa)}, FECHA_APROBACION = {hace(fechas[camino.index('visto_bueno')])}"
         if e == 'enviada':
             extra = f", FECHA_ENVIO = {hace(fechas[camino.index('enviada')])}"
+        if e == 'aprobada':
+            extra = f", ORDEN_COMPRA = {q(f'OC-2026-{4100 + n * 37}')}"
         w(f"UPDATE COTIZACIONES SET ESTADO = {q(e)}{extra} WHERE ID = {cot};")
     for k, e in enumerate(camino):
         actor = revisa if e in ('visto_bueno', 'devuelta') else elabora

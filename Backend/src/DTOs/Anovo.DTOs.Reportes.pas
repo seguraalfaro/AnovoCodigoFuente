@@ -72,6 +72,35 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
+  TReporteClienteDTO = class
+  private
+    fClienteId: Integer;
+    fClienteNombre: string;
+    fEnviadas: Integer;
+    fAprobadas: Integer;
+    fRechazadas: Integer;
+    fEnEspera: Integer;
+    fSinRespuesta: Integer;
+    fPorcentajeSinRespuesta: Integer;
+    fMontoSinRespuesta: NullableCurrency;
+    fUltimoEnvio: NullableTDateTime;
+  public
+    property ClienteId: Integer read fClienteId write fClienteId;
+    property ClienteNombre: string read fClienteNombre write fClienteNombre;
+    property Enviadas: Integer read fEnviadas write fEnviadas;
+    property Aprobadas: Integer read fAprobadas write fAprobadas;
+    property Rechazadas: Integer read fRechazadas write fRechazadas;
+    property EnEspera: Integer read fEnEspera write fEnEspera;
+    property SinRespuesta: Integer read fSinRespuesta write fSinRespuesta;
+    property PorcentajeSinRespuesta: Integer read fPorcentajeSinRespuesta
+      write fPorcentajeSinRespuesta;
+    property MontoSinRespuesta: NullableCurrency read fMontoSinRespuesta
+      write fMontoSinRespuesta;
+    property UltimoEnvio: NullableTDateTime read fUltimoEnvio
+      write fUltimoEnvio;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
   TReporteCotizacionesDTO = class
   private
     fDesde: TDateTime;
@@ -86,6 +115,7 @@ type
     fPorAsesor: TObjectList<TReporteAsesorDTO>;
     fPorTipo: TObjectList<TReporteTipoDTO>;
     fPorMes: TObjectList<TReporteMesDTO>;
+    fPorCliente: TObjectList<TReporteClienteDTO>;
   public
     constructor Create;
     destructor Destroy; override;
@@ -105,6 +135,8 @@ type
       write fPorTipo;
     property PorMes: TObjectList<TReporteMesDTO> read fPorMes
       write fPorMes;
+    property PorCliente: TObjectList<TReporteClienteDTO> read fPorCliente
+      write fPorCliente;
   end;
 
 implementation
@@ -116,10 +148,12 @@ begin
   fPorAsesor := TObjectList<TReporteAsesorDTO>.Create(True);
   fPorTipo := TObjectList<TReporteTipoDTO>.Create(True);
   fPorMes := TObjectList<TReporteMesDTO>.Create(True);
+  fPorCliente := TObjectList<TReporteClienteDTO>.Create(True);
 end;
 
 destructor TReporteCotizacionesDTO.Destroy;
 begin
+  fPorCliente.Free;
   fPorMes.Free;
   fPorTipo.Free;
   fPorAsesor.Free;

@@ -288,6 +288,9 @@
         <DCCReference Include="Src\Forms\Anovo.Forms.Motivo.pas">
             <Form>frmMotivo</Form>
         </DCCReference>
+        <DCCReference Include="Src\Forms\Anovo.Forms.OrdenCompra.pas">
+            <Form>frmOrdenCompra</Form>
+        </DCCReference>
         <DCCReference Include="Src\Forms\Anovo.Forms.BuscarRejilla.pas">
             <Form>frmBuscarRejilla</Form>
         </DCCReference>

@@ -1,7 +1,7 @@
 unit Anovo.Repositories.Reportes;
 
-// Repositorio de reportes: las filas por dia de V_COTIZACIONES_DIA del
-// periodo, de todos o de una persona; las sumas las hace el servicio.
+// Repositorio de reportes: filas de V_COTIZACIONES_DIA y V_CLIENTES_RESPUESTA
+// del periodo, de todos o de una persona; las sumas las hace el servicio.
 
 interface
 
@@ -18,6 +18,8 @@ type
   public
     function DiasEntre(const ADesde, AHasta: TDateTime;
       const AUsuarioId: Integer): TObjectList<TCotizacionesDia>;
+    function EnviadasEntre(const ADesde, AHasta: TDateTime;
+      const AUsuarioId: Integer): TObjectList<TClientesRespuesta>;
   end;
 
 implementation
@@ -30,6 +32,18 @@ begin
       [FechaParaRQL(ADesde), FechaParaRQL(AHasta)], SIN_LIMITE)
   else
     Result := ListarConsulta<TCotizacionesDia>(CONSULTA_ENTRE_PROPIAS,
+      [FechaParaRQL(ADesde), FechaParaRQL(AHasta), AUsuarioId, AUsuarioId],
+      SIN_LIMITE);
+end;
+
+function TReporteRepository.EnviadasEntre(const ADesde, AHasta: TDateTime;
+  const AUsuarioId: Integer): TObjectList<TClientesRespuesta>;
+begin
+  if AUsuarioId = 0 then
+    Result := ListarConsulta<TClientesRespuesta>(CONSULTA_ENTRE,
+      [FechaParaRQL(ADesde), FechaParaRQL(AHasta)], SIN_LIMITE)
+  else
+    Result := ListarConsulta<TClientesRespuesta>(CONSULTA_ENTRE_PROPIAS,
       [FechaParaRQL(ADesde), FechaParaRQL(AHasta), AUsuarioId, AUsuarioId],
       SIN_LIMITE);
 end;
