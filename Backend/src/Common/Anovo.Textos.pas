@@ -1084,6 +1084,7 @@ resourcestring
   SVacioDashboard = 'Todavía no hay registros para mostrar';
   SVacioEstados = 'No hay cotizaciones este mes';
   SVacioLineas = 'La cotización todavía no tiene líneas';
+  SLineaAgregada = 'Agregada: %s × %s · líneas agregadas: %d';
   SVacioNotificaciones = 'No hay cotizaciones esperando respuesta del cliente';
   SVacioHistorialPrecio = 'Este ítem no tiene cambios de precio';
   SVacioHistorialEstados = 'La cotización no tiene cambios de estado';

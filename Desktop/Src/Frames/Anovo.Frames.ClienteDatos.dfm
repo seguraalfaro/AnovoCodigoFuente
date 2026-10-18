@@ -967,7 +967,6 @@ object fraClienteDatos: TfraClienteDatos
             TabOrder = 0
             TextHint = 'Descripci'#243'n del trabajo'
             StyleElements = [seFont]
-            OnInvokeSearch = SearchBox1InvokeSearch
           end
           object btnPeriodo: TPlanoBotonWin
             Left = 332

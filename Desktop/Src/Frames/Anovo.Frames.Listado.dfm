@@ -70,7 +70,6 @@ object fraListado: TfraListado
       BevelOuter = bvNone
       TabOrder = 0
       StyleElements = [seFont]
-      OnInvokeSearch = sbBuscarInvokeSearch
     end
     object btnLimpiar: TPlanoBotonWin
       Left = 328

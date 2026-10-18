@@ -34,6 +34,7 @@ type
     class function FechaHora(const AFecha: TDateTime): string; static;
     class function Porcentaje(const AValor: Double): string; static;
     class function Tasa(const AValor: Integer): string; static;
+    class function Numero(const AValor: Currency): string; static;
     class function FechaArchivo(const AFecha: TDateTime): string; static;
     class function Coordenadas(const ALatitud, ALongitud: Double)
       : string; static;
@@ -64,6 +65,7 @@ const
   FORMATO_FECHA_HORA = 'dd/mm/yyyy hh:nn';
   FORMATO_MONTO = '#,##0.00';
   FORMATO_PORCENTAJE = '0.##';
+  FORMATO_NUMERO = '#,##0.###';
   FORMATO_FECHA_ARCHIVO = 'yyyy-mm-dd';
 
 class function TFormato.AccionAuditoria(const AValor: string): string;
@@ -278,6 +280,11 @@ end;
 class function TFormato.Porcentaje(const AValor: Double): string;
 begin
   Result := FormatFloat(FORMATO_PORCENTAJE, AValor);
+end;
+
+class function TFormato.Numero(const AValor: Currency): string;
+begin
+  Result := FormatFloat(FORMATO_NUMERO, AValor);
 end;
 
 class function TFormato.Tasa(const AValor: Integer): string;

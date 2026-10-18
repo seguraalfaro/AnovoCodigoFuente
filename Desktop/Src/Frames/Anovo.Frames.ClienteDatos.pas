@@ -82,7 +82,6 @@ type
     btnPeriodo: TPlanoBotonWin;
     procedure AcRegregsarExecute(Sender: TObject);
     procedure lblVerMapaClick(Sender: TObject);
-    procedure SearchBox1InvokeSearch(Sender: TObject);
     procedure pstFiltrosChange(Sender: TObject);
     procedure btnExportarClick(Sender: TObject);
     procedure btnEditarClienteClick(Sender: TObject);
@@ -177,6 +176,11 @@ begin
   PrepararRejilla(grCotizaciones, AccionCotizacion);
   FClienteId := AClienteId;
   FSelector := TSelectorPeriodo.Crear(btnPeriodo, False, PeriodoCambio);
+  TBusquedaAlEscribir.Crear(SearchBox1,
+    procedure(ATexto: string)
+    begin
+      FPresentador.BuscarCotizaciones(ATexto);
+    end);
   FPresentador := TPresentadorClienteDatos.Create(Self, TApiClientes.Create,
     TApiCotizaciones.Create,
     AClienteId);
@@ -375,10 +379,6 @@ begin
   TCeldasRejilla.De(grCotizaciones).AjustarColumnas;
 end;
 
-procedure TfraClienteDatos.SearchBox1InvokeSearch(Sender: TObject);
-begin
-  FPresentador.BuscarCotizaciones(SearchBox1.Text);
-end;
 
 procedure TfraClienteDatos.pstFiltrosChange(Sender: TObject);
 begin

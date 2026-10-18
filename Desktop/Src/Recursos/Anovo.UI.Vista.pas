@@ -6,7 +6,23 @@ unit Anovo.UI.Vista;
 interface
 
 uses
-  System.Classes, Vcl.Controls, Vcl.StdCtrls, Vcl.WinXCtrls;
+  System.Classes, System.SysUtils, Vcl.Controls, Vcl.StdCtrls, Vcl.WinXCtrls,
+  Anovo.Retardo;
+
+type
+  TBusquedaAlEscribir = class(TComponent)
+  private
+    FCaja: TSearchBox;
+    FRetardo: TRetardo;
+    FBuscar: TProc<string>;
+    FUltimo: string;
+    procedure Cambio(Sender: TObject);
+    procedure Invocar(Sender: TObject);
+    procedure Lanzar;
+  public
+    constructor Crear(const ACaja: TSearchBox; const ABuscar: TProc<string>);
+    procedure Mostrar(const ATexto: string);
+  end;
 
 procedure CursorOcupado(const AActivo: Boolean);
 
@@ -34,9 +50,49 @@ procedure PintarPaginacion(AEtiqueta: TLabel; AAnterior, ASiguiente: TControl;
 implementation
 
 uses
-  System.SysUtils, System.UITypes, System.Math, Vcl.Forms, Vcl.Dialogs,
+  System.UITypes, System.Math, Vcl.Forms, Vcl.Dialogs,
   Anovo.Textos,
   Anovo.UI.Cargando;
+
+const
+  RETARDO_BUSQUEDA = 400;
+
+constructor TBusquedaAlEscribir.Crear(const ACaja: TSearchBox;
+  const ABuscar: TProc<string>);
+begin
+  inherited Create(ACaja);
+  FCaja := ACaja;
+  FBuscar := ABuscar;
+  FUltimo := Trim(ACaja.Text);
+  FRetardo := TRetardo.Crear(Self, RETARDO_BUSQUEDA, Lanzar);
+  FCaja.OnChange := Cambio;
+  FCaja.OnInvokeSearch := Invocar;
+end;
+
+procedure TBusquedaAlEscribir.Mostrar(const ATexto: string);
+begin
+  FUltimo := Trim(ATexto);
+end;
+
+procedure TBusquedaAlEscribir.Cambio(Sender: TObject);
+begin
+  if Trim(FCaja.Text) = FUltimo then
+    FRetardo.Cancelar
+  else
+    FRetardo.Programar;
+end;
+
+procedure TBusquedaAlEscribir.Invocar(Sender: TObject);
+begin
+  Lanzar;
+end;
+
+procedure TBusquedaAlEscribir.Lanzar;
+begin
+  FRetardo.Cancelar;
+  FUltimo := Trim(FCaja.Text);
+  FBuscar(FUltimo);
+end;
 
 var
   Ocupados: Integer;
@@ -191,7 +247,7 @@ end;
 procedure PintarBusqueda(ABuscar: TSearchBox; ALimpiar: TControl;
   const ATexto: string; const APuedeLimpiar: Boolean);
 begin
-  if ABuscar.Text <> ATexto then
+  if Trim(ABuscar.Text) <> ATexto then
     ABuscar.Text := ATexto;
   ALimpiar.Enabled := APuedeLimpiar;
 end;

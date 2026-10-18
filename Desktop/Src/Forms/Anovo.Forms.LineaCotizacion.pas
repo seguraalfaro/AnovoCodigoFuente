@@ -34,20 +34,27 @@ type
     edCantidad: TrDBEdit;
     pnlNota: TPanel;
     mmNota: TrDBMemo;
+    lblAgregada: TLabel;
+    edSeleccion: TrDBEdit;
+    btnAgregar: TPlanoBotonWin;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnGuardarClick(Sender: TObject);
-    procedure sbBuscarInvokeSearch(Sender: TObject);
     procedure cbCategoriaClick(Sender: TObject);
     procedure grItemsCellClick(Column: TColumn);
     procedure grItemsKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure edCantidadChange(Sender: TObject);
+    procedure btnAgregarClick(Sender: TObject);
   private
     FPresentador: TPresentadorLineaCotizacion;
     FModo: TModoLinea;
     FPrecio: Currency;
     FGuardado: Boolean;
+    FAgregadas: Integer;
+    FUltimoNombre: string;
+    FUltimaCantidad: Currency;
+    function EsCatalogo: Boolean;
     procedure Preparar(const AModo: TModoLinea; const ALinea: TLineaDTO);
     procedure Buscar;
     procedure ActualizarPrecio;
@@ -69,6 +76,7 @@ implementation
 
 uses
   Anovo.UI.Tema,
+  Anovo.UI.Vista,
   Anovo.UI.CeldasRejilla,
   Anovo.Api.Cotizaciones,
   Anovo.Api.Catalogos,
@@ -104,6 +112,11 @@ begin
   AplicarTemaGrid(grItems);
   TCeldasRejilla.De(grItems).TextoVacio := SVacioItems;
   FGuardado := False;
+  TBusquedaAlEscribir.Crear(sbBuscar,
+    procedure(ATexto: string)
+    begin
+      Buscar;
+    end);
   FPresentador := TPresentadorLineaCotizacion.Create(Self,
     TApiCotizaciones.Create, TApiCatalogos.Create);
   dmMemoria.Preparar(dmMemoria.mtLineaNueva);
@@ -118,7 +131,12 @@ end;
 
 function TfrmLineaCotizacion.ControlesEdicion: TArray<TControl>;
 begin
-  Result := [pnlBusqueda, grItems, pnlCantidad, pnlNota];
+  Result := [grItems, pnlCantidad, pnlNota];
+end;
+
+function TfrmLineaCotizacion.EsCatalogo: Boolean;
+begin
+  Result := FModo in [mlMaterial, mlManoObra, mlMaquina];
 end;
 
 procedure TfrmLineaCotizacion.Preparar(const AModo: TModoLinea;
@@ -151,7 +169,16 @@ begin
   else if lEsNota then
     btnGuardar.Caption := SAgregarNota
   else
-    btnGuardar.Caption := SBotonAgregarLinea;
+  begin
+    btnGuardar.Caption := SBotonCerrar;
+    btnCancelar.Visible := False;
+  end;
+  edSeleccion.Visible := EsCatalogo;
+  btnAgregar.Visible := EsCatalogo;
+  btnAgregar.Caption := SBotonAgregarLinea;
+  lblAgregada.Caption := '';
+  if not EsCatalogo then
+    edCantidad.Left := edSeleccion.Left;
 
   cbCategoria.Visible := AModo = mlManoObra;
   pnlBusqueda.Visible := AModo in [mlMaterial, mlManoObra, mlMaquina];
@@ -211,10 +238,6 @@ begin
   FPresentador.Buscar(sbBuscar.Text, lCategoria);
 end;
 
-procedure TfrmLineaCotizacion.sbBuscarInvokeSearch(Sender: TObject);
-begin
-  Buscar;
-end;
 
 procedure TfrmLineaCotizacion.cbCategoriaClick(Sender: TObject);
 var
@@ -261,8 +284,27 @@ begin
   TMapeoDatos.AListaTabla<TCategoriaDTO>(ACategorias, dmMemoria.mtCategorias);
 end;
 
+procedure TfrmLineaCotizacion.btnAgregarClick(Sender: TObject);
+begin
+  dmMemoria.Confirmar(dmMemoria.mtLineaNueva);
+  FUltimaCantidad := dmMemoria.mtLineaNuevaCANTIDAD.AsCurrency;
+  if dmMemoria.mtItemsLinea.IsEmpty then
+  begin
+    FPresentador.Agregar(0, '', '', FUltimaCantidad);
+    Exit;
+  end;
+  FUltimoNombre := dmMemoria.mtItemsLineaNOMBRE.AsString;
+  FPresentador.Agregar(dmMemoria.mtItemsLineaID.AsInteger, FUltimoNombre,
+    dmMemoria.mtItemsLineaUNIDAD_MEDIDA.AsString, FUltimaCantidad);
+end;
+
 procedure TfrmLineaCotizacion.btnGuardarClick(Sender: TObject);
 begin
+  if EsCatalogo then
+  begin
+    ModalResult := mrOk;
+    Exit;
+  end;
   dmMemoria.Confirmar(dmMemoria.mtLineaNueva);
   if pnlNota.Visible then
   begin
@@ -271,21 +313,25 @@ begin
     else
       FPresentador.AgregarNota(dmMemoria.mtLineaNuevaNOTA.AsString);
   end
-  else if FModo = mlEditar then
-    FPresentador.Cambiar(dmMemoria.mtLineaNuevaCANTIDAD.AsCurrency, '')
-  else if dmMemoria.mtItemsLinea.IsEmpty then
-    FPresentador.Agregar(0, '', '', dmMemoria.mtLineaNuevaCANTIDAD.AsCurrency)
   else
-    FPresentador.Agregar(dmMemoria.mtItemsLineaID.AsInteger,
-      dmMemoria.mtItemsLineaNOMBRE.AsString,
-      dmMemoria.mtItemsLineaUNIDAD_MEDIDA.AsString,
-      dmMemoria.mtLineaNuevaCANTIDAD.AsCurrency);
+    FPresentador.Cambiar(dmMemoria.mtLineaNuevaCANTIDAD.AsCurrency, '');
 end;
 
 procedure TfrmLineaCotizacion.Guardado(const AId: Integer);
 begin
   FGuardado := True;
-  ModalResult := mrOk;
+  if not EsCatalogo then
+  begin
+    ModalResult := mrOk;
+    Exit;
+  end;
+  Inc(FAgregadas);
+  lblAgregada.Caption := Format(SLineaAgregada, [FUltimoNombre,
+    TFormato.Numero(FUltimaCantidad), FAgregadas]);
+  dmMemoria.Preparar(dmMemoria.mtLineaNueva);
+  ActualizarPrecio;
+  if sbBuscar.CanFocus then
+    sbBuscar.SetFocus;
 end;
 
 end.

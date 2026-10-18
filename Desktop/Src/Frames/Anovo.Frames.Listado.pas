@@ -8,7 +8,8 @@ uses
   System.SysUtils, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
-  VclPlano.BotonWin;
+  VclPlano.BotonWin,
+  Anovo.UI.Vista;
 
 type
   TfraListado = class(TFrame)
@@ -24,13 +25,13 @@ type
     lblPaginacion: TLabel;
     btnAnterior: TPlanoBotonWin;
     btnSiguiente: TPlanoBotonWin;
-    procedure sbBuscarInvokeSearch(Sender: TObject);
     procedure btnLimpiarClick(Sender: TObject);
     procedure btnAnteriorClick(Sender: TObject);
     procedure btnSiguienteClick(Sender: TObject);
   private
     FTextoPie: string;
     FEncima: TFrame;
+    FBusqueda: TBusquedaAlEscribir;
   protected
     FTextoCargando: string;
     FTextoSinRegistros: string;
@@ -61,13 +62,17 @@ implementation
 uses
   Anovo.UI.Tema,
   Anovo.UI.CeldasRejilla,
-  Anovo.UI.Vista,
   Anovo.Textos;
 
 constructor TfraListado.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   AplicarTemaGrid(grDatos);
+  FBusqueda := TBusquedaAlEscribir.Crear(sbBuscar,
+    procedure(ATexto: string)
+    begin
+      Buscar(ATexto);
+    end);
 end;
 
 destructor TfraListado.Destroy;
@@ -86,12 +91,12 @@ begin
   else if lblPaginacion.Caption = FTextoCargando then
     lblPaginacion.Caption := FTextoPie;
   CursorOcupado(AActivo);
-  sbBuscar.Enabled := not AActivo;
 end;
 
 procedure TfraListado.MostrarBusqueda(const ATexto: string;
   const APuedeLimpiar: Boolean);
 begin
+  FBusqueda.Mostrar(ATexto);
   PintarBusqueda(sbBuscar, btnLimpiar, ATexto, APuedeLimpiar);
 end;
 
@@ -142,10 +147,6 @@ begin
     end);
 end;
 
-procedure TfraListado.sbBuscarInvokeSearch(Sender: TObject);
-begin
-  Buscar(sbBuscar.Text);
-end;
 
 procedure TfraListado.btnLimpiarClick(Sender: TObject);
 begin
