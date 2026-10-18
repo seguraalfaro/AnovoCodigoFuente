@@ -87,6 +87,15 @@ Public Sub DescartarBorrador
 	mHayBorrador = False
 	mDetalleBorrador = ""
 End Sub
+
+Public Sub CerrarSesion As ResumableSub
+	If LlaveDispositivo.HayLlave Then
+		Wait For (ApiAutenticacion.CerrarDispositivo(LlaveDispositivo.Uuid, LlaveDispositivo.Leer).Enviar) Complete (Cierre As RestRespuesta)
+	End If
+	LlaveDispositivo.BorrarTodo
+	Adjuntos.BorrarRutas(Db.BorrarLoSubido)
+	Return True
+End Sub
 #End Region
 
 #Region Textos de cada fila

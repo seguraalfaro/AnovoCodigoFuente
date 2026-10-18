@@ -58,10 +58,6 @@ Private Sub B4XPage_Disappear
 End Sub
 
 Public Sub SincronizacionTerminada (Resultado As ResumenSync)
-	If Resultado.SesionVencida Then
-		Api.VolverAlIngreso(Resultado.Mensaje)
-		Return
-	End If
 	If visible Then Pintar
 End Sub
 #End Region

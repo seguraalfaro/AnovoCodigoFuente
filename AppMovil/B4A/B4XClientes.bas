@@ -169,6 +169,7 @@ Private Sub Pintar
 		CvContactos.Add(CrearItem(k), k.UuidLocal)
 	Next
 	CkAcepto.Checked = presentador.Permiso.Acepta
+	TextCedulaConsentimiento.Text = presentador.Permiso.CedulaFirmante
 	restaurando = False
 	AHView.GotoPage(presentador.Pagina, True)
 End Sub
@@ -327,8 +328,9 @@ End Sub
 Private Sub AHView_PageChanged (Position As Int)
 	Pasos.CurrentIndex = Position
 	If Position = ULTIMO Then
-		Cbfirmante.SetItems(presentador.Firmantes)
-		Cbfirmante.SelectedIndex = 0
+		Dim firmantes As List = presentador.Firmantes
+		Cbfirmante.SetItems(firmantes)
+		Cbfirmante.SelectedIndex = Max(0, firmantes.IndexOf(presentador.Permiso.Firmante))
 		BtnSiguiente.Text = Mensajes.GUARDAR
 		BtnCancelar.Visible = True
 	Else
@@ -353,5 +355,11 @@ Private Sub Confirmar
 End Sub
 
 Private Sub BtnCancelar_Click
+	Dim sf As Object = xui.Msgbox2Async(Mensajes.DESCARTAR_CLIENTE, Mensajes.TITULO, Mensajes.SI, "", Mensajes.NO, Null)
+	Wait For (sf) Msgbox_Result (Respuesta As Int)
+	If Respuesta <> xui.DialogResponse_Positive Then Return
+	presentador.DescartarBorrador
+	Limpiar
+	B4XPages.ClosePage(Me)
 End Sub
 #End Region

@@ -524,18 +524,11 @@ Public Sub CerrarSesion
 	Dim sf As Object = xui.Msgbox2Async(Mensajes.CONFIRMAR_CIERRE, Mensajes.TITULO, Mensajes.SI, "", Mensajes.NO, Null)
 	Wait For (sf) Msgbox_Result (Respuesta As Int)
 	If Respuesta <> xui.DialogResponse_Positive Then Return
-	If LlaveDispositivo.HayLlave Then
-		Wait For (ApiAutenticacion.CerrarDispositivo(LlaveDispositivo.Uuid, LlaveDispositivo.Leer).Enviar) Complete (Cierre As RestRespuesta)
-	End If
-	LlaveDispositivo.BorrarTodo
+	Wait For (inicio.CerrarSesion) Complete (Hecho As Boolean)
 	Api.VolverAlIngreso("")
 End Sub
 
 Public Sub SincronizacionTerminada (Resultado As ResumenSync)
-	If Resultado.SesionVencida Then
-		Api.VolverAlIngreso(Resultado.Mensaje)
-		Return
-	End If
 	Refrescar
 End Sub
 

@@ -160,6 +160,10 @@ Private Sub BtnCambiarClave_Click
 	Wait For (rs) Complete (Respuesta As Int)
 	If Respuesta <> xui.DialogResponse_Positive Then Return
 	Wait For (presentador.CambiarClave(txtClaveActual.Text, txtClaveNueva.Text, txtClaveRepetir.Text)) Complete (r As Resultado)
+	If presentador.SesionVencida Then
+		Api.VolverAlIngreso(r.Mensaje)
+		Return
+	End If
 	If r.Ok Then
 		xui.MsgboxAsync(r.Datos, Mensajes.TITULO)
 	Else

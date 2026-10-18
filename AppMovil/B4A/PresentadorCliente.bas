@@ -194,6 +194,10 @@ Public Sub Guardar (PermisoActual As Consentimiento) As Resultado
 	PermisoActual.Version = texto.Version
 	If PermisoActual.Acepta = False Then Return Tipos.Falla(Mensajes.FALTA_ACEPTAR)
 	If PermisoActual.Firma.Length = 0 Then Return Tipos.Falla(Mensajes.FALTA_FIRMA)
+	If PermisoActual.Firmante = "" Then Return Tipos.Falla(Mensajes.FALTA_FIRMANTE)
+	Dim cedula As String = PermisoActual.CedulaFirmante
+	If Validacion.EsIdentificacion(Formato.MASCARA_IDENT_FISICA, cedula) = False And _
+		Validacion.EsIdentificacion(Formato.MASCARA_IDENT_DIMEX, cedula) = False Then Return Tipos.Falla(Mensajes.FALTA_CEDULA_FIRMANTE)
 	Dim repetido As Resultado = ValidarRepetido(mCliente)
 	If repetido.Ok = False Then Return repetido
 	Dim uuid As String = DbClientes.Guardar(mCliente, mContactos, PermisoActual, mUbicacion)

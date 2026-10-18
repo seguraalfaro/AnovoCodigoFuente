@@ -53,6 +53,10 @@ End Sub
 
 #Region Avisos
 Private Sub Avisar (Resultado As ResumenSync)
+	If Resultado.SesionVencida Then
+		Api.VolverAlIngreso(Resultado.Mensaje)
+		Return
+	End If
 	Try
 		B4XPages.GetManager.RaiseEvent(B4XPages.GetManager.GetTopPage, PAGINA_TERMINADA, Array(Resultado))
 	Catch

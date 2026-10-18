@@ -30,6 +30,7 @@ Sub Class_Globals
 	Private mVersionAviso As String
 	Private mCargando As Boolean
 	Private remota As SesionRemota
+	Private mSesionVencida As Boolean
 End Sub
 
 Public Sub Initialize
@@ -156,11 +157,14 @@ Public Sub Probar As ResumableSub
 End Sub
 
 Public Sub CambiarClave (Actual As String, Nueva As String, Repetida As String) As ResumableSub
+	mSesionVencida = False
 	Dim error As String = ValidarClave(Actual, Nueva, Repetida)
 	If error <> "" Then Return Tipos.Falla(error)
 	Wait For (remota.AsegurarSesion) Complete (Estado As Int)
+	If Estado = remota.ESTADO_NO_AUTORIZADO Then Return Vencida
 	If Estado <> ESTADO_OK Then Return Tipos.Falla(Mensajes.CLAVE_SIN_CONEXION)
 	Wait For (ApiSesion.CambiarClave(Actual, Nueva).Enviar) Complete (Respuesta As RestRespuesta)
+	If Respuesta.StatusCode = remota.ESTADO_NO_AUTORIZADO Then Return Vencida
 	If Respuesta.Success = False Then Return Tipos.Falla(Api.MensajeDe(Respuesta))
 	Wait For (ApiAutenticacion.IniciarSesion(Sesion.Correo, Nueva).Enviar) Complete (Ingreso As RestRespuesta)
 	If Ingreso.Success = False Or Sesion.Abrir(Ingreso.Valor(CAMPO_TOKEN)) = False Then Return Tipos.Falla(Mensajes.CLAVE_CAMBIADA_REINGRESO)
@@ -170,6 +174,15 @@ Public Sub CambiarClave (Actual As String, Nueva As String, Repetida As String) 
 	Dim texto As String = Mensajes.CLAVE_CAMBIADA
 	If Registrado = False Then texto = texto & " " & Mensajes.TELEFONO_NO_REGISTRADO
 	Return Tipos.Correcto(texto)
+End Sub
+
+Public Sub getSesionVencida As Boolean
+	Return mSesionVencida
+End Sub
+
+Private Sub Vencida As Resultado
+	mSesionVencida = True
+	Return Tipos.Falla(Mensajes.SESION_VENCIDA)
 End Sub
 
 Private Sub ValidarClave (Actual As String, Nueva As String, Repetida As String) As String

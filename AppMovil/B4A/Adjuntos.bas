@@ -117,6 +117,12 @@ Public Sub BorrarFotos (Nombres As List)
 	Next
 End Sub
 
+Public Sub BorrarRutas (Rutas As List)
+	For Each ruta As String In Rutas
+		If File.Exists("", ruta) Then File.Delete("", ruta)
+	Next
+End Sub
+
 Public Sub CopiarImagen (Dir As String, Archivo As String, Nombre As String) As Boolean
 	Try
 		Dim imagen As B4XBitmap = xui.LoadBitmapResize(Dir, Archivo, ANCHO_FOTO, ANCHO_FOTO, True)
