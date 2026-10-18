@@ -31,8 +31,8 @@ type
       const AOrdenCompra: string);
     procedure Tomar(const ASolicitudId: Integer);
     function Listar(const ATexto, AEstado: string; const AClienteId: Integer;
-      const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer;
-      out ATotal: Int64)
+      const ADesde, AHasta: TDateTime; const ASoloPropias: Boolean;
+      const APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TCotizacionDTO>;
     procedure Actualizar(const AId: Integer; const ADto: TCotizacionEdicionDTO);
     function AgregarLinea(const AId: Integer;
@@ -74,6 +74,7 @@ const
   RUTA_PRESENTACION = '/api/cotizaciones/%d/presentacion';
   RUTA_ENVIO = '/api/cotizaciones/%d/envio';
   RUTA_DESCARTE = '/api/cotizaciones/%d/descarte';
+  ELABORADAS: array [Boolean] of string = ('', 'propias');
 
 function TApiCotizaciones.Bandeja(const ATexto: string;
   const AFiltroDesde, AFiltroHasta: TDateTime;
@@ -260,7 +261,7 @@ end;
 
 function TApiCotizaciones.Listar(const ATexto, AEstado: string;
   const AClienteId: Integer; const ADesde, AHasta: TDateTime;
-  const APagina, APorPagina: Integer;
+  const ASoloPropias: Boolean; const APagina, APorPagina: Integer;
   out ATotal: Int64)
   : TObjectList<TCotizacionDTO>;
 var
@@ -276,6 +277,7 @@ begin
         .AddQueryStringParam('cliente_id', AClienteId)
         .AddQueryStringParam('desde', FechaParaApi(ADesde))
         .AddQueryStringParam('hasta', FechaParaApi(AHasta))
+        .AddQueryStringParam('elaboradas', ELABORADAS[ASoloPropias])
         .AddQueryStringParam('pagina', APagina)
         .AddQueryStringParam('por_pagina', APorPagina)
         .Get(RUTA_COTIZACIONES);

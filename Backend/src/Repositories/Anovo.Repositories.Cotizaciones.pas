@@ -18,18 +18,21 @@ type
   private
     function Filtro(const AEstado: string;
       const AClienteId, AAsesorId: Integer;
-      const ADesde, AHasta: TDateTime): string;
+      const ADesde, AHasta: TDateTime; const AElaboradaPor: Integer): string;
     function Parametros(const ATexto, AEstado: string;
       const AClienteId, AAsesorId: Integer;
-      const ADesde, AHasta: TDateTime): TArray<Variant>;
+      const ADesde, AHasta: TDateTime;
+      const AElaboradaPor: Integer): TArray<Variant>;
   public
     function Buscar(const ATexto: string; const APagina, APorPagina: Integer;
       const AEstado: string = ''; const AClienteId: Integer = 0;
       const AAsesorId: Integer = 0; const ADesde: TDateTime = 0;
-      const AHasta: TDateTime = 0): TObjectList<TCotizaciones>;
+      const AHasta: TDateTime = 0; const AElaboradaPor: Integer = 0)
+      : TObjectList<TCotizaciones>;
     function ContarBusqueda(const ATexto: string; const AEstado: string = '';
       const AClienteId: Integer = 0; const AAsesorId: Integer = 0;
-      const ADesde: TDateTime = 0; const AHasta: TDateTime = 0): Int64;
+      const ADesde: TDateTime = 0; const AHasta: TDateTime = 0;
+      const AElaboradaPor: Integer = 0): Int64;
     function ObtenerPorNumero(const ANumero: Integer): TCotizaciones;
     function SiguienteNumero: Integer;
     function EnviadasSinRespuesta(const ADias: Integer)
@@ -79,7 +82,7 @@ const
 
 function TCotizacionRepository.Filtro(const AEstado: string;
   const AClienteId, AAsesorId: Integer;
-  const ADesde, AHasta: TDateTime): string;
+  const ADesde, AHasta: TDateTime; const AElaboradaPor: Integer): string;
 begin
   Result := COTIZACIONES_FILTRO_BUSQUEDA;
   if AEstado <> '' then
@@ -90,11 +93,13 @@ begin
     Result := Result + COTIZACIONES_DEL_ASESOR;
   if (ADesde > 0) and (AHasta > 0) then
     Result := Result + COTIZACIONES_EN_PERIODO;
+  if AElaboradaPor > 0 then
+    Result := Result + COTIZACIONES_ELABORADAS_POR;
 end;
 
 function TCotizacionRepository.Parametros(const ATexto, AEstado: string;
-  const AClienteId, AAsesorId: Integer; const ADesde, AHasta: TDateTime)
-  : TArray<Variant>;
+  const AClienteId, AAsesorId: Integer; const ADesde, AHasta: TDateTime;
+  const AElaboradaPor: Integer): TArray<Variant>;
 begin
   Result := [ATexto];
   if AEstado <> '' then
@@ -105,29 +110,33 @@ begin
     Result := Result + [Variant(AAsesorId)];
   if (ADesde > 0) and (AHasta > 0) then
     Result := Result + [Variant(ADesde), Variant(AHasta)];
+  if AElaboradaPor > 0 then
+    Result := Result + [Variant(AElaboradaPor)];
 end;
 
 function TCotizacionRepository.Buscar(const ATexto: string;
   const APagina, APorPagina: Integer; const AEstado: string;
-  const AClienteId, AAsesorId: Integer; const ADesde, AHasta: TDateTime)
-  : TObjectList<TCotizaciones>;
+  const AClienteId, AAsesorId: Integer; const ADesde, AHasta: TDateTime;
+  const AElaboradaPor: Integer): TObjectList<TCotizaciones>;
 var
   lDesde, lHasta: Integer;
 begin
   lDesde := ((APagina - 1) * APorPagina) + 1;
   lHasta := APagina * APorPagina;
-  Result := GetWhere(Filtro(AEstado, AClienteId, AAsesorId, ADesde, AHasta)
-    + COTIZACIONES_ORDEN_Y_PAGINA,
-    Parametros(ATexto, AEstado, AClienteId, AAsesorId, ADesde, AHasta) +
+  Result := GetWhere(Filtro(AEstado, AClienteId, AAsesorId, ADesde, AHasta,
+    AElaboradaPor) + COTIZACIONES_ORDEN_Y_PAGINA,
+    Parametros(ATexto, AEstado, AClienteId, AAsesorId, ADesde, AHasta,
+    AElaboradaPor) +
     [Variant(lDesde), Variant(lHasta)]);
 end;
 
 function TCotizacionRepository.ContarBusqueda(const ATexto, AEstado: string;
   const AClienteId, AAsesorId: Integer;
-  const ADesde, AHasta: TDateTime): Int64;
+  const ADesde, AHasta: TDateTime; const AElaboradaPor: Integer): Int64;
 begin
-  Result := ContarPorFiltro(Filtro(AEstado, AClienteId, AAsesorId, ADesde, AHasta),
-    Parametros(ATexto, AEstado, AClienteId, AAsesorId, ADesde, AHasta));
+  Result := ContarPorFiltro(Filtro(AEstado, AClienteId, AAsesorId, ADesde,
+    AHasta, AElaboradaPor), Parametros(ATexto, AEstado, AClienteId, AAsesorId,
+    ADesde, AHasta, AElaboradaPor));
 end;
 
 function TCotizacionRepository.Bandeja(const AUsuarioId: Integer;

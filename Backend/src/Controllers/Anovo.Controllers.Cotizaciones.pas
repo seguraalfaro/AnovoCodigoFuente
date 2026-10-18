@@ -44,6 +44,8 @@ type
       ptString, False)]
     [MVCSwagParam(plQuery, 'hasta', 'Fecha de elaboracion hasta, aaaa-mm-dd',
       ptString, False)]
+    [MVCSwagParam(plQuery, 'elaboradas', 'propias: solo las que elaboro ' +
+      'quien consulta', ptString, False)]
     [MVCSwagParam(plQuery, 'pagina', 'Numero de pagina, desde 1',
       ptInteger, False)]
     [MVCSwagParam(plQuery, 'por_pagina', 'Cuantos por pagina. Maximo 200',
@@ -57,6 +59,7 @@ type
       const [MVCFromQueryString('cliente_id', 0)] AClienteId: Integer;
       const [MVCFromQueryString('desde', '')] ADesde: string;
       const [MVCFromQueryString('hasta', '')] AHasta: string;
+      const [MVCFromQueryString('elaboradas', '')] AElaboradas: string;
       const [MVCFromQueryString('pagina', 1)] APagina: Integer;
       const [MVCFromQueryString('por_pagina', POR_PAGINA_POR_DEFECTO)
       ] APorPagina: Integer): TCotizacionesPaginaDTO;
@@ -296,9 +299,12 @@ uses
   System.SysUtils,
   System.Generics.Collections;
 
+const
+  ELABORADAS_PROPIAS = 'propias';
+
 function TCotizacionesController.Listar(AServicio: ICotizacionService;
   const ABusqueda, AEstado: string;
-  const AClienteId: Integer; const ADesde, AHasta: string;
+  const AClienteId: Integer; const ADesde, AHasta, AElaboradas: string;
   const APagina, APorPagina: Integer): TCotizacionesPaginaDTO;
 var
   lTotal: Int64;
@@ -309,7 +315,8 @@ begin
   lPorPagina := PorPaginaValida(APorPagina);
 
   lDatos := AServicio.Buscar(ABusqueda, AEstado, AClienteId,
-    ComoFecha(ADesde), ComoFecha(AHasta), Roles, UsuarioId,
+    ComoFecha(ADesde), ComoFecha(AHasta),
+    SameText(AElaboradas, ELABORADAS_PROPIAS), Roles, UsuarioId,
     lPagina, lPorPagina, lTotal);
 
   Result := TCotizacionesPaginaDTO.Create(lDatos, lTotal, lPagina, lPorPagina);

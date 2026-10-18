@@ -1,7 +1,7 @@
 unit Anovo.Frames.Cotizaciones;
 
-// Seccion Listado de cotizaciones (HU-03): busqueda, filtro por estado y
-// la cotizacion abierta encima del listado.
+// Seccion Listado de cotizaciones (HU-03): busqueda, filtro por estado,
+// Mias o Todas y la cotizacion abierta encima del listado.
 
 interface
 
@@ -23,7 +23,9 @@ type
   TfraCotizaciones = class(TfraListado, IVistaCotizaciones)
     pstFiltros: TPlanoPestanas;
     btnPeriodo: TPlanoBotonWin;
+    pstElaboradas: TPlanoPestanas;
     procedure pstFiltrosChange(Sender: TObject);
+    procedure pstElaboradasChange(Sender: TObject);
     procedure grDatosDblClick(Sender: TObject);
   private
     FInicialId: Integer;
@@ -33,6 +35,7 @@ type
     procedure Accion(Sender: TObject; const AClave: string);
     procedure MostrarAcciones(const AAcciones: TAccionesListaCotizacion);
     procedure MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
+    procedure MostrarElaboradas(const AElaboradas: TElaboradasCotizaciones);
     procedure MostrarCotizaciones(const AFilas: TObjectList<TCotizacionDTO>);
     procedure AbrirCotizacion(const AId: Integer);
     procedure CerrarCotizacion(Sender: TObject);
@@ -118,6 +121,17 @@ begin
   FSelector.Mostrar(APeriodo);
 end;
 
+procedure TfraCotizaciones.MostrarElaboradas(const AElaboradas
+  : TElaboradasCotizaciones);
+begin
+  pstElaboradas.OnChange := nil;
+  try
+    pstElaboradas.ItemIndex := Ord(AElaboradas);
+  finally
+    pstElaboradas.OnChange := pstElaboradasChange;
+  end;
+end;
+
 procedure TfraCotizaciones.PeriodoCambio(const APeriodo: TPeriodoBusqueda);
 begin
   FPresentador.FiltrarPeriodo(APeriodo);
@@ -137,6 +151,7 @@ procedure TfraCotizaciones.MostrarCargando(const AActivo: Boolean);
 begin
   inherited;
   pstFiltros.Enabled := not AActivo;
+  pstElaboradas.Enabled := not AActivo;
   btnPeriodo.Enabled := not AActivo;
 end;
 
@@ -174,6 +189,14 @@ begin
   if FPresentador = nil then
     Exit;
   FPresentador.Filtrar(TFiltroCotizaciones(pstFiltros.ItemIndex));
+end;
+
+procedure TfraCotizaciones.pstElaboradasChange(Sender: TObject);
+begin
+  if FPresentador = nil then
+    Exit;
+  FPresentador.FiltrarElaboradas(TElaboradasCotizaciones(
+    pstElaboradas.ItemIndex));
 end;
 
 procedure TfraCotizaciones.Abrir(const AId: Integer);

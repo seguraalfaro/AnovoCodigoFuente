@@ -206,8 +206,8 @@ begin
   EjecutarUltima<TObjectList<TCotizacionDTO>>(SAccionCargarCotizaciones,
     function: TObjectList<TCotizacionDTO>
     begin
-      Result := lApi.Listar(lTexto, lEstado, lClienteId, lDesde, lHasta, 1,
-        COTIZACIONES_DEL_CLIENTE, lTotal);
+      Result := lApi.Listar(lTexto, lEstado, lClienteId, lDesde, lHasta,
+        False, 1, COTIZACIONES_DEL_CLIENTE, lTotal);
     end,
     procedure(ALista: TObjectList<TCotizacionDTO>)
     begin

@@ -88,9 +88,9 @@ type
       AFormasPago: IFormaPagoRepository); reintroduce;
 
     function Buscar(const ATexto, AEstado: string; const AClienteId: Integer;
-      const ADesde, AHasta: TDateTime; const ARoles: TArray<string>;
-      const AUsuarioId, APagina, APorPagina: Integer; out ATotal: Int64)
-      : TObjectList<TCotizacionDTO>;
+      const ADesde, AHasta: TDateTime; const ASoloPropias: Boolean;
+      const ARoles: TArray<string>; const AUsuarioId, APagina,
+      APorPagina: Integer; out ATotal: Int64): TObjectList<TCotizacionDTO>;
     function Bandeja(const AUsuarioId: Integer; const ATexto: string;
       const AFiltroDesde, AFiltroHasta: TDateTime;
       const APagina, APorPagina: Integer): TBandejaPaginaDTO;
@@ -505,10 +505,12 @@ end;
 
 function TCotizacionService.Buscar(const ATexto, AEstado: string;
   const AClienteId: Integer; const ADesde, AHasta: TDateTime;
-  const ARoles: TArray<string>; const AUsuarioId, APagina, APorPagina: Integer;
+  const ASoloPropias: Boolean; const ARoles: TArray<string>;
+  const AUsuarioId, APagina, APorPagina: Integer;
   out ATotal: Int64): TObjectList<TCotizacionDTO>;
 var
   lFiltroUsuario: Integer;
+  lElaboradaPor: Integer;
   lPeriodo: TPeriodo;
   lFilas: TObjectList<TCotizaciones>;
   lFila: TCotizaciones;
@@ -523,13 +525,17 @@ begin
     lFiltroUsuario := 0
   else
     lFiltroUsuario := AUsuarioId;
+  if ASoloPropias then
+    lElaboradaPor := AUsuarioId
+  else
+    lElaboradaPor := 0;
   lPeriodo := TPeriodo.De(ADesde, AHasta);
 
   ATotal := fRepo.ContarBusqueda(ATexto, AEstado, AClienteId, lFiltroUsuario,
-    lPeriodo.Inicio, lPeriodo.Fin);
+    lPeriodo.Inicio, lPeriodo.Fin, lElaboradaPor);
 
   lFilas := fRepo.Buscar(ATexto, APagina, APorPagina, AEstado, AClienteId,
-    lFiltroUsuario, lPeriodo.Inicio, lPeriodo.Fin);
+    lFiltroUsuario, lPeriodo.Inicio, lPeriodo.Fin, lElaboradaPor);
   lVistas := nil;
   lPorId := TDictionary<Integer, TCotizacionConNombres>.Create;
   try

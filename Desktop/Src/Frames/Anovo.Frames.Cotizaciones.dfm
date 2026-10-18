@@ -28,6 +28,30 @@ inherited fraCotizaciones: TfraCotizaciones
       StyleElements = []
       Kind = fkSecondary
     end
+    object pstElaboradas: TPlanoPestanas
+      Left = 772
+      Top = 6
+      Width = 170
+      Height = 40
+      Items.Strings = (
+        'M'#237'as'
+        'Todas')
+      Style = pesPastilla
+      Indent = 0
+      BackColor = 16447477
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ActiveFont.Charset = DEFAULT_CHARSET
+      ActiveFont.Color = clWindowText
+      ActiveFont.Height = -12
+      ActiveFont.Name = 'Segoe UI Semibold'
+      ActiveFont.Style = []
+      OnChange = pstElaboradasChange
+      ParentFont = False
+    end
   end
   inherited pnclient: TRelativePanel
     Top = 175

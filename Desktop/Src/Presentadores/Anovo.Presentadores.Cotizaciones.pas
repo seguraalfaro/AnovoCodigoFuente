@@ -1,7 +1,7 @@
 unit Anovo.Presentadores.Cotizaciones;
 
-// Presentador del listado de cotizaciones: busqueda, filtro por estado
-// y paginacion. Que filas ve cada quien lo decide el servidor.
+// Presentador del listado de cotizaciones: busqueda, filtro por estado,
+// Mias o Todas y paginacion. Que filas ve cada quien lo decide el servidor.
 
 interface
 
@@ -18,16 +18,21 @@ type
     FVista: IVistaCotizaciones;
     FApi: IApiCotizaciones;
     FFiltro: TFiltroCotizaciones;
+    FElaboradas: TElaboradasCotizaciones;
+    function ElaboradasIniciales: TElaboradasCotizaciones;
   protected
     procedure Cargar; override;
     function UsaPeriodo: Boolean; override;
     function PeriodoInicial: TPeriodoBusqueda; override;
     procedure PintarPeriodo; override;
+    function HayFiltro: Boolean; override;
   public
     constructor Create(const AVista: IVistaCotizaciones;
       const AApi: IApiCotizaciones);
     procedure Iniciar(const ACargar: Boolean = True);
+    procedure Limpiar; override;
     procedure Filtrar(const AFiltro: TFiltroCotizaciones);
+    procedure FiltrarElaboradas(const AElaboradas: TElaboradasCotizaciones);
     procedure Abrir(const AId: Integer);
   end;
 
@@ -40,6 +45,8 @@ uses
   System.SysUtils,
   System.Generics.Collections,
   Anovo.DTOs.Cotizaciones,
+  Anovo.Permisos,
+  Anovo.Sesion,
   Anovo.Textos;
 
 const
@@ -53,6 +60,21 @@ begin
   inherited Create(AVista);
   FVista := AVista;
   FApi := AApi;
+  FElaboradas := ElaboradasIniciales;
+end;
+
+function TPresentadorCotizaciones.ElaboradasIniciales: TElaboradasCotizaciones;
+begin
+  if TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR) and
+    (TSesion.Rol <> rolGerencia) then
+    Result := ecMias
+  else
+    Result := ecTodas;
+end;
+
+function TPresentadorCotizaciones.HayFiltro: Boolean;
+begin
+  Result := inherited HayFiltro or (FElaboradas <> ElaboradasIniciales);
 end;
 
 function TPresentadorCotizaciones.UsaPeriodo: Boolean;
@@ -74,9 +96,26 @@ procedure TPresentadorCotizaciones.Iniciar(const ACargar: Boolean);
 begin
   FVista.MostrarAcciones([alcAbrir]);
   FVista.MostrarPeriodo(FPeriodo);
+  FVista.MostrarElaboradas(FElaboradas);
   FVista.MostrarBusqueda(FTexto, HayFiltro);
   if ACargar then
     Cargar;
+end;
+
+procedure TPresentadorCotizaciones.Limpiar;
+begin
+  FElaboradas := ElaboradasIniciales;
+  FVista.MostrarElaboradas(FElaboradas);
+  inherited;
+end;
+
+procedure TPresentadorCotizaciones.FiltrarElaboradas(const AElaboradas
+  : TElaboradasCotizaciones);
+begin
+  FElaboradas := AElaboradas;
+  FPagina := 1;
+  PintarBusqueda;
+  Cargar;
 end;
 
 procedure TPresentadorCotizaciones.Filtrar(const AFiltro: TFiltroCotizaciones);
@@ -96,6 +135,7 @@ procedure TPresentadorCotizaciones.Cargar;
 var
   lApi: IApiCotizaciones;
   lTexto, lEstado: string;
+  lSoloPropias: Boolean;
   lPagina: Integer;
   lTotal: Int64;
   lFiltroDesde, lFiltroHasta: TDateTime;
@@ -105,6 +145,7 @@ begin
   lEstado := ESTADO_API[FFiltro];
   lFiltroDesde := FPeriodo.Desde;
   lFiltroHasta := FPeriodo.Hasta;
+  lSoloPropias := FElaboradas = ecMias;
   lPagina := FPagina;
   lTotal := 0;
 
@@ -112,7 +153,7 @@ begin
     function: TObjectList<TCotizacionDTO>
     begin
       Result := lApi.Listar(lTexto, lEstado, 0, lFiltroDesde, lFiltroHasta,
-        lPagina, COTIZACIONES_POR_PAGINA, lTotal);
+        lSoloPropias, lPagina, COTIZACIONES_POR_PAGINA, lTotal);
     end,
     procedure(ALista: TObjectList<TCotizacionDTO>)
     begin

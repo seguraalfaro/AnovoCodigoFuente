@@ -14,6 +14,8 @@ type
   TFiltroCotizaciones = (fcTodas, fcBorrador, fcPendiente, fcDevuelta,
     fcVistoBueno, fcEnviada, fcAprobada, fcRechazada, fcDescartada);
 
+  TElaboradasCotizaciones = (ecMias, ecTodas);
+
   TAccionListaCotizacion = (alcAbrir);
   TAccionesListaCotizacion = set of TAccionListaCotizacion;
 
@@ -21,6 +23,7 @@ type
     ['{2F84B6D1-5C39-4E07-A812-7D0E9C3B5A64}']
     procedure MostrarAcciones(const AAcciones: TAccionesListaCotizacion);
     procedure MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
+    procedure MostrarElaboradas(const AElaboradas: TElaboradasCotizaciones);
     procedure MostrarCotizaciones(const AFilas: TObjectList<TCotizacionDTO>);
     procedure AbrirCotizacion(const AId: Integer);
   end;

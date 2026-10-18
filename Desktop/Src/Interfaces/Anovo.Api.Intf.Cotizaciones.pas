@@ -29,8 +29,8 @@ type
       const AOrdenCompra: string);
     procedure Tomar(const ASolicitudId: Integer);
     function Listar(const ATexto, AEstado: string; const AClienteId: Integer;
-      const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer;
-      out ATotal: Int64)
+      const ADesde, AHasta: TDateTime; const ASoloPropias: Boolean;
+      const APagina, APorPagina: Integer; out ATotal: Int64)
       : TObjectList<TCotizacionDTO>;
     procedure Actualizar(const AId: Integer; const ADto: TCotizacionEdicionDTO);
     function AgregarLinea(const AId: Integer;
