@@ -220,35 +220,31 @@ object fraCotizacion: TfraCotizacion
           TitleFont.Height = -11
           TitleFont.Name = 'Tahoma'
           TitleFont.Style = []
-          StyleElements = [seFont]
+          StyleElements = []
           OnCellClick = grPiezasCellClick
           OnKeyUp = grPiezasKeyUp
           Columns = <
             item
               Expanded = False
               FieldName = 'NOMBRE'
-              Title.Caption = 'Pieza'
               Width = 200
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'TIPO_TRABAJO_NOMBRE'
-              Title.Caption = 'Trabajo'
               Width = 200
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'TIPO_MATERIAL_NOMBRE'
-              Title.Caption = 'Material'
               Width = 200
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'ACABADO_NOMBRE'
-              Title.Caption = 'Acabado'
               Width = 200
               Visible = True
             end>
@@ -293,8 +289,8 @@ object fraCotizacion: TfraCotizacion
           Align = alClient
           Alignment = taCenter
           AutoSize = False
-          Layout = tlCenter
           Transparent = True
+          Layout = tlCenter
           Visible = False
           ExplicitWidth = 396
           ExplicitHeight = 118
@@ -330,8 +326,8 @@ object fraCotizacion: TfraCotizacion
             Align = alClient
             Alignment = taCenter
             AutoSize = False
-            Layout = tlCenter
             Transparent = True
+            Layout = tlCenter
             Visible = False
             WordWrap = True
             ExplicitHeight = 118
@@ -395,21 +391,18 @@ object fraCotizacion: TfraCotizacion
             item
               Expanded = False
               FieldName = 'ETIQUETA'
-              Title.Caption = 'Etiqueta'
               Width = 200
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'TIPO_MEDIDA'
-              Title.Caption = 'Tipo de medida'
               Width = 90
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'UNIDAD_MEDIDA'
-              Title.Caption = 'Unidad'
               Width = 90
               Visible = True
             end
@@ -417,7 +410,6 @@ object fraCotizacion: TfraCotizacion
               Expanded = False
               FieldName = 'VALOR'
               Title.Alignment = taRightJustify
-              Title.Caption = 'Valor'
               Width = 100
               Visible = True
             end
@@ -425,7 +417,6 @@ object fraCotizacion: TfraCotizacion
               Expanded = False
               FieldName = 'CANTIDAD'
               Title.Alignment = taRightJustify
-              Title.Caption = 'Cantidad'
               Width = 70
               Visible = True
             end>
@@ -1091,21 +1082,18 @@ object fraCotizacion: TfraCotizacion
             item
               Expanded = False
               FieldName = 'TIPO'
-              Title.Caption = 'Tipo'
               Width = 90
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'DESCRIPCION'
-              Title.Caption = 'Descripci'#243'n'
               Width = 200
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'UNIDAD_MEDIDA'
-              Title.Caption = 'Unidad'
               Width = 90
               Visible = True
             end
@@ -1113,7 +1101,6 @@ object fraCotizacion: TfraCotizacion
               Expanded = False
               FieldName = 'CANTIDAD'
               Title.Alignment = taRightJustify
-              Title.Caption = 'Cantidad'
               Width = 100
               Visible = True
             end
@@ -1121,7 +1108,6 @@ object fraCotizacion: TfraCotizacion
               Expanded = False
               FieldName = 'PRECIO_UNITARIO'
               Title.Alignment = taRightJustify
-              Title.Caption = 'Precio'
               Width = 100
               Visible = True
             end
@@ -1129,14 +1115,12 @@ object fraCotizacion: TfraCotizacion
               Expanded = False
               FieldName = 'SUBTOTAL'
               Title.Alignment = taRightJustify
-              Title.Caption = 'Subtotal'
               Width = 100
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'ACCIONES'
-              Title.Caption = 'Acciones'
               Width = 120
               Visible = True
             end>

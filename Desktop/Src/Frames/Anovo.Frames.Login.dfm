@@ -700,13 +700,19 @@ object fraLogin: TfraLogin
       Height = 21
       Anchors = []
       TabOrder = 4
-      Text = 'asesor2@anovo.test'#9
+      Text = 'asesor@anovo.test'#9
       OnChange = ComboBox1Change
       Items.Strings = (
-        'asesor2@anovo.test'#9
-        'asistente@anovo.test'#9
-        'supervisor@anovo.test'#9
-        'gerencia@anovo.test'#9
+        'asesor@anovo.test'
+        'asesor2@anovo.test'
+        'asesor3@anovo.test'
+        'asesor4@anovo.test'
+        'asesor5@anovo.test'
+        'asistente@anovo.test'
+        'asistente2@anovo.test'
+        'supervisor@anovo.test'
+        'supervisor2@anovo.test'
+        'gerencia@anovo.test'
         'admin@anovo.test')
     end
   end

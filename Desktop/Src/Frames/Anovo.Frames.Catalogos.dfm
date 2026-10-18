@@ -1,5 +1,8 @@
 inherited fraCatalogos: TfraCatalogos
+  Width = 998
+  ExplicitWidth = 998
   inherited pnlTitulo: TPanel
+    Width = 992
     inherited lblTitulo: TLabel
       Width = 177
       Caption = 'Cat'#225'logos de costo'
@@ -14,8 +17,9 @@ inherited fraCatalogos: TfraCatalogos
     end
   end
   inherited pnlBarra: TPanel
+    Width = 992
     DesignSize = (
-      954
+      992
       52)
     inherited sbBuscar: TSearchBox
       TextHint = 'C'#243'digo o descripci'#243'n'
@@ -25,7 +29,7 @@ inherited fraCatalogos: TfraCatalogos
       ExplicitLeft = 330
     end
     object btnImportar: TPlanoBotonWin
-      Left = 568
+      Left = 606
       Top = 12
       Width = 96
       Height = 28
@@ -37,9 +41,10 @@ inherited fraCatalogos: TfraCatalogos
       StyleElements = []
       OnClick = btnImportarClick
       Kind = fkSecondary
+      ExplicitLeft = 568
     end
     object btnExportar: TPlanoBotonWin
-      Left = 670
+      Left = 708
       Top = 12
       Width = 96
       Height = 28
@@ -50,9 +55,10 @@ inherited fraCatalogos: TfraCatalogos
       StyleElements = []
       OnClick = btnExportarClick
       Kind = fkSecondary
+      ExplicitLeft = 670
     end
     object btnNuevo: TPlanoBotonWin
-      Left = 772
+      Left = 810
       Top = 12
       Width = 162
       Height = 28
@@ -62,12 +68,14 @@ inherited fraCatalogos: TfraCatalogos
       TabOrder = 4
       StyleElements = []
       OnClick = btnNuevoClick
+      ExplicitLeft = 772
     end
     object cbCategoria: TrDBLookupComboBox
       Left = 430
       Top = 13
       Width = 130
       Height = 23
+      DataField = ''
       DropDownRows = 10
       KeyField = 'ID'
       ListField = 'NOMBRE'
@@ -76,10 +84,14 @@ inherited fraCatalogos: TfraCatalogos
       Visible = False
       OnClick = cbCategoriaClick
       ReadOnlyColor = clWindow
+      DBEditLabel.Visible = False
+      BoundLabel.Visible = False
+      BoundLabel.Position = lpTopRight
     end
   end
   inherited pnclient: TRelativePanel
     Top = 175
+    Width = 992
     Height = 392
     ControlCollection = <
       item
@@ -103,7 +115,7 @@ inherited fraCatalogos: TfraCatalogos
     ExplicitTop = 175
     ExplicitHeight = 392
     inherited grDatos: TrDBGrid
-      Width = 914
+      Width = 952
       Height = 386
       Margins.Right = 20
       Visible = False
@@ -112,30 +124,29 @@ inherited fraCatalogos: TfraCatalogos
       Tag = 2
       Left = 0
       Top = 0
-      Width = 954
+      Width = 992
       Height = 392
       Align = alClient
       ActiveCard = crdTodos
       BevelOuter = bvNone
-      Caption = ''
       TabOrder = 1
       object crdTodos: TCard
         Tag = 2
         Left = 0
         Top = 0
-        Width = 954
+        Width = 992
         Height = 392
-        Caption = ''
         CardIndex = 0
         TabOrder = 0
+        ExplicitWidth = 954
         object grTodos: TrDBGrid
           AlignWithMargins = True
           Left = 20
           Top = 3
-          Width = 931
-          Height = 380
+          Width = 952
+          Height = 386
           Margins.Left = 20
-        Margins.Right = 20
+          Margins.Right = 20
           Align = alClient
           BorderStyle = bsNone
           DataSource = dmMemoria.dsTodos
@@ -213,19 +224,19 @@ inherited fraCatalogos: TfraCatalogos
         Tag = 2
         Left = 0
         Top = 0
-        Width = 954
+        Width = 992
         Height = 392
-        Caption = ''
         CardIndex = 1
         TabOrder = 1
+        ExplicitWidth = 954
         object grMateriales: TrDBGrid
           AlignWithMargins = True
           Left = 20
           Top = 3
-          Width = 931
-          Height = 380
+          Width = 914
+          Height = 386
           Margins.Left = 20
-        Margins.Right = 20
+          Margins.Right = 20
           Align = alClient
           BorderStyle = bsNone
           DataSource = dmMemoria.dsMateriales
@@ -303,19 +314,19 @@ inherited fraCatalogos: TfraCatalogos
         Tag = 2
         Left = 0
         Top = 0
-        Width = 954
+        Width = 992
         Height = 392
-        Caption = ''
         CardIndex = 2
         TabOrder = 2
+        ExplicitWidth = 954
         object grManoObra: TrDBGrid
           AlignWithMargins = True
           Left = 20
           Top = 3
-          Width = 931
-          Height = 380
+          Width = 914
+          Height = 386
           Margins.Left = 20
-        Margins.Right = 20
+          Margins.Right = 20
           Align = alClient
           BorderStyle = bsNone
           DataSource = dmMemoria.dsManoObra
@@ -392,19 +403,19 @@ inherited fraCatalogos: TfraCatalogos
         Tag = 2
         Left = 0
         Top = 0
-        Width = 954
+        Width = 992
         Height = 392
-        Caption = ''
         CardIndex = 3
         TabOrder = 3
+        ExplicitWidth = 954
         object grMaquinas: TrDBGrid
           AlignWithMargins = True
           Left = 20
           Top = 3
-          Width = 931
-          Height = 380
+          Width = 914
+          Height = 386
           Margins.Left = 20
-        Margins.Right = 20
+          Margins.Right = 20
           Align = alClient
           BorderStyle = bsNone
           DataSource = dmMemoria.dsMaquinas
@@ -474,19 +485,19 @@ inherited fraCatalogos: TfraCatalogos
         Tag = 2
         Left = 0
         Top = 0
-        Width = 954
+        Width = 992
         Height = 392
-        Caption = ''
         CardIndex = 4
         TabOrder = 4
+        ExplicitWidth = 954
         object grTiposTrabajo: TrDBGrid
           AlignWithMargins = True
           Left = 20
           Top = 3
-          Width = 931
-          Height = 380
+          Width = 914
+          Height = 386
           Margins.Left = 20
-        Margins.Right = 20
+          Margins.Right = 20
           Align = alClient
           BorderStyle = bsNone
           DataSource = dmMemoria.dsTiposTrabajo
@@ -527,19 +538,19 @@ inherited fraCatalogos: TfraCatalogos
         Tag = 2
         Left = 0
         Top = 0
-        Width = 954
+        Width = 992
         Height = 392
-        Caption = ''
         CardIndex = 5
         TabOrder = 5
+        ExplicitWidth = 954
         object grUnidades: TrDBGrid
           AlignWithMargins = True
           Left = 20
           Top = 3
-          Width = 931
-          Height = 380
+          Width = 914
+          Height = 386
           Margins.Left = 20
-        Margins.Right = 20
+          Margins.Right = 20
           Align = alClient
           BorderStyle = bsNone
           DataSource = dmMemoria.dsUnidadesLista
@@ -594,19 +605,19 @@ inherited fraCatalogos: TfraCatalogos
         Tag = 2
         Left = 0
         Top = 0
-        Width = 954
+        Width = 992
         Height = 392
-        Caption = ''
         CardIndex = 6
         TabOrder = 6
+        ExplicitWidth = 954
         object grSimples: TrDBGrid
           AlignWithMargins = True
           Left = 20
           Top = 3
-          Width = 931
-          Height = 380
+          Width = 914
+          Height = 386
           Margins.Left = 20
-        Margins.Right = 20
+          Margins.Right = 20
           Align = alClient
           BorderStyle = bsNone
           DataSource = dmMemoria.dsCatalogoSimple
@@ -645,11 +656,20 @@ inherited fraCatalogos: TfraCatalogos
       end
     end
   end
+  inherited pnlPie: TPanel
+    Width = 992
+    inherited btnAnterior: TPlanoBotonWin
+      Left = 738
+    end
+    inherited btnSiguiente: TPlanoBotonWin
+      Left = 862
+    end
+  end
   object pstCatalogo: TPlanoPestanas
     AlignWithMargins = True
     Left = 3
     Top = 129
-    Width = 954
+    Width = 992
     Height = 40
     Items.Strings = (
       'Todos'
@@ -676,5 +696,6 @@ inherited fraCatalogos: TfraCatalogos
     ActiveFont.Style = []
     OnChange = pstCatalogoChange
     ParentFont = False
+    ExplicitWidth = 954
   end
 end

@@ -66,7 +66,6 @@ inherited fraSolicitudesAsistente: TfraSolicitudesAsistente
       Align = alClient
       ActiveCard = crdCola
       BevelOuter = bvNone
-      Caption = ''
       TabOrder = 1
       object crdCola: TCard
         Tag = 2
@@ -74,7 +73,6 @@ inherited fraSolicitudesAsistente: TfraSolicitudesAsistente
         Top = 0
         Width = 954
         Height = 392
-        Caption = ''
         CardIndex = 0
         TabOrder = 0
         object grCola: TrDBGrid
@@ -82,7 +80,7 @@ inherited fraSolicitudesAsistente: TfraSolicitudesAsistente
           Left = 20
           Top = 3
           Width = 931
-          Height = 380
+          Height = 386
           Margins.Left = 20
           Align = alClient
           BorderStyle = bsNone
@@ -98,30 +96,27 @@ inherited fraSolicitudesAsistente: TfraSolicitudesAsistente
           StyleElements = [seFont]
           Columns = <
             item
+              ButtonStyle = cbsEllipsis
               Expanded = False
               FieldName = 'FECHA_RECEPCION'
-              Title.Caption = 'Recibida'
               Width = 100
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'CLIENTE_NOMBRE'
-              Title.Caption = 'Cliente'
               Width = 160
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'ASESOR_NOMBRE'
-              Title.Caption = 'Asesor'
               Width = 160
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'DESCRIPCION'
-              Title.Caption = 'Descripci'#243'n'
               Width = 160
               Visible = True
             end
@@ -129,14 +124,12 @@ inherited fraSolicitudesAsistente: TfraSolicitudesAsistente
               Expanded = False
               FieldName = 'DIAS_ESPERA'
               Title.Alignment = taRightJustify
-              Title.Caption = 'D'#237'as'
               Width = 90
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'ACCIONES'
-              Title.Caption = 'Acciones'
               Width = 200
               Visible = True
             end>
@@ -148,7 +141,6 @@ inherited fraSolicitudesAsistente: TfraSolicitudesAsistente
         Top = 0
         Width = 954
         Height = 392
-        Caption = ''
         CardIndex = 1
         TabOrder = 1
         object grEnTrabajo: TrDBGrid
@@ -156,7 +148,7 @@ inherited fraSolicitudesAsistente: TfraSolicitudesAsistente
           Left = 20
           Top = 3
           Width = 931
-          Height = 380
+          Height = 386
           Margins.Left = 20
           Align = alClient
           BorderStyle = bsNone
@@ -175,49 +167,43 @@ inherited fraSolicitudesAsistente: TfraSolicitudesAsistente
               Expanded = False
               FieldName = 'NUMERO'
               Title.Alignment = taRightJustify
-              Title.Caption = 'N'#250'mero'
               Width = 90
               Visible = True
             end
             item
+              ButtonStyle = cbsEllipsis
               Expanded = False
               FieldName = 'FECHA_MODIFICACION'
-              Title.Caption = 'Actualizada'
               Width = 100
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'CLIENTE_NOMBRE'
-              Title.Caption = 'Cliente'
               Width = 160
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'DESCRIPCION_TRABAJO'
-              Title.Caption = 'Trabajo'
               Width = 160
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'ESTADO'
-              Title.Caption = 'Estado'
               Width = 110
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'MOTIVO_RECHAZO'
-              Title.Caption = 'Observaci'#243'n'
               Width = 160
               Visible = True
             end
             item
               Expanded = False
               FieldName = 'ACCIONES'
-              Title.Caption = 'Acciones'
               Width = 200
               Visible = True
             end>
