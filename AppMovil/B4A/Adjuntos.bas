@@ -4,9 +4,7 @@ ModulesStructureVersion=1
 Type=StaticCode
 Version=13.7
 @EndOfDesignText@
-'Code module
-'Subs in this code module will be accessible from all modules.
-
+' Camaras del equipo, fotos en disco (carpeta, copia, medidas, huella y base64) y permisos bloqueados.
 Sub Process_Globals
 	Private xui As XUI 'ignore
 
@@ -17,9 +15,6 @@ Sub Process_Globals
 	Public Const LADO_CORTO_MINIMO As Int = 600
 	Private Const CARPETA_FOTOS As String = "fotos"
 
-	Type Foto (Archivo As String, Miniatura As String, Sincronizada As Boolean)
-
-	'--- deteccion de camaras ---
 	Public Const ESTADO_SIN_HARDWARE As String = "sin_hardware"
 	Public Const ESTADO_BLOQUEADO    As String = "bloqueado"
 	Public Const ESTADO_DENEGADO     As String = "denegado"
@@ -29,8 +24,6 @@ Sub Process_Globals
 End Sub
 
 #Region Cámara del equipo
-'El hardware no cambia mientras el proceso vive: se consulta una sola vez
-'y el resultado queda cacheado. No requiere permiso de camara.
 Private Sub DetectarCamaras
 	If detectadas Then Return
 	detectadas = True
@@ -62,9 +55,6 @@ Private Sub DetectarCamaras
 	Log($"Camaras -> trasera: ${hayTrasera}, frontal: ${hayFrontal}"$)
 End Sub
 
-'Respaldo por si getNumberOfCameras falla. Las features son metadatos que
-'declara el fabricante, menos fiables que consultar el HAL, pero sirven
-'para no quedarse sin dato.
 Private Sub DetectarPorFeatures
 	Try
 		Dim ctx As JavaObject
@@ -73,13 +63,12 @@ Private Sub DetectarPorFeatures
 		hayTrasera = pm.RunMethod("hasSystemFeature", Array("android.hardware.camera"))
 		hayFrontal = pm.RunMethod("hasSystemFeature", Array("android.hardware.camera.front"))
 
-		'Equipos que solo declaran la generica: se asume trasera.
 		If Not(hayTrasera) And Not(hayFrontal) Then
 			hayTrasera = pm.RunMethod("hasSystemFeature", Array("android.hardware.camera.any"))
 		End If
 	Catch
 		Log("DetectarPorFeatures: " & LastException.Message)
-		hayTrasera = True     'ante la duda, que decida CamEx_Ready
+		hayTrasera = True
 	End Try
 End Sub
 
@@ -244,10 +233,6 @@ End Sub
 #End Region
 
 #Region Permisos
-'Distingue un permiso simplemente denegado de uno bloqueado de forma
-'permanente ("no volver a preguntar").
-'PRECONDICION: llamar solo DESPUES de una denegacion. Antes de la primera
-'solicitud tambien devuelve True y daria un falso positivo.
 Public Sub PermisoBloqueado (permiso As String) As Boolean
 	Try
 		Dim ctx As JavaObject

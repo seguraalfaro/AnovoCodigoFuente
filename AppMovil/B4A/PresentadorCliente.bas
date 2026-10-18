@@ -210,17 +210,6 @@ End Sub
 
 #Region Textos de cada fila
 Public Sub DetalleContacto (c As Contacto) As String
-	Dim partes As List
-	partes.Initialize
-	For Each valor As String In Array As String(c.Telefono, c.Celular, c.Correo)
-		If valor.Trim <> "" Then partes.Add(valor.Trim)
-	Next
-	Dim sb As StringBuilder
-	sb.Initialize
-	For i = 0 To partes.Size - 1
-		If i > 0 Then sb.Append(SEPARADOR)
-		sb.Append(partes.Get(i))
-	Next
-	Return sb.ToString
+	Return Utils.Unir(SEPARADOR, Array As String(c.Telefono, c.Celular, c.Correo))
 End Sub
 #End Region

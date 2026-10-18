@@ -8,11 +8,6 @@ Version=13.7
 ' en el servidor. Solo confirma lo que el servidor acepto, unidad por unidad.
 
 Sub Class_Globals
-	Private Const ESTADO_CREADO As Int = 201
-	Private Const ESTADO_OK As Int = 200
-	Private Const ESTADO_NO_AUTORIZADO As Int = 401
-	Private Const ESTADO_DEMASIADAS As Int = 429
-	Private Const ESTADO_SERVIDOR As Int = 500
 	Private Const CODIGO_CAMBIO_CLAVE As String = "CAMBIO_CLAVE_PENDIENTE"
 	Private Const CODIGO_VERSION_VENCIDA As String = "VERSION_VENCIDA"
 	Private mCorriendo As Boolean
@@ -36,12 +31,12 @@ Public Sub Ejecutar As ResumableSub
 	For Each clase As String In Array As String(DbSync.CLASE_CLIENTE, DbSync.CLASE_SOLICITUD, DbSync.CLASE_FOTO)
 		For Each u As UnidadSync In DbSync.Listas(clase)
 			Wait For (remota.AsegurarSesion) Complete (Estado As Int)
-			If Estado <> ESTADO_OK Then
+			If Estado <> Api.HTTP_OK Then
 				MarcarCaida(r, Estado)
 				Exit
 			End If
 			Wait For (Enviar(u)) Complete (Respuesta As RestRespuesta)
-			If Respuesta.StatusCode = ESTADO_CREADO Or Respuesta.StatusCode = ESTADO_OK Then
+			If Respuesta.StatusCode = Api.HTTP_CREADO Or Respuesta.StatusCode = Api.HTTP_OK Then
 				Dim id As Int = ApiSincronizacion.IdCreado(Respuesta)
 				If id > 0 Then
 					DbSync.Confirmar(u, id)
@@ -50,12 +45,12 @@ Public Sub Ejecutar As ResumableSub
 					Log("Sincronizador: respuesta sin id para " & u.Uuid)
 					DbSync.Reprogramar(u)
 				End If
-			Else If Respuesta.StatusCode = ESTADO_NO_AUTORIZADO Or Respuesta.Codigo = CODIGO_CAMBIO_CLAVE Then
+			Else If Respuesta.StatusCode = Api.HTTP_NO_AUTORIZADO Or Respuesta.Codigo = CODIGO_CAMBIO_CLAVE Then
 				r.SesionVencida = True
 				Exit
 			Else If Reintentable(Respuesta.StatusCode) Then
 				DbSync.Reprogramar(u)
-				If Respuesta.StatusCode = 0 Or Respuesta.StatusCode = ESTADO_DEMASIADAS Then
+				If Respuesta.StatusCode = 0 Or Respuesta.StatusCode = Api.HTTP_DEMASIADAS Then
 					MarcarCaida(r, Respuesta.StatusCode)
 					Exit
 				End If
@@ -100,7 +95,7 @@ End Sub
 Private Sub MarcarCaida (r As ResumenSync, Estado As Int)
 	If Estado = 0 Then
 		r.SinConexion = True
-	Else If Estado = ESTADO_DEMASIADAS Or Estado >= ESTADO_SERVIDOR Then
+	Else If Estado = Api.HTTP_DEMASIADAS Or Estado >= Api.HTTP_SERVIDOR Then
 		r.ServidorOcupado = True
 	Else
 		r.SesionVencida = True
@@ -112,20 +107,20 @@ Private Sub Detenido (r As ResumenSync) As Boolean
 End Sub
 
 Private Sub Reintentable (Estado As Int) As Boolean
-	Return Estado = 0 Or Estado = ESTADO_DEMASIADAS Or Estado >= ESTADO_SERVIDOR
+	Return Estado = 0 Or Estado = Api.HTTP_DEMASIADAS Or Estado >= Api.HTTP_SERVIDOR
 End Sub
 #End Region
 
 #Region Bajada
 Private Sub Bajar (r As ResumenSync) As ResumableSub
 	Wait For (remota.AsegurarSesion) Complete (Estado As Int)
-	If Estado <> ESTADO_OK Then
+	If Estado <> Api.HTTP_OK Then
 		MarcarCaida(r, Estado)
 		Return False
 	End If
 	Wait For (ApiSincronizacion.Bajar(DbBajada.Desde).Enviar) Complete (Respuesta As RestRespuesta)
-	If Respuesta.StatusCode <> ESTADO_OK Then
-		If Respuesta.StatusCode = ESTADO_NO_AUTORIZADO Then
+	If Respuesta.StatusCode <> Api.HTTP_OK Then
+		If Respuesta.StatusCode = Api.HTTP_NO_AUTORIZADO Then
 			r.SesionVencida = True
 		Else If Respuesta.StatusCode = 0 Then
 			r.SinConexion = True
@@ -144,7 +139,7 @@ Private Sub Bajar (r As ResumenSync) As ResumableSub
 		r.FalloBajada = True
 	End If
 	Wait For (ApiSincronizacion.Indicadores.Enviar) Complete (Tablero As RestRespuesta)
-	If Tablero.StatusCode = ESTADO_OK Then DbInicio.GuardarIndicadores(Tablero.DatosMap)
+	If Tablero.StatusCode = Api.HTTP_OK Then DbInicio.GuardarIndicadores(Tablero.DatosMap)
 	Return Exito
 End Sub
 #End Region

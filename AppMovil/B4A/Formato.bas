@@ -4,20 +4,10 @@ ModulesStructureVersion=1
 Type=StaticCode
 Version=13.7
 @EndOfDesignText@
-' ============================================================
-'  Formato — da formato al texto mientras se escribe, y rutea la
-'  validacion al perder el foco. Sin UI propia: solo toca el EditText
-'  del B4XFloatTextField que dispara el evento.
-'
-'  El campo se reconoce por el Tag del Designer (Utils.TAG_*), no por
-'  el nombre. Las funciones de mascara son puras: se prueban sin
-'  interfaz y las reusa Validacion.
-' ============================================================
-
+' Mascaras de texto mientras se escribe y validacion al perder el foco, segun el Tag del campo.
 Sub Process_Globals
 	Private MascaraEnCurso As Boolean
 
-	
 	Public Const MASCARA_NOMBRE       As Int = 0
 	Public Const MASCARA_TELEFONO       As Int = 1
 	Public Const MASCARA_TELEFONO_EXT   As Int = 2
@@ -30,9 +20,6 @@ Sub Process_Globals
 End Sub
 
 #Region Evento de entrada
-'Traduce el ItemIndex de Utils.TiposIdent al vocabulario de mascaras.
-'El orden del combo es cosa de la pantalla y no debe ser el contrato.
-'se corrige error de implementecion se deside cambiar el tag al componete en ejecucion
 Public Sub SetTipoIdentificacion (indice As Int, Campo As B4XFloatTextField)
 	Dim actual As String = UI.TagDelPadre(Campo.TextField)
 	Dim viejo  As String = TagIdentActual(actual)
@@ -43,8 +30,6 @@ Public Sub SetTipoIdentificacion (indice As Int, Campo As B4XFloatTextField)
 
 	Campo.Tag = tag
 
-	
-	
 	MascaraEnCurso = True
 	Campo.Text = ""
 	MascaraEnCurso = False
@@ -76,8 +61,6 @@ End Sub
 public Sub EventoCambioText(Remitente As Object ,Old As String, New As String)
 	If MascaraEnCurso Then Return
 
-	'Dim campo As B4XFloatTextField = Remitente
-	'Dim et As EditText = campo.TextField
 	Dim et As EditText = UI.RetornarTextField(Remitente)
 	If et = Null Then Return
 	Dim t As String=obtenerTag(et)
@@ -86,7 +69,6 @@ public Sub EventoCambioText(Remitente As Object ,Old As String, New As String)
 	Dim mascara As Int = Enmascarar(t)
 	Dim nuevo As String = RevisarMarcara(mascara,New)
 	If New  <> nuevo Then
-		'Asignar .Text vuelve a disparar el evento: de ahi la bandera.
 		MascaraEnCurso = True
 		et.Text = nuevo
 		et.SelectionStart = nuevo.Length
@@ -109,11 +91,9 @@ Private Sub RevisarMarcara(Tipo As Int, New As String)As String
 		Case MASCARA_IDENT_JURIDICA, MASCARA_IDENT_FISICA, MASCARA_IDENT_DIMEX
 			Return MascaraIdentificacion(New, Tipo)
 		End Select
-	'Email y sin mascara no transforman: devolver New o el campo se vacia al escribir.
 	Return New
 End Sub
 
-'El orden importa: los tags mas largos van primero porque los cortos los contienen.
 Private Sub Enmascarar (t As String) As Int
 	If t.Contains(Utils.TAG_FTF_TELEFONO_EXT)    Then Return MASCARA_TELEFONO_EXT
 	If t.Contains(Utils.TAG_FTF_TELEFONO)        Then Return MASCARA_TELEFONO
@@ -128,12 +108,9 @@ End Sub
 #End Region
 
 #Region Máscaras
-'Publicas y puras: se prueban sin interfaz y las reusa Validacion.
 Public Sub MascaraIdentificacion (Texto As String, Tipo As Int) As String
 	Select Tipo
 		Case MASCARA_IDENT_JURIDICA
-			'El consecutivo juridico pasa a alfanumerico (3-101-A00001) a finales 2026
-			'por eso aqui no se filtran solo digitos.
 			Dim s As String = Utils.SoloAlfanum(Texto)
 			If s.Length > Utils.LARGO_IDENT_JURIDICA Then s = s.SubString2(0, Utils.LARGO_IDENT_JURIDICA)
 			Dim res As String = s
@@ -175,8 +152,6 @@ End Sub
 #End Region
 
 #Region Validación al salir del campo
-'Normaliza segun el campo: SoloAlfanum se come la arroba y el punto,
-'asi que el correo va por NormalizarCorreo o ninguna validacion pasa.
 Public Sub EventoCambioFocusText(Remitente As Object)As Boolean
 	Dim et As EditText = UI.RetornarTextField(Remitente)
 	If et = Null Then Return True

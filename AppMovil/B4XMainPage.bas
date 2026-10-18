@@ -59,6 +59,7 @@ End Sub
 
 Private Sub B4XPage_Appear
 	visible = True
+	If presentador.ErrorBase <> "" Then xui.MsgboxAsync(presentador.ErrorBase, Mensajes.TITULO)
 	If entrarPendiente Then
 		Entrar
 		Return

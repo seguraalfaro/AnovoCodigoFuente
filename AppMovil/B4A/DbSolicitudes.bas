@@ -15,7 +15,7 @@ Sub Process_Globals
 	Private Const TIPO_FOTO As String = "foto"
 	Private Const MIME_CROQUIS As String = "application/json"
 	Private Const MIME_FOTO As String = "image/jpeg"
-	Private Const UNIDAD_POR_DEFECTO As String = "cm"
+	Public UNIDADES_MEDIDA() As String = Array As String("cm", "mm", "m", "pulg", "grados")
 End Sub
 
 Public Sub Guardar (s As Solicitud, Piezas As List) As String
@@ -51,7 +51,7 @@ Public Sub Guardar (s As Solicitud, Piezas As List) As String
 			For Each m As MedidaPieza In p.ListaMedidas
 				Dim uMedida As String = Db.NuevoUuid
 				Dim unidad As String = m.Unidad
-				If unidad = "" Then unidad = UNIDAD_POR_DEFECTO
+				If unidad = "" Then unidad = UNIDADES_MEDIDA(0)
 				conexion.ExecNonQuery2(SQL_MEDIDA, Array As Object(uMedida, p.UuidLocal, croquis, m.Etiqueta, _
 					m.TipoMedida, m.Valor, Max(1, m.Cantidad), unidad, m.Orden))
 				uMedidas.Add(uMedida)

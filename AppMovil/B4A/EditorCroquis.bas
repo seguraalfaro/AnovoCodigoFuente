@@ -32,7 +32,6 @@ Sub Class_Globals
 	Private txtValor As EditText
 	Private txtCantidad As EditText
 
-	Private UNIDADES() As String = Array As String("cm", "mm", "m", "pulg", "grados")
 	Private PLANOS() As String = Array As String("", "superior", "izquierda", "derecha", "frente")
 	Private COLORES_LAPIZ() As Int
 	Private GROSORES() As Float
@@ -339,7 +338,7 @@ Private Sub PrepararDialogos
 	pnlMedida.Color = Colores.COLOR_SUPERFICIE
 	pnlMedida.SetLayoutAnimated(0, 0, 0, 300dip, 236dip)
 	spnMedida = NuevoCombo(Mensajes.TiposMedida)
-	spnUnidad = NuevoCombo(UNIDADES)
+	spnUnidad = NuevoCombo(DbSolicitudes.UNIDADES_MEDIDA)
 	txtValor.Initialize("")
 	txtValor.InputType = txtValor.INPUT_TYPE_DECIMAL_NUMBERS
 	txtValor.SingleLine = True

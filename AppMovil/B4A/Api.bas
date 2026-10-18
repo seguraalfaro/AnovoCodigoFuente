@@ -15,8 +15,11 @@ Sub Process_Globals
 	Private Const PREFIJO_HTTPS As String = "https://"
 	Private Const URL_POR_DEFECTO As String = "https://api.anovoms.com"
 	Private Const TIEMPO_MS As Int = 30000
-	Private Const ESTADO_NO_AUTORIZADO As Int = 401
-	Private Const ESTADO_DEMASIADAS As Int = 429
+	Public Const HTTP_OK As Int = 200
+	Public Const HTTP_CREADO As Int = 201
+	Public Const HTTP_NO_AUTORIZADO As Int = 401
+	Public Const HTTP_DEMASIADAS As Int = 429
+	Public Const HTTP_SERVIDOR As Int = 500
 	Private Const PAGINA_INGRESO As String = "MainPage"
 End Sub
 
@@ -53,7 +56,7 @@ End Sub
 
 #Region Errores y sesión
 Public Sub SesionVencida (Respuesta As RestRespuesta) As Boolean
-	Return Respuesta.StatusCode = ESTADO_NO_AUTORIZADO
+	Return Respuesta.StatusCode = HTTP_NO_AUTORIZADO
 End Sub
 
 Public Sub MensajeDe (Respuesta As RestRespuesta) As String
@@ -62,9 +65,9 @@ Public Sub MensajeDe (Respuesta As RestRespuesta) As String
 		If detalle <> Null And (detalle.Contains("CertPath") Or detalle.Contains("SSLHandshake")) Then Return Mensajes.CERTIFICADO_INVALIDO
 		Return Mensajes.SIN_CONEXION
 	End If
-	If Respuesta.StatusCode = ESTADO_NO_AUTORIZADO Then Return Mensajes.SESION_VENCIDA
+	If Respuesta.StatusCode = HTTP_NO_AUTORIZADO Then Return Mensajes.SESION_VENCIDA
 	If Respuesta.Mensaje <> "" Then Return Mensajes.ConDetalles(Respuesta.Mensaje, Respuesta.Detalles)
-	If Respuesta.StatusCode = ESTADO_DEMASIADAS Then Return Mensajes.DEMASIADAS_PETICIONES
+	If Respuesta.StatusCode = HTTP_DEMASIADAS Then Return Mensajes.DEMASIADAS_PETICIONES
 	Return Mensajes.ErrorServidor(Respuesta.StatusCode)
 End Sub
 

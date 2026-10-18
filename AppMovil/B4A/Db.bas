@@ -4,12 +4,12 @@ ModulesStructureVersion=1
 Type=StaticCode
 Version=13.7
 @EndOfDesignText@
-'Code module
-'Subs in this code module will be accessible from all modules.
-
+' Conexion SQLite, borradores en KVS, cola de sincronizacion, configuracion y limpieza al cerrar sesion.
 Sub Process_Globals
 	Private kvsBorradores As KeyValueStore
 	Public DbSQL As SQL
+	Public Const SQL_GUARDAR_CONFIG As String = "INSERT OR REPLACE INTO config (clave, valor) VALUES (?, ?)"
+	Private Const SQL_LEER_CONFIG As String = "SELECT valor FROM config WHERE clave = ?"
 	Private Const SQL_FOTOS_SUBIDAS As String = "SELECT ruta_archivo FROM adjuntos WHERE tipo = 'foto' AND ruta_archivo IS NOT NULL AND pieza_uuid IN (SELECT uuid_local FROM piezas WHERE solicitud_uuid IN (SELECT s.uuid_local FROM solicitudes s WHERE s.estado_sync = 'confirmado' AND NOT EXISTS (SELECT 1 FROM piezas p WHERE p.solicitud_uuid = s.uuid_local AND p.estado_sync <> 'confirmado') AND NOT EXISTS (SELECT 1 FROM piezas p JOIN adjuntos a ON a.pieza_uuid = p.uuid_local WHERE p.solicitud_uuid = s.uuid_local AND a.estado_sync <> 'confirmado')))"
 	Private Const SQL_BORRAR_MEDIDAS As String = "DELETE FROM medidas WHERE pieza_uuid IN (SELECT uuid_local FROM piezas WHERE solicitud_uuid IN (SELECT s.uuid_local FROM solicitudes s WHERE s.estado_sync = 'confirmado' AND NOT EXISTS (SELECT 1 FROM piezas p WHERE p.solicitud_uuid = s.uuid_local AND p.estado_sync <> 'confirmado') AND NOT EXISTS (SELECT 1 FROM piezas p JOIN adjuntos a ON a.pieza_uuid = p.uuid_local WHERE p.solicitud_uuid = s.uuid_local AND a.estado_sync <> 'confirmado')))"
 	Private Const SQL_BORRAR_ADJUNTOS As String = "DELETE FROM adjuntos WHERE pieza_uuid IN (SELECT uuid_local FROM piezas WHERE solicitud_uuid IN (SELECT s.uuid_local FROM solicitudes s WHERE s.estado_sync = 'confirmado' AND NOT EXISTS (SELECT 1 FROM piezas p WHERE p.solicitud_uuid = s.uuid_local AND p.estado_sync <> 'confirmado') AND NOT EXISTS (SELECT 1 FROM piezas p JOIN adjuntos a ON a.pieza_uuid = p.uuid_local WHERE p.solicitud_uuid = s.uuid_local AND a.estado_sync <> 'confirmado')))"
@@ -23,7 +23,6 @@ Sub Process_Globals
 End Sub
 
 #Region Apertura
-'Llamado una vez desde Main.B4XPage_Created / arranque
 Public Sub Inicializar
 	kvsBorradores.Initialize(File.DirInternal, "borradores.dat")
 	DbSQL = DbEsquema.Abrir
@@ -32,7 +31,6 @@ End Sub
 #End Region
 
 #Region Borradores
-'Tipo: "cliente" | "cotizacion" | "encargado" ...
 Public Sub HayBorrador (Tipo As String) As Boolean
 	Return kvsBorradores.ContainsKey(Tipo)
 End Sub
@@ -52,8 +50,6 @@ End Sub
 #End Region
 
 #Region Cola de sincronización
-'Marca una fila como pendiente de enviar al servidor.
-'Entidad: cliente|contacto|firma|solicitud|adjunto|medida (CHECK de cola_sync).
 Public Sub Encolar (Entidad As String, Uuid As String)
 	Dim uno As List
 	uno.Initialize
@@ -61,9 +57,6 @@ Public Sub Encolar (Entidad As String, Uuid As String)
 	EncolarVarios(Entidad, uno)
 End Sub
 
-'Varias filas de la misma entidad en una sola pasada.
-'Usa InsertMapsIn (sin transaccion propia) para poder ir dentro de la
-'transaccion del alta y revertirse con ella si algo falla.
 Public Sub EncolarVarios (Entidad As String, Uuids As List)
 	If Uuids.IsInitialized = False Or Uuids.Size = 0 Then Return
 	Dim ahora As String = Utils.AhoraBd
@@ -73,6 +66,20 @@ Public Sub EncolarVarios (Entidad As String, Uuids As List)
 		filas.Add(CreateMap("entidad": Entidad, "uuid_local": u, "fecha_encolado": ahora))
 	Next
 	extDBUtils.InsertMapsIn(DbSQL, "cola_sync", filas)
+End Sub
+#End Region
+
+#Region Configuración
+Public Sub LeerConfig (Clave As String) As String
+	Dim rs As ResultSet = DbSQL.ExecQuery2(SQL_LEER_CONFIG, Array As String(Clave))
+	Dim valor As String = ""
+	If rs.NextRow Then valor = Utils.TextoONada(rs.GetString("valor"))
+	rs.Close
+	Return valor
+End Sub
+
+Public Sub GuardarConfig (Clave As String, Valor As String)
+	DbSQL.ExecNonQuery2(SQL_GUARDAR_CONFIG, Array As Object(Clave, Valor))
 End Sub
 #End Region
 
@@ -104,7 +111,6 @@ End Sub
 #End Region
 
 #Region Utilidades
-'Identificador local de cada fila. El servidor asigna despues su id_servidor.
 Public Sub NuevoUuid As String
 	Dim ju As JavaObject
 	ju.InitializeStatic("java.util.UUID")

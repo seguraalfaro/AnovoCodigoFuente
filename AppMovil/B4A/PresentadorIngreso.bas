@@ -8,7 +8,6 @@ Version=13.7
 ' token, decide si la persona usa el movil y guarda la direccion del servidor.
 Sub Class_Globals
 	Public Const PROBAR_SIN_SERVIDOR As Boolean = False
-	Private Const ESTADO_NO_AUTORIZADO As Int = 401
 	Private remota As SesionRemota
 End Sub
 
@@ -22,7 +21,7 @@ Public Sub Ingresar (Correo As String, Clave As String) As ResumableSub
 
 	Wait For (ApiAutenticacion.IniciarSesion(Correo, Clave).Enviar) Complete (Respuesta As RestRespuesta)
 	If Respuesta.Success = False Then
-		If Respuesta.StatusCode = ESTADO_NO_AUTORIZADO Then Return Tipos.Falla(Mensajes.CREDENCIALES_INVALIDAS)
+		If Respuesta.StatusCode = Api.HTTP_NO_AUTORIZADO Then Return Tipos.Falla(Mensajes.CREDENCIALES_INVALIDAS)
 		Return Tipos.Falla(Api.MensajeDe(Respuesta))
 	End If
 
@@ -40,6 +39,10 @@ Public Sub Ingresar (Correo As String, Clave As String) As ResumableSub
 	Dim r As Resultado = Tipos.Correcto(Null)
 	If Registrado = False Then r.Mensaje = Mensajes.TELEFONO_NO_REGISTRADO
 	Return r
+End Sub
+
+Public Sub getErrorBase As String
+	Return DbEsquema.ErrorEsquema
 End Sub
 
 Public Sub getPuedeDesbloquear As Boolean

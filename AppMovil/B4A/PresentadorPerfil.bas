@@ -9,7 +9,6 @@ Version=13.7
 
 Sub Class_Globals
 	Private Const LARGO_MINIMO As Int = 10
-	Private Const ESTADO_OK As Int = 200
 	Private Const SIN_DATO As String = "-"
 	Private Const CAMPO_SERVIDOR As String = "servidor"
 	Private Const CAMPO_BASE As String = "base_datos"
@@ -53,7 +52,7 @@ Public Sub Cargar As ResumableSub
 	Wait For (Probar) Complete (Hecho As Boolean)
 	If mConectado Then
 		Wait For (remota.AsegurarSesion) Complete (Estado As Int)
-		If Estado = ESTADO_OK Then
+		If Estado = Api.HTTP_OK Then
 			Wait For (ApiSesion.Cuenta.Enviar) Complete (Respuesta As RestRespuesta)
 			If Respuesta.Success Then LeerCuenta(Respuesta.DatosMap)
 		End If
@@ -161,10 +160,10 @@ Public Sub CambiarClave (Actual As String, Nueva As String, Repetida As String) 
 	Dim error As String = ValidarClave(Actual, Nueva, Repetida)
 	If error <> "" Then Return Tipos.Falla(error)
 	Wait For (remota.AsegurarSesion) Complete (Estado As Int)
-	If Estado = remota.ESTADO_NO_AUTORIZADO Then Return Vencida
-	If Estado <> ESTADO_OK Then Return Tipos.Falla(Mensajes.CLAVE_SIN_CONEXION)
+	If Estado = Api.HTTP_NO_AUTORIZADO Then Return Vencida
+	If Estado <> Api.HTTP_OK Then Return Tipos.Falla(Mensajes.CLAVE_SIN_CONEXION)
 	Wait For (ApiSesion.CambiarClave(Actual, Nueva).Enviar) Complete (Respuesta As RestRespuesta)
-	If Respuesta.StatusCode = remota.ESTADO_NO_AUTORIZADO Then Return Vencida
+	If Respuesta.StatusCode = Api.HTTP_NO_AUTORIZADO Then Return Vencida
 	If Respuesta.Success = False Then Return Tipos.Falla(Api.MensajeDe(Respuesta))
 	Wait For (ApiAutenticacion.IniciarSesion(Sesion.Correo, Nueva).Enviar) Complete (Ingreso As RestRespuesta)
 	If Ingreso.Success = False Or Sesion.Abrir(Ingreso.Valor(CAMPO_TOKEN)) = False Then Return Tipos.Falla(Mensajes.CLAVE_CAMBIADA_REINGRESO)

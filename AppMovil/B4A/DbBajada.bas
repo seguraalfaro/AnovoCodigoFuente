@@ -11,8 +11,6 @@ Sub Process_Globals
 	Private Const CLAVE_DESDE As String = "bajada_desde"
 	Private Const CLAVE_HORA As String = "bajada_hora"
 	Private Const EVENTO_LOTE As String = "Lote"
-	Private Const SQL_DESDE As String = "SELECT valor FROM config WHERE clave = ?"
-	Private Const SQL_GUARDAR_DESDE As String = "INSERT OR REPLACE INTO config (clave, valor) VALUES (?, ?)"
 	Private Const SQL_NUEVO_CLIENTE As String = "INSERT OR IGNORE INTO clientes (uuid_local, nombre) VALUES (?, ?)"
 	Private Const SQL_CLIENTE As String = "UPDATE clientes SET id_servidor = ?, nombre = ?, identificacion = ?, tipo_identificacion = ?, telefono = ?, correo = ?, contacto = ?, direccion = ?, latitud = ?, longitud = ?, consentimiento_estado = ?, objversion = ?, activo = ?, estado_sync = 'confirmado' WHERE uuid_local = ? AND NOT EXISTS (SELECT 1 FROM cola_sync WHERE entidad = 'cliente' AND uuid_local = ?)"
 	Private Const SQL_NUEVO_CONTACTO As String = "INSERT OR IGNORE INTO cliente_contactos (uuid_local, cliente_uuid, nombre) SELECT ?, ?, ? WHERE EXISTS (SELECT 1 FROM clientes WHERE uuid_local = ?)"
@@ -30,20 +28,11 @@ End Sub
 
 #Region Lectura de la configuración
 Public Sub Desde As String
-	Return LeerConfig(CLAVE_DESDE)
-End Sub
-
-Private Sub LeerConfig (Clave As String) As String
-	Dim rs As ResultSet = Db.DbSQL.ExecQuery2(SQL_DESDE, Array As String(Clave))
-	Dim valor As String = ""
-	If rs.NextRow Then valor = rs.GetString("valor")
-	rs.Close
-	If valor = Null Then Return ""
-	Return valor
+	Return Db.LeerConfig(CLAVE_DESDE)
 End Sub
 
 Public Sub Hora As String
-	Return LeerConfig(CLAVE_HORA)
+	Return Db.LeerConfig(CLAVE_HORA)
 End Sub
 #End Region
 
@@ -90,8 +79,8 @@ Public Sub Aplicar (Datos As Map) As Object
 		s.AddNonQueryToBatch(SQL_BORRAR_TEXTO, Array())
 		s.AddNonQueryToBatch(SQL_TEXTO, Array(vigente.Get("version"), vigente.Get("titulo"), vigente.Get("contenido")))
 	End If
-	s.AddNonQueryToBatch(SQL_GUARDAR_DESDE, Array(CLAVE_DESDE, Datos.Get("servidor_ahora")))
-	s.AddNonQueryToBatch(SQL_GUARDAR_DESDE, Array(CLAVE_HORA, Utils.AhoraBd))
+	s.AddNonQueryToBatch(Db.SQL_GUARDAR_CONFIG, Array(CLAVE_DESDE, Datos.Get("servidor_ahora")))
+	s.AddNonQueryToBatch(Db.SQL_GUARDAR_CONFIG, Array(CLAVE_HORA, Utils.AhoraBd))
 	Return s.ExecNonQueryBatch(EVENTO_LOTE)
 End Sub
 

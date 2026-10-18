@@ -152,7 +152,7 @@ Public Sub Listas (Clase As String) As List
 			Dim rs As ResultSet = Db.DbSQL.ExecQuery2(SQL_FOTOS_LISTAS, Array As String(ahora))
 			Do While rs.NextRow
 				Dim uuid As String = rs.GetString("uuid_local")
-				Dim ruta As String = Texto(rs.GetString("ruta_archivo"))
+				Dim ruta As String = Utils.TextoONada(rs.GetString("ruta_archivo"))
 				Dim paquete As Map = CreateMap("uuid_local": uuid, "pieza_uuid": rs.GetString("pieza_uuid"), _
 					"tipo": CLASE_FOTO, "nombre_archivo": NombreDe(ruta), "mime": rs.GetString("mime"))
 				res.Add(Unidad(Clase, uuid, paquete, rs.GetInt("id_servidor"), ruta))
@@ -217,8 +217,8 @@ Private Sub PaqueteCliente (Uuid As String) As Map
 		datosFirma.Put("accion", rs.GetString("accion"))
 		datosFirma.Put("version_texto", rs.GetString("version_texto"))
 		datosFirma.Put("fecha", Utils.BdAApi(rs.GetString("fecha")))
-		datosFirma.Put("firmante_nombre", Texto(rs.GetString("firmante_nombre")))
-		datosFirma.Put("firmante_identificacion", Texto(rs.GetString("firmante_identificacion")))
+		datosFirma.Put("firmante_nombre", Utils.TextoONada(rs.GetString("firmante_nombre")))
+		datosFirma.Put("firmante_identificacion", Utils.TextoONada(rs.GetString("firmante_identificacion")))
 		datosFirma.Put("firma_base_64", su.EncodeBase64(rs.GetBlob("firma")))
 		datosFirma.Put("firma_mime", rs.GetString("mime"))
 		datosFirma.Put("origen", ORIGEN_MOVIL)
@@ -352,11 +352,6 @@ Private Sub TextoONulo (rs As ResultSet, Columna As String) As Object
 	Dim v As String = rs.GetString(Columna)
 	If v = Null Or v = "" Then Return Null
 	Return v
-End Sub
-
-Private Sub Texto (Valor As String) As String
-	If Valor = Null Then Return ""
-	Return Valor
 End Sub
 
 Private Sub NombreDe (Ruta As String) As String

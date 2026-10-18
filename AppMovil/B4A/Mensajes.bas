@@ -60,6 +60,8 @@ Sub Process_Globals
 	Public Const SYNC_CON_ERRORES As String = "Algunos registros no se pudieron subir: revíselos en Inicio."
 	Public Const SYNC_SIN_CONEXION As String = "Sin conexión con el servidor. Se reintenta más tarde."
 	Public Const SYNC_SESION As String = "La sesión venció. Ingrese de nuevo para terminar de subir."
+	Public Const BASE_NO_PREPARADA As String = "No se pudo preparar la base de datos del teléfono. Cierre la aplicación y vuelva a abrirla; si sigue igual, avise a soporte."
+	Private Const BASE_INCOMPLETA As String = "La base de datos del teléfono está incompleta (faltan: $1). Avise a soporte."
 	Public Const SYNC_CONFLICTO As String = "Alguien cambió este registro en el servidor. Revíselo en el escritorio."
 	Public Const SYNC_BAJADA_FALLO As String = "Lo capturado subió, pero no se pudo traer lo nuevo del servidor. Se reintenta más tarde."
 	Public Const SYNC_OCUPADO As String = "El servidor está ocupado. La sincronización se reintenta más tarde."
@@ -589,6 +591,16 @@ End Sub
 
 Public Sub Contador (Cantidad As Int, Maximo As Int) As String
 	Return TEXTO_CONTADOR.Replace("$1", Cantidad).Replace("$2", Maximo)
+End Sub
+
+Public Sub BaseIncompleta (Faltan As List) As String
+	Dim sb As StringBuilder
+	sb.Initialize
+	For Each t As String In Faltan
+		If sb.Length > 0 Then sb.Append(", ")
+		sb.Append(t)
+	Next
+	Return BASE_INCOMPLETA.Replace("$1", sb.ToString)
 End Sub
 
 Public Sub ConDetalles (Mensaje As String, Detalles As List) As String

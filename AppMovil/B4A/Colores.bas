@@ -4,34 +4,15 @@ ModulesStructureVersion=1
 Type=StaticCode
 Version=13.7
 @EndOfDesignText@
-'Colores — app móvil Anovo Cotizaciones (TFG UNED IS-2026)
-'
-'Fuente: anteproyecto aprobado, apartado "Estilo Visual > Paleta de colores",
-'Figura 25 (Entregables/figuras/image31.png, ver MAPA.md fila 30). Valores
-'hex obtenidos por muestreo de píxel directo sobre esa imagen.
-'
-'Roles funcionales, tal como los asigna el texto del anteproyecto:
-'  "El azul primario se utilizará en barras de navegación, encabezados de
-'   tabla y botones de acción principal. El azul medio se reserva para
-'   íconos en estado activo, bordes de campo con foco y enlaces. Como
-'   colores de apoyo para estados del proceso, se define el verde para
-'   cotizaciones aprobadas, el ámbar para borradores y recordatorios
-'   pendientes, y el rojo para cotizaciones rechazadas y errores de
-'   sincronización."
-'
-'Formato B4A: Int ARGB (0xAARRGGBB).
-'
-'Las constantes van como Const: el compilador impide reasignarlas, así que
-'un color de la paleta no puede cambiarse por accidente en tiempo de ejecución.
-
+' Paleta del anteproyecto (figura 25) y colores de estado, con las mismas familias que el escritorio.
+' Formato ARGB (0xAARRGGBB).
 Sub Process_Globals
-	'--- Roles funcionales — usar estos en el código, no los de arriba ---
-	Public Const COLOR_PRIMARIO            As Int = 0xFF1A3A5C   'barras, encabezados, botón de acción principal
-	Public COLOR_PRIMARIO_CLARO  As Int = 0xFF2E5C8A   'presionado de botones sólidos
-	Public COLOR_PRIMARIO_TENUE  As Int = 0xFFD6E4F5   'fondo de iconos
-	Public COLOR_PRIMARIO_SUAVE  As Int = 0xFFB8D0EC   'presionado de iconos
-	Public Const COLOR_MEDIO               As Int = 0xFF2960A0   'iconos activos, borde de campo con foco, enlaces
-	Public Const COLOR_RECHAZADA_ERROR     As Int = 0xFFEF4444   'rechazadas y errores de sincronización
+	Public Const COLOR_PRIMARIO            As Int = 0xFF1A3A5C
+	Public COLOR_PRIMARIO_CLARO  As Int = 0xFF2E5C8A
+	Public COLOR_PRIMARIO_TENUE  As Int = 0xFFD6E4F5
+	Public COLOR_PRIMARIO_SUAVE  As Int = 0xFFB8D0EC
+	Public Const COLOR_MEDIO               As Int = 0xFF2960A0
+	Public Const COLOR_RECHAZADA_ERROR     As Int = 0xFFEF4444
 	Public COLOR_ERROR As Int = 0xFFB3261E
 	Public COLOR_ERROR_CLARO    As Int = 0xFFD14A42
 	Public COLOR_ADVERTENCIA       As Int = 0xFFBA7517
@@ -45,7 +26,6 @@ Sub Process_Globals
 	Private Const FAMILIA_PELIGRO As Int = 3
 	Private Const FAMILIA_INFO As Int = 4
 
-	'--- Neutros de soporte (no vienen de la Figura 25; uso interno de UI) ---
 	Public Const COLOR_FONDO_PANTALLA       As Int = 0xFFF5F7FA
 	Public Const COLOR_SUPERFICIE           As Int = 0xFFFFFFFF
 	Public Const COLOR_TEXTO_PRIMARIO       As Int = 0xFF1C1C1E
@@ -111,8 +91,6 @@ Private Sub Familia (Estado As String) As Int
 	Return FAMILIA_NEUTRA
 End Sub
 
-'Color de un valor numérico en resúmenes: apagado cuando es cero, para que se
-'note qué falta antes de continuar.
 Public Sub ColorDeConteo (Cantidad As Int) As Int
 	If Cantidad = 0 Then Return COLOR_DESHABILITADO
 	Return COLOR_TEXTO_PRIMARIO

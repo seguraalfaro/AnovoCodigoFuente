@@ -32,12 +32,12 @@ Public Sub Lista As List
 		Dim c As Cliente = Tipos.ClienteVacio
 		c.UuidLocal = rs.GetString("uuid_local")
 		c.Nombre = rs.GetString("nombre")
-		c.Identificacion = Texto(rs.GetString("identificacion"))
+		c.Identificacion = Utils.TextoONada(rs.GetString("identificacion"))
 		c.TipoIdentificacion = rs.GetInt("tipo_identificacion") - 1
-		c.Telefono = Texto(rs.GetString("telefono"))
-		c.Direccion = Texto(rs.GetString("direccion"))
-		c.ContactoCobro = Texto(rs.GetString("contacto"))
-		c.CorreoCobro = Texto(rs.GetString("correo"))
+		c.Telefono = Utils.TextoONada(rs.GetString("telefono"))
+		c.Direccion = Utils.TextoONada(rs.GetString("direccion"))
+		c.ContactoCobro = Utils.TextoONada(rs.GetString("contacto"))
+		c.CorreoCobro = Utils.TextoONada(rs.GetString("correo"))
 		res.Add(c)
 	Loop
 	rs.Close
@@ -74,8 +74,8 @@ Public Sub UltimoPermiso (ClienteUuid As String) As PermisoCliente
 	If rs.NextRow Then
 		p.Accion = rs.GetString("accion")
 		p.Firmante = rs.GetString("firmante")
-		p.Fecha = Texto(rs.GetString("fecha"))
-		p.Version = Texto(rs.GetString("version_texto"))
+		p.Fecha = Utils.TextoONada(rs.GetString("fecha"))
+		p.Version = Utils.TextoONada(rs.GetString("version_texto"))
 	End If
 	rs.Close
 	Return p
@@ -115,10 +115,10 @@ Public Sub ContactosDe (ClienteUuid As String) As List
 		k.Initialize
 		k.UuidLocal = rs.GetString("uuid_local")
 		k.Nombre = rs.GetString("nombre")
-		k.Puesto = Texto(rs.GetString("area"))
-		k.Telefono = Texto(rs.GetString("telefono"))
-		k.Celular = Texto(rs.GetString("celular"))
-		k.Correo = Texto(rs.GetString("correo"))
+		k.Puesto = Utils.TextoONada(rs.GetString("area"))
+		k.Telefono = Utils.TextoONada(rs.GetString("telefono"))
+		k.Celular = Utils.TextoONada(rs.GetString("celular"))
+		k.Correo = Utils.TextoONada(rs.GetString("correo"))
 		k.Principal = rs.GetInt("principal") = 1
 		res.Add(k)
 	Loop
@@ -179,11 +179,6 @@ Private Sub Coordenada (Lugar As UbicacionGps, EsLatitud As Boolean) As Object
 	If Lugar.IsInitialized = False Or Lugar.Ok = False Then Return Null
 	If EsLatitud Then Return Lugar.Latitud
 	Return Lugar.Longitud
-End Sub
-
-Private Sub Texto (Valor As String) As String
-	If Valor = Null Then Return ""
-	Return Valor
 End Sub
 
 Public Sub NombreRepetido (Nombre As String, UuidPropio As String) As Boolean

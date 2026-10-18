@@ -104,7 +104,7 @@ Public Sub TituloDe (r As SolicitudReciente) As String
 End Sub
 
 Public Sub DetalleDe (r As SolicitudReciente) As String
-	Return Unir(Array As String(r.Cliente, Utils.BdACorta(r.Fecha)))
+	Return Utils.Unir(SEPARADOR, Array As String(r.Cliente, Utils.BdACorta(r.Fecha)))
 End Sub
 
 Public Sub EstadoDe (r As SolicitudReciente) As String
@@ -167,19 +167,9 @@ Private Sub ArmarDetalleBorrador As String
 	Dim piezas As Int = cotizacion.Piezas.Size
 	Dim cuenta As String = ""
 	If piezas > 0 Then cuenta = Mensajes.CuentaPiezas(piezas)
-	Dim texto As String = Unir(Array As String(cotizacion.TextoCliente, cotizacion.Proyecto, cuenta))
+	Dim texto As String = Utils.Unir(SEPARADOR, Array As String(cotizacion.TextoCliente, cotizacion.Proyecto, cuenta))
 	If texto = "" Then Return Mensajes.INICIO_RETOMAR_VACIA
 	Return texto
 End Sub
 
-Private Sub Unir (Partes() As String) As String
-	Dim sb As StringBuilder
-	sb.Initialize
-	For Each p As String In Partes
-		If p = Null Or p.Trim = "" Then Continue
-		If sb.Length > 0 Then sb.Append(SEPARADOR)
-		sb.Append(p.Trim)
-	Next
-	Return sb.ToString
-End Sub
 #End Region

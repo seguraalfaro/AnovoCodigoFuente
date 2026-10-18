@@ -152,7 +152,7 @@ Public Sub OpcionesClientes As List
 	Dim res As List
 	res.Initialize
 	For Each c As Cliente In DbClientes.Lista
-		res.Add(Tipos.Opcion(c.Nombre, Unir(Array As String(c.Identificacion, c.Telefono)), c))
+		res.Add(Tipos.Opcion(c.Nombre, Utils.Unir(SEPARADOR, Array As String(c.Identificacion, c.Telefono)), c))
 	Next
 	Return res
 End Sub
@@ -162,7 +162,7 @@ Public Sub OpcionesContactos As List
 	res.Initialize
 	If getHayCliente = False Then Return res
 	For Each k As Contacto In DbClientes.ContactosDe(mCliente.UuidLocal)
-		res.Add(Tipos.Opcion(k.Nombre, Unir(Array As String(k.Puesto, k.Celular, k.Telefono)), k))
+		res.Add(Tipos.Opcion(k.Nombre, Utils.Unir(SEPARADOR, Array As String(k.Puesto, k.Celular, k.Telefono)), k))
 	Next
 	Return res
 End Sub
@@ -245,7 +245,7 @@ Public Sub DetallePieza (p As Pieza) As String
 	For i = 0 To partes.Size - 1
 		valores(i) = partes.Get(i)
 	Next
-	Return Unir(valores)
+	Return Utils.Unir(SEPARADOR, valores)
 End Sub
 
 Public Sub PiezaIncompleta (p As Pieza) As Boolean
@@ -268,7 +268,7 @@ Private Sub DescripcionDe (NombreProyecto As String) As String
 		Dim p As Pieza = mPiezas.Get(i)
 		nombres(i) = p.Nombre
 	Next
-	Return Unir(nombres)
+	Return Utils.Unir(SEPARADOR, nombres)
 End Sub
 
 Public Sub PiezaPorUuid (Uuid As String) As Pieza
@@ -286,14 +286,4 @@ Private Sub IndicePieza (Uuid As String) As Int
 	Return -1
 End Sub
 
-Private Sub Unir (Valores() As String) As String
-	Dim sb As StringBuilder
-	sb.Initialize
-	For Each v As String In Valores
-		If v.Trim = "" Then Continue
-		If sb.Length > 0 Then sb.Append(SEPARADOR)
-		sb.Append(v.Trim)
-	Next
-	Return sb.ToString
-End Sub
 #End Region

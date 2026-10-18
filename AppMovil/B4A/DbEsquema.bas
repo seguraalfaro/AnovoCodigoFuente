@@ -4,46 +4,39 @@ ModulesStructureVersion=1
 Type=StaticCode
 Version=13.7
 @EndOfDesignText@
-' ============================================================
-'  DbEsquema — crea la base local leyendo esquema_sqlite.sql (Files).
-'  Sin versiones. Cada arranque crea las tablas que falten; una columna
-'  nueva pide BORRAR_BASE = True una vez (borra y recrea con datos de prueba).
-' ============================================================
+' Crea la base local leyendo esquema_sqlite.sql (Files): cada arranque crea las tablas que falten.
+' Una columna nueva pide BORRAR_BASE = True una vez. Si algo falla lo deja en ErrorEsquema.
 
 Sub Process_Globals
-	Public Const DB_NOMBRE   As String = "anovo.db"
-	Public Const DB_ESQUEMA  As String = "esquema_sqlite.sql"
-	Public Const BORRAR_BASE As Boolean = False     ' True = borra y recrea al arrancar
+	Public Const DB_NOMBRE As String = "anovo.db"
+	Public Const DB_ESQUEMA As String = "esquema_sqlite.sql"
+	Public Const BORRAR_BASE As Boolean = False
 	Public ExisteBaseDatos As Boolean
+	Public ErrorEsquema As String
+	Private Const SQL_TABLA_EXISTE As String = "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = ?"
 	Private TABLAS() As String = Array As String( _
-        "clientes", "cliente_contactos", "consentimiento_firmas", _
-        "solicitudes", "piezas", "adjuntos", "medidas", _
-        "tipos_trabajo", "tipos_material", "acabados", _
-        "seguimiento", "cola_sync", "config")
+		"clientes", "cliente_contactos", "consentimiento_firmas", "consentimiento_texto", _
+		"solicitudes", "piezas", "adjuntos", "medidas", _
+		"tipos_trabajo", "tipos_material", "acabados", _
+		"seguimiento", "cola_sync", "config", "sync_historial")
 End Sub
 
 #Region Apertura
-' Abre (o crea) la base y devuelve la conexión lista.
 Public Sub Abrir As SQL
+	ErrorEsquema = ""
 	If BORRAR_BASE Then BorrarBase
-
 	ExisteBaseDatos = (File.Exists(File.DirInternal, DB_NOMBRE) = False) Or _
-                  (File.Size(File.DirInternal, DB_NOMBRE) = 0)
-   Try
+		(File.Size(File.DirInternal, DB_NOMBRE) = 0)
 	Dim s As SQL
+	Try
 		s.Initialize(File.DirInternal, DB_NOMBRE, True)
-	
-	
-	
 	Catch
-		Log("DbEsquema: FALLÓ al crear el esquema -> " & LastException)
-		Dim x As XUI
-		x.MsgboxAsync("No se pudo preparar la base de datos local.", "Anovo")
-	Return s        ' IsInitialized = False
+		Log("DbEsquema: no se pudo abrir la base -> " & LastException)
+		ErrorEsquema = Mensajes.BASE_NO_PREPARADA
+		Return s
 	End Try
 	AplicarPragmas(s)
-	CrearEsquema(s)
-	ValidarEsquema(s)
+	If CrearEsquema(s) Then ValidarEsquema(s)
 	Log("DbEsquema: base lista.")
 	Return s
 End Sub
@@ -55,23 +48,17 @@ Private Sub BorrarBase
 	Log("DbEsquema: base borrada por BORRAR_BASE.")
 End Sub
 
-Private Sub AplicarPragmas(s As SQL)
-	
+Private Sub AplicarPragmas (s As SQL)
 	Dim modo As String = s.ExecQuerySingleResult("PRAGMA journal_mode = WAL")
-	If modo.ToLowerCase <> "wal" Then
-		Log("DbEsquema: WAL no aplicado, el modo quedo en '" & modo & "'")
-	End If
+	If modo.ToLowerCase <> "wal" Then Log("DbEsquema: WAL no aplicado, el modo quedo en '" & modo & "'")
 	s.ExecNonQuery("PRAGMA synchronous = FULL")
-
 	s.ExecNonQuery("PRAGMA foreign_keys = ON")
-	If s.ExecQuerySingleResult("PRAGMA foreign_keys") <> 1 Then
-		Log("DbEsquema: claves foraneas NO activas.")
-	End If
+	If s.ExecQuerySingleResult("PRAGMA foreign_keys") <> 1 Then Log("DbEsquema: claves foraneas NO activas.")
 End Sub
 #End Region
 
 #Region Creación del esquema
-Private Sub CrearEsquema (s As SQL)
+Private Sub CrearEsquema (s As SQL) As Boolean
 	s.BeginTransaction
 	Try
 		For Each sentencia As String In LeerSentencias(DB_ESQUEMA)
@@ -79,18 +66,15 @@ Private Sub CrearEsquema (s As SQL)
 		Next
 		s.TransactionSuccessful
 	Catch
-		Log("DbEsquema: FALLÓ al crear el esquema -> " & LastException)
+		Log("DbEsquema: no se pudo crear el esquema -> " & LastException)
 		s.EndTransaction
-		Dim x As XUI
-		x.MsgboxAsync("No se pudo preparar la base de datos local.", "Anovo")
-		Return
+		ErrorEsquema = Mensajes.BASE_NO_PREPARADA
+		Return False
 	End Try
 	s.EndTransaction
+	Return True
 End Sub
 
-' Lee el .sql de Files: corta cada línea en "--", junta, separa por ";",
-' descarta vacías y PRAGMAs. Válido porque el DDL no tiene triggers ni
-' ";"/"--" dentro de literales.
 Private Sub LeerSentencias (NombreArchivo As String) As List
 	Dim script As String = File.ReadString(File.DirAssets, NombreArchivo)
 	Dim sb As StringBuilder
@@ -110,18 +94,15 @@ Private Sub LeerSentencias (NombreArchivo As String) As List
 	Next
 	Return res
 End Sub
-#End Region
 
-Private Sub  ValidarEsquema(s As SQL)
+Private Sub ValidarEsquema (s As SQL)
 	Dim faltan As List
 	faltan.Initialize
 	For Each t As String In TABLAS
-		If s.ExecQuerySingleResult2("SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?", _
-            Array As String(t)) = 0 Then faltan.Add(t)
+		If s.ExecQuerySingleResult2(SQL_TABLA_EXISTE, Array As String(t)) = 0 Then faltan.Add(t)
 	Next
-	If faltan.Size > 0 Then
-		Log("DbEsquema: faltan tablas -> " & faltan.As(List))
-		Dim x As XUI
-		x.MsgboxAsync("Base de datos incompleta: " & faltan.As(List), "Anovo")
-	End If
+	If faltan.Size = 0 Then Return
+	Log("DbEsquema: faltan tablas -> " & faltan)
+	ErrorEsquema = Mensajes.BaseIncompleta(faltan)
 End Sub
+#End Region

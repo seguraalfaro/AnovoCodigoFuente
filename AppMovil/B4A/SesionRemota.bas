@@ -10,25 +10,23 @@ Sub Class_Globals
 	Private Const CAMPO_LLAVE As String = "llave"
 	Private Const CAMPO_TOKEN As String = "token"
 	Private Const MARGEN_SEGUNDOS As Int = 120
-	Public Const ESTADO_OK As Int = 200
-	Public Const ESTADO_NO_AUTORIZADO As Int = 401
 End Sub
 
 Public Sub Initialize
 End Sub
 
 Public Sub AsegurarSesion As ResumableSub
-	If Sesion.VigentePor(MARGEN_SEGUNDOS) Then Return ESTADO_OK
-	If LlaveDispositivo.HayLlave = False Then Return ESTADO_NO_AUTORIZADO
+	If Sesion.VigentePor(MARGEN_SEGUNDOS) Then Return Api.HTTP_OK
+	If LlaveDispositivo.HayLlave = False Then Return Api.HTTP_NO_AUTORIZADO
 	Wait For (ApiAutenticacion.Renovar(LlaveDispositivo.Uuid, LlaveDispositivo.Leer).Enviar) Complete (Respuesta As RestRespuesta)
 	If Respuesta.Success Then
 		Dim datos As Map = Respuesta.DatosMap
-		If Sesion.Abrir(datos.GetDefault(CAMPO_TOKEN, "")) = False Then Return ESTADO_NO_AUTORIZADO
+		If Sesion.Abrir(datos.GetDefault(CAMPO_TOKEN, "")) = False Then Return Api.HTTP_NO_AUTORIZADO
 		LlaveDispositivo.Guardar(datos.GetDefault(CAMPO_LLAVE, ""))
 		LlaveDispositivo.MarcarContacto
-		Return ESTADO_OK
+		Return Api.HTTP_OK
 	End If
-	If Respuesta.StatusCode = ESTADO_NO_AUTORIZADO Then LlaveDispositivo.Borrar
+	If Respuesta.StatusCode = Api.HTTP_NO_AUTORIZADO Then LlaveDispositivo.Borrar
 	Return Respuesta.StatusCode
 End Sub
 
