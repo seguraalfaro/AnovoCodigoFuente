@@ -31,8 +31,6 @@ Sub Process_Globals
 	Public COLOR_PRIMARIO_TENUE  As Int = 0xFFD6E4F5   'fondo de iconos
 	Public COLOR_PRIMARIO_SUAVE  As Int = 0xFFB8D0EC   'presionado de iconos
 	Public Const COLOR_MEDIO               As Int = 0xFF2960A0   'iconos activos, borde de campo con foco, enlaces
-	Public Const COLOR_APROBADA            As Int = 0xFF22C55E   'cotizaciones aprobadas
-	Public Const COLOR_BORRADOR_PENDIENTE  As Int = 0xFFF59E0B   'borradores y pendientes
 	Public Const COLOR_RECHAZADA_ERROR     As Int = 0xFFEF4444   'rechazadas y errores de sincronización
 	Public COLOR_ERROR As Int = 0xFFB3261E
 	Public COLOR_ERROR_CLARO    As Int = 0xFFD14A42
@@ -41,14 +39,11 @@ Sub Process_Globals
 	Public COLOR_ERROR_TENUE       As Int = 0xFFFCE8E6
 	Public COLOR_EXITO             As Int = 0xFF1E7B3C
 	Public COLOR_EXITO_TENUE       As Int = 0xFFE6F4EA
-	Public COLOR_PROCESO           As Int = 0xFF534AB7
-	Public COLOR_PROCESO_TENUE     As Int = 0xFFEEEDFE
-	'--- Estado "en revisión": NO está en el vocabulario acordado ---
-	'(borrador · pendiente · aprobada · rechazada · enviada). Ver
-	'componentes-b4x-anovo.md, pendiente #7. Mientras no se confirme con
-	'Anovo, se pinta con el mismo ámbar pero marcado como provisional
-	'(borde rojo) en la interfaz — no se inventa un color propio.
-	Public Const COLOR_EN_REVISION_PROVISIONAL As Int = 0xFFF59E0B
+	Private Const FAMILIA_NEUTRA As Int = 0
+	Private Const FAMILIA_PENDIENTE As Int = 1
+	Private Const FAMILIA_EXITO As Int = 2
+	Private Const FAMILIA_PELIGRO As Int = 3
+	Private Const FAMILIA_INFO As Int = 4
 
 	'--- Neutros de soporte (no vienen de la Figura 25; uso interno de UI) ---
 	Public Const COLOR_FONDO_PANTALLA       As Int = 0xFFF5F7FA
@@ -82,24 +77,38 @@ Public Sub FondoPastilla (Estado As String) As Int
 	End Select
 End Sub
 
-'Etiqueta de estado -> color, para pintar chips en listas de cotizaciones.
-'Uso: Colores.ColorDeEstado("aprobada")
-Public Sub ColorDeEstado (Estado As String) As Int
-	Select Estado
-		Case "borrador", "pendiente", "devuelta"
-			Return COLOR_BORRADOR_PENDIENTE
-		Case "aprobada"
-			Return COLOR_APROBADA
-		Case "rechazada"
-			Return COLOR_RECHAZADA_ERROR
-		Case "enviada", "visto_bueno"
-			Return COLOR_MEDIO
-		Case "en_revision_provisional"
-			Return COLOR_EN_REVISION_PROVISIONAL
-		Case Else
-			Log("Colores.ColorDeEstado: estado desconocido -> " & Estado)
-			Return COLOR_TEXTO_SECUNDARIO
+Public Sub TintaEstado (Estado As String) As Int
+	Select Familia(Estado)
+		Case FAMILIA_PENDIENTE: Return COLOR_ADVERTENCIA
+		Case FAMILIA_EXITO: Return COLOR_EXITO
+		Case FAMILIA_PELIGRO: Return COLOR_ERROR
+		Case FAMILIA_INFO: Return COLOR_MEDIO
 	End Select
+	Return COLOR_TEXTO_SECUNDARIO
+End Sub
+
+Public Sub FondoEstado (Estado As String) As Int
+	Select Familia(Estado)
+		Case FAMILIA_PENDIENTE: Return COLOR_ADVERTENCIA_TENUE
+		Case FAMILIA_EXITO: Return COLOR_EXITO_TENUE
+		Case FAMILIA_PELIGRO: Return COLOR_ERROR_TENUE
+		Case FAMILIA_INFO: Return COLOR_PRIMARIO_TENUE
+	End Select
+	Return COLOR_FONDO_PANTALLA
+End Sub
+
+Private Sub Familia (Estado As String) As Int
+	Select Estado
+		Case DbSeguimiento.ESTADO_BORRADOR, DbSeguimiento.ESTADO_PENDIENTE, DbSeguimiento.ESTADO_DEVUELTA, DbSeguimiento.ESTADO_RECIBIDA
+			Return FAMILIA_PENDIENTE
+		Case DbSeguimiento.ESTADO_APROBADA
+			Return FAMILIA_EXITO
+		Case DbSeguimiento.ESTADO_RECHAZADA, DbSeguimiento.ESTADO_DESCARTADA
+			Return FAMILIA_PELIGRO
+		Case DbSeguimiento.ESTADO_ENVIADA, DbSeguimiento.ESTADO_VISTO_BUENO, DbSeguimiento.ESTADO_EN_COTIZACION
+			Return FAMILIA_INFO
+	End Select
+	Return FAMILIA_NEUTRA
 End Sub
 
 'Color de un valor numérico en resúmenes: apagado cuando es cero, para que se

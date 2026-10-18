@@ -123,45 +123,36 @@ Public Sub DetalleDe (f As SeguimientoFila) As String
 		If texto <> "" Then texto = texto & SEPARADOR
 		texto = texto & fecha
 	End If
-	If Grupo(f.Estado) = Mensajes.SEG_APROBADA And f.Monto > 0 Then texto = texto & SEPARADOR & Mensajes.Colones(f.Monto)
+	If f.Estado = DbSeguimiento.ESTADO_APROBADA And f.Monto > 0 Then texto = texto & SEPARADOR & Mensajes.Colones(f.Monto)
 	Return texto
 End Sub
 
 Public Sub EstadoDe (f As SeguimientoFila) As String
-	Return Grupo(f.Estado)
+	Return Mensajes.TextoEstado(f.Estado)
 End Sub
 
 Public Sub TintaDe (f As SeguimientoFila) As Int
-	Select Grupo(f.Estado)
-		Case Mensajes.SEG_POR_SUBIR: Return Colores.COLOR_TEXTO_SECUNDARIO
-		Case Mensajes.SEG_ESPERANDO: Return Colores.COLOR_ADVERTENCIA
-		Case Mensajes.SEG_ELABORACION: Return Colores.COLOR_PROCESO
-		Case Mensajes.SEG_ENVIADA: Return Colores.COLOR_MEDIO
-		Case Mensajes.SEG_APROBADA: Return Colores.COLOR_EXITO
-	End Select
-	Return Colores.COLOR_ERROR
+	Return Colores.TintaEstado(f.Estado)
 End Sub
 
 Public Sub FondoDe (f As SeguimientoFila) As Int
-	Select Grupo(f.Estado)
-		Case Mensajes.SEG_POR_SUBIR: Return Colores.COLOR_FONDO_PANTALLA
-		Case Mensajes.SEG_ESPERANDO: Return Colores.COLOR_ADVERTENCIA_TENUE
-		Case Mensajes.SEG_ELABORACION: Return Colores.COLOR_PROCESO_TENUE
-		Case Mensajes.SEG_ENVIADA: Return Colores.COLOR_PRIMARIO_TENUE
-		Case Mensajes.SEG_APROBADA: Return Colores.COLOR_EXITO_TENUE
-	End Select
-	Return Colores.COLOR_ERROR_TENUE
+	Return Colores.FondoEstado(f.Estado)
 End Sub
 #End Region
 
 #Region Ayudantes
 Private Sub Grupo (Estado As String) As String
 	Select Estado
-		Case DbSeguimiento.ESTADO_POR_SUBIR: Return Mensajes.SEG_POR_SUBIR
-		Case "borrador", "pendiente", "devuelta", "visto_bueno": Return Mensajes.SEG_ELABORACION
-		Case "enviada": Return Mensajes.SEG_ENVIADA
-		Case "aprobada": Return Mensajes.SEG_APROBADA
-		Case "rechazada": Return Mensajes.SEG_RECHAZADA
+		Case DbSeguimiento.ESTADO_POR_SUBIR
+			Return Mensajes.SEG_POR_SUBIR
+		Case DbSeguimiento.ESTADO_BORRADOR, DbSeguimiento.ESTADO_PENDIENTE, DbSeguimiento.ESTADO_DEVUELTA, DbSeguimiento.ESTADO_VISTO_BUENO
+			Return Mensajes.SEG_ELABORACION
+		Case DbSeguimiento.ESTADO_ENVIADA
+			Return Mensajes.SEG_ENVIADA
+		Case DbSeguimiento.ESTADO_APROBADA
+			Return Mensajes.SEG_APROBADA
+		Case DbSeguimiento.ESTADO_RECHAZADA, DbSeguimiento.ESTADO_DESCARTADA
+			Return Mensajes.SEG_RECHAZADA
 	End Select
 	Return Mensajes.SEG_ESPERANDO
 End Sub

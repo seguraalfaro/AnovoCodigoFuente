@@ -86,6 +86,17 @@ Sub Process_Globals
 	Public Const SEG_ENVIADA As String = "Enviada al cliente"
 	Public Const SEG_APROBADA As String = "Aprobada"
 	Public Const SEG_RECHAZADA As String = "Rechazada"
+	Private Const EST_CAPTURADA As String = "Capturada"
+	Private Const EST_RECIBIDA As String = "Recibida"
+	Private Const EST_EN_COTIZACION As String = "En cotización"
+	Private Const EST_DESCARTADA As String = "Descartada"
+	Private Const EST_BORRADOR As String = "Borrador"
+	Private Const EST_PENDIENTE As String = "Enviada a revisión"
+	Private Const EST_DEVUELTA As String = "Devuelta"
+	Private Const EST_VISTO_BUENO As String = "Con visto bueno"
+	Private Const EST_APROBADA As String = "Aprobada"
+	Private Const EST_RECHAZADA As String = "Rechazada"
+	Private Const EST_ENVIADA As String = "Enviada al cliente"
 	Public Const TAB_PERFIL As String = "Perfil"
 	Public Const SIN_CLIENTES_TITULO As String = "Sin clientes"
 	Public Const SIN_CLIENTES_TEXTO As String = "Todavía no hay clientes registrados."
@@ -345,6 +356,24 @@ End Sub
 Public Sub Saludo (Nombre As String) As String
 	If Nombre = "" Then Return INICIO_SALUDO
 	Return INICIO_SALUDO_NOMBRE.Replace("$1", Nombre)
+End Sub
+
+Public Sub TextoEstado (Estado As String) As String
+	Select Estado
+		Case DbSeguimiento.ESTADO_POR_SUBIR: Return SEG_POR_SUBIR
+		Case DbSeguimiento.ESTADO_CAPTURADA: Return EST_CAPTURADA
+		Case DbSeguimiento.ESTADO_RECIBIDA: Return EST_RECIBIDA
+		Case DbSeguimiento.ESTADO_EN_COTIZACION: Return EST_EN_COTIZACION
+		Case DbSeguimiento.ESTADO_DESCARTADA: Return EST_DESCARTADA
+		Case DbSeguimiento.ESTADO_BORRADOR: Return EST_BORRADOR
+		Case DbSeguimiento.ESTADO_PENDIENTE: Return EST_PENDIENTE
+		Case DbSeguimiento.ESTADO_DEVUELTA: Return EST_DEVUELTA
+		Case DbSeguimiento.ESTADO_VISTO_BUENO: Return EST_VISTO_BUENO
+		Case DbSeguimiento.ESTADO_APROBADA: Return EST_APROBADA
+		Case DbSeguimiento.ESTADO_RECHAZADA: Return EST_RECHAZADA
+		Case DbSeguimiento.ESTADO_ENVIADA: Return EST_ENVIADA
+	End Select
+	Return Estado
 End Sub
 
 Public Sub EstadoSolicitud (Estado As String) As String
