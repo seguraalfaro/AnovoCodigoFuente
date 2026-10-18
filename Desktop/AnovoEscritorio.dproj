@@ -140,6 +140,7 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Src\Recursos\Anovo.UI.CeldasRejilla.pas"/>
+        <DCCReference Include="Src\Recursos\Anovo.UI.Cargando.pas"/>
         <DCCReference Include="Src\Recursos\Anovo.UI.ColumnasRejilla.pas"/>
         <DCCReference Include="Src\Common\Anovo.Sesion.pas"/>
         <DCCReference Include="Src\Common\Anovo.Config.pas"/>

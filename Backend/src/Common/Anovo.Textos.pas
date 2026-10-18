@@ -1049,6 +1049,8 @@ resourcestring
   SRecargo = 'Recargo %s %%';
   SDescuento = 'Descuento %s %%';
   SCargandoCotizaciones = 'Cargando cotizaciones...';
+  SCargandoDatos = 'Cargando datos...';
+  SUnMomento = 'Un momento, por favor';
   SSinCotizaciones = 'No hay cotizaciones con ese filtro';
   SVacioCotizacionesCliente = 'Este cliente no tiene cotizaciones con ese filtro';
   SVacioContactos = 'Este cliente no tiene contactos registrados';

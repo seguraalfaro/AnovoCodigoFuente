@@ -18,6 +18,7 @@ uses
   Anovo.Frames.Roles in 'Src\Frames\Anovo.Frames.Roles.pas' {fraRoles: TFrame},
   Anovo.Frames.Catalogos in 'Src\Frames\Anovo.Frames.Catalogos.pas' {fraCatalogos: TFrame},
   Anovo.UI.CeldasRejilla in 'Src\Recursos\Anovo.UI.CeldasRejilla.pas',
+  Anovo.UI.Cargando in 'Src\Recursos\Anovo.UI.Cargando.pas',
   Anovo.UI.ColumnasRejilla in 'Src\Recursos\Anovo.UI.ColumnasRejilla.pas',
   Anovo.Sesion in 'Src\Common\Anovo.Sesion.pas',
   Anovo.Config in 'Src\Common\Anovo.Config.pas',

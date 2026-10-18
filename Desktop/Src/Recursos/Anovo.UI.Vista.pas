@@ -32,7 +32,8 @@ procedure PintarPaginacion(AEtiqueta: TLabel; AAnterior, ASiguiente: TControl;
 implementation
 
 uses
-  System.SysUtils, System.UITypes, Vcl.Forms, Vcl.Dialogs, Anovo.Textos;
+  System.SysUtils, System.UITypes, Vcl.Forms, Vcl.Dialogs, Anovo.Textos,
+  Anovo.UI.Cargando;
 
 var
   Ocupados: Integer;
@@ -48,6 +49,7 @@ begin
     Screen.Cursor := crAppStart
   else
     Screen.Cursor := crDefault;
+  IndicadorCarga(Ocupados > 0);
 end;
 
 function Dialogo(const AMensaje, ATitulo: string; const ATipo: TMsgDlgType;

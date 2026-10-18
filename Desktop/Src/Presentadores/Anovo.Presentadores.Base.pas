@@ -8,6 +8,8 @@ interface
 
 uses
   System.SysUtils,
+  System.Generics.Collections,
+  Vcl.ExtCtrls,
   Anovo.Cancelacion;
 
 type
@@ -17,6 +19,10 @@ type
     FSolicitud: Integer;
     FEnVuelo: Integer;
     FApagar: TProc<Boolean>;
+    FArrancado: Boolean;
+    FArranque: TTimer;
+    FPendientes: TList<TProc>;
+    procedure Arrancar(Sender: TObject);
     procedure Encender(const AOcupado: TProc<Boolean>);
     procedure Apagar;
     procedure ApagarTodo;
@@ -51,6 +57,7 @@ uses
 
 const
   HILOS_MINIMOS = 8;
+  ESPERA_ARRANQUE_MS = 500;
 
 constructor TPresentadorBase.Create;
 begin
@@ -61,8 +68,21 @@ end;
 destructor TPresentadorBase.Destroy;
 begin
   FCancelacion.Cancelar;
+  FreeAndNil(FArranque);
+  FreeAndNil(FPendientes);
   ApagarTodo;
   inherited;
+end;
+
+procedure TPresentadorBase.Arrancar(Sender: TObject);
+var
+  lPendiente: TProc;
+begin
+  FArranque.Enabled := False;
+  FArrancado := True;
+  for lPendiente in FPendientes do
+    lPendiente();
+  FPendientes.Clear;
 end;
 
 function TPresentadorBase.Cancelacion: ICancelacion;
@@ -133,44 +153,70 @@ procedure TPresentadorBase.Ejecutar(const AAccion: string;
 var
   lCancelacion: ICancelacion;
   lConOcupado: Boolean;
+  lLanzar: TProc;
 begin
   lCancelacion := FCancelacion;
   lConOcupado := Assigned(AOcupado);
-  Encender(AOcupado);
 
-  TTask.Run(
-    procedure
-    var
-      lError: string;
+  lLanzar := procedure
+  begin
+    if lCancelacion.Cancelada then
     begin
-      lError := '';
-      try
-        ATrabajo();
-      except
-        on E: EAnovoCliente do
-          lError := E.Message;
-        on E: Exception do
-          lError := Format(SErrorInesperado, [AAccion]);
-      end;
+      if Assigned(ALiberar) then
+        ALiberar();
+      Exit;
+    end;
+    Encender(AOcupado);
+    TTask.Run(
+      procedure
+      var
+        lError: string;
+      begin
+        lError := '';
+        try
+          ATrabajo();
+        except
+          on E: EAnovoCliente do
+            lError := E.Message;
+          on E: Exception do
+            lError := Format(SErrorInesperado, [AAccion]);
+        end;
 
-      TThread.Queue(nil,
-        procedure
-        begin
-          try
-            if lCancelacion.Cancelada then
-              Exit;
-            if lConOcupado then
-              Apagar;
-            if lError.IsEmpty then
-              AListo()
-            else if Assigned(AError) then
-              AError(lError);
-          finally
-            if Assigned(ALiberar) then
-              ALiberar();
-          end;
-        end);
-    end);
+        TThread.Queue(nil,
+          procedure
+          begin
+            try
+              if lCancelacion.Cancelada then
+                Exit;
+              if lConOcupado then
+                Apagar;
+              if lError.IsEmpty then
+                AListo()
+              else if Assigned(AError) then
+                AError(lError);
+            finally
+              if Assigned(ALiberar) then
+                ALiberar();
+            end;
+          end);
+      end);
+  end;
+
+  if FArrancado then
+    lLanzar()
+  else
+  begin
+    if FPendientes = nil then
+      FPendientes := TList<TProc>.Create;
+    FPendientes.Add(lLanzar);
+    if FArranque = nil then
+    begin
+      FArranque := TTimer.Create(nil);
+      FArranque.Interval := ESPERA_ARRANQUE_MS;
+      FArranque.OnTimer := Arrancar;
+    end;
+    FArranque.Enabled := True;
+  end;
 end;
 
 procedure TPresentadorBase.Ejecutar<T>(const AAccion: string;
