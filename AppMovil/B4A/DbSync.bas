@@ -11,6 +11,7 @@ Sub Process_Globals
 	Public Const CLASE_CLIENTE As String = "cliente"
 	Public Const CLASE_SOLICITUD As String = "solicitud"
 	Public Const CLASE_FOTO As String = "foto"
+	Public Const CLASE_FIRMA As String = "firma"
 	Public Const ESTADO_PENDIENTE As String = "pendiente"
 	Public Const ESTADO_ERROR As String = "error"
 	Public Const RESULTADO_EXITOSA As String = "exitosa"
@@ -20,7 +21,7 @@ Sub Process_Globals
 	Private Const HISTORIAL_MAXIMO As Int = 50
 	Private Const SQL_PENDIENTES_ENTIDAD As String = "SELECT count(*) FROM cola_sync WHERE entidad = ? AND estado = 'pendiente'"
 	Private Const SQL_PENDIENTES_FOTOS As String = "SELECT count(*) FROM cola_sync q JOIN adjuntos a ON a.uuid_local = q.uuid_local WHERE q.entidad = 'adjunto' AND a.tipo = 'foto' AND q.estado = 'pendiente'"
-	Private Const SQL_ERRORES As String = "SELECT q.entidad, q.uuid_local, COALESCE(q.ultimo_error, '') AS mensaje, COALESCE(c.nombre, NULLIF(TRIM(s.nombre_proyecto), ''), s.descripcion, p.nombre, '') AS titulo FROM cola_sync q LEFT JOIN clientes c ON q.entidad = 'cliente' AND c.uuid_local = q.uuid_local LEFT JOIN solicitudes s ON q.entidad = 'solicitud' AND s.uuid_local = q.uuid_local LEFT JOIN adjuntos a ON q.entidad = 'adjunto' AND a.uuid_local = q.uuid_local LEFT JOIN piezas p ON p.uuid_local = a.pieza_uuid WHERE q.estado = 'error' AND (q.entidad IN ('cliente', 'solicitud') OR (q.entidad = 'adjunto' AND a.tipo = 'foto')) ORDER BY q.id"
+	Private Const SQL_ERRORES As String = "SELECT q.entidad, q.uuid_local, COALESCE(q.ultimo_error, '') AS mensaje, COALESCE(c.nombre, cf.nombre, NULLIF(TRIM(s.nombre_proyecto), ''), s.descripcion, p.nombre, '') AS titulo FROM cola_sync q LEFT JOIN clientes c ON q.entidad = 'cliente' AND c.uuid_local = q.uuid_local LEFT JOIN consentimiento_firmas f ON q.entidad = 'firma' AND f.uuid_local = q.uuid_local LEFT JOIN clientes cf ON cf.uuid_local = f.cliente_uuid LEFT JOIN solicitudes s ON q.entidad = 'solicitud' AND s.uuid_local = q.uuid_local LEFT JOIN adjuntos a ON q.entidad = 'adjunto' AND a.uuid_local = q.uuid_local LEFT JOIN piezas p ON p.uuid_local = a.pieza_uuid WHERE q.estado = 'error' AND (q.entidad IN ('cliente', 'solicitud') OR (q.entidad = 'adjunto' AND a.tipo = 'foto') OR (q.entidad = 'firma' AND NOT EXISTS (SELECT 1 FROM cola_sync k WHERE k.entidad = 'cliente' AND k.uuid_local = f.cliente_uuid))) ORDER BY q.id"
 	Private Const SQL_REINTENTAR_UNO As String = "UPDATE cola_sync SET estado = 'pendiente', proximo_intento = NULL WHERE entidad = ? AND uuid_local = ?"
 	Private Const SQL_INTENTO As String = "INSERT INTO sync_historial (fecha, resultado, subidos, bajados, con_error, pendientes) VALUES (?, ?, ?, ?, ?, ?)"
 	Private Const SQL_PODAR_HISTORIAL As String = "DELETE FROM sync_historial WHERE id NOT IN (SELECT id FROM sync_historial ORDER BY id DESC LIMIT ?)"
@@ -31,14 +32,18 @@ Sub Process_Globals
 	Private Const NOMBRE_CROQUIS As String = "croquis.json"
 	Private Const MINUTOS_MAXIMOS As Int = 60
 
-	Private Const SQL_PENDIENTES As String = "SELECT count(*) FROM cola_sync q LEFT JOIN adjuntos a ON a.uuid_local = q.uuid_local WHERE q.estado = ? AND (q.entidad IN ('cliente', 'solicitud') OR (q.entidad = 'adjunto' AND a.tipo = 'foto'))"
+	Private Const SQL_PENDIENTES As String = "SELECT count(*) FROM cola_sync q LEFT JOIN adjuntos a ON a.uuid_local = q.uuid_local LEFT JOIN consentimiento_firmas f ON q.entidad = 'firma' AND f.uuid_local = q.uuid_local WHERE q.estado = ? AND (q.entidad IN ('cliente', 'solicitud') OR (q.entidad = 'adjunto' AND a.tipo = 'foto') OR (q.entidad = 'firma' AND NOT EXISTS (SELECT 1 FROM cola_sync k WHERE k.entidad = 'cliente' AND k.uuid_local = f.cliente_uuid)))"
 	Private Const SQL_CLIENTES_LISTOS As String = "SELECT uuid_local FROM cola_sync WHERE entidad = 'cliente' AND estado = 'pendiente' AND (proximo_intento IS NULL OR proximo_intento <= ?) ORDER BY id"
-	Private Const SQL_SOLICITUDES_LISTAS As String = "SELECT q.uuid_local FROM cola_sync q JOIN solicitudes s ON s.uuid_local = q.uuid_local WHERE q.entidad = 'solicitud' AND q.estado = 'pendiente' AND (q.proximo_intento IS NULL OR q.proximo_intento <= ?) AND NOT EXISTS (SELECT 1 FROM cola_sync c WHERE c.entidad = 'cliente' AND c.uuid_local = s.cliente_uuid) ORDER BY q.id"
+	Private Const SQL_SOLICITUDES_LISTAS As String = "SELECT q.uuid_local FROM cola_sync q JOIN solicitudes s ON s.uuid_local = q.uuid_local WHERE q.entidad = 'solicitud' AND q.estado = 'pendiente' AND (q.proximo_intento IS NULL OR q.proximo_intento <= ?) AND NOT EXISTS (SELECT 1 FROM cola_sync c WHERE c.entidad = 'cliente' AND c.uuid_local = s.cliente_uuid) AND NOT EXISTS (SELECT 1 FROM cola_sync k JOIN consentimiento_firmas f2 ON f2.uuid_local = k.uuid_local WHERE k.entidad = 'firma' AND f2.cliente_uuid = s.cliente_uuid) ORDER BY q.id"
 	Private Const SQL_FOTOS_LISTAS As String = "SELECT q.uuid_local, s.id_servidor, p.uuid_local AS pieza_uuid, a.ruta_archivo, a.mime FROM cola_sync q JOIN adjuntos a ON a.uuid_local = q.uuid_local JOIN piezas p ON p.uuid_local = a.pieza_uuid JOIN solicitudes s ON s.uuid_local = p.solicitud_uuid WHERE q.entidad = 'adjunto' AND a.tipo = 'foto' AND q.estado = 'pendiente' AND (q.proximo_intento IS NULL OR q.proximo_intento <= ?) AND s.id_servidor IS NOT NULL ORDER BY q.id"
 
 	Private Const SQL_CLIENTE As String = "SELECT uuid_local, nombre, identificacion, tipo_identificacion, contacto, telefono, correo, direccion, latitud, longitud FROM clientes WHERE uuid_local = ?"
 	Private Const SQL_CONTACTOS As String = "SELECT uuid_local, nombre, area, telefono, celular, correo, principal FROM cliente_contactos WHERE cliente_uuid = ? ORDER BY principal DESC, nombre"
 	Private Const SQL_FIRMA As String = "SELECT cliente_contacto_uuid, accion, version_texto, fecha, firmante_nombre, firmante_identificacion, firma, mime FROM consentimiento_firmas WHERE cliente_uuid = ? ORDER BY fecha DESC LIMIT 1"
+	Private Const SQL_FIRMA_POR_UUID As String = "SELECT cliente_contacto_uuid, accion, version_texto, fecha, firmante_nombre, firmante_identificacion, firma, mime FROM consentimiento_firmas WHERE uuid_local = ?"
+	Private Const SQL_FIRMAS_LISTAS As String = "SELECT q.uuid_local, c.id_servidor FROM cola_sync q JOIN consentimiento_firmas f ON f.uuid_local = q.uuid_local JOIN clientes c ON c.uuid_local = f.cliente_uuid WHERE q.entidad = 'firma' AND q.estado = 'pendiente' AND (q.proximo_intento IS NULL OR q.proximo_intento <= ?) AND c.id_servidor IS NOT NULL AND NOT EXISTS (SELECT 1 FROM cola_sync k WHERE k.entidad = 'cliente' AND k.uuid_local = f.cliente_uuid) ORDER BY q.id"
+	Private Const SQL_CONFIRMAR_FIRMA As String = "UPDATE consentimiento_firmas SET estado_sync = 'confirmado' WHERE uuid_local = ?"
+	Private Const SQL_SACAR_FIRMA As String = "DELETE FROM cola_sync WHERE entidad = 'firma' AND uuid_local = ?"
 	Private Const SQL_SOLICITUD As String = "SELECT uuid_local, cliente_uuid, cliente_contacto_uuid, nombre_proyecto, descripcion, observaciones, fecha_captura FROM solicitudes WHERE uuid_local = ?"
 	Private Const SQL_PIEZAS As String = "SELECT uuid_local, nombre, orden, tipo_trabajo_id, tipo_material_id, acabado_id FROM piezas WHERE solicitud_uuid = ? ORDER BY orden"
 	Private Const SQL_MEDIDAS As String = "SELECT uuid_local, croquis_uuid, etiqueta, tipo_medida, valor, unidad_medida, cantidad, orden FROM medidas WHERE pieza_uuid = ? ORDER BY orden"
@@ -158,6 +163,17 @@ Public Sub Listas (Clase As String) As List
 				res.Add(Unidad(Clase, uuid, paquete, rs.GetInt("id_servidor"), ruta))
 			Loop
 			rs.Close
+		Case CLASE_FIRMA
+			Dim rf As ResultSet = Db.DbSQL.ExecQuery2(SQL_FIRMAS_LISTAS, Array As String(ahora))
+			Do While rf.NextRow
+				Dim uf As UnidadSync = Unidad(Clase, rf.GetString("uuid_local"), Null, 0, "")
+				uf.ClienteId = rf.GetInt("id_servidor")
+				res.Add(uf)
+			Loop
+			rf.Close
+			For Each uf2 As UnidadSync In res
+				uf2.Paquete = DatosFirma(SQL_FIRMA_POR_UUID, uf2.Uuid)
+			Next
 	End Select
 	Return res
 End Sub
@@ -208,9 +224,13 @@ Private Sub PaqueteCliente (Uuid As String) As Map
 	Loop
 	rs.Close
 
+	Return CreateMap("cliente": datosCliente, "contactos": contactos, "firma": DatosFirma(SQL_FIRMA, Uuid))
+End Sub
+
+Private Sub DatosFirma (Consulta As String, Uuid As String) As Map
 	Dim datosFirma As Map
 	datosFirma.Initialize
-	rs = Db.DbSQL.ExecQuery2(SQL_FIRMA, Array As String(Uuid))
+	Dim rs As ResultSet = Db.DbSQL.ExecQuery2(Consulta, Array As String(Uuid))
 	If rs.NextRow Then
 		Dim su As StringUtils
 		datosFirma.Put("cliente_contacto_uuid", rs.GetString("cliente_contacto_uuid"))
@@ -224,8 +244,7 @@ Private Sub PaqueteCliente (Uuid As String) As Map
 		datosFirma.Put("origen", ORIGEN_MOVIL)
 	End If
 	rs.Close
-
-	Return CreateMap("cliente": datosCliente, "contactos": contactos, "firma": datosFirma)
+	Return datosFirma
 End Sub
 
 Private Sub PaqueteSolicitud (Uuid As String) As Map
@@ -310,6 +329,9 @@ Public Sub Confirmar (u As UnidadSync, IdServidor As Int)
 			Case CLASE_FOTO
 				s.ExecNonQuery2(SQL_CONFIRMAR_FOTO, Array As Object(u.Uuid))
 				s.ExecNonQuery2(SQL_SACAR_FOTO, Array As Object(u.Uuid))
+			Case CLASE_FIRMA
+				s.ExecNonQuery2(SQL_CONFIRMAR_FIRMA, Array As Object(u.Uuid))
+				s.ExecNonQuery2(SQL_SACAR_FIRMA, Array As Object(u.Uuid))
 		End Select
 		s.TransactionSuccessful
 	Catch

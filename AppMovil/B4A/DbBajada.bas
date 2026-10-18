@@ -12,7 +12,7 @@ Sub Process_Globals
 	Private Const CLAVE_HORA As String = "bajada_hora"
 	Private Const EVENTO_LOTE As String = "Lote"
 	Private Const SQL_NUEVO_CLIENTE As String = "INSERT OR IGNORE INTO clientes (uuid_local, nombre) VALUES (?, ?)"
-	Private Const SQL_CLIENTE As String = "UPDATE clientes SET id_servidor = ?, nombre = ?, identificacion = ?, tipo_identificacion = ?, telefono = ?, correo = ?, contacto = ?, direccion = ?, latitud = ?, longitud = ?, consentimiento_estado = ?, objversion = ?, activo = ?, estado_sync = 'confirmado' WHERE uuid_local = ? AND NOT EXISTS (SELECT 1 FROM cola_sync WHERE entidad = 'cliente' AND uuid_local = ?)"
+	Private Const SQL_CLIENTE As String = "UPDATE clientes SET id_servidor = ?, nombre = ?, identificacion = ?, tipo_identificacion = ?, telefono = ?, correo = ?, contacto = ?, direccion = ?, latitud = ?, longitud = ?, consentimiento_estado = ?, objversion = ?, activo = ?, estado_sync = 'confirmado' WHERE uuid_local = ? AND NOT EXISTS (SELECT 1 FROM cola_sync WHERE entidad = 'cliente' AND uuid_local = ?) AND NOT EXISTS (SELECT 1 FROM cola_sync k JOIN consentimiento_firmas f ON f.uuid_local = k.uuid_local WHERE k.entidad = 'firma' AND f.cliente_uuid = ?)"
 	Private Const SQL_NUEVO_CONTACTO As String = "INSERT OR IGNORE INTO cliente_contactos (uuid_local, cliente_uuid, nombre) SELECT ?, ?, ? WHERE EXISTS (SELECT 1 FROM clientes WHERE uuid_local = ?)"
 	Private Const SQL_CONTACTO As String = "UPDATE cliente_contactos SET id_servidor = ?, nombre = ?, area = ?, telefono = ?, celular = ?, correo = ?, principal = ?, consentimiento_estado = ?, consentimiento_version = ?, consentimiento_fecha = ?, objversion = ?, activo = ?, estado_sync = 'confirmado' WHERE uuid_local = ? AND NOT EXISTS (SELECT 1 FROM cola_sync WHERE entidad = 'contacto' AND uuid_local = ?)"
 	Private Const SQL_NUEVO_TIPO_TRABAJO As String = "INSERT OR IGNORE INTO tipos_trabajo (id_servidor, nombre) VALUES (?, ?)"
@@ -53,7 +53,7 @@ Public Sub Aplicar (Datos As Map) As Object
 		s.AddNonQueryToBatch(SQL_CLIENTE, Array(m.Get("id"), m.Get("nombre"), m.Get("identificacion"), _
 			m.Get("tipo_identificacion"), m.Get("telefono"), m.Get("correo"), m.Get("contacto"), m.Get("direccion"), _
 			m.Get("latitud"), m.Get("longitud"), m.Get("consentimiento_estado"), m.Get("obj_version"), _
-			Bandera(m, "activo"), uuidCliente, uuidCliente))
+			Bandera(m, "activo"), uuidCliente, uuidCliente, uuidCliente))
 	Next
 	For Each m As Map In Lista(Datos, "contactos")
 		Dim uuidContacto As String = m.Get("uuid_local")

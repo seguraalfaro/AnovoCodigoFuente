@@ -28,7 +28,7 @@ Public Sub Ejecutar As ResumableSub
 	r.Initialize
 	If mCorriendo Then Return r
 	mCorriendo = True
-	For Each clase As String In Array As String(DbSync.CLASE_CLIENTE, DbSync.CLASE_SOLICITUD, DbSync.CLASE_FOTO)
+	For Each clase As String In Array As String(DbSync.CLASE_CLIENTE, DbSync.CLASE_FIRMA, DbSync.CLASE_SOLICITUD, DbSync.CLASE_FOTO)
 		For Each u As UnidadSync In DbSync.Listas(clase)
 			Wait For (remota.AsegurarSesion) Complete (Estado As Int)
 			If Estado <> Api.HTTP_OK Then
@@ -82,6 +82,9 @@ Private Sub Enviar (u As UnidadSync) As ResumableSub
 			Return Respuesta
 		Case DbSync.CLASE_SOLICITUD
 			Wait For (ApiSincronizacion.SubirSolicitud(u.Paquete).Enviar) Complete (Respuesta As RestRespuesta)
+			Return Respuesta
+		Case DbSync.CLASE_FIRMA
+			Wait For (ApiSincronizacion.SubirFirma(u.ClienteId, u.Paquete).Enviar) Complete (Respuesta As RestRespuesta)
 			Return Respuesta
 	End Select
 	Dim datos() As Byte = Adjuntos.LeerBytes(u.Ruta)

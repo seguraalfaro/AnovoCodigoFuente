@@ -22,7 +22,7 @@ Sub Process_Globals
 	Type OpcionBusqueda (Titulo As String, Detalle As String, Valor As Object)
 	Type Solicitud (UuidLocal As String, ClienteUuid As String, ContactoUuid As String, _
 		NombreProyecto As String, Descripcion As String, Observaciones As String)
-	Type UnidadSync (Clase As String, Uuid As String, Paquete As Map, SolicitudId As Int, Ruta As String)
+	Type UnidadSync (Clase As String, Uuid As String, Paquete As Map, SolicitudId As Int, Ruta As String, ClienteId As Int)
 	Type ResumenSync (Subidos As Int, Bajados As Int, ConError As Int, Pendientes As Int, SinConexion As Boolean, _
 		SesionVencida As Boolean, ServidorOcupado As Boolean, FalloBajada As Boolean, Mensaje As String)
 	Type FranjaSync (Texto As String, Accion As String, Glifo As String, Tinta As Int, Fondo As Int)

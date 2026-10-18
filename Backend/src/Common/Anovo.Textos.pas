@@ -163,6 +163,11 @@ resourcestring
   SClienteNoDisponible = 'El cliente está inactivo o anonimizado y no puede ' +
     'recibir solicitudes nuevas.';
   SContactoNoDisponible = 'El contacto está inactivo o anonimizado.';
+  SClienteConsentimientoRevocado = 'El cliente revocó su consentimiento. Antes ' +
+    'de registrarle una solicitud tiene que firmarlo de nuevo.';
+  SFaltanDatosFirma = 'Faltan la versión del texto, el nombre o la ' +
+    'identificación de quien firma.';
+  SConsentimientoYaFirmado = 'El cliente ya tiene el consentimiento firmado.';
   SAsesorNoValido = 'El asesor indicado no existe o está inactivo.';
   SContactoAnonimizadoNombre = 'Contacto anonimizado';
   SContactoYaAnonimizado = 'Este contacto ya fue anonimizado (Ley 8968).';
@@ -904,6 +909,7 @@ resourcestring
   SDetalleInactivacionContacto = 'Inactivación del contacto %d';
   SDetalleRevocacionConsentimiento = 'Revocación del consentimiento pedida ' +
     'por %s';
+  SDetalleFirmaConsentimiento = 'Consentimiento firmado por %s';
   SDetalleCotizacionDesdeSolicitud = 'Cotización %d desde la solicitud %d';
   SDetalleCambioCotizacion = 'Cambio en la cotización %d';
   SDetalleLineaAgregada = 'Línea agregada a la cotización %d';

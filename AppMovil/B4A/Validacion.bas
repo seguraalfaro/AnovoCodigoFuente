@@ -34,6 +34,16 @@ Public Sub EsIdentificacion (Mascara As Int, Texto As String) As Boolean
 	Return False
 End Sub
 
+Public Sub Consentimiento (p As Consentimiento) As String
+	If p.Version = "" Then Return Mensajes.SIN_TEXTO_PERMISO
+	If p.Acepta = False Then Return Mensajes.FALTA_ACEPTAR
+	If p.Firma.Length = 0 Then Return Mensajes.FALTA_FIRMA
+	If p.Firmante = "" Then Return Mensajes.FALTA_FIRMANTE
+	If EsIdentificacion(Formato.MASCARA_IDENT_FISICA, p.CedulaFirmante) = False And _
+		EsIdentificacion(Formato.MASCARA_IDENT_DIMEX, p.CedulaFirmante) = False Then Return Mensajes.FALTA_CEDULA_FIRMANTE
+	Return ""
+End Sub
+
 Public Sub EsTexto (Texto As String) As Boolean
 	Dim s As String = Texto.Trim
 	Return s.Length >= Utils.LARGO_MINIMO_TEXTO And Utils.ProporcionVocales(s) >= Utils.VOCALES_MINIMO

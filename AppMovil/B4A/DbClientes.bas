@@ -9,7 +9,12 @@ Version=13.7
 
 Sub Process_Globals
 	Private Const SQL_TEXTO_VIGENTE As String = "SELECT version, titulo, contenido FROM consentimiento_texto LIMIT 1"
-	Private Const SQL_CLIENTE As String = "INSERT INTO clientes (uuid_local, nombre, identificacion, tipo_identificacion, telefono, correo, contacto, direccion, latitud, longitud, estado_sync) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pendiente')"
+	Private Const SQL_CLIENTE As String = "INSERT INTO clientes (uuid_local, nombre, identificacion, tipo_identificacion, telefono, correo, contacto, direccion, latitud, longitud, consentimiento_estado, estado_sync) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'firmado', 'pendiente')"
+	Private Const SQL_CONSENTIMIENTO_DE As String = "SELECT consentimiento_estado FROM clientes WHERE uuid_local = ?"
+	Private Const SQL_FIRMAR_CLIENTE As String = "UPDATE clientes SET consentimiento_estado = 'firmado' WHERE uuid_local = ?"
+	Public Const CONSENTIMIENTO_FIRMADO As String = "firmado"
+	Public Const CONSENTIMIENTO_PENDIENTE As String = "pendiente"
+	Public Const CONSENTIMIENTO_REVOCADO As String = "revocado"
 	Private Const SQL_UBICACION As String = "SELECT latitud, longitud FROM clientes WHERE uuid_local = ? AND latitud IS NOT NULL AND longitud IS NOT NULL"
 	Private Const SQL_CONTACTO As String = "INSERT INTO cliente_contactos (uuid_local, cliente_uuid, nombre, area, telefono, celular, correo, principal, consentimiento_estado, estado_sync) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendiente', 'pendiente')"
 	Private Const SQL_FIRMAR_CONTACTO As String = "UPDATE cliente_contactos SET consentimiento_estado = 'firmado', consentimiento_version = ?, consentimiento_fecha = ? WHERE uuid_local = ?"
@@ -60,6 +65,14 @@ End Sub
 Public Sub EstadoDe (ClienteUuid As String) As String
 	Dim estado As String = Db.DbSQL.ExecQuerySingleResult2(SQL_ESTADO, Array As String(ClienteUuid))
 	If estado = Null Then Return DbSync.ESTADO_PENDIENTE
+	Return estado
+End Sub
+
+Public Sub ConsentimientoDe (ClienteUuid As String) As String
+	Dim rs As ResultSet = Db.DbSQL.ExecQuery2(SQL_CONSENTIMIENTO_DE, Array As String(ClienteUuid))
+	Dim estado As String = ""
+	If rs.NextRow Then estado = Utils.TextoONada(rs.GetString("consentimiento_estado"))
+	rs.Close
 	Return estado
 End Sub
 
@@ -171,6 +184,28 @@ Public Sub Guardar (c As Cliente, Contactos As List, Permiso As Consentimiento, 
 
 	If ok = False Then Return ""
 	Return c.UuidLocal
+End Sub
+
+Public Sub GuardarFirma (ClienteUuid As String, Contactos As List, Permiso As Consentimiento) As Boolean
+	Dim s As SQL = Db.DbSQL
+	Dim ahora As String = Utils.AhoraBd
+	Dim uFirma As String = Db.NuevoUuid
+	Dim titular As Object = UuidDeFirmante(Contactos, Permiso.Firmante)
+	Dim ok As Boolean = False
+	s.BeginTransaction
+	Try
+		If titular <> Null Then s.ExecNonQuery2(SQL_FIRMAR_CONTACTO, Array As Object(Permiso.Version, ahora, titular))
+		s.ExecNonQuery2(SQL_FIRMA, Array As Object(uFirma, ClienteUuid, titular, Permiso.Version, ahora, _
+			Permiso.Firmante, Permiso.CedulaFirmante, Permiso.Firma))
+		s.ExecNonQuery2(SQL_FIRMAR_CLIENTE, Array As Object(ClienteUuid))
+		Db.Encolar("firma", uFirma)
+		s.TransactionSuccessful
+		ok = True
+	Catch
+		Log("DbClientes.GuardarFirma: " & LastException.Message)
+	End Try
+	s.EndTransaction
+	Return ok
 End Sub
 #End Region
 

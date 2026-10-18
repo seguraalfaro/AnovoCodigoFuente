@@ -15,6 +15,7 @@ Sub Class_Globals
 	Private mEstado As String
 	Private mContactos As List
 	Private mPermiso As PermisoCliente
+	Private mConsentimiento As String
 End Sub
 
 Public Sub Initialize
@@ -28,6 +29,7 @@ Public Sub Cargar (c As Cliente)
 	mEstado = DbClientes.EstadoDe(c.UuidLocal)
 	mContactos = DbClientes.ContactosDe(c.UuidLocal)
 	mPermiso = DbClientes.UltimoPermiso(c.UuidLocal)
+	mConsentimiento = DbClientes.ConsentimientoDe(c.UuidLocal)
 End Sub
 #End Region
 
@@ -78,11 +80,18 @@ Public Sub getContactos As List
 	Return mContactos
 End Sub
 
+Public Sub getPuedeFirmar As Boolean
+	If mEstado <> "confirmado" Then Return False
+	Return mConsentimiento = DbClientes.CONSENTIMIENTO_PENDIENTE Or mConsentimiento = DbClientes.CONSENTIMIENTO_REVOCADO
+End Sub
+
 Public Sub getPermiso As String
+	If getPuedeFirmar Then Return Mensajes.PermisoSegunEstado(mConsentimiento)
 	Return Mensajes.TextoPermiso(mPermiso.Accion, mPermiso.Firmante)
 End Sub
 
 Public Sub getDetallePermiso As String
+	If getPuedeFirmar Then Return Mensajes.TOCAR_PARA_FIRMAR
 	If mPermiso.Accion = "" Then Return ""
 	Return Mensajes.PermisoDetalle(Utils.BdADisplay(mPermiso.Fecha), mPermiso.Version)
 End Sub

@@ -40,6 +40,7 @@ type
     function Consentimientos(const AId: Integer)
       : TObjectList<TConsentimientoDTO>;
     procedure Revocar(const AId: Integer; const ADto: TRevocacionDTO);
+    function Otorgar(const AId: Integer; const ADto: TFirmaNuevaDTO): Integer;
 
   end;
 

@@ -24,6 +24,7 @@ Sub Class_Globals
 	Private Const ALTO_PERMISO As Int = 82dip
 	Private Const RADIO_AVATAR As Int = 24dip
 	Private Const RADIO_PASTILLA As Int = 10dip
+	Private Const VALOR_PERMISO As String = "permiso"
 End Sub
 
 Public Sub Initialize As Object
@@ -64,7 +65,7 @@ Private Sub Pintar
 		ClvFicha.Add(CrearContacto(ancho, k), k)
 	Next
 	ClvFicha.Add(CrearSeccion(ancho, Mensajes.FICHA_PERMISO, Colores.COLOR_PRIMARIO), Null)
-	ClvFicha.Add(CrearPermiso(ancho), Null)
+	ClvFicha.Add(CrearPermiso(ancho), VALOR_PERMISO)
 End Sub
 
 Private Sub Fila (Ancho As Int, Alto As Int) As B4XView
@@ -128,6 +129,14 @@ End Sub
 #End Region
 
 #Region Eventos
+Private Sub ClvFicha_ItemClick (Index As Int, Value As Object)
+	If (Value Is String) = False Then Return
+	If Value <> VALOR_PERMISO Or presentador.PuedeFirmar = False Then Return
+	Dim pagina As B4XConsentimiento = B4XPages.GetPage(Layouts.PAGINA_CONSENTIMIENTO)
+	pagina.Mostrar(presentador.ClienteActual)
+	B4XPages.ShowPage(Layouts.PAGINA_CONSENTIMIENTO)
+End Sub
+
 Private Sub BtnNuevaSolicitud_Click
 	Dim cotizacion As B4XCotizacion = B4XPages.GetPage(Layouts.PAGINA_COTIZACION)
 	cotizacion.NuevaConCliente(presentador.ClienteActual)

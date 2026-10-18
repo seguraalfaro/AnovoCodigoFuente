@@ -170,9 +170,9 @@ Public Sub CambiarClave (Actual As String, Nueva As String, Repetida As String) 
 	LlaveDispositivo.GuardarPerfil(Sesion.UsuarioId, Sesion.Correo, Sesion.Nombre, Sesion.Rol)
 	Wait For (remota.RegistrarTelefono) Complete (Registrado As Boolean)
 	Wait For (Cargar) Complete (Hecho As Boolean)
-	Dim texto As String = Mensajes.CLAVE_CAMBIADA
-	If Registrado = False Then texto = texto & " " & Mensajes.TELEFONO_NO_REGISTRADO
-	Return Tipos.Correcto(texto)
+	Dim aviso As String = Mensajes.CLAVE_CAMBIADA
+	If Registrado = False Then aviso = aviso & " " & Mensajes.TELEFONO_NO_REGISTRADO
+	Return Tipos.Correcto(aviso)
 End Sub
 
 Public Sub getSesionVencida As Boolean

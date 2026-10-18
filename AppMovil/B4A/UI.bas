@@ -708,6 +708,21 @@ End Sub
 #End Region
 
 #Region Páginas y contenedores
+Public Sub PintarTextoLargo (Scroll As ScrollView, Texto As String, Margen As Int)
+	Scroll.Panel.RemoveAllViews
+	Dim l As Label
+	l.Initialize("")
+	l.Tag = Utils.TAG_RAW
+	l.SingleLine = False
+	l.TextSize = 14
+	l.TextColor = Colores.COLOR_TEXTO_PRIMARIO
+	Scroll.Panel.AddView(l, Margen, Margen, Scroll.Width - 2 * Margen, Margen)
+	Dim su As StringUtils
+	l.Text = Texto
+	l.Height = su.MeasureMultilineTextHeight(l, Texto)
+	Scroll.Panel.Height = l.Height + 2 * Margen
+End Sub
+
 Public Sub GetCardHeight As Int
 	If GetDeviceLayoutValues.ApproximateScreenSize < SMALL_SCREEN_SIZE Then
 		Return SMALL_SCREEN_CARD_HEIGHT

@@ -69,6 +69,7 @@ type
     function Consentimientos(const AId: Integer)
       : TObjectList<TConsentimientoDTO>;
     procedure Revocar(const AId: Integer; const ADto: TRevocacionDTO);
+    function Otorgar(const AId: Integer; const ADto: TFirmaNuevaDTO): Integer;
   end;
 
 implementation
@@ -672,6 +673,80 @@ begin
       TConsentimientoDTO>(lEntidades);
   finally
     lEntidades.Free;
+  end;
+end;
+
+function TClienteService.Otorgar(const AId: Integer;
+  const ADto: TFirmaNuevaDTO): Integer;
+var
+  lCliente: TClientes;
+  lContacto: TClienteContactos;
+  lFirma: TClienteConsentimientoHistorial;
+  lImagen: TBytes;
+  lFecha: TDateTime;
+begin
+  var
+  lTx := TMVCRepository.UseTransactionContext;
+
+  ExigirClienteEditable(AId);
+  if ADto.VersionTexto.Trim.IsEmpty or ADto.FirmanteNombre.Trim.IsEmpty or
+    ADto.FirmanteIdentificacion.Trim.IsEmpty then
+    raise EDatoInvalido.Create(SFaltanDatosFirma);
+  if not VerificarImagen(ADto.FirmaBase64) then
+    raise EDatoInvalido.Create(SFirmaVacia);
+
+  if ADto.Fecha.HasValue then
+    lFecha := ADto.Fecha.Value
+  else
+    lFecha := Now;
+
+  Result := fConsentimientos.FirmaRepetida(AId, lFecha,
+    ADto.FirmanteNombre.Trim);
+  if Result > 0 then
+    Exit;
+
+  lImagen := TNetEncoding.Base64.DecodeStringToBytes(ADto.FirmaBase64);
+  lCliente := TraerVigente(AId);
+  lContacto := nil;
+  lFirma := nil;
+  try
+    if lCliente.ConsentimientoEstado = CONSENTIMIENTO_FIRMADO then
+      raise EConflictoDeEstado.Create('CONSENTIMIENTO_YA_FIRMADO',
+        SConsentimientoYaFirmado);
+
+    FijarDetalle(Format(SDetalleFirmaConsentimiento,
+      [ADto.FirmanteNombre.Trim]));
+    lFirma := TClienteConsentimientoHistorial.Create;
+    TMapeo.Copiar(ADto, lFirma);
+    lFirma.ClienteId := AId;
+    lFirma.Accion := ACCION_OTORGADO;
+    lFirma.Fecha := lFecha;
+    lFirma.FirmaImagen.WriteBuffer(lImagen, Length(lImagen));
+    fConsentimientos.Insert(lFirma);
+    Result := lFirma.ID.Value;
+
+    lCliente.ConsentimientoEstado := CONSENTIMIENTO_FIRMADO;
+    lCliente.ConsentimientoVersion := ADto.VersionTexto;
+    lCliente.ConsentimientoFecha := lFecha;
+    fRepo.Update(lCliente);
+
+    if ADto.ClienteContactoUuid.HasValue and
+      not ADto.ClienteContactoUuid.Value.Trim.IsEmpty then
+    begin
+      lContacto := fContactos.PorUuidLocal(ADto.ClienteContactoUuid.Value.Trim);
+      if (lContacto <> nil) and (lContacto.ClienteId = AId) and
+        not lContacto.Anonimizado then
+      begin
+        lContacto.ConsentimientoEstado := CONSENTIMIENTO_FIRMADO;
+        lContacto.ConsentimientoVersion := ADto.VersionTexto;
+        lContacto.ConsentimientoFecha := lFecha;
+        fContactos.Update(lContacto);
+      end;
+    end;
+  finally
+    lContacto.Free;
+    lFirma.Free;
+    lCliente.Free;
   end;
 end;
 

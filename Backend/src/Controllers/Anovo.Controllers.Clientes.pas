@@ -236,6 +236,26 @@ type
     function Consentimientos([MVCInject] AServicio: IClienteService;
       const AId: Integer): IMVCResponse;
 
+    [MVCPath('/($AId)/consentimientos')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_CLIENTES_CONSENTIMIENTO)]
+    [MVCSwagSummary('Clientes', 'Registra la firma del consentimiento de un ' +
+      'cliente pendiente o revocado. Repetir el envio no duplica la firma',
+      'firmarConsentimiento')]
+    [MVCSwagParam(plPath, 'AId', 'Numero del cliente', ptInteger, True)]
+    [MVCSwagParam(plBody, 'Firma', 'Version del texto, fecha, quien firma y ' +
+      'la imagen de la firma', TFirmaNuevaDTO)]
+    [MVCSwagResponses(201, 'Firmado. La cabecera Location apunta a la firma')]
+    [MVCSwagResponses(401, 'Sin token o token vencido')]
+    [MVCSwagResponses(403, 'El rol no tiene el permiso para esta operacion')]
+    [MVCSwagResponses(404, 'No existe un cliente con ese numero')]
+    [MVCSwagResponses(409, 'Ya estaba firmado, o el cliente esta inactivo ' +
+      'o anonimizado')]
+    [MVCSwagResponses(422, 'Faltan datos de quien firma o la imagen')]
+    function Firmar([MVCInject] AServicio: IClienteService;
+      const AId: Integer; [MVCFromBody] const ADto: TFirmaNuevaDTO)
+      : IMVCResponse;
+
     [MVCPath('/($AId)/consentimientos/revocacion')]
     [MVCHTTPMethods([httpPOST])]
     [MVCRequiresPermiso(PERMISO_CLIENTES_CONSENTIMIENTO)]
@@ -361,6 +381,13 @@ function TClientesController.Consentimientos(AServicio: IClienteService;
   const AId: Integer): IMVCResponse;
 begin
   Result := OKResponse(AServicio.Consentimientos(AId));
+end;
+
+function TClientesController.Firmar(AServicio: IClienteService;
+  const AId: Integer; const ADto: TFirmaNuevaDTO): IMVCResponse;
+begin
+  Result := CreatedResponse(Format('/api/clientes/%d/consentimientos/%d',
+    [AId, AServicio.Otorgar(AId, ADto)]));
 end;
 
 function TClientesController.Revocar(AServicio: IClienteService;

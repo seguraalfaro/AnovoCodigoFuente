@@ -52,6 +52,8 @@ type
 
     function HistorialDe(const AClienteId: Integer)
       : TObjectList<TConsentimientosDeCliente>;
+    function FirmaRepetida(const AClienteId: Integer; const AFecha: TDateTime;
+      const AFirmante: string): Integer;
   end;
 
   IConsentimientoTextoRepository = interface

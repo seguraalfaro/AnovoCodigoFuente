@@ -24,6 +24,7 @@ const
   ESTADO_CAPTURADA = 'capturada';
   ESTADO_RECIBIDA = 'recibida';
   ESTADO_EN_COTIZACION = 'en_cotizacion';
+  CONSENTIMIENTO_REVOCADO = 'revocado';
   ESTADO_DESCARTADA = 'descartada';
 
   ADJUNTO_MAXIMO_BYTES = 3145728;
@@ -361,6 +362,8 @@ begin
   try
     if lCliente.Anonimizado or not lCliente.Activo.ValueOrDefault then
       raise EDatoInvalido.Create(SClienteNoDisponible);
+    if lCliente.ConsentimientoEstado = CONSENTIMIENTO_REVOCADO then
+      raise EDatoInvalido.Create(SClienteConsentimientoRevocado);
   finally
     lCliente.Free;
   end;

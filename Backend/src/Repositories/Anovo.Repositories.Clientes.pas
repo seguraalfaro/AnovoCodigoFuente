@@ -51,6 +51,8 @@ type
   public
     function HistorialDe(const AClienteId: Integer)
       : TObjectList<TConsentimientosDeCliente>;
+    function FirmaRepetida(const AClienteId: Integer; const AFecha: TDateTime;
+      const AFirmante: string): Integer;
   end;
 
   TConsentimientoTextoRepository = class
@@ -181,6 +183,22 @@ function TConsentimientoTextoRepository.PorVersion(const AVersion: string)
   : TConsentimientoTextos;
 begin
   Result := GetOneByWhere(TEXTO_CONSENTIMIENTO_POR_VERSION, [AVersion], False);
+end;
+
+function TConsentimientoRepository.FirmaRepetida(const AClienteId: Integer;
+  const AFecha: TDateTime; const AFirmante: string): Integer;
+var
+  lFirma: TClienteConsentimientoHistorial;
+begin
+  lFirma := GetOneByWhere(FIRMA_REPETIDA, [AClienteId, AFecha, AFirmante],
+    False);
+  try
+    if lFirma = nil then
+      Exit(0);
+    Result := lFirma.ID.Value;
+  finally
+    lFirma.Free;
+  end;
 end;
 
 function TConsentimientoRepository.HistorialDe(const AClienteId: Integer)

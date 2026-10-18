@@ -276,21 +276,7 @@ End Sub
 
 #Region Paso 3: consentimiento
 Private Sub PintarTexto
-	Dim t As TextoPermiso = presentador.TextoPermiso
-	Dim cuerpo As String = Mensajes.SIN_TEXTO_PERMISO
-	If t.Version <> "" Then cuerpo = t.Titulo & CRLF & CRLF & t.Contenido & CRLF & CRLF & Mensajes.VersionTextoPermiso(t.Version)
-	scvtexto.Panel.RemoveAllViews
-	Dim l As Label
-	l.Initialize("")
-	l.Tag = Utils.TAG_RAW
-	l.SingleLine = False
-	l.TextSize = 14
-	l.TextColor = Colores.COLOR_TEXTO_PRIMARIO
-	scvtexto.Panel.AddView(l, MARGEN_TEXTO, MARGEN_TEXTO, scvtexto.Width - 2 * MARGEN_TEXTO, MARGEN_TEXTO)
-	Dim su As StringUtils
-	l.Text = cuerpo
-	l.Height = su.MeasureMultilineTextHeight(l, cuerpo)
-	scvtexto.Panel.Height = l.Height + 2 * MARGEN_TEXTO
+	UI.PintarTextoLargo(scvtexto, Mensajes.CuerpoPermiso(presentador.TextoPermiso), MARGEN_TEXTO)
 End Sub
 
 Private Sub SignPad_onSigned (sign As Object)

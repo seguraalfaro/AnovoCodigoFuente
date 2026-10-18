@@ -10,6 +10,7 @@ Sub Process_Globals
 	Private Const RUTA_CLIENTE As String = "/api/clientes/registro-completo"
 	Private Const RUTA_SOLICITUD As String = "/api/solicitudes/completa"
 	Private Const RUTA_FOTO As String = "/api/solicitudes/($id)/adjuntos"
+	Private Const RUTA_FIRMA As String = "/api/clientes/($id)/consentimientos"
 	Private Const RUTA_BAJADA As String = "/api/sincronizacion/bajada"
 	Private Const RUTA_INDICADORES As String = "/api/dashboard/asesor"
 	Private Const PARAM_DESDE As String = "desde"
@@ -27,6 +28,10 @@ End Sub
 
 Public Sub SubirFoto (SolicitudId As Int, Paquete As Map) As RestCliente
 	Return Api.NuevoCliente(True).AddPathParam(PARAM_ID, SolicitudId).AddBody(Paquete).PrepararPost(RUTA_FOTO)
+End Sub
+
+Public Sub SubirFirma (ClienteId As Int, Paquete As Map) As RestCliente
+	Return Api.NuevoCliente(True).AddPathParam(PARAM_ID, ClienteId).AddBody(Paquete).PrepararPost(RUTA_FIRMA)
 End Sub
 
 Public Sub Bajar (Desde As String) As RestCliente

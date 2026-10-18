@@ -23,6 +23,7 @@ Sub Class_Globals
 	Private PCLientes As B4XClientes
 	Private PClienteDetalle As B4XClienteDetalle
 	Private PSincronizacion As B4XSincronizacion
+	Private PConsentimiento As B4XConsentimiento
 
 	Private presentador As PresentadorIngreso
 	Private huella As Desbloqueo
@@ -79,12 +80,14 @@ Private Sub InicializarPaginas
 	PCLientes.Initialize
 	PClienteDetalle.Initialize
 	PSincronizacion.Initialize
+	PConsentimiento.Initialize
 	B4XPages.AddPageAndCreate(Layouts.PAGINA_INICIO, Phome)
 	B4XPages.AddPageAndCreate(Layouts.PAGINA_COTIZACION, PCotizacion)
 	B4XPages.AddPageAndCreate(Layouts.PAGINA_ESPECIFICACIONES, PEspecificaciones)
 	B4XPages.AddPageAndCreate(Layouts.PAGINA_CLIENTES, PCLientes)
 	B4XPages.AddPageAndCreate(Layouts.PAGINA_CLIENTE_DETALLE, PClienteDetalle)
 	B4XPages.AddPageAndCreate(Layouts.PAGINA_SINCRONIZACION, PSincronizacion)
+	B4XPages.AddPageAndCreate(Layouts.PAGINA_CONSENTIMIENTO, PConsentimiento)
 End Sub
 
 Private Sub SetTopBarColorAndTitle (BackgroundColor As Int, TitleColor As String, Title As String)

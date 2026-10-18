@@ -202,6 +202,13 @@ Sub Process_Globals
 	Public Const PIEZA_SIN_FOTOS As String = "Sin fotos"
 	Public Const SIN_RESULTADOS As String = "No hay coincidencias."
 	Public Const FALTA_CLIENTE As String = "Elija el cliente."
+	Public Const CLIENTE_REVOCADO As String = "Este cliente revocó su consentimiento. Pídale que lo firme de nuevo desde su ficha antes de registrar la solicitud."
+	Public Const TITULO_FIRMAR_CONSENTIMIENTO As String = "Firmar consentimiento"
+	Public Const GUARDAR_FIRMA As String = "Guardar firma"
+	Public Const DESCARTAR_FIRMA As String = "¿Salir sin guardar? Se pierde lo que lleva de la firma."
+	Public Const CONSENTIMIENTO_GUARDADO As String = "La firma quedó guardada en el teléfono y se sube con la próxima sincronización."
+	Public Const CONSENTIMIENTO_NO_GUARDADO As String = "No se pudo guardar la firma en el teléfono."
+	Public Const TOCAR_PARA_FIRMAR As String = "Toque aquí para recoger la firma"
 	Public Const FALTA_CONTACTO As String = "Elija el contacto del proyecto."
 	Public Const SIN_MEDIDAS As String = "Las cotas que dibuje en el croquis aparecen aquí."
 	Public Const TITULO_PIEZA As String = "Agregar pieza"
@@ -275,6 +282,7 @@ Sub Process_Globals
 	Private Const SYNC_ERROR_CLIENTE As String = "Cliente · $1"
 	Private Const SYNC_ERROR_SOLICITUD As String = "Solicitud · $1"
 	Private Const SYNC_ERROR_FOTO As String = "Foto · $1"
+	Private Const SYNC_ERROR_FIRMA As String = "Firma · $1"
 	Private Const RESULTADO_EXITOSA As String = "Exitosa"
 	Private Const RESULTADO_PARCIAL As String = "Parcial"
 	Private Const RESULTADO_SIN_CONEXION As String = "Sin conexión"
@@ -303,6 +311,8 @@ Sub Process_Globals
 	Private Const PERMISO_REVOCADO As String = "Revocado por $1"
 	Private Const PERMISO_SIN_FIRMANTE As String = "Otorgado"
 	Private Const PERMISO_NINGUNO As String = "Sin permiso registrado"
+	Private Const PERMISO_PENDIENTE As String = "Pendiente de firma"
+	Private Const PERMISO_REVOCADO_SIN_NOMBRE As String = "Revocado"
 	Private Const PERMISO_DETALLE As String = "$1 · texto $2"
 End Sub
 
@@ -459,6 +469,21 @@ Public Sub VersionTextoPermiso (Version As String) As String
 	Return VERSION_TEXTO_PERMISO.Replace("$1", Version)
 End Sub
 
+Public Sub PermisoSegunEstado (Estado As String) As String
+	Select Estado
+		Case "pendiente"
+			Return PERMISO_PENDIENTE
+		Case "revocado"
+			Return PERMISO_REVOCADO_SIN_NOMBRE
+	End Select
+	Return PERMISO_NINGUNO
+End Sub
+
+Public Sub CuerpoPermiso (t As TextoPermiso) As String
+	If t.Version = "" Then Return SIN_TEXTO_PERMISO
+	Return t.Titulo & CRLF & CRLF & t.Contenido & CRLF & CRLF & VersionTextoPermiso(t.Version)
+End Sub
+
 Public Sub PermisoDetalle (Fecha As String, Version As String) As String
 	Return PERMISO_DETALLE.Replace("$1", Fecha).Replace("$2", Version)
 End Sub
@@ -543,6 +568,8 @@ Public Sub TituloErrorSync (Entidad As String, Asunto As String) As String
 			Return SYNC_ERROR_CLIENTE.Replace("$1", Asunto)
 		Case "solicitud"
 			Return SYNC_ERROR_SOLICITUD.Replace("$1", Asunto)
+		Case "firma"
+			Return SYNC_ERROR_FIRMA.Replace("$1", Asunto)
 		Case Else
 			Return SYNC_ERROR_FOTO.Replace("$1", Asunto)
 	End Select
