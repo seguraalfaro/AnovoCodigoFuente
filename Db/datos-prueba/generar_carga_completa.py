@@ -344,13 +344,13 @@ for a, asesor in enumerate(ASESORES):
         n = a * 5 + k
         solicitudes.append({'n': n, 'asesor': asesor, 'cliente': (n * 4 + a) % 15,
                             'proyecto': PROYECTOS[(n * 3 + k) % len(PROYECTOS)],
-                            'dias': 118 - n * 4 - k})
+                            'dias': [1, 8, 15, 45, 90][k] + a})
 orden_cot = [s['n'] for s in sorted(solicitudes, key=lambda s: -s['dias'])]
 asignadas = {}
 libres = [n for n in orden_cot]
-for estado in ESTADOS_COT:
-    candidato = next(n for n in libres if (estado not in ('borrador', 'pendiente') or solicitudes[n]['dias'] < 60)
-                     and (estado in ('borrador', 'pendiente') or solicitudes[n]['dias'] >= 20))
+for estado in sorted(ESTADOS_COT, key=lambda e: e in ('borrador', 'pendiente')):
+    candidato = next(n for n in libres if (estado not in ('borrador', 'pendiente') or solicitudes[n]['dias'] < 20)
+                     and (estado in ('borrador', 'pendiente') or solicitudes[n]['dias'] >= 12))
     libres.remove(candidato)
     asignadas[candidato] = estado
 descartada_sol = libres[0]
@@ -438,7 +438,7 @@ for c, (n, estado) in enumerate(sorted(asignadas.items(), key=lambda x: -solicit
     if estado == 'aprobada' and c % 2:
         camino = CAMINOS['enviada'] + ['aprobada']
     if estado == 'enviada':
-        dias_envio = min([3, 12, 26][envios % 3], s['dias'] - 8)
+        dias_envio = max(1, min([3, 10, 26][envios % 3], s['dias'] - 6))
         envios += 1
     else:
         dias_envio = max(2, s['dias'] - 12)
