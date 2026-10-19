@@ -64,7 +64,6 @@ type
       const ADto: TCotizacionEdicionDTO);
     procedure ExigirEditable(const ACotizacion: TCotizaciones;
       const AUsuarioId: Integer; const ARoles: TArray<string>);
-    procedure ExigirOtroRevisor(const AId: Integer);
     procedure ExigirAlcance(const ACotizacion: TCotizaciones;
       const AUsuarioId: Integer; const ARoles: TArray<string>);
     procedure LlenarLinea(const ALinea: TCotizacionDetalle;
@@ -376,25 +375,6 @@ begin
     not fPermisos.TieneAlguno(AUsuarioId, ARoles,
     [PERMISO_COTIZACIONES_ELABORAR]) then
     raise EConflictoDeEstado.Create('COTIZACION_DE_OTRO', SCotizacionDeOtro);
-end;
-
-procedure TCotizacionService.ExigirOtroRevisor(const AId: Integer);
-var
-  lPasos: TObjectList<THistorialCotizacion>;
-  lPaso: THistorialCotizacion;
-begin
-  lPasos := fRepo.HistorialDe(AId);
-  try
-    for lPaso in lPasos do
-      if lPaso.Estado.ValueOrDefault = ESTADO_PENDIENTE then
-      begin
-        if lPaso.UsuarioId.ValueOrDefault = UsuarioActual then
-          raise EConflictoDeEstado.Create('COTIZACION_PROPIA', SRevisarPropia);
-        Exit;
-      end;
-  finally
-    lPasos.Free;
-  end;
 end;
 
 procedure TCotizacionService.ExigirAlcance(const ACotizacion: TCotizaciones;
@@ -1035,7 +1015,6 @@ begin
 
     if lCotizacion.ElaboradaPor = UsuarioActual then
       raise EConflictoDeEstado.Create('COTIZACION_PROPIA', SRevisarPropia);
-    ExigirOtroRevisor(AId);
 
     lCotizacion.Estado := ESTADO_VISTO_BUENO;
     lCotizacion.AprobadaPor := UsuarioActual;
@@ -1104,7 +1083,6 @@ begin
 
     if lCotizacion.ElaboradaPor = UsuarioActual then
       raise EConflictoDeEstado.Create('COTIZACION_PROPIA', SRevisarPropia);
-    ExigirOtroRevisor(AId);
 
     lCotizacion.Estado := ESTADO_DEVUELTA;
     lCotizacion.MotivoRechazo := ADto.Motivo;
