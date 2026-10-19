@@ -35,6 +35,46 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
+  TDashboardBarraDTO = class
+  private
+    fClave: string;
+    fEtiqueta: string;
+    fCantidad: Integer;
+  public
+    property Clave: string read fClave write fClave;
+    property Etiqueta: string read fEtiqueta write fEtiqueta;
+    property Cantidad: Integer read fCantidad write fCantidad;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TDashboardAvisoDTO = class
+  private
+    fCotizacionId: Integer;
+    fNumero: Integer;
+    fClienteNombre: string;
+    fEstado: string;
+    fDetalle: string;
+    fDias: Integer;
+  public
+    property CotizacionId: Integer read fCotizacionId write fCotizacionId;
+    property Numero: Integer read fNumero write fNumero;
+    property ClienteNombre: string read fClienteNombre write fClienteNombre;
+    property Estado: string read fEstado write fEstado;
+    property Detalle: string read fDetalle write fDetalle;
+    property Dias: Integer read fDias write fDias;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  TDashboardDatoDTO = class
+  private
+    fConcepto: string;
+    fValor: string;
+  public
+    property Concepto: string read fConcepto write fConcepto;
+    property Valor: string read fValor write fValor;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
   TDashboardAsesorDTO = class
   private
     fDesde: TDateTime;
@@ -43,7 +83,12 @@ type
     fEsperandoCotizacion: Integer;
     fAprobadasMes: Integer;
     fMontoAprobadoMes: Currency;
+    fSolicitudesMesAnterior: Integer;
+    fDiasMasAntigua: Integer;
+    fTasaAprobacion: Integer;
     fRecientes: TObjectList<TSolicitudAsesorDTO>;
+    fPorEstado: TObjectList<TDashboardBarraDTO>;
+    fPorLlamar: TObjectList<TDashboardAvisoDTO>;
   public
     constructor Create;
     destructor Destroy; override;
@@ -56,8 +101,16 @@ type
     property AprobadasMes: Integer read fAprobadasMes write fAprobadasMes;
     property MontoAprobadoMes: Currency read fMontoAprobadoMes
       write fMontoAprobadoMes;
+    property SolicitudesMesAnterior: Integer read fSolicitudesMesAnterior
+      write fSolicitudesMesAnterior;
+    property DiasMasAntigua: Integer read fDiasMasAntigua write fDiasMasAntigua;
+    property TasaAprobacion: Integer read fTasaAprobacion write fTasaAprobacion;
     property Recientes: TObjectList<TSolicitudAsesorDTO> read fRecientes
       write fRecientes;
+    property PorEstado: TObjectList<TDashboardBarraDTO> read fPorEstado
+      write fPorEstado;
+    property PorLlamar: TObjectList<TDashboardAvisoDTO> read fPorLlamar
+      write fPorLlamar;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -86,7 +139,13 @@ type
     fMisBorradores: Integer;
     fEnAprobacion: Integer;
     fPorEnviar: Integer;
+    fDevueltas: Integer;
+    fSinRespuesta: Integer;
+    fDiasMasAntigua: Integer;
     fCola: TObjectList<TSolicitudPorCotizarDTO>;
+    fPorEtapa: TObjectList<TDashboardBarraDTO>;
+    fParaHoy: TObjectList<TDashboardAvisoDTO>;
+    fMiMes: TObjectList<TDashboardDatoDTO>;
   public
     constructor Create;
     destructor Destroy; override;
@@ -94,8 +153,16 @@ type
     property MisBorradores: Integer read fMisBorradores write fMisBorradores;
     property EnAprobacion: Integer read fEnAprobacion write fEnAprobacion;
     property PorEnviar: Integer read fPorEnviar write fPorEnviar;
+    property Devueltas: Integer read fDevueltas write fDevueltas;
+    property SinRespuesta: Integer read fSinRespuesta write fSinRespuesta;
+    property DiasMasAntigua: Integer read fDiasMasAntigua write fDiasMasAntigua;
     property Cola: TObjectList<TSolicitudPorCotizarDTO> read fCola
       write fCola;
+    property PorEtapa: TObjectList<TDashboardBarraDTO> read fPorEtapa
+      write fPorEtapa;
+    property ParaHoy: TObjectList<TDashboardAvisoDTO> read fParaHoy
+      write fParaHoy;
+    property MiMes: TObjectList<TDashboardDatoDTO> read fMiMes write fMiMes;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -130,7 +197,13 @@ type
     fAprobadasMes: Integer;
     fMontoAprobadoMes: Currency;
     fRechazadasMes: Integer;
+    fVistoBuenoMes: Integer;
+    fDevueltasMes: Integer;
+    fTasaAprobacion: Integer;
+    fMontoAprobadoAnterior: Currency;
     fCola: TObjectList<TCotizacionPorAprobarDTO>;
+    fCarga: TObjectList<TDashboardBarraDTO>;
+    fEstancadas: TObjectList<TDashboardAvisoDTO>;
   public
     constructor Create;
     destructor Destroy; override;
@@ -143,8 +216,16 @@ type
     property MontoAprobadoMes: Currency read fMontoAprobadoMes
       write fMontoAprobadoMes;
     property RechazadasMes: Integer read fRechazadasMes write fRechazadasMes;
+    property VistoBuenoMes: Integer read fVistoBuenoMes write fVistoBuenoMes;
+    property DevueltasMes: Integer read fDevueltasMes write fDevueltasMes;
+    property TasaAprobacion: Integer read fTasaAprobacion write fTasaAprobacion;
+    property MontoAprobadoAnterior: Currency read fMontoAprobadoAnterior
+      write fMontoAprobadoAnterior;
     property Cola: TObjectList<TCotizacionPorAprobarDTO> read fCola
       write fCola;
+    property Carga: TObjectList<TDashboardBarraDTO> read fCarga write fCarga;
+    property Estancadas: TObjectList<TDashboardAvisoDTO> read fEstancadas
+      write fEstancadas;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -263,10 +344,14 @@ constructor TDashboardAsesorDTO.Create;
 begin
   inherited Create;
   fRecientes := TObjectList<TSolicitudAsesorDTO>.Create(True);
+  fPorEstado := TObjectList<TDashboardBarraDTO>.Create(True);
+  fPorLlamar := TObjectList<TDashboardAvisoDTO>.Create(True);
 end;
 
 destructor TDashboardAsesorDTO.Destroy;
 begin
+  fPorLlamar.Free;
+  fPorEstado.Free;
   fRecientes.Free;
   inherited;
 end;
@@ -275,10 +360,16 @@ constructor TDashboardAsistenteDTO.Create;
 begin
   inherited Create;
   fCola := TObjectList<TSolicitudPorCotizarDTO>.Create(True);
+  fPorEtapa := TObjectList<TDashboardBarraDTO>.Create(True);
+  fParaHoy := TObjectList<TDashboardAvisoDTO>.Create(True);
+  fMiMes := TObjectList<TDashboardDatoDTO>.Create(True);
 end;
 
 destructor TDashboardAsistenteDTO.Destroy;
 begin
+  fMiMes.Free;
+  fParaHoy.Free;
+  fPorEtapa.Free;
   fCola.Free;
   inherited;
 end;
@@ -287,10 +378,14 @@ constructor TDashboardSupervisorDTO.Create;
 begin
   inherited Create;
   fCola := TObjectList<TCotizacionPorAprobarDTO>.Create(True);
+  fCarga := TObjectList<TDashboardBarraDTO>.Create(True);
+  fEstancadas := TObjectList<TDashboardAvisoDTO>.Create(True);
 end;
 
 destructor TDashboardSupervisorDTO.Destroy;
 begin
+  fEstancadas.Free;
+  fCarga.Free;
   fCola.Free;
   inherited;
 end;

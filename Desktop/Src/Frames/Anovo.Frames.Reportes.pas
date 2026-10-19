@@ -48,7 +48,6 @@ type
     FResumen: TResumenReporte;
     FMaximoMes: Integer;
     FMostrando: Boolean;
-    FEncima: TFrame;
     procedure MostrarVistas(const ARotulos: TArray<string>);
     procedure MostrarVista(const AVista: TVistaReporte);
     procedure MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
@@ -62,8 +61,6 @@ type
     procedure PonerBarras;
     function ClaveFila: string;
     function RotuloFila: string;
-    procedure AbrirCotizacion(const AId: Integer);
-    procedure CerrarCotizacion(Sender: TObject);
   protected
     procedure MostrarCargando(const AActivo: Boolean); override;
   public
@@ -86,7 +83,6 @@ uses
   Anovo.Datos.Memoria,
   Anovo.DTOs.Dashboard,
   Anovo.Forms.DetalleReporte,
-  Anovo.Frames.Cotizacion,
   Anovo.Reportes.Periodo,
   Anovo.Formato,
   Anovo.Textos;
@@ -305,33 +301,6 @@ begin
   lId := TfrmDetalleReporte.Mostrar(Self, ATitulo, AAyuda, AFilas);
   if lId > 0 then
     AbrirCotizacion(lId);
-end;
-
-procedure TfraReportes.AbrirCotizacion(const AId: Integer);
-var
-  lCotizacion: TfraCotizacion;
-begin
-  FreeAndNil(FEncima);
-  lCotizacion := TfraCotizacion.Crear(Self, AId);
-  lCotizacion.OnRegresar := CerrarCotizacion;
-  FEncima := lCotizacion;
-  FEncima.Parent := Self;
-  FEncima.SetBounds(0, 0, ClientWidth, ClientHeight);
-  FEncima.Anchors := [akLeft, akTop, akRight, akBottom];
-  FEncima.BringToFront;
-  AplicarTemaFrame(FEncima);
-end;
-
-procedure TfraReportes.CerrarCotizacion(Sender: TObject);
-begin
-  if FEncima = nil then
-    Exit;
-  FEncima.Visible := False;
-  TThread.ForceQueue(nil,
-    procedure
-    begin
-      FreeAndNil(FEncima);
-    end);
 end;
 
 procedure TfraReportes.pstVistasChange(Sender: TObject);

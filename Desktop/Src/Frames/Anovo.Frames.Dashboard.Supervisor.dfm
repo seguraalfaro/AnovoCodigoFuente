@@ -6,78 +6,228 @@ inherited fraDashboardSupervisor: TfraDashboardSupervisor
   end
   inherited pnlKpi: TPanel
     inherited tjCifra1: TPlanoTarjeta
-      Caption = 'Por aprobar'
+      Caption = 'Por revisar'
+      object lblNota1: TLabel
+        Left = 16
+        Top = 66
+        Width = 189
+        Height = 18
+        AutoSize = False
+      end
     end
     inherited tjCifra2: TPlanoTarjeta
-      Caption = 'Pendiente m'#225's antigua'
+      Caption = 'Visto bueno del mes'
+      object lblNota2: TLabel
+        Left = 16
+        Top = 66
+        Width = 189
+        Height = 18
+        AutoSize = False
+      end
     end
     inherited tjCifra3: TPlanoTarjeta
-      Caption = 'Aprobadas del mes'
-      object lblMontoAprobado: TLabel
-        Tag = 13
+      Caption = 'Tasa de aprobaci'#243'n'
+      object lblNota3: TLabel
         Left = 16
-        Top = 68
+        Top = 66
         Width = 189
-        Height = 15
+        Height = 18
         AutoSize = False
-        Caption = ''
       end
     end
     inherited tjCifra4: TPlanoTarjeta
-      Caption = 'Rechazadas del mes'
+      Caption = 'Monto aprobado'
+      object lblNota4: TLabel
+        Left = 16
+        Top = 66
+        Width = 189
+        Height = 18
+        AutoSize = False
+      end
     end
   end
   inherited tjLista: TPlanoTarjeta
-    Caption = 'Cotizaciones por aprobar'
-    inherited grLista: TrDBGrid
-      DataSource = dmMemoria.dsDashboardSupervisor
-      OnDblClick = grListaDblClick
-      Columns = <
+    Visible = False
+  end
+  object gpTarjetas: TGridPanel
+    Tag = 2
+    AlignWithMargins = True
+    Left = 20
+    Top = 178
+    Width = 920
+    Height = 422
+    Margins.Left = 20
+    Margins.Top = 8
+    Margins.Right = 20
+    Margins.Bottom = 20
+    Align = alClient
+    BevelOuter = bvNone
+    ColumnCollection = <
+      item
+        Value = 50.000000000000000
+      end
+      item
+        Value = 50.000000000000000
+      end>
+    ControlCollection = <
+      item
+        Column = 0
+        Control = tjBarras
+        Row = 0
+      end
+      item
+        Column = 1
+        Control = tjAvisos
+        Row = 0
+      end>
+    RowCollection = <
+      item
+        Value = 100.000000000000000000
+      end>
+    TabOrder = 3
+    object tjBarras: TPlanoTarjeta
+      Tag = 3
+      AlignWithMargins = True
+      Left = 0
+      Top = 0
+      Width = 300
+      Height = 422
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Right = 6
+      Margins.Bottom = 0
+      Caption = 'Carga por persona (en curso)'
+      Align = alClient
+      Font.Charset = ANSI_CHARSET
+      Font.Color = 1973276
+      Font.Height = -15
+      Font.Name = 'Segoe UI Semibold'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 0
+      object grBarras: TrDBGrid
+        AlignWithMargins = True
+        Left = 10
+        Top = 46
+        Width = 400
+        Height = 300
+        Margins.Left = 10
+        Margins.Top = 10
+        Margins.Right = 10
+        Margins.Bottom = 10
+        Align = alClient
+        BorderStyle = bsNone
+        DataSource = dmMemoria.dsPanelBarras
+        DefaultDrawing = False
+        Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
+        ReadOnly = True
+        TabOrder = 0
+        TitleFont.Charset = ANSI_CHARSET
+        TitleFont.Color = 1973276
+        TitleFont.Height = -15
+        TitleFont.Name = 'Segoe UI Semibold'
+        TitleFont.Style = [fsBold]
+        StyleElements = [seFont]
+        Columns = <
+        item
+          Expanded = False
+          FieldName = 'ETIQUETA'
+          Title.Caption = 'Persona'
+          Width = 200
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'CANTIDAD'
+          Title.Alignment = taRightJustify
+          Title.Caption = 'En curso'
+          Width = 200
+          Visible = True
+        end>
+      end
+    end
+    object tjAvisos: TPlanoTarjeta
+      Tag = 3
+      AlignWithMargins = True
+      Left = 0
+      Top = 0
+      Width = 300
+      Height = 422
+      Margins.Left = 6
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
+      Caption = 'Estancadas (m'#225's de 5 d'#237'as sin cambio)'
+      Align = alClient
+      Font.Charset = ANSI_CHARSET
+      Font.Color = 1973276
+      Font.Height = -15
+      Font.Name = 'Segoe UI Semibold'
+      Font.Style = [fsBold]
+      ParentFont = False
+      TabOrder = 1
+      object grAvisos: TrDBGrid
+        AlignWithMargins = True
+        Left = 10
+        Top = 46
+        Width = 400
+        Height = 300
+        Margins.Left = 10
+        Margins.Top = 10
+        Margins.Right = 10
+        Margins.Bottom = 10
+        Align = alClient
+        BorderStyle = bsNone
+        DataSource = dmMemoria.dsPanelAvisos
+        DefaultDrawing = False
+        Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
+        ReadOnly = True
+        TabOrder = 0
+        TitleFont.Charset = ANSI_CHARSET
+        TitleFont.Color = 1973276
+        TitleFont.Height = -15
+        TitleFont.Name = 'Segoe UI Semibold'
+        TitleFont.Style = [fsBold]
+        StyleElements = [seFont]
+        Columns = <
         item
           Expanded = False
           FieldName = 'NUMERO'
           Title.Alignment = taRightJustify
           Title.Caption = 'N'#250'mero'
-          Width = 80
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'FECHA_MODIFICACION'
-          Title.Caption = 'Presentada'
-          Width = 100
+          Width = 70
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'CLIENTE_NOMBRE'
           Title.Caption = 'Cliente'
-          Width = 220
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'ELABORADA_POR_NOMBRE'
-          Title.Caption = 'Elaborada por'
           Width = 160
           Visible = True
         end
         item
           Expanded = False
-          FieldName = 'MONTO_TOTAL'
-          Title.Alignment = taRightJustify
-          Title.Caption = 'Monto'
-          Width = 130
+          FieldName = 'ESTADO'
+          Title.Caption = 'Estado'
+          Width = 110
           Visible = True
         end
         item
           Expanded = False
-          FieldName = 'DIAS_EN_ESTADO'
+          FieldName = 'DETALLE'
+          Title.Caption = 'Elaborada por'
+          Width = 140
+          Visible = True
+        end
+        item
+          Expanded = False
+          FieldName = 'DIAS'
           Title.Alignment = taRightJustify
-          Title.Caption = 'D'#237'as de espera'
-          Width = 110
+          Title.Caption = 'D'#237'as'
+          Width = 50
           Visible = True
         end>
+      end
     end
   end
 end

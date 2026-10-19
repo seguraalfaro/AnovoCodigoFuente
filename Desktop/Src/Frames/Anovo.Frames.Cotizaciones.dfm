@@ -51,12 +51,7 @@ inherited fraCotizaciones: TfraCotizaciones
     end
   end
   inherited pnclient: TRelativePanel
-    Top = 175
-    Height = 392
-    ExplicitTop = 175
-    ExplicitHeight = 392
     inherited grDatos: TrDBGrid
-      Height = 386
       DataSource = dmMemoria.dsCotizacionesLista
       OnDblClick = grDatosDblClick
       Columns = <
@@ -64,35 +59,31 @@ inherited fraCotizaciones: TfraCotizaciones
           Expanded = False
           FieldName = 'NUMERO'
           Title.Alignment = taRightJustify
-          Title.Caption = 'N'#250'mero'
           Width = 70
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'CLIENTE_NOMBRE'
-          Title.Caption = 'Cliente'
           Width = 200
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'DESCRIPCION_TRABAJO'
-          Title.Caption = 'Trabajo'
           Width = 200
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'ASESOR_NOMBRE'
-          Title.Caption = 'Asesor'
           Width = 200
           Visible = True
         end
         item
+          ButtonStyle = cbsEllipsis
           Expanded = False
           FieldName = 'FECHA_ELABORACION'
-          Title.Caption = 'Elaborada'
           Width = 90
           Visible = True
         end
@@ -100,21 +91,18 @@ inherited fraCotizaciones: TfraCotizaciones
           Expanded = False
           FieldName = 'MONTO_TOTAL'
           Title.Alignment = taRightJustify
-          Title.Caption = 'Total'
           Width = 100
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'ESTADO'
-          Title.Caption = 'Estado'
           Width = 90
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'ACCIONES'
-          Title.Caption = 'Acciones'
           Width = 120
           Visible = True
         end>

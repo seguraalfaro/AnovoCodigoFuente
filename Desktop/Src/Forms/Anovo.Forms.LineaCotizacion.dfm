@@ -152,7 +152,6 @@ inherited frmLineaCotizacion: TfrmLineaCotizacion
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 2
-    ExplicitTop = 443
     object lblPrecioRot: TLabel
       Tag = 13
       Left = 470
@@ -258,7 +257,7 @@ inherited frmLineaCotizacion: TfrmLineaCotizacion
       Left = 20
       Top = 26
       Width = 820
-      Height = 1
+      Height = 0
       Margins.Left = 20
       Margins.Top = 26
       Margins.Right = 20

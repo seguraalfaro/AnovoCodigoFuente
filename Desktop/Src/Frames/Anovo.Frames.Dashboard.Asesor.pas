@@ -1,7 +1,7 @@
 unit Anovo.Frames.Dashboard.Asesor;
 
-// Dashboard del asesor: cifras del mes y solicitudes
-// de la semana.
+// Dashboard del asesor: cifras del mes, como van sus solicitudes y los
+// clientes a los que conviene llamar.
 
 interface
 
@@ -17,6 +17,15 @@ uses
 
 type
   TfraDashboardAsesor = class(TfraDashboard, IVistaDashboard<TDashboardAsesorDTO>)
+    lblNota1: TLabel;
+    lblNota2: TLabel;
+    lblNota3: TLabel;
+    lblNota4: TLabel;
+    gpTarjetas: TGridPanel;
+    tjBarras: TPlanoTarjeta;
+    grBarras: TrDBGrid;
+    tjAvisos: TPlanoTarjeta;
+    grAvisos: TrDBGrid;
   private
     FPresentador: TPresentadorDashboard<TDashboardAsesorDTO>;
     procedure MostrarDashboard(const ADatos: TDashboardAsesorDTO);
@@ -30,19 +39,19 @@ implementation
 {$R *.dfm}
 
 uses
+  Anovo.Textos,
   Anovo.UI.CeldasRejilla,
   Anovo.Api.Intf.Dashboard,
   Anovo.Api.Dashboard,
   Anovo.Formato,
   Anovo.Datos.Memoria;
 
-const
-  CAMPO_ESTADO = 'ESTADO';
 
 constructor TfraDashboardAsesor.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  TCeldasRejilla.De(grLista).ColumnaEstado(CAMPO_ESTADO);
+  PrepararRejilla(grBarras);
+  PrepararAvisos(grAvisos);
 
   FPresentador := TPresentadorDashboard<TDashboardAsesorDTO>.Create(Self,
     TApiDashboard.Create,
@@ -67,8 +76,13 @@ begin
   lblCifra2.Caption := ADatos.EsperandoCotizacion.ToString;
   lblCifra3.Caption := ADatos.AprobadasMes.ToString;
   lblCifra4.Caption := TFormato.Colones(ADatos.MontoAprobadoMes);
-  MostrarLista<TSolicitudAsesorDTO>(ADatos.Recientes,
-    dmMemoria.mtDashboardAsesor);
+  lblNota1.Caption := TFormato.Variacion(ADatos.SolicitudesMes,
+    ADatos.SolicitudesMesAnterior);
+  lblNota2.Caption := TFormato.MasAntigua(ADatos.DiasMasAntigua);
+  lblNota3.Caption := Format(SNotaTasaGeneral, [ADatos.TasaAprobacion]);
+  lblNota4.Caption := '';
+  MostrarBarras(grBarras, ADatos.PorEstado);
+  MostrarAvisos(grAvisos, ADatos.PorLlamar);
 end;
 
 end.

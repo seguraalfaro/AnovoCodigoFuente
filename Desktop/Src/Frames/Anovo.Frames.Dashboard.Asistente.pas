@@ -1,7 +1,7 @@
 unit Anovo.Frames.Dashboard.Asistente;
 
-// Dashboard del asistente: solicitudes por cotizar
-// y cotizaciones en curso.
+// Dashboard del asistente: la cola, su trabajo por etapa, lo que tiene para
+// hoy y como va su mes.
 
 interface
 
@@ -17,6 +17,17 @@ uses
 
 type
   TfraDashboardAsistente = class(TfraDashboard, IVistaDashboard<TDashboardAsistenteDTO>)
+    lblNota1: TLabel;
+    lblNota2: TLabel;
+    lblNota3: TLabel;
+    lblNota4: TLabel;
+    gpTarjetas: TGridPanel;
+    tjBarras: TPlanoTarjeta;
+    grBarras: TrDBGrid;
+    tjAvisos: TPlanoTarjeta;
+    grAvisos: TrDBGrid;
+    tjDatos: TPlanoTarjeta;
+    grDatos: TrDBGrid;
   private
     FPresentador: TPresentadorDashboard<TDashboardAsistenteDTO>;
     procedure MostrarDashboard(const ADatos: TDashboardAsistenteDTO);
@@ -30,6 +41,8 @@ implementation
 {$R *.dfm}
 
 uses
+  Anovo.Formato,
+  Anovo.Textos,
   Anovo.Api.Intf.Dashboard,
   Anovo.Api.Dashboard,
   Anovo.Datos.Memoria;
@@ -37,6 +50,9 @@ uses
 constructor TfraDashboardAsistente.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  PrepararRejilla(grBarras);
+  PrepararAvisos(grAvisos);
+  PrepararRejilla(grDatos);
 
   FPresentador := TPresentadorDashboard<TDashboardAsistenteDTO>.Create(Self,
     TApiDashboard.Create,
@@ -57,11 +73,16 @@ procedure TfraDashboardAsistente.MostrarDashboard(const ADatos
   : TDashboardAsistenteDTO);
 begin
   lblCifra1.Caption := ADatos.PorCotizar.ToString;
-  lblCifra2.Caption := ADatos.MisBorradores.ToString;
-  lblCifra3.Caption := ADatos.EnAprobacion.ToString;
-  lblCifra4.Caption := ADatos.PorEnviar.ToString;
-  MostrarLista<TSolicitudPorCotizarDTO>(ADatos.Cola,
-    dmMemoria.mtDashboardAsistente);
+  lblCifra2.Caption := ADatos.Devueltas.ToString;
+  lblCifra3.Caption := ADatos.PorEnviar.ToString;
+  lblCifra4.Caption := ADatos.SinRespuesta.ToString;
+  lblNota1.Caption := TFormato.MasAntigua(ADatos.DiasMasAntigua);
+  lblNota2.Caption := SNotaCorregir;
+  lblNota3.Caption := SNotaConVistoBueno;
+  lblNota4.Caption := SNotaFueraDePlazo;
+  MostrarBarras(grBarras, ADatos.PorEtapa);
+  MostrarAvisos(grAvisos, ADatos.ParaHoy);
+  MostrarDatos(grDatos, ADatos.MiMes);
 end;
 
 end.

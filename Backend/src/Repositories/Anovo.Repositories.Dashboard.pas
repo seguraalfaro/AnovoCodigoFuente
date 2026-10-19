@@ -30,6 +30,22 @@ type
     function CotizacionesPorEstado: TObjectList<TCotizacionesPorEstado>;
     function CuentasResumen: TVCuentasResumen;
     function CambiosCuentas: TObjectList<TCambiosDeCuentas>;
+    function EstadoDelAsesor(const AAsesorId: Integer)
+      : TObjectList<TEstadoDelAsesor>;
+    function SolicitudesDelMes(const AAsesorId, AAnio, AMes: Integer)
+      : TSolicitudesDelMes;
+    function EnviadasDeAsesor(const AAsesorId, ALimite: Integer)
+      : TObjectList<TEnviadaSinRespuesta>;
+    function EnviadasDeElaborador(const AUsuarioId: Integer)
+      : TObjectList<TEnviadaSinRespuesta>;
+    function ParaHoy(const AUsuarioId, ALimite: Integer)
+      : TObjectList<TCotizacionEnCurso>;
+    function Estancadas(const ADias, ALimite: Integer)
+      : TObjectList<TCotizacionEnCurso>;
+    function EtapasDe(const AUsuarioId: Integer): TObjectList<TEtapaDeUsuario>;
+    function Carga: TObjectList<TCargaDePersona>;
+    function PasosDe(const AUsuarioId, AAnio, AMes: Integer): TPasosDeUsuario;
+    function PasosDelEquipo(const AAnio, AMes: Integer): TPasosDelEquipo;
   end;
 
 implementation
@@ -77,6 +93,74 @@ function TDashboardRepository.ColaPorCotizar: TObjectList<TColaSolicitudes>;
 begin
   Result := ListarConsulta<TColaSolicitudes>(CONSULTA_BUSCAR,
     ['', '', 0, FILAS_COLA]);
+end;
+
+function TDashboardRepository.EstadoDelAsesor(const AAsesorId: Integer)
+  : TObjectList<TEstadoDelAsesor>;
+begin
+  Result := ListarConsulta<TEstadoDelAsesor>(CONSULTA_DE_ASESOR, [AAsesorId],
+    SIN_LIMITE);
+end;
+
+function TDashboardRepository.SolicitudesDelMes(const AAsesorId, AAnio,
+  AMes: Integer): TSolicitudesDelMes;
+begin
+  Result := PrimeraFilaDeConsulta<TSolicitudesDelMes>(CONSULTA_DE_ASESOR_MES,
+    [AAsesorId, AAnio, AMes]);
+end;
+
+function TDashboardRepository.EnviadasDeAsesor(const AAsesorId,
+  ALimite: Integer): TObjectList<TEnviadaSinRespuesta>;
+begin
+  Result := ListarConsulta<TEnviadaSinRespuesta>(CONSULTA_DE_ASESOR,
+    [AAsesorId], ALimite);
+end;
+
+function TDashboardRepository.EnviadasDeElaborador(const AUsuarioId: Integer)
+  : TObjectList<TEnviadaSinRespuesta>;
+begin
+  Result := ListarConsulta<TEnviadaSinRespuesta>(CONSULTA_DE_ELABORADOR,
+    [AUsuarioId], SIN_LIMITE);
+end;
+
+function TDashboardRepository.ParaHoy(const AUsuarioId, ALimite: Integer)
+  : TObjectList<TCotizacionEnCurso>;
+begin
+  Result := ListarConsulta<TCotizacionEnCurso>(CONSULTA_PARA_HOY, [AUsuarioId],
+    ALimite);
+end;
+
+function TDashboardRepository.Estancadas(const ADias, ALimite: Integer)
+  : TObjectList<TCotizacionEnCurso>;
+begin
+  Result := ListarConsulta<TCotizacionEnCurso>(CONSULTA_ESTANCADAS, [ADias],
+    ALimite);
+end;
+
+function TDashboardRepository.EtapasDe(const AUsuarioId: Integer)
+  : TObjectList<TEtapaDeUsuario>;
+begin
+  Result := ListarConsulta<TEtapaDeUsuario>(CONSULTA_DE_ELABORADOR,
+    [AUsuarioId], SIN_LIMITE);
+end;
+
+function TDashboardRepository.Carga: TObjectList<TCargaDePersona>;
+begin
+  Result := ListarConsulta<TCargaDePersona>(CONSULTA_ORDENADAS, [], SIN_LIMITE);
+end;
+
+function TDashboardRepository.PasosDe(const AUsuarioId, AAnio,
+  AMes: Integer): TPasosDeUsuario;
+begin
+  Result := PrimeraFilaDeConsulta<TPasosDeUsuario>(CONSULTA_DE_ELABORADOR_MES,
+    [AUsuarioId, AAnio, AMes]);
+end;
+
+function TDashboardRepository.PasosDelEquipo(const AAnio, AMes: Integer)
+  : TPasosDelEquipo;
+begin
+  Result := PrimeraFilaDeConsulta<TPasosDelEquipo>(CONSULTA_DEL_MES,
+    [AAnio, AMes]);
 end;
 
 function TDashboardRepository.ColaPorAprobar(const AUsuarioId: Integer)

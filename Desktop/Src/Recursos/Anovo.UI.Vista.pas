@@ -1,12 +1,13 @@
 unit Anovo.UI.Vista;
 
-// Apoyos comunes de las vistas: cursor de espera por contador, avisos
-// fuera del callback en curso, busqueda y paginacion.
+// Apoyos comunes de las vistas: cursor de espera por contador, avisos fuera
+// del callback en curso, busqueda, paginacion y la pantalla encima.
 
 interface
 
 uses
   System.Classes, System.SysUtils, Vcl.Controls, Vcl.StdCtrls, Vcl.WinXCtrls,
+  Vcl.Forms,
   Anovo.Retardo;
 
 type
@@ -22,6 +23,16 @@ type
   public
     constructor Crear(const ACaja: TSearchBox; const ABuscar: TProc<string>);
     procedure Mostrar(const ATexto: string);
+  end;
+
+  TPantallaEncima = class(TComponent)
+  private
+    FPadre: TWinControl;
+    FFrame: TFrame;
+  public
+    constructor Crear(const APadre: TWinControl);
+    procedure Mostrar(const AFrame: TFrame);
+    procedure Cerrar(const ADespues: TProc = nil);
   end;
 
 procedure CursorOcupado(const AActivo: Boolean);
@@ -50,8 +61,9 @@ procedure PintarPaginacion(AEtiqueta: TLabel; AAnterior, ASiguiente: TControl;
 implementation
 
 uses
-  System.UITypes, System.Math, Vcl.Forms, Vcl.Dialogs,
+  System.UITypes, System.Math, Vcl.Dialogs,
   Anovo.Textos,
+  Anovo.UI.Tema,
   Anovo.UI.Cargando;
 
 const
@@ -67,6 +79,37 @@ begin
   FRetardo := TRetardo.Crear(Self, RETARDO_BUSQUEDA, Lanzar);
   FCaja.OnChange := Cambio;
   FCaja.OnInvokeSearch := Invocar;
+end;
+
+constructor TPantallaEncima.Crear(const APadre: TWinControl);
+begin
+  inherited Create(APadre);
+  FPadre := APadre;
+end;
+
+procedure TPantallaEncima.Mostrar(const AFrame: TFrame);
+begin
+  FreeAndNil(FFrame);
+  FFrame := AFrame;
+  FFrame.Parent := FPadre;
+  FFrame.SetBounds(0, 0, FPadre.ClientWidth, FPadre.ClientHeight);
+  FFrame.Anchors := [akLeft, akTop, akRight, akBottom];
+  FFrame.BringToFront;
+  AplicarTemaFrame(FFrame);
+end;
+
+procedure TPantallaEncima.Cerrar(const ADespues: TProc);
+begin
+  if FFrame = nil then
+    Exit;
+  FFrame.Visible := False;
+  TThread.ForceQueue(nil,
+    procedure
+    begin
+      FreeAndNil(FFrame);
+      if Assigned(ADespues) then
+        ADespues;
+    end);
 end;
 
 procedure TBusquedaAlEscribir.Mostrar(const ATexto: string);

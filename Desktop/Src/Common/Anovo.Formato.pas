@@ -34,6 +34,10 @@ type
     class function FechaHora(const AFecha: TDateTime): string; static;
     class function Porcentaje(const AValor: Double): string; static;
     class function Tasa(const AValor: Integer): string; static;
+    class function Variacion(const AActual, AAnterior: Integer): string; static;
+    class function VariacionPorcentual(const AActual,
+      AAnterior: Currency): string; static;
+    class function MasAntigua(const ADias: Integer): string; static;
     class function Numero(const AValor: Currency): string; static;
     class function FechaArchivo(const AFecha: TDateTime): string; static;
     class function Coordenadas(const ALatitud, ALongitud: Double)
@@ -252,6 +256,39 @@ end;
 class function TFormato.ColonesDocumento(const AMonto: Currency): string;
 begin
   Result := Format(SColonesDocumento, [FormatFloat(FORMATO_MONTO, AMonto)]);
+end;
+
+class function TFormato.Variacion(const AActual, AAnterior: Integer): string;
+begin
+  if AActual > AAnterior then
+    Result := Format(SNotaVariacion, [SFlechaSube, AActual - AAnterior])
+  else if AActual < AAnterior then
+    Result := Format(SNotaVariacion, [SFlechaBaja, AAnterior - AActual])
+  else
+    Result := SNotaIgualMes;
+end;
+
+class function TFormato.VariacionPorcentual(const AActual,
+  AAnterior: Currency): string;
+var
+  lCambio: Integer;
+begin
+  if AAnterior <= 0 then
+    Exit('');
+  lCambio := Round((AActual - AAnterior) * 100 / AAnterior);
+  if lCambio > 0 then
+    Result := Format(SNotaVariacionMonto, [SFlechaSube, lCambio])
+  else if lCambio < 0 then
+    Result := Format(SNotaVariacionMonto, [SFlechaBaja, -lCambio])
+  else
+    Result := SNotaIgualMes;
+end;
+
+class function TFormato.MasAntigua(const ADias: Integer): string;
+begin
+  if ADias <= 0 then
+    Exit('');
+  Result := Format(SNotaMasAntigua, [Dias(ADias)]);
 end;
 
 class function TFormato.Dias(const ADias: Integer): string;

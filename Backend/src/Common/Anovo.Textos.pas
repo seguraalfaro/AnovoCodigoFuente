@@ -736,6 +736,27 @@ resourcestring
   SEstAprobada = 'Aprobada';
   SEstRechazada = 'Rechazada';
   SEstEnviada = 'Enviada al cliente';
+  SGrupoEsperando = 'Esperando cotización';
+  SGrupoElaboracion = 'En elaboración';
+  SGrupoSinRespuesta = 'Sin respuesta';
+  SAvisoPorEnviar = 'Con visto bueno, por enviar';
+  SDatoPresentadas = 'Presentadas a revisión';
+  SDatoAprobadas = 'Aprobadas por el cliente';
+  SDatoRechazadas = 'Rechazadas por el cliente';
+  SDatoTasa = 'Tasa de aprobación';
+  SDatoMonto = 'Monto aprobado';
+  SDatoTasaValor = '%d %%';
+  SDatoMontoValor = '₡ %s';
+  SNotaMasAntigua = 'La más antigua: %s';
+  SNotaVariacion = '%s %d vs. mes anterior';
+  SNotaVariacionMonto = '%s %d %% vs. mes anterior';
+  SNotaIgualMes = 'Igual que el mes anterior';
+  SNotaTasaGeneral = 'Tasa general: %d %%';
+  SNotaCorregir = 'Corregir y presentar';
+  SNotaConVistoBueno = 'Con visto bueno';
+  SNotaFueraDePlazo = 'Pasaron el plazo de respuesta';
+  SNotaDevueltasMes = '%d devueltas en el mes';
+  SNotaRespuestasMes = '%d aprobadas · %d rechazadas';
 
   SMesEnero = 'Enero';
   SMesFebrero = 'Febrero';

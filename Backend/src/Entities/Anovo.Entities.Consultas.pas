@@ -35,6 +35,12 @@ const
   CONSULTA_BAJADA = 'Bajada';
   CONSULTA_BAJADA_DESDE = 'BajadaDesde';
   CONSULTA_HISTORIAL_DE = 'HistorialDe';
+  CONSULTA_DE_ELABORADOR = 'DeElaborador';
+  CONSULTA_DE_ASESOR_MES = 'DeAsesorMes';
+  CONSULTA_DE_ELABORADOR_MES = 'DeElaboradorMes';
+  CONSULTA_DEL_MES = 'DelMes';
+  CONSULTA_PARA_HOY = 'ParaHoy';
+  CONSULTA_ESTANCADAS = 'Estancadas';
 
   RQL_PAGINA = ';limit(%d,%d)';
   RQL_TEXTO_USUARIO = 'or(contains(Nombre,"%s"),contains(Correo,"%s"))';
@@ -325,6 +331,72 @@ type
   [MVCNamedRQLQuery(CONSULTA_HISTORIAL_DE,
     'eq(CotizacionId,%d);sort(-Fecha,-ID)')]
   THistorialCotizacion = class(TVCotizacionHistorial)
+  end;
+
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_DASH_ESTADO_ASESOR')]
+  [MVCNamedRQLQuery(CONSULTA_DE_ASESOR, 'eq(AsesorId,%d)')]
+  TEstadoDelAsesor = class(TVDashEstadoAsesor)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_DASH_SOLICITUDES_MES')]
+  [MVCNamedRQLQuery(CONSULTA_DE_ASESOR_MES,
+    'and(eq(AsesorId,%d),eq(Anio,%d),eq(Mes,%d))')]
+  TSolicitudesDelMes = class(TVDashSolicitudesMes)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_DASH_ENVIADAS')]
+  [MVCNamedRQLQuery(CONSULTA_DE_ASESOR,
+    'eq(AsesorId,%d);sort(-Dias,+CotizacionId)')]
+  [MVCNamedRQLQuery(CONSULTA_DE_ELABORADOR,
+    'eq(ElaboradaPor,%d);sort(-Dias,+CotizacionId)')]
+  TEnviadaSinRespuesta = class(TVDashEnviadas)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_DASH_EN_CURSO')]
+  [MVCNamedRQLQuery(CONSULTA_PARA_HOY,
+    'and(eq(ElaboradaPor,%d),in(Estado,["devuelta","visto_bueno"]));' +
+    'sort(-Dias,+CotizacionId)')]
+  [MVCNamedRQLQuery(CONSULTA_ESTANCADAS,
+    'ge(Dias,%d);sort(-Dias,+CotizacionId)')]
+  TCotizacionEnCurso = class(TVDashEnCurso)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_DASH_ETAPAS')]
+  [MVCNamedRQLQuery(CONSULTA_DE_ELABORADOR, 'eq(ElaboradaPor,%d)')]
+  TEtapaDeUsuario = class(TVDashEtapas)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_DASH_CARGA')]
+  [MVCNamedRQLQuery(CONSULTA_ORDENADAS, 'sort(-Cantidad,+ElaboradaPorNombre)')]
+  TCargaDePersona = class(TVDashCarga)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_DASH_PASOS_MES')]
+  [MVCNamedRQLQuery(CONSULTA_DE_ELABORADOR_MES,
+    'and(eq(ElaboradaPor,%d),eq(Anio,%d),eq(Mes,%d))')]
+  TPasosDeUsuario = class(TVDashPasosMes)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_DASH_PASOS_EQUIPO')]
+  [MVCNamedRQLQuery(CONSULTA_DEL_MES, 'and(eq(Anio,%d),eq(Mes,%d))')]
+  TPasosDelEquipo = class(TVDashPasosEquipo)
   end;
 
 implementation

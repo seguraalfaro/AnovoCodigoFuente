@@ -30,7 +30,7 @@ type
     procedure btnSiguienteClick(Sender: TObject);
   private
     FTextoPie: string;
-    FEncima: TFrame;
+    FEncima: TPantallaEncima;
     FBusqueda: TBusquedaAlEscribir;
   protected
     FTextoCargando: string;
@@ -68,6 +68,7 @@ constructor TfraListado.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   AplicarTemaGrid(grDatos);
+  FEncima := TPantallaEncima.Crear(Self);
   FBusqueda := TBusquedaAlEscribir.Crear(sbBuscar,
     procedure(ATexto: string)
     begin
@@ -124,29 +125,13 @@ end;
 
 procedure TfraListado.MostrarEncima(AFrame: TFrame);
 begin
-  FreeAndNil(FEncima);
-  FEncima := AFrame;
-  FEncima.Parent := Self;
-  FEncima.SetBounds(0, 0, ClientWidth, ClientHeight);
-  FEncima.Anchors := [akLeft, akTop, akRight, akBottom];
-  FEncima.BringToFront;
-  AplicarTemaFrame(FEncima);
+  FEncima.Mostrar(AFrame);
 end;
 
 procedure TfraListado.CerrarEncima(const ADespues: TProc);
 begin
-  if FEncima = nil then
-    Exit;
-  FEncima.Visible := False;
-  TThread.ForceQueue(nil,
-    procedure
-    begin
-      FreeAndNil(FEncima);
-      if Assigned(ADespues) then
-        ADespues;
-    end);
+  FEncima.Cerrar(ADespues);
 end;
-
 
 procedure TfraListado.btnLimpiarClick(Sender: TObject);
 begin
