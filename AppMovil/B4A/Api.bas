@@ -21,6 +21,10 @@ Sub Process_Globals
 	Public Const HTTP_PROHIBIDO As Int = 403
 	Public Const HTTP_DEMASIADAS As Int = 429
 	Public Const HTTP_SERVIDOR As Int = 500
+	Private Const HTTP_PASARELA_DESDE As Int = 502
+	Private Const HTTP_PASARELA_HASTA As Int = 504
+	Private Const HTTP_TUNEL_DESDE As Int = 520
+	Private Const HTTP_TUNEL_HASTA As Int = 530
 	Private Const PAGINA_INGRESO As String = "MainPage"
 End Sub
 
@@ -60,6 +64,10 @@ Public Sub SesionVencida (Respuesta As RestRespuesta) As Boolean
 	Return Respuesta.StatusCode = HTTP_NO_AUTORIZADO
 End Sub
 
+Public Sub NoDisponible (Estado As Int) As Boolean
+	Return (Estado >= HTTP_PASARELA_DESDE And Estado <= HTTP_PASARELA_HASTA) Or (Estado >= HTTP_TUNEL_DESDE And Estado <= HTTP_TUNEL_HASTA)
+End Sub
+
 Public Sub MensajeDe (Respuesta As RestRespuesta) As String
 	If Respuesta.StatusCode = 0 Then
 		Dim detalle As String = Respuesta.Content
@@ -67,6 +75,7 @@ Public Sub MensajeDe (Respuesta As RestRespuesta) As String
 		Return Mensajes.SIN_CONEXION
 	End If
 	If Respuesta.StatusCode = HTTP_NO_AUTORIZADO Then Return Mensajes.SESION_VENCIDA
+	If NoDisponible(Respuesta.StatusCode) Then Return Mensajes.SERVIDOR_NO_DISPONIBLE
 	If Respuesta.Mensaje <> "" Then Return Mensajes.ConDetalles(Respuesta.Mensaje, Respuesta.Detalles)
 	If Respuesta.StatusCode = HTTP_DEMASIADAS Then Return Mensajes.DEMASIADAS_PETICIONES
 	Return Mensajes.ErrorServidor(Respuesta.StatusCode)

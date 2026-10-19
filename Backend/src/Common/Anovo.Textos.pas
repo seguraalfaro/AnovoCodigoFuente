@@ -285,7 +285,12 @@ resourcestring
   SAccionQuitar = 'Quitar';
   SAccionVer = 'Ver';
   SSinTokenSesion = 'El servidor no devolvió el token de sesión.';
-  SErrorServidor = 'El servidor respondió con un error (%d).';
+  SErrorServidor = 'El servidor de Anovo tuvo un problema y no pudo atender ' +
+    'la solicitud (código %d). Intente de nuevo; si sigue igual, avise al ' +
+    'administrador.';
+  SServidorNoDisponible = 'El servidor de Anovo no está disponible en este ' +
+    'momento. Intente de nuevo en unos minutos; si sigue igual, avise al ' +
+    'administrador.';
   STokenInvalido = 'El servidor devolvió un token con formato inválido.';
   SRolSinRol = 'Sin rol';
   SRolAsesor = 'Asesor comercial';

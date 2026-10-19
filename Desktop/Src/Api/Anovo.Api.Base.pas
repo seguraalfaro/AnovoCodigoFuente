@@ -43,6 +43,7 @@ uses
   System.Net.URLClient,
   System.Net.HttpClient,
   System.Diagnostics,
+  System.Math,
   JsonDataObjects,
   MVCFramework.RESTClient,
   MVCFramework.RESTClient.Commons,
@@ -60,6 +61,10 @@ const
   TIEMPO_LECTURA_LARGA_MS = 60000;
 
   ESTADO_DEMASIADAS_PETICIONES = 429;
+  ESTADO_PASARELA_DESDE = 502;
+  ESTADO_PASARELA_HASTA = 504;
+  ESTADO_TUNEL_DESDE = 520;
+  ESTADO_TUNEL_HASTA = 530;
 
   CODIGO_SESION_REVOCADA = 'SESION_REVOCADA';
 
@@ -190,6 +195,11 @@ begin
 
   if (Result.StatusCode = ESTADO_DEMASIADAS_PETICIONES) and (lCodigo = 'ERROR') then
     lMensaje := SDemasiadasPeticiones;
+
+  if (lCodigo = 'ERROR') and
+    (InRange(Result.StatusCode, ESTADO_PASARELA_DESDE, ESTADO_PASARELA_HASTA) or
+    InRange(Result.StatusCode, ESTADO_TUNEL_DESDE, ESTADO_TUNEL_HASTA)) then
+    lMensaje := SServidorNoDisponible;
 
   raise EAnovoApiError.Create(lCodigo, lMensaje, Result.StatusCode);
 end;

@@ -127,6 +127,8 @@ Private Sub Bajar (r As ResumenSync) As ResumableSub
 			r.SesionVencida = True
 		Else If Respuesta.StatusCode = 0 Then
 			r.SinConexion = True
+		Else If Api.NoDisponible(Respuesta.StatusCode) Then
+			r.ServidorOcupado = True
 		Else
 			r.FalloBajada = True
 		End If
