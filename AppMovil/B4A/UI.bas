@@ -37,6 +37,7 @@ Sub Process_Globals
 
 	Private Const CAT_FONDO    As String = "fondo"
 	Private Const CAT_CARD     As String = "card"
+	Private Const ELEVACION_TARJETA As Float = 4dip
 	Private Const CAT_CARD_BTN As String = "card_btn"
 	Private Const CAT_BARRA    As String = "barra"
 	Private Const CAT_SEP      As String = "sep"
@@ -625,6 +626,20 @@ Private Sub EstilizarChip (v As B4XView, fondo As Int, value As Int)
 	v.TextColor = value
 End Sub
 
+Public Sub EstilizarFecha (Plantilla As B4XDateTemplate)
+	Plantilla.DaysInMonthColor = Colores.COLOR_TEXTO_PRIMARIO
+	Plantilla.DaysInWeekColor = Colores.COLOR_TEXTO_SECUNDARIO
+	Plantilla.SelectedColor = Colores.COLOR_PRIMARIO_SUAVE
+	Plantilla.HighlightedColor = Colores.COLOR_PRIMARIO_TENUE
+	Plantilla.lblMonth.TextColor = Colores.COLOR_TEXTO_PRIMARIO
+	Plantilla.lblYear.TextColor = Colores.COLOR_TEXTO_PRIMARIO
+End Sub
+
+Public Sub Elevar (v As B4XView)
+	Dim p As Panel = v
+	p.Elevation = ELEVACION_TARJETA
+End Sub
+
 Private Sub EstilizarPanel (v As B4XView, categoria As String)
 	Select categoria
 		Case CAT_FONDO
@@ -633,6 +648,7 @@ Private Sub EstilizarPanel (v As B4XView, categoria As String)
 		Case CAT_CARD
 			v.SetColorAndBorder(Colores.COLOR_SUPERFICIE, BORDE_ANCHO, _
 			                    Colores.COLOR_BORDE, RADIO_TARJETA)
+			Elevar(v)
 
 		Case CAT_CARD_BTN
 			Dim normal As ColorDrawable

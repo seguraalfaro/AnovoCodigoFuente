@@ -72,17 +72,17 @@ Public Sub getRangoHasta As Long
 End Sub
 
 Public Sub getEstados As List
-	Return Array As String(Mensajes.FILTRO_TODAS, Mensajes.SEG_POR_SUBIR, Mensajes.SEG_ESPERANDO, _
+	Return Array As String(Mensajes.FILTRO_TODOS_ESTADOS, Mensajes.SEG_POR_SUBIR, Mensajes.SEG_ESPERANDO, _
 		Mensajes.SEG_ELABORACION, Mensajes.SEG_ENVIADA, Mensajes.SEG_APROBADA, Mensajes.SEG_RECHAZADA, Mensajes.SEG_SIN_RESPUESTA)
 End Sub
 
 Public Sub setEstado (Texto As String)
-	If Texto = Mensajes.FILTRO_TODAS Then mEstado = "" Else mEstado = Texto
+	If Texto = Mensajes.FILTRO_TODOS_ESTADOS Then mEstado = "" Else mEstado = Texto
 End Sub
 
-Public Sub EstadoActivo (Texto As String) As Boolean
-	If Texto = Mensajes.FILTRO_TODAS Then Return mEstado = ""
-	Return mEstado = Texto
+Public Sub IndiceEstado As Int
+	If mEstado = "" Then Return 0
+	Return Max(0, getEstados.IndexOf(mEstado))
 End Sub
 #End Region
 
@@ -138,6 +138,43 @@ End Sub
 
 Public Sub FondoDe (f As SeguimientoFila) As Int
 	Return Colores.FondoEstado(f.Estado)
+End Sub
+#End Region
+
+#Region Ficha y resumen
+Public Sub FilaDe (Uuid As String) As SeguimientoFila
+	Return DbSeguimiento.Fila(Uuid)
+End Sub
+
+Public Sub FilasFicha (f As SeguimientoFila) As List
+	Dim filas As List
+	filas.Initialize
+	filas.Add(Array As String(Mensajes.FICHA_ESTADO, EstadoDe(f)))
+	If f.Cliente <> "" Then filas.Add(Array As String(Mensajes.FICHA_CLIENTE, f.Cliente))
+	filas.Add(Array As String(Mensajes.FICHA_CAPTURADA, Utils.BdACorta(f.Fecha)))
+	Dim cotizacion As String = Mensajes.FICHA_SIN_COTIZACION
+	If f.ConCotizacion Then cotizacion = Mensajes.NumeroCotizacion(f.Cotizacion)
+	filas.Add(Array As String(Mensajes.FICHA_COTIZACION, cotizacion))
+	If f.Estado = DbSeguimiento.ESTADO_APROBADA And f.Monto > 0 Then filas.Add(Array As String(Mensajes.FICHA_MONTO, Mensajes.Colones(f.Monto)))
+	Dim servidor As String = Mensajes.FICHA_SUBIDA
+	If f.Estado = DbSeguimiento.ESTADO_POR_SUBIR Then servidor = Mensajes.FICHA_POR_SUBIR
+	filas.Add(Array As String(Mensajes.FICHA_SERVIDOR, servidor))
+	Return filas
+End Sub
+
+Public Sub ResumenPorGrupo As List
+	Dim cuentas As Map
+	cuentas.Initialize
+	For Each f As SeguimientoFila In DbSeguimiento.Lista("", HASTA_SIN_LIMITE)
+		Dim g As String = Grupo(f)
+		cuentas.Put(g, cuentas.GetDefault(g, 0) + 1)
+	Next
+	Dim res As List
+	res.Initialize
+	For Each g As String In getEstados
+		If cuentas.ContainsKey(g) Then res.Add(Array As Object(g, cuentas.Get(g)))
+	Next
+	Return res
 End Sub
 #End Region
 

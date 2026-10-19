@@ -73,7 +73,21 @@ Sub Process_Globals
 	Public Const TAB_SOLICITUDES As String = "Solicitudes"
 	Public Const MIS_SOLICITUDES As String = "Mis solicitudes"
 	Public Const FILTRO_MES As String = "Este mes"
-	Public Const FILTRO_TODAS As String = "Todas"
+	Public Const FILTRO_TODAS As String = "Todo"
+	Public Const FILTRO_TODOS_ESTADOS As String = "Todos los estados"
+	Public Const VER_TODAS As String = "Ver todas"
+	Public Const INICIO_RESUMEN As String = "Cómo van mis solicitudes"
+	Public Const FICHA_ESTADO As String = "Estado"
+	Public Const FICHA_CLIENTE As String = "Cliente"
+	Public Const FICHA_CAPTURADA As String = "Capturada"
+	Public Const FICHA_COTIZACION As String = "Cotización"
+	Public Const FICHA_SIN_COTIZACION As String = "Todavía no"
+	Public Const FICHA_MONTO As String = "Monto aprobado"
+	Public Const FICHA_SERVIDOR As String = "En el servidor"
+	Public Const FICHA_SUBIDA As String = "Sí"
+	Public Const FICHA_POR_SUBIR As String = "Todavía no se subió"
+	Public Const FICHA_CERRAR As String = "Cerrar"
+	Private Const FICHA_NUMERO As String = "N.º $1"
 	Public Const FILTRO_FECHAS As String = "Fechas…"
 	Public Const FECHA_DESDE As String = "Desde"
 	Public Const FECHA_HASTA As String = "Hasta"
@@ -641,6 +655,10 @@ Public Sub ConDetalles (Mensaje As String, Detalles As List) As String
 		sb.Append(CRLF).Append("• ").Append(d)
 	Next
 	Return sb.ToString
+End Sub
+
+Public Sub NumeroCotizacion (Numero As Int) As String
+	Return FICHA_NUMERO.Replace("$1", Numero)
 End Sub
 
 Public Sub Colones (Monto As Double) As String

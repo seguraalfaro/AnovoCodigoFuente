@@ -27,13 +27,10 @@ Sub Class_Globals
 	Private ClvSolicitudes As CustomListView
 	Private BuscadorSolicitudes As ASBuscador
 	Private lblSolTitulo, lblSolTotal, lblFiltroMes, lblFiltroTodas, lblFiltroRango As B4XView
-	Private pnEstados As B4XView
-	Private chipsEstado As List
+	Private CbEstado As B4XComboBox
 	Private dialogoFecha As B4XDialog
+	Private dialogoFicha As B4XDialog
 	Private plantillaFecha As B4XDateTemplate
-	Private Const ALTO_CHIP As Int = 28dip
-	Private Const SEPARACION_CHIP As Int = 6dip
-	Private Const RELLENO_CHIP As Int = 24dip
 	Private Const RADIO_FILTRO As Int = 8dip
 	Private perfil As HojaPerfil
 	Private panelPerfil As B4XView
@@ -53,7 +50,10 @@ Sub Class_Globals
 	Private BtnDescartar As B4XView
 	Private lblKpi1Titulo, lblKpi2Titulo, lblKpi3Titulo, lblKpi4Titulo As B4XView
 	Private lblKpi1Valor, lblKpi2Valor, lblKpi3Valor, lblKpi4Valor As B4XView
-	Private lblUltimas As B4XView
+	Private lblKpi1Icono, lblKpi2Icono, lblKpi3Icono, lblKpi4Icono As B4XView
+	Private lblUltimas, lblVerTodas As B4XView
+	Private pnUltimas As B4XView
+	Private Const MARGEN_LISTA As Int = 4dip
 	Private ClvUltimas As CustomListView
 	Private pnKpi1, pnKpi2, pnKpi3, pnKpi4 As B4XView
 	Private topKpis As Int
@@ -66,6 +66,16 @@ Sub Class_Globals
 	Private Const SEPARACION As Int = 8dip
 	Private Const RADIO_AVATAR As Int = 16dip
 	Private Const RADIO_PASTILLA As Int = 9dip
+	Private Const RADIO_ICONO As Int = 10dip
+	Private Const RELLENO_RESUMEN As Int = 12dip
+	Private Const ALTO_FILA_RESUMEN As Int = 28dip
+	Private Const ALTO_BARRA As Int = 6dip
+	Private Const ANCHO_TEXTO_RESUMEN As Int = 140dip
+	Private Const ANCHO_CUENTA As Int = 28dip
+	Private Const ALTO_FILA_FICHA As Int = 34dip
+	Private Const ANCHO_FICHA As Int = 340dip
+	Private Const FILTRO_TAMANO As Int = 13
+	Private Const PESTANA_SOLICITUDES As Int = 4
 	Private lblClienteIniciales, lblClienteNombre, lblClienteDetalle, lblClienteEstado As B4XView
 
 	Private Const PESTANAS As Int = 5
@@ -197,6 +207,9 @@ Private Sub PrepararInicio
 	BtnRetomar.Text = Mensajes.INICIO_RETOMAR
 	BtnDescartar.Text = Mensajes.INICIO_DESCARTAR
 	lblUltimas.Text = Mensajes.INICIO_ULTIMAS
+	lblVerTodas.Text = Mensajes.VER_TODAS
+	PintarFondoLista(ClvUltimas)
+	PintarIconosKpi
 	Dim titulos As List = inicio.KpiTitulos
 	Dim etiquetas() As B4XView = Array As B4XView(lblKpi1Titulo, lblKpi2Titulo, lblKpi3Titulo, lblKpi4Titulo)
 	For i = 0 To etiquetas.Length - 1
@@ -204,8 +217,26 @@ Private Sub PrepararInicio
 	Next
 	topKpis = pnKpi1.Top
 	bajoRetomar.Initialize
-	For Each v As B4XView In Array As B4XView(pnKpi1, pnKpi2, pnKpi3, pnKpi4, lblUltimas, ClvUltimas.AsView)
+	For Each v As B4XView In Array As B4XView(pnKpi1, pnKpi2, pnKpi3, pnKpi4, pnUltimas)
 		bajoRetomar.Add(Array As Object(v, v.Top - topKpis))
+	Next
+End Sub
+
+Private Sub PintarFondoLista (Lista As CustomListView)
+	Lista.AsView.Color = Colores.COLOR_SUPERFICIE
+	Lista.sv.Color = Colores.COLOR_SUPERFICIE
+End Sub
+
+Private Sub PintarIconosKpi
+	Dim iconos() As B4XView = Array As B4XView(lblKpi1Icono, lblKpi2Icono, lblKpi3Icono, lblKpi4Icono)
+	Dim glifos() As Int = Array As Int(0xF0F6, 0xF252, 0xF058, 0xF0D6)
+	Dim tintas() As Int = Array As Int(Colores.COLOR_PRIMARIO, Colores.COLOR_ADVERTENCIA, Colores.COLOR_EXITO, Colores.COLOR_EXITO)
+	Dim fondos() As Int = Array As Int(Colores.COLOR_PRIMARIO_TENUE, Colores.COLOR_ADVERTENCIA_TENUE, Colores.COLOR_EXITO_TENUE, Colores.COLOR_EXITO_TENUE)
+	For i = 0 To iconos.Length - 1
+		iconos(i).Text = Chr(glifos(i))
+		iconos(i).TextColor = tintas(i)
+		iconos(i).SetTextAlignment("CENTER", "CENTER")
+		iconos(i).SetColorAndBorder(fondos(i), 0, fondos(i), RADIO_ICONO)
 	Next
 End Sub
 
@@ -213,14 +244,15 @@ Private Sub AcomodarRetomar (Mostrar As Boolean)
 	pnRetomar.Visible = Mostrar
 	Dim arriba As Int = topKpis
 	If Mostrar = False Then arriba = pnRetomar.Top
-	Dim lista As B4XView = ClvUltimas.AsView
-	Dim fondo As Int = lista.Top + lista.Height
+	Dim fondo As Int = pnUltimas.Top + pnUltimas.Height
 	For Each par As Object In bajoRetomar
 		Dim datos() As Object = par
 		Dim v As B4XView = datos(0)
 		v.Top = arriba + datos(1)
 	Next
-	lista.Height = fondo - lista.Top
+	pnUltimas.Height = fondo - pnUltimas.Top
+	Dim lista As B4XView = ClvUltimas.AsView
+	lista.Height = pnUltimas.Height - lista.Top - MARGEN_LISTA
 	ClvUltimas.Base_Resize(lista.Width, lista.Height)
 End Sub
 
@@ -241,6 +273,9 @@ End Sub
 
 Private Sub PintarFranja (f As FranjaSync)
 	pnSync.SetColorAndBorder(f.Fondo, 0, f.Fondo, RADIO_FRANJA)
+	lblSyncIcono.Color = xui.Color_Transparent
+	lblSync.Color = xui.Color_Transparent
+	lblSincronizar.Color = xui.Color_Transparent
 	lblSyncIcono.Text = f.Glifo
 	lblSyncIcono.TextColor = f.Tinta
 	lblSync.Text = f.Texto
@@ -255,11 +290,94 @@ Private Sub PintarRecientes
 	Dim ancho As Int = ClvUltimas.AsView.Width
 	If inicio.Recientes.Size = 0 Then
 		ClvUltimas.Add(CrearAviso(ancho, Mensajes.INICIO_SIN_RECIENTES), Null)
-		Return
+	Else
+		For Each r As SolicitudReciente In inicio.Recientes
+			ClvUltimas.Add(CrearTarjetaSolicitud(ancho, r), r)
+		Next
 	End If
-	For Each r As SolicitudReciente In inicio.Recientes
-		ClvUltimas.Add(CrearTarjetaSolicitud(ancho, r), r)
+	Dim resumen As List = solicitudes.ResumenPorGrupo
+	If resumen.Size = 0 Then Return
+	ClvUltimas.Add(CrearSeccion(ancho, Mensajes.INICIO_RESUMEN), Null)
+	ClvUltimas.Add(CrearResumen(ancho, resumen), Null)
+End Sub
+
+Private Sub CrearSeccion (Ancho As Int, Texto As String) As B4XView
+	Dim item As B4XView = CrearAviso(Ancho, Texto)
+	lblSeccion.TextColor = Colores.COLOR_TEXTO_PRIMARIO
+	lblSeccion.Font = xui.CreateDefaultBoldFont(16)
+	Return item
+End Sub
+
+Private Sub CrearResumen (Ancho As Int, Filas As List) As B4XView
+	Dim maximo As Int = 1
+	For Each o As Object In Filas
+		Dim fila() As Object = o
+		maximo = Max(maximo, fila(1))
 	Next
+	Dim alto As Int = Filas.Size * ALTO_FILA_RESUMEN + RELLENO_RESUMEN
+	Dim tarjeta As B4XView = xui.CreatePanel("")
+	tarjeta.SetLayoutAnimated(0, 0, 0, Ancho, alto)
+	Dim item As B4XView = tarjeta
+	Dim anchoBarra As Int = tarjeta.Width - ANCHO_TEXTO_RESUMEN - ANCHO_CUENTA - 4 * RELLENO_RESUMEN
+	Dim y As Int = 0
+	For Each o As Object In Filas
+		Dim fila() As Object = o
+		Dim cantidad As Int = fila(1)
+		Dim texto As B4XView = UI.Etiqueta(fila(0), 13, Colores.COLOR_TEXTO_PRIMARIO, False)
+		texto.SetTextAlignment("CENTER", "LEFT")
+		tarjeta.AddView(texto, RELLENO_RESUMEN, y, ANCHO_TEXTO_RESUMEN, ALTO_FILA_RESUMEN)
+		Dim pista As B4XView = xui.CreatePanel("")
+		tarjeta.AddView(pista, 2 * RELLENO_RESUMEN + ANCHO_TEXTO_RESUMEN, y + (ALTO_FILA_RESUMEN - ALTO_BARRA) / 2, anchoBarra, ALTO_BARRA)
+		pista.SetColorAndBorder(Colores.COLOR_FONDO_PANTALLA, 0, Colores.COLOR_FONDO_PANTALLA, ALTO_BARRA / 2)
+		Dim barra As B4XView = xui.CreatePanel("")
+		pista.AddView(barra, 0, 0, Max(ALTO_BARRA, anchoBarra * cantidad / maximo), ALTO_BARRA)
+		barra.SetColorAndBorder(Colores.COLOR_PRIMARIO_CLARO, 0, Colores.COLOR_PRIMARIO_CLARO, ALTO_BARRA / 2)
+		Dim cuenta As B4XView = UI.Etiqueta(cantidad, 13, Colores.COLOR_TEXTO_PRIMARIO, True)
+		cuenta.SetTextAlignment("CENTER", "RIGHT")
+		tarjeta.AddView(cuenta, tarjeta.Width - RELLENO_RESUMEN - ANCHO_CUENTA, y, ANCHO_CUENTA, ALTO_FILA_RESUMEN)
+		y = y + ALTO_FILA_RESUMEN
+	Next
+	Return item
+End Sub
+
+Private Sub ClvUltimas_ItemClick (Index As Int, Value As Object)
+	If Value Is SolicitudReciente Then
+		Dim r As SolicitudReciente = Value
+		MostrarFicha(solicitudes.FilaDe(r.Uuid))
+	End If
+End Sub
+
+Private Sub lblVerTodas_Click
+	Menu.SetCurrentTab2(PESTANA_SOLICITUDES, False)
+	Menu_Tab4Click
+End Sub
+
+Private Sub MostrarFicha (f As SeguimientoFila)
+	If f.IsInitialized = False Then Return
+	If dialogoFicha.IsInitialized = False Then
+		dialogoFicha.Initialize(Root)
+		UI.EstilizarDialogo(dialogoFicha)
+	End If
+	Dim filas As List = solicitudes.FilasFicha(f)
+	Dim ancho As Int = Min(Root.Width - 48dip, ANCHO_FICHA)
+	Dim contenido As B4XView = xui.CreatePanel("")
+	contenido.SetLayoutAnimated(0, 0, 0, ancho, filas.Size * ALTO_FILA_FICHA)
+	Dim y As Int = 0
+	For Each o As Object In filas
+		Dim par() As String = o
+		Dim rotulo As B4XView = UI.Etiqueta(par(0), 13, Colores.COLOR_TEXTO_SECUNDARIO, False)
+		rotulo.SetTextAlignment("CENTER", "LEFT")
+		contenido.AddView(rotulo, 0, y, ancho * 0.4, ALTO_FILA_FICHA)
+		Dim valor As B4XView = UI.Etiqueta(par(1), 14, Colores.COLOR_TEXTO_PRIMARIO, True)
+		valor.SetTextAlignment("CENTER", "RIGHT")
+		contenido.AddView(valor, ancho * 0.4, y, ancho * 0.6, ALTO_FILA_FICHA)
+		y = y + ALTO_FILA_FICHA
+	Next
+	dialogoFicha.Title = f.Proyecto
+	Dim rs As Object = dialogoFicha.ShowCustom(contenido, Mensajes.FICHA_CERRAR, "", "")
+	UI.AjustarBarraTitulo(dialogoFicha)
+	UI.CentrarDialogo(dialogoFicha)
+	Wait For (rs) Complete (Resultado As Int)
 End Sub
 
 Private Sub CrearTarjetaSolicitud (Ancho As Int, r As SolicitudReciente) As B4XView
@@ -390,35 +508,15 @@ Private Sub PrepararSolicitudes
 	lblSolTotal.TextColor = Colores.COLOR_PRIMARIO
 	lblFiltroMes.Text = Mensajes.FILTRO_MES
 	lblFiltroTodas.Text = Mensajes.FILTRO_TODAS
-	CrearChipsEstado
-End Sub
-
-Private Sub CrearChipsEstado
-	chipsEstado.Initialize
-	Dim hsv As HorizontalScrollView
-	hsv.Initialize(0, "")
-	pnEstados.AddView(hsv, 0, 0, pnEstados.Width, pnEstados.Height)
-	Dim x As Int = 0
-	Dim lienzo As B4XView = xui.CreatePanel("")
-	lienzo.SetLayoutAnimated(0, 0, 0, 1dip, 1dip)
-	Dim medida As B4XCanvas
-	medida.Initialize(lienzo)
-	For Each texto As String In solicitudes.Estados
-		Dim l As Label
-		l.Initialize("ChipEstado")
-		l.Tag = Utils.TAG_RAW
-		l.SingleLine = True
-		Dim chip As B4XView = l
-		chip.Text = texto
-		chip.Font = xui.CreateDefaultBoldFont(12)
-		chip.SetTextAlignment("CENTER", "CENTER")
-		Dim ancho As Int = medida.MeasureText(texto, chip.Font).Width + RELLENO_CHIP
-		hsv.Panel.AddView(chip, x, (pnEstados.Height - ALTO_CHIP) / 2, ancho, ALTO_CHIP)
-		chipsEstado.Add(chip)
-		x = x + ancho + SEPARACION_CHIP
+	For Each filtro As B4XView In Array As B4XView(lblFiltroMes, lblFiltroTodas, lblFiltroRango)
+		filtro.Font = xui.CreateDefaultFont(FILTRO_TAMANO)
+		filtro.SetTextAlignment("CENTER", "CENTER")
 	Next
-	medida.Release
-	hsv.Panel.Width = x
+	CbEstado.SetItems(solicitudes.Estados)
+	PintarFondoLista(ClvSolicitudes)
+	CbEstado.cmbBox.TextSize = FILTRO_TAMANO + 1
+	CbEstado.cmbBox.TextColor = Colores.COLOR_TEXTO_PRIMARIO
+	CbEstado.mBase.SetColorAndBorder(Colores.COLOR_SUPERFICIE, 1dip, Colores.COLOR_BORDE, RADIO_FILTRO)
 End Sub
 
 Private Sub PintarSolicitudes
@@ -429,9 +527,7 @@ Private Sub PintarSolicitudes
 	PintarFiltro(lblFiltroTodas, solicitudes.Periodo = solicitudes.PERIODO_TODAS)
 	PintarFiltro(lblFiltroRango, solicitudes.Periodo = solicitudes.PERIODO_RANGO)
 	lblFiltroRango.Text = solicitudes.TextoRango
-	For Each chip As B4XView In chipsEstado
-		PintarFiltro(chip, solicitudes.EstadoActivo(chip.Text))
-	Next
+	CbEstado.SelectedIndex = solicitudes.IndiceEstado
 	BuscadorSolicitudes.setFuente(solicitudes.Filas)
 End Sub
 
@@ -455,9 +551,8 @@ Private Sub lblFiltroTodas_Click
 	PintarSolicitudes
 End Sub
 
-Private Sub ChipEstado_Click
-	Dim chip As B4XView = Sender
-	solicitudes.Estado = chip.Text
+Private Sub CbEstado_SelectedIndexChanged (Index As Int)
+	solicitudes.Estado = CbEstado.GetItem(Index)
 	PintarSolicitudes
 End Sub
 
@@ -479,6 +574,7 @@ Private Sub PedirFecha (Titulo As String, Inicial As Long) As ResumableSub
 		dialogoFecha.Initialize(Root)
 		UI.EstilizarDialogo(dialogoFecha)
 		plantillaFecha.Initialize
+		UI.EstilizarFecha(plantillaFecha)
 	End If
 	plantillaFecha.Date = Inicial
 	dialogoFecha.Title = Titulo
@@ -486,8 +582,9 @@ Private Sub PedirFecha (Titulo As String, Inicial As Long) As ResumableSub
 	UI.AjustarBarraTitulo(dialogoFecha)
 	UI.CentrarDialogo(dialogoFecha)
 	Wait For (rs) Complete (Resultado As Int)
-	If Resultado <> xui.DialogResponse_Positive Then Return 0
-	Return plantillaFecha.Date
+	Dim elegida As Long = 0
+	If Resultado = xui.DialogResponse_Positive Then elegida = plantillaFecha.Date
+	Return elegida
 End Sub
 
 Private Sub BuscadorSolicitudes_Filtrado (Resultado As List)
@@ -500,6 +597,10 @@ Private Sub BuscadorSolicitudes_Filtrado (Resultado As List)
 	For Each f As SeguimientoFila In Resultado
 		ClvSolicitudes.Add(CrearTarjetaSeguimiento(ancho, f), f)
 	Next
+End Sub
+
+Private Sub ClvSolicitudes_ItemClick (Index As Int, Value As Object)
+	If Value Is SeguimientoFila Then MostrarFicha(Value)
 End Sub
 
 Private Sub TextoFilaSolicitud (o As Object) As String 'ignore

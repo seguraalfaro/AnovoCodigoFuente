@@ -19,25 +19,40 @@ Sub Process_Globals
 	Public Const ESTADO_APROBADA As String = "aprobada"
 	Public Const ESTADO_RECHAZADA As String = "rechazada"
 	Public Const ESTADO_ENVIADA As String = "enviada"
-	Private Const SQL_LISTA As String = "SELECT uuid_local, proyecto, cliente, fecha, estado, monto, cotizacion FROM (SELECT g.uuid_local, COALESCE(NULLIF(TRIM(g.nombre_proyecto), ''), g.descripcion, '') AS proyecto, COALESCE(g.cliente_nombre, '') AS cliente, g.fecha_captura AS fecha, g.estado, g.monto_aprobado AS monto, g.cotizacion_numero AS cotizacion FROM seguimiento g UNION ALL SELECT s.uuid_local, COALESCE(NULLIF(TRIM(s.nombre_proyecto), ''), s.descripcion), COALESCE(c.nombre, ''), s.fecha_captura, CASE WHEN s.estado_sync = 'confirmado' THEN 'recibida' ELSE 'por_subir' END, NULL, NULL FROM solicitudes s LEFT JOIN clientes c ON c.uuid_local = s.cliente_uuid WHERE NOT EXISTS (SELECT 1 FROM seguimiento g WHERE g.uuid_local = s.uuid_local)) WHERE fecha >= ? AND fecha < ? ORDER BY fecha DESC"
+	Private Const SQL_BASE As String = "SELECT uuid_local, proyecto, cliente, fecha, estado, monto, cotizacion FROM (SELECT g.uuid_local, COALESCE(NULLIF(TRIM(g.nombre_proyecto), ''), g.descripcion, '') AS proyecto, COALESCE(g.cliente_nombre, '') AS cliente, g.fecha_captura AS fecha, g.estado, g.monto_aprobado AS monto, g.cotizacion_numero AS cotizacion FROM seguimiento g UNION ALL SELECT s.uuid_local, COALESCE(NULLIF(TRIM(s.nombre_proyecto), ''), s.descripcion), COALESCE(c.nombre, ''), s.fecha_captura, CASE WHEN s.estado_sync = 'confirmado' THEN 'recibida' ELSE 'por_subir' END, NULL, NULL FROM solicitudes s LEFT JOIN clientes c ON c.uuid_local = s.cliente_uuid WHERE NOT EXISTS (SELECT 1 FROM seguimiento g WHERE g.uuid_local = s.uuid_local))"
+	Private Const FILTRO_FECHAS As String = " WHERE fecha >= ? AND fecha < ? ORDER BY fecha DESC"
+	Private Const FILTRO_UUID As String = " WHERE uuid_local = ?"
 End Sub
 
 Public Sub Lista (Desde As String, Hasta As String) As List
 	Dim res As List
 	res.Initialize
-	Dim rs As ResultSet = Db.DbSQL.ExecQuery2(SQL_LISTA, Array As String(Desde, Hasta))
+	Dim rs As ResultSet = Db.DbSQL.ExecQuery2(SQL_BASE & FILTRO_FECHAS, Array As String(Desde, Hasta))
 	Do While rs.NextRow
-		Dim f As SeguimientoFila
-		f.Initialize
-		f.Uuid = rs.GetString("uuid_local")
-		f.Proyecto = rs.GetString("proyecto")
-		f.Cliente = rs.GetString("cliente")
-		f.Fecha = rs.GetString("fecha")
-		f.Estado = rs.GetString("estado")
-		If rs.GetString("monto") <> Null Then f.Monto = rs.GetDouble("monto")
-		f.ConCotizacion = rs.GetString("cotizacion") <> Null
-		res.Add(f)
+		res.Add(LeerFila(rs))
 	Loop
 	rs.Close
 	Return res
+End Sub
+
+Public Sub Fila (Uuid As String) As SeguimientoFila
+	Dim f As SeguimientoFila
+	Dim rs As ResultSet = Db.DbSQL.ExecQuery2(SQL_BASE & FILTRO_UUID, Array As String(Uuid))
+	If rs.NextRow Then f = LeerFila(rs)
+	rs.Close
+	Return f
+End Sub
+
+Private Sub LeerFila (rs As ResultSet) As SeguimientoFila
+	Dim f As SeguimientoFila
+	f.Initialize
+	f.Uuid = rs.GetString("uuid_local")
+	f.Proyecto = rs.GetString("proyecto")
+	f.Cliente = rs.GetString("cliente")
+	f.Fecha = rs.GetString("fecha")
+	f.Estado = rs.GetString("estado")
+	If rs.GetString("monto") <> Null Then f.Monto = rs.GetDouble("monto")
+	f.ConCotizacion = rs.GetString("cotizacion") <> Null
+	If f.ConCotizacion Then f.Cotizacion = rs.GetInt("cotizacion")
+	Return f
 End Sub
