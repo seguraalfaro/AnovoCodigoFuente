@@ -225,7 +225,15 @@ function TSolicitudRepository.Seguimiento(const AAsesorId: Integer;
   const ATexto: string; const ADesde, AHasta: TDateTime;
   const APagina, APorPagina: Integer): TObjectList<TSeguimientoAsesor>;
 begin
-  if (ADesde > 0) and (AHasta > 0) then
+  if (AAsesorId = 0) and (ADesde > 0) and (AHasta > 0) then
+    Result := ListarConsulta<TSeguimientoAsesor>(CONSULTA_ENTRE,
+      [FechaParaRQL(ADesde), FechaParaRQL(AHasta), TextoParaRQL(ATexto),
+      TextoParaRQL(ATexto), (APagina - 1) * APorPagina, APorPagina])
+  else if AAsesorId = 0 then
+    Result := ListarConsulta<TSeguimientoAsesor>(CONSULTA_BUSCAR,
+      [TextoParaRQL(ATexto), TextoParaRQL(ATexto),
+      (APagina - 1) * APorPagina, APorPagina])
+  else if (ADesde > 0) and (AHasta > 0) then
     Result := ListarConsulta<TSeguimientoAsesor>(CONSULTA_DE_ASESOR_ENTRE,
       [AAsesorId, FechaParaRQL(ADesde), FechaParaRQL(AHasta), TextoParaRQL(ATexto),
       TextoParaRQL(ATexto), (APagina - 1) * APorPagina, APorPagina])
@@ -249,7 +257,14 @@ end;
 function TSolicitudRepository.ContarSeguimiento(const AAsesorId: Integer;
   const ATexto: string; const ADesde, AHasta: TDateTime): Int64;
 begin
-  if (ADesde > 0) and (AHasta > 0) then
+  if (AAsesorId = 0) and (ADesde > 0) and (AHasta > 0) then
+    Result := ContarConsulta<TSeguimientoAsesor>(CONSULTA_ENTRE,
+      [FechaParaRQL(ADesde), FechaParaRQL(AHasta), TextoParaRQL(ATexto),
+      TextoParaRQL(ATexto), 0, 0])
+  else if AAsesorId = 0 then
+    Result := ContarConsulta<TSeguimientoAsesor>(CONSULTA_BUSCAR,
+      [TextoParaRQL(ATexto), TextoParaRQL(ATexto), 0, 0])
+  else if (ADesde > 0) and (AHasta > 0) then
     Result := ContarConsulta<TSeguimientoAsesor>(CONSULTA_DE_ASESOR_ENTRE,
       [AAsesorId, FechaParaRQL(ADesde), FechaParaRQL(AHasta), TextoParaRQL(ATexto),
       TextoParaRQL(ATexto), 0, 0])

@@ -30,7 +30,8 @@ type
 
     procedure CambiarEstado(const AId: Integer; const ADto: TCambioEstadoDTO; const AUsuarioId: Integer; const ARoles: TArray<string>);
 
-    function Seguimiento(const AAsesorId: Integer; const ATexto: string;
+    function Seguimiento(const AUsuarioId: Integer;
+      const ARoles: TArray<string>; const ATexto: string;
       const ASoloMes: Boolean; const AFiltroDesde, AFiltroHasta: TDateTime;
       const APagina, APorPagina: Integer; out ADesde, AHasta: TDateTime;
       out ATotal: Int64): TObjectList<TSolicitudAsesorDTO>;

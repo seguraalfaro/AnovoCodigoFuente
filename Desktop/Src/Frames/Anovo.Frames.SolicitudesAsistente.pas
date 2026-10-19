@@ -1,7 +1,7 @@
 unit Anovo.Frames.SolicitudesAsistente;
 
-// Seccion Solicitudes del asistente y el supervisor: la cola comun
-// de las sin procesar y las que cada uno tomo.
+// Seccion Solicitudes de la oficina: la cola comun de las que nadie ha
+// tomado y la accion de tomar una, que abre la cotizacion.
 
 interface
 
@@ -22,14 +22,10 @@ uses
 
 type
   TfraSolicitudesAsistente = class(TfraListado, IVistaSolicitudesAsistente)
-    pstModo: TPlanoPestanas;
     btnPeriodo: TPlanoBotonWin;
     cpModo: TCardPanel;
     crdCola: TCard;
     grCola: TrDBGrid;
-    crdEnTrabajo: TCard;
-    grEnTrabajo: TrDBGrid;
-    procedure pstModoChange(Sender: TObject);
   private
     FPresentador: TPresentadorSolicitudesAsistente;
     FSelector: TSelectorPeriodo;
@@ -40,16 +36,12 @@ type
     procedure CerrarCotizacion(Sender: TObject);
     procedure MostrarAcciones(const AAcciones: TAccionesCola);
     function Confirmar(const AMensaje: string): Boolean;
-    procedure MostrarModo(const AModo: TModoSolicitudes);
     procedure MostrarCola(const AFilas: TObjectList<TSolicitudPorCotizarDTO>);
-    procedure MostrarEnTrabajo(const AFilas
-      : TObjectList<TSolicitudEnTrabajoDTO>);
   protected
     procedure Buscar(const ATexto: string); override;
     procedure Limpiar; override;
     procedure PaginaAnterior; override;
     procedure PaginaSiguiente; override;
-    procedure MostrarCargando(const AActivo: Boolean); override;
     function RejillaActiva: TrDBGrid; override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -72,9 +64,8 @@ uses
 
 const
   CAMPO_ACCIONES = 'ACCIONES';
-  CAMPO_ESTADO = 'ESTADO';
   ACCIONES: array [TAccionCola] of TAccionRejilla = ((Clave: 'tomar';
-    Rotulo: SAccionTomar), (Clave: 'abrir'; Rotulo: SAccionAbrir));
+    Rotulo: SAccionTomar));
 
 
 constructor TfraSolicitudesAsistente.Create(AOwner: TComponent);
@@ -89,11 +80,8 @@ begin
   lRejilla := TCeldasRejilla.De(grCola);
   lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
   lRejilla.OnAccion := Accion;
-  AplicarTemaGrid(grEnTrabajo);
-  lRejilla := TCeldasRejilla.De(grEnTrabajo);
-  lRejilla.ColumnaEstado(CAMPO_ESTADO);
-  lRejilla.ColumnaAcciones(CAMPO_ACCIONES);
-  lRejilla.OnAccion := Accion;
+  FTextoSinRegistros := SSinCola;
+  lRejilla.TextoVacio := FTextoSinRegistros;
 
   FSelector := TSelectorPeriodo.Crear(btnPeriodo, False, PeriodoCambio);
 
@@ -140,32 +128,7 @@ end;
 
 function TfraSolicitudesAsistente.RejillaActiva: TrDBGrid;
 begin
-  if cpModo.ActiveCard = crdEnTrabajo then
-    Result := grEnTrabajo
-  else
-    Result := grCola;
-end;
-
-procedure TfraSolicitudesAsistente.MostrarCargando(const AActivo: Boolean);
-begin
-  inherited;
-  pstModo.Enabled := not AActivo;
-  btnPeriodo.Enabled := not AActivo;
-end;
-
-procedure TfraSolicitudesAsistente.MostrarModo(const AModo: TModoSolicitudes);
-begin
-  pstModo.ItemIndex := Ord(AModo);
-  if AModo = msCola then
-    FTextoSinRegistros := SSinCola
-  else
-    FTextoSinRegistros := SSinEnTrabajo;
-  if AModo = msCola then
-    cpModo.ActiveCard := crdCola
-  else
-    cpModo.ActiveCard := crdEnTrabajo;
-  TCeldasRejilla.De(RejillaActiva).TextoVacio := FTextoSinRegistros;
-  TCeldasRejilla.De(RejillaActiva).AjustarColumnas;
+  Result := grCola;
 end;
 
 procedure TfraSolicitudesAsistente.MostrarCola(const AFilas
@@ -176,31 +139,15 @@ begin
   TCeldasRejilla.De(grCola).AjustarColumnas;
 end;
 
-procedure TfraSolicitudesAsistente.MostrarEnTrabajo(const AFilas
-  : TObjectList<TSolicitudEnTrabajoDTO>);
-begin
-  TMapeoDatos.AListaTabla<TSolicitudEnTrabajoDTO>(AFilas,
-    dmMemoria.mtSolicitudesEnTrabajo);
-  TCeldasRejilla.De(grEnTrabajo).AjustarColumnas;
-end;
-
 procedure TfraSolicitudesAsistente.MostrarAcciones(const AAcciones
   : TAccionesCola);
 begin
   TCeldasRejilla.De(grCola).PonerAcciones<TAccionesCola>(ACCIONES, AAcciones);
-  TCeldasRejilla.De(grEnTrabajo).PonerAcciones<TAccionesCola>(ACCIONES,
-    AAcciones);
 end;
 
 procedure TfraSolicitudesAsistente.Accion(Sender: TObject;
   const AClave: string);
 begin
-  if SameText(AClave, ACCIONES[acAbrir].Clave) then
-  begin
-    if not dmMemoria.mtSolicitudesEnTrabajo.IsEmpty then
-      FPresentador.Abrir(dmMemoria.mtSolicitudesEnTrabajoID.AsInteger);
-    Exit;
-  end;
   if SameText(AClave, ACCIONES[acTomar].Clave) and
     not dmMemoria.mtSolicitudesCola.IsEmpty then
     FPresentador.Tomar(dmMemoria.mtSolicitudesColaID.AsInteger,
@@ -228,13 +175,6 @@ begin
     begin
       FPresentador.Recargar;
     end);
-end;
-
-procedure TfraSolicitudesAsistente.pstModoChange(Sender: TObject);
-begin
-  if FPresentador = nil then
-    Exit;
-  FPresentador.CambiarModo(TModoSolicitudes(pstModo.ItemIndex));
 end;
 
 end.

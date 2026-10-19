@@ -30,8 +30,6 @@ inherited fraSolicitudesAsistente: TfraSolicitudesAsistente
     end
   end
   inherited pnclient: TRelativePanel
-    Top = 175
-    Height = 392
     ControlCollection = <
       item
         Control = grDatos
@@ -51,10 +49,7 @@ inherited fraSolicitudesAsistente: TfraSolicitudesAsistente
         AlignTopWithPanel = True
         AlignVerticalCenterWithPanel = False
       end>
-    ExplicitTop = 175
-    ExplicitHeight = 392
     inherited grDatos: TrDBGrid
-      Height = 386
       Visible = False
     end
     object cpModo: TCardPanel
@@ -62,7 +57,7 @@ inherited fraSolicitudesAsistente: TfraSolicitudesAsistente
       Left = 0
       Top = 0
       Width = 954
-      Height = 392
+      Height = 438
       Align = alClient
       ActiveCard = crdCola
       BevelOuter = bvNone
@@ -72,7 +67,7 @@ inherited fraSolicitudesAsistente: TfraSolicitudesAsistente
         Left = 0
         Top = 0
         Width = 954
-        Height = 392
+        Height = 438
         CardIndex = 0
         TabOrder = 0
         object grCola: TrDBGrid
@@ -80,7 +75,7 @@ inherited fraSolicitudesAsistente: TfraSolicitudesAsistente
           Left = 20
           Top = 3
           Width = 931
-          Height = 386
+          Height = 432
           Margins.Left = 20
           Align = alClient
           BorderStyle = bsNone
@@ -135,105 +130,6 @@ inherited fraSolicitudesAsistente: TfraSolicitudesAsistente
             end>
         end
       end
-      object crdEnTrabajo: TCard
-        Tag = 2
-        Left = 0
-        Top = 0
-        Width = 954
-        Height = 392
-        CardIndex = 1
-        TabOrder = 1
-        object grEnTrabajo: TrDBGrid
-          AlignWithMargins = True
-          Left = 20
-          Top = 3
-          Width = 931
-          Height = 386
-          Margins.Left = 20
-          Align = alClient
-          BorderStyle = bsNone
-          DataSource = dmMemoria.dsSolicitudesEnTrabajo
-          DefaultDrawing = False
-          Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
-          TabOrder = 0
-          TitleFont.Charset = ANSI_CHARSET
-          TitleFont.Color = clWindowText
-          TitleFont.Height = -12
-          TitleFont.Name = 'Segoe UI'
-          TitleFont.Style = []
-          StyleElements = [seFont]
-          Columns = <
-            item
-              Expanded = False
-              FieldName = 'NUMERO'
-              Title.Alignment = taRightJustify
-              Width = 90
-              Visible = True
-            end
-            item
-              ButtonStyle = cbsEllipsis
-              Expanded = False
-              FieldName = 'FECHA_MODIFICACION'
-              Width = 100
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'CLIENTE_NOMBRE'
-              Width = 160
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'DESCRIPCION_TRABAJO'
-              Width = 160
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'ESTADO'
-              Width = 110
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'MOTIVO_RECHAZO'
-              Width = 160
-              Visible = True
-            end
-            item
-              Expanded = False
-              FieldName = 'ACCIONES'
-              Width = 200
-              Visible = True
-            end>
-        end
-      end
     end
-  end
-  object pstModo: TPlanoPestanas
-    AlignWithMargins = True
-    Left = 3
-    Top = 129
-    Width = 954
-    Height = 40
-    Items.Strings = (
-      'Sin procesar'
-      'Mis solicitudes')
-    Style = pesPastilla
-    Indent = 20
-    BackColor = 16447477
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Segoe UI'
-    Font.Style = []
-    ActiveFont.Charset = DEFAULT_CHARSET
-    ActiveFont.Color = clWindowText
-    ActiveFont.Height = -12
-    ActiveFont.Name = 'Segoe UI Semibold'
-    ActiveFont.Style = []
-    OnChange = pstModoChange
-    ParentFont = False
   end
 end

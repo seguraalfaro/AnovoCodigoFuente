@@ -99,7 +99,9 @@ type
     procedure Actualizar(const AId: Integer; const ADto: TSolicitudEdicionDTO; const AUsuarioId: Integer; const ARoles: TArray<string>);
     function RegistrarCompleta(const ADto: TSolicitudCompletaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
     procedure MarcarRecibida(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>);
-    procedure CambiarEstado(const AId: Integer; const ADto: TCambioEstadoDTO; const AUsuarioId: Integer; const ARoles: TArray<string>);    function Seguimiento(const AAsesorId: Integer; const ATexto: string;
+    procedure CambiarEstado(const AId: Integer; const ADto: TCambioEstadoDTO; const AUsuarioId: Integer; const ARoles: TArray<string>);
+    function Seguimiento(const AUsuarioId: Integer;
+      const ARoles: TArray<string>; const ATexto: string;
       const ASoloMes: Boolean; const AFiltroDesde, AFiltroHasta: TDateTime;
       const APagina, APorPagina: Integer; out ADesde, AHasta: TDateTime;
       out ATotal: Int64): TObjectList<TSolicitudAsesorDTO>;
@@ -1008,15 +1010,21 @@ begin
   end;
 end;
 
-function TSolicitudService.Seguimiento(const AAsesorId: Integer;
-  const ATexto: string; const ASoloMes: Boolean;
+function TSolicitudService.Seguimiento(const AUsuarioId: Integer;
+  const ARoles: TArray<string>; const ATexto: string; const ASoloMes: Boolean;
   const AFiltroDesde, AFiltroHasta: TDateTime;
   const APagina, APorPagina: Integer; out ADesde, AHasta: TDateTime;
   out ATotal: Int64): TObjectList<TSolicitudAsesorDTO>;
 var
   lFilas: TObjectList<TSeguimientoAsesor>;
   lPeriodo: TPeriodo;
+  lAsesorId: Integer;
 begin
+  if fPermisos.TieneAlguno(AUsuarioId, ARoles, [PERMISO_SOLICITUDES_VER_TODAS])
+  then
+    lAsesorId := 0
+  else
+    lAsesorId := AUsuarioId;
   lPeriodo := TPeriodo.De(AFiltroDesde, AFiltroHasta);
   ADesde := lPeriodo.Inicio;
   AHasta := lPeriodo.Fin;
@@ -1026,8 +1034,8 @@ begin
     AHasta := IncMonth(ADesde, 1);
   end;
 
-  ATotal := fRepo.ContarSeguimiento(AAsesorId, ATexto, ADesde, AHasta);
-  lFilas := fRepo.Seguimiento(AAsesorId, ATexto, ADesde, AHasta, APagina,
+  ATotal := fRepo.ContarSeguimiento(lAsesorId, ATexto, ADesde, AHasta);
+  lFilas := fRepo.Seguimiento(lAsesorId, ATexto, ADesde, AHasta, APagina,
     APorPagina);
   try
     Result := TMapeo.AListaDto<TSeguimientoAsesor,

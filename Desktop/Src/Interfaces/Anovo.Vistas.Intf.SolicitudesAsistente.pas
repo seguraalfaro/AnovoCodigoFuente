@@ -1,7 +1,7 @@
 unit Anovo.Vistas.Intf.SolicitudesAsistente;
 
-// Contrato de la vista de solicitudes del asistente: la cola
-// comun y las que tomo.
+// Contrato de la vista de solicitudes de la oficina: la cola comun de las
+// que nadie ha tomado.
 
 interface
 
@@ -13,18 +13,14 @@ uses
   Anovo.PeriodoBusqueda;
 
 type
-  TModoSolicitudes = (msCola, msEnTrabajo);
-  TAccionCola = (acTomar, acAbrir);
+  TAccionCola = (acTomar);
   TAccionesCola = set of TAccionCola;
 
   IVistaSolicitudesAsistente = interface(IVistaListado)
     ['{8346550D-2F58-4EDB-9829-B75763CB7E68}']
     procedure MostrarAcciones(const AAcciones: TAccionesCola);
-    procedure MostrarModo(const AModo: TModoSolicitudes);
     procedure MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
     procedure MostrarCola(const AFilas: TObjectList<TSolicitudPorCotizarDTO>);
-    procedure MostrarEnTrabajo(const AFilas
-      : TObjectList<TSolicitudEnTrabajoDTO>);
     procedure AbrirCotizacion(const AId: Integer);
     function Confirmar(const AMensaje: string): Boolean;
   end;

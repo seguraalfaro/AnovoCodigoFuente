@@ -152,7 +152,6 @@ begin
   inherited;
   pstFiltros.Enabled := not AActivo;
   pstElaboradas.Enabled := not AActivo;
-  btnPeriodo.Enabled := not AActivo;
 end;
 
 procedure TfraCotizaciones.MostrarAcciones(const AAcciones

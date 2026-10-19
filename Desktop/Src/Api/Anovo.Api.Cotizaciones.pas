@@ -29,7 +29,7 @@ type
     procedure Devolver(const AId: Integer; const AMotivo: string);
     procedure RegistrarRespuesta(const AId: Integer; const AAceptada: Boolean;
       const AOrdenCompra: string);
-    procedure Tomar(const ASolicitudId: Integer);
+    function Tomar(const ASolicitudId: Integer): Integer;
     function Listar(const ATexto, AEstado: string; const AClienteId: Integer;
       const ADesde, AHasta: TDateTime; const ASoloPropias: Boolean;
       const APagina, APorPagina: Integer; out ATotal: Int64)
@@ -396,18 +396,18 @@ begin
   end;
 end;
 
-procedure TApiCotizaciones.Tomar(const ASolicitudId: Integer);
+function TApiCotizaciones.Tomar(const ASolicitudId: Integer): Integer;
 var
   lDto: TCotizacionNuevaDTO;
 begin
   lDto := TCotizacionNuevaDTO.Create;
   try
     lDto.SolicitudId := ASolicitudId;
-    Ejecutar(
+    Result := IdDeLocation(Ejecutar(
       function: IMVCRESTResponse
       begin
         Result := NuevoCliente.AddBody(lDto, False).Post(RUTA_COTIZACIONES);
-      end);
+      end));
   finally
     lDto.Free;
   end;

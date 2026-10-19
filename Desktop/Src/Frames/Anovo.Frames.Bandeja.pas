@@ -43,7 +43,6 @@ type
     procedure Limpiar; override;
     procedure PaginaAnterior; override;
     procedure PaginaSiguiente; override;
-    procedure MostrarCargando(const AActivo: Boolean); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -110,12 +109,6 @@ end;
 procedure TfraBandeja.PeriodoCambio(const APeriodo: TPeriodoBusqueda);
 begin
   FPresentador.FiltrarPeriodo(APeriodo);
-end;
-
-procedure TfraBandeja.MostrarCargando(const AActivo: Boolean);
-begin
-  inherited;
-  btnPeriodo.Enabled := not AActivo;
 end;
 
 procedure TfraBandeja.PaginaAnterior;

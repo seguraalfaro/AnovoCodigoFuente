@@ -16,7 +16,6 @@ type
   private
     FVista: IVistaSolicitudesAsesor;
     FApi: IApiSolicitudes;
-    FHistorial: Boolean;
   protected
     procedure Cargar; override;
     function UsaPeriodo: Boolean; override;
@@ -28,7 +27,6 @@ type
     procedure Iniciar;
     class function AccionesPermitidas: TAccionesSolicitudAsesor;
     procedure Abrir(const ACotizacionId: Integer);
-    procedure VerHistorial(const AHistorial: Boolean);
   end;
 
 const
@@ -48,7 +46,6 @@ begin
   inherited Create(AVista);
   FVista := AVista;
   FApi := AApi;
-  FHistorial := False;
 end;
 
 function TPresentadorSolicitudesAsesor.UsaPeriodo: Boolean;
@@ -86,15 +83,6 @@ begin
   Cargar;
 end;
 
-procedure TPresentadorSolicitudesAsesor.VerHistorial(const AHistorial: Boolean);
-begin
-  if AHistorial = FHistorial then
-    Exit;
-  FHistorial := AHistorial;
-  FPagina := 1;
-  Cargar;
-end;
-
 procedure TPresentadorSolicitudesAsesor.Cargar;
 var
   lApi: IApiSolicitudes;
@@ -107,7 +95,7 @@ begin
   lApi := FApi;
   lTexto := FTexto;
   lPagina := FPagina;
-  lHistorial := FHistorial;
+  lHistorial := FPeriodo.Atajo = apTodas;
   lFiltroDesde := FPeriodo.Desde;
   lFiltroHasta := FPeriodo.Hasta;
   lTotal := 0;

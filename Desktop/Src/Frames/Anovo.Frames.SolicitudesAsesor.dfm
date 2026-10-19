@@ -88,29 +88,4 @@ inherited fraSolicitudesAsesor: TfraSolicitudesAsesor
         end>
     end
   end
-  object pstPeriodo: TPlanoPestanas
-    AlignWithMargins = True
-    Left = 3
-    Top = 129
-    Width = 954
-    Height = 40
-    Items.Strings = (
-      'Este mes'
-      'Historial completo')
-    Style = pesPastilla
-    Indent = 20
-    BackColor = 16447477
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Segoe UI'
-    Font.Style = []
-    ActiveFont.Charset = DEFAULT_CHARSET
-    ActiveFont.Color = clWindowText
-    ActiveFont.Height = -12
-    ActiveFont.Name = 'Segoe UI Semibold'
-    ActiveFont.Style = []
-    OnChange = pstPeriodoChange
-    ParentFont = False
-  end
 end

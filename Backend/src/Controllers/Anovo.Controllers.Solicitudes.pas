@@ -62,7 +62,7 @@ type
 
     [MVCPath('/cola')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_SOLICITUDES_VER_TODAS)]
     [MVCSwagSummary('Solicitudes', 'Cola comun: recibidas sin cotizacion, ' +
       'la mas antigua primero, paginada', 'colaSolicitudes')]
     [MVCSwagParam(plQuery, 'q', 'Texto a buscar en el cliente o la ' +
@@ -86,7 +86,8 @@ type
 
     [MVCPath('/en-trabajo')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR + SEPARADOR_PERMISOS +
+      PERMISO_COTIZACIONES_ELABORAR_PROPIAS)]
     [MVCSwagSummary('Solicitudes', 'Las que el usuario del token tomo y ' +
       'siguen en curso: borrador, pendiente o aprobada sin enviar',
       'solicitudesEnTrabajo')]
@@ -111,7 +112,8 @@ type
 
     [MVCPath('/seguimiento')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_SOLICITUDES_VER_PROPIAS)]
+    [MVCRequiresPermiso(PERMISO_SOLICITUDES_VER_PROPIAS + SEPARADOR_PERMISOS +
+      PERMISO_SOLICITUDES_VER_TODAS)]
     [MVCSwagSummary('Solicitudes', 'Las del asesor que consulta, con el ' +
       'estado como lo ve el: el de la cotizacion si esta aprobada o enviada ' +
       'al cliente, el de la solicitud si no (HU-03)', 'seguimientoSolicitudes')]
@@ -458,7 +460,7 @@ begin
   lPagina := PaginaValida(APagina);
   lPorPagina := PorPaginaValida(APorPagina);
 
-  lDatos := AServicio.Seguimiento(UsuarioId, ABusqueda,
+  lDatos := AServicio.Seguimiento(UsuarioId, Roles, ABusqueda,
     not SameText(APeriodo, PERIODO_TODO), ComoFecha(AFiltroDesde),
     ComoFecha(AFiltroHasta), lPagina, lPorPagina, lDesde, lHasta, lTotal);
 

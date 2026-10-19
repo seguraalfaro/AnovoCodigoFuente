@@ -189,6 +189,11 @@ type
     'and(eq(AsesorId,%d),ge(FechaCaptura,"%s"),' +
     'lt(FechaCaptura,"%s"),' + RQL_TEXTO_SOLICITUD +
     ');sort(-FechaCaptura,-ID)' + RQL_PAGINA)]
+  [MVCNamedRQLQuery(CONSULTA_BUSCAR,
+    RQL_TEXTO_SOLICITUD + ';sort(-FechaCaptura,-ID)' + RQL_PAGINA)]
+  [MVCNamedRQLQuery(CONSULTA_ENTRE,
+    'and(ge(FechaCaptura,"%s"),lt(FechaCaptura,"%s"),' + RQL_TEXTO_SOLICITUD +
+    ');sort(-FechaCaptura,-ID)' + RQL_PAGINA)]
   [MVCNamedRQLQuery(CONSULTA_BAJADA, 'eq(AsesorId,%d);sort(+ID)')]
   [MVCNamedRQLQuery(CONSULTA_BAJADA_DESDE,
     'and(eq(AsesorId,%d),gt(FechaCambio,"%s"));sort(+ID)')]

@@ -122,7 +122,7 @@ type
 
     [MVCPath]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_SOLICITUDES_TOMAR)]
     [MVCSwagSummary('Cotizaciones', 'Crea una cotizacion desde una solicitud. ' +
       'Nace en borrador con su consecutivo', 'crearCotizacion')]
     [MVCSwagResponses(201, 'Creada. Location apunta a la cotizacion')]

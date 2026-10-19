@@ -23,9 +23,7 @@ uses
 
 type
   TfraSolicitudesAsesor = class(TfraListado, IVistaSolicitudesAsesor)
-    pstPeriodo: TPlanoPestanas;
     btnPeriodo: TPlanoBotonWin;
-    procedure pstPeriodoChange(Sender: TObject);
   private
     FSelector: TSelectorPeriodo;
     FPresentador: TPresentadorSolicitudesAsesor;
@@ -41,7 +39,6 @@ type
     procedure Limpiar; override;
     procedure PaginaAnterior; override;
     procedure PaginaSiguiente; override;
-    procedure MostrarCargando(const AActivo: Boolean); override;
     procedure Resize; override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -147,20 +144,6 @@ end;
 procedure TfraSolicitudesAsesor.PaginaSiguiente;
 begin
   FPresentador.PaginaSiguiente;
-end;
-
-procedure TfraSolicitudesAsesor.pstPeriodoChange(Sender: TObject);
-begin
-  if not Assigned(FPresentador) then
-    Exit;
-  FPresentador.VerHistorial(pstPeriodo.ItemIndex = 1);
-end;
-
-procedure TfraSolicitudesAsesor.MostrarCargando(const AActivo: Boolean);
-begin
-  inherited;
-  pstPeriodo.Enabled := not AActivo;
-  btnPeriodo.Enabled := not AActivo;
 end;
 
 procedure TfraSolicitudesAsesor.MostrarPeriodo(const APeriodo

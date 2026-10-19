@@ -105,7 +105,6 @@ procedure TfraAuditoria.MostrarCargando(const AActivo: Boolean);
 begin
   inherited;
   pstFiltros.Enabled := not AActivo;
-  btnPeriodo.Enabled := not AActivo;
 end;
 
 procedure TfraAuditoria.MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
