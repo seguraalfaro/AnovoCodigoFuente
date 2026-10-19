@@ -17,6 +17,7 @@ Sub Process_Globals
 	Private Const CLAVE_CORREO As String = "correo"
 	Private Const CLAVE_NOMBRE As String = "nombre"
 	Private Const CLAVE_ROL As String = "rol"
+	Private Const CLAVE_PERMISOS As String = "permisos"
 	Private Const CLAVE_ACTIVO As String = "desbloqueo"
 	Private Const CLAVE_CONTACTO As String = "ultimo_contacto"
 	Private Const DIAS_SIN_CONEXION As Int = 30
@@ -75,7 +76,7 @@ Public Sub Borrar
 End Sub
 
 Public Sub BorrarTodo
-	For Each c As String In Array As String(CLAVE_LLAVE, CLAVE_USUARIO, CLAVE_CORREO, CLAVE_NOMBRE, CLAVE_ROL, CLAVE_ACTIVO, CLAVE_CONTACTO)
+	For Each c As String In Array As String(CLAVE_LLAVE, CLAVE_USUARIO, CLAVE_CORREO, CLAVE_NOMBRE, CLAVE_ROL, CLAVE_PERMISOS, CLAVE_ACTIVO, CLAVE_CONTACTO)
 		Almacen.Remove(c)
 	Next
 End Sub
@@ -91,6 +92,10 @@ Public Sub GuardarPerfil (Id As Int, CorreoUsuario As String, NombreUsuario As S
 	MarcarContacto
 End Sub
 
+Public Sub GuardarPermisos (Lista As List)
+	Almacen.Put(CLAVE_PERMISOS, Lista)
+End Sub
+
 Public Sub Perfil As PerfilLocal
 	Dim p As PerfilLocal
 	p.Initialize
@@ -98,6 +103,9 @@ Public Sub Perfil As PerfilLocal
 	p.Correo = Almacen.GetDefault(CLAVE_CORREO, "")
 	p.Nombre = Almacen.GetDefault(CLAVE_NOMBRE, "")
 	p.Rol = Almacen.GetDefault(CLAVE_ROL, "")
+	Dim vacia As List
+	vacia.Initialize
+	p.Permisos = Almacen.GetDefault(CLAVE_PERMISOS, vacia)
 	Return p
 End Sub
 

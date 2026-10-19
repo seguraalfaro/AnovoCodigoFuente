@@ -31,7 +31,7 @@ Sub Process_Globals
 	Type SolicitudReciente (Uuid As String, Proyecto As String, Cliente As String, Fecha As String, EstadoSync As String)
 	Type SeguimientoFila (Uuid As String, Proyecto As String, Cliente As String, Fecha As String, Estado As String, Monto As Double, ConCotizacion As Boolean, Cotizacion As Int)
 	Type ClienteFila (Datos As Cliente, EstadoSync As String)
-	Type PerfilLocal (UsuarioId As Int, Correo As String, Nombre As String, Rol As String)
+	Type PerfilLocal (UsuarioId As Int, Correo As String, Nombre As String, Rol As String, Permisos As List)
 	Type UbicacionGps (Ok As Boolean, Latitud As Double, Longitud As Double, Precision As Double)
 	Type IntentoSync (Fecha As String, Resultado As String, Subidos As Int, Bajados As Int, ConError As Int, Pendientes As Int)
 	Type ErrorSync (Entidad As String, Uuid As String, Titulo As String, Mensaje As String)

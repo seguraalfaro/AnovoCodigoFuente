@@ -30,12 +30,22 @@ Public Sub Ingresar (Correo As String, Clave As String) As ResumableSub
 		Sesion.Cerrar
 		Return Tipos.Falla(Mensajes.CLAVE_TEMPORAL)
 	End If
+	Wait For (remota.ActualizarPermisos) Complete (Permisos As RestRespuesta)
+	If Permisos.Success = False Then
+		Sesion.Cerrar
+		Return Tipos.Falla(Api.MensajeDe(Permisos))
+	End If
+	If Sesion.Tiene(Sesion.PERMISO_ACCESO_MOVIL) = False Then
+		Sesion.Cerrar
+		Return Tipos.Falla(Mensajes.SIN_ACCESO_MOVIL)
+	End If
 	Wait For (remota.RegistrarTelefono) Complete (Registro As Int)
 	If Registro = Api.HTTP_PROHIBIDO Then
 		Sesion.Cerrar
 		Return Tipos.Falla(Mensajes.SIN_ACCESO_MOVIL)
 	End If
 	LlaveDispositivo.GuardarPerfil(Sesion.UsuarioId, Sesion.Correo, Sesion.Nombre, Sesion.Rol)
+	LlaveDispositivo.GuardarPermisos(Sesion.Permisos)
 	Dim r As Resultado = Tipos.Correcto(Null)
 	If Registro <> Api.HTTP_CREADO Then r.Mensaje = Mensajes.TELEFONO_NO_REGISTRADO
 	Return r
@@ -46,7 +56,8 @@ Public Sub getErrorBase As String
 End Sub
 
 Public Sub getPuedeDesbloquear As Boolean
-	Return LlaveDispositivo.PuedeDesbloquear
+	If LlaveDispositivo.PuedeDesbloquear = False Then Return False
+	Return LlaveDispositivo.Perfil.Permisos.IndexOf(Sesion.PERMISO_ACCESO_MOVIL) > -1
 End Sub
 
 Public Sub getNombreGuardado As String

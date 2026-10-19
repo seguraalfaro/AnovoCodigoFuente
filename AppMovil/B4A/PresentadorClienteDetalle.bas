@@ -80,18 +80,27 @@ Public Sub getContactos As List
 	Return mContactos
 End Sub
 
-Public Sub getPuedeFirmar As Boolean
+Private Sub FaltaFirma As Boolean
 	If mEstado <> "confirmado" Then Return False
 	Return mConsentimiento = DbClientes.CONSENTIMIENTO_PENDIENTE Or mConsentimiento = DbClientes.CONSENTIMIENTO_REVOCADO
 End Sub
 
+Public Sub getPuedeFirmar As Boolean
+	Return FaltaFirma And Sesion.Tiene(Sesion.PERMISO_CLIENTES_CONSENTIMIENTO)
+End Sub
+
+Public Sub getPuedeCrearSolicitud As Boolean
+	Return Sesion.Tiene(Sesion.PERMISO_SOLICITUDES_CREAR)
+End Sub
+
 Public Sub getPermiso As String
-	If getPuedeFirmar Then Return Mensajes.PermisoSegunEstado(mConsentimiento)
+	If FaltaFirma Then Return Mensajes.PermisoSegunEstado(mConsentimiento)
 	Return Mensajes.TextoPermiso(mPermiso.Accion, mPermiso.Firmante)
 End Sub
 
 Public Sub getDetallePermiso As String
 	If getPuedeFirmar Then Return Mensajes.TOCAR_PARA_FIRMAR
+	If FaltaFirma Then Return Mensajes.SIN_PERMISO_FIRMAR
 	If mPermiso.Accion = "" Then Return ""
 	Return Mensajes.PermisoDetalle(Utils.BdADisplay(mPermiso.Fecha), mPermiso.Version)
 End Sub

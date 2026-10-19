@@ -170,6 +170,11 @@ Public Sub getCarpetaFotos As String
 	Return Adjuntos.CarpetaFotos
 End Sub
 
+Public Sub getAvisoAdjuntos As String
+	If Sesion.Tiene(Sesion.PERMISO_ADJUNTOS_CREAR) Then Return ""
+	Return Mensajes.SIN_PERMISO_ADJUNTOS
+End Sub
+
 Public Sub getPuedeAgregarFoto As Boolean
 	Return mFotos.Size < Adjuntos.MAX_FOTOS
 End Sub

@@ -155,7 +155,7 @@ Public Sub FilasFicha (f As SeguimientoFila) As List
 	Dim cotizacion As String = Mensajes.FICHA_SIN_COTIZACION
 	If f.ConCotizacion Then cotizacion = Mensajes.NumeroCotizacion(f.Cotizacion)
 	filas.Add(Array As String(Mensajes.FICHA_COTIZACION, cotizacion))
-	If f.Estado = DbSeguimiento.ESTADO_APROBADA And f.Monto > 0 Then filas.Add(Array As String(Mensajes.FICHA_MONTO, Mensajes.Colones(f.Monto)))
+	If f.Estado = DbSeguimiento.ESTADO_APROBADA And f.Monto > 0 And Sesion.Tiene(Sesion.PERMISO_VER_APROBADAS_PROPIAS) Then filas.Add(Array As String(Mensajes.FICHA_MONTO, Mensajes.Colones(f.Monto)))
 	Dim servidor As String = Mensajes.FICHA_SUBIDA
 	If f.Estado = DbSeguimiento.ESTADO_POR_SUBIR Then servidor = Mensajes.FICHA_POR_SUBIR
 	filas.Add(Array As String(Mensajes.FICHA_SERVIDOR, servidor))

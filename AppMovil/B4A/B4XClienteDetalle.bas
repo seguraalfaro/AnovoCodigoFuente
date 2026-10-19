@@ -46,6 +46,7 @@ Public Sub Mostrar (c As Cliente)
 End Sub
 
 Private Sub B4XPage_Appear
+	BtnNuevaSolicitud.Visible = presentador.PuedeCrearSolicitud
 	Pintar
 End Sub
 

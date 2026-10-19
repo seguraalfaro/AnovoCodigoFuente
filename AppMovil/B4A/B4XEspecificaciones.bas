@@ -234,11 +234,20 @@ Private Sub BtnDetalles_Click
 End Sub
 
 Private Sub BtnCroquis_Click
+	If SinPermiso Then Return
 	AHViewEspecificaciones.GotoPage(PageCROQUIS, True)
 End Sub
 
 Private Sub BtnCamera_Click
+	If SinPermiso Then Return
 	AHViewEspecificaciones.GotoPage(PageFOTOS, True)
+End Sub
+
+Private Sub SinPermiso As Boolean
+	Dim aviso As String = presentador.AvisoAdjuntos
+	If aviso = "" Then Return False
+	xui.MsgboxAsync(aviso, Mensajes.TITULO)
+	Return True
 End Sub
 
 Private Sub BtnCancelar_Click

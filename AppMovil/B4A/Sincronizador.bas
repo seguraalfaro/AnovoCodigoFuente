@@ -121,6 +121,14 @@ Private Sub Bajar (r As ResumenSync) As ResumableSub
 		MarcarCaida(r, Estado)
 		Return False
 	End If
+	Wait For (remota.ActualizarPermisos) Complete (Permisos As RestRespuesta)
+	If Permisos.Success Then
+		If Sesion.Tiene(Sesion.PERMISO_ACCESO_MOVIL) = False Then
+			r.SesionVencida = True
+			Return False
+		End If
+		LlaveDispositivo.GuardarPermisos(Sesion.Permisos)
+	End If
 	Wait For (ApiSincronizacion.Bajar(DbBajada.Desde).Enviar) Complete (Respuesta As RestRespuesta)
 	If Respuesta.StatusCode <> Api.HTTP_OK Then
 		If Respuesta.StatusCode = Api.HTTP_NO_AUTORIZADO Then

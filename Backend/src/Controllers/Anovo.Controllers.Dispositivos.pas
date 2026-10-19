@@ -21,7 +21,7 @@ type
   public
     [MVCPath('/dispositivos')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_ADJUNTOS_CREAR)]
+    [MVCRequiresPermiso(PERMISO_ACCESO_MOVIL)]
     [MVCSwagSummary('Sesion', 'Registra el telefono y entrega su llave. La ' +
       'llave se muestra una sola vez', 'registrarDispositivo')]
     [MVCSwagParam(plBody, 'body', 'Uuid y nombre del telefono',
@@ -29,7 +29,7 @@ type
     [MVCSwagResponses(201, 'Llave y fecha de vencimiento', TLlaveDispositivoDTO)]
     [MVCSwagResponses(401, 'Sin token o token vencido')]
     [MVCSwagResponses(403, 'La cuenta no tiene acceso a la app movil: le ' +
-      'falta adjuntos.crear')]
+      'falta acceso.movil')]
     [MVCSwagResponses(422, 'Falta el uuid del dispositivo')]
     function Registrar([MVCInject] AServicio: IDispositivoService;
       const [MVCFromBody] ADto: TDispositivoNuevoDTO): IMVCResponse;

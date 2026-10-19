@@ -58,7 +58,38 @@ Public Sub getFranja As FranjaSync
 End Sub
 
 Public Sub getHayBorrador As Boolean
-	Return mHayBorrador
+	Return mHayBorrador And getCreaSolicitudes
+End Sub
+
+Public Sub getVeClientes As Boolean
+	Return Sesion.Tiene(Sesion.PERMISO_CLIENTES_VER)
+End Sub
+
+Public Sub getCreaClientes As Boolean
+	Return Sesion.Tiene(Sesion.PERMISO_CLIENTES_CREAR)
+End Sub
+
+Public Sub getCreaSolicitudes As Boolean
+	Return Sesion.Tiene(Sesion.PERMISO_SOLICITUDES_CREAR)
+End Sub
+
+Public Sub getVeSolicitudes As Boolean
+	Return Sesion.Tiene(Sesion.PERMISO_SOLICITUDES_VER_PROPIAS)
+End Sub
+
+Public Sub getAvisoClientes As String
+	If getVeClientes Then Return ""
+	Return Mensajes.SIN_PERMISO_CLIENTES
+End Sub
+
+Public Sub getAvisoNueva As String
+	If getCreaSolicitudes Then Return ""
+	Return Mensajes.SIN_PERMISO_NUEVA
+End Sub
+
+Public Sub getAvisoSolicitudes As String
+	If getVeSolicitudes Then Return ""
+	Return Mensajes.SIN_PERMISO_SOLICITUDES
 End Sub
 
 Public Sub getDetalleBorrador As String
@@ -72,7 +103,9 @@ End Sub
 Public Sub getKpiValores As List
 	Dim d As IndicadoresAsesor = DbInicio.Indicadores
 	If d.HayDatos = False Then Return Array(Mensajes.KPI_SIN_DATO, Mensajes.KPI_SIN_DATO, Mensajes.KPI_SIN_DATO, Mensajes.KPI_SIN_DATO)
-	Return Array(d.SolicitudesMes & "", d.EsperandoCotizacion & "", d.AprobadasMes & "", Mensajes.Colones(d.MontoAprobadoMes))
+	Dim monto As String = Mensajes.KPI_SIN_DATO
+	If Sesion.Tiene(Sesion.PERMISO_VER_APROBADAS_PROPIAS) Then monto = Mensajes.Colones(d.MontoAprobadoMes)
+	Return Array(d.SolicitudesMes & "", d.EsperandoCotizacion & "", d.AprobadasMes & "", monto)
 End Sub
 
 Public Sub getRecientes As List

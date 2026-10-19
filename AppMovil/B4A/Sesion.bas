@@ -5,13 +5,22 @@ Type=StaticCode
 Version=13.7
 @EndOfDesignText@
 ' Sesion en memoria, como TSesion del escritorio: token, cuenta y rol leidos
-' del propio JWT. Nunca se guarda en disco.
+' del propio JWT, y los permisos de /api/sesion. Nunca se guarda en disco.
 Sub Process_Globals
 	Public UsuarioId As Int
 	Public Correo As String
 	Public Nombre As String
 	Public Rol As String
 	Public DebeCambiarClave As Boolean
+	Public Const PERMISO_ACCESO_MOVIL As String = "acceso.movil"
+	Public Const PERMISO_CLIENTES_VER As String = "clientes.ver"
+	Public Const PERMISO_CLIENTES_CREAR As String = "clientes.crear"
+	Public Const PERMISO_CLIENTES_CONSENTIMIENTO As String = "clientes.consentimiento"
+	Public Const PERMISO_SOLICITUDES_CREAR As String = "solicitudes.crear"
+	Public Const PERMISO_SOLICITUDES_VER_PROPIAS As String = "solicitudes.ver_propias"
+	Public Const PERMISO_ADJUNTOS_CREAR As String = "solicitudes.adjuntos.crear"
+	Public Const PERMISO_VER_APROBADAS_PROPIAS As String = "cotizaciones.ver_aprobadas_propias"
+	Private mPermisos As List
 	Private mToken As String
 	Private mVence As Long
 	Private mLocal As Boolean
@@ -68,7 +77,22 @@ Public Sub AbrirLocal (p As PerfilLocal)
 	Correo = p.Correo
 	Nombre = p.Nombre
 	Rol = p.Rol
+	AsignarPermisos(p.Permisos)
 	DebeCambiarClave = False
+End Sub
+
+Public Sub AsignarPermisos (Lista As List)
+	mPermisos.Initialize
+	If Lista.IsInitialized Then mPermisos.AddAll(Lista)
+End Sub
+
+Public Sub Permisos As List
+	If mPermisos.IsInitialized = False Then mPermisos.Initialize
+	Return mPermisos
+End Sub
+
+Public Sub Tiene (Codigo As String) As Boolean
+	Return Permisos.IndexOf(Codigo) > -1
 End Sub
 
 Public Sub VigentePor (Segundos As Int) As Boolean
@@ -83,5 +107,6 @@ Public Sub Cerrar
 	Correo = ""
 	Nombre = ""
 	Rol = ""
+	mPermisos.Initialize
 	DebeCambiarClave = False
 End Sub

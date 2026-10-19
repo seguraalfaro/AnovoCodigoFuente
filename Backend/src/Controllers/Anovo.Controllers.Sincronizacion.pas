@@ -17,6 +17,7 @@ uses
 
 type
   [MVCPath('/api/sincronizacion')]
+  [MVCRequiresPermiso(PERMISO_ACCESO_MOVIL)]
   [MVCRequiresPermiso(PERMISO_CLIENTES_VER)]
   TSincronizacionController = class(TControllerBase)
   public

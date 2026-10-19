@@ -188,7 +188,7 @@ begin
     Exit(MOTIVO_VENCIDO);
   ASesion := fSesion.SesionDe(ADispositivo.UsuarioId);
   if not ASesion.Valido or not fPermisos.Tiene(ASesion.UsuarioId, ASesion.Rol,
-    PERMISO_ADJUNTOS_CREAR) then
+    PERMISO_ACCESO_MOVIL) then
     Exit(MOTIVO_USUARIO);
   if ASesion.DebeCambiarClave or ClaveCambiadaDespues(ADispositivo) then
     Exit(MOTIVO_CLAVE);

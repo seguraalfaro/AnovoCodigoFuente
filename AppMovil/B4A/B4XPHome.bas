@@ -77,8 +77,13 @@ Sub Class_Globals
 	Private Const FILTRO_TAMANO As Int = 13
 	Private Const PESTANA_SOLICITUDES As Int = 4
 	Private lblClienteIniciales, lblClienteNombre, lblClienteDetalle, lblClienteEstado As B4XView
+	Private BtnNuevo As B4XView
 
 	Private Const PESTANAS As Int = 5
+	Private Const PESTANA_INICIO As Int = 1
+	Private Const PESTANA_CLIENTES As Int = 2
+	Private Const PESTANA_PERFIL As Int = 5
+	Private pestanaActual As Int
 	Private Const HOJA_INICIO As Int = 0
 	Private Const HOJA_CLIENTES As Int = 1
 	Private Const HOJA_SOLICITUDES As Int = 3
@@ -122,6 +127,7 @@ Private Sub B4XPage_Appear
 End Sub
 
 Private Sub Refrescar
+	AplicarPermisos
 	PintarInicio
 	PintarClientes
 	PintarSolicitudes
@@ -149,7 +155,27 @@ Private Sub InicializarMenu
 	Menu.SetTabTextIcon(3, Mensajes.TAB_NUEVA, Chr(0xF067), Typeface.FONTAWESOME)
 	Menu.SetTabTextIcon(4, Mensajes.TAB_SOLICITUDES, Chr(0xF15C), Typeface.FONTAWESOME)
 	Menu.SetTabTextIcon(5, Mensajes.TAB_PERFIL, Chr(0xF007), Typeface.FONTAWESOME)
-	Menu.SetCurrentTab2(1, False)
+	Menu.SetCurrentTab2(PESTANA_INICIO, False)
+	pestanaActual = PESTANA_INICIO
+End Sub
+
+Private Sub AplicarPermisos
+	BtnNuevo.Visible = inicio.CreaClientes
+	lblVerTodas.Visible = inicio.VeSolicitudes
+	Dim aviso As String
+	If pestanaActual = PESTANA_CLIENTES Then aviso = inicio.AvisoClientes
+	If pestanaActual = PESTANA_SOLICITUDES Then aviso = inicio.AvisoSolicitudes
+	If aviso = "" Then Return
+	pestanaActual = PESTANA_INICIO
+	Menu.SetCurrentTab2(PESTANA_INICIO, False)
+	AHViewHOme.GotoPage(HOJA_INICIO, False)
+End Sub
+
+Private Sub Bloqueada (Aviso As String) As Boolean
+	If Aviso = "" Then Return False
+	Menu.SetCurrentTab2(pestanaActual, False)
+	xui.MsgboxAsync(Aviso, Mensajes.TITULO)
+	Return True
 End Sub
 
 Private Sub InicializarHojas
@@ -177,25 +203,32 @@ Private Sub CrearHoja (Indice As Int) As B4XView
 End Sub
 
 Private Sub Menu_Tab1Click
+	pestanaActual = PESTANA_INICIO
 	AHViewHOme.GotoPage(HOJA_INICIO, True)
 	PintarInicio
 End Sub
 
 Private Sub Menu_Tab2Click
+	If Bloqueada(inicio.AvisoClientes) Then Return
+	pestanaActual = PESTANA_CLIENTES
 	AHViewHOme.GotoPage(HOJA_CLIENTES, True)
 	PintarClientes
 End Sub
 
 Private Sub Menu_Tab3Click
+	If Bloqueada(inicio.AvisoNueva) Then Return
 	B4XPages.ShowPage(Layouts.PAGINA_COTIZACION)
 End Sub
 
 Private Sub Menu_Tab4Click
+	If Bloqueada(inicio.AvisoSolicitudes) Then Return
+	pestanaActual = PESTANA_SOLICITUDES
 	AHViewHOme.GotoPage(HOJA_SOLICITUDES, True)
 	PintarSolicitudes
 End Sub
 
 Private Sub Menu_Tab5Click
+	pestanaActual = PESTANA_PERFIL
 	AHViewHOme.GotoPage(HOJA_PERFIL, True)
 	perfil.Mostrar
 End Sub
