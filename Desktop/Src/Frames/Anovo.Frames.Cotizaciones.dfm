@@ -28,29 +28,26 @@ inherited fraCotizaciones: TfraCotizaciones
       StyleElements = []
       Kind = fkSecondary
     end
-    object pstElaboradas: TPlanoPestanas
+    object cbEstado: TComboBox
       Left = 772
-      Top = 6
+      Top = 14
       Width = 170
-      Height = 40
+      Height = 23
+      Style = csDropDownList
+      ItemIndex = 0
+      TabOrder = 3
+      Text = 'Todos los estados'
+      OnChange = cbEstadoChange
       Items.Strings = (
-        'M'#237'as'
-        'Todas')
-      Style = pesPastilla
-      Indent = 0
-      BackColor = 16447477
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Segoe UI'
-      Font.Style = []
-      ActiveFont.Charset = DEFAULT_CHARSET
-      ActiveFont.Color = clWindowText
-      ActiveFont.Height = -12
-      ActiveFont.Name = 'Segoe UI Semibold'
-      ActiveFont.Style = []
-      OnChange = pstElaboradasChange
-      ParentFont = False
+        'Todos los estados'
+        'Borrador'
+        'En revisi'#243'n'
+        'Devueltas'
+        'Con visto bueno'
+        'Enviadas'
+        'Aprobadas'
+        'Rechazadas'
+        'Descartadas')
     end
   end
   inherited pnclient: TRelativePanel
@@ -122,37 +119,5 @@ inherited fraCotizaciones: TfraCotizaciones
           Visible = True
         end>
     end
-  end
-  object pstFiltros: TPlanoPestanas
-    AlignWithMargins = True
-    Left = 3
-    Top = 129
-    Width = 954
-    Height = 40
-    Items.Strings = (
-      'Todas'
-      'Borrador'
-      'En revisi'#243'n'
-      'Devueltas'
-      'Con visto bueno'
-      'Enviadas'
-      'Aprobadas'
-      'Rechazadas'
-      'Descartadas')
-    Style = pesPastilla
-    Indent = 20
-    BackColor = 16447477
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Segoe UI'
-    Font.Style = []
-    ActiveFont.Charset = DEFAULT_CHARSET
-    ActiveFont.Color = clWindowText
-    ActiveFont.Height = -12
-    ActiveFont.Name = 'Segoe UI Semibold'
-    ActiveFont.Style = []
-    OnChange = pstFiltrosChange
-    ParentFont = False
   end
 end

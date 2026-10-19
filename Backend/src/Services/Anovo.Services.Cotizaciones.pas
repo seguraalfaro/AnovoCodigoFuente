@@ -62,7 +62,9 @@ type
     procedure CopiarCondiciones(const ACotizacion: TCotizaciones);
     procedure TomarCondiciones(const ACotizacion: TCotizaciones;
       const ADto: TCotizacionEdicionDTO);
-    procedure ExigirEditable(const ACotizacion: TCotizaciones);
+    procedure ExigirEditable(const ACotizacion: TCotizaciones;
+      const AUsuarioId: Integer; const ARoles: TArray<string>);
+    procedure ExigirOtroRevisor(const AId: Integer);
     procedure ExigirAlcance(const ACotizacion: TCotizaciones;
       const AUsuarioId: Integer; const ARoles: TArray<string>);
     procedure LlenarLinea(const ALinea: TCotizacionDetalle;
@@ -362,15 +364,37 @@ begin
     end;
 end;
 
-procedure TCotizacionService.ExigirEditable(const ACotizacion: TCotizaciones);
+procedure TCotizacionService.ExigirEditable(const ACotizacion: TCotizaciones;
+  const AUsuarioId: Integer; const ARoles: TArray<string>);
 begin
   if (ACotizacion.Estado <> ESTADO_BORRADOR) and
     (ACotizacion.Estado <> ESTADO_DEVUELTA) then
     raise EConflictoDeEstado.Create('COTIZACION_NO_EDITABLE',
       Format(SCotizacionNoEditable,
       [ACotizacion.Estado]));
-  if not (ACotizacion.ElaboradaPor = UsuarioActual) then
+  if not (ACotizacion.ElaboradaPor = UsuarioActual) and
+    not fPermisos.TieneAlguno(AUsuarioId, ARoles,
+    [PERMISO_COTIZACIONES_ELABORAR]) then
     raise EConflictoDeEstado.Create('COTIZACION_DE_OTRO', SCotizacionDeOtro);
+end;
+
+procedure TCotizacionService.ExigirOtroRevisor(const AId: Integer);
+var
+  lPasos: TObjectList<THistorialCotizacion>;
+  lPaso: THistorialCotizacion;
+begin
+  lPasos := fRepo.HistorialDe(AId);
+  try
+    for lPaso in lPasos do
+      if lPaso.Estado.ValueOrDefault = ESTADO_PENDIENTE then
+      begin
+        if lPaso.UsuarioId.ValueOrDefault = UsuarioActual then
+          raise EConflictoDeEstado.Create('COTIZACION_PROPIA', SRevisarPropia);
+        Exit;
+      end;
+  finally
+    lPasos.Free;
+  end;
 end;
 
 procedure TCotizacionService.ExigirAlcance(const ACotizacion: TCotizaciones;
@@ -381,6 +405,10 @@ var
 begin
   if fPermisos.TieneAlguno(AUsuarioId, ARoles,
     [PERMISO_COTIZACIONES_VER_TODAS]) then
+    Exit;
+  if (ACotizacion.ElaboradaPor = AUsuarioId) and
+    fPermisos.TieneAlguno(AUsuarioId, ARoles,
+    [PERMISO_COTIZACIONES_VER_PROPIAS]) then
     Exit;
 
   lSolicitud := fSolicitudes.GetByPK(ACotizacion.SolicitudId, False);
@@ -520,15 +548,20 @@ var
   lPorId: TDictionary<Integer, TCotizacionConNombres>;
   lDto: TCotizacionDTO;
 begin
+  lElaboradaPor := 0;
   if fPermisos.TieneAlguno(AUsuarioId, ARoles,
     [PERMISO_COTIZACIONES_VER_TODAS]) then
     lFiltroUsuario := 0
+  else if fPermisos.TieneAlguno(AUsuarioId, ARoles,
+    [PERMISO_COTIZACIONES_VER_PROPIAS]) then
+  begin
+    lFiltroUsuario := 0;
+    lElaboradaPor := AUsuarioId;
+  end
   else
     lFiltroUsuario := AUsuarioId;
   if ASoloPropias then
-    lElaboradaPor := AUsuarioId
-  else
-    lElaboradaPor := 0;
+    lElaboradaPor := AUsuarioId;
   lPeriodo := TPeriodo.De(ADesde, AHasta);
 
   ATotal := fRepo.ContarBusqueda(ATexto, AEstado, AClienteId, lFiltroUsuario,
@@ -726,7 +759,7 @@ begin
   lCotizacion := TraerVigente(AId);
   try
     ExigirAlcance(lCotizacion, AUsuarioId, ARoles);
-    ExigirEditable(lCotizacion);
+    ExigirEditable(lCotizacion, AUsuarioId, ARoles);
 
     if lCotizacion.Objversion <> ADto.ObjVersion.Value then
       raise EVersionVencida.Create(SRecursoCotizacion, AId);
@@ -801,7 +834,7 @@ begin
   lCotizacion := TraerVigente(AId);
   try
     ExigirAlcance(lCotizacion, AUsuarioId, ARoles);
-    ExigirEditable(lCotizacion);
+    ExigirEditable(lCotizacion, AUsuarioId, ARoles);
 
     lLinea := TCotizacionDetalle.Create;
     lLinea.Activo := True;
@@ -835,7 +868,7 @@ begin
   lCotizacion := TraerVigente(AId);
   try
     ExigirAlcance(lCotizacion, AUsuarioId, ARoles);
-    ExigirEditable(lCotizacion);
+    ExigirEditable(lCotizacion, AUsuarioId, ARoles);
 
     lLinea := TraerLinea(AId, ALineaId);
     try
@@ -867,7 +900,7 @@ begin
   lCotizacion := TraerVigente(AId);
   try
     ExigirAlcance(lCotizacion, AUsuarioId, ARoles);
-    ExigirEditable(lCotizacion);
+    ExigirEditable(lCotizacion, AUsuarioId, ARoles);
 
     lLinea := TraerLinea(AId, ALineaId);
     try
@@ -929,7 +962,7 @@ begin
   lCotizacion := TraerVigente(AId);
   try
     ExigirAlcance(lCotizacion, AUsuarioId, ARoles);
-    ExigirEditable(lCotizacion);
+    ExigirEditable(lCotizacion, AUsuarioId, ARoles);
 
     if (ADto.PorcentajeAjuste <> 0) and
       (not ADto.MotivoAjuste.HasValue or ADto.MotivoAjuste.Value.IsEmpty) then
@@ -964,7 +997,7 @@ begin
   lCotizacion := TraerVigente(AId);
   try
     ExigirAlcance(lCotizacion, AUsuarioId, ARoles);
-    ExigirEditable(lCotizacion);
+    ExigirEditable(lCotizacion, AUsuarioId, ARoles);
 
     lLineas := fDetalle.DetalleDe(AId);
     try
@@ -1002,6 +1035,7 @@ begin
 
     if lCotizacion.ElaboradaPor = UsuarioActual then
       raise EConflictoDeEstado.Create('COTIZACION_PROPIA', SRevisarPropia);
+    ExigirOtroRevisor(AId);
 
     lCotizacion.Estado := ESTADO_VISTO_BUENO;
     lCotizacion.AprobadaPor := UsuarioActual;
@@ -1070,6 +1104,7 @@ begin
 
     if lCotizacion.ElaboradaPor = UsuarioActual then
       raise EConflictoDeEstado.Create('COTIZACION_PROPIA', SRevisarPropia);
+    ExigirOtroRevisor(AId);
 
     lCotizacion.Estado := ESTADO_DEVUELTA;
     lCotizacion.MotivoRechazo := ADto.Motivo;

@@ -136,6 +136,7 @@ end;
 class function TPresentadorClienteDatos.PuedeVerCotizaciones: Boolean;
 begin
   Result := TSesion.TieneAlguno([PERMISO_COTIZACIONES_VER_TODAS,
+    PERMISO_COTIZACIONES_VER_PROPIAS,
     PERMISO_COTIZACIONES_VER_APROBADAS_PROPIAS]);
 end;
 

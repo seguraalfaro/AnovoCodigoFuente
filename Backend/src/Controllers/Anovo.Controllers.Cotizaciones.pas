@@ -21,6 +21,7 @@ uses
 const
 
   PERMISO_VER = PERMISO_COTIZACIONES_VER_APROBADAS_PROPIAS + SEPARADOR_PERMISOS +
+    PERMISO_COTIZACIONES_VER_PROPIAS + SEPARADOR_PERMISOS +
     PERMISO_COTIZACIONES_VER_TODAS;
 
 
@@ -93,7 +94,7 @@ type
 
     [MVCPath('/sin-respuesta')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_RESPONDER)]
     [MVCSwagSummary('Cotizaciones', 'Enviadas hace mas de los dias ' +
       'configurados en la empresa y sin respuesta del cliente',
       'cotizacionesSinRespuesta')]
@@ -132,7 +133,8 @@ type
 
     [MVCPath('/($AId)')]
     [MVCHTTPMethods([httpPUT])]
-    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR + SEPARADOR_PERMISOS +
+      PERMISO_COTIZACIONES_ELABORAR_PROPIAS)]
     [MVCSwagSummary('Cotizaciones', 'Actualiza la cabecera y recalcula',
       'actualizarCotizacion')]
     [MVCSwagResponses(204, 'Actualizada')]
@@ -161,7 +163,7 @@ type
 
     [MVCPath('/($AId)/envio-correo')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_RESPONDER)]
     [MVCSwagSummary('Cotizaciones', 'Envia la cotizacion con visto bueno al ' +
       'cliente por correo, con el PDF adjunto, y la marca como enviada',
       'enviarCotizacionPorCorreo')]
@@ -177,7 +179,9 @@ type
     [MVCPath('/($AId)/documento')]
     [MVCHTTPMethods([httpGET])]
     [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR + SEPARADOR_PERMISOS +
-      PERMISO_COTIZACIONES_APROBAR)]
+      PERMISO_COTIZACIONES_ELABORAR_PROPIAS + SEPARADOR_PERMISOS +
+      PERMISO_COTIZACIONES_APROBAR + SEPARADOR_PERMISOS +
+      PERMISO_COTIZACIONES_RESPONDER)]
     [MVCSwagSummary('Cotizaciones', 'Datos del documento que se envia al ' +
       'cliente: encabezado de la empresa, cliente, condiciones y totales',
       'obtenerDocumento')]
@@ -189,7 +193,8 @@ type
 
     [MVCPath('/($AId)/detalle')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR + SEPARADOR_PERMISOS +
+      PERMISO_COTIZACIONES_ELABORAR_PROPIAS)]
     [MVCSwagSummary('Cotizaciones', 'Agrega una linea. El precio se copia ' +
       'del catalogo si no viene en el cuerpo', 'agregarLinea')]
     [MVCSwagResponses(201, 'Creada')]
@@ -200,7 +205,8 @@ type
 
     [MVCPath('/($AId)/detalle/($ALineaId)')]
     [MVCHTTPMethods([httpPUT])]
-    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR + SEPARADOR_PERMISOS +
+      PERMISO_COTIZACIONES_ELABORAR_PROPIAS)]
     [MVCSwagSummary('Cotizaciones', 'Actualiza una linea y recalcula',
       'actualizarLinea')]
     [MVCSwagResponses(204, 'Actualizada')]
@@ -210,7 +216,8 @@ type
 
     [MVCPath('/($AId)/detalle/($ALineaId)')]
     [MVCHTTPMethods([httpDELETE])]
-    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR + SEPARADOR_PERMISOS +
+      PERMISO_COTIZACIONES_ELABORAR_PROPIAS)]
     [MVCSwagSummary('Cotizaciones', 'Elimina una linea y recalcula',
       'eliminarLinea')]
     [MVCSwagResponses(204, 'Eliminada')]
@@ -219,7 +226,8 @@ type
 
     [MVCPath('/($AId)/ajuste')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR + SEPARADOR_PERMISOS +
+      PERMISO_COTIZACIONES_ELABORAR_PROPIAS)]
     [MVCSwagSummary('Cotizaciones', 'Aplica el ajuste comercial. Con ' +
       'porcentaje distinto de cero el motivo es obligatorio', 'aplicarAjuste')]
     [MVCSwagResponses(204, 'Ajuste aplicado')]
@@ -230,7 +238,8 @@ type
 
     [MVCPath('/($AId)/presentacion')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR + SEPARADOR_PERMISOS +
+      PERMISO_COTIZACIONES_ELABORAR_PROPIAS)]
     [MVCSwagSummary('Cotizaciones', 'Presenta la cotizacion a revision. ' +
       'Desde aqui ya no se modifica', 'presentarCotizacion')]
     [MVCSwagResponses(204, 'Pendiente de aprobacion')]
@@ -240,7 +249,7 @@ type
 
     [MVCPath('/($AId)/envio')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_RESPONDER)]
     [MVCSwagSummary('Cotizaciones', 'Registra que la cotizacion con visto ' +
       'bueno se envio al cliente', 'enviarCotizacion')]
     [MVCSwagResponses(204, 'Enviada al cliente')]
@@ -250,7 +259,7 @@ type
 
     [MVCPath('/($AId)/descarte')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_RESPONDER)]
     [MVCSwagSummary('Cotizaciones', 'Descarta el aviso de una cotizacion ' +
       'enviada sin respuesta del cliente. La respuesta se puede registrar ' +
       'despues', 'descartarCotizacion')]
@@ -271,7 +280,7 @@ type
 
     [MVCPath('/($AId)/respuesta')]
     [MVCHTTPMethods([httpPOST])]
-    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_RESPONDER)]
     [MVCSwagSummary('Cotizaciones', 'Registra la respuesta del cliente a la ' +
       'cotizacion enviada: aceptada queda aprobada; si no, rechazada',
       'respuestaCotizacion')]

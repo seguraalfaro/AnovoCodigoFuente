@@ -43,6 +43,7 @@ type
     FPorcentajeIva: Currency;
     FPorcentajeAjuste: Currency;
     FMotivoAjuste: string;
+    FElaboradaPor: Integer;
     FLineas: TObjectList<TLineaDTO>;
     FEvidenciaPedida: Boolean;
     procedure Cargar(const AConEncabezado: Boolean);
@@ -240,7 +241,9 @@ end;
 function TPresentadorCotizacion.Editable: Boolean;
 begin
   Result := ((FEstado = ESTADO_BORRADOR) or (FEstado = ESTADO_DEVUELTA)) and
-    TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR);
+    (TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR) or
+    (TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR_PROPIAS) and
+    (FElaboradaPor = TSesion.UsuarioId)));
 end;
 
 procedure TPresentadorCotizacion.PublicarBotones;
@@ -258,16 +261,17 @@ begin
     lAcciones := [alEditar, alQuitar];
   end
   else if (FEstado = ESTADO_VISTO_BUENO) and
-    TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR) then
+    TSesion.Tiene(PERMISO_COTIZACIONES_RESPONDER) then
     lBotones := [bcEnviar]
   else if ((FEstado = ESTADO_ENVIADA) or (FEstado = ESTADO_DESCARTADA)) and
-    TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR) then
+    TSesion.Tiene(PERMISO_COTIZACIONES_RESPONDER) then
     lBotones := [bcRespuesta];
   if ((FEstado = ESTADO_VISTO_BUENO) or (FEstado = ESTADO_ENVIADA) or
     (FEstado = ESTADO_APROBADA) or (FEstado = ESTADO_RECHAZADA) or
     (FEstado = ESTADO_DESCARTADA)) and
-    (TSesion.Tiene(PERMISO_COTIZACIONES_ELABORAR) or
-    TSesion.Tiene(PERMISO_COTIZACIONES_APROBAR)) then
+    TSesion.TieneAlguno([PERMISO_COTIZACIONES_ELABORAR,
+    PERMISO_COTIZACIONES_ELABORAR_PROPIAS, PERMISO_COTIZACIONES_APROBAR,
+    PERMISO_COTIZACIONES_RESPONDER]) then
     Include(lBotones, bcDocumento);
   FVista.MostrarBotones(lBotones, lAcciones);
 end;
@@ -283,6 +287,7 @@ begin
   FPorcentajeIva := ACotizacion.PorcentajeIva;
   FPorcentajeAjuste := ACotizacion.PorcentajeAjuste;
   FMotivoAjuste := ACotizacion.MotivoAjuste.ValueOrDefault;
+  FElaboradaPor := ACotizacion.ElaboradaPor;
 end;
 
 procedure TPresentadorCotizacion.Iniciar(const AId: Integer);

@@ -36,7 +36,8 @@ type
 
     [MVCPath('/asistente')]
     [MVCHTTPMethods([httpGET])]
-    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+    [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR + SEPARADOR_PERMISOS +
+      PERMISO_COTIZACIONES_ELABORAR_PROPIAS)]
     [MVCSwagSummary('Dashboard', 'Trabajo pendiente del asistente que ' +
       'consulta y cola de solicitudes por cotizar', 'dashboardAsistente')]
     [MVCSwagResponses(200, 'Dashboard del asistente', TDashboardAsistenteDTO)]
@@ -133,7 +134,9 @@ function TDashboardController.Avisos(AServicio: IDashboardService;
 begin
   Result := OKResponse(AServicio.DelAvisos(UsuarioId,
     Tiene(APermisos, PERMISO_COTIZACIONES_APROBAR),
-    Tiene(APermisos, PERMISO_COTIZACIONES_ELABORAR)));
+    Tiene(APermisos, PERMISO_SOLICITUDES_TOMAR) or
+    Tiene(APermisos, PERMISO_COTIZACIONES_ELABORAR) or
+    Tiene(APermisos, PERMISO_COTIZACIONES_ELABORAR_PROPIAS)));
 end;
 
 end.

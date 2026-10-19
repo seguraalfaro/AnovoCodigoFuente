@@ -18,7 +18,7 @@ uses
 type
 
   [MVCPath('/api/correo')]
-  [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR)]
+  [MVCRequiresPermiso(PERMISO_COTIZACIONES_RESPONDER)]
   TCorreoController = class(TControllerBase)
   public
     [MVCPath('/estado')]

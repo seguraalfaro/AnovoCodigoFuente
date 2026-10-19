@@ -1,7 +1,7 @@
 unit Anovo.Frames.Cotizaciones;
 
-// Seccion Listado de cotizaciones (HU-03): busqueda, filtro por estado,
-// Mias o Todas y la cotizacion abierta encima del listado.
+// Seccion Listado de cotizaciones (HU-03): busqueda, fechas y estado en una
+// barra, y la cotizacion abierta encima del listado.
 
 interface
 
@@ -21,11 +21,9 @@ uses
 
 type
   TfraCotizaciones = class(TfraListado, IVistaCotizaciones)
-    pstFiltros: TPlanoPestanas;
     btnPeriodo: TPlanoBotonWin;
-    pstElaboradas: TPlanoPestanas;
-    procedure pstFiltrosChange(Sender: TObject);
-    procedure pstElaboradasChange(Sender: TObject);
+    cbEstado: TComboBox;
+    procedure cbEstadoChange(Sender: TObject);
     procedure grDatosDblClick(Sender: TObject);
   private
     FInicialId: Integer;
@@ -35,7 +33,7 @@ type
     procedure Accion(Sender: TObject; const AClave: string);
     procedure MostrarAcciones(const AAcciones: TAccionesListaCotizacion);
     procedure MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
-    procedure MostrarElaboradas(const AElaboradas: TElaboradasCotizaciones);
+    procedure MostrarFiltro(const AFiltro: TFiltroCotizaciones);
     procedure MostrarCotizaciones(const AFilas: TObjectList<TCotizacionDTO>);
     procedure AbrirCotizacion(const AId: Integer);
     procedure CerrarCotizacion(Sender: TObject);
@@ -44,7 +42,6 @@ type
     procedure Limpiar; override;
     procedure PaginaAnterior; override;
     procedure PaginaSiguiente; override;
-    procedure MostrarCargando(const AActivo: Boolean); override;
   public
     constructor Create(AOwner: TComponent); override;
     constructor Crear(AOwner: TComponent; const ACotizacionId: Integer);
@@ -121,14 +118,13 @@ begin
   FSelector.Mostrar(APeriodo);
 end;
 
-procedure TfraCotizaciones.MostrarElaboradas(const AElaboradas
-  : TElaboradasCotizaciones);
+procedure TfraCotizaciones.MostrarFiltro(const AFiltro: TFiltroCotizaciones);
 begin
-  pstElaboradas.OnChange := nil;
+  cbEstado.OnChange := nil;
   try
-    pstElaboradas.ItemIndex := Ord(AElaboradas);
+    cbEstado.ItemIndex := Ord(AFiltro);
   finally
-    pstElaboradas.OnChange := pstElaboradasChange;
+    cbEstado.OnChange := cbEstadoChange;
   end;
 end;
 
@@ -145,13 +141,6 @@ end;
 procedure TfraCotizaciones.PaginaSiguiente;
 begin
   FPresentador.PaginaSiguiente;
-end;
-
-procedure TfraCotizaciones.MostrarCargando(const AActivo: Boolean);
-begin
-  inherited;
-  pstFiltros.Enabled := not AActivo;
-  pstElaboradas.Enabled := not AActivo;
 end;
 
 procedure TfraCotizaciones.MostrarAcciones(const AAcciones
@@ -183,19 +172,11 @@ begin
     FPresentador.Abrir(dmMemoria.mtCotizacionesListaID.AsInteger);
 end;
 
-procedure TfraCotizaciones.pstFiltrosChange(Sender: TObject);
+procedure TfraCotizaciones.cbEstadoChange(Sender: TObject);
 begin
-  if FPresentador = nil then
+  if (FPresentador = nil) or (cbEstado.ItemIndex < 0) then
     Exit;
-  FPresentador.Filtrar(TFiltroCotizaciones(pstFiltros.ItemIndex));
-end;
-
-procedure TfraCotizaciones.pstElaboradasChange(Sender: TObject);
-begin
-  if FPresentador = nil then
-    Exit;
-  FPresentador.FiltrarElaboradas(TElaboradasCotizaciones(
-    pstElaboradas.ItemIndex));
+  FPresentador.Filtrar(TFiltroCotizaciones(cbEstado.ItemIndex));
 end;
 
 procedure TfraCotizaciones.Abrir(const AId: Integer);
