@@ -745,13 +745,13 @@ resourcestring
   SDatoRechazadas = 'Rechazadas por el cliente';
   SDatoTasa = 'Tasa de aprobación';
   SDatoMonto = 'Monto aprobado';
-  SDatoTasaValor = '%d %%';
+  SDatoTasaValor = '%s %%';
   SDatoMontoValor = '₡ %s';
   SNotaMasAntigua = 'La más antigua: %s';
   SNotaVariacion = '%s %d vs. mes anterior';
   SNotaVariacionMonto = '%s %d %% vs. mes anterior';
   SNotaIgualMes = 'Igual que el mes anterior';
-  SNotaTasaGeneral = 'Tasa general: %d %%';
+  SNotaTasaGeneral = 'Tasa general: %s';
   SNotaCorregir = 'Corregir y presentar';
   SNotaConVistoBueno = 'Con visto bueno';
   SNotaFueraDePlazo = 'Pasaron el plazo de respuesta';
@@ -774,7 +774,7 @@ resourcestring
   SColones = '₡ %s';
   SDiaUno = '1 día';
   SDias = '%d días';
-  SPorcentaje = '%d %%';
+  SPorcentaje = '%s %%';
   SVistaPorEstado = 'Por estado';
   SVistaPorAsesor = 'Por asesor';
   SVistaPorTipo = 'Por tipo de trabajo';
@@ -788,7 +788,7 @@ resourcestring
   SFlechaSube = '▲';
   SFlechaBaja = '▼';
   SVariacionPorcentaje = '%s %d %% vs. antes';
-  SVariacionPuntos = '%s %d pts vs. antes';
+  SVariacionPuntos = '%s %s pts vs. antes';
   SVariacionDias = '%s %s vs. antes';
   SVariacionIgual = 'Igual que antes';
   SVariacionSinBase = 'Sin datos antes';

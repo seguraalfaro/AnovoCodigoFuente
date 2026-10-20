@@ -3011,7 +3011,7 @@ object dmMemoria: TdmMemoria
       DisplayLabel = 'Descartadas'
       FieldName = 'DESCARTADAS'
     end
-    object mtReporteAsesoresTASA_APROBACION: TIntegerField
+    object mtReporteAsesoresTASA_APROBACION: TCurrencyField
       Alignment = taCenter
       DisplayLabel = 'Tasa'
       FieldName = 'TASA_APROBACION'
@@ -3069,7 +3069,7 @@ object dmMemoria: TdmMemoria
       DisplayLabel = 'Sin respuesta'
       FieldName = 'SIN_RESPUESTA'
     end
-    object mtReporteClientesPORCENTAJE_SIN_RESPUESTA: TIntegerField
+    object mtReporteClientesPORCENTAJE_SIN_RESPUESTA: TCurrencyField
       Alignment = taCenter
       DisplayLabel = '% sin respuesta'
       FieldName = 'PORCENTAJE_SIN_RESPUESTA'
@@ -3132,7 +3132,7 @@ object dmMemoria: TdmMemoria
       DisplayLabel = 'Descartadas'
       FieldName = 'DESCARTADAS'
     end
-    object mtReporteTiposTASA_APROBACION: TIntegerField
+    object mtReporteTiposTASA_APROBACION: TCurrencyField
       Alignment = taCenter
       DisplayLabel = 'Tasa'
       FieldName = 'TASA_APROBACION'
@@ -3198,7 +3198,7 @@ object dmMemoria: TdmMemoria
       DisplayLabel = 'Descartadas'
       FieldName = 'DESCARTADAS'
     end
-    object mtReporteMesesTASA_APROBACION: TIntegerField
+    object mtReporteMesesTASA_APROBACION: TCurrencyField
       Alignment = taCenter
       DisplayLabel = 'Tasa'
       FieldName = 'TASA_APROBACION'

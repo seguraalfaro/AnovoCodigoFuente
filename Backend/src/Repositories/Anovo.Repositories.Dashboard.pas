@@ -30,22 +30,21 @@ type
     function CotizacionesPorEstado: TObjectList<TCotizacionesPorEstado>;
     function CuentasResumen: TVCuentasResumen;
     function CambiosCuentas: TObjectList<TCambiosDeCuentas>;
-    function EstadoDelAsesor(const AAsesorId: Integer)
-      : TObjectList<TEstadoDelAsesor>;
-    function SolicitudesDelMes(const AAsesorId, AAnio, AMes: Integer)
-      : TSolicitudesDelMes;
+    function GruposDelAsesor(const AAsesorId: Integer)
+      : TObjectList<TGruposDelAsesor>;
+    function ResumenDelAsesor(const AAsesorId: Integer): TResumenDelAsesor;
     function EnviadasDeAsesor(const AAsesorId, ALimite: Integer)
       : TObjectList<TEnviadaSinRespuesta>;
-    function EnviadasDeElaborador(const AUsuarioId: Integer)
-      : TObjectList<TEnviadaSinRespuesta>;
+    function ResumenDelAsistente(const AUsuarioId: Integer)
+      : TResumenDelAsistente;
+    function EtapasDelUsuario(const AUsuarioId: Integer)
+      : TObjectList<TEtapasDelUsuario>;
     function ParaHoy(const AUsuarioId, ALimite: Integer)
       : TObjectList<TCotizacionEnCurso>;
+    function ResumenDelSupervisor: TVDashSupervisorResumen;
     function Estancadas(const ADias, ALimite: Integer)
       : TObjectList<TCotizacionEnCurso>;
-    function EtapasDe(const AUsuarioId: Integer): TObjectList<TEtapaDeUsuario>;
     function Carga: TObjectList<TCargaDePersona>;
-    function PasosDe(const AUsuarioId, AAnio, AMes: Integer): TPasosDeUsuario;
-    function PasosDelEquipo(const AAnio, AMes: Integer): TPasosDelEquipo;
   end;
 
 implementation
@@ -95,18 +94,18 @@ begin
     ['', '', 0, FILAS_COLA]);
 end;
 
-function TDashboardRepository.EstadoDelAsesor(const AAsesorId: Integer)
-  : TObjectList<TEstadoDelAsesor>;
+function TDashboardRepository.GruposDelAsesor(const AAsesorId: Integer)
+  : TObjectList<TGruposDelAsesor>;
 begin
-  Result := ListarConsulta<TEstadoDelAsesor>(CONSULTA_DE_ASESOR, [AAsesorId],
+  Result := ListarConsulta<TGruposDelAsesor>(CONSULTA_DE_ASESOR, [AAsesorId],
     SIN_LIMITE);
 end;
 
-function TDashboardRepository.SolicitudesDelMes(const AAsesorId, AAnio,
-  AMes: Integer): TSolicitudesDelMes;
+function TDashboardRepository.ResumenDelAsesor(const AAsesorId: Integer)
+  : TResumenDelAsesor;
 begin
-  Result := PrimeraFilaDeConsulta<TSolicitudesDelMes>(CONSULTA_DE_ASESOR_MES,
-    [AAsesorId, AAnio, AMes]);
+  Result := PrimeraFilaDeConsulta<TResumenDelAsesor>(CONSULTA_DE_ASESOR,
+    [AAsesorId]);
 end;
 
 function TDashboardRepository.EnviadasDeAsesor(const AAsesorId,
@@ -116,10 +115,17 @@ begin
     [AAsesorId], ALimite);
 end;
 
-function TDashboardRepository.EnviadasDeElaborador(const AUsuarioId: Integer)
-  : TObjectList<TEnviadaSinRespuesta>;
+function TDashboardRepository.ResumenDelAsistente(const AUsuarioId: Integer)
+  : TResumenDelAsistente;
 begin
-  Result := ListarConsulta<TEnviadaSinRespuesta>(CONSULTA_DE_ELABORADOR,
+  Result := PrimeraFilaDeConsulta<TResumenDelAsistente>(CONSULTA_DE_USUARIO,
+    [AUsuarioId]);
+end;
+
+function TDashboardRepository.EtapasDelUsuario(const AUsuarioId: Integer)
+  : TObjectList<TEtapasDelUsuario>;
+begin
+  Result := ListarConsulta<TEtapasDelUsuario>(CONSULTA_DE_USUARIO,
     [AUsuarioId], SIN_LIMITE);
 end;
 
@@ -130,6 +136,11 @@ begin
     ALimite);
 end;
 
+function TDashboardRepository.ResumenDelSupervisor: TVDashSupervisorResumen;
+begin
+  Result := LeerVistaUnica<TVDashSupervisorResumen>;
+end;
+
 function TDashboardRepository.Estancadas(const ADias, ALimite: Integer)
   : TObjectList<TCotizacionEnCurso>;
 begin
@@ -137,30 +148,9 @@ begin
     ALimite);
 end;
 
-function TDashboardRepository.EtapasDe(const AUsuarioId: Integer)
-  : TObjectList<TEtapaDeUsuario>;
-begin
-  Result := ListarConsulta<TEtapaDeUsuario>(CONSULTA_DE_ELABORADOR,
-    [AUsuarioId], SIN_LIMITE);
-end;
-
 function TDashboardRepository.Carga: TObjectList<TCargaDePersona>;
 begin
   Result := ListarConsulta<TCargaDePersona>(CONSULTA_ORDENADAS, [], SIN_LIMITE);
-end;
-
-function TDashboardRepository.PasosDe(const AUsuarioId, AAnio,
-  AMes: Integer): TPasosDeUsuario;
-begin
-  Result := PrimeraFilaDeConsulta<TPasosDeUsuario>(CONSULTA_DE_ELABORADOR_MES,
-    [AUsuarioId, AAnio, AMes]);
-end;
-
-function TDashboardRepository.PasosDelEquipo(const AAnio, AMes: Integer)
-  : TPasosDelEquipo;
-begin
-  Result := PrimeraFilaDeConsulta<TPasosDelEquipo>(CONSULTA_DEL_MES,
-    [AAnio, AMes]);
 end;
 
 function TDashboardRepository.ColaPorAprobar(const AUsuarioId: Integer)

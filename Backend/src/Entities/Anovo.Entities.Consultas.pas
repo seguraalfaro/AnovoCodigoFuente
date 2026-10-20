@@ -24,7 +24,6 @@ const
   CONSULTA_ORDENADAS = 'Ordenadas';
   CONSULTA_RECIENTES = 'Recientes';
   CONSULTA_ENTRE = 'Entre';
-  CONSULTA_ENTRE_PROPIAS = 'EntrePropias';
   CONSULTA_POR_ID = 'PorId';
   CONSULTA_DE_IDS = 'DeIds';
   CONSULTA_DE_SOLICITUD = 'DeSolicitud';
@@ -35,10 +34,6 @@ const
   CONSULTA_BAJADA = 'Bajada';
   CONSULTA_BAJADA_DESDE = 'BajadaDesde';
   CONSULTA_HISTORIAL_DE = 'HistorialDe';
-  CONSULTA_DE_ELABORADOR = 'DeElaborador';
-  CONSULTA_DE_ASESOR_MES = 'DeAsesorMes';
-  CONSULTA_DE_ELABORADOR_MES = 'DeElaboradorMes';
-  CONSULTA_DEL_MES = 'DelMes';
   CONSULTA_PARA_HOY = 'ParaHoy';
   CONSULTA_ESTANCADAS = 'Estancadas';
 
@@ -208,22 +203,45 @@ type
 
   [MVCNameCase(ncSnakeCase)]
   [MVCEntityActions([eaRetrieve])]
-  [MVCTable('V_CLIENTES_RESPUESTA')]
-  [MVCNamedRQLQuery(CONSULTA_ENTRE,
-    'and(ge(FechaEnvio,"%s"),lt(FechaEnvio,"%s"))')]
-  [MVCNamedRQLQuery(CONSULTA_ENTRE_PROPIAS,
-    'and(ge(FechaEnvio,"%s"),lt(FechaEnvio,"%s"),or(eq(AsesorId,%d),eq(ElaboradaPor,%d)))')]
-  TClientesRespuesta = class(TVClientesRespuesta)
+  [MVCTable('V_REPORTE_RESUMEN')]
+  [MVCNamedRQLQuery(CONSULTA_ORDENADAS, 'sort(+Periodo)')]
+  TResumenDelReporte = class(TVReporteResumen)
   end;
 
   [MVCNameCase(ncSnakeCase)]
   [MVCEntityActions([eaRetrieve])]
-  [MVCTable('V_COTIZACIONES_DIA')]
-  [MVCNamedRQLQuery(CONSULTA_ENTRE,
-    'and(ge(Fecha,"%s"),lt(Fecha,"%s"))')]
-  [MVCNamedRQLQuery(CONSULTA_ENTRE_PROPIAS,
-    'and(ge(Fecha,"%s"),lt(Fecha,"%s"),or(eq(AsesorId,%d),eq(ElaboradaPor,%d)))')]
-  TCotizacionesDia = class(TVCotizacionesDia)
+  [MVCTable('V_REPORTE_ESTADO')]
+  [MVCNamedRQLQuery(CONSULTA_ORDENADAS, 'sort(+Orden)')]
+  TReportePorEstado = class(TVReporteEstado)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_REPORTE_ASESOR')]
+  [MVCNamedRQLQuery(CONSULTA_ORDENADAS, 'sort(-MontoAprobado,+AsesorNombre)')]
+  TReportePorAsesor = class(TVReporteAsesor)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_REPORTE_TIPO')]
+  [MVCNamedRQLQuery(CONSULTA_ORDENADAS, 'sort(-Cantidad,+TipoTrabajoNombre)')]
+  TReportePorTipo = class(TVReporteTipo)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_REPORTE_MES')]
+  [MVCNamedRQLQuery(CONSULTA_ORDENADAS, 'sort(+Anio,+Mes)')]
+  TReportePorMes = class(TVReporteMes)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_REPORTE_CLIENTE')]
+  [MVCNamedRQLQuery(CONSULTA_ORDENADAS,
+    'sort(-SinRespuesta,-PorcentajeSinRespuesta,+ClienteNombre)')]
+  TReportePorCliente = class(TVReporteCliente)
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -336,17 +354,23 @@ type
 
   [MVCNameCase(ncSnakeCase)]
   [MVCEntityActions([eaRetrieve])]
-  [MVCTable('V_DASH_ESTADO_ASESOR')]
-  [MVCNamedRQLQuery(CONSULTA_DE_ASESOR, 'eq(AsesorId,%d)')]
-  TEstadoDelAsesor = class(TVDashEstadoAsesor)
+  [MVCTable('V_DASH_ASESOR_GRUPOS')]
+  [MVCNamedRQLQuery(CONSULTA_DE_ASESOR, 'eq(AsesorId,%d);sort(+Orden)')]
+  TGruposDelAsesor = class(TVDashAsesorGrupos)
   end;
 
   [MVCNameCase(ncSnakeCase)]
   [MVCEntityActions([eaRetrieve])]
-  [MVCTable('V_DASH_SOLICITUDES_MES')]
-  [MVCNamedRQLQuery(CONSULTA_DE_ASESOR_MES,
-    'and(eq(AsesorId,%d),eq(Anio,%d),eq(Mes,%d))')]
-  TSolicitudesDelMes = class(TVDashSolicitudesMes)
+  [MVCTable('V_DASH_ASESOR_RESUMEN')]
+  [MVCNamedRQLQuery(CONSULTA_DE_ASESOR, 'eq(AsesorId,%d)')]
+  TResumenDelAsesor = class(TVDashAsesorResumen)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_DASH_ASISTENTE_RESUMEN')]
+  [MVCNamedRQLQuery(CONSULTA_DE_USUARIO, 'eq(UsuarioId,%d)')]
+  TResumenDelAsistente = class(TVDashAsistenteResumen)
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -354,8 +378,6 @@ type
   [MVCTable('V_DASH_ENVIADAS')]
   [MVCNamedRQLQuery(CONSULTA_DE_ASESOR,
     'eq(AsesorId,%d);sort(-Dias,+CotizacionId)')]
-  [MVCNamedRQLQuery(CONSULTA_DE_ELABORADOR,
-    'eq(ElaboradaPor,%d);sort(-Dias,+CotizacionId)')]
   TEnviadaSinRespuesta = class(TVDashEnviadas)
   end;
 
@@ -372,9 +394,9 @@ type
 
   [MVCNameCase(ncSnakeCase)]
   [MVCEntityActions([eaRetrieve])]
-  [MVCTable('V_DASH_ETAPAS')]
-  [MVCNamedRQLQuery(CONSULTA_DE_ELABORADOR, 'eq(ElaboradaPor,%d)')]
-  TEtapaDeUsuario = class(TVDashEtapas)
+  [MVCTable('V_DASH_ETAPAS_USUARIO')]
+  [MVCNamedRQLQuery(CONSULTA_DE_USUARIO, 'eq(UsuarioId,%d);sort(+Orden)')]
+  TEtapasDelUsuario = class(TVDashEtapasUsuario)
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -382,21 +404,6 @@ type
   [MVCTable('V_DASH_CARGA')]
   [MVCNamedRQLQuery(CONSULTA_ORDENADAS, 'sort(-Cantidad,+ElaboradaPorNombre)')]
   TCargaDePersona = class(TVDashCarga)
-  end;
-
-  [MVCNameCase(ncSnakeCase)]
-  [MVCEntityActions([eaRetrieve])]
-  [MVCTable('V_DASH_PASOS_MES')]
-  [MVCNamedRQLQuery(CONSULTA_DE_ELABORADOR_MES,
-    'and(eq(ElaboradaPor,%d),eq(Anio,%d),eq(Mes,%d))')]
-  TPasosDeUsuario = class(TVDashPasosMes)
-  end;
-
-  [MVCNameCase(ncSnakeCase)]
-  [MVCEntityActions([eaRetrieve])]
-  [MVCTable('V_DASH_PASOS_EQUIPO')]
-  [MVCNamedRQLQuery(CONSULTA_DEL_MES, 'and(eq(Anio,%d),eq(Mes,%d))')]
-  TPasosDelEquipo = class(TVDashPasosEquipo)
   end;
 
 implementation

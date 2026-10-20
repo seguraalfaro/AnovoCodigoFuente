@@ -1,7 +1,8 @@
 unit Anovo.Repositories.Base;
 
 // Base de los repositorios: TMVCRepository<T> mas vistas, consultas con
-// nombre, conteos y duplicados; solo aqui se llama a TMVCActiveRecord.
+// nombre, conteos, duplicados y variables de la sesion que leen las vistas;
+// solo aqui se llama a TMVCActiveRecord.
 
 interface
 
@@ -17,6 +18,8 @@ const
   SIN_LIMITE = -1;
   CONTAR_POR_FILTRO = 'select count(*) from %s where %s';
   FILTRO_NOMBRE_DUPLICADO = 'UPPER(NOMBRE) = UPPER(?) AND ID <> ?';
+  FIJAR_CONTEXTO =
+    'select rdb$set_context(''USER_SESSION'', ?, ?) from rdb$database';
 
 type
   TAnovoRepository<T: TMVCActiveRecord, constructor> = class(TMVCRepository<T>)
@@ -34,6 +37,7 @@ type
     function PrimeraFilaDeConsulta<V: TMVCActiveRecord, constructor>(
       const ANombre: string; const AValores: array of const): V;
     function LeerVistaUnica<V: TMVCActiveRecord, constructor>: V;
+    procedure FijarContexto(const AVariable, AValor: string);
   public
     function ParaBajar(const ADesde: NullableTDateTime;
       const AConUuid: Boolean = False): TObjectList<T>;
@@ -112,6 +116,12 @@ end;
 function TAnovoRepository<T>.LeerVistaUnica<V>: V;
 begin
   Result := TMVCActiveRecord.SelectOneByRQL<V>('', True);
+end;
+
+procedure TAnovoRepository<T>.FijarContexto(const AVariable, AValor: string);
+begin
+  TMVCActiveRecord.CurrentConnection.ExecSQLScalar(FIJAR_CONTEXTO,
+    [AVariable, AValor]);
 end;
 
 class function TAnovoRepository<T>.FechaParaRQL(const AFecha: TDateTime): string;

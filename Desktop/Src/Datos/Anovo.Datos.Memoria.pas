@@ -577,7 +577,7 @@ type
     mtReporteAsesoresAPROBADAS: TIntegerField;
     mtReporteAsesoresRECHAZADAS: TIntegerField;
     mtReporteAsesoresDESCARTADAS: TIntegerField;
-    mtReporteAsesoresTASA_APROBACION: TIntegerField;
+    mtReporteAsesoresTASA_APROBACION: TCurrencyField;
     mtReporteAsesoresMONTO_TOTAL: TCurrencyField;
     mtReporteAsesoresMONTO_APROBADO: TCurrencyField;
     dsReporteAsesores: TDataSource;
@@ -589,7 +589,7 @@ type
     mtReporteClientesRECHAZADAS: TIntegerField;
     mtReporteClientesEN_ESPERA: TIntegerField;
     mtReporteClientesSIN_RESPUESTA: TIntegerField;
-    mtReporteClientesPORCENTAJE_SIN_RESPUESTA: TIntegerField;
+    mtReporteClientesPORCENTAJE_SIN_RESPUESTA: TCurrencyField;
     mtReporteClientesMONTO_SIN_RESPUESTA: TCurrencyField;
     mtReporteClientesULTIMO_ENVIO: TDateTimeField;
     dsReporteClientes: TDataSource;
@@ -600,7 +600,7 @@ type
     mtReporteTiposAPROBADAS: TIntegerField;
     mtReporteTiposRECHAZADAS: TIntegerField;
     mtReporteTiposDESCARTADAS: TIntegerField;
-    mtReporteTiposTASA_APROBACION: TIntegerField;
+    mtReporteTiposTASA_APROBACION: TCurrencyField;
     mtReporteTiposMONTO_TOTAL: TCurrencyField;
     mtReporteTiposMONTO_APROBADO: TCurrencyField;
     dsReporteTipos: TDataSource;
@@ -612,7 +612,7 @@ type
     mtReporteMesesAPROBADAS: TIntegerField;
     mtReporteMesesRECHAZADAS: TIntegerField;
     mtReporteMesesDESCARTADAS: TIntegerField;
-    mtReporteMesesTASA_APROBACION: TIntegerField;
+    mtReporteMesesTASA_APROBACION: TCurrencyField;
     mtReporteMesesMONTO_TOTAL: TCurrencyField;
     mtReporteMesesMONTO_APROBADO: TCurrencyField;
     dsReporteMeses: TDataSource;
@@ -1015,7 +1015,7 @@ begin
   if Sender.IsNull then
     Text := ''
   else
-    Text := TFormato.Tasa(Sender.AsInteger);
+    Text := TFormato.Tasa(Sender.AsCurrency);
 end;
 
 procedure TdmMemoria.EstadoGetText(Sender: TField; var Text: string;

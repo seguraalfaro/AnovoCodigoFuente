@@ -27,22 +27,21 @@ type
     function CotizacionesPorEstado: TObjectList<TCotizacionesPorEstado>;
     function CuentasResumen: TVCuentasResumen;
     function CambiosCuentas: TObjectList<TCambiosDeCuentas>;
-    function EstadoDelAsesor(const AAsesorId: Integer)
-      : TObjectList<TEstadoDelAsesor>;
-    function SolicitudesDelMes(const AAsesorId, AAnio, AMes: Integer)
-      : TSolicitudesDelMes;
+    function GruposDelAsesor(const AAsesorId: Integer)
+      : TObjectList<TGruposDelAsesor>;
+    function ResumenDelAsesor(const AAsesorId: Integer): TResumenDelAsesor;
     function EnviadasDeAsesor(const AAsesorId, ALimite: Integer)
       : TObjectList<TEnviadaSinRespuesta>;
-    function EnviadasDeElaborador(const AUsuarioId: Integer)
-      : TObjectList<TEnviadaSinRespuesta>;
+    function ResumenDelAsistente(const AUsuarioId: Integer)
+      : TResumenDelAsistente;
+    function EtapasDelUsuario(const AUsuarioId: Integer)
+      : TObjectList<TEtapasDelUsuario>;
     function ParaHoy(const AUsuarioId, ALimite: Integer)
       : TObjectList<TCotizacionEnCurso>;
+    function ResumenDelSupervisor: TVDashSupervisorResumen;
     function Estancadas(const ADias, ALimite: Integer)
       : TObjectList<TCotizacionEnCurso>;
-    function EtapasDe(const AUsuarioId: Integer): TObjectList<TEtapaDeUsuario>;
     function Carga: TObjectList<TCargaDePersona>;
-    function PasosDe(const AUsuarioId, AAnio, AMes: Integer): TPasosDeUsuario;
-    function PasosDelEquipo(const AAnio, AMes: Integer): TPasosDelEquipo;
   end;
 
 implementation

@@ -85,7 +85,7 @@ type
     fMontoAprobadoMes: Currency;
     fSolicitudesMesAnterior: Integer;
     fDiasMasAntigua: Integer;
-    fTasaAprobacion: Integer;
+    fTasaAprobacion: Currency;
     fRecientes: TObjectList<TSolicitudAsesorDTO>;
     fPorEstado: TObjectList<TDashboardBarraDTO>;
     fPorLlamar: TObjectList<TDashboardAvisoDTO>;
@@ -104,7 +104,7 @@ type
     property SolicitudesMesAnterior: Integer read fSolicitudesMesAnterior
       write fSolicitudesMesAnterior;
     property DiasMasAntigua: Integer read fDiasMasAntigua write fDiasMasAntigua;
-    property TasaAprobacion: Integer read fTasaAprobacion write fTasaAprobacion;
+    property TasaAprobacion: Currency read fTasaAprobacion write fTasaAprobacion;
     property Recientes: TObjectList<TSolicitudAsesorDTO> read fRecientes
       write fRecientes;
     property PorEstado: TObjectList<TDashboardBarraDTO> read fPorEstado
@@ -199,7 +199,7 @@ type
     fRechazadasMes: Integer;
     fVistoBuenoMes: Integer;
     fDevueltasMes: Integer;
-    fTasaAprobacion: Integer;
+    fTasaAprobacion: Currency;
     fMontoAprobadoAnterior: Currency;
     fCola: TObjectList<TCotizacionPorAprobarDTO>;
     fCarga: TObjectList<TDashboardBarraDTO>;
@@ -218,7 +218,7 @@ type
     property RechazadasMes: Integer read fRechazadasMes write fRechazadasMes;
     property VistoBuenoMes: Integer read fVistoBuenoMes write fVistoBuenoMes;
     property DevueltasMes: Integer read fDevueltasMes write fDevueltasMes;
-    property TasaAprobacion: Integer read fTasaAprobacion write fTasaAprobacion;
+    property TasaAprobacion: Currency read fTasaAprobacion write fTasaAprobacion;
     property MontoAprobadoAnterior: Currency read fMontoAprobadoAnterior
       write fMontoAprobadoAnterior;
     property Cola: TObjectList<TCotizacionPorAprobarDTO> read fCola
@@ -265,7 +265,7 @@ type
     fCotizadoMes: Currency;
     fAprobadasMes: Integer;
     fRechazadasMes: Integer;
-    fTasaAprobacion: Integer;
+    fTasaAprobacion: Currency;
     fRespuestaMedia: Integer;
     fAsesoresActivos: Integer;
     fProductividad: TObjectList<TProductividadAsesorDTO>;
@@ -278,7 +278,7 @@ type
     property CotizadoMes: Currency read fCotizadoMes write fCotizadoMes;
     property AprobadasMes: Integer read fAprobadasMes write fAprobadasMes;
     property RechazadasMes: Integer read fRechazadasMes write fRechazadasMes;
-    property TasaAprobacion: Integer read fTasaAprobacion write fTasaAprobacion;
+    property TasaAprobacion: Currency read fTasaAprobacion write fTasaAprobacion;
     property RespuestaMedia: Integer read fRespuestaMedia write fRespuestaMedia;
     property AsesoresActivos: Integer read fAsesoresActivos write fAsesoresActivos;
     property Productividad: TObjectList<TProductividadAsesorDTO> read fProductividad

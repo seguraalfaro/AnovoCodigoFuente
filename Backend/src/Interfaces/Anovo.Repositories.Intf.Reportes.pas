@@ -25,10 +25,14 @@ type
 
   IReporteRepository = interface(IMVCRepository<TCotizaciones>)
     ['{40D3D0A7-BC12-4A39-A1C1-FEE94847A082}']
-    function DiasEntre(const ADesde, AHasta: TDateTime;
-      const AUsuarioId: Integer): TObjectList<TCotizacionesDia>;
-    function EnviadasEntre(const ADesde, AHasta: TDateTime;
-      const AUsuarioId: Integer): TObjectList<TClientesRespuesta>;
+    procedure FijarPeriodo(const ADesde, AHasta: TDateTime;
+      const AUsuarioId: Integer);
+    function Resumen: TObjectList<TResumenDelReporte>;
+    function PorEstado: TObjectList<TReportePorEstado>;
+    function PorAsesor: TObjectList<TReportePorAsesor>;
+    function PorTipo: TObjectList<TReportePorTipo>;
+    function PorMes: TObjectList<TReportePorMes>;
+    function PorCliente: TObjectList<TReportePorCliente>;
     function Detalle(const AFiltro: TFiltroDetalleReporte;
       const ALimite: Integer): TObjectList<TCotizacionConNombres>;
   end;

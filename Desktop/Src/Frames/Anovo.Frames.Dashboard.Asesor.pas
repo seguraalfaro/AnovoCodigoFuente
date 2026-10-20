@@ -79,7 +79,8 @@ begin
   lblNota1.Caption := TFormato.Variacion(ADatos.SolicitudesMes,
     ADatos.SolicitudesMesAnterior);
   lblNota2.Caption := TFormato.MasAntigua(ADatos.DiasMasAntigua);
-  lblNota3.Caption := Format(SNotaTasaGeneral, [ADatos.TasaAprobacion]);
+  lblNota3.Caption := Format(SNotaTasaGeneral,
+    [TFormato.Tasa(ADatos.TasaAprobacion)]);
   lblNota4.Caption := '';
   MostrarBarras(grBarras, ADatos.PorEstado);
   MostrarAvisos(grAvisos, ADatos.PorLlamar);

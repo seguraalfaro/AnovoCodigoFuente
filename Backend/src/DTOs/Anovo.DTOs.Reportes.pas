@@ -20,7 +20,7 @@ type
     fAprobadas: Integer;
     fRechazadas: Integer;
     fDescartadas: Integer;
-    fTasaAprobacion: Integer;
+    fTasaAprobacion: Currency;
     fMontoAprobado: NullableCurrency;
     fMontoTotal: NullableCurrency;
   public
@@ -28,7 +28,7 @@ type
     property Aprobadas: Integer read fAprobadas write fAprobadas;
     property Rechazadas: Integer read fRechazadas write fRechazadas;
     property Descartadas: Integer read fDescartadas write fDescartadas;
-    property TasaAprobacion: Integer read fTasaAprobacion write fTasaAprobacion;
+    property TasaAprobacion: Currency read fTasaAprobacion write fTasaAprobacion;
     property MontoAprobado: NullableCurrency read fMontoAprobado write fMontoAprobado;
     property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
   end;
@@ -73,7 +73,7 @@ type
     fRechazadas: Integer;
     fEnEspera: Integer;
     fSinRespuesta: Integer;
-    fPorcentajeSinRespuesta: Integer;
+    fPorcentajeSinRespuesta: Currency;
     fMontoSinRespuesta: NullableCurrency;
     fUltimoEnvio: NullableTDateTime;
   public
@@ -84,7 +84,7 @@ type
     property Rechazadas: Integer read fRechazadas write fRechazadas;
     property EnEspera: Integer read fEnEspera write fEnEspera;
     property SinRespuesta: Integer read fSinRespuesta write fSinRespuesta;
-    property PorcentajeSinRespuesta: Integer read fPorcentajeSinRespuesta
+    property PorcentajeSinRespuesta: Currency read fPorcentajeSinRespuesta
       write fPorcentajeSinRespuesta;
     property MontoSinRespuesta: NullableCurrency read fMontoSinRespuesta
       write fMontoSinRespuesta;
@@ -103,7 +103,7 @@ type
     fMontoAprobado: Currency;
     fRechazadas: Integer;
     fDescartadas: Integer;
-    fTasaAprobacion: Integer;
+    fTasaAprobacion: Currency;
     fRespuestaMedia: Integer;
   public
     property Desde: TDateTime read fDesde write fDesde;
@@ -114,7 +114,7 @@ type
     property MontoAprobado: Currency read fMontoAprobado write fMontoAprobado;
     property Rechazadas: Integer read fRechazadas write fRechazadas;
     property Descartadas: Integer read fDescartadas write fDescartadas;
-    property TasaAprobacion: Integer read fTasaAprobacion write fTasaAprobacion;
+    property TasaAprobacion: Currency read fTasaAprobacion write fTasaAprobacion;
     property RespuestaMedia: Integer read fRespuestaMedia write fRespuestaMedia;
   end;
 

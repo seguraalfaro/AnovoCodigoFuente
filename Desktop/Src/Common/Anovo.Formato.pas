@@ -33,7 +33,8 @@ type
     class function DiaMes(const AFecha: TDateTime): string; static;
     class function FechaHora(const AFecha: TDateTime): string; static;
     class function Porcentaje(const AValor: Double): string; static;
-    class function Tasa(const AValor: Integer): string; static;
+    class function Tasa(const AValor: Currency): string; static;
+    class function Puntos(const AValor: Currency): string; static;
     class function Variacion(const AActual, AAnterior: Integer): string; static;
     class function VariacionPorcentual(const AActual,
       AAnterior: Currency): string; static;
@@ -69,6 +70,7 @@ const
   FORMATO_FECHA_HORA = 'dd/mm/yyyy hh:nn';
   FORMATO_MONTO = '#,##0.00';
   FORMATO_PORCENTAJE = '0.##';
+  FORMATO_TASA = '0.00';
   FORMATO_NUMERO = '#,##0.###';
   FORMATO_FECHA_ARCHIVO = 'yyyy-mm-dd';
 
@@ -324,9 +326,14 @@ begin
   Result := FormatFloat(FORMATO_NUMERO, AValor);
 end;
 
-class function TFormato.Tasa(const AValor: Integer): string;
+class function TFormato.Tasa(const AValor: Currency): string;
 begin
-  Result := Format(SPorcentaje, [AValor]);
+  Result := Format(SPorcentaje, [Puntos(AValor)]);
+end;
+
+class function TFormato.Puntos(const AValor: Currency): string;
+begin
+  Result := FormatFloat(FORMATO_TASA, AValor);
 end;
 
 class function TFormato.FechaArchivo(const AFecha: TDateTime): string;

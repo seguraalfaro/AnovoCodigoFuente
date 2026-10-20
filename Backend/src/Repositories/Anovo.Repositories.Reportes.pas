@@ -1,7 +1,7 @@
 unit Anovo.Repositories.Reportes;
 
-// Repositorio de reportes: filas de V_COTIZACIONES_DIA y V_CLIENTES_RESPUESTA
-// del periodo y las cotizaciones detras de cada fila; las sumas, el servicio.
+// Repositorio de reportes: fija el periodo en la sesion y lee las vistas
+// V_REPORTE_*, que traen todo calculado; y las cotizaciones de cada fila.
 
 interface
 
@@ -16,10 +16,14 @@ type
   TReporteRepository = class(TAnovoRepository<TCotizaciones>,
     IReporteRepository)
   public
-    function DiasEntre(const ADesde, AHasta: TDateTime;
-      const AUsuarioId: Integer): TObjectList<TCotizacionesDia>;
-    function EnviadasEntre(const ADesde, AHasta: TDateTime;
-      const AUsuarioId: Integer): TObjectList<TClientesRespuesta>;
+    procedure FijarPeriodo(const ADesde, AHasta: TDateTime;
+      const AUsuarioId: Integer);
+    function Resumen: TObjectList<TResumenDelReporte>;
+    function PorEstado: TObjectList<TReportePorEstado>;
+    function PorAsesor: TObjectList<TReportePorAsesor>;
+    function PorTipo: TObjectList<TReportePorTipo>;
+    function PorMes: TObjectList<TReportePorMes>;
+    function PorCliente: TObjectList<TReportePorCliente>;
     function Detalle(const AFiltro: TFiltroDetalleReporte;
       const ALimite: Integer): TObjectList<TCotizacionConNombres>;
   end;
@@ -30,28 +34,47 @@ uses
   System.SysUtils,
   Anovo.SQL.Cotizaciones;
 
-function TReporteRepository.DiasEntre(const ADesde, AHasta: TDateTime;
-  const AUsuarioId: Integer): TObjectList<TCotizacionesDia>;
+procedure TReporteRepository.FijarPeriodo(const ADesde, AHasta: TDateTime;
+  const AUsuarioId: Integer);
 begin
-  if AUsuarioId = 0 then
-    Result := ListarConsulta<TCotizacionesDia>(CONSULTA_ENTRE,
-      [FechaParaRQL(ADesde), FechaParaRQL(AHasta)], SIN_LIMITE)
-  else
-    Result := ListarConsulta<TCotizacionesDia>(CONSULTA_ENTRE_PROPIAS,
-      [FechaParaRQL(ADesde), FechaParaRQL(AHasta), AUsuarioId, AUsuarioId],
-      SIN_LIMITE);
+  FijarContexto(REPORTE_CONTEXTO_DESDE, FechaParaRQL(ADesde));
+  FijarContexto(REPORTE_CONTEXTO_HASTA, FechaParaRQL(AHasta));
+  FijarContexto(REPORTE_CONTEXTO_USUARIO, AUsuarioId.ToString);
 end;
 
-function TReporteRepository.EnviadasEntre(const ADesde, AHasta: TDateTime;
-  const AUsuarioId: Integer): TObjectList<TClientesRespuesta>;
+function TReporteRepository.Resumen: TObjectList<TResumenDelReporte>;
 begin
-  if AUsuarioId = 0 then
-    Result := ListarConsulta<TClientesRespuesta>(CONSULTA_ENTRE,
-      [FechaParaRQL(ADesde), FechaParaRQL(AHasta)], SIN_LIMITE)
-  else
-    Result := ListarConsulta<TClientesRespuesta>(CONSULTA_ENTRE_PROPIAS,
-      [FechaParaRQL(ADesde), FechaParaRQL(AHasta), AUsuarioId, AUsuarioId],
-      SIN_LIMITE);
+  Result := ListarConsulta<TResumenDelReporte>(CONSULTA_ORDENADAS, [],
+    SIN_LIMITE);
+end;
+
+function TReporteRepository.PorEstado: TObjectList<TReportePorEstado>;
+begin
+  Result := ListarConsulta<TReportePorEstado>(CONSULTA_ORDENADAS, [],
+    SIN_LIMITE);
+end;
+
+function TReporteRepository.PorAsesor: TObjectList<TReportePorAsesor>;
+begin
+  Result := ListarConsulta<TReportePorAsesor>(CONSULTA_ORDENADAS, [],
+    SIN_LIMITE);
+end;
+
+function TReporteRepository.PorTipo: TObjectList<TReportePorTipo>;
+begin
+  Result := ListarConsulta<TReportePorTipo>(CONSULTA_ORDENADAS, [],
+    SIN_LIMITE);
+end;
+
+function TReporteRepository.PorMes: TObjectList<TReportePorMes>;
+begin
+  Result := ListarConsulta<TReportePorMes>(CONSULTA_ORDENADAS, [], SIN_LIMITE);
+end;
+
+function TReporteRepository.PorCliente: TObjectList<TReportePorCliente>;
+begin
+  Result := ListarConsulta<TReportePorCliente>(CONSULTA_ORDENADAS, [],
+    SIN_LIMITE);
 end;
 
 function TReporteRepository.Detalle(const AFiltro: TFiltroDetalleReporte;

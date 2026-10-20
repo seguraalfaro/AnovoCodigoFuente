@@ -81,7 +81,7 @@ begin
     Result := Format(SVariacionPorcentaje, [Flecha(lCambio), Abs(lCambio)]);
 end;
 
-function VariacionPuntos(const AActual, AAntes: Integer;
+function VariacionPuntos(const AActual, AAntes: Currency;
   const AHayBase: Boolean): string;
 begin
   if not AHayBase then
@@ -90,7 +90,7 @@ begin
     Result := SVariacionIgual
   else
     Result := Format(SVariacionPuntos, [Flecha(AActual - AAntes),
-      Abs(AActual - AAntes)]);
+      TFormato.Puntos(Abs(AActual - AAntes))]);
 end;
 
 function VariacionDias(const AActual, AAntes: Integer;

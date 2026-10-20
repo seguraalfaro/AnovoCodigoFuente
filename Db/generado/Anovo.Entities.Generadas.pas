@@ -2027,6 +2027,82 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_DASH_ASESOR_GRUPOS')]
+  TVDashAsesorGrupos = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ASESOR_ID')]
+    fAsesorId: NullableInt32;
+    [MVCTableField('GRUPO')]
+    [MVCMaxLength(15)]
+    fGrupo: NullableString;
+    [MVCTableField('ORDEN')]
+    fOrden: NullableInt32;
+    [MVCTableField('CANTIDAD')]
+    fCantidad: NullableInt32;
+    [MVCTableField('DIAS_MAS_ANTIGUA')]
+    fDiasMasAntigua: NullableInt32;
+  public
+    property AsesorId: NullableInt32 read fAsesorId write fAsesorId;
+    property Grupo: NullableString read fGrupo write fGrupo;
+    property Orden: NullableInt32 read fOrden write fOrden;
+    property Cantidad: NullableInt32 read fCantidad write fCantidad;
+    property DiasMasAntigua: NullableInt32 read fDiasMasAntigua write fDiasMasAntigua;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_DASH_ASESOR_RESUMEN')]
+  TVDashAsesorResumen = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ASESOR_ID')]
+    fAsesorId: NullableInt32;
+    [MVCTableField('DIAS_MAS_ANTIGUA')]
+    fDiasMasAntigua: NullableInt32;
+    [MVCTableField('TASA_APROBACION')]
+    fTasaAprobacion: NullableCurrency;
+    [MVCTableField('SOLICITUDES_MES_ANTERIOR')]
+    fSolicitudesMesAnterior: NullableInt32;
+  public
+    property AsesorId: NullableInt32 read fAsesorId write fAsesorId;
+    property DiasMasAntigua: NullableInt32 read fDiasMasAntigua write fDiasMasAntigua;
+    property TasaAprobacion: NullableCurrency read fTasaAprobacion write fTasaAprobacion;
+    property SolicitudesMesAnterior: NullableInt32 read fSolicitudesMesAnterior write fSolicitudesMesAnterior;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_DASH_ASISTENTE_RESUMEN')]
+  TVDashAsistenteResumen = class(TMVCActiveRecord)
+  private
+    [MVCTableField('USUARIO_ID')]
+    fUsuarioId: NullableInt32;
+    [MVCTableField('DIAS_MAS_ANTIGUA')]
+    fDiasMasAntigua: NullableInt32;
+    [MVCTableField('DEVUELTAS')]
+    fDevueltas: NullableInt32;
+    [MVCTableField('SIN_RESPUESTA')]
+    fSinRespuesta: NullableInt32;
+    [MVCTableField('PRESENTADAS_MES')]
+    fPresentadasMes: NullableInt32;
+    [MVCTableField('APROBADAS_MES')]
+    fAprobadasMes: NullableInt32;
+    [MVCTableField('RECHAZADAS_MES')]
+    fRechazadasMes: NullableInt32;
+    [MVCTableField('MONTO_APROBADO_MES')]
+    fMontoAprobadoMes: NullableCurrency;
+    [MVCTableField('TASA_MES')]
+    fTasaMes: NullableCurrency;
+  public
+    property UsuarioId: NullableInt32 read fUsuarioId write fUsuarioId;
+    property DiasMasAntigua: NullableInt32 read fDiasMasAntigua write fDiasMasAntigua;
+    property Devueltas: NullableInt32 read fDevueltas write fDevueltas;
+    property SinRespuesta: NullableInt32 read fSinRespuesta write fSinRespuesta;
+    property PresentadasMes: NullableInt32 read fPresentadasMes write fPresentadasMes;
+    property AprobadasMes: NullableInt32 read fAprobadasMes write fAprobadasMes;
+    property RechazadasMes: NullableInt32 read fRechazadasMes write fRechazadasMes;
+    property MontoAprobadoMes: NullableCurrency read fMontoAprobadoMes write fMontoAprobadoMes;
+    property TasaMes: NullableCurrency read fTasaMes write fTasaMes;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
   [MVCTable('V_DASH_CARGA')]
   TVDashCarga = class(TMVCActiveRecord)
   private
@@ -2154,6 +2230,26 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_DASH_ETAPAS_USUARIO')]
+  TVDashEtapasUsuario = class(TMVCActiveRecord)
+  private
+    [MVCTableField('USUARIO_ID')]
+    fUsuarioId: NullableInt32;
+    [MVCTableField('ESTADO')]
+    [MVCMaxLength(15)]
+    fEstado: NullableString;
+    [MVCTableField('ORDEN')]
+    fOrden: NullableInt32;
+    [MVCTableField('CANTIDAD')]
+    fCantidad: NullableInt32;
+  public
+    property UsuarioId: NullableInt32 read fUsuarioId write fUsuarioId;
+    property Estado: NullableString read fEstado write fEstado;
+    property Orden: NullableInt32 read fOrden write fOrden;
+    property Cantidad: NullableInt32 read fCantidad write fCantidad;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
   [MVCTable('V_DASH_PASOS_EQUIPO')]
   TVDashPasosEquipo = class(TMVCActiveRecord)
   private
@@ -2238,6 +2334,34 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_DASH_SUPERVISOR_RESUMEN')]
+  TVDashSupervisorResumen = class(TMVCActiveRecord)
+  private
+    [MVCTableField('VISTO_BUENO_MES')]
+    fVistoBuenoMes: NullableInt32;
+    [MVCTableField('DEVUELTAS_MES')]
+    fDevueltasMes: NullableInt32;
+    [MVCTableField('APROBADAS_MES')]
+    fAprobadasMes: NullableInt32;
+    [MVCTableField('RECHAZADAS_MES')]
+    fRechazadasMes: NullableInt32;
+    [MVCTableField('MONTO_APROBADO_MES')]
+    fMontoAprobadoMes: NullableCurrency;
+    [MVCTableField('TASA_APROBACION')]
+    fTasaAprobacion: NullableCurrency;
+    [MVCTableField('MONTO_APROBADO_ANTERIOR')]
+    fMontoAprobadoAnterior: NullableCurrency;
+  public
+    property VistoBuenoMes: NullableInt32 read fVistoBuenoMes write fVistoBuenoMes;
+    property DevueltasMes: NullableInt32 read fDevueltasMes write fDevueltasMes;
+    property AprobadasMes: NullableInt32 read fAprobadasMes write fAprobadasMes;
+    property RechazadasMes: NullableInt32 read fRechazadasMes write fRechazadasMes;
+    property MontoAprobadoMes: NullableCurrency read fMontoAprobadoMes write fMontoAprobadoMes;
+    property TasaAprobacion: NullableCurrency read fTasaAprobacion write fTasaAprobacion;
+    property MontoAprobadoAnterior: NullableCurrency read fMontoAprobadoAnterior write fMontoAprobadoAnterior;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
   [MVCTable('V_PERIODO_ACTUAL')]
   TVPeriodoActual = class(TMVCActiveRecord)
   private
@@ -2266,6 +2390,303 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_REPORTE_ASESOR')]
+  TVReporteAsesor = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ASESOR_ID')]
+    fAsesorId: NullableInt32;
+    [MVCTableField('ASESOR_NOMBRE')]
+    [MVCMaxLength(120)]
+    fAsesorNombre: NullableString;
+    [MVCTableField('CANTIDAD')]
+    fCantidad: NullableInt32;
+    [MVCTableField('APROBADAS')]
+    fAprobadas: NullableInt32;
+    [MVCTableField('RECHAZADAS')]
+    fRechazadas: NullableInt32;
+    [MVCTableField('DESCARTADAS')]
+    fDescartadas: NullableInt32;
+    [MVCTableField('MONTO_APROBADO')]
+    fMontoAprobado: NullableCurrency;
+    [MVCTableField('MONTO_TOTAL')]
+    fMontoTotal: NullableCurrency;
+    [MVCTableField('TASA_APROBACION')]
+    fTasaAprobacion: NullableCurrency;
+  public
+    property AsesorId: NullableInt32 read fAsesorId write fAsesorId;
+    property AsesorNombre: NullableString read fAsesorNombre write fAsesorNombre;
+    property Cantidad: NullableInt32 read fCantidad write fCantidad;
+    property Aprobadas: NullableInt32 read fAprobadas write fAprobadas;
+    property Rechazadas: NullableInt32 read fRechazadas write fRechazadas;
+    property Descartadas: NullableInt32 read fDescartadas write fDescartadas;
+    property MontoAprobado: NullableCurrency read fMontoAprobado write fMontoAprobado;
+    property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
+    property TasaAprobacion: NullableCurrency read fTasaAprobacion write fTasaAprobacion;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_REPORTE_CLIENTE')]
+  TVReporteCliente = class(TMVCActiveRecord)
+  private
+    [MVCTableField('CLIENTE_ID')]
+    fClienteId: NullableInt32;
+    [MVCTableField('CLIENTE_NOMBRE')]
+    [MVCMaxLength(120)]
+    fClienteNombre: NullableString;
+    [MVCTableField('ENVIADAS')]
+    fEnviadas: NullableInt32;
+    [MVCTableField('ULTIMO_ENVIO')]
+    fUltimoEnvio: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('APROBADAS')]
+    fAprobadas: NullableInt32;
+    [MVCTableField('RECHAZADAS')]
+    fRechazadas: NullableInt32;
+    [MVCTableField('SIN_RESPUESTA')]
+    fSinRespuesta: NullableInt32;
+    [MVCTableField('MONTO_SIN_RESPUESTA')]
+    fMontoSinRespuesta: NullableCurrency;
+    [MVCTableField('EN_ESPERA')]
+    fEnEspera: NullableInt32;
+    [MVCTableField('PORCENTAJE_SIN_RESPUESTA')]
+    fPorcentajeSinRespuesta: NullableCurrency;
+  public
+    property ClienteId: NullableInt32 read fClienteId write fClienteId;
+    property ClienteNombre: NullableString read fClienteNombre write fClienteNombre;
+    property Enviadas: NullableInt32 read fEnviadas write fEnviadas;
+    property UltimoEnvio: NullableTDateTime {dtDateTimeStamp} read fUltimoEnvio write fUltimoEnvio;
+    property Aprobadas: NullableInt32 read fAprobadas write fAprobadas;
+    property Rechazadas: NullableInt32 read fRechazadas write fRechazadas;
+    property SinRespuesta: NullableInt32 read fSinRespuesta write fSinRespuesta;
+    property MontoSinRespuesta: NullableCurrency read fMontoSinRespuesta write fMontoSinRespuesta;
+    property EnEspera: NullableInt32 read fEnEspera write fEnEspera;
+    property PorcentajeSinRespuesta: NullableCurrency read fPorcentajeSinRespuesta write fPorcentajeSinRespuesta;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_REPORTE_DIA')]
+  TVReporteDia = class(TMVCActiveRecord)
+  private
+    [MVCTableField('PERIODO')]
+    [MVCMaxLength(8)]
+    fPeriodo: NullableString;
+    [MVCTableField('FECHA')]
+    fFecha: NullableTDate;
+    [MVCTableField('ANIO')]
+    fAnio: NullableInt32;
+    [MVCTableField('MES')]
+    fMes: NullableInt32;
+    [MVCTableField('ESTADO')]
+    [MVCMaxLength(20)]
+    fEstado: NullableString;
+    [MVCTableField('ASESOR_ID')]
+    fAsesorId: NullableInt32;
+    [MVCTableField('ASESOR_NOMBRE')]
+    [MVCMaxLength(120)]
+    fAsesorNombre: NullableString;
+    [MVCTableField('TIPO_TRABAJO_ID')]
+    fTipoTrabajoId: NullableInt32;
+    [MVCTableField('TIPO_TRABAJO_NOMBRE')]
+    [MVCMaxLength(120)]
+    fTipoTrabajoNombre: NullableString;
+    [MVCTableField('ELABORADA_POR')]
+    fElaboradaPor: NullableInt32;
+    [MVCTableField('CANTIDAD')]
+    fCantidad: NullableInt32;
+    [MVCTableField('MONTO_TOTAL')]
+    fMontoTotal: NullableCurrency;
+    [MVCTableField('APROBADAS')]
+    fAprobadas: NullableInt32;
+    [MVCTableField('RECHAZADAS')]
+    fRechazadas: NullableInt32;
+    [MVCTableField('MONTO_APROBADO')]
+    fMontoAprobado: NullableCurrency;
+    [MVCTableField('SUMA_DIAS_RESPUESTA')]
+    fSumaDiasRespuesta: NullableInt32;
+    [MVCTableField('CON_RESPUESTA')]
+    fConRespuesta: NullableInt32;
+    [MVCTableField('ENVIADAS')]
+    fEnviadas: NullableInt32;
+    [MVCTableField('MONTO_ENVIADO')]
+    fMontoEnviado: NullableCurrency;
+    [MVCTableField('DESCARTADAS')]
+    fDescartadas: NullableInt32;
+    [MVCTableField('DEL_CLIENTE')]
+    fDelCliente: NullableBoolean;
+  public
+    property Periodo: NullableString read fPeriodo write fPeriodo;
+    property Fecha: NullableTDate read fFecha write fFecha;
+    property Anio: NullableInt32 read fAnio write fAnio;
+    property Mes: NullableInt32 read fMes write fMes;
+    property Estado: NullableString read fEstado write fEstado;
+    property AsesorId: NullableInt32 read fAsesorId write fAsesorId;
+    property AsesorNombre: NullableString read fAsesorNombre write fAsesorNombre;
+    property TipoTrabajoId: NullableInt32 read fTipoTrabajoId write fTipoTrabajoId;
+    property TipoTrabajoNombre: NullableString read fTipoTrabajoNombre write fTipoTrabajoNombre;
+    property ElaboradaPor: NullableInt32 read fElaboradaPor write fElaboradaPor;
+    property Cantidad: NullableInt32 read fCantidad write fCantidad;
+    property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
+    property Aprobadas: NullableInt32 read fAprobadas write fAprobadas;
+    property Rechazadas: NullableInt32 read fRechazadas write fRechazadas;
+    property MontoAprobado: NullableCurrency read fMontoAprobado write fMontoAprobado;
+    property SumaDiasRespuesta: NullableInt32 read fSumaDiasRespuesta write fSumaDiasRespuesta;
+    property ConRespuesta: NullableInt32 read fConRespuesta write fConRespuesta;
+    property Enviadas: NullableInt32 read fEnviadas write fEnviadas;
+    property MontoEnviado: NullableCurrency read fMontoEnviado write fMontoEnviado;
+    property Descartadas: NullableInt32 read fDescartadas write fDescartadas;
+    property DelCliente: NullableBoolean read fDelCliente write fDelCliente;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_REPORTE_ESTADO')]
+  TVReporteEstado = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ESTADO')]
+    [MVCMaxLength(20)]
+    fEstado: NullableString;
+    [MVCTableField('ORDEN')]
+    fOrden: NullableInt32;
+    [MVCTableField('CANTIDAD')]
+    fCantidad: NullableInt32;
+    [MVCTableField('MONTO')]
+    fMonto: NullableCurrency;
+  public
+    property Estado: NullableString read fEstado write fEstado;
+    property Orden: NullableInt32 read fOrden write fOrden;
+    property Cantidad: NullableInt32 read fCantidad write fCantidad;
+    property Monto: NullableCurrency read fMonto write fMonto;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_REPORTE_MES')]
+  TVReporteMes = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ANIO')]
+    fAnio: NullableInt32;
+    [MVCTableField('MES')]
+    fMes: NullableInt32;
+    [MVCTableField('CANTIDAD')]
+    fCantidad: NullableInt32;
+    [MVCTableField('APROBADAS')]
+    fAprobadas: NullableInt32;
+    [MVCTableField('RECHAZADAS')]
+    fRechazadas: NullableInt32;
+    [MVCTableField('DESCARTADAS')]
+    fDescartadas: NullableInt32;
+    [MVCTableField('MONTO_APROBADO')]
+    fMontoAprobado: NullableCurrency;
+    [MVCTableField('MONTO_TOTAL')]
+    fMontoTotal: NullableCurrency;
+    [MVCTableField('TASA_APROBACION')]
+    fTasaAprobacion: NullableCurrency;
+  public
+    property Anio: NullableInt32 read fAnio write fAnio;
+    property Mes: NullableInt32 read fMes write fMes;
+    property Cantidad: NullableInt32 read fCantidad write fCantidad;
+    property Aprobadas: NullableInt32 read fAprobadas write fAprobadas;
+    property Rechazadas: NullableInt32 read fRechazadas write fRechazadas;
+    property Descartadas: NullableInt32 read fDescartadas write fDescartadas;
+    property MontoAprobado: NullableCurrency read fMontoAprobado write fMontoAprobado;
+    property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
+    property TasaAprobacion: NullableCurrency read fTasaAprobacion write fTasaAprobacion;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_REPORTE_PERIODO')]
+  TVReportePeriodo = class(TMVCActiveRecord)
+  private
+    [MVCTableField('PERIODO')]
+    [MVCMaxLength(8)]
+    fPeriodo: NullableString;
+    [MVCTableField('DESDE')]
+    fDesde: NullableTDate;
+    [MVCTableField('HASTA')]
+    fHasta: NullableTDate;
+    [MVCTableField('USUARIO')]
+    fUsuario: NullableInt32;
+  public
+    property Periodo: NullableString read fPeriodo write fPeriodo;
+    property Desde: NullableTDate read fDesde write fDesde;
+    property Hasta: NullableTDate read fHasta write fHasta;
+    property Usuario: NullableInt32 read fUsuario write fUsuario;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_REPORTE_RESUMEN')]
+  TVReporteResumen = class(TMVCActiveRecord)
+  private
+    [MVCTableField('PERIODO')]
+    [MVCMaxLength(8)]
+    fPeriodo: NullableString;
+    [MVCTableField('DESDE')]
+    fDesde: NullableTDate;
+    [MVCTableField('HASTA')]
+    fHasta: NullableTDate;
+    [MVCTableField('TOTAL')]
+    fTotal: NullableInt32;
+    [MVCTableField('MONTO_TOTAL')]
+    fMontoTotal: NullableCurrency;
+    [MVCTableField('APROBADAS')]
+    fAprobadas: NullableInt32;
+    [MVCTableField('MONTO_APROBADO')]
+    fMontoAprobado: NullableCurrency;
+    [MVCTableField('RECHAZADAS')]
+    fRechazadas: NullableInt32;
+    [MVCTableField('DESCARTADAS')]
+    fDescartadas: NullableInt32;
+    [MVCTableField('RESPUESTA_MEDIA')]
+    fRespuestaMedia: NullableInt32;
+    [MVCTableField('TASA_APROBACION')]
+    fTasaAprobacion: NullableCurrency;
+  public
+    property Periodo: NullableString read fPeriodo write fPeriodo;
+    property Desde: NullableTDate read fDesde write fDesde;
+    property Hasta: NullableTDate read fHasta write fHasta;
+    property Total: NullableInt32 read fTotal write fTotal;
+    property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
+    property Aprobadas: NullableInt32 read fAprobadas write fAprobadas;
+    property MontoAprobado: NullableCurrency read fMontoAprobado write fMontoAprobado;
+    property Rechazadas: NullableInt32 read fRechazadas write fRechazadas;
+    property Descartadas: NullableInt32 read fDescartadas write fDescartadas;
+    property RespuestaMedia: NullableInt32 read fRespuestaMedia write fRespuestaMedia;
+    property TasaAprobacion: NullableCurrency read fTasaAprobacion write fTasaAprobacion;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_REPORTE_TIPO')]
+  TVReporteTipo = class(TMVCActiveRecord)
+  private
+    [MVCTableField('TIPO_TRABAJO_ID')]
+    fTipoTrabajoId: NullableInt32;
+    [MVCTableField('TIPO_TRABAJO_NOMBRE')]
+    [MVCMaxLength(120)]
+    fTipoTrabajoNombre: NullableString;
+    [MVCTableField('CANTIDAD')]
+    fCantidad: NullableInt32;
+    [MVCTableField('APROBADAS')]
+    fAprobadas: NullableInt32;
+    [MVCTableField('RECHAZADAS')]
+    fRechazadas: NullableInt32;
+    [MVCTableField('DESCARTADAS')]
+    fDescartadas: NullableInt32;
+    [MVCTableField('MONTO_APROBADO')]
+    fMontoAprobado: NullableCurrency;
+    [MVCTableField('MONTO_TOTAL')]
+    fMontoTotal: NullableCurrency;
+    [MVCTableField('TASA_APROBACION')]
+    fTasaAprobacion: NullableCurrency;
+  public
+    property TipoTrabajoId: NullableInt32 read fTipoTrabajoId write fTipoTrabajoId;
+    property TipoTrabajoNombre: NullableString read fTipoTrabajoNombre write fTipoTrabajoNombre;
+    property Cantidad: NullableInt32 read fCantidad write fCantidad;
+    property Aprobadas: NullableInt32 read fAprobadas write fAprobadas;
+    property Rechazadas: NullableInt32 read fRechazadas write fRechazadas;
+    property Descartadas: NullableInt32 read fDescartadas write fDescartadas;
+    property MontoAprobado: NullableCurrency read fMontoAprobado write fMontoAprobado;
+    property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
+    property TasaAprobacion: NullableCurrency read fTasaAprobacion write fTasaAprobacion;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
   [MVCTable('V_RESUMEN_MES')]
   TVResumenMes = class(TMVCActiveRecord)
   private
@@ -2285,6 +2706,8 @@ type
     fRespuestaMedia: NullableInt32;
     [MVCTableField('ASESORES_ACTIVOS')]
     fAsesoresActivos: NullableInt32;
+    [MVCTableField('TASA_APROBACION')]
+    fTasaAprobacion: NullableCurrency;
   public
     property Desde: NullableTDateTime {dtDateTimeStamp} read fDesde write fDesde;
     property Hasta: NullableTDateTime {dtDateTimeStamp} read fHasta write fHasta;
@@ -2294,6 +2717,7 @@ type
     property RechazadasMes: NullableInt32 read fRechazadasMes write fRechazadasMes;
     property RespuestaMedia: NullableInt32 read fRespuestaMedia write fRespuestaMedia;
     property AsesoresActivos: NullableInt32 read fAsesoresActivos write fAsesoresActivos;
+    property TasaAprobacion: NullableCurrency read fTasaAprobacion write fTasaAprobacion;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -2825,16 +3249,29 @@ ActiveRecordMappingRegistry.AddEntity('v_cotizaciones_dia', TVCotizacionesDia);
 ActiveRecordMappingRegistry.AddEntity('v_cotizaciones_por_estado', TVCotizacionesPorEstado);
 ActiveRecordMappingRegistry.AddEntity('v_cotizacion_historial', TVCotizacionHistorial);
 ActiveRecordMappingRegistry.AddEntity('v_cuentas_resumen', TVCuentasResumen);
+ActiveRecordMappingRegistry.AddEntity('v_dash_asesor_grupos', TVDashAsesorGrupos);
+ActiveRecordMappingRegistry.AddEntity('v_dash_asesor_resumen', TVDashAsesorResumen);
+ActiveRecordMappingRegistry.AddEntity('v_dash_asistente_resumen', TVDashAsistenteResumen);
 ActiveRecordMappingRegistry.AddEntity('v_dash_carga', TVDashCarga);
 ActiveRecordMappingRegistry.AddEntity('v_dash_enviadas', TVDashEnviadas);
 ActiveRecordMappingRegistry.AddEntity('v_dash_en_curso', TVDashEnCurso);
 ActiveRecordMappingRegistry.AddEntity('v_dash_estado_asesor', TVDashEstadoAsesor);
 ActiveRecordMappingRegistry.AddEntity('v_dash_etapas', TVDashEtapas);
+ActiveRecordMappingRegistry.AddEntity('v_dash_etapas_usuario', TVDashEtapasUsuario);
 ActiveRecordMappingRegistry.AddEntity('v_dash_pasos_equipo', TVDashPasosEquipo);
 ActiveRecordMappingRegistry.AddEntity('v_dash_pasos_mes', TVDashPasosMes);
 ActiveRecordMappingRegistry.AddEntity('v_dash_solicitudes_mes', TVDashSolicitudesMes);
+ActiveRecordMappingRegistry.AddEntity('v_dash_supervisor_resumen', TVDashSupervisorResumen);
 ActiveRecordMappingRegistry.AddEntity('v_periodo_actual', TVPeriodoActual);
 ActiveRecordMappingRegistry.AddEntity('v_permisos_roles', TVPermisosRoles);
+ActiveRecordMappingRegistry.AddEntity('v_reporte_asesor', TVReporteAsesor);
+ActiveRecordMappingRegistry.AddEntity('v_reporte_cliente', TVReporteCliente);
+ActiveRecordMappingRegistry.AddEntity('v_reporte_dia', TVReporteDia);
+ActiveRecordMappingRegistry.AddEntity('v_reporte_estado', TVReporteEstado);
+ActiveRecordMappingRegistry.AddEntity('v_reporte_mes', TVReporteMes);
+ActiveRecordMappingRegistry.AddEntity('v_reporte_periodo', TVReportePeriodo);
+ActiveRecordMappingRegistry.AddEntity('v_reporte_resumen', TVReporteResumen);
+ActiveRecordMappingRegistry.AddEntity('v_reporte_tipo', TVReporteTipo);
 ActiveRecordMappingRegistry.AddEntity('v_resumen_mes', TVResumenMes);
 ActiveRecordMappingRegistry.AddEntity('v_roles', TVRoles);
 ActiveRecordMappingRegistry.AddEntity('v_seguimiento_asesor', TVSeguimientoAsesor);
