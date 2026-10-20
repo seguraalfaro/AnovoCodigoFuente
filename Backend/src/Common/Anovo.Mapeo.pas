@@ -25,7 +25,15 @@ implementation
 uses
   System.Rtti,
   System.TypInfo,
-  MVCFramework.Nullables;
+  MVCFramework.Nullables,
+  MVCFramework.ActiveRecord;
+
+function EsDelFramework(const APropiedad: TRttiProperty): Boolean;
+begin
+  Result := (APropiedad.Parent is TRttiInstanceType) and
+    TMVCActiveRecord.InheritsFrom(TRttiInstanceType(APropiedad.Parent)
+    .MetaclassType);
+end;
 
 function LeerNullable(const AContexto: TRttiContext; const AValor: TValue;
   out AInterno: TValue): Boolean;
@@ -68,7 +76,8 @@ begin
   lTipoOrigen := lContexto.GetType(AOrigen.ClassType);
   for lDestino in lContexto.GetType(ADestino.ClassType).GetProperties do
   begin
-    if not lDestino.IsWritable or (lDestino.Visibility < mvPublic) then
+    if not lDestino.IsWritable or (lDestino.Visibility < mvPublic) or
+      EsDelFramework(lDestino) then
       Continue;
     if lDestino.PropertyType.TypeKind = tkClass then
       Continue;
