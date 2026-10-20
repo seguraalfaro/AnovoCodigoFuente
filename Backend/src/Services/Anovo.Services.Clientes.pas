@@ -38,6 +38,7 @@ type
       const AExcluirId: Integer);
     procedure AnonimizarContactos(const AClienteId: Integer);
     procedure VaciarContacto(const AContacto: TClienteContactos);
+    procedure DejarUnSoloPrincipal(const AClienteId, AContactoId: Integer);
     procedure AnonimizarAdjuntos(const AClienteId: Integer);
   public
     [MVCInject]
@@ -599,6 +600,8 @@ begin
     FijarDetalle(Format(SDetalleContactoNuevo, [AId]));
     fContactos.Insert(lContacto);
     Result := lContacto.ID.Value;
+    if lContacto.Principal then
+      DejarUnSoloPrincipal(AId, Result);
   finally
     lContacto.Free;
   end;
@@ -624,6 +627,10 @@ begin
         SContactoAnonimizado);
     if lContacto.ObjVersion <> ADto.ObjVersion.Value then
       raise EVersionVencida.Create(SRecursoContacto, AContactoId);
+    if (lContacto.ConsentimientoEstado = CONSENTIMIENTO_FIRMADO) and
+      not SameText(Trim(ADto.Nombre), Trim(lContacto.Nombre)) then
+      raise EConflictoDeEstado.Create('CONTACTO_FIRMADO',
+        SContactoFirmadoNombre);
 
     CopiarEstado(lContacto, lAntes);
     TMapeo.Copiar(ADto, lContacto);
@@ -636,9 +643,32 @@ begin
       on EMVCActiveRecordVersionedItemNotFound do
         raise EVersionVencida.Create(SRecursoContacto, AContactoId);
     end;
+    if lContacto.Principal then
+      DejarUnSoloPrincipal(AId, AContactoId);
   finally
     lAntes.Free;
     lContacto.Free;
+  end;
+end;
+
+procedure TClienteService.DejarUnSoloPrincipal(const AClienteId,
+  AContactoId: Integer);
+var
+  lContactos: TObjectList<TClienteContactos>;
+  lOtro: TClienteContactos;
+begin
+  lContactos := fContactos.ContactosDe(AClienteId);
+  try
+    for lOtro in lContactos do
+      if lOtro.Principal and (lOtro.ID.ValueOrDefault <> AContactoId) then
+      begin
+        lOtro.Principal := False;
+        FijarDetalle(Format(SDetallePrincipalContacto,
+          [lOtro.ID.ValueOrDefault]));
+        fContactos.Update(lOtro);
+      end;
+  finally
+    lContactos.Free;
   end;
 end;
 
@@ -653,6 +683,9 @@ begin
   try
     if lContacto.Activo.ValueOrDefault = False then
       Exit;
+    if lContacto.Principal then
+      raise EConflictoDeEstado.Create('CONTACTO_PRINCIPAL',
+        SContactoPrincipalNoSeQuita);
 
     lContacto.Activo := False;
     FijarDetalle(Format(SDetalleInactivacionContacto, [AContactoId]));

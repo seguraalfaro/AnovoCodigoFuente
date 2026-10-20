@@ -1,6 +1,6 @@
 unit Anovo.Forms.ContactoNuevo;
 
-// Ventana de registro de un contacto nuevo del cliente.
+// Ventana de registro y de edicion de un contacto del cliente.
 
 interface
 
@@ -31,13 +31,16 @@ type
   private
     FPresentador: TPresentadorContactoNuevo;
     FContactoId: Integer;
+    FObjVersion: Integer;
     function ContactoEscrito: TContactoNuevoDTO;
+    function ContactoEditado: TContactoEdicionDTO;
     function ValidarCampos: Boolean;
     procedure Guardado(const AId: Integer);
   protected
     function ControlesEdicion: TArray<TControl>; override;
   public
     constructor Crear(AOwner: TComponent; const AClienteId: Integer);
+    constructor Editar(AOwner: TComponent; const AClienteId: Integer);
     property ContactoId: Integer read FContactoId;
   end;
 
@@ -60,6 +63,25 @@ begin
     TApiClientes.Create, AClienteId);
 end;
 
+constructor TfrmContactoNuevo.Editar(AOwner: TComponent;
+  const AClienteId: Integer);
+begin
+  inherited Create(AOwner);
+  FContactoId := dmMemoria.mtContactosID.AsInteger;
+  FObjVersion := dmMemoria.mtContactosOBJVERSION.AsInteger;
+  dmMemoria.PrepararContactoEdicion(AClienteId);
+  FPresentador := TPresentadorContactoNuevo.Create(Self,
+    TApiClientes.Create, AClienteId);
+  Caption := STituloEditarContacto;
+  lblTitulo.Caption := STituloEditarContacto;
+  if dmMemoria.ContactoFirmado then
+  begin
+    edNombre.ReadOnly := True;
+    edNombre.TabStop := False;
+    lblSubtitulo.Caption := SSubtituloContactoFirmado;
+  end;
+end;
+
 procedure TfrmContactoNuevo.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(FPresentador);
@@ -73,6 +95,12 @@ end;
 function TfrmContactoNuevo.ContactoEscrito: TContactoNuevoDTO;
 begin
   Result := TMapeoDatos.ADto<TContactoNuevoDTO>(dmMemoria.mtContactoNuevo);
+end;
+
+function TfrmContactoNuevo.ContactoEditado: TContactoEdicionDTO;
+begin
+  Result := TMapeoDatos.ADto<TContactoEdicionDTO>(dmMemoria.mtContactoNuevo);
+  Result.ObjVersion := FObjVersion;
 end;
 
 function TfrmContactoNuevo.ValidarCampos: Boolean;
@@ -111,7 +139,10 @@ begin
   if not ValidarCampos then
     Exit;
 
-  FPresentador.Guardar(ContactoEscrito);
+  if FContactoId > 0 then
+    FPresentador.Actualizar(FContactoId, ContactoEditado)
+  else
+    FPresentador.Guardar(ContactoEscrito);
 end;
 
 procedure TfrmContactoNuevo.Guardado(const AId: Integer);

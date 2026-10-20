@@ -119,6 +119,9 @@ type
     function PedirMotivoAnonimizacion(out AMotivo: string): Boolean;
     function PedirMotivoContacto(const ANombre: string;
       out AMotivo: string): Boolean;
+    function ConfirmarQuitarContacto(const ANombre: string): Boolean;
+    procedure EditarContacto;
+    procedure grContactosDblClick(Sender: TObject);
     procedure AccionContacto(Sender: TObject; const AClave: string);
     procedure AccionCotizacion(Sender: TObject; const AClave: string);
     procedure PrepararRejilla(const AGrid: TrDBGrid;
@@ -154,9 +157,9 @@ const
   CAMPO_ACCIONES = 'ACCIONES';
 
   ACCIONES_CONTACTO: array [TAccionContacto] of TAccionRejilla =
-    ((Clave: 'editar'; Rotulo: SAccionEditar), (Clave: 'quitar';
-    Rotulo: SAccionQuitar), (Clave: 'anonimizar';
-    Rotulo: SAccionAnonimizarFila));
+    ((Clave: 'editar'; Rotulo: SAccionEditar), (Clave: 'anonimizar';
+    Rotulo: SAccionAnonimizarFila), (Clave: 'quitar'; Rotulo: SAccionQuitar;
+    Alterno: ''; Campo: 'QUITABLE'));
 
   ACCIONES_COTIZACION: array [TAccionCotizacionCliente] of TAccionRejilla =
     ((Clave: 'ver'; Rotulo: SAccionVer));
@@ -173,6 +176,7 @@ begin
   TCeldasRejilla.De(grCotizaciones).TextoVacio := SVacioCotizacionesCliente;
   TCeldasRejilla.De(grHistorial).TextoVacio := SVacioConsentimientos;
   PrepararRejilla(grContactos, AccionContacto);
+  grContactos.OnDblClick := grContactosDblClick;
   PrepararRejilla(grCotizaciones, AccionCotizacion);
   FClienteId := AClienteId;
   FSelector := TSelectorPeriodo.Crear(btnPeriodo, False, PeriodoCambio);
@@ -204,6 +208,34 @@ begin
   if FPresentador = nil then
     Exit;
   FPresentador.AbrirPestana(TPestanaCliente(pstCliente.ItemIndex));
+end;
+
+procedure TfraClienteDatos.EditarContacto;
+var
+  lVentana: TfrmContactoNuevo;
+begin
+  if dmMemoria.mtContactos.IsEmpty or
+    not(acoEditar in TPresentadorClienteDatos.AccionesContacto) then
+    Exit;
+  lVentana := TfrmContactoNuevo.Editar(Self, FClienteId);
+  try
+    if lVentana.ShowModal = mrOk then
+      FPresentador.Refrescar(pcContactos);
+  finally
+    lVentana.Free;
+  end;
+end;
+
+procedure TfraClienteDatos.grContactosDblClick(Sender: TObject);
+begin
+  if not TCeldasRejilla.De(grContactos).Ocupada then
+    EditarContacto;
+end;
+
+function TfraClienteDatos.ConfirmarQuitarContacto(const ANombre
+  : string): Boolean;
+begin
+  Result := Confirmar(Format(SQuitarContactoPregunta, [ANombre]));
 end;
 
 procedure TfraClienteDatos.btnNuevoClick(Sender: TObject);
@@ -347,11 +379,14 @@ procedure TfraClienteDatos.AccionContacto(Sender: TObject;
 begin
   if dmMemoria.mtContactos.IsEmpty then
     Exit;
-  if SameText(AClave, ACCIONES_CONTACTO[acoAnonimizar].Clave) then
-    FPresentador.AnonimizarContacto(dmMemoria.mtContactosID.AsInteger,
+  if SameText(AClave, ACCIONES_CONTACTO[acoEditar].Clave) then
+    EditarContacto
+  else if SameText(AClave, ACCIONES_CONTACTO[acoQuitar].Clave) then
+    FPresentador.QuitarContacto(dmMemoria.mtContactosID.AsInteger,
       dmMemoria.mtContactosNOMBRE.AsString)
-  else
-    Informar(SOpcionPendiente);
+  else if SameText(AClave, ACCIONES_CONTACTO[acoAnonimizar].Clave) then
+    FPresentador.AnonimizarContacto(dmMemoria.mtContactosID.AsInteger,
+      dmMemoria.mtContactosNOMBRE.AsString);
 end;
 
 procedure TfraClienteDatos.AccionCotizacion(Sender: TObject;
@@ -425,6 +460,7 @@ procedure TfraClienteDatos.MostrarContactos(const AContactos
   : TObjectList<TContactoDTO>);
 begin
   TMapeoDatos.AListaTabla<TContactoDTO>(AContactos, dmMemoria.mtContactos);
+  dmMemoria.MarcarContactosQuitables;
 end;
 
 procedure TfraClienteDatos.MostrarConsentimientos(const AConsentimientos

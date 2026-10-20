@@ -34,6 +34,8 @@ type
     constructor Create(const AVista: IVistaRegistro; const AApi: IApiClientes;
       const AClienteId: Integer);
     procedure Guardar(const ADto: TContactoNuevoDTO);
+    procedure Actualizar(const AContactoId: Integer;
+      const ADto: TContactoEdicionDTO);
   end;
 
 implementation
@@ -109,6 +111,22 @@ begin
     function: Integer
     begin
       Result := lApi.CrearContacto(lCliente, ADto);
+    end, ADto);
+end;
+
+procedure TPresentadorContactoNuevo.Actualizar(const AContactoId: Integer;
+  const ADto: TContactoEdicionDTO);
+var
+  lApi: IApiClientes;
+  lCliente: Integer;
+begin
+  lApi := FApi;
+  lCliente := FClienteId;
+  Enviar(
+    function: Integer
+    begin
+      lApi.ActualizarContacto(lCliente, AContactoId, ADto);
+      Result := AContactoId;
     end, ADto);
 end;
 

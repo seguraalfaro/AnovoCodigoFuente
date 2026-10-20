@@ -28,6 +28,9 @@ type
     procedure Anonimizar(const AId: Integer; const AMotivo: string);
     procedure AnonimizarContacto(const AId, AContactoId: Integer;
       const AMotivo: string);
+    procedure ActualizarContacto(const AId, AContactoId: Integer;
+      const ADto: TContactoEdicionDTO);
+    procedure QuitarContacto(const AId, AContactoId: Integer);
   end;
 
 implementation
@@ -168,6 +171,27 @@ begin
       Result := NuevoCliente.AddBody(ADto, False)
         .Post(Format('%s/%d/contactos', [RUTA_CLIENTES, AId]));
     end));
+end;
+
+procedure TApiClientes.ActualizarContacto(const AId, AContactoId: Integer;
+  const ADto: TContactoEdicionDTO);
+begin
+  Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.AddBody(ADto, False)
+        .Put(Format('%s/%d/contactos/%d', [RUTA_CLIENTES, AId, AContactoId]));
+    end);
+end;
+
+procedure TApiClientes.QuitarContacto(const AId, AContactoId: Integer);
+begin
+  Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.Post(Format('%s/%d/contactos/%d/inactivacion',
+        [RUTA_CLIENTES, AId, AContactoId]));
+    end);
 end;
 
 procedure TApiClientes.AnonimizarContacto(const AId, AContactoId: Integer;

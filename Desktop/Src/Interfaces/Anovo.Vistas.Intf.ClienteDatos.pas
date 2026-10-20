@@ -13,7 +13,7 @@ uses
 type
   TPestanaCliente = (pcDatos, pcContactos, pcConsentimiento, pcCotizaciones);
 
-  TAccionContacto = (acoEditar, acoQuitar, acoAnonimizar);
+  TAccionContacto = (acoEditar, acoAnonimizar, acoQuitar);
   TAccionesContacto = set of TAccionContacto;
 
   TAccionCotizacionCliente = (accVer);
@@ -39,6 +39,7 @@ type
     function PedirMotivoAnonimizacion(out AMotivo: string): Boolean;
     function PedirMotivoContacto(const ANombre: string;
       out AMotivo: string): Boolean;
+    function ConfirmarQuitarContacto(const ANombre: string): Boolean;
   end;
 
 implementation

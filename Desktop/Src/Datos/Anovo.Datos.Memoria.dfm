@@ -165,6 +165,19 @@ object dmMemoria: TdmMemoria
       FieldName = 'ACCIONES'
       Size = 1
     end
+    object mtContactosCELULAR: TStringField
+      FieldName = 'CELULAR'
+      Size = 30
+    end
+    object mtContactosCONSENTIMIENTO_ESTADO: TStringField
+      FieldName = 'CONSENTIMIENTO_ESTADO'
+    end
+    object mtContactosOBJVERSION: TIntegerField
+      FieldName = 'OBJVERSION'
+    end
+    object mtContactosQUITABLE: TBooleanField
+      FieldName = 'QUITABLE'
+    end
   end
   object mtConsentimientos: TFDMemTable
     FetchOptions.AssignedValues = [evMode]

@@ -172,6 +172,10 @@ resourcestring
   SConsentimientoYaFirmado = 'El cliente ya tiene el consentimiento firmado.';
   SAsesorNoValido = 'El asesor indicado no existe o está inactivo.';
   SContactoAnonimizadoNombre = 'Contacto anonimizado';
+  SContactoFirmadoNombre = 'Este contacto firmó el consentimiento: el nombre ' +
+    'no se puede cambiar.';
+  SContactoPrincipalNoSeQuita = 'El contacto principal no se puede quitar. ' +
+    'Marque otro como principal y vuelva a intentarlo.';
   SContactoYaAnonimizado = 'Este contacto ya fue anonimizado (Ley 8968).';
   SSinTextoConsentimiento = 'Todavía no se ha publicado el texto del ' +
     'consentimiento.';
@@ -224,6 +228,13 @@ resourcestring
   SDetalleAnonimizacionContacto = 'Se anonimizó el contacto %d del cliente ' +
     '%d (Ley 8968): %s';
   SAccionAnonimizarContacto = 'anonimizar al contacto';
+  SAccionQuitarContacto = 'quitar al contacto';
+  SQuitarContactoPregunta = '¿Quitar a %s de los contactos de este cliente? ' +
+    'Deja de aparecer en la lista y en el móvil. No se borra: las solicitudes ' +
+    'que lo tienen lo conservan y su firma sigue en el historial.';
+  STituloEditarContacto = 'Editar contacto';
+  SSubtituloContactoFirmado = 'Firmó el consentimiento: el nombre no se ' +
+    'cambia. Un solo contacto puede ser el principal.';
   SAccionAnonimizarFila = 'Anonimizar';
   SAnonimizarContactoTitulo = 'Anonimizar al contacto (derecho de supresión)';
   SAnonimizarContactoAyuda = 'Borra el nombre, el área, los teléfonos y el ' +
@@ -1005,6 +1016,7 @@ resourcestring
   SDetalleContactoNuevo = 'Contacto nuevo del cliente %d';
   SDetalleEdicionContacto = 'Edición del contacto %d';
   SDetalleInactivacionContacto = 'Inactivación del contacto %d';
+  SDetallePrincipalContacto = 'El contacto %d deja de ser el principal';
   SDetalleRevocacionConsentimiento = 'Revocación del consentimiento pedida ' +
     'por %s';
   SDetalleFirmaConsentimiento = 'Consentimiento firmado por %s';

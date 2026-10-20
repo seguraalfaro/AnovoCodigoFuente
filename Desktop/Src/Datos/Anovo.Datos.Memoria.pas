@@ -52,6 +52,10 @@ type
     mtContactosCORREO: TStringField;
     mtContactosPRINCIPAL: TStringField;
     mtContactosACCIONES: TStringField;
+    mtContactosCELULAR: TStringField;
+    mtContactosCONSENTIMIENTO_ESTADO: TStringField;
+    mtContactosOBJVERSION: TIntegerField;
+    mtContactosQUITABLE: TBooleanField;
     mtConsentimientos: TFDMemTable;
     mtConsentimientosFECHA: TDateTimeField;
     mtConsentimientosACCION: TStringField;
@@ -738,6 +742,9 @@ type
     procedure PrepararPrecioCatalogo;
     procedure PrepararClienteNuevo;
     procedure PrepararContactoNuevo(const AClienteId: Integer);
+    procedure PrepararContactoEdicion(const AClienteId: Integer);
+    procedure MarcarContactosQuitables;
+    function ContactoFirmado: Boolean;
     procedure PrepararUsuario;
     procedure PrepararConsentimientoNuevo;
     procedure PrepararParametros(const AMinutosAvisos: Integer);
@@ -772,6 +779,7 @@ uses
 
 const
   CONSENTIMIENTO_PENDIENTE = 'pendiente';
+  CONSENTIMIENTO_FIRMADO = 'firmado';
   CAMPO_ID_CATALOGO = 'ID';
   CAMPO_NOMBRE_CATALOGO = 'NOMBRE';
 
@@ -1175,6 +1183,43 @@ begin
   mtParametros.Edit;
   mtParametrosDIAS_SIN_RESPUESTA.AsInteger := ADias;
   mtParametros.Post;
+end;
+
+procedure TdmMemoria.PrepararContactoEdicion(const AClienteId: Integer);
+begin
+  PrepararContactoNuevo(AClienteId);
+  mtContactoNuevoNOMBRE.AsString := mtContactosNOMBRE.AsString;
+  mtContactoNuevoAREA.AsString := mtContactosAREA.AsString;
+  mtContactoNuevoTELEFONO.AsString := mtContactosTELEFONO.AsString;
+  mtContactoNuevoCELULAR.AsString := mtContactosCELULAR.AsString;
+  mtContactoNuevoCORREO.AsString := mtContactosCORREO.AsString;
+  mtContactoNuevoPRINCIPAL.AsBoolean := mtContactosPRINCIPAL.AsBoolean;
+  mtContactoNuevoCONSENTIMIENTO_ESTADO.AsString :=
+    mtContactosCONSENTIMIENTO_ESTADO.AsString;
+end;
+
+function TdmMemoria.ContactoFirmado: Boolean;
+begin
+  Result := mtContactoNuevoCONSENTIMIENTO_ESTADO.AsString =
+    CONSENTIMIENTO_FIRMADO;
+end;
+
+procedure TdmMemoria.MarcarContactosQuitables;
+begin
+  mtContactos.DisableControls;
+  try
+    mtContactos.First;
+    while not mtContactos.Eof do
+    begin
+      mtContactos.Edit;
+      mtContactosQUITABLE.AsBoolean := not mtContactosPRINCIPAL.AsBoolean;
+      mtContactos.Post;
+      mtContactos.Next;
+    end;
+    mtContactos.First;
+  finally
+    mtContactos.EnableControls;
+  end;
 end;
 
 procedure TdmMemoria.PrepararContactoNuevo(const AClienteId: Integer);

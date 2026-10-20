@@ -47,6 +47,8 @@ type
     procedure Refrescar(const APestana: TPestanaCliente);
     procedure Guardar(const ADto: TClienteEdicionDTO);
     procedure Anonimizar;
+    procedure QuitarContacto(const AContactoId: Integer;
+      const ANombre: string);
     procedure AnonimizarContacto(const AContactoId: Integer;
       const ANombre: string);
     class function PuedeEditar: Boolean;
@@ -310,6 +312,31 @@ begin
       Refrescar(pcDatos);
       if pcContactos in FCargadas then
         Refrescar(pcContactos);
+    end, MostrarError, MostrarCargando);
+end;
+
+procedure TPresentadorClienteDatos.QuitarContacto(const AContactoId: Integer;
+  const ANombre: string);
+var
+  lApi: IApiClientes;
+  lId: Integer;
+begin
+  if not PuedeEditar or (AContactoId = 0) then
+    Exit;
+  if not FVista.ConfirmarQuitarContacto(ANombre) then
+    Exit;
+
+  lApi := FApi;
+  lId := FClienteId;
+
+  Ejecutar(SAccionQuitarContacto,
+    procedure
+    begin
+      lApi.QuitarContacto(lId, AContactoId);
+    end,
+    procedure
+    begin
+      Refrescar(pcContactos);
     end, MostrarError, MostrarCargando);
 end;
 
