@@ -11,7 +11,6 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, Vcl.ComCtrls,
   VclPlano.BotonWin, Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
-  VclPlano.Pestanas,
   Anovo.PeriodoBusqueda,
   Anovo.Forms.Periodo,
   Anovo.Frames.Listado,
@@ -22,8 +21,8 @@ uses
 type
   TfraAuditoria = class(TfraListado, IVistaAuditoria)
     btnPeriodo: TPlanoBotonWin;
-    pstFiltros: TPlanoPestanas;
-    procedure pstFiltrosChange(Sender: TObject);
+    cbFiltro: TComboBox;
+    procedure cbFiltroChange(Sender: TObject);
   private
     FPresentador: TPresentadorAuditoria;
     FSelector: TSelectorPeriodo;
@@ -92,19 +91,22 @@ end;
 
 procedure TfraAuditoria.MostrarFiltros(const ARotulos: TArray<string>);
 begin
-  pstFiltros.Items.BeginUpdate;
+  cbFiltro.OnChange := nil;
+  cbFiltro.Items.BeginUpdate;
   try
-    pstFiltros.Items.Clear;
-    pstFiltros.Items.AddStrings(ARotulos);
+    cbFiltro.Items.Clear;
+    cbFiltro.Items.AddStrings(ARotulos);
+    cbFiltro.ItemIndex := 0;
   finally
-    pstFiltros.Items.EndUpdate;
+    cbFiltro.Items.EndUpdate;
+    cbFiltro.OnChange := cbFiltroChange;
   end;
 end;
 
 procedure TfraAuditoria.MostrarCargando(const AActivo: Boolean);
 begin
   inherited;
-  pstFiltros.Enabled := not AActivo;
+  cbFiltro.Enabled := not AActivo;
 end;
 
 procedure TfraAuditoria.MostrarPeriodo(const APeriodo: TPeriodoBusqueda);
@@ -119,12 +121,12 @@ begin
   TColumnasRejilla.AplicarEn(grDatos);
 end;
 
-procedure TfraAuditoria.pstFiltrosChange(Sender: TObject);
+procedure TfraAuditoria.cbFiltroChange(Sender: TObject);
 begin
-  if not Assigned(FPresentador) then
+  if not Assigned(FPresentador) or (cbFiltro.ItemIndex < 0) then
     Exit;
 
-  FPresentador.Filtrar(pstFiltros.ItemIndex);
+  FPresentador.Filtrar(cbFiltro.ItemIndex);
 end;
 
 procedure TfraAuditoria.PeriodoCambio(const APeriodo: TPeriodoBusqueda);

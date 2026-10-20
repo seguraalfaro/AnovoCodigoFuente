@@ -41,8 +41,7 @@ begin
   Result.Maquina :=
     TFormato.Colones(ACotizacion.SubtotalMaquina.ValueOrDefault);
   Result.Costo := TFormato.Colones(ACotizacion.CostoTotal.ValueOrDefault);
-  Result.Ajuste := TFormato.Colones(ACotizacion.CostoTotal.ValueOrDefault *
-    ACotizacion.PorcentajeAjuste / 100);
+  Result.Ajuste := TFormato.Colones(ACotizacion.MontoAjuste.ValueOrDefault);
   if ACotizacion.PorcentajeAjuste = 0 then
     Result.AjusteRotulo := SSinAjuste
   else

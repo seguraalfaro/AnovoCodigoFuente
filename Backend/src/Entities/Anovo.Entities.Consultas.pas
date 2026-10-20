@@ -25,7 +25,6 @@ const
   CONSULTA_RECIENTES = 'Recientes';
   CONSULTA_ENTRE = 'Entre';
   CONSULTA_POR_ID = 'PorId';
-  CONSULTA_DE_IDS = 'DeIds';
   CONSULTA_DE_SOLICITUD = 'DeSolicitud';
   CONSULTA_DE_CLIENTE = 'DeCliente';
   CONSULTA_BUSCAR_INACTIVOS = 'BuscarInactivos';
@@ -203,6 +202,27 @@ type
 
   [MVCNameCase(ncSnakeCase)]
   [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_COTIZACIONES_LISTADO')]
+  [MVCNamedRQLQuery(CONSULTA_POR_ID, 'eq(ID,%d)')]
+  TCotizacionListada = class(TVCotizacionesListado)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_COTIZACIONES_SIN_RESPUESTA')]
+  [MVCNamedRQLQuery(CONSULTA_ORDENADAS, 'sort(+FechaEnvio,+ID)')]
+  TCotizacionSinRespuesta = class(TVCotizacionesSinRespuesta)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
+  [MVCTable('V_COTIZACION_TOTALES')]
+  [MVCNamedRQLQuery(CONSULTA_POR_ID, 'eq(CotizacionId,%d)')]
+  TTotalesDeCotizacion = class(TVCotizacionTotales)
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCEntityActions([eaRetrieve])]
   [MVCTable('V_REPORTE_RESUMEN')]
   [MVCNamedRQLQuery(CONSULTA_ORDENADAS, 'sort(+Periodo)')]
   TResumenDelReporte = class(TVReporteResumen)
@@ -242,16 +262,6 @@ type
   [MVCNamedRQLQuery(CONSULTA_ORDENADAS,
     'sort(-SinRespuesta,-PorcentajeSinRespuesta,+ClienteNombre)')]
   TReportePorCliente = class(TVReporteCliente)
-  end;
-
-  [MVCNameCase(ncSnakeCase)]
-  [MVCEntityActions([eaRetrieve])]
-  [MVCTable('V_COTIZACIONES')]
-  [MVCNamedRQLQuery(CONSULTA_POR_ID,
-    'eq(ID,%d)')]
-  [MVCNamedRQLQuery(CONSULTA_DE_IDS,
-    'in(ID,[%s])')]
-  TCotizacionConNombres = class(TVCotizaciones)
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -388,7 +398,7 @@ type
     'and(eq(ElaboradaPor,%d),in(Estado,["devuelta","visto_bueno"]));' +
     'sort(-Dias,+CotizacionId)')]
   [MVCNamedRQLQuery(CONSULTA_ESTANCADAS,
-    'ge(Dias,%d);sort(-Dias,+CotizacionId)')]
+    'eq(Estancada,true);sort(-Dias,+CotizacionId)')]
   TCotizacionEnCurso = class(TVDashEnCurso)
   end;
 

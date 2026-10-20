@@ -16,8 +16,6 @@ uses
 type
   TUsuarioRepository = class(TAnovoRepository<TUsuarios>, IUsuarioRepository)
   public
-    function NombresDe(const AIds: TArray<Integer>)
-      : TDictionary<Integer, string>;
     function IdSistema: Integer;
     function PorCorreo(const ACorreo: string): TUsuarios;
     function Buscar(const ATexto, AEstado: string;
@@ -66,40 +64,6 @@ uses
   System.SysUtils,
   System.Variants,
   Anovo.SQL.Usuarios;
-
-function TUsuarioRepository.NombresDe(const AIds: TArray<Integer>)
-  : TDictionary<Integer, string>;
-var
-  lEntidades: TObjectList<TUsuarios>;
-  lUsuario: TUsuarios;
-  lLista: string;
-  lId: Integer;
-begin
-  Result := TDictionary<Integer, string>.Create;
-  if Length(AIds) = 0 then
-    Exit;
-
-  lLista := '';
-  for lId in AIds do
-  begin
-    if lLista <> '' then
-      lLista := lLista + ',';
-    lLista := lLista + IntToStr(lId);
-  end;
-
-  try
-    lEntidades := GetWhere(Format(USUARIOS_POR_IDS, [lLista]), []);
-    try
-      for lUsuario in lEntidades do
-        Result.AddOrSetValue(lUsuario.ID, lUsuario.Nombre);
-    finally
-      lEntidades.Free;
-    end;
-  except
-    Result.Free;
-    raise;
-  end;
-end;
 
 function NombreBusqueda(const AEstado: string): string;
 begin

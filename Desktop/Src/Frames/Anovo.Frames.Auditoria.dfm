@@ -30,10 +30,24 @@ inherited fraAuditoria: TfraAuditoria
       StyleElements = []
       Kind = fkSecondary
     end
+    object cbFiltro: TComboBox
+      Left = 741
+      Top = 14
+      Width = 170
+      Height = 23
+      Style = csDropDownList
+      ItemIndex = 0
+      TabOrder = 4
+      Text = 'Todo'
+      OnChange = cbFiltroChange
+      Items.Strings = (
+        'Todo'
+        'Clientes'
+        'Cotizaciones'
+        'Cuentas')
+    end
   end
   inherited pnclient: TRelativePanel
-    Top = 175
-    Height = 392
     inherited grDatos: TrDBGrid
       Height = 386
       DataSource = dmMemoria.dsAuditoria
@@ -76,32 +90,5 @@ inherited fraAuditoria: TfraAuditoria
           Visible = True
         end>
     end
-  end
-  object pstFiltros: TPlanoPestanas
-    AlignWithMargins = True
-    Left = 3
-    Top = 129
-    Width = 954
-    Height = 40
-    Items.Strings = (
-      'Todo'
-      'Clientes'
-      'Cotizaciones'
-      'Cuentas')
-    Style = pesPastilla
-    Indent = 20
-    BackColor = 16447477
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Segoe UI'
-    Font.Style = []
-    ActiveFont.Charset = DEFAULT_CHARSET
-    ActiveFont.Color = clWindowText
-    ActiveFont.Height = -12
-    ActiveFont.Name = 'Segoe UI Semibold'
-    ActiveFont.Style = []
-    OnChange = pstFiltrosChange
-    ParentFont = False
   end
 end

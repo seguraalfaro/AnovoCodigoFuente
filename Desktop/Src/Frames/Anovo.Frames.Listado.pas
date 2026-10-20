@@ -31,7 +31,9 @@ type
   private
     FTextoPie: string;
     FEncima: TPantallaEncima;
+    FApagados: TArray<TControl>;
     FBusqueda: TBusquedaAlEscribir;
+    procedure ApagarBarra(const AActivo: Boolean);
   protected
     FTextoCargando: string;
     FTextoSinRegistros: string;
@@ -91,7 +93,33 @@ begin
   end
   else if lblPaginacion.Caption = FTextoCargando then
     lblPaginacion.Caption := FTextoPie;
+  ApagarBarra(AActivo);
+  pnlPie.Enabled := not AActivo;
+  TCeldasRejilla.De(grDatos).Ocupada := AActivo;
   CursorOcupado(AActivo);
+end;
+
+procedure TfraListado.ApagarBarra(const AActivo: Boolean);
+var
+  I: Integer;
+  lControl: TControl;
+begin
+  if not AActivo then
+  begin
+    for lControl in FApagados do
+      lControl.Enabled := True;
+    FApagados := [];
+    Exit;
+  end;
+  for I := 0 to pnlBarra.ControlCount - 1 do
+  begin
+    lControl := pnlBarra.Controls[I];
+    if (lControl is TButtonControl) and lControl.Enabled then
+    begin
+      lControl.Enabled := False;
+      FApagados := FApagados + [lControl];
+    end;
+  end;
 end;
 
 procedure TfraListado.MostrarBusqueda(const ATexto: string;

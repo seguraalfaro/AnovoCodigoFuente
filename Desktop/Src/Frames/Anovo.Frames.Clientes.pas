@@ -13,7 +13,6 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls,
   VclPlano.BotonWin, Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
-  VclPlano.Pestanas,
   Anovo.Frames.Listado,
   Anovo.DTOs.Clientes,
   Anovo.Forms.ClienteNuevo,
@@ -25,8 +24,8 @@ type
   TfraClientes = class(TfraListado, IVistaClientes)
     btnExportar: TPlanoBotonWin;
     btnNuevo: TPlanoBotonWin;
-    pstFiltros: TPlanoPestanas;
-    procedure pstFiltrosChange(Sender: TObject);
+    cbFiltro: TComboBox;
+    procedure cbFiltroChange(Sender: TObject);
     procedure btnNuevoClick(Sender: TObject);
     procedure btnExportarClick(Sender: TObject);
   private
@@ -122,7 +121,7 @@ end;
 procedure TfraClientes.MostrarCargando(const AActivo: Boolean);
 begin
   inherited;
-  pstFiltros.Enabled := not AActivo;
+  cbFiltro.Enabled := not AActivo;
 end;
 
 procedure TfraClientes.MostrarClientes(const AClientes
@@ -158,11 +157,11 @@ begin
   CerrarEncima;
 end;
 
-procedure TfraClientes.pstFiltrosChange(Sender: TObject);
+procedure TfraClientes.cbFiltroChange(Sender: TObject);
 begin
-  if FPresentador = nil then
+  if (FPresentador = nil) or (cbFiltro.ItemIndex < 0) then
     Exit;
-  FPresentador.Filtrar(TFiltroConsentimiento(pstFiltros.ItemIndex));
+  FPresentador.Filtrar(TFiltroConsentimiento(cbFiltro.ItemIndex));
 end;
 
 procedure TfraClientes.btnExportarClick(Sender: TObject);

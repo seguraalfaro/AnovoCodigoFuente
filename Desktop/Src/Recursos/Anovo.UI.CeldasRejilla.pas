@@ -53,6 +53,7 @@ type
     FCoordHover: TGridCoord;
     FBotonHover: Integer;
     FTextoVacio: string;
+    FOcupada: Boolean;
     FEnlace: TDataLink;
     FSiguiendoFuente: Boolean;
     FAviso: TPanel;
@@ -108,6 +109,7 @@ type
     property TextoVacio: string read FTextoVacio write PonerTextoVacio;
     property CampoAcciones: string read FCampoAcciones;
     property OnAccion: TEventoAccion read FOnAccion write FOnAccion;
+    property Ocupada: Boolean read FOcupada write FOcupada;
   end;
 
 implementation
@@ -785,7 +787,7 @@ begin
   if Assigned(FUpAnterior) then
     FUpAnterior(Sender, AButton, AShift, AX, AY);
 
-  if AButton <> mbLeft then
+  if (AButton <> mbLeft) or FOcupada then
     Exit;
 
   lBoton := BotonEnPunto(AX, AY, lCoord);

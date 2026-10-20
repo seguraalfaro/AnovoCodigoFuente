@@ -38,6 +38,8 @@ type
       const ANombre: string; const AValores: array of const): V;
     function LeerVistaUnica<V: TMVCActiveRecord, constructor>: V;
     procedure FijarContexto(const AVariable, AValor: string);
+    function ListarDonde<V: TMVCActiveRecord, constructor>(
+      const AFiltro: string; const AValores: array of Variant): TObjectList<V>;
   public
     function ParaBajar(const ADesde: NullableTDateTime;
       const AConUuid: Boolean = False): TObjectList<T>;
@@ -116,6 +118,12 @@ end;
 function TAnovoRepository<T>.LeerVistaUnica<V>: V;
 begin
   Result := TMVCActiveRecord.SelectOneByRQL<V>('', True);
+end;
+
+function TAnovoRepository<T>.ListarDonde<V>(const AFiltro: string;
+  const AValores: array of Variant): TObjectList<V>;
+begin
+  Result := TMVCActiveRecord.Where<V>(AFiltro, AValores);
 end;
 
 procedure TAnovoRepository<T>.FijarContexto(const AVariable, AValor: string);

@@ -6,6 +6,7 @@ unit Anovo.Formato;
 interface
 
 uses
+  MVCFramework.Nullables,
   Anovo.Validacion;
 
 type
@@ -35,9 +36,13 @@ type
     class function Porcentaje(const AValor: Double): string; static;
     class function Tasa(const AValor: Currency): string; static;
     class function Puntos(const AValor: Currency): string; static;
-    class function Variacion(const AActual, AAnterior: Integer): string; static;
-    class function VariacionPorcentual(const AActual,
-      AAnterior: Currency): string; static;
+    class function Variacion(const ACambio: Integer;
+      const AMesAnterior: TDateTime): string; static;
+    class function VariacionPorcentual(const ACambio: NullableCurrency;
+      const AMesAnterior: TDateTime = 0): string; static;
+    class function VariacionPuntos(const ACambio: Currency): string; static;
+    class function Hace(const ADias: Integer): string; static;
+    class function MesMinuscula(const AFecha: TDateTime): string; static;
     class function MasAntigua(const ADias: Integer): string; static;
     class function Numero(const AValor: Currency): string; static;
     class function FechaArchivo(const AFecha: TDateTime): string; static;
@@ -260,30 +265,61 @@ begin
   Result := Format(SColonesDocumento, [FormatFloat(FORMATO_MONTO, AMonto)]);
 end;
 
-class function TFormato.Variacion(const AActual, AAnterior: Integer): string;
+class function TFormato.MesMinuscula(const AFecha: TDateTime): string;
 begin
-  if AActual > AAnterior then
-    Result := Format(SNotaVariacion, [SFlechaSube, AActual - AAnterior])
-  else if AActual < AAnterior then
-    Result := Format(SNotaVariacion, [SFlechaBaja, AAnterior - AActual])
-  else
-    Result := SNotaIgualMes;
+  Result := LowerCase(NombreMes(AFecha));
 end;
 
-class function TFormato.VariacionPorcentual(const AActual,
-  AAnterior: Currency): string;
-var
-  lCambio: Integer;
+class function TFormato.Variacion(const ACambio: Integer;
+  const AMesAnterior: TDateTime): string;
 begin
-  if AAnterior <= 0 then
-    Exit('');
-  lCambio := Round((AActual - AAnterior) * 100 / AAnterior);
-  if lCambio > 0 then
-    Result := Format(SNotaVariacionMonto, [SFlechaSube, lCambio])
-  else if lCambio < 0 then
-    Result := Format(SNotaVariacionMonto, [SFlechaBaja, -lCambio])
+  if ACambio > 0 then
+    Result := Format(SNotaVariacion, [SFlechaSube, ACambio,
+      MesMinuscula(AMesAnterior)])
+  else if ACambio < 0 then
+    Result := Format(SNotaVariacion, [SFlechaBaja, -ACambio,
+      MesMinuscula(AMesAnterior)])
   else
-    Result := SNotaIgualMes;
+    Result := Format(SNotaIgualMes, [MesMinuscula(AMesAnterior)]);
+end;
+
+class function TFormato.VariacionPorcentual(const ACambio: NullableCurrency;
+  const AMesAnterior: TDateTime): string;
+var
+  lFlecha: string;
+begin
+  if not ACambio.HasValue then
+    Exit('');
+  if ACambio.Value = 0 then
+    Exit(SNotaIgual);
+  if ACambio.Value > 0 then
+    lFlecha := SFlechaSube
+  else
+    lFlecha := SFlechaBaja;
+  if AMesAnterior > 0 then
+    Result := Format(SNotaVariacionMonto, [lFlecha, Puntos(Abs(ACambio.Value)),
+      MesMinuscula(AMesAnterior)])
+  else
+    Result := Format(SNotaVariacionMontoSolo, [lFlecha,
+      Puntos(Abs(ACambio.Value))]);
+end;
+
+class function TFormato.VariacionPuntos(const ACambio: Currency): string;
+begin
+  if ACambio = 0 then
+    Exit(SNotaIgual);
+  if ACambio > 0 then
+    Result := Format(SNotaVariacionPuntos, [SFlechaSube, Puntos(ACambio)])
+  else
+    Result := Format(SNotaVariacionPuntos, [SFlechaBaja, Puntos(-ACambio)]);
+end;
+
+class function TFormato.Hace(const ADias: Integer): string;
+begin
+  if ADias <= 0 then
+    Result := SHoy
+  else
+    Result := Format(SHaceDias, [Dias(ADias)]);
 end;
 
 class function TFormato.MasAntigua(const ADias: Integer): string;

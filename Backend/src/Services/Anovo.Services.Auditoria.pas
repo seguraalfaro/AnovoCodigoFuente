@@ -11,23 +11,20 @@ uses
   Anovo.DTOs.Auditoria,
   Anovo.Entities.Auditoria,
   Anovo.Repositories.Intf.Auditoria,
-  Anovo.Repositories.Intf.Usuarios,
+  Anovo.Entities.Vistas.Lectura,
   Anovo.Services.Intf.Auditoria;
 
 type
   TAuditoriaService = class(TInterfacedObject, IAuditoriaService)
   private
     fRepo: IAuditoriaRepository;
-    fUsuarios: IUsuarioRepository;
-    function AListaDto(const AEntidades: TObjectList<TAuditoria>)
+    function AListaDto(const AEntidades: TObjectList<TVAuditoria>)
       : TObjectList<TAuditoriaDTO>;
-    procedure PonerNombres(const ALista: TObjectList<TAuditoriaDTO>);
     function EntidadSegun(const AAlcance: TAlcanceAuditoria;
       const AEntidad: string): string;
   public
     [MVCInject]
-    constructor Create(ARepo: IAuditoriaRepository;
-      AUsuarios: IUsuarioRepository); reintroduce;
+    constructor Create(ARepo: IAuditoriaRepository); reintroduce;
 
     function Buscar(const AAlcance: TAlcanceAuditoria;
       const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer;
@@ -53,12 +50,10 @@ const
   ENTIDAD_USUARIOS_PERMISOS = 'USUARIOS_PERMISOS';
 
 
-constructor TAuditoriaService.Create(ARepo: IAuditoriaRepository;
-  AUsuarios: IUsuarioRepository);
+constructor TAuditoriaService.Create(ARepo: IAuditoriaRepository);
 begin
   inherited Create;
   fRepo := ARepo;
-  fUsuarios := AUsuarios;
 end;
 
 function TAuditoriaService.EntidadSegun(const AAlcance: TAlcanceAuditoria;
@@ -85,7 +80,7 @@ function TAuditoriaService.Buscar(const AAlcance: TAlcanceAuditoria;
   const AUsuarioId: Integer; const AEntidad, AAccion, ATexto: string;
   out ATotal: Int64): TObjectList<TAuditoriaDTO>;
 var
-  lEntidades: TObjectList<TAuditoria>;
+  lEntidades: TObjectList<TVAuditoria>;
   lEntidad: string;
 begin
   if ADesde > AHasta then
@@ -107,7 +102,7 @@ end;
 function TAuditoriaService.DeLaEntidad(const AEntidad: string;
   const AEntidadId: Integer): TObjectList<TAuditoriaDTO>;
 var
-  lEntidades: TObjectList<TAuditoria>;
+  lEntidades: TObjectList<TVAuditoria>;
 begin
   lEntidades := fRepo.DeLaEntidad(UpperCase(Trim(AEntidad)), AEntidadId);
   try
@@ -118,51 +113,18 @@ begin
 end;
 
 function TAuditoriaService.AListaDto(const AEntidades
-  : TObjectList<TAuditoria>): TObjectList<TAuditoriaDTO>;
-begin
-  Result := TMapeo.AListaDto<TAuditoria, TAuditoriaDTO>(AEntidades);
-  try
-    PonerNombres(Result);
-  except
-    Result.Free;
-    raise;
-  end;
-end;
-
-procedure TAuditoriaService.PonerNombres(const ALista
-  : TObjectList<TAuditoriaDTO>);
+  : TObjectList<TVAuditoria>): TObjectList<TAuditoriaDTO>;
 var
-  lIds: TArray<Integer>;
-  lNombres: TDictionary<Integer, string>;
-  lVistos: TList<Integer>;
-  lFila: TAuditoriaDTO;
-  lNombre: string;
+  I: Integer;
 begin
-  lVistos := TList<Integer>.Create;
-  try
-    for lFila in ALista do
-      if lFila.UsuarioId.HasValue and
-        (lVistos.IndexOf(lFila.UsuarioId.Value) < 0) then
-        lVistos.Add(lFila.UsuarioId.Value);
-    lIds := lVistos.ToArray;
-  finally
-    lVistos.Free;
-  end;
-
-  lNombres := fUsuarios.NombresDe(lIds);
-  try
-    for lFila in ALista do
-    begin
-      if not lFila.UsuarioId.HasValue then
-        lFila.Usuario := SUsuarioSistema
-      else if lNombres.TryGetValue(lFila.UsuarioId.Value, lNombre) then
-        lFila.Usuario := lNombre
-      else
-        lFila.Usuario := SUsuarioEliminado;
-    end;
-  finally
-    lNombres.Free;
-  end;
+  Result := TMapeo.AListaDto<TVAuditoria, TAuditoriaDTO>(AEntidades);
+  for I := 0 to Result.Count - 1 do
+    if not AEntidades[I].UsuarioId.HasValue then
+      Result[I].Usuario := SUsuarioSistema
+    else if AEntidades[I].UsuarioNombre.ValueOrDefault = '' then
+      Result[I].Usuario := SUsuarioEliminado
+    else
+      Result[I].Usuario := AEntidades[I].UsuarioNombre.Value;
 end;
 
 end.

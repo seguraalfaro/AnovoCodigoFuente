@@ -8,6 +8,7 @@ uses
   System.Generics.Collections,
   MVCFramework.Repository,
   Anovo.Entities.Cotizaciones,
+  Anovo.Entities.Vistas.Lectura,
   Anovo.Entities.Consultas;
 
 type
@@ -34,7 +35,7 @@ type
     function PorMes: TObjectList<TReportePorMes>;
     function PorCliente: TObjectList<TReportePorCliente>;
     function Detalle(const AFiltro: TFiltroDetalleReporte;
-      const ALimite: Integer): TObjectList<TCotizacionConNombres>;
+      const ALimite: Integer): TObjectList<TVCotizacionesListado>;
   end;
 
 implementation

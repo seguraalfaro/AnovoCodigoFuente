@@ -10,6 +10,7 @@ uses
   MVCFramework.Nullables,
   MVCFramework.Repository,
   Anovo.Entities.Clientes,
+  Anovo.Entities.Vistas.Lectura,
   Anovo.Entities.Consultas;
 
 type
@@ -44,6 +45,8 @@ type
     function PorUuidLocal(const AUuid: string): TClienteContactos;
     function ParaBajar(const ADesde: NullableTDateTime;
       const AConUuid: Boolean = False): TObjectList<TClienteContactos>;
+    function ParaElMovil(const ADesde: NullableTDateTime)
+      : TObjectList<TVContactosBajada>;
   end;
 
   IConsentimientoRepository = interface

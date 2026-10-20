@@ -84,6 +84,7 @@ const
   TAG_KPI_AMBAR = 8;
   TAG_KPI_VERDE = 9;
   TAG_KPI_MARCA = 10;
+  TAG_KPI_ROJO = 26;
 
   TAG_TITULO = 11;
   TAG_TITULO_GRANDE = 22;
@@ -343,7 +344,7 @@ end;
 function EsKPI(ATag: NativeInt): Boolean;
 begin
   Result := (ATag = TAG_KPI_ACENTO) or (ATag = TAG_KPI_AMBAR) or
-    (ATag = TAG_KPI_VERDE) or (ATag = TAG_KPI_MARCA);
+    (ATag = TAG_KPI_VERDE) or (ATag = TAG_KPI_MARCA) or (ATag = TAG_KPI_ROJO);
 end;
 
 function EsBoton(ATag: NativeInt): Boolean;
@@ -361,6 +362,8 @@ begin
       Result := clEstAprobadaFondo;
     TAG_KPI_MARCA:
       Result := clAnovoMarca;
+    TAG_KPI_ROJO:
+      Result := clEstRechazadaFondo;
   else
     Result := clAnovoAcento;
   end;

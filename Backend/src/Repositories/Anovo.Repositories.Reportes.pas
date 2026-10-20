@@ -10,6 +10,7 @@ uses
   Anovo.Repositories.Base,
   Anovo.Repositories.Intf.Reportes,
   Anovo.Entities.Cotizaciones,
+  Anovo.Entities.Vistas.Lectura,
   Anovo.Entities.Consultas;
 
 type
@@ -25,7 +26,7 @@ type
     function PorMes: TObjectList<TReportePorMes>;
     function PorCliente: TObjectList<TReportePorCliente>;
     function Detalle(const AFiltro: TFiltroDetalleReporte;
-      const ALimite: Integer): TObjectList<TCotizacionConNombres>;
+      const ALimite: Integer): TObjectList<TVCotizacionesListado>;
   end;
 
 implementation
@@ -78,12 +79,10 @@ begin
 end;
 
 function TReporteRepository.Detalle(const AFiltro: TFiltroDetalleReporte;
-  const ALimite: Integer): TObjectList<TCotizacionConNombres>;
+  const ALimite: Integer): TObjectList<TVCotizacionesListado>;
 var
-  lSql, lIds: string;
+  lSql: string;
   lParametros: TArray<Variant>;
-  lFilas: TObjectList<TCotizaciones>;
-  lFila: TCotizaciones;
 begin
   lParametros := [Variant(AFiltro.Desde), Variant(AFiltro.Hasta)];
   if AFiltro.PorEnvio then
@@ -119,22 +118,8 @@ begin
       Variant(AFiltro.UsuarioPropio)];
   end;
 
-  lFilas := GetWhere(lSql + REPORTE_ORDEN, lParametros + [Variant(ALimite)]);
-  try
-    lIds := '';
-    for lFila in lFilas do
-    begin
-      if lIds <> '' then
-        lIds := lIds + ',';
-      lIds := lIds + lFila.ID.Value.ToString;
-    end;
-  finally
-    lFilas.Free;
-  end;
-  if lIds = '' then
-    Exit(TObjectList<TCotizacionConNombres>.Create(True));
-  Result := ListarConsulta<TCotizacionConNombres>(CONSULTA_DE_IDS, [lIds],
-    SIN_LIMITE);
+  Result := ListarDonde<TVCotizacionesListado>(lSql + REPORTE_ORDEN,
+    lParametros + [Variant(ALimite)]);
 end;
 
 end.

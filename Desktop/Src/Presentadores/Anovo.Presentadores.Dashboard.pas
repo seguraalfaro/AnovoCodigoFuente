@@ -23,9 +23,13 @@ type
       const AApi: IApiDashboard; const APedir: TFunc<IApiDashboard, T>);
     procedure Iniciar;
     procedure Recargar;
+    function Saludo: string;
   end;
 
 implementation
+
+uses
+  Anovo.Sesion;
 
 constructor TPresentadorDashboard<T>.Create(const AVista: IVistaDashboard<T>;
   const AApi: IApiDashboard; const APedir: TFunc<IApiDashboard, T>);
@@ -34,6 +38,16 @@ begin
   FVista := AVista;
   FApi := AApi;
   FPedir := APedir;
+end;
+
+function TPresentadorDashboard<T>.Saludo: string;
+var
+  lNombre: string;
+begin
+  lNombre := TSesion.Nombre.Trim;
+  if lNombre.Contains(' ') then
+    lNombre := lNombre.Substring(0, lNombre.IndexOf(' '));
+  Result := Format(SSaludoDashboard, [lNombre, NombreDeRol(TSesion.Rol)]);
 end;
 
 procedure TPresentadorDashboard<T>.Iniciar;

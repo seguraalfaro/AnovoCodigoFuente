@@ -28,15 +28,15 @@ type
       const AEstado: string = ''; const AClienteId: Integer = 0;
       const AAsesorId: Integer = 0; const ADesde: TDateTime = 0;
       const AHasta: TDateTime = 0; const AElaboradaPor: Integer = 0)
-      : TObjectList<TCotizaciones>;
+      : TObjectList<TVCotizacionesListado>;
     function ContarBusqueda(const ATexto: string; const AEstado: string = '';
       const AClienteId: Integer = 0; const AAsesorId: Integer = 0;
       const ADesde: TDateTime = 0; const AHasta: TDateTime = 0;
       const AElaboradaPor: Integer = 0): Int64;
     function ObtenerPorNumero(const ANumero: Integer): TCotizaciones;
     function SiguienteNumero: Integer;
-    function EnviadasSinRespuesta(const ADias: Integer)
-      : TObjectList<TCotizaciones>;
+    function EnviadasSinRespuesta: TObjectList<TCotizacionSinRespuesta>;
+    function TotalesDe(const AId: Integer): TTotalesDeCotizacion;
     function Bandeja(const AUsuarioId: Integer; const ATexto: string;
       const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer)
       : TObjectList<TBandejaCotizaciones>;
@@ -45,9 +45,7 @@ type
     function ResumenBandeja(const AUsuarioId: Integer)
       : TTrabajoUsuario;
     function TieneEnCurso(const ASolicitudId: Integer): Boolean;
-    function VistaDe(const AId: Integer): TCotizacionConNombres;
-    function VistasDe(const AIds: TArray<Integer>)
-      : TObjectList<TCotizacionConNombres>;
+    function VistaDe(const AId: Integer): TCotizacionListada;
     function HistorialDe(const AId: Integer): TObjectList<THistorialCotizacion>;
   end;
 
@@ -59,8 +57,7 @@ type
     function LineaDe(const ACotizacionId, ALineaId: Integer)
       : TCotizacionDetalle;
     function SiguienteOrden(const ACotizacionId: Integer): Integer;
-    procedure SubtotalesDe(const ACotizacionId: Integer;
-      out AMateriales, AManoObra, AMaquina: Currency);
+    function SubtotalDeLinea(const ACantidad, APrecio: Currency): Currency;
   end;
 
   TCotizacionEnvioRepository = class(TAnovoRepository<TCotizacionEnvios>,
@@ -75,10 +72,6 @@ uses
   System.Variants,
   Anovo.SQL.Cotizaciones;
 
-const
-  TIPO_MATERIAL = 'material';
-  TIPO_MANO_OBRA = 'mano_obra';
-  TIPO_MAQUINA = 'maquina';
 
 function TCotizacionRepository.Filtro(const AEstado: string;
   const AClienteId, AAsesorId: Integer;
@@ -117,13 +110,13 @@ end;
 function TCotizacionRepository.Buscar(const ATexto: string;
   const APagina, APorPagina: Integer; const AEstado: string;
   const AClienteId, AAsesorId: Integer; const ADesde, AHasta: TDateTime;
-  const AElaboradaPor: Integer): TObjectList<TCotizaciones>;
+  const AElaboradaPor: Integer): TObjectList<TVCotizacionesListado>;
 var
   lDesde, lHasta: Integer;
 begin
   lDesde := ((APagina - 1) * APorPagina) + 1;
   lHasta := APagina * APorPagina;
-  Result := GetWhere(Filtro(AEstado, AClienteId, AAsesorId, ADesde, AHasta,
+  Result := ListarDonde<TVCotizacionesListado>(Filtro(AEstado, AClienteId, AAsesorId, ADesde, AHasta,
     AElaboradaPor) + COTIZACIONES_ORDEN_Y_PAGINA,
     Parametros(ATexto, AEstado, AClienteId, AAsesorId, ADesde, AHasta,
     AElaboradaPor) +
@@ -179,29 +172,15 @@ begin
     [ASolicitudId]) > 0;
 end;
 
-function TCotizacionRepository.VistaDe(const AId: Integer)
-  : TCotizacionConNombres;
+function TCotizacionRepository.VistaDe(const AId: Integer): TCotizacionListada;
 begin
-  Result := PrimeraFilaDeConsulta<TCotizacionConNombres>(CONSULTA_POR_ID, [AId]);
+  Result := PrimeraFilaDeConsulta<TCotizacionListada>(CONSULTA_POR_ID, [AId]);
 end;
 
-function TCotizacionRepository.VistasDe(const AIds: TArray<Integer>)
-  : TObjectList<TCotizacionConNombres>;
-var
-  lId: Integer;
-  lLista: string;
+function TCotizacionRepository.TotalesDe(const AId: Integer)
+  : TTotalesDeCotizacion;
 begin
-  if Length(AIds) = 0 then
-    Exit(TObjectList<TCotizacionConNombres>.Create(True));
-  lLista := '';
-  for lId in AIds do
-  begin
-    if lLista <> '' then
-      lLista := lLista + ',';
-    lLista := lLista + lId.ToString;
-  end;
-  Result := ListarConsulta<TCotizacionConNombres>(CONSULTA_DE_IDS, [lLista],
-    SIN_LIMITE);
+  Result := PrimeraFilaDeConsulta<TTotalesDeCotizacion>(CONSULTA_POR_ID, [AId]);
 end;
 
 function TCotizacionRepository.HistorialDe(const AId: Integer)
@@ -222,10 +201,11 @@ begin
   Result := GetConnection.ExecSQLScalar(COTIZACIONES_SIGUIENTE_NUMERO);
 end;
 
-function TCotizacionRepository.EnviadasSinRespuesta(const ADias: Integer)
-  : TObjectList<TCotizaciones>;
+function TCotizacionRepository.EnviadasSinRespuesta
+  : TObjectList<TCotizacionSinRespuesta>;
 begin
-  Result := GetWhere(COTIZACIONES_ENVIADAS_SIN_RESPUESTA, [IncDay(Now, -ADias)]);
+  Result := ListarConsulta<TCotizacionSinRespuesta>(CONSULTA_ORDENADAS, [],
+    SIN_LIMITE);
 end;
 
 function TCotizacionDetalleRepository.DetalleDe(const ACotizacionId: Integer)
@@ -248,15 +228,11 @@ begin
     [ACotizacionId]);
 end;
 
-procedure TCotizacionDetalleRepository.SubtotalesDe(const ACotizacionId
-  : Integer; out AMateriales, AManoObra, AMaquina: Currency);
+function TCotizacionDetalleRepository.SubtotalDeLinea(const ACantidad,
+  APrecio: Currency): Currency;
 begin
-  AMateriales := GetConnection.ExecSQLScalar(COTIZACION_SUBTOTAL_DE_TIPO,
-    [ACotizacionId, TIPO_MATERIAL]);
-  AManoObra := GetConnection.ExecSQLScalar(COTIZACION_SUBTOTAL_DE_TIPO,
-    [ACotizacionId, TIPO_MANO_OBRA]);
-  AMaquina := GetConnection.ExecSQLScalar(COTIZACION_SUBTOTAL_DE_TIPO,
-    [ACotizacionId, TIPO_MAQUINA]);
+  Result := GetConnection.ExecSQLScalar(COTIZACION_SUBTOTAL_DE_LINEA,
+    [ACantidad, APrecio]);
 end;
 
 end.

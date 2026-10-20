@@ -13,7 +13,6 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls,
   VclPlano.BotonWin, Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
-  VclPlano.Pestanas,
   Anovo.Frames.Listado,
   Anovo.DTOs.Usuarios,
   Anovo.Vistas.Intf.Usuarios,
@@ -23,8 +22,8 @@ type
   TfraUsuarios = class(TfraListado, IVistaUsuarios)
     btnExportar: TPlanoBotonWin;
     btnNuevo: TPlanoBotonWin;
-    pstFiltros: TPlanoPestanas;
-    procedure pstFiltrosChange(Sender: TObject);
+    cbFiltro: TComboBox;
+    procedure cbFiltroChange(Sender: TObject);
     procedure btnNuevoClick(Sender: TObject);
     procedure btnExportarClick(Sender: TObject);
   private
@@ -124,7 +123,7 @@ end;
 procedure TfraUsuarios.MostrarCargando(const AActivo: Boolean);
 begin
   inherited;
-  pstFiltros.Enabled := not AActivo;
+  cbFiltro.Enabled := not AActivo;
 end;
 
 procedure TfraUsuarios.MostrarUsuarios(const AUsuarios
@@ -161,11 +160,11 @@ begin
       dmMemoria.mtUsuariosACTIVO.AsBoolean);
 end;
 
-procedure TfraUsuarios.pstFiltrosChange(Sender: TObject);
+procedure TfraUsuarios.cbFiltroChange(Sender: TObject);
 begin
   if FPresentador = nil then
     Exit;
-  FPresentador.Filtrar(TFiltroUsuarios(pstFiltros.ItemIndex));
+  FPresentador.Filtrar(TFiltroUsuarios(cbFiltro.ItemIndex));
 end;
 
 procedure TfraUsuarios.btnExportarClick(Sender: TObject);

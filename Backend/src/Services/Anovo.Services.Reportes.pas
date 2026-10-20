@@ -53,9 +53,9 @@ uses
   System.SysUtils,
   System.DateUtils,
   System.Math,
-  System.Generics.Defaults,
   Anovo.DTOs.Dashboard,
   Anovo.Entities.Consultas,
+  Anovo.Entities.Vistas.Lectura,
   Anovo.Entities.Empresa,
   Anovo.Errors,
   Anovo.Mapeo,
@@ -221,8 +221,7 @@ var
   lFiltro: TFiltroDetalleReporte;
   lClave: Integer;
   lInicioMes: TDateTime;
-  lVistas: TObjectList<TCotizacionConNombres>;
-  lVista: TCotizacionConNombres;
+  lFilas: TObjectList<TVCotizacionesListado>;
 begin
   if DateOf(ADesde) > DateOf(AHasta) then
     raise EDatoInvalido.Create(SReporteRangoInvalido);
@@ -267,23 +266,11 @@ begin
       raise EDatoInvalido.Create(SReporteVistaInvalida);
   end;
 
-  lVistas := fRepo.Detalle(lFiltro, DETALLE_MAXIMO);
+  lFilas := fRepo.Detalle(lFiltro, DETALLE_MAXIMO);
   try
-    Result := TObjectList<TCotizacionDTO>.Create(True);
-    try
-      for lVista in lVistas do
-        Result.Add(TMapeo.ADto<TCotizacionDTO>(lVista));
-      Result.Sort(TComparer<TCotizacionDTO>.Construct(
-        function(const A, B: TCotizacionDTO): Integer
-        begin
-          Result := B.Numero - A.Numero;
-        end));
-    except
-      Result.Free;
-      raise;
-    end;
+    Result := TMapeo.AListaDto<TVCotizacionesListado, TCotizacionDTO>(lFilas);
   finally
-    lVistas.Free;
+    lFilas.Free;
   end;
 end;
 

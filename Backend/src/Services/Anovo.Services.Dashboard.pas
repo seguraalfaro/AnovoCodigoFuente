@@ -20,7 +20,8 @@ type
       const ADatos: TDashboardAsesorDTO);
     procedure LlenarAsistente(const AUsuarioId: Integer;
       const ADatos: TDashboardAsistenteDTO);
-    procedure LlenarSupervisor(const ADatos: TDashboardSupervisorDTO);
+    procedure LlenarSupervisor(const AUsuarioId: Integer;
+      const ADatos: TDashboardSupervisorDTO);
   public
     [MVCInject]
     constructor Create(ARepo: IDashboardRepository); reintroduce;
@@ -51,7 +52,6 @@ const
   AVISOS_MAXIMO = 6;
   FORMATO_MONTO = '#,##0';
   FORMATO_TASA = '0.00';
-  DIAS_ESTANCADA = 5;
   GRUPO_ESPERANDO = 'esperando';
   GRUPO_ELABORACION = 'elaboracion';
   GRUPO_SIN_RESPUESTA = 'sin_respuesta';
@@ -98,7 +98,8 @@ begin
 end;
 
 function Aviso(const AId, ANumero: Integer; const ACliente, AEstado,
-  ADetalle: string; const ADias: Integer): TDashboardAvisoDTO;
+  ADetalle: string; const ADias: Integer; const ANivel: string = '';
+  const AEtiqueta: string = ''): TDashboardAvisoDTO;
 begin
   Result := TDashboardAvisoDTO.Create;
   Result.CotizacionId := AId;
@@ -107,6 +108,26 @@ begin
   Result.Estado := AEstado;
   Result.Detalle := ADetalle;
   Result.Dias := ADias;
+  Result.Nivel := ANivel;
+  Result.Etiqueta := AEtiqueta;
+end;
+
+function EtiquetaEtapa(const AEstado: string): string;
+begin
+  if AEstado = ESTADO_BORRADOR then
+    Result := SEtapaBorrador
+  else if AEstado = ESTADO_PENDIENTE then
+    Result := SEtapaRevision
+  else if AEstado = ESTADO_DEVUELTA then
+    Result := SEtapaDevuelta
+  else if AEstado = ESTADO_VISTO_BUENO then
+    Result := SEtapaVistoBueno
+  else if AEstado = ESTADO_ENVIADA then
+    Result := SEtapaEnviada
+  else if AEstado = ESTADO_APROBADA then
+    Result := SEtapaAprobadaMes
+  else
+    Result := TextoEstado(AEstado);
 end;
 
 function Dato(const AConcepto, AValor: string): TDashboardDatoDTO;
@@ -171,7 +192,8 @@ begin
     for lEnviada in lEnviadas do
       ADatos.PorLlamar.Add(Aviso(lEnviada.CotizacionId.ValueOrDefault,
         lEnviada.Numero.ValueOrDefault, lEnviada.ClienteNombre.ValueOrDefault,
-        ESTADO_ENVIADA, '', lEnviada.Dias.ValueOrDefault));
+        ESTADO_ENVIADA, '', lEnviada.Dias.ValueOrDefault,
+        lEnviada.Nivel.ValueOrDefault));
   finally
     lEnviadas.Free;
   end;
@@ -185,13 +207,13 @@ var
   lEtapa: TEtapasDelUsuario;
   lEnCurso: TObjectList<TCotizacionEnCurso>;
   lFila: TCotizacionEnCurso;
-  lDetalle: string;
+  lDetalle, lEtiqueta: string;
 begin
   lEtapas := fRepo.EtapasDelUsuario(AUsuarioId);
   try
     for lEtapa in lEtapas do
       ADatos.PorEtapa.Add(Barra(lEtapa.Estado.ValueOrDefault,
-        TextoEstado(lEtapa.Estado.ValueOrDefault),
+        EtiquetaEtapa(lEtapa.Estado.ValueOrDefault),
         lEtapa.Cantidad.ValueOrDefault));
   finally
     lEtapas.Free;
@@ -202,12 +224,19 @@ begin
     for lFila in lEnCurso do
     begin
       if lFila.Estado.ValueOrDefault = ESTADO_DEVUELTA then
-        lDetalle := lFila.MotivoRechazo.ValueOrDefault
+      begin
+        lDetalle := lFila.MotivoRechazo.ValueOrDefault;
+        lEtiqueta := SEtapaDevuelta;
+      end
       else
-        lDetalle := SAvisoPorEnviar;
+      begin
+        lDetalle := lFila.ClienteNombre.ValueOrDefault;
+        lEtiqueta := SAvisoPorEnviar;
+      end;
       ADatos.ParaHoy.Add(Aviso(lFila.CotizacionId.ValueOrDefault,
         lFila.Numero.ValueOrDefault, lFila.ClienteNombre.ValueOrDefault,
-        lFila.Estado.ValueOrDefault, lDetalle, lFila.Dias.ValueOrDefault));
+        lFila.Estado.ValueOrDefault, lDetalle, lFila.Dias.ValueOrDefault, '',
+        lEtiqueta));
     end;
   finally
     lEnCurso.Free;
@@ -222,8 +251,6 @@ begin
       lResumen.PresentadasMes.ValueOrDefault.ToString));
     ADatos.MiMes.Add(Dato(SDatoAprobadas,
       lResumen.AprobadasMes.ValueOrDefault.ToString));
-    ADatos.MiMes.Add(Dato(SDatoRechazadas,
-      lResumen.RechazadasMes.ValueOrDefault.ToString));
     ADatos.MiMes.Add(Dato(SDatoTasa, Format(SDatoTasaValor,
       [FormatFloat(FORMATO_TASA, lResumen.TasaMes.ValueOrDefault)])));
     ADatos.MiMes.Add(Dato(SDatoMonto, Format(SDatoMontoValor,
@@ -233,11 +260,12 @@ begin
   end;
 end;
 
-procedure TDashboardService.LlenarSupervisor(const ADatos
-  : TDashboardSupervisorDTO);
+procedure TDashboardService.LlenarSupervisor(const AUsuarioId: Integer;
+  const ADatos: TDashboardSupervisorDTO);
 var
   lCarga: TObjectList<TCargaDePersona>;
   lPersona: TCargaDePersona;
+  lNombre: string;
   lEstancadas: TObjectList<TCotizacionEnCurso>;
   lFila: TCotizacionEnCurso;
 begin
@@ -246,20 +274,25 @@ begin
   lCarga := fRepo.Carga;
   try
     for lPersona in lCarga do
-      ADatos.Carga.Add(Barra(lPersona.ElaboradaPorNombre.ValueOrDefault,
-        lPersona.ElaboradaPorNombre.ValueOrDefault,
-        lPersona.Cantidad.ValueOrDefault));
+    begin
+      lNombre := lPersona.ElaboradaPorNombre.ValueOrDefault;
+      if lPersona.ElaboradaPor.ValueOrDefault = AUsuarioId then
+        lNombre := Format(SCargaUsted, [lNombre]);
+      ADatos.Carga.Add(Barra(lPersona.ElaboradaPor.ValueOrDefault.ToString,
+        lNombre, lPersona.Cantidad.ValueOrDefault));
+    end;
   finally
     lCarga.Free;
   end;
 
-  lEstancadas := fRepo.Estancadas(DIAS_ESTANCADA, AVISOS_MAXIMO);
+  lEstancadas := fRepo.Estancadas(AVISOS_MAXIMO);
   try
     for lFila in lEstancadas do
       ADatos.Estancadas.Add(Aviso(lFila.CotizacionId.ValueOrDefault,
         lFila.Numero.ValueOrDefault, lFila.ClienteNombre.ValueOrDefault,
         lFila.Estado.ValueOrDefault, lFila.ElaboradaPorNombre.ValueOrDefault,
-        lFila.Dias.ValueOrDefault));
+        lFila.Dias.ValueOrDefault, lFila.Nivel.ValueOrDefault,
+        EtiquetaEtapa(lFila.Estado.ValueOrDefault)));
   finally
     lEstancadas.Free;
   end;
@@ -268,19 +301,23 @@ end;
 function TDashboardService.DelAsesor(const AAsesorId: Integer)
   : TDashboardAsesorDTO;
 var
-  lDesde, lHasta: TDateTime;
+  lPeriodo: TVPeriodoActual;
   lFilas: TObjectList<TSeguimientoAsesor>;
 begin
   Result := TDashboardAsesorDTO.Create;
   try
-    Periodo(lDesde, lHasta);
-    Result.Desde := lDesde;
-    Result.Hasta := lHasta;
     Copiar(fRepo.AsesorMes(AAsesorId), Result);
     LlenarAsesor(AAsesorId, Result);
 
-    lFilas := fRepo.RecientesAsesor(AAsesorId, StartOfTheWeek(Date),
-      IncDay(StartOfTheWeek(Date), 7));
+    lPeriodo := fRepo.Periodo;
+    try
+      Result.Desde := lPeriodo.MesDesde.Value;
+      Result.Hasta := lPeriodo.MesHasta.Value;
+      lFilas := fRepo.RecientesAsesor(AAsesorId, lPeriodo.SemanaDesde.Value,
+        lPeriodo.SemanaHasta.Value);
+    finally
+      lPeriodo.Free;
+    end;
     try
       FreeAndNil(Result.Recientes);
       Result.Recientes := TMapeo.AListaDto<TSeguimientoAsesor,
@@ -327,7 +364,7 @@ begin
   try
     Copiar(fRepo.ResumenMes, Result);
     Copiar(fRepo.TrabajoDe(AUsuarioId), Result);
-    LlenarSupervisor(Result);
+    LlenarSupervisor(AUsuarioId, Result);
 
     lFilas := fRepo.ColaPorAprobar(AUsuarioId);
     try

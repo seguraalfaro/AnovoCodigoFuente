@@ -44,7 +44,8 @@ type
     procedure RefrescarAvisos;
     procedure RevisarSinRespuesta;
     procedure VerNotificaciones;
-    procedure Descartar(const AId, ANumero: Integer; const AListo: TProc);
+    procedure Descartar(const AId, ANumero: Integer; const AListo: TProc;
+      const AOcupado: TProc<Boolean>);
     procedure RefrescarTodo;
     procedure AbrirCotizacion(const AId: Integer);
     class function SeccionesPermitidas: TSecciones;
@@ -372,7 +373,7 @@ var
   lApi: IApiCotizaciones;
   lLista: TObjectList<TCotizacionDTO>;
 begin
-  if not SigueSinRespuesta then
+  if FRevisando or not SigueSinRespuesta then
     Exit;
   lApi := FApiCotizaciones;
   lLista := nil;
@@ -394,7 +395,11 @@ begin
     procedure(AMensaje: string)
     begin
       FVista.MostrarError(AMensaje);
-    end, nil,
+    end,
+    procedure(AActivo: Boolean)
+    begin
+      FVista.MostrarCampanaOcupada(AActivo);
+    end,
     procedure
     begin
       lLista.Free;
@@ -402,7 +407,7 @@ begin
 end;
 
 procedure TPresentadorPrincipal.Descartar(const AId, ANumero: Integer;
-  const AListo: TProc);
+  const AListo: TProc; const AOcupado: TProc<Boolean>);
 var
   lApi: IApiCotizaciones;
 begin
@@ -423,7 +428,7 @@ begin
     procedure(AMensaje: string)
     begin
       FVista.MostrarError(AMensaje);
-    end);
+    end, AOcupado);
 end;
 
 procedure TPresentadorPrincipal.AbrirCotizacion(const AId: Integer);

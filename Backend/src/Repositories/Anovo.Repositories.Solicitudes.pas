@@ -38,6 +38,7 @@ type
       const ADesde, AHasta: TDateTime): Int64;
     function SeguimientoParaBajar(const AAsesorId: Integer;
       const ADesde: NullableTDateTime): TObjectList<TSeguimientoAsesor>;
+    function PeriodoActual: TVPeriodoActual;
     function Cola(const ATexto: string; const ADesde, AHasta: TDateTime;
       const APagina, APorPagina: Integer): TObjectList<TColaSolicitudes>;
     function ContarCola(const ATexto: string;
@@ -252,6 +253,11 @@ begin
   else
     Result := ListarConsulta<TSeguimientoAsesor>(CONSULTA_BAJADA, [AAsesorId],
       SIN_LIMITE);
+end;
+
+function TSolicitudRepository.PeriodoActual: TVPeriodoActual;
+begin
+  Result := LeerVistaUnica<TVPeriodoActual>;
 end;
 
 function TSolicitudRepository.ContarSeguimiento(const AAsesorId: Integer;

@@ -1,12 +1,31 @@
 inherited fraDashboardAsistente: TfraDashboardAsistente
   inherited pnlTitulo: TPanel
     inherited lblSubtitulo: TLabel
-      Caption = 'Solicitudes que esperan cotizaci'#243'n y su trabajo en curso'
+      Caption = 'Su trabajo en curso'
     end
   end
   inherited pnlKpi: TPanel
     inherited tjCifra1: TPlanoTarjeta
-      Caption = 'Por tomar'
+      Tag = 7
+      TitleIndent = 36
+      CardColor = 10510377
+      Caption = 'Por tomar (cola)'
+      object lblIcono1: TLabel
+        Tag = 1
+        Left = 16
+        Top = 7
+        Width = 16
+        Height = 16
+        AutoSize = False
+        Caption = #59157
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -13
+        Font.Name = 'Segoe MDL2 Assets'
+        Font.Style = []
+        ParentFont = False
+        Transparent = True
+      end
       object lblNota1: TLabel
         Left = 16
         Top = 66
@@ -16,7 +35,26 @@ inherited fraDashboardAsistente: TfraDashboardAsistente
       end
     end
     inherited tjCifra2: TPlanoTarjeta
+      Tag = 26
+      TitleIndent = 36
+      CardColor = 4474095
       Caption = 'Devueltas'
+      object lblIcono2: TLabel
+        Tag = 1
+        Left = 16
+        Top = 7
+        Width = 16
+        Height = 16
+        AutoSize = False
+        Caption = #59303
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -13
+        Font.Name = 'Segoe MDL2 Assets'
+        Font.Style = []
+        ParentFont = False
+        Transparent = True
+      end
       object lblNota2: TLabel
         Left = 16
         Top = 66
@@ -26,7 +64,26 @@ inherited fraDashboardAsistente: TfraDashboardAsistente
       end
     end
     inherited tjCifra3: TPlanoTarjeta
+      Tag = 10
+      TitleIndent = 36
+      CardColor = 6044186
       Caption = 'Por enviar'
+      object lblIcono3: TLabel
+        Tag = 1
+        Left = 16
+        Top = 7
+        Width = 16
+        Height = 16
+        AutoSize = False
+        Caption = #59172
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -13
+        Font.Name = 'Segoe MDL2 Assets'
+        Font.Style = []
+        ParentFont = False
+        Transparent = True
+      end
       object lblNota3: TLabel
         Left = 16
         Top = 66
@@ -36,7 +93,26 @@ inherited fraDashboardAsistente: TfraDashboardAsistente
       end
     end
     inherited tjCifra4: TPlanoTarjeta
+      Tag = 8
+      TitleIndent = 36
+      CardColor = 761589
       Caption = 'Sin respuesta'
+      object lblIcono4: TLabel
+        Tag = 1
+        Left = 16
+        Top = 7
+        Width = 16
+        Height = 16
+        AutoSize = False
+        Caption = #59159
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -13
+        Font.Name = 'Segoe MDL2 Assets'
+        Font.Style = []
+        ParentFont = False
+        Transparent = True
+      end
       object lblNota4: TLabel
         Left = 16
         Top = 66
@@ -55,55 +131,60 @@ inherited fraDashboardAsistente: TfraDashboardAsistente
     Left = 20
     Top = 178
     Width = 920
-    Height = 422
+    Height = 340
     Margins.Left = 20
     Margins.Top = 8
     Margins.Right = 20
     Margins.Bottom = 20
-    Align = alClient
+    Align = alTop
     BevelOuter = bvNone
     ColumnCollection = <
       item
-        Value = 33.333333333333336
+        Value = 50.000000000000000000
       end
       item
-        Value = 33.333333333333336
-      end
-      item
-        Value = 33.333333333333336
+        Value = 50.000000000000000000
       end>
     ControlCollection = <
       item
         Column = 0
-        Control = tjBarras
+        ColumnSpan = 2
+        Control = tjEtapas
         Row = 0
+      end
+      item
+        Column = 0
+        Control = tjAvisos
+        Row = 1
       end
       item
         Column = 1
-        Control = tjAvisos
-        Row = 0
-      end
-      item
-        Column = 2
         Control = tjDatos
-        Row = 0
-      end>
+        Row = 1
+      end
+    >
     RowCollection = <
       item
+        SizeStyle = ssAbsolute
+        Value = 110.000000000000000000
+      end
+      item
+        SizeStyle = ssPercent
         Value = 100.000000000000000000
-      end>
+      end
+    >
     TabOrder = 3
-    object tjBarras: TPlanoTarjeta
+    object tjEtapas: TPlanoTarjeta
       Tag = 3
       AlignWithMargins = True
       Left = 0
       Top = 0
-      Width = 300
-      Height = 422
+      Width = 454
+      Height = 240
       Margins.Left = 0
       Margins.Top = 0
-      Margins.Right = 6
-      Margins.Bottom = 0
+      Margins.Right = 0
+      Margins.Bottom = 12
       Caption = 'Mis cotizaciones por etapa'
       Align = alClient
       Font.Charset = ANSI_CHARSET
@@ -113,45 +194,18 @@ inherited fraDashboardAsistente: TfraDashboardAsistente
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 0
-      object grBarras: TrDBGrid
+      object pbEtapas: TPaintBox
+        Tag = 1
         AlignWithMargins = True
-        Left = 10
+        Left = 16
         Top = 46
-        Width = 400
-        Height = 300
-        Margins.Left = 10
+        Width = 422
+        Height = 182
+        Margins.Left = 16
         Margins.Top = 10
-        Margins.Right = 10
-        Margins.Bottom = 10
+        Margins.Right = 16
+        Margins.Bottom = 12
         Align = alClient
-        BorderStyle = bsNone
-        DataSource = dmMemoria.dsPanelBarras
-        DefaultDrawing = False
-        Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
-        ReadOnly = True
-        TabOrder = 0
-        TitleFont.Charset = ANSI_CHARSET
-        TitleFont.Color = 1973276
-        TitleFont.Height = -15
-        TitleFont.Name = 'Segoe UI Semibold'
-        TitleFont.Style = [fsBold]
-        StyleElements = [seFont]
-        Columns = <
-        item
-          Expanded = False
-          FieldName = 'ETIQUETA'
-          Title.Caption = 'Etapa'
-          Width = 150
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'CANTIDAD'
-          Title.Alignment = taRightJustify
-          Title.Caption = 'Cantidad'
-          Width = 150
-          Visible = True
-        end>
       end
     end
     object tjAvisos: TPlanoTarjeta
@@ -159,9 +213,9 @@ inherited fraDashboardAsistente: TfraDashboardAsistente
       AlignWithMargins = True
       Left = 0
       Top = 0
-      Width = 300
-      Height = 422
-      Margins.Left = 6
+      Width = 454
+      Height = 240
+      Margins.Left = 0
       Margins.Top = 0
       Margins.Right = 6
       Margins.Bottom = 0
@@ -174,67 +228,29 @@ inherited fraDashboardAsistente: TfraDashboardAsistente
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 1
-      object grAvisos: TrDBGrid
+      object lblCabeceraAvisos: TLabel
+        Tag = 15
+        Left = 200
+        Top = 11
+        Width = 240
+        Height = 18
+        Alignment = taRightJustify
+        Anchors = [akTop, akRight]
+        AutoSize = False
+        Caption = 'abrir'
+      end
+      object pbAvisos: TPaintBox
+        Tag = 1
         AlignWithMargins = True
-        Left = 10
+        Left = 16
         Top = 46
-        Width = 400
-        Height = 300
-        Margins.Left = 10
+        Width = 422
+        Height = 182
+        Margins.Left = 16
         Margins.Top = 10
-        Margins.Right = 10
-        Margins.Bottom = 10
+        Margins.Right = 16
+        Margins.Bottom = 12
         Align = alClient
-        BorderStyle = bsNone
-        DataSource = dmMemoria.dsPanelAvisos
-        DefaultDrawing = False
-        Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
-        ReadOnly = True
-        TabOrder = 0
-        TitleFont.Charset = ANSI_CHARSET
-        TitleFont.Color = 1973276
-        TitleFont.Height = -15
-        TitleFont.Name = 'Segoe UI Semibold'
-        TitleFont.Style = [fsBold]
-        StyleElements = [seFont]
-        Columns = <
-        item
-          Expanded = False
-          FieldName = 'NUMERO'
-          Title.Alignment = taRightJustify
-          Title.Caption = 'N'#250'mero'
-          Width = 70
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'CLIENTE_NOMBRE'
-          Title.Caption = 'Cliente'
-          Width = 160
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'ESTADO'
-          Title.Caption = 'Estado'
-          Width = 110
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'DETALLE'
-          Title.Caption = 'Detalle'
-          Width = 160
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'DIAS'
-          Title.Alignment = taRightJustify
-          Title.Caption = 'D'#237'as'
-          Width = 50
-          Visible = True
-        end>
       end
     end
     object tjDatos: TPlanoTarjeta
@@ -242,8 +258,8 @@ inherited fraDashboardAsistente: TfraDashboardAsistente
       AlignWithMargins = True
       Left = 0
       Top = 0
-      Width = 300
-      Height = 422
+      Width = 454
+      Height = 240
       Margins.Left = 6
       Margins.Top = 0
       Margins.Right = 0
@@ -257,45 +273,18 @@ inherited fraDashboardAsistente: TfraDashboardAsistente
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 2
-      object grDatos: TrDBGrid
+      object pbDatos: TPaintBox
+        Tag = 1
         AlignWithMargins = True
-        Left = 10
+        Left = 16
         Top = 46
-        Width = 400
-        Height = 300
-        Margins.Left = 10
+        Width = 422
+        Height = 182
+        Margins.Left = 16
         Margins.Top = 10
-        Margins.Right = 10
-        Margins.Bottom = 10
+        Margins.Right = 16
+        Margins.Bottom = 12
         Align = alClient
-        BorderStyle = bsNone
-        DataSource = dmMemoria.dsPanelDatos
-        DefaultDrawing = False
-        Options = [dgTitles, dgColumnResize, dgRowLines, dgRowSelect, dgAlwaysShowSelection]
-        ReadOnly = True
-        TabOrder = 0
-        TitleFont.Charset = ANSI_CHARSET
-        TitleFont.Color = 1973276
-        TitleFont.Height = -15
-        TitleFont.Name = 'Segoe UI Semibold'
-        TitleFont.Style = [fsBold]
-        StyleElements = [seFont]
-        Columns = <
-        item
-          Expanded = False
-          FieldName = 'CONCEPTO'
-          Title.Caption = 'Concepto'
-          Width = 180
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'VALOR'
-          Title.Alignment = taRightJustify
-          Title.Caption = 'Valor'
-          Width = 100
-          Visible = True
-        end>
       end
     end
   end

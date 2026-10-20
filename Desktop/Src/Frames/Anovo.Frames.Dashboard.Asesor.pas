@@ -10,6 +10,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.Tarjeta,
+  Anovo.UI.Dashboard,
   Anovo.Frames.Dashboard,
   Anovo.DTOs.Dashboard,
   Anovo.Vistas.Intf.Dashboard,
@@ -17,17 +18,24 @@ uses
 
 type
   TfraDashboardAsesor = class(TfraDashboard, IVistaDashboard<TDashboardAsesorDTO>)
+    lblIcono1: TLabel;
     lblNota1: TLabel;
+    lblIcono2: TLabel;
     lblNota2: TLabel;
+    lblIcono3: TLabel;
     lblNota3: TLabel;
+    lblIcono4: TLabel;
     lblNota4: TLabel;
     gpTarjetas: TGridPanel;
     tjBarras: TPlanoTarjeta;
-    grBarras: TrDBGrid;
+    pbBarras: TPaintBox;
     tjAvisos: TPlanoTarjeta;
-    grAvisos: TrDBGrid;
+    lblCabeceraAvisos: TLabel;
+    pbAvisos: TPaintBox;
   private
     FPresentador: TPresentadorDashboard<TDashboardAsesorDTO>;
+    FBarras: TDibujoBarras;
+    FAvisos: TDibujoAvisos;
     procedure MostrarDashboard(const ADatos: TDashboardAsesorDTO);
   public
     constructor Create(AOwner: TComponent); override;
@@ -40,18 +48,16 @@ implementation
 
 uses
   Anovo.Textos,
-  Anovo.UI.CeldasRejilla,
   Anovo.Api.Intf.Dashboard,
   Anovo.Api.Dashboard,
-  Anovo.Formato,
-  Anovo.Datos.Memoria;
-
+  Anovo.UI.Tema,
+  Anovo.Formato;
 
 constructor TfraDashboardAsesor.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  PrepararRejilla(grBarras);
-  PrepararAvisos(grAvisos);
+  FBarras := TDibujoBarras.Crear(pbBarras);
+  FAvisos := NuevosAvisos(pbAvisos);
 
   FPresentador := TPresentadorDashboard<TDashboardAsesorDTO>.Create(Self,
     TApiDashboard.Create,
@@ -59,6 +65,7 @@ begin
     begin
       Result := AApi.Asesor;
     end);
+  lblTitulo.Caption := FPresentador.Saludo;
   FPresentador.Iniciar;
 end;
 
@@ -71,19 +78,19 @@ end;
 procedure TfraDashboardAsesor.MostrarDashboard(const ADatos
   : TDashboardAsesorDTO);
 begin
-  lblPeriodo.Caption := TFormato.MesAnio(ADatos.Desde);
   lblCifra1.Caption := ADatos.SolicitudesMes.ToString;
   lblCifra2.Caption := ADatos.EsperandoCotizacion.ToString;
   lblCifra3.Caption := ADatos.AprobadasMes.ToString;
   lblCifra4.Caption := TFormato.Colones(ADatos.MontoAprobadoMes);
-  lblNota1.Caption := TFormato.Variacion(ADatos.SolicitudesMes,
-    ADatos.SolicitudesMesAnterior);
+  lblNota1.Caption := TFormato.Variacion(ADatos.VariacionSolicitudes,
+    ADatos.MesAnterior);
   lblNota2.Caption := TFormato.MasAntigua(ADatos.DiasMasAntigua);
   lblNota3.Caption := Format(SNotaTasaGeneral,
     [TFormato.Tasa(ADatos.TasaAprobacion)]);
-  lblNota4.Caption := '';
-  MostrarBarras(grBarras, ADatos.PorEstado);
-  MostrarAvisos(grAvisos, ADatos.PorLlamar);
+  lblNota4.Caption := TFormato.VariacionPorcentual(ADatos.VariacionMonto,
+    ADatos.MesAnterior);
+  FBarras.Poner(FilasDeBarras(ADatos.PorEstado));
+  FAvisos.Poner(AvisosPorLlamar(ADatos.PorLlamar));
 end;
 
 end.

@@ -922,16 +922,6 @@ object fraClienteDatos: TfraClienteDatos
             AlignVerticalCenterWithPanel = False
           end
           item
-            Control = pstFiltros
-            AlignBottomWithPanel = False
-            AlignHorizontalCenterWithPanel = False
-            AlignLeftWithPanel = True
-            AlignRightWithPanel = True
-            AlignTopWithPanel = False
-            AlignVerticalCenterWithPanel = False
-            Below = Panel1
-          end
-          item
             Control = rpdatos
             AlignBottomWithPanel = True
             AlignHorizontalCenterWithPanel = False
@@ -939,7 +929,7 @@ object fraClienteDatos: TfraClienteDatos
             AlignRightWithPanel = True
             AlignTopWithPanel = False
             AlignVerticalCenterWithPanel = False
-            Below = pstFiltros
+            Below = Panel1
           end>
         Align = alClient
         BevelOuter = bvNone
@@ -979,6 +969,22 @@ object fraClienteDatos: TfraClienteDatos
             StyleElements = []
             Kind = fkSecondary
           end
+          object cbFiltro: TComboBox
+            Left = 644
+            Top = 14
+            Width = 160
+            Height = 23
+            Style = csDropDownList
+            ItemIndex = 0
+            TabOrder = 3
+            Text = 'Todas las cotizaciones'
+            OnChange = cbFiltroChange
+            Items.Strings = (
+              'Todas las cotizaciones'
+              'Aprobadas'
+              'Enviadas'
+              'Rechazadas')
+          end
           object btnExportar: TPlanoBotonWin
             Left = 812
             Top = 12
@@ -992,33 +998,6 @@ object fraClienteDatos: TfraClienteDatos
             OnClick = btnExportarClick
             Kind = fkSecondary
           end
-        end
-        object pstFiltros: TPlanoPestanas
-          Left = 0
-          Top = 58
-          Width = 954
-          Height = 40
-          Items.Strings = (
-            'Todas'
-            'Aprobadas'
-            'Enviadas'
-            'Rechazadas')
-          Style = pesPastilla
-          Indent = 20
-          BackColor = 16447477
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -12
-          Font.Name = 'Segoe UI'
-          Font.Style = []
-          ActiveFont.Charset = DEFAULT_CHARSET
-          ActiveFont.Color = clWindowText
-          ActiveFont.Height = -12
-          ActiveFont.Name = 'Segoe UI Semibold'
-          ActiveFont.Style = []
-          Anchors = []
-          ParentFont = False
-          OnChange = pstFiltrosChange
         end
         object rpdatos: TRelativePanel
           Tag = 2

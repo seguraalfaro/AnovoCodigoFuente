@@ -1,6 +1,7 @@
 unit Anovo.Repositories.Auditoria;
 
-// Repositorio de la bitacora de auditoria. Solo lectura.
+// Repositorio de la bitacora de auditoria. Solo lectura; las filas salen de
+// V_AUDITORIA, con el nombre del usuario.
 
 interface
 
@@ -9,7 +10,8 @@ uses
   MVCFramework.Repository,
   Anovo.Repositories.Base,
   Anovo.Repositories.Intf.Auditoria,
-  Anovo.Entities.Auditoria;
+  Anovo.Entities.Auditoria,
+  Anovo.Entities.Vistas.Lectura;
 
 type
   TAuditoriaRepository = class(TAnovoRepository<TAuditoria>,
@@ -25,12 +27,12 @@ type
     function Buscar(const ADesde, AHasta: TDateTime;
       const APagina, APorPagina: Integer; const AUsuarioId: Integer = 0;
       const AEntidad: string = ''; const AAccion: string = '';
-      const ATexto: string = ''): TObjectList<TAuditoria>;
+      const ATexto: string = ''): TObjectList<TVAuditoria>;
     function ContarBusqueda(const ADesde, AHasta: TDateTime;
       const AUsuarioId: Integer = 0; const AEntidad: string = '';
       const AAccion: string = ''; const ATexto: string = ''): Int64;
     function DeLaEntidad(const AEntidad: string; const AEntidadId: Integer)
-      : TObjectList<TAuditoria>;
+      : TObjectList<TVAuditoria>;
   end;
 
 implementation
@@ -42,14 +44,15 @@ uses
 
 function TAuditoriaRepository.Buscar(const ADesde, AHasta: TDateTime;
   const APagina, APorPagina: Integer; const AUsuarioId: Integer;
-  const AEntidad, AAccion, ATexto: string): TObjectList<TAuditoria>;
+  const AEntidad, AAccion, ATexto: string): TObjectList<TVAuditoria>;
 var
   lDesde, lHasta: Integer;
 begin
   lDesde := ((APagina - 1) * APorPagina) + 1;
   lHasta := APagina * APorPagina;
 
-  Result := GetWhere(FiltroSegun(AUsuarioId, AEntidad, AAccion, ATexto) +
+  Result := ListarDonde<TVAuditoria>(FiltroSegun(AUsuarioId, AEntidad,
+    AAccion, ATexto) +
     AUDITORIA_ORDEN_Y_PAGINA, ParametrosSegun(ADesde, AHasta, AUsuarioId,
     AEntidad, AAccion, ATexto) + [Variant(lDesde), Variant(lHasta)]);
 end;
@@ -62,9 +65,10 @@ begin
 end;
 
 function TAuditoriaRepository.DeLaEntidad(const AEntidad: string;
-  const AEntidadId: Integer): TObjectList<TAuditoria>;
+  const AEntidadId: Integer): TObjectList<TVAuditoria>;
 begin
-  Result := GetWhere(AUDITORIA_DE_ENTIDAD, [AEntidad, AEntidadId]);
+  Result := ListarDonde<TVAuditoria>(AUDITORIA_DE_ENTIDAD,
+    [AEntidad, AEntidadId]);
 end;
 
 function TAuditoriaRepository.FiltroSegun(const AUsuarioId: Integer;

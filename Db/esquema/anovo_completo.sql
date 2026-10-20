@@ -3,7 +3,7 @@
    Firebird 4.0 - base ANOVO
 
    La base entera desde cero, en el estado que dejo la ultima migracion. Es la
-   suma de migraciones 01 a 53 en orden de aplicacion; cada tramo conserva la
+   suma de migraciones 01 a 56 en orden de aplicacion; cada tramo conserva la
    cabecera de su script para saber de donde salio. La 12 no tiene tramo
    propio: su cambio ya esta en la tabla MANO_OBRA del tramo 01.
 
@@ -5793,4 +5793,461 @@ COMMIT;
        FROM RDB$DATABASE;
      SELECT * FROM V_REPORTE_RESUMEN;                    -- actual y anterior
      SELECT * FROM V_VERSION_ESQUEMA;                                -- 53
+   ---------------------------------------------------------------------------- */
+
+/* ############################################################################
+   TRAMO 54_datos_listos_en_vistas.sql
+   ############################################################################ */
+
+/* ============================================================================
+   Anovo - Migracion 54: totales de la cotizacion y datos cruzados en vistas
+   ----------------------------------------------------------------------------
+   Lo que el backend todavia calculaba o armaba por su cuenta pasa a la base
+   (19/10/2026):
+
+   - V_COTIZACION_LINEAS: subtotal de cada linea (cantidad por precio).
+   - V_COTIZACION_TOTALES: subtotales por tipo, costo, ajuste, IVA y total.
+     El servicio los lee y los guarda; no hay disparador porque es regla de
+     negocio. Los pasos intermedios van con 4 decimales y lo guardado con 2,
+     como hacia el servicio con Currency.
+   - V_COTIZACIONES_LISTADO: la cotizacion completa con los nombres y el monto
+     del ajuste, en una sola fila. Reemplaza las dos consultas que se juntaban
+     en el servicio (listado, detalle de reportes y una cotizacion).
+   - V_COTIZACIONES_SIN_RESPUESTA: enviadas que pasaron el plazo de la empresa.
+   - V_CONTACTOS_BAJADA: contactos con el uuid y el estado de su cliente, para
+     la bajada al movil sin cruzarlos en el servicio.
+   - V_PERIODO_ACTUAL: suma la semana en curso (de lunes a lunes).
+
+   La auditoria ya trae el nombre del usuario en V_AUDITORIA.
+
+   No crea tablas ni toca datos. Todo en ASCII.
+   ============================================================================ */
+
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID',
+  (SELECT ID FROM USUARIOS WHERE CORREO = 'sistema@anovo.local'))
+  FROM RDB$DATABASE;
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE',
+  'migracion 54: totales y datos cruzados en vistas') FROM RDB$DATABASE;
+
+CREATE VIEW V_COTIZACION_LINEAS AS
+SELECT ID, COTIZACION_ID, TIPO,
+       CAST(CANTIDAD * PRECIO_UNITARIO AS NUMERIC(15,2)) AS SUBTOTAL
+  FROM COTIZACION_DETALLE
+ WHERE ACTIVO = TRUE;
+
+CREATE VIEW V_COTIZACION_TOTALES AS
+SELECT S.COTIZACION_ID, S.SUBTOTAL_MATERIALES, S.SUBTOTAL_MANO_OBRA,
+       S.SUBTOTAL_MAQUINA, S.COSTO_TOTAL,
+       CAST(S.COSTO_TOTAL * S.PORCENTAJE_AJUSTE / 100 AS NUMERIC(18,2))
+         AS MONTO_AJUSTE,
+       CAST(CAST((S.COSTO_TOTAL + S.COSTO_TOTAL * S.PORCENTAJE_AJUSTE / 100)
+            AS NUMERIC(18,4)) * S.PORCENTAJE_IVA / 100 AS NUMERIC(18,2))
+         AS MONTO_IMPUESTO,
+       CAST(CAST((S.COSTO_TOTAL + S.COSTO_TOTAL * S.PORCENTAJE_AJUSTE / 100)
+            AS NUMERIC(18,4))
+          + CAST(CAST((S.COSTO_TOTAL + S.COSTO_TOTAL * S.PORCENTAJE_AJUSTE / 100)
+            AS NUMERIC(18,4)) * S.PORCENTAJE_IVA / 100 AS NUMERIC(18,4))
+            AS NUMERIC(18,2)) AS MONTO_TOTAL
+  FROM (SELECT K.ID AS COTIZACION_ID, K.PORCENTAJE_AJUSTE, K.PORCENTAJE_IVA,
+               CAST(COALESCE(SUM(CASE WHEN L.TIPO = 'material'
+                    THEN L.SUBTOTAL END), 0) AS NUMERIC(18,2))
+                 AS SUBTOTAL_MATERIALES,
+               CAST(COALESCE(SUM(CASE WHEN L.TIPO = 'mano_obra'
+                    THEN L.SUBTOTAL END), 0) AS NUMERIC(18,2))
+                 AS SUBTOTAL_MANO_OBRA,
+               CAST(COALESCE(SUM(CASE WHEN L.TIPO = 'maquina'
+                    THEN L.SUBTOTAL END), 0) AS NUMERIC(18,2))
+                 AS SUBTOTAL_MAQUINA,
+               CAST(COALESCE(SUM(CASE WHEN L.TIPO IN ('material', 'mano_obra',
+                    'maquina') THEN L.SUBTOTAL END), 0) AS NUMERIC(18,2))
+                 AS COSTO_TOTAL
+          FROM COTIZACIONES K
+          LEFT JOIN V_COTIZACION_LINEAS L ON L.COTIZACION_ID = K.ID
+         GROUP BY K.ID, K.PORCENTAJE_AJUSTE, K.PORCENTAJE_IVA) S;
+
+CREATE VIEW V_COTIZACIONES_LISTADO AS
+SELECT K.*,
+       V.FECHA_RECEPCION, V.CLIENTE_NOMBRE, V.ASESOR_ID, V.ASESOR_NOMBRE,
+       V.ELABORADA_POR_NOMBRE, V.APROBADA_POR_NOMBRE, V.TIPO_TRABAJO_NOMBRE,
+       V.DEVUELTA, V.DIAS_EN_ESTADO, V.DIAS_RESPUESTA,
+       CAST(K.COSTO_TOTAL * K.PORCENTAJE_AJUSTE / 100 AS NUMERIC(18,2))
+         AS MONTO_AJUSTE
+  FROM COTIZACIONES K
+  JOIN V_COTIZACIONES V ON V.ID = K.ID;
+
+CREATE VIEW V_COTIZACIONES_SIN_RESPUESTA AS
+SELECT L.*
+  FROM V_COTIZACIONES_LISTADO L
+ CROSS JOIN (SELECT COALESCE(MAX(E.DIAS_SIN_RESPUESTA), 7) AS DIAS
+               FROM EMPRESA E) P
+ WHERE L.ESTADO = 'enviada'
+   AND L.FECHA_ENVIO < DATEADD(-P.DIAS DAY TO CURRENT_TIMESTAMP);
+
+CREATE VIEW V_CONTACTOS_BAJADA AS
+SELECT CC.*, C.UUID_LOCAL AS CLIENTE_UUID, C.ACTIVO AS CLIENTE_ACTIVO
+  FROM CLIENTE_CONTACTOS CC
+  JOIN CLIENTES C ON C.ID = CC.CLIENTE_ID;
+
+CREATE OR ALTER VIEW V_PERIODO_ACTUAL AS
+SELECT CAST(DATEADD(1 - EXTRACT(DAY FROM CURRENT_DATE) DAY TO CURRENT_DATE)
+            AS TIMESTAMP) AS MES_DESDE,
+       CAST(DATEADD(1 MONTH TO DATEADD(1 - EXTRACT(DAY FROM CURRENT_DATE)
+            DAY TO CURRENT_DATE)) AS TIMESTAMP) AS MES_HASTA,
+       CAST(DATEADD(-MOD(EXTRACT(WEEKDAY FROM CURRENT_DATE) + 6, 7) DAY
+            TO CURRENT_DATE) AS TIMESTAMP) AS SEMANA_DESDE,
+       CAST(DATEADD(7 - MOD(EXTRACT(WEEKDAY FROM CURRENT_DATE) + 6, 7) DAY
+            TO CURRENT_DATE) AS TIMESTAMP) AS SEMANA_HASTA
+  FROM RDB$DATABASE;
+
+GRANT SELECT ON V_COTIZACION_LINEAS TO ROL_BACKEND;
+GRANT SELECT ON V_COTIZACION_TOTALES TO ROL_BACKEND;
+GRANT SELECT ON V_COTIZACIONES_LISTADO TO ROL_BACKEND;
+GRANT SELECT ON V_COTIZACIONES_SIN_RESPUESTA TO ROL_BACKEND;
+GRANT SELECT ON V_CONTACTOS_BAJADA TO ROL_BACKEND;
+GRANT SELECT ON V_PERIODO_ACTUAL TO ROL_BACKEND;
+
+COMMENT ON VIEW V_COTIZACION_LINEAS IS
+  'Subtotal de cada linea activa: cantidad por precio unitario.';
+COMMENT ON VIEW V_COTIZACION_TOTALES IS
+  'Subtotales por tipo, costo, ajuste, IVA y total de cada cotizacion.';
+COMMENT ON VIEW V_COTIZACIONES_LISTADO IS
+  'Cotizacion completa con los nombres y el monto del ajuste.';
+COMMENT ON VIEW V_COTIZACIONES_SIN_RESPUESTA IS
+  'Enviadas que pasaron el plazo de respuesta de la empresa.';
+COMMENT ON VIEW V_CONTACTOS_BAJADA IS
+  'Contactos con el uuid y el estado de su cliente, para la bajada al movil.';
+
+INSERT INTO ESQUEMA_MIGRACIONES (NUMERO, NOMBRE)
+  VALUES (54, '54_datos_listos_en_vistas');
+
+COMMIT;
+
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE', NULL) FROM RDB$DATABASE;
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID', NULL) FROM RDB$DATABASE;
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   Verificacion:
+     SELECT COUNT(*) FROM COTIZACIONES K
+       JOIN V_COTIZACION_TOTALES T ON T.COTIZACION_ID = K.ID
+      WHERE T.MONTO_TOTAL <> K.MONTO_TOTAL;            -- 0: igual que lo guardado
+     SELECT COUNT(*) FROM COTIZACION_DETALLE D
+       JOIN V_COTIZACION_LINEAS L ON L.ID = D.ID
+      WHERE L.SUBTOTAL <> D.SUBTOTAL;                   -- 0
+     SELECT * FROM V_PERIODO_ACTUAL;                    -- mes y semana
+     SELECT * FROM V_VERSION_ESQUEMA;                                -- 54
+   ---------------------------------------------------------------------------- */
+
+/* ############################################################################
+   TRAMO 55_dashboards_como_mockup.sql
+   ############################################################################ */
+
+/* ============================================================================
+   Anovo - Migracion 55: datos de los dashboards segun los mockups aprobados
+   ----------------------------------------------------------------------------
+   Los dashboards se rehacen como los mockups del 18/10/2026 (19/10/2026).
+   Las notas de las cifras y los colores de los avisos salen de la base:
+
+   - V_PERIODO_ACTUAL: suma el primer dia del mes anterior (nombre del mes en
+     las notas «vs. septiembre»).
+   - V_DASH_ASESOR_RESUMEN: suma la variacion de solicitudes contra el mes
+     anterior, el monto aprobado del mes anterior y su variacion en %.
+   - V_DASH_SUPERVISOR_RESUMEN: suma la tasa del mes anterior, la variacion en
+     puntos y la variacion del monto en %.
+   - V_DASH_ASISTENTE_RESUMEN: suma el plazo de respuesta de la empresa.
+   - V_DASH_ENVIADAS: suma NIVEL: alto desde 1,5 veces el plazo, medio desde
+     el plazo, bajo antes.
+   - V_DASH_EN_CURSO: suma ESTANCADA (5 dias o mas en el mismo estado) y su
+     NIVEL: alto desde 8 dias (1,5 veces), medio desde 5.
+   - V_DASH_ETAPAS_USUARIO: suma la etapa «aprobada» con las aprobadas del mes.
+
+   Las variaciones en % quedan nulas cuando el mes anterior no tiene monto.
+   No crea tablas ni toca datos. Todo en ASCII.
+   ============================================================================ */
+
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID',
+  (SELECT ID FROM USUARIOS WHERE CORREO = 'sistema@anovo.local'))
+  FROM RDB$DATABASE;
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE',
+  'migracion 55: datos de los dashboards segun los mockups') FROM RDB$DATABASE;
+
+CREATE OR ALTER VIEW V_PERIODO_ACTUAL AS
+SELECT CAST(DATEADD(1 - EXTRACT(DAY FROM CURRENT_DATE) DAY TO CURRENT_DATE)
+            AS TIMESTAMP) AS MES_DESDE,
+       CAST(DATEADD(1 MONTH TO DATEADD(1 - EXTRACT(DAY FROM CURRENT_DATE)
+            DAY TO CURRENT_DATE)) AS TIMESTAMP) AS MES_HASTA,
+       CAST(DATEADD(-MOD(EXTRACT(WEEKDAY FROM CURRENT_DATE) + 6, 7) DAY
+            TO CURRENT_DATE) AS TIMESTAMP) AS SEMANA_DESDE,
+       CAST(DATEADD(7 - MOD(EXTRACT(WEEKDAY FROM CURRENT_DATE) + 6, 7) DAY
+            TO CURRENT_DATE) AS TIMESTAMP) AS SEMANA_HASTA,
+       CAST(DATEADD(-1 MONTH TO DATEADD(1 - EXTRACT(DAY FROM CURRENT_DATE)
+            DAY TO CURRENT_DATE)) AS TIMESTAMP) AS MES_ANTERIOR
+  FROM RDB$DATABASE;
+
+CREATE OR ALTER VIEW V_DASH_ENVIADAS AS
+SELECT ID AS COTIZACION_ID, NUMERO, CLIENTE_NOMBRE, ASESOR_ID, ELABORADA_POR,
+       FECHA_ENVIO, DIAS_SIN_RESPUESTA,
+       CAST(DATEDIFF(DAY FROM CAST(FECHA_ENVIO AS DATE) TO CURRENT_DATE)
+         AS INTEGER) AS DIAS,
+       CAST(CASE
+         WHEN DATEDIFF(DAY FROM CAST(FECHA_ENVIO AS DATE) TO CURRENT_DATE)
+              >= COALESCE(DIAS_SIN_RESPUESTA, 0) * 1.5 THEN 'alto'
+         WHEN DATEDIFF(DAY FROM CAST(FECHA_ENVIO AS DATE) TO CURRENT_DATE)
+              >= COALESCE(DIAS_SIN_RESPUESTA, 0) THEN 'medio'
+         ELSE 'bajo' END AS VARCHAR(5)) AS NIVEL
+  FROM V_CLIENTES_RESPUESTA
+ WHERE ESTADO = 'enviada';
+
+CREATE OR ALTER VIEW V_DASH_EN_CURSO AS
+SELECT ID AS COTIZACION_ID, NUMERO, CLIENTE_NOMBRE, ESTADO, ELABORADA_POR,
+       ELABORADA_POR_NOMBRE, MOTIVO_RECHAZO, FECHA_MODIFICACION,
+       CAST(COALESCE(DIAS_EN_ESTADO, 0) AS INTEGER) AS DIAS,
+       (COALESCE(DIAS_EN_ESTADO, 0) >= 5) AS ESTANCADA,
+       CAST(CASE WHEN COALESCE(DIAS_EN_ESTADO, 0) >= 8 THEN 'alto'
+                 WHEN COALESCE(DIAS_EN_ESTADO, 0) >= 5 THEN 'medio'
+                 ELSE 'bajo' END AS VARCHAR(5)) AS NIVEL
+  FROM V_COTIZACIONES
+ WHERE ESTADO IN ('borrador', 'pendiente', 'devuelta', 'visto_bueno');
+
+CREATE OR ALTER VIEW V_DASH_ASESOR_RESUMEN AS
+SELECT R.ASESOR_ID, R.DIAS_MAS_ANTIGUA, R.TASA_APROBACION,
+       R.SOLICITUDES_MES_ANTERIOR,
+       CAST(R.SOLICITUDES_ACTUAL - R.SOLICITUDES_MES_ANTERIOR AS INTEGER)
+         AS VARIACION_SOLICITUDES,
+       R.MONTO_APROBADO_ANTERIOR,
+       CASE WHEN R.MONTO_APROBADO_ANTERIOR > 0
+            THEN CAST((R.MONTO_ACTUAL - R.MONTO_APROBADO_ANTERIOR) * 100.0000
+                 / R.MONTO_APROBADO_ANTERIOR AS NUMERIC(7,2)) END
+         AS VARIACION_MONTO,
+       R.MES_ANTERIOR
+  FROM (SELECT G.ASESOR_ID, P.MES_ANTERIOR,
+               CAST(COALESCE(MAX(CASE WHEN G.GRUPO = 'esperando'
+                    THEN G.DIAS_MAS_ANTIGUA END), 0) AS INTEGER)
+                 AS DIAS_MAS_ANTIGUA,
+               CAST(COALESCE(SUM(CASE WHEN G.GRUPO = 'aprobada'
+                    THEN G.CANTIDAD END) * 100.0000
+                    / NULLIF(SUM(CASE WHEN G.GRUPO IN ('aprobada',
+                    'rechazada') THEN G.CANTIDAD END), 0), 0) AS NUMERIC(5,2))
+                 AS TASA_APROBACION,
+               (SELECT CAST(COUNT(*) AS INTEGER) FROM SOLICITUDES S
+                 WHERE S.ASESOR_ID = G.ASESOR_ID
+                   AND S.FECHA_CAPTURA >= P.MES_DESDE
+                   AND S.FECHA_CAPTURA < P.MES_HASTA) AS SOLICITUDES_ACTUAL,
+               (SELECT CAST(COUNT(*) AS INTEGER) FROM SOLICITUDES S
+                 WHERE S.ASESOR_ID = G.ASESOR_ID
+                   AND S.FECHA_CAPTURA >= P.MES_ANTERIOR
+                   AND S.FECHA_CAPTURA < P.MES_DESDE)
+                 AS SOLICITUDES_MES_ANTERIOR,
+               (SELECT CAST(COALESCE(SUM(C.MONTO_TOTAL), 0) AS NUMERIC(18,2))
+                  FROM COTIZACION_ESTADOS H
+                  JOIN V_COTIZACIONES C ON C.ID = H.COTIZACION_ID
+                 WHERE C.ASESOR_ID = G.ASESOR_ID AND H.ESTADO = 'aprobada'
+                   AND H.FECHA >= P.MES_DESDE AND H.FECHA < P.MES_HASTA)
+                 AS MONTO_ACTUAL,
+               (SELECT CAST(COALESCE(SUM(C.MONTO_TOTAL), 0) AS NUMERIC(18,2))
+                  FROM COTIZACION_ESTADOS H
+                  JOIN V_COTIZACIONES C ON C.ID = H.COTIZACION_ID
+                 WHERE C.ASESOR_ID = G.ASESOR_ID AND H.ESTADO = 'aprobada'
+                   AND H.FECHA >= P.MES_ANTERIOR AND H.FECHA < P.MES_DESDE)
+                 AS MONTO_APROBADO_ANTERIOR
+          FROM V_DASH_ASESOR_GRUPOS G
+         CROSS JOIN V_PERIODO_ACTUAL P
+         GROUP BY G.ASESOR_ID, P.MES_DESDE, P.MES_HASTA, P.MES_ANTERIOR) R;
+
+CREATE OR ALTER VIEW V_DASH_SUPERVISOR_RESUMEN AS
+SELECT R.*,
+       CAST(R.TASA_APROBACION - R.TASA_ANTERIOR AS NUMERIC(6,2))
+         AS VARIACION_TASA,
+       CASE WHEN R.MONTO_APROBADO_ANTERIOR > 0
+            THEN CAST((R.MONTO_APROBADO_MES - R.MONTO_APROBADO_ANTERIOR)
+                 * 100.0000 / R.MONTO_APROBADO_ANTERIOR AS NUMERIC(7,2)) END
+         AS VARIACION_MONTO
+  FROM (SELECT CAST(COALESCE(A.VISTO_BUENO, 0) AS INTEGER) AS VISTO_BUENO_MES,
+               CAST(COALESCE(A.DEVUELTAS, 0) AS INTEGER) AS DEVUELTAS_MES,
+               CAST(COALESCE(A.APROBADAS, 0) AS INTEGER) AS APROBADAS_MES,
+               CAST(COALESCE(A.RECHAZADAS, 0) AS INTEGER) AS RECHAZADAS_MES,
+               CAST(COALESCE(A.MONTO_APROBADO, 0) AS NUMERIC(18,2))
+                 AS MONTO_APROBADO_MES,
+               CAST(COALESCE(A.APROBADAS * 100.0000
+                    / NULLIF(A.APROBADAS + A.RECHAZADAS, 0), 0) AS NUMERIC(5,2))
+                 AS TASA_APROBACION,
+               CAST(COALESCE(B.APROBADAS * 100.0000
+                    / NULLIF(B.APROBADAS + B.RECHAZADAS, 0), 0) AS NUMERIC(5,2))
+                 AS TASA_ANTERIOR,
+               CAST(COALESCE(B.MONTO_APROBADO, 0) AS NUMERIC(18,2))
+                 AS MONTO_APROBADO_ANTERIOR,
+               P.MES_ANTERIOR
+          FROM V_PERIODO_ACTUAL P
+          LEFT JOIN V_DASH_PASOS_EQUIPO A
+            ON A.ANIO = EXTRACT(YEAR FROM P.MES_DESDE)
+           AND A.MES = EXTRACT(MONTH FROM P.MES_DESDE)
+          LEFT JOIN V_DASH_PASOS_EQUIPO B
+            ON B.ANIO = EXTRACT(YEAR FROM P.MES_ANTERIOR)
+           AND B.MES = EXTRACT(MONTH FROM P.MES_ANTERIOR)) R;
+
+CREATE OR ALTER VIEW V_DASH_ASISTENTE_RESUMEN AS
+SELECT U.ID AS USUARIO_ID,
+       (SELECT CAST(COALESCE(MAX(S.DIAS_ESPERA), 0) AS INTEGER)
+          FROM V_SOLICITUDES S
+         WHERE S.ESTADO = 'recibida' AND S.TIENE_COTIZACION = FALSE)
+         AS DIAS_MAS_ANTIGUA,
+       (SELECT CAST(COUNT(*) AS INTEGER) FROM COTIZACIONES C
+         WHERE C.ELABORADA_POR = U.ID AND C.ESTADO = 'devuelta')
+         AS DEVUELTAS,
+       (SELECT CAST(COUNT(*) AS INTEGER) FROM V_DASH_ENVIADAS V
+         WHERE V.ELABORADA_POR = U.ID
+           AND V.DIAS > COALESCE(V.DIAS_SIN_RESPUESTA, 0))
+         AS SIN_RESPUESTA,
+       CAST(COALESCE(P.PRESENTADAS, 0) AS INTEGER) AS PRESENTADAS_MES,
+       CAST(COALESCE(P.APROBADAS, 0) AS INTEGER) AS APROBADAS_MES,
+       CAST(COALESCE(P.RECHAZADAS, 0) AS INTEGER) AS RECHAZADAS_MES,
+       CAST(COALESCE(P.MONTO_APROBADO, 0) AS NUMERIC(18,2))
+         AS MONTO_APROBADO_MES,
+       CAST(COALESCE(P.APROBADAS * 100.0000
+            / NULLIF(P.APROBADAS + P.RECHAZADAS, 0), 0) AS NUMERIC(5,2))
+         AS TASA_MES,
+       (SELECT CAST(COALESCE(MAX(E.DIAS_SIN_RESPUESTA), 7) AS INTEGER)
+          FROM EMPRESA E) AS DIAS_PLAZO
+  FROM USUARIOS U
+  LEFT JOIN V_DASH_PASOS_MES P
+    ON P.ELABORADA_POR = U.ID
+   AND P.ANIO = EXTRACT(YEAR FROM CURRENT_DATE)
+   AND P.MES = EXTRACT(MONTH FROM CURRENT_DATE);
+
+CREATE OR ALTER VIEW V_DASH_ETAPAS_USUARIO AS
+SELECT U.ID AS USUARIO_ID, E.ESTADO, E.ORDEN,
+       CAST(COALESCE(D.CANTIDAD, 0) AS INTEGER) AS CANTIDAD
+  FROM USUARIOS U
+ CROSS JOIN (SELECT CAST('borrador' AS VARCHAR(15)) AS ESTADO, 1 AS ORDEN
+               FROM RDB$DATABASE
+             UNION ALL SELECT 'pendiente', 2 FROM RDB$DATABASE
+             UNION ALL SELECT 'devuelta', 3 FROM RDB$DATABASE
+             UNION ALL SELECT 'visto_bueno', 4 FROM RDB$DATABASE
+             UNION ALL SELECT 'enviada', 5 FROM RDB$DATABASE) E
+  LEFT JOIN V_DASH_ETAPAS D ON D.ELABORADA_POR = U.ID AND D.ESTADO = E.ESTADO
+UNION ALL
+SELECT U.ID, CAST('aprobada' AS VARCHAR(15)), 6,
+       CAST(COALESCE(P.APROBADAS, 0) AS INTEGER)
+  FROM USUARIOS U
+  LEFT JOIN V_DASH_PASOS_MES P
+    ON P.ELABORADA_POR = U.ID
+   AND P.ANIO = EXTRACT(YEAR FROM CURRENT_DATE)
+   AND P.MES = EXTRACT(MONTH FROM CURRENT_DATE);
+
+GRANT SELECT ON V_PERIODO_ACTUAL TO ROL_BACKEND;
+GRANT SELECT ON V_DASH_ENVIADAS TO ROL_BACKEND;
+GRANT SELECT ON V_DASH_EN_CURSO TO ROL_BACKEND;
+GRANT SELECT ON V_DASH_ASESOR_RESUMEN TO ROL_BACKEND;
+GRANT SELECT ON V_DASH_SUPERVISOR_RESUMEN TO ROL_BACKEND;
+GRANT SELECT ON V_DASH_ASISTENTE_RESUMEN TO ROL_BACKEND;
+GRANT SELECT ON V_DASH_ETAPAS_USUARIO TO ROL_BACKEND;
+
+INSERT INTO ESQUEMA_MIGRACIONES (NUMERO, NOMBRE)
+  VALUES (55, '55_dashboards_como_mockup');
+
+COMMIT;
+
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE', NULL) FROM RDB$DATABASE;
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID', NULL) FROM RDB$DATABASE;
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   Verificacion:
+     SELECT * FROM V_DASH_ASESOR_RESUMEN;       -- variaciones y mes anterior
+     SELECT * FROM V_DASH_SUPERVISOR_RESUMEN;   -- tasa anterior y variaciones
+     SELECT NIVEL, COUNT(*) FROM V_DASH_ENVIADAS GROUP BY 1;
+     SELECT COUNT(*) FROM V_DASH_ETAPAS_USUARIO WHERE ESTADO = 'aprobada';
+     SELECT * FROM V_VERSION_ESQUEMA;                                -- 55
+   ---------------------------------------------------------------------------- */
+
+/* ############################################################################
+   TRAMO 56_textos_sin_relleno.sql
+   ############################################################################ */
+
+/* ============================================================================
+   Anovo - Migracion 56: textos de los dashboards sin espacios de relleno
+   ----------------------------------------------------------------------------
+   Un CASE con literales de distinto largo devuelve CHAR del largo mayor, y
+   el CAST a VARCHAR conserva los espacios: 'alto ' y 'esperando    '. El
+   escritorio compara con 'alto' y 'esperando', no coincide y pinta gris
+   (19/10/2026). Se recortan con TRIM en las tres vistas que lo tenian.
+
+   - V_DASH_ENVIADAS y V_DASH_EN_CURSO: NIVEL.
+   - V_DASH_ASESOR_GRUPOS: GRUPO.
+
+   No crea tablas ni toca datos. Todo en ASCII.
+   ============================================================================ */
+
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID',
+  (SELECT ID FROM USUARIOS WHERE CORREO = 'sistema@anovo.local'))
+  FROM RDB$DATABASE;
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE',
+  'migracion 56: textos de los dashboards sin relleno') FROM RDB$DATABASE;
+
+CREATE OR ALTER VIEW V_DASH_ENVIADAS AS
+SELECT ID AS COTIZACION_ID, NUMERO, CLIENTE_NOMBRE, ASESOR_ID, ELABORADA_POR,
+       FECHA_ENVIO, DIAS_SIN_RESPUESTA,
+       CAST(DATEDIFF(DAY FROM CAST(FECHA_ENVIO AS DATE) TO CURRENT_DATE)
+         AS INTEGER) AS DIAS,
+       CAST(TRIM(CASE
+         WHEN DATEDIFF(DAY FROM CAST(FECHA_ENVIO AS DATE) TO CURRENT_DATE)
+              >= COALESCE(DIAS_SIN_RESPUESTA, 0) * 1.5 THEN 'alto'
+         WHEN DATEDIFF(DAY FROM CAST(FECHA_ENVIO AS DATE) TO CURRENT_DATE)
+              >= COALESCE(DIAS_SIN_RESPUESTA, 0) THEN 'medio'
+         ELSE 'bajo' END) AS VARCHAR(5)) AS NIVEL
+  FROM V_CLIENTES_RESPUESTA
+ WHERE ESTADO = 'enviada';
+
+CREATE OR ALTER VIEW V_DASH_EN_CURSO AS
+SELECT ID AS COTIZACION_ID, NUMERO, CLIENTE_NOMBRE, ESTADO, ELABORADA_POR,
+       ELABORADA_POR_NOMBRE, MOTIVO_RECHAZO, FECHA_MODIFICACION,
+       CAST(COALESCE(DIAS_EN_ESTADO, 0) AS INTEGER) AS DIAS,
+       (COALESCE(DIAS_EN_ESTADO, 0) >= 5) AS ESTANCADA,
+       CAST(TRIM(CASE WHEN COALESCE(DIAS_EN_ESTADO, 0) >= 8 THEN 'alto'
+                      WHEN COALESCE(DIAS_EN_ESTADO, 0) >= 5 THEN 'medio'
+                      ELSE 'bajo' END) AS VARCHAR(5)) AS NIVEL
+  FROM V_COTIZACIONES
+ WHERE ESTADO IN ('borrador', 'pendiente', 'devuelta', 'visto_bueno');
+
+CREATE OR ALTER VIEW V_DASH_ASESOR_GRUPOS AS
+SELECT ASESOR_ID, GRUPO,
+       CAST(CASE GRUPO WHEN 'esperando' THEN 1 WHEN 'elaboracion' THEN 2
+                       WHEN 'enviada' THEN 3 WHEN 'aprobada' THEN 4
+                       WHEN 'rechazada' THEN 5 ELSE 6 END AS INTEGER) AS ORDEN,
+       CAST(SUM(CANTIDAD) AS INTEGER) AS CANTIDAD,
+       CAST(MAX(DIAS_MAS_ANTIGUA) AS INTEGER) AS DIAS_MAS_ANTIGUA
+  FROM (SELECT ASESOR_ID, CANTIDAD, DIAS_MAS_ANTIGUA,
+               CAST(TRIM(CASE
+                 WHEN ESTADO = 'descartada' AND CON_COTIZACION
+                   THEN 'sin_respuesta'
+                 WHEN ESTADO IN ('borrador', 'pendiente', 'devuelta',
+                                 'visto_bueno') THEN 'elaboracion'
+                 WHEN ESTADO = 'enviada' THEN 'enviada'
+                 WHEN ESTADO = 'aprobada' THEN 'aprobada'
+                 WHEN ESTADO IN ('rechazada', 'descartada') THEN 'rechazada'
+                 ELSE 'esperando' END) AS VARCHAR(15)) AS GRUPO
+          FROM V_DASH_ESTADO_ASESOR)
+ GROUP BY ASESOR_ID, GRUPO;
+
+GRANT SELECT ON V_DASH_ENVIADAS TO ROL_BACKEND;
+GRANT SELECT ON V_DASH_EN_CURSO TO ROL_BACKEND;
+GRANT SELECT ON V_DASH_ASESOR_GRUPOS TO ROL_BACKEND;
+
+INSERT INTO ESQUEMA_MIGRACIONES (NUMERO, NOMBRE)
+  VALUES (56, '56_textos_sin_relleno');
+
+COMMIT;
+
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'DETALLE', NULL) FROM RDB$DATABASE;
+SELECT RDB$SET_CONTEXT('USER_SESSION', 'USUARIO_ID', NULL) FROM RDB$DATABASE;
+
+COMMIT;
+
+/* ----------------------------------------------------------------------------
+   Verificacion:
+     SELECT DISTINCT '|' || NIVEL || '|' FROM V_DASH_EN_CURSO;      -- sin espacios
+     SELECT DISTINCT '|' || GRUPO || '|' FROM V_DASH_ASESOR_GRUPOS; -- sin espacios
+     SELECT * FROM V_VERSION_ESQUEMA;                                -- 56
    ---------------------------------------------------------------------------- */

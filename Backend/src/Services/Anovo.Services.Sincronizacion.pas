@@ -27,10 +27,6 @@ type
     fSolicitudes: ISolicitudRepository;
     fTextos: IConsentimientoTextoRepository;
     procedure LlenarConsentimiento(const ABajada: TBajadaDTO);
-    function UuidsDe(const AClientes: TObjectList<TClientes>)
-      : TDictionary<Integer, string>;
-    function UuidDelCliente(const AUuids: TDictionary<Integer, string>;
-      const AClienteId: Integer; const ACompleta: Boolean): string;
     procedure LlenarClientes(const ABajada: TBajadaDTO;
       const ADesde: NullableTDateTime);
     procedure LlenarCatalogos(const ABajada: TBajadaDTO;
@@ -57,6 +53,7 @@ uses
   System.DateUtils,
   Anovo.Mapeo,
   Anovo.Entities.Catalogos,
+  Anovo.Entities.Vistas.Lectura,
   Anovo.Entities.Consultas;
 
 const
@@ -117,73 +114,25 @@ procedure TSincronizacionService.LlenarClientes(const ABajada: TBajadaDTO;
   const ADesde: NullableTDateTime);
 var
   lClientes: TObjectList<TClientes>;
-  lContactos: TObjectList<TClienteContactos>;
-  lUuids: TDictionary<Integer, string>;
-  lContacto: TClienteContactos;
-  lDto: TContactoBajadaDTO;
-  lUuid: string;
+  lContactos: TObjectList<TVContactosBajada>;
 begin
   lClientes := fClientes.ParaBajar(ADesde, True);
   try
     FreeAndNil(ABajada.Clientes);
     ABajada.Clientes := TMapeo.AListaDto<TClientes, TClienteBajadaDTO>
       (lClientes);
-    lUuids := UuidsDe(lClientes);
   finally
     lClientes.Free;
   end;
 
+  lContactos := fContactos.ParaElMovil(ADesde);
   try
-    lContactos := fContactos.ParaBajar(ADesde, True);
-    try
-      for lContacto in lContactos do
-      begin
-        lUuid := UuidDelCliente(lUuids, lContacto.ClienteId,
-          ABajada.Completa);
-        if lUuid = '' then
-          Continue;
-        lDto := TMapeo.ADto<TContactoBajadaDTO>(lContacto);
-        lDto.ClienteUuid := lUuid;
-        ABajada.Contactos.Add(lDto);
-      end;
-    finally
-      lContactos.Free;
-    end;
+    FreeAndNil(ABajada.Contactos);
+    ABajada.Contactos := TMapeo.AListaDto<TVContactosBajada,
+      TContactoBajadaDTO>(lContactos);
   finally
-    lUuids.Free;
+    lContactos.Free;
   end;
-end;
-
-function TSincronizacionService.UuidsDe(const AClientes: TObjectList<TClientes>)
-  : TDictionary<Integer, string>;
-var
-  lCliente: TClientes;
-begin
-  Result := TDictionary<Integer, string>.Create;
-  for lCliente in AClientes do
-    Result.AddOrSetValue(lCliente.ID.Value, lCliente.UuidLocal.Value);
-end;
-
-function TSincronizacionService.UuidDelCliente(const AUuids
-  : TDictionary<Integer, string>; const AClienteId: Integer;
-  const ACompleta: Boolean): string;
-var
-  lCliente: TClientes;
-begin
-  if AUuids.TryGetValue(AClienteId, Result) then
-    Exit;
-  Result := '';
-  if not ACompleta then
-  begin
-    lCliente := fClientes.GetByPK(AClienteId, False);
-    try
-      if Assigned(lCliente) then
-        Result := lCliente.UuidLocal.ValueOrDefault;
-    finally
-      lCliente.Free;
-    end;
-  end;
-  AUuids.Add(AClienteId, Result);
 end;
 
 procedure TSincronizacionService.LlenarSolicitudes(const ABajada: TBajadaDTO;

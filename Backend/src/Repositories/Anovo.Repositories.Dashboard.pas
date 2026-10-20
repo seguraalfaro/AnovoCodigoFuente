@@ -42,7 +42,7 @@ type
     function ParaHoy(const AUsuarioId, ALimite: Integer)
       : TObjectList<TCotizacionEnCurso>;
     function ResumenDelSupervisor: TVDashSupervisorResumen;
-    function Estancadas(const ADias, ALimite: Integer)
+    function Estancadas(const ALimite: Integer)
       : TObjectList<TCotizacionEnCurso>;
     function Carga: TObjectList<TCargaDePersona>;
   end;
@@ -141,10 +141,10 @@ begin
   Result := LeerVistaUnica<TVDashSupervisorResumen>;
 end;
 
-function TDashboardRepository.Estancadas(const ADias, ALimite: Integer)
+function TDashboardRepository.Estancadas(const ALimite: Integer)
   : TObjectList<TCotizacionEnCurso>;
 begin
-  Result := ListarConsulta<TCotizacionEnCurso>(CONSULTA_ESTANCADAS, [ADias],
+  Result := ListarConsulta<TCotizacionEnCurso>(CONSULTA_ESTANCADAS, [],
     ALimite);
 end;
 

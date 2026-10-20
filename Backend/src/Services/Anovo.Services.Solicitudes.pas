@@ -1018,6 +1018,7 @@ function TSolicitudService.Seguimiento(const AUsuarioId: Integer;
 var
   lFilas: TObjectList<TSeguimientoAsesor>;
   lPeriodo: TPeriodo;
+  lMes: TVPeriodoActual;
   lAsesorId: Integer;
 begin
   if fPermisos.TieneAlguno(AUsuarioId, ARoles, [PERMISO_SOLICITUDES_VER_TODAS])
@@ -1030,8 +1031,13 @@ begin
   AHasta := lPeriodo.Fin;
   if not lPeriodo.Activo and ASoloMes then
   begin
-    ADesde := StartOfTheMonth(Date);
-    AHasta := IncMonth(ADesde, 1);
+    lMes := fRepo.PeriodoActual;
+    try
+      ADesde := lMes.MesDesde.Value;
+      AHasta := lMes.MesHasta.Value;
+    finally
+      lMes.Free;
+    end;
   end;
 
   ATotal := fRepo.ContarSeguimiento(lAsesorId, ATexto, ADesde, AHasta);

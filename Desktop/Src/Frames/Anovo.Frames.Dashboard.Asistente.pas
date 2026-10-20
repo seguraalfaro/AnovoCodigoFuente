@@ -1,7 +1,7 @@
 unit Anovo.Frames.Dashboard.Asistente;
 
-// Dashboard del asistente: la cola, su trabajo por etapa, lo que tiene para
-// hoy y como va su mes.
+// Dashboard del asistente: la cola, lo devuelto y por enviar, sus
+// cotizaciones por etapa, lo que toca hoy y como va su mes.
 
 interface
 
@@ -10,6 +10,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   Vcl.ExtCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, rDBGrid,
   VclPlano.Tarjeta,
+  Anovo.UI.Dashboard,
   Anovo.Frames.Dashboard,
   Anovo.DTOs.Dashboard,
   Anovo.Vistas.Intf.Dashboard,
@@ -17,19 +18,27 @@ uses
 
 type
   TfraDashboardAsistente = class(TfraDashboard, IVistaDashboard<TDashboardAsistenteDTO>)
+    lblIcono1: TLabel;
     lblNota1: TLabel;
+    lblIcono2: TLabel;
     lblNota2: TLabel;
+    lblIcono3: TLabel;
     lblNota3: TLabel;
+    lblIcono4: TLabel;
     lblNota4: TLabel;
     gpTarjetas: TGridPanel;
-    tjBarras: TPlanoTarjeta;
-    grBarras: TrDBGrid;
+    tjEtapas: TPlanoTarjeta;
+    pbEtapas: TPaintBox;
     tjAvisos: TPlanoTarjeta;
-    grAvisos: TrDBGrid;
+    lblCabeceraAvisos: TLabel;
+    pbAvisos: TPaintBox;
     tjDatos: TPlanoTarjeta;
-    grDatos: TrDBGrid;
+    pbDatos: TPaintBox;
   private
     FPresentador: TPresentadorDashboard<TDashboardAsistenteDTO>;
+    FEtapas: TDibujoEtapas;
+    FAvisos: TDibujoAvisos;
+    FDatos: TDibujoDatos;
     procedure MostrarDashboard(const ADatos: TDashboardAsistenteDTO);
   public
     constructor Create(AOwner: TComponent); override;
@@ -41,18 +50,18 @@ implementation
 {$R *.dfm}
 
 uses
-  Anovo.Formato,
   Anovo.Textos,
   Anovo.Api.Intf.Dashboard,
   Anovo.Api.Dashboard,
-  Anovo.Datos.Memoria;
+  Anovo.UI.Tema,
+  Anovo.Formato;
 
 constructor TfraDashboardAsistente.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  PrepararRejilla(grBarras);
-  PrepararAvisos(grAvisos);
-  PrepararRejilla(grDatos);
+  FEtapas := TDibujoEtapas.Crear(pbEtapas);
+  FAvisos := NuevosAvisos(pbAvisos);
+  FDatos := TDibujoDatos.Crear(pbDatos);
 
   FPresentador := TPresentadorDashboard<TDashboardAsistenteDTO>.Create(Self,
     TApiDashboard.Create,
@@ -60,6 +69,7 @@ begin
     begin
       Result := AApi.Asistente;
     end);
+  lblTitulo.Caption := FPresentador.Saludo;
   FPresentador.Iniciar;
 end;
 
@@ -79,10 +89,10 @@ begin
   lblNota1.Caption := TFormato.MasAntigua(ADatos.DiasMasAntigua);
   lblNota2.Caption := SNotaCorregir;
   lblNota3.Caption := SNotaConVistoBueno;
-  lblNota4.Caption := SNotaFueraDePlazo;
-  MostrarBarras(grBarras, ADatos.PorEtapa);
-  MostrarAvisos(grAvisos, ADatos.ParaHoy);
-  MostrarDatos(grDatos, ADatos.MiMes);
+  lblNota4.Caption := Format(SNotaFueraDePlazo, [ADatos.DiasPlazo]);
+  FEtapas.Poner(RecuadrosDeEtapas(ADatos.PorEtapa));
+  FAvisos.Poner(AvisosParaHoy(ADatos.ParaHoy));
+  FDatos.Poner(FilasDeDatos(ADatos.MiMes));
 end;
 
 end.

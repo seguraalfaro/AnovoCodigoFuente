@@ -57,7 +57,7 @@ type
     Panel1: TPanel;
     SearchBox1: TSearchBox;
     btnExportar: TPlanoBotonWin;
-    pstFiltros: TPlanoPestanas;
+    cbFiltro: TComboBox;
     rpdatos: TRelativePanel;
     grCotizaciones: TrDBGrid;
     rDBEdit1: TrDBEdit;
@@ -82,7 +82,7 @@ type
     btnPeriodo: TPlanoBotonWin;
     procedure AcRegregsarExecute(Sender: TObject);
     procedure lblVerMapaClick(Sender: TObject);
-    procedure pstFiltrosChange(Sender: TObject);
+    procedure cbFiltroChange(Sender: TObject);
     procedure btnExportarClick(Sender: TObject);
     procedure btnEditarClienteClick(Sender: TObject);
     procedure btnGuardarClienteClick(Sender: TObject);
@@ -222,6 +222,8 @@ end;
 procedure TfraClienteDatos.MostrarCargando(const AActivo: Boolean);
 begin
   CursorOcupado(AActivo);
+  TCeldasRejilla.De(grContactos).Ocupada := AActivo;
+  TCeldasRejilla.De(grCotizaciones).Ocupada := AActivo;
   if AActivo then
   begin
     btnGuardarCliente.Enabled := False;
@@ -380,11 +382,11 @@ begin
 end;
 
 
-procedure TfraClienteDatos.pstFiltrosChange(Sender: TObject);
+procedure TfraClienteDatos.cbFiltroChange(Sender: TObject);
 begin
-  if FPresentador = nil then
+  if (FPresentador = nil) or (cbFiltro.ItemIndex < 0) then
     Exit;
-  FPresentador.FiltrarCotizaciones(pstFiltros.ItemIndex);
+  FPresentador.FiltrarCotizaciones(cbFiltro.ItemIndex);
 end;
 
 procedure TfraClienteDatos.btnExportarClick(Sender: TObject);

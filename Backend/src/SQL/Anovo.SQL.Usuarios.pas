@@ -5,8 +5,6 @@ unit Anovo.SQL.Usuarios;
 interface
 
 const
-  USUARIOS_POR_IDS = 'ID IN (%s)';
-
   USUARIO_POR_CORREO = 'CORREO = ?';
 
   USUARIO_CLAVE_ACTIVA =

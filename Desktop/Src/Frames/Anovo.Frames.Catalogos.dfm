@@ -22,11 +22,34 @@ inherited fraCatalogos: TfraCatalogos
       992
       52)
     inherited sbBuscar: TSearchBox
+      Width = 200
       TextHint = 'C'#243'digo o descripci'#243'n'
     end
     inherited btnLimpiar: TPlanoBotonWin
-      Left = 330
-      ExplicitLeft = 330
+      Left = 228
+      ExplicitLeft = 228
+    end
+    object cbCatalogo: TComboBox
+      Left = 326
+      Top = 14
+      Width = 150
+      Height = 23
+      Style = csDropDownList
+      DropDownCount = 10
+      ItemIndex = 0
+      TabOrder = 6
+      Text = 'Todos los cat'#225'logos'
+      OnChange = cbCatalogoChange
+      Items.Strings = (
+        'Todos los cat'#225'logos'
+        'Materiales'
+        'Mano de obra'
+        'M'#225'quinas'
+        'Tipos de trabajo'
+        'Unidades de medida'
+        'Tipos de material'
+        'Acabados'
+        'Formas de pago')
     end
     object btnImportar: TPlanoBotonWin
       Left = 606
@@ -71,9 +94,9 @@ inherited fraCatalogos: TfraCatalogos
       ExplicitLeft = 772
     end
     object cbCategoria: TrDBLookupComboBox
-      Left = 430
+      Left = 484
       Top = 13
-      Width = 130
+      Width = 116
       Height = 23
       DataField = ''
       DropDownRows = 10
@@ -664,38 +687,5 @@ inherited fraCatalogos: TfraCatalogos
     inherited btnSiguiente: TPlanoBotonWin
       Left = 862
     end
-  end
-  object pstCatalogo: TPlanoPestanas
-    AlignWithMargins = True
-    Left = 3
-    Top = 129
-    Width = 992
-    Height = 40
-    Items.Strings = (
-      'Todos'
-      'Materiales'
-      'Mano de obra'
-      'M'#225'quinas'
-      'Tipos de trabajo'
-      'Unidades de medida'
-      'Tipos de material'
-      'Acabados'
-      'Formas de pago')
-    Style = pesPastilla
-    Indent = 20
-    BackColor = 16447477
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Segoe UI'
-    Font.Style = []
-    ActiveFont.Charset = DEFAULT_CHARSET
-    ActiveFont.Color = clWindowText
-    ActiveFont.Height = -12
-    ActiveFont.Name = 'Segoe UI Semibold'
-    ActiveFont.Style = []
-    OnChange = pstCatalogoChange
-    ParentFont = False
-    ExplicitWidth = 954
   end
 end

@@ -13,7 +13,7 @@ uses
   Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.WinXCtrls, Anovo.UI.PanelRelativo, Vcl.WinXPanels,
   Data.DB, FireDAC.Comp.Client, Vcl.Grids, Vcl.DBGrids, Vcl.DBCtrls, rDBGrid,
   rDBComponents,
-  FlatVcl.BotonWin, VclPlano.Pestanas, VclPlano.BotonWin,
+  FlatVcl.BotonWin, VclPlano.BotonWin,
   Anovo.Frames.Listado,
   Anovo.DTOs.Catalogos,
   Anovo.DTOs.Importacion,
@@ -26,7 +26,7 @@ type
     btnImportar: TPlanoBotonWin;
     btnNuevo: TPlanoBotonWin;
     cbCategoria: TrDBLookupComboBox;
-    pstCatalogo: TPlanoPestanas;
+    cbCatalogo: TComboBox;
     cpCatalogo: TCardPanel;
     crdTodos: TCard;
     grTodos: TrDBGrid;
@@ -42,7 +42,7 @@ type
     grUnidades: TrDBGrid;
     crdSimples: TCard;
     grSimples: TrDBGrid;
-    procedure pstCatalogoChange(Sender: TObject);
+    procedure cbCatalogoChange(Sender: TObject);
     procedure cbCategoriaClick(Sender: TObject);
     procedure btnNuevoClick(Sender: TObject);
     procedure btnExportarClick(Sender: TObject);
@@ -369,7 +369,7 @@ procedure TfraCatalogos.MostrarCargando(const AActivo: Boolean);
 begin
   FTextoCargando := Format(SCargandoCatalogo, [LowerCase(TituloDe(FCatalogo))]);
   inherited;
-  pstCatalogo.Enabled := not AActivo;
+  cbCatalogo.Enabled := not AActivo;
   cbCategoria.Enabled := not AActivo;
 end;
 
@@ -474,11 +474,11 @@ begin
   TfrmPrecioCatalogo.Mostrar(Self, ACatalogo, 0, NombreDeLaFila, mpHistorial);
 end;
 
-procedure TfraCatalogos.pstCatalogoChange(Sender: TObject);
+procedure TfraCatalogos.cbCatalogoChange(Sender: TObject);
 begin
   if not Assigned(FPresentador) then
     Exit;
-  FPresentador.Filtrar(TCatalogo(pstCatalogo.ItemIndex));
+  FPresentador.Filtrar(TCatalogo(cbCatalogo.ItemIndex));
 end;
 
 procedure TfraCatalogos.cbCategoriaClick(Sender: TObject);

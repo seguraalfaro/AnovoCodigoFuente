@@ -20,7 +20,7 @@ type
       const AEstado: string = ''; const AClienteId: Integer = 0;
       const AAsesorId: Integer = 0; const ADesde: TDateTime = 0;
       const AHasta: TDateTime = 0; const AElaboradaPor: Integer = 0)
-      : TObjectList<TCotizaciones>;
+      : TObjectList<TVCotizacionesListado>;
 
     function ContarBusqueda(const ATexto: string; const AEstado: string = '';
       const AClienteId: Integer = 0; const AAsesorId: Integer = 0;
@@ -32,8 +32,8 @@ type
     function SiguienteNumero: Integer;
 
 
-    function EnviadasSinRespuesta(const ADias: Integer)
-      : TObjectList<TCotizaciones>;
+    function EnviadasSinRespuesta: TObjectList<TCotizacionSinRespuesta>;
+    function TotalesDe(const AId: Integer): TTotalesDeCotizacion;
     function Bandeja(const AUsuarioId: Integer; const ATexto: string;
       const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer)
       : TObjectList<TBandejaCotizaciones>;
@@ -42,9 +42,7 @@ type
     function ResumenBandeja(const AUsuarioId: Integer)
       : TTrabajoUsuario;
     function TieneEnCurso(const ASolicitudId: Integer): Boolean;
-    function VistaDe(const AId: Integer): TCotizacionConNombres;
-    function VistasDe(const AIds: TArray<Integer>)
-      : TObjectList<TCotizacionConNombres>;
+    function VistaDe(const AId: Integer): TCotizacionListada;
     function HistorialDe(const AId: Integer): TObjectList<THistorialCotizacion>;
   end;
 
@@ -57,8 +55,7 @@ type
       : TCotizacionDetalle;
     function SiguienteOrden(const ACotizacionId: Integer): Integer;
 
-    procedure SubtotalesDe(const ACotizacionId: Integer;
-      out AMateriales, AManoObra, AMaquina: Currency);
+    function SubtotalDeLinea(const ACantidad, APrecio: Currency): Currency;
   end;
 
   ICotizacionEnvioRepository = interface(IMVCRepository<TCotizacionEnvios>)

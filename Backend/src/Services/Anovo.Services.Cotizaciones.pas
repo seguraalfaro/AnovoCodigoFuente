@@ -22,7 +22,6 @@ uses
 const
   ESTADO_BORRADOR = 'borrador';
   ESTADO_PENDIENTE = 'pendiente';
-  DIAS_SIN_RESPUESTA_POR_DEFECTO = 7;
   ESTADO_DEVUELTA = 'devuelta';
   ESTADO_VISTO_BUENO = 'visto_bueno';
   ESTADO_ENVIADA = 'enviada';
@@ -508,7 +507,7 @@ begin
 
   ALinea.Cantidad := lCantidad;
   ALinea.PrecioUnitario := lPrecio;
-  ALinea.Subtotal := lCantidad * lPrecio;
+  ALinea.Subtotal := fDetalle.SubtotalDeLinea(lCantidad, lPrecio);
 end;
 
 function TCotizacionService.Buscar(const ATexto, AEstado: string;
@@ -520,13 +519,7 @@ var
   lFiltroUsuario: Integer;
   lElaboradaPor: Integer;
   lPeriodo: TPeriodo;
-  lFilas: TObjectList<TCotizaciones>;
-  lFila: TCotizaciones;
-  lIds: TArray<Integer>;
-  lVistas: TObjectList<TCotizacionConNombres>;
-  lVista: TCotizacionConNombres;
-  lPorId: TDictionary<Integer, TCotizacionConNombres>;
-  lDto: TCotizacionDTO;
+  lFilas: TObjectList<TVCotizacionesListado>;
 begin
   lElaboradaPor := 0;
   if fPermisos.TieneAlguno(AUsuarioId, ARoles,
@@ -549,32 +542,9 @@ begin
 
   lFilas := fRepo.Buscar(ATexto, APagina, APorPagina, AEstado, AClienteId,
     lFiltroUsuario, lPeriodo.Inicio, lPeriodo.Fin, lElaboradaPor);
-  lVistas := nil;
-  lPorId := TDictionary<Integer, TCotizacionConNombres>.Create;
   try
-    lIds := [];
-    for lFila in lFilas do
-      lIds := lIds + [lFila.ID.Value];
-    lVistas := fRepo.VistasDe(lIds);
-    for lVista in lVistas do
-      lPorId.AddOrSetValue(lVista.ID.ValueOrDefault, lVista);
-
-    Result := TObjectList<TCotizacionDTO>.Create(True);
-    try
-      for lFila in lFilas do
-      begin
-        lDto := TMapeo.ADto<TCotizacionDTO>(lFila);
-        Result.Add(lDto);
-        if lPorId.TryGetValue(lFila.ID.Value, lVista) then
-          TMapeo.Copiar(lVista, lDto);
-      end;
-    except
-      Result.Free;
-      raise;
-    end;
+    Result := TMapeo.AListaDto<TVCotizacionesListado, TCotizacionDTO>(lFilas);
   finally
-    lPorId.Free;
-    lVistas.Free;
     lFilas.Free;
   end;
 end;
@@ -622,7 +592,7 @@ function TCotizacionService.Obtener(const AId, AUsuarioId: Integer;
   const ARoles: TArray<string>): TCotizacionDTO;
 var
   lCotizacion: TCotizaciones;
-  lVista: TCotizacionConNombres;
+  lVista: TCotizacionListada;
 begin
   lCotizacion := TraerVigente(AId);
   try
@@ -900,28 +870,20 @@ end;
 procedure TCotizacionService.Recalcular(const AId: Integer);
 var
   lCotizacion: TCotizaciones;
-  lMateriales, lManoObra, lMaquina: Currency;
-  lCosto, lAjustado, lImpuesto: Currency;
+  lTotales: TTotalesDeCotizacion;
 begin
   var
   lTx := TMVCRepository.UseTransactionContext;
 
-  fDetalle.SubtotalesDe(AId, lMateriales, lManoObra, lMaquina);
-
   lCotizacion := TraerVigente(AId);
   try
-    lCotizacion.SubtotalMateriales := lMateriales;
-    lCotizacion.SubtotalManoObra := lManoObra;
-    lCotizacion.SubtotalMaquina := lMaquina;
-
-    lCosto := lMateriales + lManoObra + lMaquina;
-    lCotizacion.CostoTotal := lCosto;
-
-    lAjustado := lCosto + (lCosto * lCotizacion.PorcentajeAjuste / 100);
-    lImpuesto := lAjustado * lCotizacion.PorcentajeIva / 100;
-
-    lCotizacion.MontoImpuesto := lImpuesto;
-    lCotizacion.MontoTotal := lAjustado + lImpuesto;
+    lTotales := fRepo.TotalesDe(AId);
+    try
+      if lTotales <> nil then
+        TMapeo.Copiar(lTotales, lCotizacion);
+    finally
+      lTotales.Free;
+    end;
 
     FijarDetalle(Format(SDetalleRecalculoCotizacion, [lCotizacion.Numero]));
     fRepo.Update(lCotizacion);
@@ -1144,29 +1106,11 @@ end;
 
 function TCotizacionService.EnviadasSinRespuesta: TObjectList<TCotizacionDTO>;
 var
-  lEmpresa: TEmpresa;
-  lDias: Integer;
-  lFilas: TObjectList<TCotizaciones>;
-  lFila: TCotizaciones;
+  lFilas: TObjectList<TCotizacionSinRespuesta>;
 begin
-  lDias := DIAS_SIN_RESPUESTA_POR_DEFECTO;
-  lEmpresa := fEmpresa.GetByPK(EMPRESA_ID, False);
-  if lEmpresa <> nil then
-    try
-      lDias := lEmpresa.DiasSinRespuesta;
-    finally
-      lEmpresa.Free;
-    end;
-  lFilas := fRepo.EnviadasSinRespuesta(lDias);
+  lFilas := fRepo.EnviadasSinRespuesta;
   try
-    Result := TObjectList<TCotizacionDTO>.Create(True);
-    try
-      for lFila in lFilas do
-        Result.Add(ADto(lFila));
-    except
-      Result.Free;
-      raise;
-    end;
+    Result := TMapeo.AListaDto<TCotizacionSinRespuesta, TCotizacionDTO>(lFilas);
   finally
     lFilas.Free;
   end;

@@ -93,6 +93,7 @@ type
       const ACantidad: Integer);
     procedure MostrarCampana(const AVisible: Boolean);
     procedure MostrarNotificaciones(const ACantidad: Integer);
+    procedure MostrarCampanaOcupada(const AOcupada: Boolean);
     function PreguntarNotificaciones(const ACantidad: Integer): Boolean;
     function AbrirNotificaciones(const ACotizaciones
       : TObjectList<TCotizacionDTO>;
@@ -455,9 +456,10 @@ function TfrmPrincipal.AbrirNotificaciones(const ACotizaciones
   const AAcciones: TAccionesNotificacion): Integer;
 begin
   Result := TfrmRecordatorio.Mostrar(Self, ACotizaciones, AAcciones,
-    procedure(const AId, ANumero: Integer; const AListo: TProc)
+    procedure(const AId, ANumero: Integer; const AListo: TProc;
+      const AOcupado: TProc<Boolean>)
     begin
-      FPresentador.Descartar(AId, ANumero, AListo);
+      FPresentador.Descartar(AId, ANumero, AListo, AOcupado);
     end);
 end;
 
@@ -469,6 +471,11 @@ end;
 procedure TfrmPrincipal.MostrarError(const AMensaje: string);
 begin
   AvisarError(AMensaje);
+end;
+
+procedure TfrmPrincipal.MostrarCampanaOcupada(const AOcupada: Boolean);
+begin
+  imgCampana.Enabled := not AOcupada;
 end;
 
 procedure TfrmPrincipal.imgCampanaClick(Sender: TObject);

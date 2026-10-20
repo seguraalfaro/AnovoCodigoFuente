@@ -1781,6 +1781,79 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_CONTACTOS_BAJADA')]
+  TVContactosBajada = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ID')]
+    fID: NullableInt32;
+    [MVCTableField('UUID_LOCAL')]
+    [MVCMaxLength(36)]
+    fUuidLocal: NullableString;
+    [MVCTableField('CLIENTE_ID')]
+    fClienteId: NullableInt32;
+    [MVCTableField('NOMBRE')]
+    [MVCMaxLength(120)]
+    fNombre: NullableString;
+    [MVCTableField('AREA')]
+    [MVCMaxLength(80)]
+    fArea: NullableString;
+    [MVCTableField('TELEFONO')]
+    [MVCMaxLength(30)]
+    fTelefono: NullableString;
+    [MVCTableField('CORREO')]
+    [MVCMaxLength(150)]
+    fCorreo: NullableString;
+    [MVCTableField('PRINCIPAL')]
+    fPrincipal: NullableBoolean;
+    [MVCTableField('CONSENTIMIENTO_ESTADO')]
+    [MVCMaxLength(20)]
+    fConsentimientoEstado: NullableString;
+    [MVCTableField('CONSENTIMIENTO_FECHA')]
+    fConsentimientoFecha: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('CONSENTIMIENTO_VERSION')]
+    [MVCMaxLength(10)]
+    fConsentimientoVersion: NullableString;
+    [MVCTableField('ANONIMIZADO')]
+    fAnonimizado: NullableBoolean;
+    [MVCTableField('ACTIVO')]
+    fActivo: NullableBoolean;
+    [MVCTableField('FECHA_CREACION')]
+    fFechaCreacion: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('OBJVERSION')]
+    fObjversion: NullableInt32;
+    [MVCTableField('CELULAR')]
+    [MVCMaxLength(30)]
+    fCelular: NullableString;
+    [MVCTableField('FECHA_MODIFICACION')]
+    fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('CLIENTE_UUID')]
+    [MVCMaxLength(36)]
+    fClienteUuid: NullableString;
+    [MVCTableField('CLIENTE_ACTIVO')]
+    fClienteActivo: NullableBoolean;
+  public
+    property ID: NullableInt32 read fID write fID;
+    property UuidLocal: NullableString read fUuidLocal write fUuidLocal;
+    property ClienteId: NullableInt32 read fClienteId write fClienteId;
+    property Nombre: NullableString read fNombre write fNombre;
+    property Area: NullableString read fArea write fArea;
+    property Telefono: NullableString read fTelefono write fTelefono;
+    property Correo: NullableString read fCorreo write fCorreo;
+    property Principal: NullableBoolean read fPrincipal write fPrincipal;
+    property ConsentimientoEstado: NullableString read fConsentimientoEstado write fConsentimientoEstado;
+    property ConsentimientoFecha: NullableTDateTime {dtDateTimeStamp} read fConsentimientoFecha write fConsentimientoFecha;
+    property ConsentimientoVersion: NullableString read fConsentimientoVersion write fConsentimientoVersion;
+    property Anonimizado: NullableBoolean read fAnonimizado write fAnonimizado;
+    property Activo: NullableBoolean read fActivo write fActivo;
+    property FechaCreacion: NullableTDateTime {dtDateTimeStamp} read fFechaCreacion write fFechaCreacion;
+    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property Celular: NullableString read fCelular write fCelular;
+    property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
+    property ClienteUuid: NullableString read fClienteUuid write fClienteUuid;
+    property ClienteActivo: NullableBoolean read fClienteActivo write fClienteActivo;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
   [MVCTable('V_COTIZACIONES')]
   TVCotizaciones = class(TMVCActiveRecord)
   private
@@ -1954,6 +2027,152 @@ type
   end;
 
   [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_COTIZACIONES_LISTADO')]
+  TVCotizacionesListado = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ID')]
+    fID: NullableInt32;
+    [MVCTableField('NUMERO')]
+    fNumero: NullableInt32;
+    [MVCTableField('SOLICITUD_ID')]
+    fSolicitudId: NullableInt32;
+    [MVCTableField('CLIENTE_ID')]
+    fClienteId: NullableInt32;
+    [MVCTableField('TIPO_TRABAJO_ID')]
+    fTipoTrabajoId: NullableInt32;
+    [MVCTableField('DESCRIPCION_TRABAJO')]
+    [MVCMaxLength(500)]
+    fDescripcionTrabajo: NullableString;
+    [MVCTableField('ELABORADA_POR')]
+    fElaboradaPor: NullableInt32;
+    [MVCTableField('APROBADA_POR')]
+    fAprobadaPor: NullableInt32;
+    [MVCTableField('ESTADO')]
+    [MVCMaxLength(20)]
+    fEstado: NullableString;
+    [MVCTableField('SUBTOTAL_MATERIALES')]
+    fSubtotalMateriales: NullableCurrency;
+    [MVCTableField('SUBTOTAL_MANO_OBRA')]
+    fSubtotalManoObra: NullableCurrency;
+    [MVCTableField('SUBTOTAL_MAQUINA')]
+    fSubtotalMaquina: NullableCurrency;
+    [MVCTableField('COSTO_TOTAL')]
+    fCostoTotal: NullableCurrency;
+    [MVCTableField('PORCENTAJE_AJUSTE')]
+    fPorcentajeAjuste: NullableCurrency;
+    [MVCTableField('MOTIVO_AJUSTE')]
+    [MVCMaxLength(500)]
+    fMotivoAjuste: NullableString;
+    [MVCTableField('PORCENTAJE_IVA')]
+    fPorcentajeIva: NullableCurrency;
+    [MVCTableField('MONTO_IMPUESTO')]
+    fMontoImpuesto: NullableCurrency;
+    [MVCTableField('MONTO_TOTAL')]
+    fMontoTotal: NullableCurrency;
+    [MVCTableField('MOTIVO_RECHAZO')]
+    [MVCMaxLength(500)]
+    fMotivoRechazo: NullableString;
+    [MVCTableField('FECHA_ELABORACION')]
+    fFechaElaboracion: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('FECHA_APROBACION')]
+    fFechaAprobacion: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('FECHA_ENVIO')]
+    fFechaEnvio: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('FECHA_MODIFICACION')]
+    fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('OBJVERSION')]
+    fObjversion: NullableInt32;
+    [MVCTableField('FORMA_PAGO')]
+    [MVCMaxLength(120)]
+    fFormaPago: NullableString;
+    [MVCTableField('FORMA_PAGO_ID')]
+    fFormaPagoId: NullableInt32;
+    [MVCTableField('PLAZO_ENTREGA_CANTIDAD')]
+    fPlazoEntregaCantidad: NullableInt16;
+    [MVCTableField('PLAZO_ENTREGA_UNIDAD')]
+    [MVCMaxLength(15)]
+    fPlazoEntregaUnidad: NullableString;
+    [MVCTableField('GARANTIA_CANTIDAD')]
+    fGarantiaCantidad: NullableInt16;
+    [MVCTableField('GARANTIA_UNIDAD')]
+    [MVCMaxLength(15)]
+    fGarantiaUnidad: NullableString;
+    [MVCTableField('ORDEN_COMPRA')]
+    [MVCMaxLength(40)]
+    fOrdenCompra: NullableString;
+    [MVCTableField('FECHA_RECEPCION')]
+    fFechaRecepcion: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('CLIENTE_NOMBRE')]
+    [MVCMaxLength(120)]
+    fClienteNombre: NullableString;
+    [MVCTableField('ASESOR_ID')]
+    fAsesorId: NullableInt32;
+    [MVCTableField('ASESOR_NOMBRE')]
+    [MVCMaxLength(120)]
+    fAsesorNombre: NullableString;
+    [MVCTableField('ELABORADA_POR_NOMBRE')]
+    [MVCMaxLength(120)]
+    fElaboradaPorNombre: NullableString;
+    [MVCTableField('APROBADA_POR_NOMBRE')]
+    [MVCMaxLength(120)]
+    fAprobadaPorNombre: NullableString;
+    [MVCTableField('TIPO_TRABAJO_NOMBRE')]
+    [MVCMaxLength(120)]
+    fTipoTrabajoNombre: NullableString;
+    [MVCTableField('DEVUELTA')]
+    fDevuelta: NullableBoolean;
+    [MVCTableField('DIAS_EN_ESTADO')]
+    fDiasEnEstado: NullableInt32;
+    [MVCTableField('DIAS_RESPUESTA')]
+    fDiasRespuesta: NullableInt32;
+    [MVCTableField('MONTO_AJUSTE')]
+    fMontoAjuste: NullableCurrency;
+  public
+    property ID: NullableInt32 read fID write fID;
+    property Numero: NullableInt32 read fNumero write fNumero;
+    property SolicitudId: NullableInt32 read fSolicitudId write fSolicitudId;
+    property ClienteId: NullableInt32 read fClienteId write fClienteId;
+    property TipoTrabajoId: NullableInt32 read fTipoTrabajoId write fTipoTrabajoId;
+    property DescripcionTrabajo: NullableString read fDescripcionTrabajo write fDescripcionTrabajo;
+    property ElaboradaPor: NullableInt32 read fElaboradaPor write fElaboradaPor;
+    property AprobadaPor: NullableInt32 read fAprobadaPor write fAprobadaPor;
+    property Estado: NullableString read fEstado write fEstado;
+    property SubtotalMateriales: NullableCurrency read fSubtotalMateriales write fSubtotalMateriales;
+    property SubtotalManoObra: NullableCurrency read fSubtotalManoObra write fSubtotalManoObra;
+    property SubtotalMaquina: NullableCurrency read fSubtotalMaquina write fSubtotalMaquina;
+    property CostoTotal: NullableCurrency read fCostoTotal write fCostoTotal;
+    property PorcentajeAjuste: NullableCurrency read fPorcentajeAjuste write fPorcentajeAjuste;
+    property MotivoAjuste: NullableString read fMotivoAjuste write fMotivoAjuste;
+    property PorcentajeIva: NullableCurrency read fPorcentajeIva write fPorcentajeIva;
+    property MontoImpuesto: NullableCurrency read fMontoImpuesto write fMontoImpuesto;
+    property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
+    property MotivoRechazo: NullableString read fMotivoRechazo write fMotivoRechazo;
+    property FechaElaboracion: NullableTDateTime {dtDateTimeStamp} read fFechaElaboracion write fFechaElaboracion;
+    property FechaAprobacion: NullableTDateTime {dtDateTimeStamp} read fFechaAprobacion write fFechaAprobacion;
+    property FechaEnvio: NullableTDateTime {dtDateTimeStamp} read fFechaEnvio write fFechaEnvio;
+    property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
+    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property FormaPago: NullableString read fFormaPago write fFormaPago;
+    property FormaPagoId: NullableInt32 read fFormaPagoId write fFormaPagoId;
+    property PlazoEntregaCantidad: NullableInt16 read fPlazoEntregaCantidad write fPlazoEntregaCantidad;
+    property PlazoEntregaUnidad: NullableString read fPlazoEntregaUnidad write fPlazoEntregaUnidad;
+    property GarantiaCantidad: NullableInt16 read fGarantiaCantidad write fGarantiaCantidad;
+    property GarantiaUnidad: NullableString read fGarantiaUnidad write fGarantiaUnidad;
+    property OrdenCompra: NullableString read fOrdenCompra write fOrdenCompra;
+    property FechaRecepcion: NullableTDateTime {dtDateTimeStamp} read fFechaRecepcion write fFechaRecepcion;
+    property ClienteNombre: NullableString read fClienteNombre write fClienteNombre;
+    property AsesorId: NullableInt32 read fAsesorId write fAsesorId;
+    property AsesorNombre: NullableString read fAsesorNombre write fAsesorNombre;
+    property ElaboradaPorNombre: NullableString read fElaboradaPorNombre write fElaboradaPorNombre;
+    property AprobadaPorNombre: NullableString read fAprobadaPorNombre write fAprobadaPorNombre;
+    property TipoTrabajoNombre: NullableString read fTipoTrabajoNombre write fTipoTrabajoNombre;
+    property Devuelta: NullableBoolean read fDevuelta write fDevuelta;
+    property DiasEnEstado: NullableInt32 read fDiasEnEstado write fDiasEnEstado;
+    property DiasRespuesta: NullableInt32 read fDiasRespuesta write fDiasRespuesta;
+    property MontoAjuste: NullableCurrency read fMontoAjuste write fMontoAjuste;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
   [MVCTable('V_COTIZACIONES_POR_ESTADO')]
   TVCotizacionesPorEstado = class(TMVCActiveRecord)
   private
@@ -1971,6 +2190,152 @@ type
     property Orden: NullableInt32 read fOrden write fOrden;
     property Cantidad: NullableInt32 read fCantidad write fCantidad;
     property Monto: NullableCurrency read fMonto write fMonto;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_COTIZACIONES_SIN_RESPUESTA')]
+  TVCotizacionesSinRespuesta = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ID')]
+    fID: NullableInt32;
+    [MVCTableField('NUMERO')]
+    fNumero: NullableInt32;
+    [MVCTableField('SOLICITUD_ID')]
+    fSolicitudId: NullableInt32;
+    [MVCTableField('CLIENTE_ID')]
+    fClienteId: NullableInt32;
+    [MVCTableField('TIPO_TRABAJO_ID')]
+    fTipoTrabajoId: NullableInt32;
+    [MVCTableField('DESCRIPCION_TRABAJO')]
+    [MVCMaxLength(500)]
+    fDescripcionTrabajo: NullableString;
+    [MVCTableField('ELABORADA_POR')]
+    fElaboradaPor: NullableInt32;
+    [MVCTableField('APROBADA_POR')]
+    fAprobadaPor: NullableInt32;
+    [MVCTableField('ESTADO')]
+    [MVCMaxLength(20)]
+    fEstado: NullableString;
+    [MVCTableField('SUBTOTAL_MATERIALES')]
+    fSubtotalMateriales: NullableCurrency;
+    [MVCTableField('SUBTOTAL_MANO_OBRA')]
+    fSubtotalManoObra: NullableCurrency;
+    [MVCTableField('SUBTOTAL_MAQUINA')]
+    fSubtotalMaquina: NullableCurrency;
+    [MVCTableField('COSTO_TOTAL')]
+    fCostoTotal: NullableCurrency;
+    [MVCTableField('PORCENTAJE_AJUSTE')]
+    fPorcentajeAjuste: NullableCurrency;
+    [MVCTableField('MOTIVO_AJUSTE')]
+    [MVCMaxLength(500)]
+    fMotivoAjuste: NullableString;
+    [MVCTableField('PORCENTAJE_IVA')]
+    fPorcentajeIva: NullableCurrency;
+    [MVCTableField('MONTO_IMPUESTO')]
+    fMontoImpuesto: NullableCurrency;
+    [MVCTableField('MONTO_TOTAL')]
+    fMontoTotal: NullableCurrency;
+    [MVCTableField('MOTIVO_RECHAZO')]
+    [MVCMaxLength(500)]
+    fMotivoRechazo: NullableString;
+    [MVCTableField('FECHA_ELABORACION')]
+    fFechaElaboracion: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('FECHA_APROBACION')]
+    fFechaAprobacion: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('FECHA_ENVIO')]
+    fFechaEnvio: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('FECHA_MODIFICACION')]
+    fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('OBJVERSION')]
+    fObjversion: NullableInt32;
+    [MVCTableField('FORMA_PAGO')]
+    [MVCMaxLength(120)]
+    fFormaPago: NullableString;
+    [MVCTableField('FORMA_PAGO_ID')]
+    fFormaPagoId: NullableInt32;
+    [MVCTableField('PLAZO_ENTREGA_CANTIDAD')]
+    fPlazoEntregaCantidad: NullableInt16;
+    [MVCTableField('PLAZO_ENTREGA_UNIDAD')]
+    [MVCMaxLength(15)]
+    fPlazoEntregaUnidad: NullableString;
+    [MVCTableField('GARANTIA_CANTIDAD')]
+    fGarantiaCantidad: NullableInt16;
+    [MVCTableField('GARANTIA_UNIDAD')]
+    [MVCMaxLength(15)]
+    fGarantiaUnidad: NullableString;
+    [MVCTableField('ORDEN_COMPRA')]
+    [MVCMaxLength(40)]
+    fOrdenCompra: NullableString;
+    [MVCTableField('FECHA_RECEPCION')]
+    fFechaRecepcion: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('CLIENTE_NOMBRE')]
+    [MVCMaxLength(120)]
+    fClienteNombre: NullableString;
+    [MVCTableField('ASESOR_ID')]
+    fAsesorId: NullableInt32;
+    [MVCTableField('ASESOR_NOMBRE')]
+    [MVCMaxLength(120)]
+    fAsesorNombre: NullableString;
+    [MVCTableField('ELABORADA_POR_NOMBRE')]
+    [MVCMaxLength(120)]
+    fElaboradaPorNombre: NullableString;
+    [MVCTableField('APROBADA_POR_NOMBRE')]
+    [MVCMaxLength(120)]
+    fAprobadaPorNombre: NullableString;
+    [MVCTableField('TIPO_TRABAJO_NOMBRE')]
+    [MVCMaxLength(120)]
+    fTipoTrabajoNombre: NullableString;
+    [MVCTableField('DEVUELTA')]
+    fDevuelta: NullableBoolean;
+    [MVCTableField('DIAS_EN_ESTADO')]
+    fDiasEnEstado: NullableInt32;
+    [MVCTableField('DIAS_RESPUESTA')]
+    fDiasRespuesta: NullableInt32;
+    [MVCTableField('MONTO_AJUSTE')]
+    fMontoAjuste: NullableCurrency;
+  public
+    property ID: NullableInt32 read fID write fID;
+    property Numero: NullableInt32 read fNumero write fNumero;
+    property SolicitudId: NullableInt32 read fSolicitudId write fSolicitudId;
+    property ClienteId: NullableInt32 read fClienteId write fClienteId;
+    property TipoTrabajoId: NullableInt32 read fTipoTrabajoId write fTipoTrabajoId;
+    property DescripcionTrabajo: NullableString read fDescripcionTrabajo write fDescripcionTrabajo;
+    property ElaboradaPor: NullableInt32 read fElaboradaPor write fElaboradaPor;
+    property AprobadaPor: NullableInt32 read fAprobadaPor write fAprobadaPor;
+    property Estado: NullableString read fEstado write fEstado;
+    property SubtotalMateriales: NullableCurrency read fSubtotalMateriales write fSubtotalMateriales;
+    property SubtotalManoObra: NullableCurrency read fSubtotalManoObra write fSubtotalManoObra;
+    property SubtotalMaquina: NullableCurrency read fSubtotalMaquina write fSubtotalMaquina;
+    property CostoTotal: NullableCurrency read fCostoTotal write fCostoTotal;
+    property PorcentajeAjuste: NullableCurrency read fPorcentajeAjuste write fPorcentajeAjuste;
+    property MotivoAjuste: NullableString read fMotivoAjuste write fMotivoAjuste;
+    property PorcentajeIva: NullableCurrency read fPorcentajeIva write fPorcentajeIva;
+    property MontoImpuesto: NullableCurrency read fMontoImpuesto write fMontoImpuesto;
+    property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
+    property MotivoRechazo: NullableString read fMotivoRechazo write fMotivoRechazo;
+    property FechaElaboracion: NullableTDateTime {dtDateTimeStamp} read fFechaElaboracion write fFechaElaboracion;
+    property FechaAprobacion: NullableTDateTime {dtDateTimeStamp} read fFechaAprobacion write fFechaAprobacion;
+    property FechaEnvio: NullableTDateTime {dtDateTimeStamp} read fFechaEnvio write fFechaEnvio;
+    property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
+    property Objversion: NullableInt32 read fObjversion write fObjversion;
+    property FormaPago: NullableString read fFormaPago write fFormaPago;
+    property FormaPagoId: NullableInt32 read fFormaPagoId write fFormaPagoId;
+    property PlazoEntregaCantidad: NullableInt16 read fPlazoEntregaCantidad write fPlazoEntregaCantidad;
+    property PlazoEntregaUnidad: NullableString read fPlazoEntregaUnidad write fPlazoEntregaUnidad;
+    property GarantiaCantidad: NullableInt16 read fGarantiaCantidad write fGarantiaCantidad;
+    property GarantiaUnidad: NullableString read fGarantiaUnidad write fGarantiaUnidad;
+    property OrdenCompra: NullableString read fOrdenCompra write fOrdenCompra;
+    property FechaRecepcion: NullableTDateTime {dtDateTimeStamp} read fFechaRecepcion write fFechaRecepcion;
+    property ClienteNombre: NullableString read fClienteNombre write fClienteNombre;
+    property AsesorId: NullableInt32 read fAsesorId write fAsesorId;
+    property AsesorNombre: NullableString read fAsesorNombre write fAsesorNombre;
+    property ElaboradaPorNombre: NullableString read fElaboradaPorNombre write fElaboradaPorNombre;
+    property AprobadaPorNombre: NullableString read fAprobadaPorNombre write fAprobadaPorNombre;
+    property TipoTrabajoNombre: NullableString read fTipoTrabajoNombre write fTipoTrabajoNombre;
+    property Devuelta: NullableBoolean read fDevuelta write fDevuelta;
+    property DiasEnEstado: NullableInt32 read fDiasEnEstado write fDiasEnEstado;
+    property DiasRespuesta: NullableInt32 read fDiasRespuesta write fDiasRespuesta;
+    property MontoAjuste: NullableCurrency read fMontoAjuste write fMontoAjuste;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -2005,6 +2370,57 @@ type
     property UsuarioNombre: NullableString read fUsuarioNombre write fUsuarioNombre;
     property Motivo: NullableString read fMotivo write fMotivo;
     property Activo: NullableBoolean read fActivo write fActivo;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_COTIZACION_LINEAS')]
+  TVCotizacionLineas = class(TMVCActiveRecord)
+  private
+    [MVCTableField('ID')]
+    fID: NullableInt32;
+    [MVCTableField('COTIZACION_ID')]
+    fCotizacionId: NullableInt32;
+    [MVCTableField('TIPO')]
+    [MVCMaxLength(10)]
+    fTipo: NullableString;
+    [MVCTableField('SUBTOTAL')]
+    fSubtotal: NullableCurrency;
+  public
+    property ID: NullableInt32 read fID write fID;
+    property CotizacionId: NullableInt32 read fCotizacionId write fCotizacionId;
+    property Tipo: NullableString read fTipo write fTipo;
+    property Subtotal: NullableCurrency read fSubtotal write fSubtotal;
+  end;
+
+  [MVCNameCase(ncSnakeCase)]
+  [MVCTable('V_COTIZACION_TOTALES')]
+  TVCotizacionTotales = class(TMVCActiveRecord)
+  private
+    [MVCTableField('COTIZACION_ID')]
+    fCotizacionId: NullableInt32;
+    [MVCTableField('SUBTOTAL_MATERIALES')]
+    fSubtotalMateriales: NullableCurrency;
+    [MVCTableField('SUBTOTAL_MANO_OBRA')]
+    fSubtotalManoObra: NullableCurrency;
+    [MVCTableField('SUBTOTAL_MAQUINA')]
+    fSubtotalMaquina: NullableCurrency;
+    [MVCTableField('COSTO_TOTAL')]
+    fCostoTotal: NullableCurrency;
+    [MVCTableField('MONTO_AJUSTE')]
+    fMontoAjuste: NullableCurrency;
+    [MVCTableField('MONTO_IMPUESTO')]
+    fMontoImpuesto: NullableCurrency;
+    [MVCTableField('MONTO_TOTAL')]
+    fMontoTotal: NullableCurrency;
+  public
+    property CotizacionId: NullableInt32 read fCotizacionId write fCotizacionId;
+    property SubtotalMateriales: NullableCurrency read fSubtotalMateriales write fSubtotalMateriales;
+    property SubtotalManoObra: NullableCurrency read fSubtotalManoObra write fSubtotalManoObra;
+    property SubtotalMaquina: NullableCurrency read fSubtotalMaquina write fSubtotalMaquina;
+    property CostoTotal: NullableCurrency read fCostoTotal write fCostoTotal;
+    property MontoAjuste: NullableCurrency read fMontoAjuste write fMontoAjuste;
+    property MontoImpuesto: NullableCurrency read fMontoImpuesto write fMontoImpuesto;
+    property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -2061,11 +2477,23 @@ type
     fTasaAprobacion: NullableCurrency;
     [MVCTableField('SOLICITUDES_MES_ANTERIOR')]
     fSolicitudesMesAnterior: NullableInt32;
+    [MVCTableField('VARIACION_SOLICITUDES')]
+    fVariacionSolicitudes: NullableInt32;
+    [MVCTableField('MONTO_APROBADO_ANTERIOR')]
+    fMontoAprobadoAnterior: NullableCurrency;
+    [MVCTableField('VARIACION_MONTO')]
+    fVariacionMonto: NullableCurrency;
+    [MVCTableField('MES_ANTERIOR')]
+    fMesAnterior: NullableTDateTime {dtDateTimeStamp};
   public
     property AsesorId: NullableInt32 read fAsesorId write fAsesorId;
     property DiasMasAntigua: NullableInt32 read fDiasMasAntigua write fDiasMasAntigua;
     property TasaAprobacion: NullableCurrency read fTasaAprobacion write fTasaAprobacion;
     property SolicitudesMesAnterior: NullableInt32 read fSolicitudesMesAnterior write fSolicitudesMesAnterior;
+    property VariacionSolicitudes: NullableInt32 read fVariacionSolicitudes write fVariacionSolicitudes;
+    property MontoAprobadoAnterior: NullableCurrency read fMontoAprobadoAnterior write fMontoAprobadoAnterior;
+    property VariacionMonto: NullableCurrency read fVariacionMonto write fVariacionMonto;
+    property MesAnterior: NullableTDateTime {dtDateTimeStamp} read fMesAnterior write fMesAnterior;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -2090,6 +2518,8 @@ type
     fMontoAprobadoMes: NullableCurrency;
     [MVCTableField('TASA_MES')]
     fTasaMes: NullableCurrency;
+    [MVCTableField('DIAS_PLAZO')]
+    fDiasPlazo: NullableInt32;
   public
     property UsuarioId: NullableInt32 read fUsuarioId write fUsuarioId;
     property DiasMasAntigua: NullableInt32 read fDiasMasAntigua write fDiasMasAntigua;
@@ -2100,6 +2530,7 @@ type
     property RechazadasMes: NullableInt32 read fRechazadasMes write fRechazadasMes;
     property MontoAprobadoMes: NullableCurrency read fMontoAprobadoMes write fMontoAprobadoMes;
     property TasaMes: NullableCurrency read fTasaMes write fTasaMes;
+    property DiasPlazo: NullableInt32 read fDiasPlazo write fDiasPlazo;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -2140,6 +2571,9 @@ type
     fDiasSinRespuesta: NullableInt32;
     [MVCTableField('DIAS')]
     fDias: NullableInt32;
+    [MVCTableField('NIVEL')]
+    [MVCMaxLength(5)]
+    fNivel: NullableString;
   public
     property CotizacionId: NullableInt32 read fCotizacionId write fCotizacionId;
     property Numero: NullableInt32 read fNumero write fNumero;
@@ -2149,6 +2583,7 @@ type
     property FechaEnvio: NullableTDateTime {dtDateTimeStamp} read fFechaEnvio write fFechaEnvio;
     property DiasSinRespuesta: NullableInt32 read fDiasSinRespuesta write fDiasSinRespuesta;
     property Dias: NullableInt32 read fDias write fDias;
+    property Nivel: NullableString read fNivel write fNivel;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -2177,6 +2612,11 @@ type
     fFechaModificacion: NullableTDateTime {dtDateTimeStamp};
     [MVCTableField('DIAS')]
     fDias: NullableInt32;
+    [MVCTableField('ESTANCADA')]
+    fEstancada: NullableBoolean;
+    [MVCTableField('NIVEL')]
+    [MVCMaxLength(5)]
+    fNivel: NullableString;
   public
     property CotizacionId: NullableInt32 read fCotizacionId write fCotizacionId;
     property Numero: NullableInt32 read fNumero write fNumero;
@@ -2187,6 +2627,8 @@ type
     property MotivoRechazo: NullableString read fMotivoRechazo write fMotivoRechazo;
     property FechaModificacion: NullableTDateTime {dtDateTimeStamp} read fFechaModificacion write fFechaModificacion;
     property Dias: NullableInt32 read fDias write fDias;
+    property Estancada: NullableBoolean read fEstancada write fEstancada;
+    property Nivel: NullableString read fNivel write fNivel;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -2349,8 +2791,16 @@ type
     fMontoAprobadoMes: NullableCurrency;
     [MVCTableField('TASA_APROBACION')]
     fTasaAprobacion: NullableCurrency;
+    [MVCTableField('TASA_ANTERIOR')]
+    fTasaAnterior: NullableCurrency;
     [MVCTableField('MONTO_APROBADO_ANTERIOR')]
     fMontoAprobadoAnterior: NullableCurrency;
+    [MVCTableField('MES_ANTERIOR')]
+    fMesAnterior: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('VARIACION_TASA')]
+    fVariacionTasa: NullableCurrency;
+    [MVCTableField('VARIACION_MONTO')]
+    fVariacionMonto: NullableCurrency;
   public
     property VistoBuenoMes: NullableInt32 read fVistoBuenoMes write fVistoBuenoMes;
     property DevueltasMes: NullableInt32 read fDevueltasMes write fDevueltasMes;
@@ -2358,7 +2808,11 @@ type
     property RechazadasMes: NullableInt32 read fRechazadasMes write fRechazadasMes;
     property MontoAprobadoMes: NullableCurrency read fMontoAprobadoMes write fMontoAprobadoMes;
     property TasaAprobacion: NullableCurrency read fTasaAprobacion write fTasaAprobacion;
+    property TasaAnterior: NullableCurrency read fTasaAnterior write fTasaAnterior;
     property MontoAprobadoAnterior: NullableCurrency read fMontoAprobadoAnterior write fMontoAprobadoAnterior;
+    property MesAnterior: NullableTDateTime {dtDateTimeStamp} read fMesAnterior write fMesAnterior;
+    property VariacionTasa: NullableCurrency read fVariacionTasa write fVariacionTasa;
+    property VariacionMonto: NullableCurrency read fVariacionMonto write fVariacionMonto;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -2369,9 +2823,18 @@ type
     fMesDesde: NullableTDateTime {dtDateTimeStamp};
     [MVCTableField('MES_HASTA')]
     fMesHasta: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('SEMANA_DESDE')]
+    fSemanaDesde: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('SEMANA_HASTA')]
+    fSemanaHasta: NullableTDateTime {dtDateTimeStamp};
+    [MVCTableField('MES_ANTERIOR')]
+    fMesAnterior: NullableTDateTime {dtDateTimeStamp};
   public
     property MesDesde: NullableTDateTime {dtDateTimeStamp} read fMesDesde write fMesDesde;
     property MesHasta: NullableTDateTime {dtDateTimeStamp} read fMesHasta write fMesHasta;
+    property SemanaDesde: NullableTDateTime {dtDateTimeStamp} read fSemanaDesde write fSemanaDesde;
+    property SemanaHasta: NullableTDateTime {dtDateTimeStamp} read fSemanaHasta write fSemanaHasta;
+    property MesAnterior: NullableTDateTime {dtDateTimeStamp} read fMesAnterior write fMesAnterior;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -3244,10 +3707,15 @@ ActiveRecordMappingRegistry.AddEntity('v_auditoria', TVAuditoria);
 ActiveRecordMappingRegistry.AddEntity('v_catalogo_items', TVCatalogoItems);
 ActiveRecordMappingRegistry.AddEntity('v_clientes_respuesta', TVClientesRespuesta);
 ActiveRecordMappingRegistry.AddEntity('v_consentimientos', TVConsentimientos);
+ActiveRecordMappingRegistry.AddEntity('v_contactos_bajada', TVContactosBajada);
 ActiveRecordMappingRegistry.AddEntity('v_cotizaciones', TVCotizaciones);
 ActiveRecordMappingRegistry.AddEntity('v_cotizaciones_dia', TVCotizacionesDia);
+ActiveRecordMappingRegistry.AddEntity('v_cotizaciones_listado', TVCotizacionesListado);
 ActiveRecordMappingRegistry.AddEntity('v_cotizaciones_por_estado', TVCotizacionesPorEstado);
+ActiveRecordMappingRegistry.AddEntity('v_cotizaciones_sin_respuesta', TVCotizacionesSinRespuesta);
 ActiveRecordMappingRegistry.AddEntity('v_cotizacion_historial', TVCotizacionHistorial);
+ActiveRecordMappingRegistry.AddEntity('v_cotizacion_lineas', TVCotizacionLineas);
+ActiveRecordMappingRegistry.AddEntity('v_cotizacion_totales', TVCotizacionTotales);
 ActiveRecordMappingRegistry.AddEntity('v_cuentas_resumen', TVCuentasResumen);
 ActiveRecordMappingRegistry.AddEntity('v_dash_asesor_grupos', TVDashAsesorGrupos);
 ActiveRecordMappingRegistry.AddEntity('v_dash_asesor_resumen', TVDashAsesorResumen);

@@ -136,17 +136,24 @@ procedure TfrmRecordatorio.Descartar;
 var
   lId: Integer;
   lAbierta: ICancelacion;
+  lRejilla: TCeldasRejilla;
 begin
   if not(anDescartar in FAcciones) or dmMemoria.mtSinRespuesta.IsEmpty or
     not Assigned(FDescartar) then
     Exit;
   lId := dmMemoria.mtSinRespuestaID.AsInteger;
   lAbierta := FAbierta;
+  lRejilla := TCeldasRejilla.De(grSinRespuesta);
   FDescartar(lId, dmMemoria.mtSinRespuestaNUMERO.AsInteger,
     procedure
     begin
       if not lAbierta.Cancelada then
         Quitar(lId);
+    end,
+    procedure(AActivo: Boolean)
+    begin
+      if not lAbierta.Cancelada then
+        lRejilla.Ocupada := AActivo;
     end);
 end;
 

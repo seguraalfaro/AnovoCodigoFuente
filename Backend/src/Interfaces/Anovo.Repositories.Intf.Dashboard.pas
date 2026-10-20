@@ -39,7 +39,7 @@ type
     function ParaHoy(const AUsuarioId, ALimite: Integer)
       : TObjectList<TCotizacionEnCurso>;
     function ResumenDelSupervisor: TVDashSupervisorResumen;
-    function Estancadas(const ADias, ALimite: Integer)
+    function Estancadas(const ALimite: Integer)
       : TObjectList<TCotizacionEnCurso>;
     function Carga: TObjectList<TCargaDePersona>;
   end;

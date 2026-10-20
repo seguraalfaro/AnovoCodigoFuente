@@ -22,7 +22,7 @@ type
   TAccionesNotificacion = set of TAccionNotificacion;
 
   TDescartarNotificacion = reference to procedure(const AId, ANumero: Integer;
-    const AListo: TProc);
+    const AListo: TProc; const AOcupado: TProc<Boolean>);
 
   IVistaPrincipal = interface
     ['{C4E81B27-9A3D-4F60-B5C2-7D19E0A4F638}']
@@ -34,6 +34,7 @@ type
       const ACantidad: Integer);
     procedure MostrarCampana(const AVisible: Boolean);
     procedure MostrarNotificaciones(const ACantidad: Integer);
+    procedure MostrarCampanaOcupada(const AOcupada: Boolean);
     function PreguntarNotificaciones(const ACantidad: Integer): Boolean;
     function AbrirNotificaciones(const ACotizaciones
       : TObjectList<TCotizacionDTO>;

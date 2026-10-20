@@ -6,10 +6,12 @@ interface
 
 uses
   System.Generics.Collections,
+  MVCFramework.Nullables,
   MVCFramework.Repository,
   Anovo.Repositories.Base,
   Anovo.Repositories.Intf.Clientes,
   Anovo.Entities.Clientes,
+  Anovo.Entities.Vistas.Lectura,
   Anovo.Entities.Consultas;
 
 type
@@ -43,6 +45,8 @@ type
       : TClienteContactos;
     function TodosDe(const AClienteId: Integer): TObjectList<TClienteContactos>;
     function PorUuidLocal(const AUuid: string): TClienteContactos;
+    function ParaElMovil(const ADesde: NullableTDateTime)
+      : TObjectList<TVContactosBajada>;
   end;
 
   TConsentimientoRepository = class
@@ -69,7 +73,8 @@ uses
   System.SysUtils,
   System.Variants,
   MVCFramework.ActiveRecord,
-  Anovo.SQL.Clientes;
+  Anovo.SQL.Clientes,
+  Anovo.SQL.Sincronizacion;
 
 function TClienteRepository.Buscar(const ATexto: string;
   const APagina, APorPagina: Integer; const AIncluirInactivos: Boolean;
@@ -154,6 +159,16 @@ function TClienteContactoRepository.PorUuidLocal(const AUuid: string)
   : TClienteContactos;
 begin
   Result := GetOneByWhere(CONTACTO_POR_UUID_LOCAL, [AUuid], False);
+end;
+
+function TClienteContactoRepository.ParaElMovil(const ADesde: NullableTDateTime)
+  : TObjectList<TVContactosBajada>;
+begin
+  if ADesde.HasValue then
+    Result := ListarDonde<TVContactosBajada>(BAJADA_CONTACTOS_DESDE,
+      [ADesde.Value])
+  else
+    Result := ListarDonde<TVContactosBajada>(BAJADA_CONTACTOS_COMPLETA, []);
 end;
 
 function TClienteContactoRepository.TodosDe(const AClienteId: Integer)

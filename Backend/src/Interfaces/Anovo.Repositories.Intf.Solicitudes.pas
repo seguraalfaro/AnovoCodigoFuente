@@ -36,6 +36,7 @@ type
       const ADesde, AHasta: TDateTime): Int64;
     function SeguimientoParaBajar(const AAsesorId: Integer;
       const ADesde: NullableTDateTime): TObjectList<TSeguimientoAsesor>;
+    function PeriodoActual: TVPeriodoActual;
     function Cola(const ATexto: string; const ADesde, AHasta: TDateTime;
       const APagina, APorPagina: Integer): TObjectList<TColaSolicitudes>;
     function ContarCola(const ATexto: string;

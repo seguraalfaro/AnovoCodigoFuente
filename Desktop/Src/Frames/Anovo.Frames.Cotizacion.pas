@@ -247,7 +247,7 @@ end;
 
 procedure TfraCotizacion.MostrarCargando(const AActivo: Boolean);
 begin
-  BloquearEdicion([pnlEncabezado, pnlDerecha], AActivo);
+  BloquearEdicion([pnlEncabezado, pnlDerecha, pnlBotones], AActivo);
 end;
 
 procedure TfraCotizacion.MostrarError(const AMensaje: string);

@@ -33,6 +33,7 @@ type
     fMotivoAjuste: NullableString;
     fPorcentajeIva: Currency;
     fMontoImpuesto: NullableCurrency;
+    fMontoAjuste: NullableCurrency;
     fMontoTotal: NullableCurrency;
     fMotivoRechazo: NullableString;
     fFechaElaboracion: NullableTDateTime;
@@ -78,6 +79,7 @@ type
     property PorcentajeIva: Currency read fPorcentajeIva write fPorcentajeIva;
     property MontoImpuesto: NullableCurrency read fMontoImpuesto
       write fMontoImpuesto;
+    property MontoAjuste: NullableCurrency read fMontoAjuste write fMontoAjuste;
     property MontoTotal: NullableCurrency read fMontoTotal write fMontoTotal;
     property MotivoRechazo: NullableString read fMotivoRechazo
       write fMotivoRechazo;

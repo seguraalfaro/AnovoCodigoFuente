@@ -45,11 +45,25 @@ inherited fraUsuarios: TfraUsuarios
       StyleElements = []
       OnClick = btnNuevoClick
     end
+    object cbFiltro: TComboBox
+      Left = 428
+      Top = 14
+      Width = 200
+      Height = 23
+      Style = csDropDownList
+      ItemIndex = 0
+      TabOrder = 4
+      Text = 'Todos los usuarios'
+      OnChange = cbFiltroChange
+      Items.Strings = (
+        'Todos los usuarios'
+        'Activos'
+        'Inactivos'
+        'Deben cambiar clave'
+        'Con adicionales')
+    end
   end
   inherited pnclient: TRelativePanel
-    Top = 175
-    Height = 392
-    ExplicitTop = 175
     ExplicitHeight = 392
     inherited grDatos: TrDBGrid
       Width = 914
@@ -99,33 +113,5 @@ inherited fraUsuarios: TfraUsuarios
           Visible = True
         end>
     end
-  end
-  object pstFiltros: TPlanoPestanas
-    AlignWithMargins = True
-    Left = 3
-    Top = 129
-    Width = 954
-    Height = 40
-    Items.Strings = (
-      'Todos'
-      'Activos'
-      'Inactivos'
-      'Deben cambiar clave'
-      'Con adicionales')
-    Style = pesPastilla
-    Indent = 20
-    BackColor = 16447477
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Segoe UI'
-    Font.Style = []
-    ActiveFont.Charset = DEFAULT_CHARSET
-    ActiveFont.Color = clWindowText
-    ActiveFont.Height = -12
-    ActiveFont.Name = 'Segoe UI Semibold'
-    ActiveFont.Style = []
-    OnChange = pstFiltrosChange
-    ParentFont = False
   end
 end

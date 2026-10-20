@@ -21,8 +21,6 @@ type
   IUsuarioRepository = interface(IMVCRepository<TUsuarios>)
     ['{6F2A1C94-8E3B-4D57-9A16-C0B4E7D82F35}']
 
-    function NombresDe(const AIds: TArray<Integer>)
-      : TDictionary<Integer, string>;
     function IdSistema: Integer;
     function PorCorreo(const ACorreo: string): TUsuarios;
     function Buscar(const ATexto, AEstado: string;

@@ -44,9 +44,6 @@ const
   COTIZACIONES_SIGUIENTE_NUMERO =
     'select next value for GEN_COTIZACION_NUMERO from RDB$DATABASE';
 
-  COTIZACIONES_ENVIADAS_SIN_RESPUESTA =
-    'ESTADO = ''enviada'' AND FECHA_ENVIO < ? ORDER BY FECHA_ENVIO';
-
   COTIZACION_DETALLE_DE = 'COTIZACION_ID = ? AND ACTIVO = TRUE ORDER BY ORDEN, ID';
 
   COTIZACION_LINEA_DE = 'ID = ? AND COTIZACION_ID = ? AND ACTIVO = TRUE';
@@ -55,10 +52,9 @@ const
     'select coalesce(max(ORDEN), 0) + 1 from COTIZACION_DETALLE ' +
     'where COTIZACION_ID = ?';
 
-  COTIZACION_SUBTOTAL_DE_TIPO =
-    'select cast(coalesce(sum(SUBTOTAL), 0) as numeric(18,2)) ' +
-    'from COTIZACION_DETALLE ' +
-    'where COTIZACION_ID = ? and TIPO = ? and ACTIVO = TRUE';
+  COTIZACION_SUBTOTAL_DE_LINEA =
+    'select cast(cast(? as numeric(12,3)) * cast(? as numeric(15,2)) ' +
+    'as numeric(15,2)) from rdb$database';
 
 implementation
 

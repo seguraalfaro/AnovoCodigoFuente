@@ -55,6 +55,8 @@ type
     fEstado: string;
     fDetalle: string;
     fDias: Integer;
+    fNivel: string;
+    fEtiqueta: string;
   public
     property CotizacionId: Integer read fCotizacionId write fCotizacionId;
     property Numero: Integer read fNumero write fNumero;
@@ -62,6 +64,8 @@ type
     property Estado: string read fEstado write fEstado;
     property Detalle: string read fDetalle write fDetalle;
     property Dias: Integer read fDias write fDias;
+    property Nivel: string read fNivel write fNivel;
+    property Etiqueta: string read fEtiqueta write fEtiqueta;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -86,6 +90,10 @@ type
     fSolicitudesMesAnterior: Integer;
     fDiasMasAntigua: Integer;
     fTasaAprobacion: Currency;
+    fVariacionSolicitudes: Integer;
+    fMontoAprobadoAnterior: Currency;
+    fVariacionMonto: NullableCurrency;
+    fMesAnterior: TDateTime;
     fRecientes: TObjectList<TSolicitudAsesorDTO>;
     fPorEstado: TObjectList<TDashboardBarraDTO>;
     fPorLlamar: TObjectList<TDashboardAvisoDTO>;
@@ -105,6 +113,13 @@ type
       write fSolicitudesMesAnterior;
     property DiasMasAntigua: Integer read fDiasMasAntigua write fDiasMasAntigua;
     property TasaAprobacion: Currency read fTasaAprobacion write fTasaAprobacion;
+    property VariacionSolicitudes: Integer read fVariacionSolicitudes
+      write fVariacionSolicitudes;
+    property MontoAprobadoAnterior: Currency read fMontoAprobadoAnterior
+      write fMontoAprobadoAnterior;
+    property VariacionMonto: NullableCurrency read fVariacionMonto
+      write fVariacionMonto;
+    property MesAnterior: TDateTime read fMesAnterior write fMesAnterior;
     property Recientes: TObjectList<TSolicitudAsesorDTO> read fRecientes
       write fRecientes;
     property PorEstado: TObjectList<TDashboardBarraDTO> read fPorEstado
@@ -142,6 +157,7 @@ type
     fDevueltas: Integer;
     fSinRespuesta: Integer;
     fDiasMasAntigua: Integer;
+    fDiasPlazo: Integer;
     fCola: TObjectList<TSolicitudPorCotizarDTO>;
     fPorEtapa: TObjectList<TDashboardBarraDTO>;
     fParaHoy: TObjectList<TDashboardAvisoDTO>;
@@ -156,6 +172,7 @@ type
     property Devueltas: Integer read fDevueltas write fDevueltas;
     property SinRespuesta: Integer read fSinRespuesta write fSinRespuesta;
     property DiasMasAntigua: Integer read fDiasMasAntigua write fDiasMasAntigua;
+    property DiasPlazo: Integer read fDiasPlazo write fDiasPlazo;
     property Cola: TObjectList<TSolicitudPorCotizarDTO> read fCola
       write fCola;
     property PorEtapa: TObjectList<TDashboardBarraDTO> read fPorEtapa
@@ -201,6 +218,10 @@ type
     fDevueltasMes: Integer;
     fTasaAprobacion: Currency;
     fMontoAprobadoAnterior: Currency;
+    fTasaAnterior: Currency;
+    fVariacionTasa: Currency;
+    fVariacionMonto: NullableCurrency;
+    fMesAnterior: TDateTime;
     fCola: TObjectList<TCotizacionPorAprobarDTO>;
     fCarga: TObjectList<TDashboardBarraDTO>;
     fEstancadas: TObjectList<TDashboardAvisoDTO>;
@@ -221,6 +242,11 @@ type
     property TasaAprobacion: Currency read fTasaAprobacion write fTasaAprobacion;
     property MontoAprobadoAnterior: Currency read fMontoAprobadoAnterior
       write fMontoAprobadoAnterior;
+    property TasaAnterior: Currency read fTasaAnterior write fTasaAnterior;
+    property VariacionTasa: Currency read fVariacionTasa write fVariacionTasa;
+    property VariacionMonto: NullableCurrency read fVariacionMonto
+      write fVariacionMonto;
+    property MesAnterior: TDateTime read fMesAnterior write fMesAnterior;
     property Cola: TObjectList<TCotizacionPorAprobarDTO> read fCola
       write fCola;
     property Carga: TObjectList<TDashboardBarraDTO> read fCarga write fCarga;
