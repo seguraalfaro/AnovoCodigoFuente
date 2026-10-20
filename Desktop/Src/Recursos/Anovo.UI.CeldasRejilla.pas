@@ -68,7 +68,6 @@ type
     function EsColumnaEstado(const ACampo: string): Boolean;
     function TextoDeEstado(const ACampo: TField): string;
     function AnchoEstado(const AColumna: TColumn): Integer;
-    procedure AjustarEstados;
     function SinFilas: Boolean;
     function FondoDeCelda(const ARect: TRect; AColumn: TColumn): TColor;
     procedure RellenarFondo(const ARect: TRect; AColumn: TColumn);
@@ -102,6 +101,7 @@ type
       const APermitidas: T);
     function AnchoAcciones: Integer;
     procedure AjustarAcciones;
+    procedure AjustarEstados;
     procedure AjustarColumnas;
     procedure RevisarVacio;
     procedure SeguirFuente;
@@ -122,6 +122,7 @@ uses
 const
   MARGEN_CELDA = 10;
   ALTO_PASTILLA = 18;
+  TEXTO_LARGO = 250;
   ALTO_BOTON = 22;
   RADIO_BOTON = 4;
   RELLENO_BOTON = 10;
@@ -843,6 +844,7 @@ begin
   AGrid.OptionsEx2.FixedCell.TitleBtn := False;
   AGrid.OptionsEx2.FixedCell.FixedColBtn := False;
   AGrid.OptionsEx2.FixedCell.TitlePopup := False;
+  AGrid.OptionsEx2.Editors.TextAsMemoSize := TEXTO_LARGO;
 
   AGrid.Color := clAnovoTarjeta;
   AGrid.Font.Name := FUENTE;

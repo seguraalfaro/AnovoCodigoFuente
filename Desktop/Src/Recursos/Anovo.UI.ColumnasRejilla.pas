@@ -49,7 +49,7 @@ type
     function Seccion: string;
     function Columna(const ACampo: string): TColumn;
     function CampoAcciones: string;
-    procedure AjustarAcciones;
+    procedure AjustarCeldas;
     function AnchosActuales: string;
     function Leer: TColumnasElegidas;
     procedure Poner(const AColumnas: TColumnasElegidas);
@@ -403,10 +403,12 @@ begin
     Result := TCeldasRejilla.Buscar(FGrid).CampoAcciones;
 end;
 
-procedure TColumnasRejilla.AjustarAcciones;
+procedure TColumnasRejilla.AjustarCeldas;
 begin
-  if TCeldasRejilla.Buscar(FGrid) <> nil then
-    TCeldasRejilla.Buscar(FGrid).AjustarAcciones;
+  if TCeldasRejilla.Buscar(FGrid) = nil then
+    Exit;
+  TCeldasRejilla.Buscar(FGrid).AjustarAcciones;
+  TCeldasRejilla.Buscar(FGrid).AjustarEstados;
 end;
 
 function TColumnasRejilla.AnchosActuales: string;
@@ -459,7 +461,7 @@ begin
   finally
     FGrid.Columns.EndUpdate;
   end;
-  AjustarAcciones;
+  AjustarCeldas;
   TemarTitulos(FGrid);
 end;
 
@@ -594,7 +596,7 @@ begin
   finally
     lGuarda.Free;
   end;
-  AjustarAcciones;
+  AjustarCeldas;
   if not Archivo.ReadBool(Seccion, CLAVE_ANCHOS_PROPIOS, False) then
     AnchoAutomatico;
 end;
@@ -659,7 +661,7 @@ begin
   if Length(FOriginal) > 0 then
     Poner(FOriginal);
   PonerVista(FVistaOriginal);
-  AjustarAcciones;
+  AjustarCeldas;
   AjustarColumnas(FGrid);
 end;
 
@@ -789,7 +791,7 @@ procedure TColumnasRejilla.ElegirAnchoDatos(Sender: TObject);
 begin
   FGrid.ColumnWidth := cwDataLabelWidth;
   FGrid.ColumnWidth := cwNone;
-  AjustarAcciones;
+  AjustarCeldas;
   GuardarConAnchos(True);
 end;
 
