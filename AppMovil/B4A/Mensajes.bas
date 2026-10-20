@@ -399,7 +399,7 @@ Public Sub TextoEstado (Estado As String) As String
 		Case DbSeguimiento.ESTADO_EN_COTIZACION: Return EST_EN_COTIZACION
 		Case DbSeguimiento.ESTADO_DESCARTADA: Return EST_DESCARTADA
 		Case DbSeguimiento.ESTADO_BORRADOR: Return EST_BORRADOR
-		Case DbSeguimiento.ESTADO_PENDIENTE: Return EST_PENDIENTE
+		Case DbSeguimiento.ESTADO_EN_REVISION: Return EST_PENDIENTE
 		Case DbSeguimiento.ESTADO_DEVUELTA: Return EST_DEVUELTA
 		Case DbSeguimiento.ESTADO_VISTO_BUENO: Return EST_VISTO_BUENO
 		Case DbSeguimiento.ESTADO_APROBADA: Return EST_APROBADA

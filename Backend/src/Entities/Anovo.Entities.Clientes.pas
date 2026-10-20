@@ -31,9 +31,9 @@ type
     [MVCTableField('IDENTIFICACION')]
     [MVCMaxLength(30, 'la identificacion no puede pasar de 30 caracteres')]
     fIdentificacion: NullableString;
-    [MVCTableField('TIPO_IDENTIFICACION')]
+    [MVCTableField('TIPO_IDENTIFICACION_ID')]
     [MVCIn('1,2,3', 'el tipo de identificacion debe ser 1, 2 o 3')]
-    fTipoIdentificacion: NullableInt16;
+    fTipoIdentificacionId: NullableInt16;
     [MVCTableField('CONTACTO')]
     [MVCMaxLength(120, 'el nombre del contacto no puede pasar de 120 caracteres')]
     fContacto: NullableString;
@@ -61,10 +61,6 @@ type
     [MVCTableField('CODIGO_EXONERACION')]
     [MVCMaxLength(30, 'el codigo de exoneracion no puede pasar de 30 caracteres')]
     fCodigoExoneracion: NullableString;
-    [MVCTableField('CONSENTIMIENTO_ESTADO')]
-    [MVCRequired('el estado del consentimiento es obligatorio')]
-    [MVCMaxLength(20, 'el estado del consentimiento no puede pasar de 20 caracteres')]
-    fConsentimientoEstado: String;
     [MVCTableField('CONSENTIMIENTO_FECHA')]
     fConsentimientoFecha: NullableTDateTime ;
     [MVCTableField('CONSENTIMIENTO_VERSION')]
@@ -80,6 +76,11 @@ type
     fFechaModificacion: NullableTDateTime ;
     [MVCTableField('OBJVERSION', [foVersion])]
     fObjversion: Integer;
+    [MVCTableField('CONSENTIMIENTO_ESTADO_ID')]
+    [MVCRequired]
+    fConsentimientoEstadoId: Int32;
+    function GetConsentimientoEstado: string;
+    procedure SetConsentimientoEstado(const AValor: string);
   protected
     procedure OnStorageValidate(const AErrors: PMVCValidationErrors;
       const EntityAction: TMVCEntityAction); override;
@@ -90,8 +91,8 @@ type
     property Nombre: String read fNombre write fNombre;
     property Identificacion: NullableString read fIdentificacion
       write fIdentificacion;
-    property TipoIdentificacion: NullableInt16 read fTipoIdentificacion
-      write fTipoIdentificacion;
+    property TipoIdentificacionId: NullableInt16 read fTipoIdentificacionId
+      write fTipoIdentificacionId;
     property Contacto: NullableString read fContacto write fContacto;
 
     property Telefono: NullableString read fTelefono write fTelefono;
@@ -104,8 +105,6 @@ type
     property Exonerado: Boolean read fExonerado write fExonerado;
     property CodigoExoneracion: NullableString read fCodigoExoneracion
       write fCodigoExoneracion;
-    property ConsentimientoEstado: String read fConsentimientoEstado
-      write fConsentimientoEstado;
     property ConsentimientoFecha: NullableTDateTime
       read fConsentimientoFecha write fConsentimientoFecha;
     property ConsentimientoVersion: NullableString read fConsentimientoVersion
@@ -116,6 +115,9 @@ type
     property FechaModificacion: NullableTDateTime
       read fFechaModificacion write fFechaModificacion;
     property ObjVersion: Integer read fObjversion write fObjversion;
+    property ConsentimientoEstadoId: Int32 read fConsentimientoEstadoId write fConsentimientoEstadoId;
+    property ConsentimientoEstado: string read GetConsentimientoEstado write SetConsentimientoEstado;
+    property TipoIdentificacion: NullableInt16 read fTipoIdentificacionId write fTipoIdentificacionId;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -149,10 +151,6 @@ type
     [MVCTableField('PRINCIPAL')]
     [MVCRequired('el indicador de contacto principal es obligatorio')]
     fPrincipal: Boolean;
-    [MVCTableField('CONSENTIMIENTO_ESTADO')]
-    [MVCRequired('el estado del consentimiento es obligatorio')]
-    [MVCMaxLength(20, 'el estado del consentimiento no puede pasar de 20 caracteres')]
-    fConsentimientoEstado: String;
     [MVCTableField('CONSENTIMIENTO_FECHA')]
     fConsentimientoFecha: NullableTDateTime ;
     [MVCTableField('CONSENTIMIENTO_VERSION')]
@@ -170,6 +168,11 @@ type
     [MVCTableField('FECHA_MODIFICACION', [foDoNotInsert, foDoNotUpdate,
       foRefresh])]
     fFechaModificacion: NullableTDateTime;
+    [MVCTableField('CONSENTIMIENTO_ESTADO_ID')]
+    [MVCRequired]
+    fConsentimientoEstadoId: Int32;
+    function GetConsentimientoEstado: string;
+    procedure SetConsentimientoEstado(const AValor: string);
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -181,8 +184,6 @@ type
     property Celular: NullableString read fCelular write fCelular;
     property Correo: NullableString read fCorreo write fCorreo;
     property Principal: Boolean read fPrincipal write fPrincipal;
-    property ConsentimientoEstado: String read fConsentimientoEstado
-      write fConsentimientoEstado;
     property ConsentimientoFecha: NullableTDateTime
       read fConsentimientoFecha write fConsentimientoFecha;
     property ConsentimientoVersion: NullableString read fConsentimientoVersion
@@ -194,6 +195,8 @@ type
     property ObjVersion: Integer read fObjversion write fObjversion;
     property FechaModificacion: NullableTDateTime read fFechaModificacion
       write fFechaModificacion;
+    property ConsentimientoEstadoId: Int32 read fConsentimientoEstadoId write fConsentimientoEstadoId;
+    property ConsentimientoEstado: string read GetConsentimientoEstado write SetConsentimientoEstado;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -254,10 +257,6 @@ type
     fClienteId: Int32;
     [MVCTableField('CLIENTE_CONTACTO_ID')]
     fClienteContactoId: NullableInt32;
-    [MVCTableField('ACCION')]
-    [MVCRequired('la accion es obligatoria')]
-    [MVCMaxLength(20, 'la accion no puede pasar de 20 caracteres')]
-    fAccion: String;
     [MVCTableField('VERSION_TEXTO')]
     [MVCRequired('la version del texto es obligatoria')]
     [MVCMaxLength(10, 'la version del texto no puede pasar de 10 caracteres')]
@@ -275,9 +274,15 @@ type
     [MVCTableField('FIRMA_MIME')]
     [MVCMaxLength(40, 'el tipo de la firma no puede pasar de 40 caracteres')]
     fFirmaMime: NullableString;
-    [MVCTableField('ORIGEN')]
-    [MVCMaxLength(20, 'el origen no puede pasar de 20 caracteres')]
-    fOrigen: NullableString;
+    [MVCTableField('ACCION_ID')]
+    [MVCRequired]
+    fAccionId: Int32;
+    [MVCTableField('ORIGEN_ID')]
+    fOrigenId: NullableInt32;
+    function GetAccion: string;
+    procedure SetAccion(const AValor: string);
+    function GetOrigen: NullableString;
+    procedure SetOrigen(const AValor: NullableString);
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -286,7 +291,6 @@ type
     property ClienteId: Int32 read fClienteId write fClienteId;
     property ClienteContactoId: NullableInt32 read fClienteContactoId
       write fClienteContactoId;
-    property Accion: String read fAccion write fAccion;
     property VersionTexto: String read fVersionTexto write fVersionTexto;
     property Fecha: NullableTDateTime  read fFecha
       write fFecha;
@@ -296,10 +300,56 @@ type
       write fFirmanteIdentificacion;
     property FirmaImagen: TStream read fFirmaImagen write fFirmaImagen;
     property FirmaMime: NullableString read fFirmaMime write fFirmaMime;
-    property Origen: NullableString read fOrigen write fOrigen;
+    property AccionId: Int32 read fAccionId write fAccionId;
+    property OrigenId: NullableInt32 read fOrigenId write fOrigenId;
+    property Accion: string read GetAccion write SetAccion;
+    property Origen: NullableString read GetOrigen write SetOrigen;
   end;
 
 implementation
+
+uses
+  Anovo.Catalogos;
+
+function TClientes.GetConsentimientoEstado: string;
+begin
+  Result := CodigoDeId(ESTADOS_CONSENTIMIENTO, fConsentimientoEstadoId);
+end;
+
+procedure TClientes.SetConsentimientoEstado(const AValor: string);
+begin
+  fConsentimientoEstadoId := IdDeCodigo(ESTADOS_CONSENTIMIENTO, AValor);
+end;
+
+function TClienteContactos.GetConsentimientoEstado: string;
+begin
+  Result := CodigoDeId(ESTADOS_CONSENTIMIENTO, fConsentimientoEstadoId);
+end;
+
+procedure TClienteContactos.SetConsentimientoEstado(const AValor: string);
+begin
+  fConsentimientoEstadoId := IdDeCodigo(ESTADOS_CONSENTIMIENTO, AValor);
+end;
+
+function TClienteConsentimientoHistorial.GetAccion: string;
+begin
+  Result := CodigoDeId(ACCIONES_CONSENTIMIENTO, fAccionId);
+end;
+
+procedure TClienteConsentimientoHistorial.SetAccion(const AValor: string);
+begin
+  fAccionId := IdDeCodigo(ACCIONES_CONSENTIMIENTO, AValor);
+end;
+
+function TClienteConsentimientoHistorial.GetOrigen: NullableString;
+begin
+  Result := CodigoNulable(ORIGENES_REGISTRO, fOrigenId);
+end;
+
+procedure TClienteConsentimientoHistorial.SetOrigen(const AValor: NullableString);
+begin
+  fOrigenId := IdNulable(ORIGENES_REGISTRO, AValor);
+end;
 
 constructor TClienteConsentimientoHistorial.Create;
 begin

@@ -156,7 +156,7 @@ function ColorDeEstado(const AEstado: string): TColor;
 begin
   if AEstado = 'borrador' then
     Result := clAnovoTextoSuave
-  else if AEstado = 'pendiente' then
+  else if AEstado = 'en_revision' then
     Result := clEstPendienteBarra
   else if AEstado = 'devuelta' then
     Result := clEstRechazadaBarra

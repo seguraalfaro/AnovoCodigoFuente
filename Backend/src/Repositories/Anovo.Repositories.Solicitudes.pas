@@ -58,6 +58,7 @@ type
     function MedidaDe(const ASolicitudId, AMedidaId: Integer)
       : TSolicitudMedidas;
     function ObtenerPorUuidLocal(const AUuid: string): TSolicitudMedidas;
+    function UnidadDeMedida(const AAbreviatura: string): Integer;
   end;
 
   TSolicitudPiezaRepository = class(TAnovoRepository<TSolicitudPiezas>,
@@ -87,7 +88,8 @@ uses
   System.SysUtils,
   System.Variants,
   MVCFramework.ActiveRecord,
-  Anovo.SQL.Solicitudes;
+  Anovo.SQL.Solicitudes,
+  Anovo.SQL.Catalogos;
 
 function TSolicitudRepository.Filtro(const AAsesorId: Integer;
   const AEstado: string; const ADesde, AHasta: TDateTime): string;
@@ -194,6 +196,19 @@ function TSolicitudMedidaRepository.ObtenerPorUuidLocal(const AUuid: string)
   : TSolicitudMedidas;
 begin
   Result := GetOneByWhere(MEDIDAS_POR_UUID_LOCAL, [AUuid], False);
+end;
+
+function TSolicitudMedidaRepository.UnidadDeMedida(const AAbreviatura
+  : string): Integer;
+var
+  lId: Variant;
+begin
+  lId := TMVCActiveRecord.CurrentConnection.ExecSQLScalar
+    (UNIDAD_POR_ABREVIATURA, [AAbreviatura]);
+  if VarIsNull(lId) or VarIsEmpty(lId) then
+    Result := 0
+  else
+    Result := lId;
 end;
 
 function TSolicitudAdjuntoRepository.AdjuntosDe(const ASolicitudId: Integer)

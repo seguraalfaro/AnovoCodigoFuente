@@ -1,0 +1,127 @@
+﻿unit Anovo.Pruebas.Catalogos;
+
+// Catalogos con llave entera (migracion 57): la entidad guarda el ID y
+// sigue ofreciendo el codigo de texto que usan la API y los clientes.
+
+interface
+
+uses
+  DUnitX.TestFramework;
+
+type
+  [TestFixture('Catalogos con llave entera')]
+  TPruebasCatalogos = class
+  public
+    [Test]
+    [TestCase('Borrador', 'borrador,1')]
+    [TestCase('En revision', 'en_revision,2')]
+    [TestCase('Con visto bueno', 'visto_bueno,4')]
+    [TestCase('Descartada', 'descartada,8')]
+    procedure ElEstadoDeLaCotizacionSeGuardaComoId(const ACodigo: string;
+      const AId: Integer);
+    [Test]
+    procedure ElIdDevuelveSuCodigo;
+    [Test]
+    procedure UnCodigoDesconocidoNoTieneId;
+    [Test]
+    procedure LaUnidadDePlazoVaciaQuedaNula;
+    [Test]
+    procedure ElTipoDeMedidaDelMovilSeReconoce;
+    [Test]
+    procedure ElOrigenDesconocidoQuedaNulo;
+  end;
+
+implementation
+
+uses
+  MVCFramework.Nullables,
+  Anovo.Catalogos,
+  Anovo.Entities.Clientes,
+  Anovo.Entities.Cotizaciones,
+  Anovo.Entities.Solicitudes;
+
+procedure TPruebasCatalogos.ElEstadoDeLaCotizacionSeGuardaComoId(
+  const ACodigo: string; const AId: Integer);
+var
+  lCotizacion: TCotizaciones;
+begin
+  lCotizacion := TCotizaciones.Create;
+  try
+    lCotizacion.Estado := ACodigo;
+    Assert.AreEqual(AId, lCotizacion.EstadoId);
+    Assert.AreEqual(ACodigo, lCotizacion.Estado);
+  finally
+    lCotizacion.Free;
+  end;
+end;
+
+procedure TPruebasCatalogos.ElIdDevuelveSuCodigo;
+begin
+  Assert.AreEqual('enviada', CodigoDeId(ESTADOS_COTIZACION, 5));
+  Assert.AreEqual('en_cotizacion', CodigoDeId(ESTADOS_SOLICITUD, 2));
+  Assert.AreEqual('', CodigoDeId(ESTADOS_COTIZACION, 99));
+end;
+
+procedure TPruebasCatalogos.UnCodigoDesconocidoNoTieneId;
+begin
+  Assert.AreEqual(0, IdDeCodigo(ESTADOS_COTIZACION, 'pendiente'));
+  Assert.AreEqual(0, IdDeCodigo(AMBITOS, ''));
+end;
+
+procedure TPruebasCatalogos.LaUnidadDePlazoVaciaQuedaNula;
+var
+  lCotizacion: TCotizaciones;
+  lUnidad: NullableString;
+begin
+  lCotizacion := TCotizaciones.Create;
+  try
+    lUnidad := 'dias_habiles';
+    lCotizacion.PlazoEntregaUnidad := lUnidad;
+    Assert.AreEqual(2, lCotizacion.PlazoEntregaUnidadId.Value);
+    lUnidad.Clear;
+    lCotizacion.PlazoEntregaUnidad := lUnidad;
+    Assert.IsFalse(lCotizacion.PlazoEntregaUnidadId.HasValue);
+    Assert.IsFalse(lCotizacion.PlazoEntregaUnidad.HasValue);
+  finally
+    lCotizacion.Free;
+  end;
+end;
+
+procedure TPruebasCatalogos.ElTipoDeMedidaDelMovilSeReconoce;
+var
+  lMedida: TSolicitudMedidas;
+begin
+  lMedida := TSolicitudMedidas.Create;
+  try
+    lMedida.TipoMedida := 'Diámetro';
+    Assert.AreEqual(5, lMedida.TipoMedidaId);
+    lMedida.TipoMedida := 'Diagonal';
+    Assert.AreEqual(0, lMedida.TipoMedidaId);
+  finally
+    lMedida.Free;
+  end;
+end;
+
+procedure TPruebasCatalogos.ElOrigenDesconocidoQuedaNulo;
+var
+  lFirma: TClienteConsentimientoHistorial;
+  lOrigen: NullableString;
+begin
+  lFirma := TClienteConsentimientoHistorial.Create;
+  try
+    lOrigen := 'movil';
+    lFirma.Origen := lOrigen;
+    Assert.AreEqual(1, lFirma.OrigenId.Value);
+    lOrigen := 'tableta';
+    lFirma.Origen := lOrigen;
+    Assert.IsFalse(lFirma.OrigenId.HasValue);
+  finally
+    lFirma.Free;
+  end;
+end;
+
+initialization
+
+TDUnitX.RegisterTestFixture(TPruebasCatalogos);
+
+end.

@@ -79,7 +79,7 @@ End Sub
 
 Private Sub Familia (Estado As String) As Int
 	Select Estado
-		Case DbSeguimiento.ESTADO_BORRADOR, DbSeguimiento.ESTADO_PENDIENTE, DbSeguimiento.ESTADO_DEVUELTA, DbSeguimiento.ESTADO_RECIBIDA
+		Case DbSeguimiento.ESTADO_BORRADOR, DbSeguimiento.ESTADO_EN_REVISION, DbSeguimiento.ESTADO_DEVUELTA, DbSeguimiento.ESTADO_RECIBIDA
 			Return FAMILIA_PENDIENTE
 		Case DbSeguimiento.ESTADO_APROBADA
 			Return FAMILIA_EXITO

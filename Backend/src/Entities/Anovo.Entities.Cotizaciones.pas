@@ -25,9 +25,6 @@ type
     [MVCTableField('SOLICITUD_ID')]
     [MVCRequired]
     fSolicitudId: Int32;
-    [MVCTableField('CLIENTE_ID')]
-    [MVCRequired]
-    fClienteId: Int32;
     [MVCTableField('TIPO_TRABAJO_ID')]
     fTipoTrabajoId: NullableInt32;
     [MVCTableField('DESCRIPCION_TRABAJO')]
@@ -39,10 +36,6 @@ type
     fElaboradaPor: Int32;
     [MVCTableField('APROBADA_POR')]
     fAprobadaPor: NullableInt32;
-    [MVCTableField('ESTADO')]
-    [MVCRequired]
-    [MVCMaxLength(20)]
-    fEstado: String;
     [MVCTableField('SUBTOTAL_MATERIALES')]
     [MVCRequired]
     fSubtotalMateriales: Currency;
@@ -83,35 +76,37 @@ type
     fFechaModificacion: NullableTDateTime ;
     [MVCTableField('OBJVERSION', [foVersion])]
     fObjversion: Integer;
-    [MVCTableField('FORMA_PAGO')]
-    [MVCMaxLength(120)]
-    fFormaPago: NullableString;
     [MVCTableField('FORMA_PAGO_ID')]
     fFormaPagoId: NullableInt32;
     [MVCTableField('PLAZO_ENTREGA_CANTIDAD')]
     fPlazoEntregaCantidad: NullableInt16;
-    [MVCTableField('PLAZO_ENTREGA_UNIDAD')]
-    [MVCMaxLength(15)]
-    fPlazoEntregaUnidad: NullableString;
     [MVCTableField('GARANTIA_CANTIDAD')]
     fGarantiaCantidad: NullableInt16;
-    [MVCTableField('GARANTIA_UNIDAD')]
-    [MVCMaxLength(15)]
-    fGarantiaUnidad: NullableString;
     [MVCTableField('ORDEN_COMPRA')]
     [MVCMaxLength(40)]
     fOrdenCompra: NullableString;
+    [MVCTableField('ESTADO_ID')]
+    [MVCRequired]
+    fEstadoId: Int32;
+    [MVCTableField('PLAZO_ENTREGA_UNIDAD_ID')]
+    fPlazoEntregaUnidadId: NullableInt32;
+    [MVCTableField('GARANTIA_UNIDAD_ID')]
+    fGarantiaUnidadId: NullableInt32;
+    function GetEstado: string;
+    procedure SetEstado(const AValor: string);
+    function GetPlazoEntregaUnidad: NullableString;
+    procedure SetPlazoEntregaUnidad(const AValor: NullableString);
+    function GetGarantiaUnidad: NullableString;
+    procedure SetGarantiaUnidad(const AValor: NullableString);
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
     property Numero: Int32 read fNumero write fNumero;
     property SolicitudId: Int32 read fSolicitudId write fSolicitudId;
-    property ClienteId: Int32 read fClienteId write fClienteId;
     property TipoTrabajoId: NullableInt32 read fTipoTrabajoId write fTipoTrabajoId;
     property DescripcionTrabajo: String read fDescripcionTrabajo write fDescripcionTrabajo;
     property ElaboradaPor: Int32 read fElaboradaPor write fElaboradaPor;
     property AprobadaPor: NullableInt32 read fAprobadaPor write fAprobadaPor;
-    property Estado: String read fEstado write fEstado;
     property SubtotalMateriales: Currency read fSubtotalMateriales write fSubtotalMateriales;
     property SubtotalManoObra: Currency read fSubtotalManoObra write fSubtotalManoObra;
     property SubtotalMaquina: Currency read fSubtotalMaquina write fSubtotalMaquina;
@@ -127,13 +122,16 @@ type
     property FechaEnvio: NullableTDateTime  read fFechaEnvio write fFechaEnvio;
     property FechaModificacion: NullableTDateTime  read fFechaModificacion write fFechaModificacion;
     property Objversion: Integer read fObjversion write fObjversion;
-    property FormaPago: NullableString read fFormaPago write fFormaPago;
     property FormaPagoId: NullableInt32 read fFormaPagoId write fFormaPagoId;
     property PlazoEntregaCantidad: NullableInt16 read fPlazoEntregaCantidad write fPlazoEntregaCantidad;
-    property PlazoEntregaUnidad: NullableString read fPlazoEntregaUnidad write fPlazoEntregaUnidad;
     property GarantiaCantidad: NullableInt16 read fGarantiaCantidad write fGarantiaCantidad;
-    property GarantiaUnidad: NullableString read fGarantiaUnidad write fGarantiaUnidad;
     property OrdenCompra: NullableString read fOrdenCompra write fOrdenCompra;
+    property EstadoId: Int32 read fEstadoId write fEstadoId;
+    property PlazoEntregaUnidadId: NullableInt32 read fPlazoEntregaUnidadId write fPlazoEntregaUnidadId;
+    property GarantiaUnidadId: NullableInt32 read fGarantiaUnidadId write fGarantiaUnidadId;
+    property Estado: string read GetEstado write SetEstado;
+    property PlazoEntregaUnidad: NullableString read GetPlazoEntregaUnidad write SetPlazoEntregaUnidad;
+    property GarantiaUnidad: NullableString read GetGarantiaUnidad write SetGarantiaUnidad;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -145,10 +143,6 @@ type
     [MVCTableField('COTIZACION_ID')]
     [MVCRequired]
     fCotizacionId: Int32;
-    [MVCTableField('TIPO')]
-    [MVCRequired]
-    [MVCMaxLength(10)]
-    fTipo: String;
     [MVCTableField('MATERIAL_ID')]
     fMaterialId: NullableInt32;
     [MVCTableField('MANO_OBRA_ID')]
@@ -175,11 +169,15 @@ type
     [MVCTableField('ORDEN')]
     [MVCRequired]
     fOrden: Int16;
+    [MVCTableField('TIPO_LINEA_ID')]
+    [MVCRequired]
+    fTipoLineaId: Int32;
+    function GetTipo: string;
+    procedure SetTipo(const AValor: string);
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
     property CotizacionId: Int32 read fCotizacionId write fCotizacionId;
-    property Tipo: String read fTipo write fTipo;
     property MaterialId: NullableInt32 read fMaterialId write fMaterialId;
     property ManoObraId: NullableInt32 read fManoObraId write fManoObraId;
     property MaquinaId: NullableInt32 read fMaquinaId write fMaquinaId;
@@ -190,6 +188,8 @@ type
     property PrecioUnitario: Currency read fPrecioUnitario write fPrecioUnitario;
     property Subtotal: Currency read fSubtotal write fSubtotal;
     property Orden: Int16 read fOrden write fOrden;
+    property TipoLineaId: Int32 read fTipoLineaId write fTipoLineaId;
+    property Tipo: string read GetTipo write SetTipo;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -221,10 +221,11 @@ type
     [MVCRequired]
     [MVCMaxLength(150)]
     fRemitente: String;
-    [MVCTableField('MODO')]
+    [MVCTableField('MODO_ENVIO_ID')]
     [MVCRequired]
-    [MVCMaxLength(10)]
-    fModo: String;
+    fModoEnvioId: Int32;
+    function GetModo: string;
+    procedure SetModo(const AValor: string);
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -235,10 +236,64 @@ type
     property CC: NullableString read fCC write fCC;
     property Asunto: String read fAsunto write fAsunto;
     property Remitente: String read fRemitente write fRemitente;
-    property Modo: String read fModo write fModo;
+    property ModoEnvioId: Int32 read fModoEnvioId write fModoEnvioId;
+    property Modo: string read GetModo write SetModo;
   end;
 
 implementation
+
+uses
+  Anovo.Catalogos;
+
+function TCotizaciones.GetEstado: string;
+begin
+  Result := CodigoDeId(ESTADOS_COTIZACION, fEstadoId);
+end;
+
+procedure TCotizaciones.SetEstado(const AValor: string);
+begin
+  fEstadoId := IdDeCodigo(ESTADOS_COTIZACION, AValor);
+end;
+
+function TCotizaciones.GetPlazoEntregaUnidad: NullableString;
+begin
+  Result := CodigoNulable(UNIDADES_PLAZO, fPlazoEntregaUnidadId);
+end;
+
+procedure TCotizaciones.SetPlazoEntregaUnidad(const AValor: NullableString);
+begin
+  fPlazoEntregaUnidadId := IdNulable(UNIDADES_PLAZO, AValor);
+end;
+
+function TCotizaciones.GetGarantiaUnidad: NullableString;
+begin
+  Result := CodigoNulable(UNIDADES_PLAZO, fGarantiaUnidadId);
+end;
+
+procedure TCotizaciones.SetGarantiaUnidad(const AValor: NullableString);
+begin
+  fGarantiaUnidadId := IdNulable(UNIDADES_PLAZO, AValor);
+end;
+
+function TCotizacionDetalle.GetTipo: string;
+begin
+  Result := CodigoDeId(TIPOS_LINEA, fTipoLineaId);
+end;
+
+procedure TCotizacionDetalle.SetTipo(const AValor: string);
+begin
+  fTipoLineaId := IdDeCodigo(TIPOS_LINEA, AValor);
+end;
+
+function TCotizacionEnvios.GetModo: string;
+begin
+  Result := CodigoDeId(MODOS_ENVIO, fModoEnvioId);
+end;
+
+procedure TCotizacionEnvios.SetModo(const AValor: string);
+begin
+  fModoEnvioId := IdDeCodigo(MODOS_ENVIO, AValor);
+end;
 
 initialization
 

@@ -89,7 +89,7 @@ type
     [MVCRequiresPermiso(PERMISO_COTIZACIONES_ELABORAR + SEPARADOR_PERMISOS +
       PERMISO_COTIZACIONES_ELABORAR_PROPIAS)]
     [MVCSwagSummary('Solicitudes', 'Las que el usuario del token tomo y ' +
-      'siguen en curso: borrador, pendiente o aprobada sin enviar',
+      'siguen en curso: borrador, en revision, devuelta o con visto bueno',
       'solicitudesEnTrabajo')]
     [MVCSwagParam(plQuery, 'q', 'Texto a buscar en el cliente o la ' +
       'descripcion', ptString, False)]

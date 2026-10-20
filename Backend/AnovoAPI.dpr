@@ -95,6 +95,8 @@ uses
   Anovo.Servidor in 'src\Bootstrap\Anovo.Servidor.pas',
   Anovo.Services.Vigencias in 'src\Services\Anovo.Services.Vigencias.pas',
   Anovo.Entities.Vistas.Lectura in 'src\Entities\Anovo.Entities.Vistas.Lectura.pas',
+  Anovo.Entities.Vistas.Tablas in 'src\Entities\Anovo.Entities.Vistas.Tablas.pas',
+  Anovo.Catalogos in 'src\Common\Anovo.Catalogos.pas',
   Anovo.Entities.Consultas in 'src\Entities\Anovo.Entities.Consultas.pas',
   Anovo.DTOs.Dashboard in 'src\DTOs\Anovo.DTOs.Dashboard.pas',
   Anovo.Repositories.Intf.Dashboard in 'src\Interfaces\Anovo.Repositories.Intf.Dashboard.pas',

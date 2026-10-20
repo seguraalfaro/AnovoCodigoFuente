@@ -42,10 +42,6 @@ type
     fFechaCaptura: TDateTime ;
     [MVCTableField('FECHA_RECEPCION')]
     fFechaRecepcion: NullableTDateTime ;
-    [MVCTableField('ESTADO')]
-    [MVCRequired]
-    [MVCMaxLength(20)]
-    fEstado: String;
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
     fFechaModificacion: NullableTDateTime ;
     [MVCTableField('OBJVERSION', [foVersion])]
@@ -55,6 +51,11 @@ type
     [MVCTableField('NOMBRE_PROYECTO')]
     [MVCMaxLength(120)]
     fNombreProyecto: NullableString;
+    [MVCTableField('ESTADO_ID')]
+    [MVCRequired]
+    fEstadoId: Int32;
+    function GetEstado: string;
+    procedure SetEstado(const AValor: string);
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -65,11 +66,12 @@ type
     property Observaciones: NullableString read fObservaciones write fObservaciones;
     property FechaCaptura: TDateTime  read fFechaCaptura write fFechaCaptura;
     property FechaRecepcion: NullableTDateTime  read fFechaRecepcion write fFechaRecepcion;
-    property Estado: String read fEstado write fEstado;
     property FechaModificacion: NullableTDateTime  read fFechaModificacion write fFechaModificacion;
     property Objversion: Integer read fObjversion write fObjversion;
     property ClienteContactoId: NullableInt32 read fClienteContactoId write fClienteContactoId;
     property NombreProyecto: NullableString read fNombreProyecto write fNombreProyecto;
+    property EstadoId: Int32 read fEstadoId write fEstadoId;
+    property Estado: string read GetEstado write SetEstado;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -136,10 +138,6 @@ type
     [MVCRequired]
     [MVCMaxLength(36)]
     fUuidLocal: String;
-    [MVCTableField('TIPO')]
-    [MVCRequired]
-    [MVCMaxLength(10)]
-    fTipo: String;
     [MVCTableField('NOMBRE_ARCHIVO')]
     [MVCMaxLength(120)]
     fNombreArchivo: NullableString;
@@ -161,6 +159,11 @@ type
     fFechaCreacion: NullableTDateTime ;
     [MVCTableField('OBJVERSION', [foVersion])]
     fObjversion: Integer;
+    [MVCTableField('TIPO_ADJUNTO_ID')]
+    [MVCRequired]
+    fTipoAdjuntoId: Int32;
+    function GetTipo: string;
+    procedure SetTipo(const AValor: string);
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -168,7 +171,6 @@ type
     property ID: NullableInt32 read fID write fID;
     property PiezaId: Int32 read fPiezaId write fPiezaId;
     property UuidLocal: String read fUuidLocal write fUuidLocal;
-    property Tipo: String read fTipo write fTipo;
     property NombreArchivo: NullableString read fNombreArchivo write fNombreArchivo;
     property Mime: NullableString read fMime write fMime;
     property TamanoBytes: NullableInt32 read fTamanoBytes write fTamanoBytes;
@@ -178,6 +180,8 @@ type
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaCreacion: NullableTDateTime  read fFechaCreacion write fFechaCreacion;
     property Objversion: Integer read fObjversion write fObjversion;
+    property TipoAdjuntoId: Int32 read fTipoAdjuntoId write fTipoAdjuntoId;
+    property Tipo: string read GetTipo write SetTipo;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -197,16 +201,8 @@ type
     [MVCTableField('ETIQUETA')]
     [MVCMaxLength(5)]
     fEtiqueta: NullableString;
-    [MVCTableField('TIPO_MEDIDA')]
-    [MVCRequired]
-    [MVCMaxLength(30)]
-    fTipoMedida: String;
     [MVCTableField('VALOR')]
     fValor: NullableCurrency;
-    [MVCTableField('UNIDAD_MEDIDA')]
-    [MVCRequired]
-    [MVCMaxLength(10)]
-    fUnidadMedida: String;
     [MVCTableField('OBSERVACION')]
     [MVCMaxLength(500)]
     fObservacion: NullableString;
@@ -223,6 +219,14 @@ type
     [MVCTableField('ACTIVO')]
     [MVCRequired]
     fActivo: Boolean;
+    [MVCTableField('TIPO_MEDIDA_ID')]
+    [MVCRequired]
+    fTipoMedidaId: Int32;
+    [MVCTableField('UNIDAD_MEDIDA_ID')]
+    [MVCRequired]
+    fUnidadMedidaId: Int32;
+    function GetTipoMedida: string;
+    procedure SetTipoMedida(const AValor: string);
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -230,18 +234,52 @@ type
     property PiezaId: Int32 read fPiezaId write fPiezaId;
     property CroquisId: NullableInt32 read fCroquisId write fCroquisId;
     property Etiqueta: NullableString read fEtiqueta write fEtiqueta;
-    property TipoMedida: String read fTipoMedida write fTipoMedida;
     property Valor: NullableCurrency read fValor write fValor;
-    property UnidadMedida: String read fUnidadMedida write fUnidadMedida;
     property Observacion: NullableString read fObservacion write fObservacion;
     property Orden: Int16 read fOrden write fOrden;
     property FechaCreacion: NullableTDateTime  read fFechaCreacion write fFechaCreacion;
     property Objversion: Integer read fObjversion write fObjversion;
     property Cantidad: Int16 read fCantidad write fCantidad;
     property Activo: Boolean read fActivo write fActivo;
+    property TipoMedidaId: Int32 read fTipoMedidaId write fTipoMedidaId;
+    property UnidadMedidaId: Int32 read fUnidadMedidaId write fUnidadMedidaId;
+    property TipoMedida: string read GetTipoMedida write SetTipoMedida;
   end;
 
 implementation
+
+uses
+  Anovo.Catalogos;
+
+function TSolicitudes.GetEstado: string;
+begin
+  Result := CodigoDeId(ESTADOS_SOLICITUD, fEstadoId);
+end;
+
+procedure TSolicitudes.SetEstado(const AValor: string);
+begin
+  fEstadoId := IdDeCodigo(ESTADOS_SOLICITUD, AValor);
+end;
+
+function TSolicitudAdjuntos.GetTipo: string;
+begin
+  Result := CodigoDeId(TIPOS_ADJUNTO, fTipoAdjuntoId);
+end;
+
+procedure TSolicitudAdjuntos.SetTipo(const AValor: string);
+begin
+  fTipoAdjuntoId := IdDeCodigo(TIPOS_ADJUNTO, AValor);
+end;
+
+function TSolicitudMedidas.GetTipoMedida: string;
+begin
+  Result := CodigoDeId(TIPOS_MEDIDA, fTipoMedidaId);
+end;
+
+procedure TSolicitudMedidas.SetTipoMedida(const AValor: string);
+begin
+  fTipoMedidaId := IdDeCodigo(TIPOS_MEDIDA, AValor);
+end;
 
 constructor TSolicitudAdjuntos.Create;
 begin

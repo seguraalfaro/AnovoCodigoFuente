@@ -28,15 +28,17 @@ type
     [MVCRequired]
     [MVCMaxLength(120)]
     fNombre: String;
-    [MVCTableField('AMBITO')]
+    [MVCTableField('AMBITO_ID')]
     [MVCRequired]
-    [MVCMaxLength(15)]
-    fAmbito: String;
+    fAmbitoId: Int32;
+    function GetAmbito: string;
+    procedure SetAmbito(const AValor: string);
   public
     property ID: Int32 read fID write fID;
     property Codigo: String read fCodigo write fCodigo;
     property Nombre: String read fNombre write fNombre;
-    property Ambito: String read fAmbito write fAmbito;
+    property AmbitoId: Int32 read fAmbitoId write fAmbitoId;
+    property Ambito: string read GetAmbito write SetAmbito;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -66,10 +68,11 @@ type
     [MVCTableField('FECHA_MODIFICACION', [foDoNotInsert, foDoNotUpdate,
       foRefresh])]
     fFechaModificacion: NullableTDateTime ;
-    [MVCTableField('AMBITO')]
+    [MVCTableField('AMBITO_ID')]
     [MVCRequired]
-    [MVCMaxLength(15)]
-    fAmbito: String;
+    fAmbitoId: Int32;
+    function GetAmbito: string;
+    procedure SetAmbito(const AValor: string);
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -83,7 +86,8 @@ type
       read fFechaCreacion write fFechaCreacion;
     property FechaModificacion: NullableTDateTime
       read fFechaModificacion write fFechaModificacion;
-    property Ambito: String read fAmbito write fAmbito;
+    property AmbitoId: Int32 read fAmbitoId write fAmbitoId;
+    property Ambito: string read GetAmbito write SetAmbito;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -125,14 +129,6 @@ type
     [MVCTableField('PERMISO_ID', [foPrimaryKey])]
     [MVCRequired]
     fPermisoId: Int32;
-    [MVCTableField('AMBITO')]
-    [MVCRequired]
-    [MVCMaxLength(15)]
-    fAmbito: String;
-    [MVCTableField('TIPO')]
-    [MVCRequired]
-    [MVCMaxLength(10)]
-    fTipo: String;
     [MVCTableField('MOTIVO')]
     [MVCRequired]
     [MVCMaxLength(500)]
@@ -145,17 +141,29 @@ type
     [MVCTableField('FECHA_MODIFICACION', [foDoNotInsert, foDoNotUpdate,
       foRefresh])]
     fFechaModificacion: NullableTDateTime;
+    [MVCTableField('TIPO_EXCEPCION_ID')]
+    [MVCRequired]
+    fTipoExcepcionId: Int32;
+    [MVCTableField('AMBITO_ID')]
+    [MVCRequired]
+    fAmbitoId: Int32;
+    function GetAmbito: string;
+    procedure SetAmbito(const AValor: string);
+    function GetTipo: string;
+    procedure SetTipo(const AValor: string);
   public
     property UsuarioId: Int32 read fUsuarioId write fUsuarioId;
     property PermisoId: Int32 read fPermisoId write fPermisoId;
-    property Ambito: String read fAmbito write fAmbito;
-    property Tipo: String read fTipo write fTipo;
     property Motivo: String read fMotivo write fMotivo;
     property FechaCreacion: NullableTDateTime read fFechaCreacion
       write fFechaCreacion;
     property Activo: Boolean read fActivo write fActivo;
     property FechaModificacion: NullableTDateTime
       read fFechaModificacion write fFechaModificacion;
+    property TipoExcepcionId: Int32 read fTipoExcepcionId write fTipoExcepcionId;
+    property AmbitoId: Int32 read fAmbitoId write fAmbitoId;
+    property Ambito: string read GetAmbito write SetAmbito;
+    property Tipo: string read GetTipo write SetTipo;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -186,9 +194,6 @@ type
     fFechaVence: TDateTime;
     [MVCTableField('FECHA_ULTIMO_USO')]
     fFechaUltimoUso: NullableTDateTime;
-    [MVCTableField('MOTIVO')]
-    [MVCMaxLength(20)]
-    fMotivo: NullableString;
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
     [MVCTableField('FECHA_CREACION')]
@@ -197,6 +202,10 @@ type
     fFechaModificacion: NullableTDateTime;
     [MVCTableField('OBJVERSION', [foVersion])]
     fObjversion: Integer;
+    [MVCTableField('MOTIVO_CIERRE_ID')]
+    fMotivoCierreId: NullableInt32;
+    function GetMotivo: NullableString;
+    procedure SetMotivo(const AValor: NullableString);
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -212,16 +221,70 @@ type
     property FechaVence: TDateTime read fFechaVence write fFechaVence;
     property FechaUltimoUso: NullableTDateTime read fFechaUltimoUso
       write fFechaUltimoUso;
-    property Motivo: NullableString read fMotivo write fMotivo;
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaCreacion: NullableTDateTime read fFechaCreacion
       write fFechaCreacion;
     property FechaModificacion: NullableTDateTime read fFechaModificacion
       write fFechaModificacion;
     property Objversion: Integer read fObjversion write fObjversion;
+    property MotivoCierreId: NullableInt32 read fMotivoCierreId write fMotivoCierreId;
+    property Motivo: NullableString read GetMotivo write SetMotivo;
   end;
 
 implementation
+
+uses
+  Anovo.Catalogos;
+
+function TRoles.GetAmbito: string;
+begin
+  Result := CodigoDeId(AMBITOS, fAmbitoId);
+end;
+
+procedure TRoles.SetAmbito(const AValor: string);
+begin
+  fAmbitoId := IdDeCodigo(AMBITOS, AValor);
+end;
+
+function TUsuarios.GetAmbito: string;
+begin
+  Result := CodigoDeId(AMBITOS, fAmbitoId);
+end;
+
+procedure TUsuarios.SetAmbito(const AValor: string);
+begin
+  fAmbitoId := IdDeCodigo(AMBITOS, AValor);
+end;
+
+function TUsuariosPermisos.GetAmbito: string;
+begin
+  Result := CodigoDeId(AMBITOS, fAmbitoId);
+end;
+
+procedure TUsuariosPermisos.SetAmbito(const AValor: string);
+begin
+  fAmbitoId := IdDeCodigo(AMBITOS, AValor);
+end;
+
+function TUsuariosPermisos.GetTipo: string;
+begin
+  Result := CodigoDeId(TIPOS_EXCEPCION, fTipoExcepcionId);
+end;
+
+procedure TUsuariosPermisos.SetTipo(const AValor: string);
+begin
+  fTipoExcepcionId := IdDeCodigo(TIPOS_EXCEPCION, AValor);
+end;
+
+function TUsuariosDispositivos.GetMotivo: NullableString;
+begin
+  Result := CodigoNulable(MOTIVOS_CIERRE, fMotivoCierreId);
+end;
+
+procedure TUsuariosDispositivos.SetMotivo(const AValor: NullableString);
+begin
+  fMotivoCierreId := IdNulable(MOTIVOS_CIERRE, AValor);
+end;
 
 initialization
 

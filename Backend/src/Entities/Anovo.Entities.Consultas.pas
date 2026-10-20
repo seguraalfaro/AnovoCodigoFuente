@@ -9,7 +9,8 @@ uses
   MVCFramework.Serializer.Commons,
   MVCFramework.ActiveRecord,
   Anovo.Entities.Permisos,
-  Anovo.Entities.Vistas.Lectura;
+  Anovo.Entities.Vistas.Lectura,
+  Anovo.Entities.Vistas.Tablas;
 
 const
   CONSULTA_BUSCAR = 'Buscar';
@@ -47,7 +48,7 @@ const
   RQL_TEXTO_CATALOGO =
     'or(contains(Codigo,"%s"),contains(Nombre,"%s"),contains(Descripcion,"%s"))';
   RQL_ORDEN_CATALOGO = ';sort(+Nombre)';
-  RQL_EN_CURSO = 'in(Estado,["borrador","pendiente","devuelta","visto_bueno"])';
+  RQL_EN_CURSO = 'in(Estado,["borrador","en_revision","devuelta","visto_bueno"])';
 
 type
 
@@ -68,10 +69,10 @@ type
   [MVCEntityActions([eaRetrieve])]
   [MVCTable('V_COTIZACIONES')]
   [MVCNamedRQLQuery(CONSULTA_DE_OTROS,
-    'and(eq(Estado,"pendiente"),ne(ElaboradaPor,%d),' +
+    'and(eq(Estado,"en_revision"),ne(ElaboradaPor,%d),' +
     RQL_TEXTO_COTIZACION + ');sort(+FechaModificacion,+ID)' + RQL_PAGINA)]
   [MVCNamedRQLQuery(CONSULTA_ENTRE,
-    'and(eq(Estado,"pendiente"),ne(ElaboradaPor,%d),' +
+    'and(eq(Estado,"en_revision"),ne(ElaboradaPor,%d),' +
     'ge(FechaModificacion,"%s"),lt(FechaModificacion,"%s"),' +
     RQL_TEXTO_COTIZACION + ');sort(+FechaModificacion,+ID)' + RQL_PAGINA)]
   TBandejaCotizaciones = class(TVCotizaciones)
@@ -314,10 +315,10 @@ type
 
   [MVCNameCase(ncSnakeCase)]
   [MVCEntityActions([eaRetrieve])]
-  [MVCTable('PERMISOS')]
+  [MVCTable('VT_PERMISOS')]
   [MVCNamedRQLQuery(CONSULTA_ORDENADAS,
     'sort(+ID)')]
-  TCatalogoPermisos = class(TPermisos)
+  TCatalogoPermisos = class(TVtPermisos)
   end;
 
   [MVCNameCase(ncSnakeCase)]

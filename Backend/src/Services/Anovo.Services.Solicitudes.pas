@@ -21,6 +21,7 @@ uses
   Anovo.DTOs.Dashboard;
 
 const
+  UNIDAD_MEDIDA_DEFECTO = 'cm';
   ESTADO_CAPTURADA = 'capturada';
   ESTADO_RECIBIDA = 'recibida';
   ESTADO_EN_COTIZACION = 'en_cotizacion';
@@ -77,6 +78,8 @@ type
       const ADto: TPiezaNuevaDTO): Integer;
     function InsertarMedida(const APiezaId: Integer;
       const ADto: TMedidaNuevaDTO): Integer;
+    procedure FijarCatalogosDeMedida(const ADto: TMedidaNuevaDTO;
+      const AMedida: TSolicitudMedidas);
     function InsertarAdjunto(const APiezaId: Integer;
       const ADto: TAdjuntoNuevoDTO): Integer;
   public
@@ -690,6 +693,22 @@ begin
     raise EDatoInvalido.Create(SCantidadMedidaInvalida);
 end;
 
+procedure TSolicitudService.FijarCatalogosDeMedida(const ADto: TMedidaNuevaDTO;
+  const AMedida: TSolicitudMedidas);
+var
+  lUnidad: string;
+begin
+  if AMedida.TipoMedidaId = 0 then
+    raise EDatoInvalido.Create(Format(STipoMedidaDesconocido,
+      [ADto.TipoMedida]));
+  lUnidad := Trim(ADto.UnidadMedida);
+  if lUnidad.IsEmpty then
+    lUnidad := UNIDAD_MEDIDA_DEFECTO;
+  AMedida.UnidadMedidaId := fMedidas.UnidadDeMedida(lUnidad);
+  if AMedida.UnidadMedidaId = 0 then
+    raise EDatoInvalido.Create(Format(SUnidadMedidaDesconocida, [lUnidad]));
+end;
+
 function TSolicitudService.InsertarMedida(const APiezaId: Integer;
   const ADto: TMedidaNuevaDTO): Integer;
 var
@@ -712,6 +731,7 @@ begin
   lMedida := TSolicitudMedidas.Create;
   try
     TMapeo.Copiar(ADto, lMedida);
+    FijarCatalogosDeMedida(ADto, lMedida);
     lMedida.PiezaId := APiezaId;
     lMedida.Activo := True;
     fMedidas.Insert(lMedida);
@@ -758,6 +778,7 @@ begin
   try
     lPiezaId := lMedida.PiezaId;
     TMapeo.Copiar(ADto, lMedida);
+    FijarCatalogosDeMedida(ADto, lMedida);
     lMedida.PiezaId := lPiezaId;
     lMedida.Activo := True;
     FijarDetalle(Format(SDetalleCambioMedida, [AId]));

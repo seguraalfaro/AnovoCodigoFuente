@@ -108,6 +108,7 @@ type
       const ATexto: string = ''): TObjectList<TUnidadesMedida>;
     function ExisteNombre(const ANombre: string;
       const AExcluirId: Integer = 0): Boolean;
+    function PorAbreviatura(const AAbreviatura: string): Integer;
   end;
 
   TTipoTrabajoRepository = class(TAnovoRepository<TTiposTrabajo>,
@@ -146,6 +147,7 @@ implementation
 
 uses
   System.SysUtils,
+  System.Variants,
   Anovo.SQL.Catalogos;
 
 function NombreBusqueda(const AIncluirInactivos: Boolean): string;
@@ -392,6 +394,19 @@ function TUnidadMedidaRepository.ExisteNombre(const ANombre: string;
   const AExcluirId: Integer): Boolean;
 begin
   Result := NombreDuplicado(ANombre, AExcluirId);
+end;
+
+function TUnidadMedidaRepository.PorAbreviatura(const AAbreviatura
+  : string): Integer;
+var
+  lId: Variant;
+begin
+  lId := TMVCActiveRecord.CurrentConnection.ExecSQLScalar
+    (UNIDAD_POR_ABREVIATURA, [AAbreviatura]);
+  if VarIsNull(lId) or VarIsEmpty(lId) then
+    Result := 0
+  else
+    Result := lId;
 end;
 
 end.

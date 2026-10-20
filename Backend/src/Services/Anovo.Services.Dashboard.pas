@@ -60,7 +60,7 @@ function TextoEstado(const AEstado: string): string;
 begin
   if AEstado = ESTADO_BORRADOR then
     Result := SEstBorrador
-  else if AEstado = ESTADO_PENDIENTE then
+  else if AEstado = ESTADO_EN_REVISION then
     Result := SEstPendiente
   else if AEstado = ESTADO_DEVUELTA then
     Result := SEstDevuelta
@@ -116,7 +116,7 @@ function EtiquetaEtapa(const AEstado: string): string;
 begin
   if AEstado = ESTADO_BORRADOR then
     Result := SEtapaBorrador
-  else if AEstado = ESTADO_PENDIENTE then
+  else if AEstado = ESTADO_EN_REVISION then
     Result := SEtapaRevision
   else if AEstado = ESTADO_DEVUELTA then
     Result := SEtapaDevuelta

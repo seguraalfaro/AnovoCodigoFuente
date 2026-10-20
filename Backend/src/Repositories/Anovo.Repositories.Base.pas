@@ -40,6 +40,8 @@ type
     procedure FijarContexto(const AVariable, AValor: string);
     function ListarDonde<V: TMVCActiveRecord, constructor>(
       const AFiltro: string; const AValores: array of Variant): TObjectList<V>;
+    function ContarDonde<V: TMVCActiveRecord, constructor>(
+      const AFiltro: string; const AValores: array of Variant): Int64;
   public
     function ParaBajar(const ADesde: NullableTDateTime;
       const AConUuid: Boolean = False): TObjectList<T>;
@@ -124,6 +126,20 @@ function TAnovoRepository<T>.ListarDonde<V>(const AFiltro: string;
   const AValores: array of Variant): TObjectList<V>;
 begin
   Result := TMVCActiveRecord.Where<V>(AFiltro, AValores);
+end;
+
+function TAnovoRepository<T>.ContarDonde<V>(const AFiltro: string;
+  const AValores: array of Variant): Int64;
+var
+  lVista: V;
+begin
+  lVista := V.Create;
+  try
+    Result := TMVCActiveRecord.CurrentConnection.ExecSQLScalar
+      (Format(CONTAR_POR_FILTRO, [lVista.TableName, AFiltro]), AValores);
+  finally
+    lVista.Free;
+  end;
 end;
 
 procedure TAnovoRepository<T>.FijarContexto(const AVariable, AValor: string);

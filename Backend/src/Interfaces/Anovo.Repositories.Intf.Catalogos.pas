@@ -141,6 +141,7 @@ type
 
     function ExisteNombre(const ANombre: string;
       const AExcluirId: Integer = 0): Boolean;
+    function PorAbreviatura(const AAbreviatura: string): Integer;
   end;
 
   ICatalogoTodosRepository = interface(IMVCRepository<TMateriales>)

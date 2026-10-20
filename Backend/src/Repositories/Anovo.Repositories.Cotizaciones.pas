@@ -127,9 +127,9 @@ function TCotizacionRepository.ContarBusqueda(const ATexto, AEstado: string;
   const AClienteId, AAsesorId: Integer;
   const ADesde, AHasta: TDateTime; const AElaboradaPor: Integer): Int64;
 begin
-  Result := ContarPorFiltro(Filtro(AEstado, AClienteId, AAsesorId, ADesde,
-    AHasta, AElaboradaPor), Parametros(ATexto, AEstado, AClienteId, AAsesorId,
-    ADesde, AHasta, AElaboradaPor));
+  Result := ContarDonde<TVCotizacionesListado>(Filtro(AEstado, AClienteId,
+    AAsesorId, ADesde, AHasta, AElaboradaPor), Parametros(ATexto, AEstado,
+    AClienteId, AAsesorId, ADesde, AHasta, AElaboradaPor));
 end;
 
 function TCotizacionRepository.Bandeja(const AUsuarioId: Integer;

@@ -212,6 +212,7 @@ end;
 
 const
   ESTADO_PENDIENTE = 'pendiente';
+  ABREVIATURA_HORA = 'h';
 
 function Detalle(const AProgramado: Boolean;
   const ACambio, AProgramada, ANombre: string): string;
@@ -774,6 +775,7 @@ begin
   try
     TMapeo.Copiar(ADto, lMaquina);
     lMaquina.Activo := True;
+    lMaquina.UnidadMedidaId := fUnidades.PorAbreviatura(ABREVIATURA_HORA);
     FijarDetalle(Format(SDetalleRegistroMaquina, [ADto.Nombre]));
     fMaquinas.Insert(lMaquina);
     Result := lMaquina.ID.ValueOrDefault;

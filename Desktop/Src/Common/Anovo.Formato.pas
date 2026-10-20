@@ -181,7 +181,7 @@ begin
     Result := SEstDescartada
   else if lValor = 'borrador' then
     Result := SEstBorrador
-  else if lValor = 'pendiente' then
+  else if lValor = 'en_revision' then
     Result := SEstPendiente
   else if lValor = 'devuelta' then
     Result := SEstDevuelta

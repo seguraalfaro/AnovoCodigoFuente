@@ -216,6 +216,9 @@ type
     fFechaCreacion: NullableTDateTime ;
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
     fFechaModificacion: NullableTDateTime ;
+    [MVCTableField('UNIDAD_MEDIDA_ID')]
+    [MVCRequired]
+    fUnidadMedidaId: Int32;
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -227,6 +230,7 @@ type
       read fFechaCreacion write fFechaCreacion;
     property FechaModificacion: NullableTDateTime
       read fFechaModificacion write fFechaModificacion;
+    property UnidadMedidaId: Int32 read fUnidadMedidaId write fUnidadMedidaId;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -272,27 +276,29 @@ type
     [MVCTableField('ABREVIATURA')]
     [MVCMaxLength(10)]
     fAbreviatura: NullableString;
-    [MVCTableField('MAGNITUD')]
-    [MVCRequired]
-    [MVCMaxLength(10)]
-    fMagnitud: String;
     [MVCTableField('ACTIVO')]
     fActivo: NullableBoolean;
     [MVCTableField('FECHA_CREACION')]
     fFechaCreacion: NullableTDateTime ;
     [MVCTableField('FECHA_MODIFICACION', [foRefresh])]
     fFechaModificacion: NullableTDateTime ;
+    [MVCTableField('MAGNITUD_ID')]
+    [MVCRequired]
+    fMagnitudId: Int32;
+    function GetMagnitud: string;
+    procedure SetMagnitud(const AValor: string);
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
     property Nombre: String read fNombre write fNombre;
     property Abreviatura: NullableString read fAbreviatura write fAbreviatura;
-    property Magnitud: String read fMagnitud write fMagnitud;
     property Activo: NullableBoolean read fActivo write fActivo;
     property FechaCreacion: NullableTDateTime
       read fFechaCreacion write fFechaCreacion;
     property FechaModificacion: NullableTDateTime
       read fFechaModificacion write fFechaModificacion;
+    property MagnitudId: Int32 read fMagnitudId write fMagnitudId;
+    property Magnitud: string read GetMagnitud write SetMagnitud;
   end;
 
   [MVCNameCase(ncSnakeCase)]
@@ -428,18 +434,23 @@ type
     [MVCTableField('FECHA_VIGENCIA')]
     [MVCRequired]
     fFechaVigencia: TDateTime ;
-    [MVCTableField('ESTADO')]
-    [MVCRequired]
-    [MVCMaxLength(20)]
-    fEstado: String;
-    [MVCTableField('PRECIO_ID')]
-    fPrecioId: NullableInt32;
     [MVCTableField('FECHA_APLICACION')]
     fFechaAplicacion: NullableTDateTime ;
     [MVCTableField('CREADO_POR')]
     fCreadoPor: NullableInt32;
     [MVCTableField('FECHA_CREACION')]
     fFechaCreacion: NullableTDateTime ;
+    [MVCTableField('ESTADO_ID')]
+    [MVCRequired]
+    fEstadoId: Int32;
+    [MVCTableField('MATERIAL_PRECIO_ID')]
+    fMaterialPrecioId: NullableInt32;
+    [MVCTableField('MANO_OBRA_PRECIO_ID')]
+    fManoObraPrecioId: NullableInt32;
+    [MVCTableField('MAQUINA_PRECIO_ID')]
+    fMaquinaPrecioId: NullableInt32;
+    function GetEstado: string;
+    procedure SetEstado(const AValor: string);
   public
     [MVCDoNotDeserialize]
     property ID: NullableInt32 read fID write fID;
@@ -453,16 +464,42 @@ type
     property CostoHora: NullableCurrency read fCostoHora write fCostoHora;
     property FechaVigencia: TDateTime  read fFechaVigencia
       write fFechaVigencia;
-    property Estado: String read fEstado write fEstado;
-    property PrecioId: NullableInt32 read fPrecioId write fPrecioId;
     property FechaAplicacion: NullableTDateTime
       read fFechaAplicacion write fFechaAplicacion;
     property CreadoPor: NullableInt32 read fCreadoPor write fCreadoPor;
     property FechaCreacion: NullableTDateTime
       read fFechaCreacion write fFechaCreacion;
+    property EstadoId: Int32 read fEstadoId write fEstadoId;
+    property MaterialPrecioId: NullableInt32 read fMaterialPrecioId write fMaterialPrecioId;
+    property ManoObraPrecioId: NullableInt32 read fManoObraPrecioId write fManoObraPrecioId;
+    property MaquinaPrecioId: NullableInt32 read fMaquinaPrecioId write fMaquinaPrecioId;
+    property Estado: string read GetEstado write SetEstado;
   end;
 
 implementation
+
+uses
+  Anovo.Catalogos;
+
+function TPreciosProgramados.GetEstado: string;
+begin
+  Result := CodigoDeId(ESTADOS_PRECIO, fEstadoId);
+end;
+
+procedure TPreciosProgramados.SetEstado(const AValor: string);
+begin
+  fEstadoId := IdDeCodigo(ESTADOS_PRECIO, AValor);
+end;
+
+function TUnidadesMedida.GetMagnitud: string;
+begin
+  Result := CodigoDeId(MAGNITUDES, fMagnitudId);
+end;
+
+procedure TUnidadesMedida.SetMagnitud(const AValor: string);
+begin
+  fMagnitudId := IdDeCodigo(MAGNITUDES, AValor);
+end;
 
 initialization
 

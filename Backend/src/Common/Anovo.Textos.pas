@@ -134,6 +134,8 @@ resourcestring
   SFaltaIdLocalSolicitud = 'Falta el identificador local de la solicitud.';
   SFaltaIdLocalAdjunto = 'Falta el identificador local del adjunto.';
   SCantidadMedidaInvalida = 'La cantidad de la medida debe estar entre 1 y 9999.';
+  STipoMedidaDesconocido = 'El tipo de medida «%s» no está en el catálogo.';
+  SUnidadMedidaDesconocida = 'La unidad «%s» no está en el catálogo de unidades.';
   STipoAdjuntoInvalido = 'El tipo de adjunto debe ser croquis o foto.';
 
   SCantidadInvalida = 'La cantidad debe ser mayor que cero.';

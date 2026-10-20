@@ -13,7 +13,7 @@ Sub Process_Globals
 	Public Const ESTADO_EN_COTIZACION As String = "en_cotizacion"
 	Public Const ESTADO_DESCARTADA As String = "descartada"
 	Public Const ESTADO_BORRADOR As String = "borrador"
-	Public Const ESTADO_PENDIENTE As String = "pendiente"
+	Public Const ESTADO_EN_REVISION As String = "en_revision"
 	Public Const ESTADO_DEVUELTA As String = "devuelta"
 	Public Const ESTADO_VISTO_BUENO As String = "visto_bueno"
 	Public Const ESTADO_APROBADA As String = "aprobada"

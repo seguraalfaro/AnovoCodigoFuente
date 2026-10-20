@@ -58,20 +58,22 @@ type
     fFormaPagoId: NullableInt32;
     [MVCTableField('PLAZO_ENTREGA_CANTIDAD')]
     fPlazoEntregaCantidad: NullableInt16;
-    [MVCTableField('PLAZO_ENTREGA_UNIDAD')]
-    [MVCMaxLength(15)]
-    fPlazoEntregaUnidad: NullableString;
     [MVCTableField('GARANTIA_CANTIDAD')]
     fGarantiaCantidad: NullableInt16;
-    [MVCTableField('GARANTIA_UNIDAD')]
-    [MVCMaxLength(15)]
-    fGarantiaUnidad: NullableString;
     [MVCTableField('FIRMANTE')]
     [MVCMaxLength(120)]
     fFirmante: NullableString;
     [MVCTableField('CARTA_PRESENTACION')]
     [MVCMaxLength(4000)]
     fCartaPresentacion: NullableString;
+    [MVCTableField('PLAZO_ENTREGA_UNIDAD_ID')]
+    fPlazoEntregaUnidadId: NullableInt32;
+    [MVCTableField('GARANTIA_UNIDAD_ID')]
+    fGarantiaUnidadId: NullableInt32;
+    function GetPlazoEntregaUnidad: NullableString;
+    procedure SetPlazoEntregaUnidad(const AValor: NullableString);
+    function GetGarantiaUnidad: NullableString;
+    procedure SetGarantiaUnidad(const AValor: NullableString);
   public
     property ID: Int32 read fID write fID;
     property RazonSocial: String read fRazonSocial write fRazonSocial;
@@ -87,14 +89,39 @@ type
     property DiasSinRespuesta: Int32 read fDiasSinRespuesta write fDiasSinRespuesta;
     property FormaPagoId: NullableInt32 read fFormaPagoId write fFormaPagoId;
     property PlazoEntregaCantidad: NullableInt16 read fPlazoEntregaCantidad write fPlazoEntregaCantidad;
-    property PlazoEntregaUnidad: NullableString read fPlazoEntregaUnidad write fPlazoEntregaUnidad;
     property GarantiaCantidad: NullableInt16 read fGarantiaCantidad write fGarantiaCantidad;
-    property GarantiaUnidad: NullableString read fGarantiaUnidad write fGarantiaUnidad;
     property Firmante: NullableString read fFirmante write fFirmante;
     property CartaPresentacion: NullableString read fCartaPresentacion write fCartaPresentacion;
+    property PlazoEntregaUnidadId: NullableInt32 read fPlazoEntregaUnidadId write fPlazoEntregaUnidadId;
+    property GarantiaUnidadId: NullableInt32 read fGarantiaUnidadId write fGarantiaUnidadId;
+    property PlazoEntregaUnidad: NullableString read GetPlazoEntregaUnidad write SetPlazoEntregaUnidad;
+    property GarantiaUnidad: NullableString read GetGarantiaUnidad write SetGarantiaUnidad;
   end;
 
 implementation
+
+uses
+  Anovo.Catalogos;
+
+function TEmpresa.GetPlazoEntregaUnidad: NullableString;
+begin
+  Result := CodigoNulable(UNIDADES_PLAZO, fPlazoEntregaUnidadId);
+end;
+
+procedure TEmpresa.SetPlazoEntregaUnidad(const AValor: NullableString);
+begin
+  fPlazoEntregaUnidadId := IdNulable(UNIDADES_PLAZO, AValor);
+end;
+
+function TEmpresa.GetGarantiaUnidad: NullableString;
+begin
+  Result := CodigoNulable(UNIDADES_PLAZO, fGarantiaUnidadId);
+end;
+
+procedure TEmpresa.SetGarantiaUnidad(const AValor: NullableString);
+begin
+  fGarantiaUnidadId := IdNulable(UNIDADES_PLAZO, AValor);
+end;
 
 initialization
 

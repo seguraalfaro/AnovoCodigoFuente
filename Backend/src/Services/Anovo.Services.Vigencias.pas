@@ -176,7 +176,12 @@ begin
     raise Exception.Create(SPendienteSinItem);
 
   AProg.Estado := 'aplicado';
-  AProg.PrecioId := lPrecioId;
+  if AProg.MaterialId.HasValue then
+    AProg.MaterialPrecioId := lPrecioId
+  else if AProg.ManoObraId.HasValue then
+    AProg.ManoObraPrecioId := lPrecioId
+  else
+    AProg.MaquinaPrecioId := lPrecioId;
   AProg.FechaAplicacion := Now;
   fProgramados.Update(AProg);
 end;

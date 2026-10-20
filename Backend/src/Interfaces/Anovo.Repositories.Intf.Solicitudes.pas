@@ -56,6 +56,7 @@ type
     function MedidaDe(const ASolicitudId, AMedidaId: Integer)
       : TSolicitudMedidas;
     function ObtenerPorUuidLocal(const AUuid: string): TSolicitudMedidas;
+    function UnidadDeMedida(const AAbreviatura: string): Integer;
   end;
 
   ISolicitudPiezaRepository = interface(IMVCRepository<TSolicitudPiezas>)

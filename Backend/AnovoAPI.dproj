@@ -245,6 +245,8 @@
         <DCCReference Include="src\Bootstrap\Anovo.Servidor.pas"/>
         <DCCReference Include="src\Services\Anovo.Services.Vigencias.pas"/>
         <DCCReference Include="src\Entities\Anovo.Entities.Vistas.Lectura.pas"/>
+        <DCCReference Include="src\Entities\Anovo.Entities.Vistas.Tablas.pas"/>
+        <DCCReference Include="src\Common\Anovo.Catalogos.pas"/>
         <DCCReference Include="src\Entities\Anovo.Entities.Consultas.pas"/>
         <DCCReference Include="src\DTOs\Anovo.DTOs.Dashboard.pas"/>
         <DCCReference Include="src\Interfaces\Anovo.Repositories.Intf.Dashboard.pas"/>

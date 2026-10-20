@@ -188,7 +188,7 @@ Private Sub Grupo (f As SeguimientoFila) As String
 	Select f.Estado
 		Case DbSeguimiento.ESTADO_POR_SUBIR
 			Return Mensajes.SEG_POR_SUBIR
-		Case DbSeguimiento.ESTADO_BORRADOR, DbSeguimiento.ESTADO_PENDIENTE, DbSeguimiento.ESTADO_DEVUELTA, DbSeguimiento.ESTADO_VISTO_BUENO
+		Case DbSeguimiento.ESTADO_BORRADOR, DbSeguimiento.ESTADO_EN_REVISION, DbSeguimiento.ESTADO_DEVUELTA, DbSeguimiento.ESTADO_VISTO_BUENO
 			Return Mensajes.SEG_ELABORACION
 		Case DbSeguimiento.ESTADO_ENVIADA
 			Return Mensajes.SEG_ENVIADA

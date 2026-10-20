@@ -167,7 +167,8 @@ var
   e: string;
 begin
   e := LowerCase(Trim(AEstado));
-  if (e = 'borrador') or (e = 'pendiente') or (e = 'devuelta') or
+  if (e = 'borrador') or (e = 'pendiente') or (e = 'en_revision') or
+    (e = 'devuelta') or
     (e = 'recibida') or
     (e = 'programado') or (e = 'sin_guardar') then
     Result := fsPending

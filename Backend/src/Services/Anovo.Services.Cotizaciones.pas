@@ -21,7 +21,7 @@ uses
 
 const
   ESTADO_BORRADOR = 'borrador';
-  ESTADO_PENDIENTE = 'pendiente';
+  ESTADO_EN_REVISION = 'en_revision';
   ESTADO_DEVUELTA = 'devuelta';
   ESTADO_VISTO_BUENO = 'visto_bueno';
   ESTADO_ENVIADA = 'enviada';
@@ -57,6 +57,7 @@ type
 
     function TraerVigente(const AId: Integer): TCotizaciones;
     function TraerLinea(const AId, ALineaId: Integer): TCotizacionDetalle;
+    function ClienteDe(const ACotizacion: TCotizaciones): Integer;
     function ADto(const ACotizacion: TCotizaciones): TCotizacionDTO;
     procedure CopiarCondiciones(const ACotizacion: TCotizaciones);
     procedure TomarCondiciones(const ACotizacion: TCotizaciones;
@@ -212,7 +213,6 @@ begin
       if lForma <> nil then
         try
           ACotizacion.FormaPagoId := lEmpresa.FormaPagoId;
-          ACotizacion.FormaPago := lForma.Nombre;
         finally
           lForma.Free;
         end;
@@ -238,10 +238,7 @@ begin
     raise EDatoInvalido.Create(lError);
 
   if not ADto.FormaPagoId.HasValue then
-  begin
-    ACotizacion.FormaPagoId.Clear;
-    ACotizacion.FormaPago.Clear;
-  end
+    ACotizacion.FormaPagoId.Clear
   else if ACotizacion.FormaPagoId.ValueOrDefault <> ADto.FormaPagoId.Value then
   begin
     lForma := fFormasPago.Activa(ADto.FormaPagoId.Value);
@@ -249,7 +246,6 @@ begin
       raise EDatoInvalido.Create(SFormaPagoNoDisponible);
     try
       ACotizacion.FormaPagoId := ADto.FormaPagoId;
-      ACotizacion.FormaPago := lForma.Nombre;
     finally
       lForma.Free;
     end;
@@ -282,7 +278,7 @@ begin
   lOrden := Trim(AOrden.ValueOrDefault);
   if Length(lOrden) > LARGO_ORDEN_COMPRA then
     raise EDatoInvalido.Create(Format(SOrdenCompraLarga, [LARGO_ORDEN_COMPRA]));
-  if lOrden.IsEmpty and EsJuridico(ACotizacion.ClienteId) then
+  if lOrden.IsEmpty and EsJuridico(ClienteDe(ACotizacion)) then
     raise EDatoInvalido.Create(SOrdenCompraFalta);
   if lOrden.IsEmpty then
     ACotizacion.OrdenCompra.Clear
@@ -347,19 +343,39 @@ begin
     raise ERecursoNoEncontrado.Create(SRecursoLinea, ALineaId);
 end;
 
+function TCotizacionService.ClienteDe(const ACotizacion: TCotizaciones)
+  : Integer;
+var
+  lSolicitud: TSolicitudes;
+begin
+  lSolicitud := fSolicitudes.GetByPK(ACotizacion.SolicitudId, False);
+  try
+    if lSolicitud = nil then
+      raise EDatoInvalido.Create(SSolicitudNoExiste);
+    Result := lSolicitud.ClienteId;
+  finally
+    lSolicitud.Free;
+  end;
+end;
+
 function TCotizacionService.ADto(const ACotizacion: TCotizaciones)
   : TCotizacionDTO;
 var
-  lCliente: TClientes;
+  lVista: TCotizacionListada;
 begin
   Result := TMapeo.ADto<TCotizacionDTO>(ACotizacion);
-  lCliente := fClientes.GetByPK(ACotizacion.ClienteId, False);
-  if lCliente <> nil then
-    try
-      Result.ClienteNombre := lCliente.Nombre;
-    finally
-      lCliente.Free;
-    end;
+  try
+    lVista := fRepo.VistaDe(ACotizacion.ID.ValueOrDefault);
+    if lVista <> nil then
+      try
+        TMapeo.Copiar(lVista, Result);
+      finally
+        lVista.Free;
+      end;
+  except
+    Result.Free;
+    raise;
+  end;
 end;
 
 procedure TCotizacionService.ExigirEditable(const ACotizacion: TCotizaciones;
@@ -592,7 +608,6 @@ function TCotizacionService.Obtener(const AId, AUsuarioId: Integer;
   const ARoles: TArray<string>): TCotizacionDTO;
 var
   lCotizacion: TCotizaciones;
-  lVista: TCotizacionListada;
 begin
   lCotizacion := TraerVigente(AId);
   try
@@ -600,19 +615,6 @@ begin
     Result := ADto(lCotizacion);
   finally
     lCotizacion.Free;
-  end;
-
-  try
-    lVista := fRepo.VistaDe(AId);
-    if lVista <> nil then
-      try
-        TMapeo.Copiar(lVista, Result);
-      finally
-        lVista.Free;
-      end;
-  except
-    Result.Free;
-    raise;
   end;
 end;
 
@@ -659,7 +661,6 @@ begin
     try
       ValidarTipoTrabajo(ADto.TipoTrabajoId, nil);
       lCotizacion.SolicitudId := lSolicitud.ID.ValueOrDefault;
-      lCotizacion.ClienteId := lSolicitud.ClienteId;
       if ADto.TipoTrabajoId.HasValue then
         lCotizacion.TipoTrabajoId := ADto.TipoTrabajoId
       else
@@ -674,7 +675,7 @@ begin
       lCotizacion.Numero := fRepo.SiguienteNumero;
       lCotizacion.ElaboradaPor := UsuarioActual;
       lCotizacion.Estado := ESTADO_BORRADOR;
-      lCotizacion.PorcentajeIva := IvaPara(lCotizacion.ClienteId);
+      lCotizacion.PorcentajeIva := IvaPara(lSolicitud.ClienteId);
       lCotizacion.PorcentajeAjuste := 0;
       lCotizacion.FechaElaboracion := Now;
       CopiarCondiciones(lCotizacion);
@@ -718,7 +719,7 @@ begin
     lCotizacion.TipoTrabajoId := ADto.TipoTrabajoId;
     lCotizacion.DescripcionTrabajo := ADto.DescripcionTrabajo;
     TomarCondiciones(lCotizacion, ADto);
-    lCotizacion.PorcentajeIva := IvaPara(lCotizacion.ClienteId);
+    lCotizacion.PorcentajeIva := IvaPara(ClienteDe(lCotizacion));
     FijarDetalle(Format(SDetalleCambioCotizacion, [lCotizacion.Numero]));
     fRepo.Update(lCotizacion);
   finally
@@ -951,7 +952,7 @@ begin
       raise EConflictoDeEstado.Create('COTIZACION_SIN_DETALLE',
         SCotizacionSinLineas);
 
-    lCotizacion.Estado := ESTADO_PENDIENTE;
+    lCotizacion.Estado := ESTADO_EN_REVISION;
     FijarDetalle(Format(SDetalleCotizacionPresentada, [lCotizacion.Numero]));
     fRepo.Update(lCotizacion);
   finally
@@ -970,7 +971,7 @@ begin
   lCotizacion := TraerVigente(AId);
   try
     ExigirAlcance(lCotizacion, AUsuarioId, ARoles);
-    if lCotizacion.Estado <> ESTADO_PENDIENTE then
+    if lCotizacion.Estado <> ESTADO_EN_REVISION then
       raise EConflictoDeEstado.Create('TRANSICION_INVALIDA',
         Format(SCotizacionNoAprobable,
         [lCotizacion.Estado]));
@@ -1038,7 +1039,7 @@ begin
   lCotizacion := TraerVigente(AId);
   try
     ExigirAlcance(lCotizacion, AUsuarioId, ARoles);
-    if lCotizacion.Estado <> ESTADO_PENDIENTE then
+    if lCotizacion.Estado <> ESTADO_EN_REVISION then
       raise EConflictoDeEstado.Create('TRANSICION_INVALIDA',
         Format(SCotizacionNoDevolvible,
         [lCotizacion.Estado]));

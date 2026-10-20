@@ -216,3 +216,5 @@ CREATE TABLE IF NOT EXISTS sync_historial (
   con_error         INTEGER NOT NULL DEFAULT 0,
   pendientes        INTEGER NOT NULL DEFAULT 0
 );
+
+UPDATE seguimiento SET estado = 'en_revision' WHERE estado = 'pendiente';
