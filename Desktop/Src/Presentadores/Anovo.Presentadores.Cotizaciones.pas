@@ -97,6 +97,11 @@ end;
 procedure TPresentadorCotizaciones.Filtrar(const AFiltro: TFiltroCotizaciones);
 begin
   FFiltro := AFiltro;
+  if FFiltro = fcTodas then
+    FPeriodo := PeriodoInicial
+  else
+    FPeriodo := TPeriodoBusqueda.De(apTodas);
+  PintarPeriodo;
   FPagina := 1;
   PintarBusqueda;
   Cargar;
