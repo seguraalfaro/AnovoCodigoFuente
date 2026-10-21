@@ -427,10 +427,10 @@ resourcestring
 
   SSinPermiso = 'Su perfil no tiene permitido %s.';
 
-  SVersionVencida = 'Otra persona modificó %s %d mientras usted lo editaba. ' +
-    'Recargue y vuelva a aplicar sus cambios.';
-  SVersionVencidaGenerico = 'Otra persona modificó el registro mientras ' +
-    'usted lo editaba. Recargue y vuelva a aplicar sus cambios.';
+  SVersionVencida = 'Otra persona modificó %s %d antes de que usted ' +
+    'guardara. Recargue y vuelva a aplicar sus cambios.';
+  SVersionVencidaGenerico = 'Otra persona modificó el registro antes de ' +
+    'que usted guardara. Recargue y vuelva a aplicar sus cambios.';
 
   SErrorInterno = 'Ocurrió un error inesperado. Intente de nuevo; ' +
     'si persiste, avise al administrador.';
