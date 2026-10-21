@@ -90,7 +90,7 @@ begin
       lPermisos.Free;
     end;
 
-    lAsignaciones := fPermisos.GetAll;
+    lAsignaciones := fPermisos.Activas;
     try
       FreeAndNil(Result.Asignaciones);
       Result.Asignaciones :=

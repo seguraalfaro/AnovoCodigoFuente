@@ -33,6 +33,7 @@ type
     function Excepciones: TArray<TExcepcionPermiso>;
     function Asignacion(const ARolId, APermisoId: Integer): TRolesPermisos;
     function Asignado(const ARolId, APermisoId: Integer): Boolean;
+    function Activas: TObjectList<TRolesPermisos>;
   end;
 
   IPermisoCatalogoRepository = interface(IMVCRepository<TPermisos>)

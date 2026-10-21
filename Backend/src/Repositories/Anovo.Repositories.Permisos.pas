@@ -20,6 +20,7 @@ type
     function Excepciones: TArray<TExcepcionPermiso>;
     function Asignacion(const ARolId, APermisoId: Integer): TRolesPermisos;
     function Asignado(const ARolId, APermisoId: Integer): Boolean;
+    function Activas: TObjectList<TRolesPermisos>;
   end;
 
   TPermisoCatalogoRepository = class(TAnovoRepository<TPermisos>,
@@ -68,6 +69,11 @@ function TPermisoRepository.Asignado(const ARolId,
   APermisoId: Integer): Boolean;
 begin
   Result := ContarPorFiltro(ASIGNACION_ACTIVA_DE_ROL, [ARolId, APermisoId]) > 0;
+end;
+
+function TPermisoRepository.Activas: TObjectList<TRolesPermisos>;
+begin
+  Result := GetWhere(ASIGNACIONES_ACTIVAS, []);
 end;
 
 function TPermisoRepository.Excepciones: TArray<TExcepcionPermiso>;

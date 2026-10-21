@@ -31,6 +31,8 @@ const
   ASIGNACION_ACTIVA_DE_ROL =
     'ROL_ID = ? AND PERMISO_ID = ? AND ACTIVO = TRUE';
 
+  ASIGNACIONES_ACTIVAS = 'ACTIVO = TRUE';
+
 implementation
 
 end.
