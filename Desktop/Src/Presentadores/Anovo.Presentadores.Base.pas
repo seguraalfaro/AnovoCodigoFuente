@@ -8,6 +8,7 @@ interface
 
 uses
   System.SysUtils,
+  System.Diagnostics,
   System.Generics.Collections,
   Vcl.ExtCtrls,
   Anovo.Cancelacion;
@@ -20,6 +21,7 @@ type
     FEnVuelo: Integer;
     FApagar: TProc<Boolean>;
     FArrancado: Boolean;
+    FCreado: TStopwatch;
     FArranque: TTimer;
     FPendientes: TList<TProc>;
     procedure Arrancar(Sender: TObject);
@@ -63,6 +65,7 @@ constructor TPresentadorBase.Create;
 begin
   inherited Create;
   FCancelacion := TCancelacion.Create;
+  FCreado := TStopwatch.StartNew;
 end;
 
 destructor TPresentadorBase.Destroy;
@@ -201,6 +204,10 @@ begin
           end);
       end);
   end;
+
+  if not FArrancado and (FPendientes = nil) and
+    (FCreado.ElapsedMilliseconds >= ESPERA_ARRANQUE_MS) then
+    FArrancado := True;
 
   if FArrancado then
     lLanzar()
