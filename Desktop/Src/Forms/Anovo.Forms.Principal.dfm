@@ -42,7 +42,6 @@ object frmPrincipal: TfrmPrincipal
     Width = 1180
     Height = 30
     CustomButtons = <>
-    ExplicitWidth = 304
     object VirtualImage1: TVirtualImage
       Left = 10
       Top = 28
@@ -202,8 +201,8 @@ object frmPrincipal: TfrmPrincipal
           Tag = 1
           Left = 0
           Top = 0
-          Width = 19
-          Height = 17
+          Width = 36
+          Height = 36
           Align = alClient
           Alignment = taCenter
           Caption = 'MS'
@@ -216,6 +215,8 @@ object frmPrincipal: TfrmPrincipal
           Transparent = True
           Layout = tlCenter
           StyleElements = [seFont, seBorder]
+          ExplicitWidth = 19
+          ExplicitHeight = 17
         end
       end
     end

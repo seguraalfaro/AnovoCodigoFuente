@@ -74,6 +74,9 @@ Sub Class_Globals
 	Private Const ANCHO_CUENTA As Int = 28dip
 	Private Const ALTO_FILA_FICHA As Int = 34dip
 	Private Const ANCHO_FICHA As Int = 340dip
+	Private Const RELLENO_FICHA As Int = 16dip
+	Private Const ARRIBA_FICHA As Int = 20dip
+	Private Const ABAJO_FICHA As Int = 4dip
 	Private Const FILTRO_TAMANO As Int = 13
 	Private Const PESTANA_SOLICITUDES As Int = 4
 	Private lblClienteIniciales, lblClienteNombre, lblClienteDetalle, lblClienteEstado As B4XView
@@ -393,17 +396,18 @@ Private Sub MostrarFicha (f As SeguimientoFila)
 	End If
 	Dim filas As List = solicitudes.FilasFicha(f)
 	Dim ancho As Int = Min(Root.Width - 48dip, ANCHO_FICHA)
+	Dim util As Int = ancho - 2 * RELLENO_FICHA
 	Dim contenido As B4XView = xui.CreatePanel("")
-	contenido.SetLayoutAnimated(0, 0, 0, ancho, filas.Size * ALTO_FILA_FICHA)
-	Dim y As Int = 0
+	contenido.SetLayoutAnimated(0, 0, 0, ancho, ARRIBA_FICHA + filas.Size * ALTO_FILA_FICHA + ABAJO_FICHA)
+	Dim y As Int = ARRIBA_FICHA
 	For Each o As Object In filas
 		Dim par() As String = o
 		Dim rotulo As B4XView = UI.Etiqueta(par(0), 13, Colores.COLOR_TEXTO_SECUNDARIO, False)
 		rotulo.SetTextAlignment("CENTER", "LEFT")
-		contenido.AddView(rotulo, 0, y, ancho * 0.4, ALTO_FILA_FICHA)
+		contenido.AddView(rotulo, RELLENO_FICHA, y, util * 0.4, ALTO_FILA_FICHA)
 		Dim valor As B4XView = UI.Etiqueta(par(1), 14, Colores.COLOR_TEXTO_PRIMARIO, True)
 		valor.SetTextAlignment("CENTER", "RIGHT")
-		contenido.AddView(valor, ancho * 0.4, y, ancho * 0.6, ALTO_FILA_FICHA)
+		contenido.AddView(valor, RELLENO_FICHA + util * 0.4, y, util * 0.6, ALTO_FILA_FICHA)
 		y = y + ALTO_FILA_FICHA
 	Next
 	dialogoFicha.Title = f.Proyecto
