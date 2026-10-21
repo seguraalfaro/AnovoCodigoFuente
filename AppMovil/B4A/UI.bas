@@ -785,7 +785,8 @@ Public Sub PintarTextoLargo (Scroll As ScrollView, Texto As String, Margen As In
 	Dim su As StringUtils
 	l.Text = Texto
 	l.Height = su.MeasureMultilineTextHeight(l, Texto)
-	Scroll.Panel.Height = l.Height + 2 * Margen
+	Scroll.Panel.Height = Max(l.Height + 2 * Margen, Scroll.Height)
+	Scroll.Panel.Color = Colores.COLOR_SUPERFICIE
 End Sub
 
 Public Sub GetCardHeight As Int
