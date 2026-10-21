@@ -168,17 +168,22 @@ var
   lCatalogos: IApiCatalogos;
   lEmpresa: TEmpresaDTO;
   lFormas: TObjectList<TCatalogoSimpleDTO>;
+  lVerCatalogos: Boolean;
 begin
   lApi := FApi;
   lCatalogos := FCatalogos;
   lEmpresa := nil;
   lFormas := nil;
+  lVerCatalogos := TSesion.Tiene(PERMISO_CATALOGOS_VER);
 
   Ejecutar(SAccionCargarEmpresa,
     procedure
     begin
       lEmpresa := lApi.Empresa;
-      lFormas := lCatalogos.Simples(csFormaPago, False);
+      if lVerCatalogos then
+        lFormas := lCatalogos.Simples(csFormaPago, False)
+      else
+        lFormas := TObjectList<TCatalogoSimpleDTO>.Create;
     end,
     procedure
     begin

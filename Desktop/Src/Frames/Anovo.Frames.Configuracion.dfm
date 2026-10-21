@@ -706,10 +706,10 @@ object fraConfiguracion: TfraConfiguracion
           Tag = 13
           Left = 424
           Top = 258
-          Width = 172
+          Width = 300
           Height = 44
           AutoSize = False
-          Caption = 'El IVA nuevo se aplica a las cotizaciones que se elaboren desde ahora; '#13#10'las ya hechas conservan el suyo.'
+          Caption = 'El IVA nuevo se aplica a las cotizaciones que se elaboren desde ahora; las ya hechas conservan el suyo.'
           WordWrap = True
         end
         object btnDocumentoEmpresa: TPlanoBotonWin
@@ -877,7 +877,7 @@ object fraConfiguracion: TfraConfiguracion
           Height = 32
           Anchors = [akLeft, akTop, akRight]
           AutoSize = False
-          Caption = 'Cotizaciones enviadas que pasan este plazo sin respuesta. ''Lo cambia gerencia o TI.'
+          Caption = 'Cotizaciones enviadas que pasan este plazo sin respuesta. Lo cambia gerencia o TI.'
           WordWrap = True
         end
         object btnGuardarParametros: TPlanoBotonWin

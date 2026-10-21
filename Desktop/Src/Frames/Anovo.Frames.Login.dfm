@@ -701,6 +701,7 @@ object fraLogin: TfraLogin
       Anchors = []
       TabOrder = 4
       Text = 'asesor@anovo.test'#9
+      Visible = False
       OnChange = ComboBox1Change
       Items.Strings = (
         'asesor@anovo.test'

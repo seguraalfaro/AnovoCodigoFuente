@@ -580,6 +580,7 @@ object fraClienteDatos: TfraClienteDatos
           Caption = '+ Nuevo contacto'
           TabOrder = 1
           StyleElements = []
+          OnClick = btnNuevoClick
         end
       end
       object pnclient: TRelativePanel
