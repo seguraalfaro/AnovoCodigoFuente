@@ -217,7 +217,8 @@ begin
   if dmMemoria.mtContactos.IsEmpty or
     not(acoEditar in TPresentadorClienteDatos.AccionesContacto) then
     Exit;
-  lVentana := TfrmContactoNuevo.Editar(Self, FClienteId);
+  lVentana := TfrmContactoNuevo.Editar(Self, FClienteId,
+    dmMemoria.mtContactosID.AsInteger);
   try
     if lVentana.ShowModal = mrOk then
       FPresentador.Refrescar(pcContactos);

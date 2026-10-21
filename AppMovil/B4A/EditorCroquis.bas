@@ -9,7 +9,7 @@ Version=13.7
 
 Sub Class_Globals
 	Private xui As XUI
-	Private Const MODO_LIBRE As String = "libre"
+	Private Const MODO_LINEA As String = "linea"
 	Private Const MODO_BORRAR As String = "borrar"
 	Private Const REJILLA_ISO As String = "iso"
 	Private Const REJILLA_CUADRADA As String = "cuadrada"
@@ -65,7 +65,7 @@ Public Sub Preparar
 	mPreparado = True
 	COLORES_LAPIZ = Array As Int(Colores.COLOR_TEXTO_PRIMARIO, Colores.COLOR_PRIMARIO, Colores.COLOR_ERROR)
 	GROSORES = Array As Float(2dip, 4dip, 7dip)
-	mDibujo.setModo(MODO_LIBRE)
+	mDibujo.setModo(MODO_LINEA)
 	mDibujo.Rejilla = True
 	mDibujo.Iman = True
 	mDibujo.setGrosorLapiz(GROSORES(idxGrosor))
@@ -80,7 +80,7 @@ Public Sub Salir
 End Sub
 
 Public Sub UsarLapiz
-	mDibujo.setModo(MODO_LIBRE)
+	mDibujo.setModo(MODO_LINEA)
 	Refrescar
 End Sub
 
@@ -106,7 +106,7 @@ End Sub
 
 Public Sub Refrescar
 	Dim indice As Int = -1
-	If mDibujo.getModo = MODO_LIBRE Then indice = 0
+	If mDibujo.getModo = MODO_LINEA Then indice = 0
 	If mDibujo.getModo = MODO_BORRAR Then indice = 1
 	UI.MarcarGrupo(mHerramientas, indice)
 	UI.Habilitar(mDeshacer, mDibujo.PuedeUndo)

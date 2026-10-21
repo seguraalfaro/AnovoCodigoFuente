@@ -1193,6 +1193,7 @@ Private Sub TocarCota (n As ASDPunto, crudo As ASDPunto)
 		Agregar(c)
 		Dim vacio As ASDPunto
 		cotaTmp = vacio
+		PedirMedida(c.Id)
 		Return
 	End If
 	Dim vacio2 As ASDPunto

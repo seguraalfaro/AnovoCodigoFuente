@@ -40,7 +40,8 @@ type
     function ControlesEdicion: TArray<TControl>; override;
   public
     constructor Crear(AOwner: TComponent; const AClienteId: Integer);
-    constructor Editar(AOwner: TComponent; const AClienteId: Integer);
+    constructor Editar(AOwner: TComponent; const AClienteId,
+      AContactoId: Integer);
     property ContactoId: Integer read FContactoId;
   end;
 
@@ -63,11 +64,11 @@ begin
     TApiClientes.Create, AClienteId);
 end;
 
-constructor TfrmContactoNuevo.Editar(AOwner: TComponent;
-  const AClienteId: Integer);
+constructor TfrmContactoNuevo.Editar(AOwner: TComponent; const AClienteId,
+  AContactoId: Integer);
 begin
   inherited Create(AOwner);
-  FContactoId := dmMemoria.mtContactosID.AsInteger;
+  FContactoId := AContactoId;
   FObjVersion := dmMemoria.mtContactosOBJVERSION.AsInteger;
   dmMemoria.PrepararContactoEdicion(AClienteId);
   FPresentador := TPresentadorContactoNuevo.Create(Self,
