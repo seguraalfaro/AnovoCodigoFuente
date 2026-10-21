@@ -1410,7 +1410,7 @@ object dmMemoria: TdmMemoria
       OnGetText = EstadoGetText
     end
     object mtSeguimientoMONTO_APROBADO: TCurrencyField
-      DisplayLabel = 'Monto aprobado'
+      DisplayLabel = 'Monto'
       FieldName = 'MONTO_APROBADO'
       DisplayFormat = '#,##0.00'
       currency = False

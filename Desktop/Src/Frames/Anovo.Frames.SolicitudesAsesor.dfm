@@ -75,7 +75,7 @@ inherited fraSolicitudesAsesor: TfraSolicitudesAsesor
           Expanded = False
           FieldName = 'MONTO_APROBADO'
           Title.Alignment = taRightJustify
-          Title.Caption = 'Monto aprobado'
+          Title.Caption = 'Monto'
           Width = 100
           Visible = True
         end
