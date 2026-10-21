@@ -45,6 +45,7 @@ uses
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
   Anovo.UI.CeldasRejilla,
+  Anovo.Formato,
   Anovo.Textos;
 
 const
@@ -66,8 +67,9 @@ begin
     TCeldasRejilla.De(lForma.grDetalle)
       .PonerAcciones<TAccionesDetalleReporte>(ACCIONES, [adrAbrir]);
     TMapeoDatos.AListaTabla<TCotizacionDTO>(AFilas, dmMemoria.mtDetalleReporte);
-    lForma.lblPie.Caption := Format(SDetalleReportePie,
-      [dmMemoria.mtDetalleReporte.RecordCount]);
+    lForma.lblPie.Caption := TFormato.Cantidad(
+      dmMemoria.mtDetalleReporte.RecordCount, SDetalleReportePieUno,
+      SDetalleReportePie);
     TCeldasRejilla.De(lForma.grDetalle).AjustarColumnas;
     lForma.ShowModal;
     Result := lForma.FAbrir;

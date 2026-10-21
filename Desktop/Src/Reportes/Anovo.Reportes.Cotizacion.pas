@@ -229,7 +229,7 @@ var
   lBanda: TRLBand;
 begin
   lBanda := Banda(AReporte, btHeader, 96);
-  Etiqueta(lBanda, FDocumento.EmpresaRazonSocial, 0, 4, 360, 18, True);
+  Etiqueta(lBanda, FDocumento.EmpresaRazonSocial, 0, 4, 360, 12, True);
   Etiqueta(lBanda, FDocumento.EmpresaRazonSocial, 365, 4, 300, 11, True,
     taRightJustify);
   Etiqueta(lBanda, Format(SDocCedula, [FDocumento.EmpresaCedula]), 365, 26,

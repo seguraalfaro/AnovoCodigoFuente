@@ -220,7 +220,7 @@ var
   lBanda: TRLBand;
 begin
   lBanda := Banda(btHeader, 70);
-  Etiqueta(lBanda, FResumen.Empresa, 0, 4, 360, 14, True);
+  Etiqueta(lBanda, FResumen.Empresa, 0, 4, 360, 12, True);
   Etiqueta(lBanda, FResumen.EmpresaDatos, 0, 32, 360, 8);
   Etiqueta(lBanda, SReportePdfTitulo, 365, 4, 300, 12, True, taRightJustify);
   Etiqueta(lBanda, Format(SReportePdfVista, [FVista, FResumen.Periodo]), 365,
@@ -251,8 +251,9 @@ begin
     Etiqueta(lCaja, FResumen.Rotulos[lCifra], 8, 4, lAncho - 16, 8);
     Etiqueta(lCaja, FResumen.Valores[lCifra], 8, 18, lAncho - 16,
       12, True);
-    Etiqueta(lCaja, FResumen.Variaciones[lCifra], 8, 36,
-      lAncho - 16, 7);
+    Etiqueta(lCaja, StringReplace(StringReplace(FResumen.Variaciones[lCifra],
+      SFlechaSube, SFlechaSubePdf, [rfReplaceAll]), SFlechaBaja,
+      SFlechaBajaPdf, [rfReplaceAll]), 8, 36, lAncho - 16, 7);
   end;
 end;
 
@@ -303,7 +304,7 @@ begin
     Etiqueta(lBanda, Total(FCampos[I]), FIzquierdas[I], 4, FAnchos[I] - 4, 8,
       True, Alineacion(FCampos[I]));
   Linea(lBanda, 22);
-  Etiqueta(lBanda, SReporteLeyenda, 0, 30, ANCHO, 7);
+  Etiqueta(lBanda, SReporteLeyendaPdf, 0, 30, ANCHO, 7);
 end;
 
 procedure TReportePeriodo.ArmarPie;

@@ -213,8 +213,10 @@ resourcestring
   SConfirmarDescartar = '¿Descartar el aviso de la cotización %d? Deja de ' +
     'aparecer en las notificaciones; si el cliente responde, la respuesta se ' +
     'registra igual desde la cotización.';
-  SRecordatorioPie = '%d cotizaciones. El plazo (7 días si no se cambia) se ' +
-    'ajusta en Configuración, Empresa.';
+  SRecordatorioPie = '%d cotizaciones. El plazo se ajusta en Configuración, ' +
+    'Empresa.';
+  SRecordatorioPieUno = '%d cotización. El plazo se ajusta en Configuración, ' +
+    'Empresa.';
   SBotonAbrirCotizacion = 'Abrir cotización';
   SBotonCerrar = 'Cerrar';
   SHistorialTitulo = 'Historial de estados';
@@ -813,8 +815,12 @@ resourcestring
   SReporteLeyenda = 'Tasa = aprobadas ÷ (aprobadas + rechazadas) del periodo. ' +
     'Las descartadas y las que esperan respuesta no entran. Doble clic en una ' +
     'fila para ver sus cotizaciones.';
+  SReporteLeyendaPdf = 'Tasa = aprobadas ÷ (aprobadas + rechazadas) del ' +
+    'periodo. Las descartadas y las que esperan respuesta no entran.';
   SFlechaSube = '▲';
   SFlechaBaja = '▼';
+  SFlechaSubePdf = '+';
+  SFlechaBajaPdf = '-';
   SVariacionPorcentaje = '%s %d %% vs. antes';
   SVariacionPuntos = '%s %s pts vs. antes';
   SVariacionDias = '%s %s vs. antes';
@@ -822,7 +828,8 @@ resourcestring
   SVariacionSinBase = 'Sin datos antes';
   SDetalleReporteTitulo = 'Cotizaciones: %s';
   SDetalleReporteAyuda = '%s · %s';
-  SDetalleReportePie = '%d cotizaciones. Doble clic o Abrir para verla.';
+  SDetalleReportePie = '%d cotizaciones. Doble clic o Abrir para ver una.';
+  SDetalleReportePieUno = '%d cotización. Doble clic o Abrir para verla.';
   SVacioDetalleReporte = 'Ninguna cotización en esta fila';
   SAccionCargarDetalleReporte = 'cargar las cotizaciones de la fila';
   SReportePdfTitulo = 'Reporte de cotizaciones';

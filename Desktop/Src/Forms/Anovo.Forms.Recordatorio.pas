@@ -52,6 +52,7 @@ uses
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
   Anovo.UI.CeldasRejilla,
+  Anovo.Formato,
   Anovo.Textos;
 
 const
@@ -112,8 +113,8 @@ end;
 
 procedure TfrmRecordatorio.MostrarPie;
 begin
-  lblPie.Caption := Format(SRecordatorioPie,
-    [dmMemoria.mtSinRespuesta.RecordCount]);
+  lblPie.Caption := TFormato.Cantidad(dmMemoria.mtSinRespuesta.RecordCount,
+    SRecordatorioPieUno, SRecordatorioPie);
 end;
 
 procedure TfrmRecordatorio.Accion(Sender: TObject; const AClave: string);

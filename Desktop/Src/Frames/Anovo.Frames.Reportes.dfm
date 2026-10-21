@@ -8,25 +8,29 @@ inherited fraReportes: TfraReportes
       Width = 330
       Caption = 'Lo que pas'#243' en el periodo: env'#237'os al cliente, respuestas y cada paso del flujo'
     end
+    inherited lblPeriodo: TLabel
+      Left = 580
+      Width = 360
+    end
   end
   inherited pnlKpi: TPanel
     Top = 114
     inherited tjCifra1: TPlanoTarjeta
-      Width = 104
+      Width = 150
       Caption = 'Enviadas'
       inherited lblCifra1: TLabel
-        Width = 72
+        Width = 118
       end
       object lblDelta1: TLabel
         Left = 16
         Top = 66
-        Width = 72
+        Width = 118
         Height = 16
         AutoSize = False
       end
     end
     inherited tjCifra2: TPlanoTarjeta
-      Left = 136
+      Left = 182
       Width = 220
       Caption = 'Monto enviado'
       inherited lblCifra2: TLabel
@@ -41,40 +45,40 @@ inherited fraReportes: TfraReportes
       end
     end
     inherited tjCifra3: TPlanoTarjeta
-      Left = 368
-      Width = 104
+      Left = 414
+      Width = 150
       Caption = 'Aprobadas'
       inherited lblCifra3: TLabel
-        Width = 72
+        Width = 118
       end
       object lblDelta3: TLabel
         Left = 16
         Top = 66
-        Width = 72
+        Width = 118
         Height = 16
         AutoSize = False
       end
     end
     inherited tjCifra4: TPlanoTarjeta
-      Left = 716
-      Width = 104
+      Left = 808
+      Width = 150
       Caption = 'Tasa'
       inherited lblCifra4: TLabel
-        Width = 72
+        Width = 118
       end
       object lblDelta4: TLabel
         Left = 16
         Top = 66
-        Width = 72
+        Width = 118
         Height = 16
         AutoSize = False
       end
     end
     object tjCifra5: TPlanoTarjeta
       Tag = 8
-      Left = 832
+      Left = 970
       Top = 8
-      Width = 116
+      Width = 160
       Height = 92
       TitleHeight = 28
       CardColor = 761589
@@ -84,7 +88,7 @@ inherited fraReportes: TfraReportes
         Tag = 16
         Left = 16
         Top = 32
-        Width = 84
+        Width = 128
         Height = 34
         AutoSize = False
         Caption = '0'
@@ -98,14 +102,14 @@ inherited fraReportes: TfraReportes
       object lblDelta5: TLabel
         Left = 16
         Top = 66
-        Width = 84
+        Width = 128
         Height = 16
         AutoSize = False
       end
     end
     object tjCifra6: TPlanoTarjeta
       Tag = 9
-      Left = 484
+      Left = 576
       Top = 8
       Width = 220
       Height = 92

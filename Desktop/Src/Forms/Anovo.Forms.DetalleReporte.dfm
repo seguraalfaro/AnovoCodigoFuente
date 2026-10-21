@@ -1,19 +1,19 @@
 inherited frmDetalleReporte: TfrmDetalleReporte
   Caption = 'Cotizaciones de la fila del reporte'
   ClientHeight = 480
-  ClientWidth = 860
+  ClientWidth = 1040
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  ExplicitWidth = 866
+  ExplicitWidth = 1046
   ExplicitHeight = 509
   PixelsPerInch = 96
   TextHeight = 15
   inherited TitleBarPanel1: TTitleBarPanel
-    Width = 860
+    Width = 1040
   end
   inherited pnlTitulo: TPanel
-    Width = 860
-    ExplicitWidth = 860
+    Width = 1040
+    ExplicitWidth = 1040
     inherited lblTitulo: TLabel
       Caption = 'Cotizaciones'
     end
@@ -23,10 +23,10 @@ inherited frmDetalleReporte: TfrmDetalleReporte
   end
   inherited pnlPie: TRelativePanel
     Top = 420
-    Width = 860
+    Width = 1040
     TabOrder = 1
     ExplicitTop = 420
-    ExplicitWidth = 860
+    ExplicitWidth = 1040
     inherited btnGuardar: TPlanoBotonWin
       Left = 720
       OnClick = btnGuardarClick
@@ -42,7 +42,7 @@ inherited frmDetalleReporte: TfrmDetalleReporte
     AlignWithMargins = True
     Left = 20
     Top = 397
-    Width = 820
+    Width = 1000
     Height = 15
     Margins.Left = 20
     Margins.Right = 20
@@ -54,7 +54,7 @@ inherited frmDetalleReporte: TfrmDetalleReporte
     AlignWithMargins = True
     Left = 20
     Top = 98
-    Width = 820
+    Width = 1000
     Height = 288
     Margins.Left = 20
     Margins.Top = 8

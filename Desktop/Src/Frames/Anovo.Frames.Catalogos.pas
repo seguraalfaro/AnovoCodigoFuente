@@ -121,7 +121,7 @@ function TituloDe(const ACatalogo: TCatalogo): string;
 begin
   case ACatalogo of
     ctTodos:
-      Result := SCatalogoTodos;
+      Result := SModuloCatalogos;
     ctManoObra:
       Result := SCatalogoManoObra;
     ctMaquinas:
