@@ -31,6 +31,7 @@ type
     procedure ActualizarContacto(const AId, AContactoId: Integer;
       const ADto: TContactoEdicionDTO);
     procedure QuitarContacto(const AId, AContactoId: Integer);
+    procedure Revocar(const AId: Integer; const ADto: TRevocacionDTO);
   end;
 
 implementation
@@ -191,6 +192,17 @@ begin
     begin
       Result := NuevoCliente.Post(Format('%s/%d/contactos/%d/inactivacion',
         [RUTA_CLIENTES, AId, AContactoId]));
+    end);
+end;
+
+procedure TApiClientes.Revocar(const AId: Integer;
+  const ADto: TRevocacionDTO);
+begin
+  Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.AddBody(ADto, False)
+        .Post(Format('%s/%d/consentimientos/revocacion', [RUTA_CLIENTES, AId]));
     end);
 end;
 

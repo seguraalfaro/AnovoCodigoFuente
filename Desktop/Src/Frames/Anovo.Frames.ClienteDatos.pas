@@ -90,6 +90,7 @@ type
     procedure pstClienteChange(Sender: TObject);
     procedure btnNuevoClick(Sender: TObject);
     procedure btnAnonimizarClick(Sender: TObject);
+    procedure btnRevocarClick(Sender: TObject);
   private
     FOnRegresar: TNotifyEvent;
     FPresentador: TPresentadorClienteDatos;
@@ -120,6 +121,9 @@ type
     function PedirMotivoContacto(const ANombre: string;
       out AMotivo: string): Boolean;
     function ConfirmarQuitarContacto(const ANombre: string): Boolean;
+    procedure MostrarRevocacion(const AHabilitado: Boolean);
+    function PedirRevocante(const ACliente: string;
+      var ANombre, AIdentificacion: string): Boolean;
     procedure EditarContacto;
     procedure grContactosDblClick(Sender: TObject);
     procedure AccionContacto(Sender: TObject; const AClave: string);
@@ -147,11 +151,13 @@ uses
   Anovo.Api.Cotizaciones,
   Anovo.Forms.ContactoNuevo,
   Anovo.Forms.Motivo,
+  Anovo.Forms.Revocacion,
   Anovo.Mapeo.Datos,
   Anovo.Datos.Memoria,
   Anovo.Textos;
 
 const
+  CONSENTIMIENTO_REVOCADO = 'revocado';
   ACCION_ABRIR_MAPA = 'open';
 
   CAMPO_ACCIONES = 'ACCIONES';
@@ -358,6 +364,22 @@ begin
   FPresentador.Guardar(ClienteEditado);
 end;
 
+procedure TfraClienteDatos.btnRevocarClick(Sender: TObject);
+begin
+  FPresentador.Revocar;
+end;
+
+procedure TfraClienteDatos.MostrarRevocacion(const AHabilitado: Boolean);
+begin
+  btnRevocar.Enabled := AHabilitado;
+end;
+
+function TfraClienteDatos.PedirRevocante(const ACliente: string;
+  var ANombre, AIdentificacion: string): Boolean;
+begin
+  Result := TfrmRevocacion.Pedir(Self, ACliente, ANombre, AIdentificacion);
+end;
+
 procedure TfraClienteDatos.MostrarAcciones(const APuedeEditar, APuedeRevocar,
   APuedeVerCotizaciones: Boolean; const AContacto: TAccionesContacto;
   const ACotizacion: TAccionesCotizacionCliente);
@@ -450,6 +472,11 @@ begin
   TMapeoDatos.ATabla(ACliente, dmMemoria.mtClienteDetalle);
 
   pstEstado.Caption := ACliente.ConsentimientoEstado;
+  pstEstado.Status := EstadoPlano(ACliente.ConsentimientoEstado);
+  if ACliente.ConsentimientoEstado = CONSENTIMIENTO_REVOCADO then
+    lblOtorgado.Caption := SRevocadoEl
+  else
+    lblOtorgado.Caption := SOtorgadoEl;
   valVersion.Caption := ACliente.ConsentimientoVersion.ValueOrElse(SSinDato);
   if ACliente.ConsentimientoFecha.HasValue then
     valOtorgado.Caption := TFormato.FechaHora(ACliente.ConsentimientoFecha.Value)

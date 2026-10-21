@@ -94,6 +94,7 @@ uses
   Anovo.Forms.LineaCotizacion in 'Src\Forms\Anovo.Forms.LineaCotizacion.pas' {frmLineaCotizacion},
   Anovo.Forms.AjusteCotizacion in 'Src\Forms\Anovo.Forms.AjusteCotizacion.pas' {frmAjusteCotizacion},
   Anovo.Forms.Motivo in 'Src\Forms\Anovo.Forms.Motivo.pas' {frmMotivo},
+  Anovo.Forms.Revocacion in 'Src\Forms\Anovo.Forms.Revocacion.pas' {frmRevocacion},
   Anovo.Forms.OrdenCompra in 'Src\Forms\Anovo.Forms.OrdenCompra.pas' {frmOrdenCompra},
   Anovo.Forms.DetalleReporte in 'Src\Forms\Anovo.Forms.DetalleReporte.pas' {frmDetalleReporte},
   Anovo.Reportes.Periodo in 'Src\Reportes\Anovo.Reportes.Periodo.pas',

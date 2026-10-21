@@ -40,6 +40,9 @@ type
     function PedirMotivoContacto(const ANombre: string;
       out AMotivo: string): Boolean;
     function ConfirmarQuitarContacto(const ANombre: string): Boolean;
+    procedure MostrarRevocacion(const AHabilitado: Boolean);
+    function PedirRevocante(const ACliente: string;
+      var ANombre, AIdentificacion: string): Boolean;
   end;
 
 implementation

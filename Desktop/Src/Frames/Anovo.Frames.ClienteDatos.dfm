@@ -813,6 +813,7 @@ object fraClienteDatos: TfraClienteDatos
             Height = 28
             Cursor = crHandPoint
             Caption = 'Registrar revocaci'#243'n'
+            OnClick = btnRevocarClick
             TabOrder = 0
             StyleElements = []
             Kind = fkDanger

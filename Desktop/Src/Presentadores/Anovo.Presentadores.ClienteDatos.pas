@@ -27,6 +27,10 @@ type
     FCargadas: set of TPestanaCliente;
     FPersonaFisica: Boolean;
     FAnonimizado: Boolean;
+    FObjVersion: Integer;
+    FNombre: string;
+    FIdentificacion: string;
+    FFirmado: Boolean;
     procedure CargarDatosCliente;
     procedure CargarContactos;
     procedure CargarConsentimientos;
@@ -47,6 +51,7 @@ type
     procedure Refrescar(const APestana: TPestanaCliente);
     procedure Guardar(const ADto: TClienteEdicionDTO);
     procedure Anonimizar;
+    procedure Revocar;
     procedure QuitarContacto(const AContactoId: Integer;
       const ANombre: string);
     procedure AnonimizarContacto(const AContactoId: Integer;
@@ -76,6 +81,8 @@ const
     'rechazada');
 
 const
+  CONSENTIMIENTO_FIRMADO = 'firmado';
+  ORIGEN_ESCRITORIO = 'escritorio';
   TIPO_IDENT_FISICA = 1;
   TIPO_IDENT_DIMEX = 3;
   URL_MAPA = 'https://www.google.com/maps/search/?api=1&query=%s';
@@ -315,6 +322,44 @@ begin
     end, MostrarError, MostrarCargando);
 end;
 
+procedure TPresentadorClienteDatos.Revocar;
+var
+  lApi: IApiClientes;
+  lId: Integer;
+  lDto: TRevocacionDTO;
+  lNombre, lIdentificacion: string;
+begin
+  if not PuedeRevocar or not FFirmado then
+    Exit;
+  lNombre := FNombre;
+  lIdentificacion := FIdentificacion;
+  if not FVista.PedirRevocante(FNombre, lNombre, lIdentificacion) then
+    Exit;
+
+  lDto := TRevocacionDTO.Create;
+  lDto.FirmanteNombre := lNombre;
+  lDto.FirmanteIdentificacion := lIdentificacion;
+  lDto.Origen := ORIGEN_ESCRITORIO;
+  lDto.ObjVersion := FObjVersion;
+  lApi := FApi;
+  lId := FClienteId;
+
+  Ejecutar(SAccionRevocar,
+    procedure
+    begin
+      lApi.Revocar(lId, lDto);
+    end,
+    procedure
+    begin
+      Refrescar(pcDatos);
+      Refrescar(pcConsentimiento);
+    end, MostrarError, MostrarCargando,
+    procedure
+    begin
+      lDto.Free;
+    end);
+end;
+
 procedure TPresentadorClienteDatos.QuitarContacto(const AContactoId: Integer;
   const ANombre: string);
 var
@@ -385,6 +430,11 @@ begin
         ((ACliente.TipoIdentificacion.Value = TIPO_IDENT_FISICA) or
         (ACliente.TipoIdentificacion.Value = TIPO_IDENT_DIMEX));
       FAnonimizado := ACliente.Anonimizado;
+      FObjVersion := ACliente.ObjVersion;
+      FNombre := ACliente.Nombre;
+      FIdentificacion := ACliente.Identificacion.ValueOrDefault;
+      FFirmado := ACliente.ConsentimientoEstado = CONSENTIMIENTO_FIRMADO;
+      FVista.MostrarRevocacion(PuedeRevocar and FFirmado);
       FVista.MostrarCliente(ACliente);
       MostrarUbicacion(ACliente);
       FVista.MostrarAnonimizacion(PuedeAnonimizar,

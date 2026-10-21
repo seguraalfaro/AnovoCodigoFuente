@@ -31,6 +31,7 @@ type
     procedure ActualizarContacto(const AId, AContactoId: Integer;
       const ADto: TContactoEdicionDTO);
     procedure QuitarContacto(const AId, AContactoId: Integer);
+    procedure Revocar(const AId: Integer; const ADto: TRevocacionDTO);
   end;
 
 implementation

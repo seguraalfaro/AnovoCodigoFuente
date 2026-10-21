@@ -231,6 +231,16 @@ resourcestring
     '%d (Ley 8968): %s';
   SAccionAnonimizarContacto = 'anonimizar al contacto';
   SAccionQuitarContacto = 'quitar al contacto';
+  SAccionRevocar = 'registrar la revocación del consentimiento';
+  SRevocarTitulo = 'Registrar revocación';
+  SRevocarAyuda = 'Quién pide revocar el consentimiento de %s.';
+  SOtorgadoEl = 'Otorgado el';
+  SRevocadoEl = 'Revocado el';
+  SRevocanteNombre = 'Nombre de quien la pide';
+  SRevocanteIdentificacion = 'Identificación';
+  SRevocanteNombreFalta = 'Escriba el nombre de quien pide la revocación.';
+  SRevocanteIdentificacionFalta = 'Escriba la identificación de quien pide ' +
+    'la revocación.';
   SQuitarContactoPregunta = '¿Quitar a %s de los contactos de este cliente? ' +
     'Deja de aparecer en la lista y en el móvil. No se borra: las solicitudes ' +
     'que lo tienen lo conservan y su firma sigue en el historial.';
