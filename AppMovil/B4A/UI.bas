@@ -374,7 +374,7 @@ Private Sub EstilizarCampoFlotante (Campo As B4XFloatTextField, v As B4XView, ca
 			et.InputType = et.INPUT_TYPE_NUMBERS
 			PonerHint(Campo, Utils.HINT_CEDULA_DIMEX)
 		Case CAT_NOMBRE
-			et.InputType = Utils.INPUT_ALFANUMERICO_MAY
+			et.InputType = Utils.INPUT_NOMBRE
 			PonerHint(Campo, Utils.HINT_NOMBRE)
 	End Select
 End Sub

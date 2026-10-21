@@ -190,7 +190,7 @@ Sub Process_Globals
 	Public Const ROTULO_APP As String = "App instalada"
 	Public Const ROTULO_MOVIL_DISPONIBLE As String = "Móvil disponible"
 	Public Const ROTULO_BASE As String = "Base de datos"
-	Public Const ROTULO_AVISO As String = "Aviso de privacidad"
+	Public Const ROTULO_AVISO As String = "Privacidad"
 	Public Const CAMBIAR_MI_CLAVE As String = "Cambiar mi clave"
 	Public Const PROBAR_CONEXION As String = "Probar conexión"
 	Public Const PROBANDO As String = "Probando..."

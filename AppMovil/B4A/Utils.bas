@@ -43,7 +43,8 @@ Sub Process_Globals
 
 	#Region InputType
 	Public Const INPUT_CORREO As Int = 33
-	Public Const INPUT_ALFANUMERICO_MAY As Int = 4241
+	Public Const INPUT_ALFANUMERICO_MAY As Int = 528385
+	Public Const INPUT_NOMBRE As Int = 532481
 	Public Const INPUT_SOLO_DIGITOS As Int = 3
 	#End Region
 

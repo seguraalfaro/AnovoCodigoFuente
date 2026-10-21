@@ -93,6 +93,10 @@ Private Sub Preparar (Ancho As Int)
 	lista.TwoLinesLayout.Label.Typeface = Typeface.DEFAULT_BOLD
 	lista.TwoLinesLayout.SecondLabel.TextColor = Colores.COLOR_TEXTO_SECUNDARIO
 	lista.TwoLinesLayout.SecondLabel.TextSize = 12
+	For Each l As Label In Array As Label(lista.TwoLinesLayout.Label, lista.TwoLinesLayout.SecondLabel)
+		l.Left = 16dip
+		l.Width = Ancho - 32dip
+	Next
 	Dim arriba As Int = altoBuscador + 16dip
 	pnl.AddView(lista, 0, arriba, Ancho, alto - arriba)
 
