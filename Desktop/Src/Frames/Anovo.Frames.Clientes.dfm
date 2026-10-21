@@ -7,8 +7,8 @@ inherited fraClientes: TfraClientes
     inherited lblSubtitulo: TLabel
       Width = 442
       Caption =
-        'Clientes registrados '#183' el consentimiento se otorga en el m'#243'vil y' +
-        ' aqu'#237' solo se consulta'
+        'Clientes registrados '#183' el consentimiento se otorga en el m'#243'vil;' +
+        ' aqu'#237' se consulta y se registra su revocaci'#243'n'
     end
   end
   inherited pnlBarra: TPanel
