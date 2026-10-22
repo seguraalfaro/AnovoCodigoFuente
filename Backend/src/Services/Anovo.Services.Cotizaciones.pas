@@ -951,6 +951,11 @@ begin
     if lVacia then
       raise EConflictoDeEstado.Create('COTIZACION_SIN_DETALLE',
         SCotizacionSinLineas);
+    if not (lCotizacion.FormaPagoId.HasValue and
+      lCotizacion.PlazoEntregaCantidad.HasValue and lCotizacion.PlazoEntregaUnidadId.HasValue and
+      lCotizacion.GarantiaCantidad.HasValue and lCotizacion.GarantiaUnidadId.HasValue) then
+      raise EConflictoDeEstado.Create('COTIZACION_SIN_CONDICIONES',
+        SCotizacionSinCondiciones);
 
     lCotizacion.Estado := ESTADO_EN_REVISION;
     FijarDetalle(Format(SDetalleCotizacionPresentada, [lCotizacion.Numero]));

@@ -280,6 +280,8 @@ resourcestring
   SAjusteSinMotivo = 'Un ajuste distinto de cero exige indicar el motivo.';
   SCotizacionSinLineas = 'La cotización no tiene líneas: no hay nada que ' +
     'revisar.';
+  SCotizacionSinCondiciones = 'Para enviar a revisión indique la forma de ' +
+    'pago, el plazo de entrega y la garantía.';
   SCotizacionNoAprobable = 'Una cotización en estado %s no admite el visto bueno.';
   SCotizacionSinRespuesta = 'La respuesta del cliente se registra sobre una cotización enviada; esta está en estado %s.';
   SCotizacionNoDevolvible = 'Una cotización en estado %s no se puede devolver.';
