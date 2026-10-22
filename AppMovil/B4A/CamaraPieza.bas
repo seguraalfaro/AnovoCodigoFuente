@@ -13,6 +13,12 @@ Sub Class_Globals
 	Private Const FLASH_NO As String = "off"
 	Private Const AJUSTES_APP As String = "android.settings.APPLICATION_DETAILS_SETTINGS"
 	Private Const NUEVA_TAREA As Int = 0x10000000
+	Private Const DURACION_DESTELLO As Int = 250
+	Private Const ARCHIVO_OBTURADOR As String = "obturador.wav"
+	Private Const FLUJO_SISTEMA As Int = 1
+	Private Const VOLUMEN_OBTURADOR As Float = 1
+	Private mSonidos As JavaObject
+	Private mIdObturador As Int
 
 	Private mCallback As Object
 	Private mEvento As String
@@ -43,6 +49,8 @@ Public Sub Initialize (Callback As Object, Evento As String, Preview As Panel, S
 	mFlash = BotonFlash
 	mRotar = BotonRotar
 	mPermitir = BotonPermitir
+	CargarObturador
+	Esperando
 End Sub
 
 #Region Apertura y cierre
@@ -71,6 +79,15 @@ Public Sub Abrir
 	If Adjuntos.getHayFrontal = False Then mFrontal = False
 	camEx.Initialize(mPreview, mFrontal, Me, "CamEx")
 	mFrontal = camEx.Front
+End Sub
+
+Public Sub Esperando
+	mPreview.Visible = False
+	mSinCamara.Visible = True
+	mPermitir.Visible = False
+	UI.Habilitar(mDisparar, False)
+	UI.Habilitar(mFlash, False)
+	PintarAviso(Chr(0xF030), Colores.COLOR_TEXTO_SECUNDARIO, Mensajes.CAMARA_ESPERANDO, Mensajes.CAMARA_ESPERANDO_TEXTO, "")
 End Sub
 
 Public Sub Denegada (EstaBloqueada As Boolean)
@@ -123,7 +140,36 @@ Public Sub Disparar
 	If mLista = False Or mDisparando Then Return
 	mDisparando = True
 	UI.Habilitar(mDisparar, False)
+	Destello
+	SonarObturador
 	camEx.TakePicture
+End Sub
+
+Private Sub CargarObturador
+	Try
+		If File.Exists(File.DirInternal, ARCHIVO_OBTURADOR) = False Then File.Copy(File.DirAssets, ARCHIVO_OBTURADOR, File.DirInternal, ARCHIVO_OBTURADOR)
+		mSonidos.InitializeNewInstance("android.media.SoundPool", Array(1, FLUJO_SISTEMA, 0))
+		mIdObturador = mSonidos.RunMethod("load", Array(File.Combine(File.DirInternal, ARCHIVO_OBTURADOR), 1))
+	Catch
+		Log("CamaraPieza.CargarObturador: " & LastException.Message)
+	End Try
+End Sub
+
+Private Sub SonarObturador
+	If mSonidos.IsInitialized = False Or mIdObturador = 0 Then Return
+	Dim volumen As Float = VOLUMEN_OBTURADOR
+	Dim velocidad As Float = 1
+	mSonidos.RunMethod("play", Array(mIdObturador, volumen, volumen, 1, 0, velocidad))
+End Sub
+
+Private Sub Destello
+	Dim capa As B4XView = xui.CreatePanel("")
+	capa.Color = xui.Color_White
+	Dim vista As B4XView = mPreview
+	vista.AddView(capa, 0, 0, vista.Width, vista.Height)
+	capa.SetVisibleAnimated(DURACION_DESTELLO, False)
+	Sleep(DURACION_DESTELLO)
+	capa.RemoveViewFromParent
 End Sub
 
 Private Sub Avisar (Motivo As String)

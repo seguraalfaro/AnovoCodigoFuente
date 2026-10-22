@@ -22,7 +22,9 @@ Public Sub Ingresar (Correo As String, Clave As String) As ResumableSub
 	Wait For (ApiAutenticacion.IniciarSesion(Correo, Clave).Enviar) Complete (Respuesta As RestRespuesta)
 	If Respuesta.Success = False Then
 		If Respuesta.StatusCode = Api.HTTP_NO_AUTORIZADO Then Return Tipos.Falla(Mensajes.CREDENCIALES_INVALIDAS)
-		Return Tipos.Falla(Api.MensajeDe(Respuesta))
+		Dim motivo As String = Api.MensajeDe(Respuesta)
+		If motivo = Mensajes.SIN_CONEXION Or motivo = Mensajes.SERVIDOR_NO_DISPONIBLE Then motivo = Mensajes.INGRESO_SIN_SERVIDOR
+		Return Tipos.Falla(motivo)
 	End If
 
 	If Sesion.Abrir(Respuesta.Valor("token")) = False Then Return Tipos.Falla(Mensajes.TOKEN_INVALIDO)

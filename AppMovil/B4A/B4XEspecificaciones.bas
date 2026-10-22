@@ -12,6 +12,9 @@ Sub Class_Globals
 	Private xui As XUI 'ignore
 	Private Const TIPO_IMAGEN As String = "image/*"
 	Private Const SIN_PENDIENTE As Int = 0
+	Private Const PASO_PERMISO As Int = 200
+	Private Const VUELTAS_PERMISO As Int = 600
+	Private Const VUELTAS_SIN_DIALOGO As Int = 8
 	Private Const PENDIENTE_NUEVA As Int = 1
 	Private Const PENDIENTE_EDITAR As Int = 2
 	Private Const PENDIENTE_RETOMAR As Int = 3
@@ -27,6 +30,9 @@ Sub Class_Globals
 	Private piezaEditar As Pieza
 	Private enCaptura As Boolean
 	Private visible As Boolean
+	Private cambiosNombre As Int
+	Private Const ESPERA_TEXTO As Int = 800
+	Private pidiendoCamara As Boolean
 	Private ultimoGuardado As Long
 
 	Private TextNombrePieza As B4XFloatTextField
@@ -129,6 +135,7 @@ End Sub
 
 Private Sub B4XPage_Appear
 	visible = True
+	presentador.CargarCatalogos
 	If pendiente = SIN_PENDIENTE Then Return
 	Dim accion As Int = pendiente
 	pendiente = SIN_PENDIENTE
@@ -157,11 +164,13 @@ End Sub
 
 Private Sub B4XPage_Background
 	camara.Cerrar
-	Persistir
+	If visible Then Persistir
 End Sub
 
 Private Sub B4XPage_Foreground
-	If AHViewEspecificaciones.CurrentPage = PageFOTOS Then AbrirCamara
+	If pidiendoCamara Then Return
+	Dim rp As RuntimePermissions
+	If AHViewEspecificaciones.CurrentPage = PageFOTOS And rp.Check(rp.PERMISSION_CAMERA) Then AbrirCamara
 End Sub
 
 Private Sub Persistir
@@ -193,6 +202,14 @@ End Sub
 #End Region
 
 #Region Datos de la pieza
+Private Sub TextNombrePieza_TextChanged (Old As String, New As String)
+	If enCaptura = False Then Return
+	cambiosNombre = cambiosNombre + 1
+	Dim turno As Int = cambiosNombre
+	Sleep(ESPERA_TEXTO)
+	If turno = cambiosNombre And visible Then Persistir
+End Sub
+
 Private Sub PintarCatalogos
 	CampoTipoTrabajo.Texto = presentador.TextoTipoTrabajo
 	CampoMaterial.Texto = presentador.TextoTipoMaterial
@@ -385,17 +402,44 @@ Private Sub AbrirCamara
 	If camara.Lista Then Return
 	If camara.ComprobarEquipo = False Then Return
 	Dim rp As RuntimePermissions
-	If rp.Check(rp.PERMISSION_CAMERA) = False Then
-		rp.CheckAndRequest(rp.PERMISSION_CAMERA)
-		Wait For B4XPage_PermissionResult (Permission As String, Result As Boolean)
-		If visible = False Then Return
-		If Permission <> rp.PERMISSION_CAMERA Then Return
-		If Result = False Then
-			camara.Denegada(Adjuntos.PermisoBloqueado(rp.PERMISSION_CAMERA))
+	If rp.Check(rp.PERMISSION_CAMERA) Then
+		camara.Abrir
+		Return
+	End If
+	If pidiendoCamara Then Return
+	pidiendoCamara = True
+	camara.Esperando
+	rp.CheckAndRequest(rp.PERMISSION_CAMERA)
+	EsperarDialogoPermiso
+End Sub
+
+Private Sub EsperarDialogoPermiso
+	Dim actividad As JavaObject
+	actividad.InitializeContext
+	Dim salio As Boolean
+	For i = 1 To VUELTAS_PERMISO
+		Sleep(PASO_PERMISO)
+		If pidiendoCamara = False Then Return
+		Dim foco As Boolean = actividad.RunMethod("hasWindowFocus", Null)
+		If foco = False Then salio = True
+		If foco And (salio Or i >= VUELTAS_SIN_DIALOGO) Then
+			ResolverPermiso
 			Return
 		End If
+	Next
+	pidiendoCamara = False
+End Sub
+
+Private Sub ResolverPermiso
+	If pidiendoCamara = False Then Return
+	pidiendoCamara = False
+	If visible = False Then Return
+	Dim rp As RuntimePermissions
+	If rp.Check(rp.PERMISSION_CAMERA) Then
+		camara.Abrir
+	Else
+		camara.Denegada(Adjuntos.PermisoBloqueado(rp.PERMISSION_CAMERA))
 	End If
-	camara.Abrir
 End Sub
 
 Private Sub BtnRotar_Click

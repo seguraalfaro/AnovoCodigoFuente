@@ -38,10 +38,14 @@ Sub Class_Globals
 End Sub
 
 Public Sub Initialize
+	CargarCatalogos
+	Nuevo
+End Sub
+
+Public Sub CargarCatalogos
 	mTiposTrabajo = DbCatalogos.TiposTrabajo
 	mTiposMaterial = DbCatalogos.TiposMaterial
 	mAcabados = DbCatalogos.Acabados
-	Nuevo
 End Sub
 
 #Region Estado

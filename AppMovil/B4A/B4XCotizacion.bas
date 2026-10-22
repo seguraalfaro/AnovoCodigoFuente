@@ -12,6 +12,8 @@ Sub Class_Globals
 	Private xui As XUI
 	Private presentador As PresentadorCotizacion
 	Private visible As Boolean
+	Private cambiosTexto As Int
+	Private Const ESPERA_TEXTO As Int = 800
 	Private restaurando As Boolean
 	Private enPieza As Boolean
 	Private directo As Boolean
@@ -128,7 +130,7 @@ Private Sub B4XPage_Disappear
 End Sub
 
 Private Sub B4XPage_Background
-	Persistir
+	If visible Then Persistir
 End Sub
 
 Private Sub Persistir
@@ -311,6 +313,19 @@ End Sub
 Private Sub txtObservaciones_TextChanged (Old As String, New As String)
 	If restaurando = False And presentador.ObservacionesExcedidas(New) Then txtObservaciones.Text = Old
 	lblContadorObs.Text = Mensajes.Contador(txtObservaciones.Text.Length, presentador.MaxObservaciones)
+	GuardarAlEscribir
+End Sub
+
+Private Sub TextNombreProyecto_TextChanged (Old As String, New As String)
+	GuardarAlEscribir
+End Sub
+
+Private Sub GuardarAlEscribir
+	If restaurando Then Return
+	cambiosTexto = cambiosTexto + 1
+	Dim turno As Int = cambiosTexto
+	Sleep(ESPERA_TEXTO)
+	If turno = cambiosTexto And visible Then Persistir
 End Sub
 
 Private Sub PrepararRevision

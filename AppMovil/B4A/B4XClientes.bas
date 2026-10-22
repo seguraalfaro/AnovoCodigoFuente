@@ -113,7 +113,7 @@ Private Sub B4XPage_Disappear
 End Sub
 
 Private Sub B4XPage_Background
-	Persistir
+	If visible Then Persistir
 End Sub
 
 Private Sub Persistir

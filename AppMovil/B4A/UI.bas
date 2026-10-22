@@ -737,9 +737,14 @@ End Sub
 Public Sub AjustarBarraTitulo (Dialogo As B4XDialog)
 	If Dialogo.TitleBar.IsInitialized = False Then Return
 	Dim altoVisible As Int = Dialogo.TitleBar.Top + Dialogo.TitleBar.Height
-	Dim radio As Int = Dialogo.BorderCornersRadius
-	Dialogo.TitleBar.SetLayoutAnimated(0, 0, 0, Dialogo.Base.Width, altoVisible + radio)
-	Dialogo.TitleBar.SetColorAndBorder(Dialogo.TitleBarColor, 0, Dialogo.TitleBarColor, radio)
+	Dim radio As Float = Dialogo.BorderCornersRadius
+	Dialogo.TitleBar.SetLayoutAnimated(0, 0, 0, Dialogo.Base.Width, altoVisible)
+	Dim fondo As JavaObject
+	fondo.InitializeNewInstance("android.graphics.drawable.GradientDrawable", Null)
+	fondo.RunMethod("setColor", Array(Dialogo.TitleBarColor))
+	fondo.RunMethod("setCornerRadii", Array(Array As Float(radio, radio, radio, radio, 0, 0, 0, 0)))
+	Dim barra As JavaObject = Dialogo.TitleBar
+	barra.RunMethod("setBackground", Array(fondo))
 	If Dialogo.TitleBar.NumberOfViews > 0 Then
 		Dialogo.TitleBar.GetView(0).SetLayoutAnimated(0, 0, 0, Dialogo.Base.Width, altoVisible)
 	End If

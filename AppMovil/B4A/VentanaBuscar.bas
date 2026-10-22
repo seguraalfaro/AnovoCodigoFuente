@@ -127,8 +127,9 @@ Private Sub Ubicar
 	Dim pos() As Int = Posicion(mAncla)
 	Dim m As Int = DipToCurrent(MARGEN)
 	Dim extra As Int = pnl.Top + dlg.ButtonsHeight + 4dip
+	Dim tope As Int = LimiteArriba + m
 	Dim abajo As Int = limite - pos(1) - mAncla.Height - 2 * m
-	Dim arriba As Int = pos(1) - 2 * m
+	Dim arriba As Int = pos(1) - 2 * m - tope
 	Dim haciaAbajo As Boolean = abajo >= AltoContenido(extra, limite) + extra Or abajo >= arriba
 	Dim espacio As Int = arriba
 	If haciaAbajo Then espacio = abajo
@@ -137,7 +138,7 @@ Private Sub Ubicar
 	Dim altoVentana As Int = extra + contenido
 	Dim arribaVentana As Int = pos(1) - m - altoVentana
 	If haciaAbajo Then arribaVentana = pos(1) + mAncla.Height + m
-	arribaVentana = Max(0, Min(arribaVentana, limite - altoVentana))
+	arribaVentana = Max(tope, Min(arribaVentana, limite - altoVentana))
 	Dim izquierda As Int = Max(0, Min(pos(0), mPadre.Width - dlg.Base.Width))
 	dlg.Base.SetLayoutAnimated(0, izquierda, arribaVentana, dlg.Base.Width, altoVentana)
 	Dim cancelar As B4XView = dlg.GetButton(xui.DialogResponse_Cancel)
@@ -146,6 +147,29 @@ End Sub
 
 Private Sub AltoContenido (Extra As Int, Limite As Int) As Int
 	Return Min(Limite * PROPORCION_ALTO, DipToCurrent(ALTO_MAXIMO)) - Extra
+End Sub
+
+Private Sub LimiteArriba As Int
+	Dim r As JavaObject
+	r.InitializeNewInstance("android.graphics.Rect", Null)
+	Dim jp As JavaObject = mPadre
+	jp.RunMethod("getWindowVisibleDisplayFrame", Array As Object(r))
+	Dim enPadre(2) As Int
+	jp.RunMethod("getLocationOnScreen", Array As Object(enPadre))
+	Dim arriba As Int = r.GetField("top")
+	Return Max(0, arriba - enPadre(1)) + AltoBarraTitulo
+End Sub
+
+Private Sub AltoBarraTitulo As Int
+	Try
+		Dim ctx As JavaObject
+		ctx.InitializeContext
+		Dim barra As JavaObject = ctx.RunMethod("getActionBar", Null)
+		If barra.IsInitialized And barra.RunMethod("isShowing", Null) Then Return barra.RunMethod("getHeight", Null)
+	Catch
+		Log("VentanaBuscar.AltoBarraTitulo: " & LastException.Message)
+	End Try
+	Return 0
 End Sub
 
 Private Sub LimiteVisible As Int

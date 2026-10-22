@@ -73,7 +73,7 @@ Sub Class_Globals
 	Private Const ANCHO_TEXTO_RESUMEN As Int = 140dip
 	Private Const ANCHO_CUENTA As Int = 28dip
 	Private Const ALTO_FILA_FICHA As Int = 34dip
-	Private Const ANCHO_FICHA As Int = 340dip
+	Private Const ANCHO_FICHA As Int = 420dip
 	Private Const RELLENO_FICHA As Int = 16dip
 	Private Const ARRIBA_FICHA As Int = 20dip
 	Private Const ABAJO_FICHA As Int = 4dip
@@ -404,10 +404,10 @@ Private Sub MostrarFicha (f As SeguimientoFila)
 		Dim par() As String = o
 		Dim rotulo As B4XView = UI.Etiqueta(par(0), 13, Colores.COLOR_TEXTO_SECUNDARIO, False)
 		rotulo.SetTextAlignment("CENTER", "LEFT")
-		contenido.AddView(rotulo, RELLENO_FICHA, y, util * 0.4, ALTO_FILA_FICHA)
+		contenido.AddView(rotulo, RELLENO_FICHA, y, util * 0.32, ALTO_FILA_FICHA)
 		Dim valor As B4XView = UI.Etiqueta(par(1), 14, Colores.COLOR_TEXTO_PRIMARIO, True)
 		valor.SetTextAlignment("CENTER", "RIGHT")
-		contenido.AddView(valor, RELLENO_FICHA + util * 0.4, y, util * 0.6, ALTO_FILA_FICHA)
+		contenido.AddView(valor, RELLENO_FICHA + util * 0.32, y, util * 0.68, ALTO_FILA_FICHA)
 		y = y + ALTO_FILA_FICHA
 	Next
 	dialogoFicha.Title = f.Proyecto
