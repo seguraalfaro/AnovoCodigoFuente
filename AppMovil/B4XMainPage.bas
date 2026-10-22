@@ -71,6 +71,7 @@ End Sub
 
 Private Sub B4XPage_Disappear
 	visible = False
+	Textpassword.Text = ""
 End Sub
 
 Private Sub InicializarPaginas
@@ -157,7 +158,11 @@ Private Sub btnIngresar_Click
 	indicator.Hide
 	If visible = False Then Return
 	If r.Ok = False Then
-		xui.MsgboxAsync(r.Mensaje, Mensajes.TITULO)
+		If presentador.EsSinServidor(r) Then
+			OfrecerReintento(r.Mensaje)
+		Else
+			xui.MsgboxAsync(r.Mensaje, Mensajes.TITULO)
+		End If
 		Return
 	End If
 	Textpassword.Text = ""
@@ -171,6 +176,15 @@ End Sub
 #End Region
 
 #Region Acciones
+Private Sub OfrecerReintento (Texto As String)
+	Dim conHuella As String = IIf(presentador.PuedeDesbloquear, Mensajes.DESBLOQUEO_ENTRAR, "")
+	Dim sf As Object = xui.Msgbox2Async(Texto, Mensajes.TITULO, Mensajes.REINTENTAR, Mensajes.CANCELAR, conHuella, Null)
+	Wait For (sf) Msgbox_Result (Respuesta As Int)
+	If visible = False Then Return
+	If Respuesta = xui.DialogResponse_Positive Then btnIngresar_Click
+	If Respuesta = xui.DialogResponse_Negative Then Desbloquear
+End Sub
+
 Private Sub Desbloquear
 	ime.HideKeyboard
 	Wait For (huella.Pedir(Mensajes.DESBLOQUEO_TITULO, presentador.NombreGuardado)) Complete (Identificado As Boolean)

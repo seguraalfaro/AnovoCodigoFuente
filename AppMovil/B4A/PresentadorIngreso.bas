@@ -82,6 +82,10 @@ Public Sub getTextoServidor As String
 	Return Mensajes.SERVIDOR_EN & url
 End Sub
 
+Public Sub EsSinServidor (r As Resultado) As Boolean
+	Return r.Ok = False And r.Mensaje = Mensajes.INGRESO_SIN_SERVIDOR
+End Sub
+
 Public Sub GuardarServidor (Url As String) As Resultado
 	Dim error As String = Api.ValidarUrl(Url)
 	If error <> "" Then Return Tipos.Falla(error)

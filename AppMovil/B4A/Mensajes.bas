@@ -15,7 +15,7 @@ Sub Process_Globals
 	Public Const CREDENCIALES_INVALIDAS As String = "El correo o la clave no son correctos."
 	Public Const FALTAN_CREDENCIALES As String = "Escriba su correo y su clave."
 	Public Const DEMASIADAS_PETICIONES As String = "Se hicieron demasiadas consultas en poco tiempo. Espere un minuto e intente de nuevo."
-	Public Const INGRESO_SIN_SERVIDOR As String = "No se pudo conectar con el servidor de Anovo. Para ingresar se necesita conexión: revise el internet del teléfono e intente de nuevo. Si en este teléfono activó Entrar sin conexión, puede ingresar con la huella."
+	Public Const INGRESO_SIN_SERVIDOR As String = "No se pudo conectar con el servidor de Anovo. Para ingresar se necesita conexión: revise el internet del teléfono e intente de nuevo."
 	Public Const SERVIDOR_NO_DISPONIBLE As String ="El servidor de Anovo no está disponible en este momento. Lo que capture queda guardado en el teléfono. Intente de nuevo en unos minutos; si sigue igual, avise al administrador."
 	Public Const TOKEN_INVALIDO As String = "El servidor devolvió un token con formato inválido."
 	Public Const URL_VACIA As String = "Escriba la dirección del servidor."
