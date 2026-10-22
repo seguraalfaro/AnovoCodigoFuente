@@ -4,13 +4,17 @@ ModulesStructureVersion=1
 Type=StaticCode
 Version=13.7
 @EndOfDesignText@
-' Crea la base local leyendo esquema_sqlite.sql (Files): cada arranque crea las tablas que falten.
-' Una columna nueva pide BORRAR_BASE = True una vez. Si algo falla lo deja en ErrorEsquema.
+' Crea la base local leyendo esquema_sqlite.sql (Files) y la lleva a VERSION_ESQUEMA con
+' migracion_sqlite_N.sql, sin borrar datos. Si algo falla lo deja en ErrorEsquema.
 
 Sub Process_Globals
 	Public Const DB_NOMBRE As String = "anovo.db"
 	Public Const DB_ESQUEMA As String = "esquema_sqlite.sql"
 	Public Const BORRAR_BASE As Boolean = False
+	Public Const VERSION_ESQUEMA As Int = 1
+	Private Const VERSION_BASE As Int = 1
+	Private Const PREFIJO_MIGRACION As String = "migracion_sqlite_"
+	Private Const EXTENSION_MIGRACION As String = ".sql"
 	Public ExisteBaseDatos As Boolean
 	Public ErrorEsquema As String
 	Private Const SQL_TABLA_EXISTE As String = "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = ?"
@@ -36,7 +40,7 @@ Public Sub Abrir As SQL
 		Return s
 	End Try
 	AplicarPragmas(s)
-	If CrearEsquema(s) Then ValidarEsquema(s)
+	If CrearEsquema(s) And Migrar(s) Then ValidarEsquema(s)
 	Log("DbEsquema: base lista.")
 	Return s
 End Sub
@@ -73,6 +77,37 @@ Private Sub CrearEsquema (s As SQL) As Boolean
 	End Try
 	s.EndTransaction
 	Return True
+End Sub
+
+Private Sub Migrar (s As SQL) As Boolean
+	If ExisteBaseDatos Then
+		FijarVersion(s, VERSION_ESQUEMA)
+		Return True
+	End If
+	Dim actual As Int = Max(VERSION_BASE, s.ExecQuerySingleResult("PRAGMA user_version"))
+	For v = actual + 1 To VERSION_ESQUEMA
+		s.BeginTransaction
+		Try
+			For Each sentencia As String In LeerSentencias(PREFIJO_MIGRACION & v & EXTENSION_MIGRACION)
+				s.ExecNonQuery(sentencia)
+			Next
+			s.TransactionSuccessful
+		Catch
+			Log("DbEsquema: no se pudo aplicar la migracion " & v & " -> " & LastException)
+			s.EndTransaction
+			ErrorEsquema = Mensajes.BASE_NO_PREPARADA
+			Return False
+		End Try
+		s.EndTransaction
+		FijarVersion(s, v)
+	Next
+	If actual > VERSION_ESQUEMA Then Return True
+	FijarVersion(s, Max(actual, VERSION_ESQUEMA))
+	Return True
+End Sub
+
+Private Sub FijarVersion (s As SQL, Version As Int)
+	s.ExecNonQuery("PRAGMA user_version = " & Version)
 End Sub
 
 Private Sub LeerSentencias (NombreArchivo As String) As List
