@@ -72,9 +72,6 @@ Source: "{#FbZip}\zlib1.dll"; DestDir: "{app}\Servidor"; Components: servidor; C
 Source: "compilado\Win32\AnovoAPI.exe"; DestDir: "{app}\Servidor"; Components: servidor; Check: not Is64BitInstallMode; Flags: ignoreversion
 Source: "{#SslX86}\libcrypto-3.dll"; DestDir: "{app}\Servidor"; Components: servidor; Check: not Is64BitInstallMode; Flags: ignoreversion
 Source: "{#SslX86}\libssl-3.dll"; DestDir: "{app}\Servidor"; Components: servidor; Check: not Is64BitInstallMode; Flags: ignoreversion
-Source: "{code:Certificado|0}"; DestDir: "{app}\Servidor\certificates"; DestName: "servidor.crt"; Components: servidor; Check: HayCertificado(0); Flags: external
-Source: "{code:Certificado|1}"; DestDir: "{app}\Servidor\certificates"; DestName: "servidor.key"; Components: servidor; Check: HayCertificado(1); Flags: external
-Source: "{code:Certificado|2}"; DestDir: "{app}\Servidor\certificates"; DestName: "rootCA.crt"; Components: servidor; Check: HayCertificado(2); Flags: external
 #ifdef HayCloudflared
 Source: "{#Terceros}\cloudflared\cloudflared-windows-amd64.exe"; DestDir: "{app}\Servidor\tunel"; DestName: "cloudflared.exe"; Tasks: tunel; Check: Is64BitInstallMode; Flags: ignoreversion
 Source: "{#Terceros}\cloudflared\cloudflared-windows-386.exe"; DestDir: "{app}\Servidor\tunel"; DestName: "cloudflared.exe"; Tasks: tunel; Check: not Is64BitInstallMode; Flags: ignoreversion
@@ -83,8 +80,11 @@ Source: "{code:ArchivoTunel}"; DestDir: "{app}\Servidor\tunel"; DestName: "crede
 Source: "compilado\Win64\AnovoEscritorio.exe"; DestDir: "{app}\Escritorio"; Components: escritorio; Check: Is64BitInstallMode; Flags: ignoreversion
 Source: "compilado\Win32\AnovoEscritorio.exe"; DestDir: "{app}\Escritorio"; Components: escritorio; Check: not Is64BitInstallMode; Flags: ignoreversion
 Source: "..\Desktop\Src\Recursos\Marca\*"; DestDir: "{app}\Escritorio\Recursos\Marca"; Components: escritorio; Flags: ignoreversion
-Source: "{code:Certificado|2}"; DestDir: "{app}\Escritorio\certificados"; DestName: "anovo-ca.crt"; Components: escritorio; Check: HayCertificado(2); Flags: external
 Source: "plantillas\*"; Flags: dontcopy
+Source: "scripts\*.ps1"; Flags: dontcopy
+Source: "{#SslX86}\openssl.exe"; Flags: dontcopy
+Source: "{#SslX86}\libcrypto-3.dll"; Flags: dontcopy
+Source: "{#SslX86}\libssl-3.dll"; Flags: dontcopy
 Source: "base\anovo_produccion.fbk"; Flags: dontcopy
 Source: "{#Terceros}\firebird\{#FbX64}"; Flags: dontcopy
 Source: "{#Terceros}\firebird\{#FbX86}"; Flags: dontcopy
@@ -98,7 +98,6 @@ Name: "{autodesktop}\Anovo"; Filename: "{app}\Escritorio\AnovoEscritorio.exe"; W
 [Run]
 Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""Anovo API"""; Components: servidor; Flags: runhidden
 Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""Anovo API"" dir=in action=allow protocol=TCP localport={code:Puerto} profile=private,domain"; Components: servidor; StatusMsg: "Abriendo el puerto del servidor en el firewall..."; Flags: runhidden
-Filename: "{sys}\certutil.exe"; Parameters: "-f -addstore Root ""{app}\Escritorio\certificados\anovo-ca.crt"""; Components: escritorio; Check: HayCaEscritorio; StatusMsg: "Instalando la CA de Anovo en Windows..."; Flags: runhidden
 Filename: "{app}\Servidor\AnovoAPI.exe"; WorkingDir: "{app}\Servidor"; Description: "Abrir el servidor para registrar al administrador y los datos de la empresa"; Components: servidor; Flags: postinstall nowait skipifsilent
 Filename: "{app}\Escritorio\AnovoEscritorio.exe"; WorkingDir: "{app}\Escritorio"; Description: "Abrir la aplicación de escritorio"; Components: escritorio and not servidor; Flags: postinstall nowait skipifsilent unchecked
 
@@ -114,7 +113,6 @@ var
   PaginaRed: TInputQueryWizardPage;
   PaginaSysdba: TInputQueryWizardPage;
   PaginaCotizacion: TInputQueryWizardPage;
-  PaginaCertificados: TInputFileWizardPage;
   PaginaTunel: TInputFileWizardPage;
   PaginaHost: TInputQueryWizardPage;
   FirebirdPrevio: string;
@@ -166,21 +164,6 @@ begin
   Result := Trim(PaginaRed.Values[0]);
 end;
 
-function Certificado(Param: string): string;
-begin
-  Result := Trim(PaginaCertificados.Values[StrToInt(Param)]);
-end;
-
-function HayCertificado(Indice: Integer): Boolean;
-begin
-  Result := Trim(PaginaCertificados.Values[Indice]) <> '';
-end;
-
-function HayCaEscritorio: Boolean;
-begin
-  Result := FileExists(ExpandConstant('{app}\Escritorio\certificados\anovo-ca.crt'));
-end;
-
 function ArchivoTunel(Param: string): string;
 begin
   Result := Trim(PaginaTunel.Values[0]);
@@ -218,7 +201,7 @@ begin
 
   PaginaRed := CreateInputQueryPage(wpSelectTasks, 'Servidor de Anovo',
     'Nombre y puerto con que los equipos de la oficina llegan al servidor.',
-    'El nombre tiene que figurar en el certificado del servidor. En el equipo del servidor se deja el nombre del propio equipo.');
+    'En el equipo del servidor se deja el nombre del propio equipo: con él y sus direcciones IP se genera el certificado HTTPS. En los equipos de la oficina se escribe el mismo nombre que se usó al instalar el servidor, que tiene que estar encendido.');
   PaginaRed.Add('Nombre o dirección IP del servidor:', False);
   PaginaRed.Add('Puerto HTTPS:', False);
   PaginaRed.Values[0] := GetPreviousData('Servidor', Lowercase(GetComputerNameString));
@@ -239,14 +222,7 @@ begin
   PaginaCotizacion.Add('Primer número de cotización:', False);
   PaginaCotizacion.Values[0] := '1';
 
-  PaginaCertificados := CreateInputFilePage(PaginaCotizacion.ID, 'Certificados',
-    'Archivos del certificado HTTPS emitidos con la CA de Anovo.',
-    'El certificado y la llave del servidor solo se piden al instalar el servidor. La llave de la CA nunca se copia a este equipo. Si el equipo ya tiene los archivos, puede dejar el campo vacío.');
-  PaginaCertificados.Add('Certificado del servidor (.crt):', 'Certificados (*.crt;*.pem)|*.crt;*.pem|Todos los archivos|*.*', '.crt');
-  PaginaCertificados.Add('Llave privada del servidor (.key):', 'Llaves (*.key;*.pem)|*.key;*.pem|Todos los archivos|*.*', '.key');
-  PaginaCertificados.Add('Certificado de la CA de Anovo (rootCA.crt):', 'Certificados (*.crt;*.pem)|*.crt;*.pem|Todos los archivos|*.*', '.crt');
-
-  PaginaTunel := CreateInputFilePage(PaginaCertificados.ID, 'Túnel de Cloudflare',
+  PaginaTunel := CreateInputFilePage(PaginaCotizacion.ID, 'Túnel de Cloudflare',
     'Credenciales del túnel por el que entran las tabletas.',
     'Es el archivo .json que crea «cloudflared tunnel create» para el túnel de Anovo.');
   PaginaTunel.Add('Credenciales del túnel (.json):', 'Credenciales (*.json)|*.json', '.json');
@@ -282,21 +258,9 @@ begin
   Result := False;
 end;
 
-function CertificadoListo(Indice: Integer; const Destino, Nombre: string): Boolean;
-var
-  Archivo: string;
-begin
-  Archivo := Trim(PaginaCertificados.Values[Indice]);
-  if Archivo = '' then
-    Result := FileExists(Destino) or Falta('Falta ' + Nombre + '.')
-  else
-    Result := FileExists(Archivo) or Falta('No se encontró el archivo ' + Archivo + '.');
-end;
-
 function NextButtonClick(CurPageID: Integer): Boolean;
 var
   Numero: Integer;
-  Certificados: string;
 begin
   Result := True;
   if CurPageID = PaginaRed.ID then
@@ -320,17 +284,6 @@ begin
   begin
     if StrToIntDef(Trim(PaginaCotizacion.Values[0]), 0) < 1 then
       Result := Falta('El primer número de cotización tiene que ser 1 o mayor.');
-  end
-  else if CurPageID = PaginaCertificados.ID then
-  begin
-    Certificados := RutaServidor + 'certificates\';
-    if WizardIsComponentSelected('servidor') then
-      Result := CertificadoListo(0, Certificados + 'servidor.crt', 'el certificado del servidor') and
-        CertificadoListo(1, Certificados + 'servidor.key', 'la llave privada del servidor') and
-        CertificadoListo(2, Certificados + 'rootCA.crt', 'el certificado de la CA de Anovo');
-    if Result and WizardIsComponentSelected('escritorio') then
-      Result := CertificadoListo(2, ExpandConstant('{app}\Escritorio\certificados\anovo-ca.crt'),
-        'el certificado de la CA de Anovo');
   end
   else if CurPageID = PaginaTunel.ID then
   begin
@@ -370,24 +323,100 @@ begin
   end;
 end;
 
+function Auxiliar(const Nombre, Parametros: string): Boolean;
+var
+  Codigo: Integer;
+begin
+  ExtractTemporaryFile(Nombre);
+  Result := Exec(ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe'),
+    '-NoProfile -NonInteractive -ExecutionPolicy Bypass -File "' + ExpandConstant('{tmp}\') + Nombre + '" ' + Parametros,
+    '', SW_HIDE, ewWaitUntilTerminated, Codigo) and (Codigo = 0);
+end;
+
 function Aleatorio(Bytes: Integer): string;
 var
   Archivo: string;
   Texto: AnsiString;
-  Codigo: Integer;
 begin
   Archivo := ExpandConstant('{tmp}\aleatorio.txt');
-  Exec(ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe'),
-    '-NoProfile -NonInteractive -Command "$b = New-Object byte[] ' + IntToStr(Bytes) +
-    '; [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b); ' +
-    'Set-Content -Encoding Ascii -NoNewline -Path ''' + Archivo + ''' -Value (-join ($b | ForEach-Object { $_.ToString(''x2'') }))"',
-    '', SW_HIDE, ewWaitUntilTerminated, Codigo);
   Result := '';
-  if LoadStringFromFile(Archivo, Texto) then
+  if Auxiliar('aleatorio.ps1', '-Bytes ' + IntToStr(Bytes) + ' -Salida "' + Archivo + '"') and
+    LoadStringFromFile(Archivo, Texto) then
     Result := Trim(String(Texto));
   DeleteFile(Archivo);
   if Length(Result) <> Bytes * 2 then
     RaiseException('No se pudo generar una clave aleatoria.');
+end;
+
+function GenerarCertificado: Boolean;
+var
+  Carpeta, Cnf, Ips: string;
+  Lineas: TArrayOfString;
+  I, N: Integer;
+begin
+  Carpeta := RutaServidor + 'certificates\';
+  Result := FileExists(Carpeta + 'servidor.crt') and FileExists(Carpeta + 'servidor.key');
+  if Result then
+    Exit;
+  WizardForm.StatusLabel.Caption := 'Generando el certificado HTTPS del servidor...';
+  Ips := ExpandConstant('{tmp}\ips.txt');
+  if not Auxiliar('ips.ps1', '-Salida "' + Ips + '"') or not LoadStringsFromFile(Ips, Lineas) then
+    SetArrayLength(Lineas, 0);
+  Cnf := '[req]' + #13#10 + 'prompt = no' + #13#10 + 'distinguished_name = dn' + #13#10 +
+    'x509_extensions = v3' + #13#10#13#10 +
+    '[dn]' + #13#10 + 'C = CR' + #13#10 + 'O = Anovo' + #13#10 + 'CN = ' + NombreServidor + #13#10#13#10 +
+    '[v3]' + #13#10 + 'keyUsage = critical, digitalSignature, keyEncipherment' + #13#10 +
+    'extendedKeyUsage = serverAuth' + #13#10 + 'subjectKeyIdentifier = hash' + #13#10 +
+    'subjectAltName = @nombres' + #13#10#13#10 +
+    '[nombres]' + #13#10 + 'DNS.1 = ' + NombreServidor + #13#10 + 'DNS.2 = localhost' + #13#10 +
+    'IP.1 = 127.0.0.1' + #13#10;
+  N := 1;
+  for I := 0 to GetArrayLength(Lineas) - 1 do
+    if Trim(Lineas[I]) <> '' then
+    begin
+      N := N + 1;
+      Cnf := Cnf + 'IP.' + IntToStr(N) + ' = ' + Trim(Lineas[I]) + #13#10;
+    end;
+  SaveStringToFile(ExpandConstant('{tmp}\servidor.cnf'), Cnf, False);
+  ExtractTemporaryFile('openssl.exe');
+  ExtractTemporaryFile('libcrypto-3.dll');
+  ExtractTemporaryFile('libssl-3.dll');
+  SetEnvironmentVariable('OPENSSL_CONF', ExpandConstant('{tmp}\servidor.cnf'));
+  Result := Ejecutar(ExpandConstant('{tmp}\openssl.exe'),
+    'req -x509 -newkey rsa:2048 -noenc -sha256 -days 3650 -config "' + ExpandConstant('{tmp}\servidor.cnf') +
+    '" -keyout "' + Carpeta + 'servidor.key" -out "' + Carpeta + 'servidor.crt"',
+    'Generando el certificado HTTPS del servidor');
+  SetEnvironmentVariable('OPENSSL_CONF', '');
+end;
+
+function CertificadoEscritorio: Boolean;
+var
+  Archivo, Local: string;
+  Codigo: Integer;
+begin
+  Archivo := ExpandConstant('{app}\Escritorio\certificados\servidor.crt');
+  ForceDirectories(ExtractFileDir(Archivo));
+  Local := RutaServidor + 'certificates\servidor.crt';
+  if WizardIsComponentSelected('servidor') and FileExists(Local) then
+    Result := CopyFile(Local, Archivo, False)
+  else
+  begin
+    WizardForm.StatusLabel.Caption := 'Trayendo el certificado del servidor ' + NombreServidor + '...';
+    DeleteFile(Archivo);
+    Result := Auxiliar('traer-certificado.ps1', '-Servidor "' + NombreServidor + '" -Puerto ' + Puerto('') +
+      ' -Salida "' + Archivo + '"') and FileExists(Archivo);
+  end;
+  if not Result then
+  begin
+    Avisar('No se pudo obtener el certificado del servidor ' + NombreServidor + ':' + Puerto('') + '. ' +
+      'Revise que el servidor de Anovo esté abierto y que el nombre y el puerto sean los mismos que se usaron al instalarlo; luego vuelva a correr este instalador.');
+    Exit;
+  end;
+  WizardForm.StatusLabel.Caption := 'Instalando el certificado del servidor en Windows...';
+  Result := Exec(ExpandConstant('{sys}\certutil.exe'), '-f -addstore Root "' + Archivo + '"', '', SW_HIDE,
+    ewWaitUntilTerminated, Codigo) and (Codigo = 0);
+  if not Result then
+    Avisar('No se pudo instalar el certificado del servidor en Windows (certutil).');
 end;
 
 function LeerPlantilla(const Nombre: string): string;
@@ -527,7 +556,7 @@ begin
   Reemplazar(Texto, 'HOST', Trim(PaginaHost.Values[0]));
   Reemplazar(Texto, 'PUERTO', Puerto(''));
   Reemplazar(Texto, 'SERVIDOR', NombreServidor);
-  Reemplazar(Texto, 'CA', RutaServidor + 'certificates\rootCA.crt');
+  Reemplazar(Texto, 'CA', RutaServidor + 'certificates\servidor.crt');
   SaveStringToFile(Carpeta + 'config.yml', Texto, False);
   FijarClave(RutaServidor + '.env', 'anovo.tunel.exe', Carpeta + 'cloudflared.exe');
   FijarClave(RutaServidor + '.env', 'anovo.tunel.config', Carpeta + 'config.yml');
@@ -603,7 +632,7 @@ begin
     SetEnvironmentVariable('ISC_PASSWORD', '');
     SetEnvironmentVariable('ISC_USER', '');
   end;
-  if not Lista then
+  if not Lista or not GenerarCertificado then
     Exit;
 
   if not FileExists(RutaServidor + '.env') then
@@ -617,11 +646,13 @@ var
   Archivo, Texto: string;
 begin
   Archivo := ExpandConstant('{app}\Escritorio\AnovoEscritorio.ini');
-  if FileExists(Archivo) then
-    Exit;
-  Texto := LeerPlantilla('AnovoEscritorio.ini');
-  Reemplazar(Texto, 'URL', 'https://' + NombreServidor + ':' + Puerto(''));
-  SaveStringToFile(Archivo, Texto, False);
+  if not FileExists(Archivo) then
+  begin
+    Texto := LeerPlantilla('AnovoEscritorio.ini');
+    Reemplazar(Texto, 'URL', 'https://' + NombreServidor + ':' + Puerto(''));
+    SaveStringToFile(Archivo, Texto, False);
+  end;
+  CertificadoEscritorio;
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
