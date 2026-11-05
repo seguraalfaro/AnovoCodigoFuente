@@ -64,3 +64,9 @@ desktop.ini
 Desktop/Win32/Debug/AnovoEscritorio.llamadas.log
 Db/datos-prueba/claves_cuentas_pruebas.txt
 /Tests/bin/
+
+# ============ INSTALADOR ============
+# Ejecutables compilados para empaquetar y el instalador generado.
+/Instalador/compilado/
+/Instalador/salida/
+!/Instalador/plantillas/servidor.env

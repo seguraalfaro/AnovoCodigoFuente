@@ -1,0 +1,17 @@
+tunnel: {{TUNEL_ID}}
+credentials-file: {{CREDENCIALES}}
+loglevel: info
+logfile: {{LOG}}
+
+ingress:
+  - hostname: {{HOST}}
+    path: (?i)^/api/(swagger|openapi)\.json$
+    service: http_status:404
+  - hostname: {{HOST}}
+    path: ^/api/
+    service: https://127.0.0.1:{{PUERTO}}
+    originRequest:
+      originServerName: {{SERVIDOR}}
+      caPool: {{CA}}
+      connectTimeout: 10s
+  - service: http_status:404
