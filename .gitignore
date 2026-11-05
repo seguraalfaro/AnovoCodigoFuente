@@ -66,7 +66,6 @@ Db/datos-prueba/claves_cuentas_pruebas.txt
 /Tests/bin/
 
 # ============ INSTALADOR ============
-# Ejecutables compilados para empaquetar y el instalador generado.
-/Instalador/compilado/
+# Instalador generado.
 /Instalador/salida/
 !/Instalador/plantillas/servidor.env

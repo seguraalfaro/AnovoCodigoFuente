@@ -1,7 +1,10 @@
-﻿; Anovo: instalador del servidor (API, Firebird, base y túnel) y de la aplicación
-; de escritorio. Instala la versión de 64 o de 32 bits según el Windows del equipo.
-; Se compila con compilar.bat, que antes genera los ejecutables en compilado\.
+﻿; Anovo: un solo script para dos instaladores, elegido con /DProducto=servidor|escritorio.
+; Instala la versión de 64 o de 32 bits según el Windows del equipo.
+; Toma los ejecutables de las carpetas de salida de Delphi: compilar antes en Release.
 
+#ifndef Producto
+  #define Producto "servidor"
+#endif
 #define Version "1.0.0"
 #define Terceros AddBackslash(SourcePath) + "..\..\Instalador-terceros"
 #define FbX64 "Firebird-4.0.6.3221-0-x64.exe"
@@ -9,15 +12,26 @@
 #define FbZip Terceros + "\firebird\Firebird-4.0.6.3221-0-x64"
 #define SslX64 Terceros + "\openssl\openssl-3.5.8-Windows-x64"
 #define SslX86 Terceros + "\openssl\openssl-3.5.8-Windows-x86"
-#if FileExists(Terceros + "\cloudflared\cloudflared-windows-amd64.exe") && FileExists(Terceros + "\cloudflared\cloudflared-windows-386.exe")
-  #define HayCloudflared
+#define TunelHost "api.anovoms.com"
+#if FileExists(Terceros + "\cloudflared\cloudflared-windows-amd64.exe") && FileExists(Terceros + "\cloudflared\cloudflared-windows-386.exe") && FileExists(Terceros + "\tunel\credenciales.json")
+  #define HayTunel
 #endif
 
 [Setup]
+#if Producto == "servidor"
 AppId={{04420858-052C-4303-AE26-B4E7FE2F30AF}
-AppName=Anovo
+AppName=Anovo Servidor
+AppVerName=Anovo Servidor {#Version}
+SetupIconFile=..\Backend\AnovoAPI_Icon1.ico
+OutputBaseFilename=Anovo-Servidor-{#Version}
+#else
+AppId={{38AC0F0D-500D-4E82-9C48-71E4FA90BBA2}
+AppName=Anovo Escritorio
+AppVerName=Anovo Escritorio {#Version}
+SetupIconFile=..\Desktop\AnovoEscritorio_Icon1.ico
+OutputBaseFilename=Anovo-Escritorio-{#Version}
+#endif
 AppVersion={#Version}
-AppVerName=Anovo {#Version}
 AppPublisher=Anovo
 DefaultDirName={sd}\Anovo
 DefaultGroupName=Anovo
@@ -27,10 +41,8 @@ PrivilegesRequired=admin
 ArchitecturesAllowed=x86compatible x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 WizardStyle=modern
-SetupIconFile=..\Backend\AnovoAPI_Icon1.ico
 UninstallDisplayIcon={uninstallexe}
 OutputDir=salida
-OutputBaseFilename=Anovo-{#Version}-instalador
 Compression=lzma2/max
 SolidCompression=yes
 CloseApplications=yes
@@ -39,70 +51,78 @@ RestartApplications=no
 [Languages]
 Name: "es"; MessagesFile: "compiler:Languages\Spanish.isl"
 
-[Types]
-Name: "completa"; Description: "Servidor y aplicación de escritorio"
-Name: "servidor"; Description: "Solo el servidor"
-Name: "escritorio"; Description: "Solo la aplicación de escritorio (equipos de la oficina)"
-Name: "personalizada"; Description: "Personalizada"; Flags: iscustom
-
-[Components]
-Name: "servidor"; Description: "Servidor de Anovo: API, base de datos Firebird y túnel"; Types: completa servidor
-Name: "escritorio"; Description: "Aplicación de escritorio"; Types: completa escritorio
-
+#if Producto == "escritorio"
 [Tasks]
-#ifdef HayCloudflared
-Name: "tunel"; Description: "Configurar el túnel de Cloudflare para las tabletas"; Components: servidor
+Name: "iconoescritorio"; Description: "Crear un acceso directo en el escritorio"
 #endif
-Name: "iconoescritorio"; Description: "Crear un acceso directo en el escritorio"; Components: escritorio
 
 [Dirs]
-Name: "{app}\Servidor\logs"; Components: servidor
-Name: "{app}\Servidor\certificates"; Components: servidor
-Name: "{app}\db"; Components: servidor; Flags: uninsneveruninstall
-Name: "{app}\Escritorio"; Components: escritorio; Permissions: users-modify
+#if Producto == "servidor"
+Name: "{app}\Servidor\logs"
+Name: "{app}\Servidor\certificates"
+Name: "{app}\db"; Flags: uninsneveruninstall
+#else
+Name: "{app}\Escritorio"; Permissions: users-modify
+#endif
 
 [Files]
-Source: "compilado\Win64\AnovoAPI.exe"; DestDir: "{app}\Servidor"; Components: servidor; Check: Is64BitInstallMode; Flags: ignoreversion
-Source: "{#SslX64}\libcrypto-3-x64.dll"; DestDir: "{app}\Servidor"; Components: servidor; Check: Is64BitInstallMode; Flags: ignoreversion
-Source: "{#SslX64}\libssl-3-x64.dll"; DestDir: "{app}\Servidor"; Components: servidor; Check: Is64BitInstallMode; Flags: ignoreversion
-Source: "{#FbZip}\fbclient.dll"; DestDir: "{app}\Servidor"; Components: servidor; Check: Is64BitInstallMode; Flags: ignoreversion
-Source: "{#FbZip}\msvcp140.dll"; DestDir: "{app}\Servidor"; Components: servidor; Check: Is64BitInstallMode; Flags: ignoreversion
-Source: "{#FbZip}\vcruntime140.dll"; DestDir: "{app}\Servidor"; Components: servidor; Check: Is64BitInstallMode; Flags: ignoreversion
-Source: "{#FbZip}\zlib1.dll"; DestDir: "{app}\Servidor"; Components: servidor; Check: Is64BitInstallMode; Flags: ignoreversion
-Source: "compilado\Win32\AnovoAPI.exe"; DestDir: "{app}\Servidor"; Components: servidor; Check: not Is64BitInstallMode; Flags: ignoreversion
-Source: "{#SslX86}\libcrypto-3.dll"; DestDir: "{app}\Servidor"; Components: servidor; Check: not Is64BitInstallMode; Flags: ignoreversion
-Source: "{#SslX86}\libssl-3.dll"; DestDir: "{app}\Servidor"; Components: servidor; Check: not Is64BitInstallMode; Flags: ignoreversion
-#ifdef HayCloudflared
-Source: "{#Terceros}\cloudflared\cloudflared-windows-amd64.exe"; DestDir: "{app}\Servidor\tunel"; DestName: "cloudflared.exe"; Tasks: tunel; Check: Is64BitInstallMode; Flags: ignoreversion
-Source: "{#Terceros}\cloudflared\cloudflared-windows-386.exe"; DestDir: "{app}\Servidor\tunel"; DestName: "cloudflared.exe"; Tasks: tunel; Check: not Is64BitInstallMode; Flags: ignoreversion
-Source: "{code:ArchivoTunel}"; DestDir: "{app}\Servidor\tunel"; DestName: "credenciales.json"; Tasks: tunel; Flags: external
+#if Producto == "servidor"
+Source: "..\Backend\bin64\AnovoAPI.exe"; DestDir: "{app}\Servidor"; Check: Is64BitInstallMode; Flags: ignoreversion
+Source: "{#SslX64}\libcrypto-3-x64.dll"; DestDir: "{app}\Servidor"; Check: Is64BitInstallMode; Flags: ignoreversion
+Source: "{#SslX64}\libssl-3-x64.dll"; DestDir: "{app}\Servidor"; Check: Is64BitInstallMode; Flags: ignoreversion
+Source: "{#FbZip}\fbclient.dll"; DestDir: "{app}\Servidor"; Check: Is64BitInstallMode; Flags: ignoreversion
+Source: "{#FbZip}\msvcp140.dll"; DestDir: "{app}\Servidor"; Check: Is64BitInstallMode; Flags: ignoreversion
+Source: "{#FbZip}\vcruntime140.dll"; DestDir: "{app}\Servidor"; Check: Is64BitInstallMode; Flags: ignoreversion
+Source: "{#FbZip}\zlib1.dll"; DestDir: "{app}\Servidor"; Check: Is64BitInstallMode; Flags: ignoreversion
+Source: "..\Backend\bin\AnovoAPI.exe"; DestDir: "{app}\Servidor"; Check: not Is64BitInstallMode; Flags: ignoreversion
+Source: "{#SslX86}\libcrypto-3.dll"; DestDir: "{app}\Servidor"; Check: not Is64BitInstallMode; Flags: ignoreversion
+Source: "{#SslX86}\libssl-3.dll"; DestDir: "{app}\Servidor"; Check: not Is64BitInstallMode; Flags: ignoreversion
+#ifdef HayTunel
+Source: "{#Terceros}\cloudflared\cloudflared-windows-amd64.exe"; DestDir: "{app}\Servidor\tunel"; DestName: "cloudflared.exe"; Check: Is64BitInstallMode; Flags: ignoreversion
+Source: "{#Terceros}\cloudflared\cloudflared-windows-386.exe"; DestDir: "{app}\Servidor\tunel"; DestName: "cloudflared.exe"; Check: not Is64BitInstallMode; Flags: ignoreversion
+Source: "{#Terceros}\tunel\credenciales.json"; DestDir: "{app}\Servidor\tunel"; Flags: ignoreversion
 #endif
-Source: "compilado\Win64\AnovoEscritorio.exe"; DestDir: "{app}\Escritorio"; Components: escritorio; Check: Is64BitInstallMode; Flags: ignoreversion
-Source: "compilado\Win32\AnovoEscritorio.exe"; DestDir: "{app}\Escritorio"; Components: escritorio; Check: not Is64BitInstallMode; Flags: ignoreversion
-Source: "..\Desktop\Src\Recursos\Marca\*"; DestDir: "{app}\Escritorio\Recursos\Marca"; Components: escritorio; Flags: ignoreversion
-Source: "plantillas\*"; Flags: dontcopy
-Source: "scripts\*.ps1"; Flags: dontcopy
+Source: "plantillas\servidor.env"; Flags: dontcopy
+Source: "plantillas\FDConnectionDefs.ini"; Flags: dontcopy
+Source: "plantillas\config.yml"; Flags: dontcopy
+Source: "scripts\aleatorio.ps1"; Flags: dontcopy
+Source: "scripts\ips.ps1"; Flags: dontcopy
 Source: "{#SslX86}\openssl.exe"; Flags: dontcopy
 Source: "{#SslX86}\libcrypto-3.dll"; Flags: dontcopy
 Source: "{#SslX86}\libssl-3.dll"; Flags: dontcopy
 Source: "base\anovo_produccion.fbk"; Flags: dontcopy
 Source: "{#Terceros}\firebird\{#FbX64}"; Flags: dontcopy
 Source: "{#Terceros}\firebird\{#FbX86}"; Flags: dontcopy
+#else
+Source: "..\Desktop\Win64\Release\AnovoEscritorio.exe"; DestDir: "{app}\Escritorio"; Check: Is64BitInstallMode; Flags: ignoreversion
+Source: "..\Desktop\Win32\Release\AnovoEscritorio.exe"; DestDir: "{app}\Escritorio"; Check: not Is64BitInstallMode; Flags: ignoreversion
+Source: "..\Desktop\Src\Recursos\Marca\*"; DestDir: "{app}\Escritorio\Recursos\Marca"; Flags: ignoreversion
+Source: "plantillas\AnovoEscritorio.ini"; Flags: dontcopy
+Source: "scripts\traer-certificado.ps1"; Flags: dontcopy
+#endif
 
 [Icons]
-Name: "{commonstartup}\Servidor Anovo"; Filename: "{app}\Servidor\AnovoAPI.exe"; WorkingDir: "{app}\Servidor"; Components: servidor
-Name: "{group}\Servidor Anovo"; Filename: "{app}\Servidor\AnovoAPI.exe"; WorkingDir: "{app}\Servidor"; Components: servidor
-Name: "{group}\Anovo"; Filename: "{app}\Escritorio\AnovoEscritorio.exe"; WorkingDir: "{app}\Escritorio"; Components: escritorio
+#if Producto == "servidor"
+Name: "{commonstartup}\Servidor Anovo"; Filename: "{app}\Servidor\AnovoAPI.exe"; WorkingDir: "{app}\Servidor"
+Name: "{group}\Servidor Anovo"; Filename: "{app}\Servidor\AnovoAPI.exe"; WorkingDir: "{app}\Servidor"
+#else
+Name: "{group}\Anovo"; Filename: "{app}\Escritorio\AnovoEscritorio.exe"; WorkingDir: "{app}\Escritorio"
 Name: "{autodesktop}\Anovo"; Filename: "{app}\Escritorio\AnovoEscritorio.exe"; WorkingDir: "{app}\Escritorio"; Tasks: iconoescritorio
+#endif
 
 [Run]
-Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""Anovo API"""; Components: servidor; Flags: runhidden
-Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""Anovo API"" dir=in action=allow protocol=TCP localport={code:Puerto} profile=private,domain"; Components: servidor; StatusMsg: "Abriendo el puerto del servidor en el firewall..."; Flags: runhidden
-Filename: "{app}\Servidor\AnovoAPI.exe"; WorkingDir: "{app}\Servidor"; Description: "Abrir el servidor para registrar al administrador y los datos de la empresa"; Components: servidor; Flags: postinstall nowait skipifsilent
-Filename: "{app}\Escritorio\AnovoEscritorio.exe"; WorkingDir: "{app}\Escritorio"; Description: "Abrir la aplicación de escritorio"; Components: escritorio and not servidor; Flags: postinstall nowait skipifsilent unchecked
+#if Producto == "servidor"
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""Anovo API"""; Flags: runhidden
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""Anovo API"" dir=in action=allow protocol=TCP localport={code:Puerto} profile=private,domain"; StatusMsg: "Abriendo el puerto del servidor en el firewall..."; Flags: runhidden
+Filename: "{app}\Servidor\AnovoAPI.exe"; WorkingDir: "{app}\Servidor"; Description: "Abrir el servidor para registrar al administrador y los datos de la empresa"; Flags: postinstall nowait skipifsilent
+#else
+Filename: "{app}\Escritorio\AnovoEscritorio.exe"; WorkingDir: "{app}\Escritorio"; Description: "Abrir la aplicación de escritorio"; Flags: postinstall nowait skipifsilent
+#endif
 
+#if Producto == "servidor"
 [UninstallRun]
-Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""Anovo API"""; Components: servidor; RunOnceId: "ReglaFirewall"; Flags: runhidden
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""Anovo API"""; RunOnceId: "ReglaFirewall"; Flags: runhidden
+#endif
 
 [Code]
 const
@@ -111,47 +131,18 @@ const
 
 var
   PaginaRed: TInputQueryWizardPage;
+#if Producto == "servidor"
   PaginaSysdba: TInputQueryWizardPage;
   PaginaCotizacion: TInputQueryWizardPage;
-  PaginaTunel: TInputFileWizardPage;
-  PaginaHost: TInputQueryWizardPage;
   FirebirdPrevio: string;
+#endif
 
 function SetEnvironmentVariable(lpName, lpValue: string): BOOL;
   external 'SetEnvironmentVariableW@kernel32.dll stdcall';
 
-function TareaTunel: Boolean;
-begin
-#ifdef HayCloudflared
-  Result := WizardIsTaskSelected('tunel');
-#else
-  Result := False;
-#endif
-end;
-
-function BuscarFirebird: string;
-begin
-  Result := '';
-  if IsWin64 and RegQueryStringValue(HKLM64, CLAVE_FIREBIRD, 'DefaultInstance', Result) and (Result <> '') then
-    Exit;
-  if RegQueryStringValue(HKLM32, CLAVE_FIREBIRD, 'DefaultInstance', Result) and (Result <> '') then
-    Exit;
-  Result := '';
-end;
-
 function RutaServidor: string;
 begin
   Result := ExpandConstant('{app}\Servidor\');
-end;
-
-function RutaBase: string;
-begin
-  Result := ExpandConstant('{app}\db\ANOVO.FDB');
-end;
-
-function Dsn: string;
-begin
-  Result := '127.0.0.1:' + RutaBase;
 end;
 
 function Puerto(Param: string): string;
@@ -164,9 +155,89 @@ begin
   Result := Trim(PaginaRed.Values[0]);
 end;
 
-function ArchivoTunel(Param: string): string;
+function Falta(const Mensaje: string): Boolean;
 begin
-  Result := Trim(PaginaTunel.Values[0]);
+  MsgBox(Mensaje, mbError, MB_OK);
+  Result := False;
+end;
+
+procedure Avisar(const Mensaje: string);
+begin
+  SuppressibleMsgBox(Mensaje, mbError, MB_OK, IDOK);
+end;
+
+function Auxiliar(const Nombre, Parametros: string): Boolean;
+var
+  Codigo: Integer;
+begin
+  ExtractTemporaryFile(Nombre);
+  Result := Exec(ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe'),
+    '-NoProfile -NonInteractive -ExecutionPolicy Bypass -File "' + ExpandConstant('{tmp}\') + Nombre + '" ' + Parametros,
+    '', SW_HIDE, ewWaitUntilTerminated, Codigo) and (Codigo = 0);
+end;
+
+function LeerPlantilla(const Nombre: string): string;
+var
+  Texto: AnsiString;
+begin
+  ExtractTemporaryFile(Nombre);
+  if not LoadStringFromFile(ExpandConstant('{tmp}\') + Nombre, Texto) then
+    RaiseException('No se pudo leer la plantilla ' + Nombre + '.');
+  Result := String(Texto);
+end;
+
+procedure Reemplazar(var Texto: string; const Marca, Valor: string);
+begin
+  StringChangeEx(Texto, '{{' + Marca + '}}', Valor, True);
+end;
+
+procedure CrearPaginaRed(const Ayuda: string);
+begin
+  PaginaRed := CreateInputQueryPage(wpSelectDir, 'Servidor de Anovo',
+    'Nombre y puerto con que los equipos de la oficina llegan al servidor.', Ayuda);
+  PaginaRed.Add('Nombre o dirección IP del servidor:', False);
+  PaginaRed.Add('Puerto HTTPS:', False);
+  PaginaRed.Values[0] := GetPreviousData('Servidor', Lowercase(GetComputerNameString));
+  PaginaRed.Values[1] := GetPreviousData('Puerto', '443');
+end;
+
+function RedValida: Boolean;
+var
+  Numero: Integer;
+begin
+  Result := True;
+  Numero := StrToIntDef(Puerto(''), 0);
+  if NombreServidor = '' then
+    Result := Falta('Escriba el nombre o la dirección IP del servidor.')
+  else if (Numero < 1) or (Numero > 65535) then
+    Result := Falta('El puerto tiene que ser un número entre 1 y 65535.');
+end;
+
+procedure RegisterPreviousData(PreviousDataKey: Integer);
+begin
+  SetPreviousData(PreviousDataKey, 'Servidor', NombreServidor);
+  SetPreviousData(PreviousDataKey, 'Puerto', Puerto(''));
+end;
+
+#if Producto == "servidor"
+function BuscarFirebird: string;
+begin
+  Result := '';
+  if IsWin64 and RegQueryStringValue(HKLM64, CLAVE_FIREBIRD, 'DefaultInstance', Result) and (Result <> '') then
+    Exit;
+  if RegQueryStringValue(HKLM32, CLAVE_FIREBIRD, 'DefaultInstance', Result) and (Result <> '') then
+    Exit;
+  Result := '';
+end;
+
+function RutaBase: string;
+begin
+  Result := ExpandConstant('{app}\db\ANOVO.FDB');
+end;
+
+function Dsn: string;
+begin
+  Result := '127.0.0.1:' + RutaBase;
 end;
 
 function LeerTunelId(const Archivo: string): string;
@@ -198,14 +269,7 @@ var
   Ayuda: string;
 begin
   FirebirdPrevio := BuscarFirebird;
-
-  PaginaRed := CreateInputQueryPage(wpSelectTasks, 'Servidor de Anovo',
-    'Nombre y puerto con que los equipos de la oficina llegan al servidor.',
-    'En el equipo del servidor se deja el nombre del propio equipo: con él y sus direcciones IP se genera el certificado HTTPS. En los equipos de la oficina se escribe el mismo nombre que se usó al instalar el servidor, que tiene que estar encendido.');
-  PaginaRed.Add('Nombre o dirección IP del servidor:', False);
-  PaginaRed.Add('Puerto HTTPS:', False);
-  PaginaRed.Values[0] := GetPreviousData('Servidor', Lowercase(GetComputerNameString));
-  PaginaRed.Values[1] := GetPreviousData('Puerto', '443');
+  CrearPaginaRed('Se deja el nombre de este equipo: con él y sus direcciones IP se genera el certificado HTTPS. Los equipos de la oficina usan este mismo nombre y puerto al instalar la aplicación de escritorio.');
 
   if FirebirdPrevio = '' then
     Ayuda := 'Firebird 4.0.6 se instala con esta clave. Guárdela en un lugar seguro: hace falta para respaldar y restaurar la base.'
@@ -221,56 +285,18 @@ begin
     'Si Anovo viene numerando cotizaciones a mano, escriba el número que sigue. Si empieza de cero, deje 1.');
   PaginaCotizacion.Add('Primer número de cotización:', False);
   PaginaCotizacion.Values[0] := '1';
-
-  PaginaTunel := CreateInputFilePage(PaginaCotizacion.ID, 'Túnel de Cloudflare',
-    'Credenciales del túnel por el que entran las tabletas.',
-    'Es el archivo .json que crea «cloudflared tunnel create» para el túnel de Anovo.');
-  PaginaTunel.Add('Credenciales del túnel (.json):', 'Credenciales (*.json)|*.json', '.json');
-
-  PaginaHost := CreateInputQueryPage(PaginaTunel.ID, 'Túnel de Cloudflare',
-    'Nombre público de la API.',
-    'Es la dirección que usan las tabletas para llegar al servidor por el túnel.');
-  PaginaHost.Add('Nombre público:', False);
-  PaginaHost.Values[0] := GetPreviousData('Host', 'api.anovoms.com');
-end;
-
-procedure RegisterPreviousData(PreviousDataKey: Integer);
-begin
-  SetPreviousData(PreviousDataKey, 'Servidor', NombreServidor);
-  SetPreviousData(PreviousDataKey, 'Puerto', Puerto(''));
-  SetPreviousData(PreviousDataKey, 'Host', Trim(PaginaHost.Values[0]));
 end;
 
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
-  Result := False;
-  if PageID = PaginaSysdba.ID then
-    Result := not WizardIsComponentSelected('servidor')
-  else if PageID = PaginaCotizacion.ID then
-    Result := (not WizardIsComponentSelected('servidor')) or FileExists(RutaBase)
-  else if (PageID = PaginaTunel.ID) or (PageID = PaginaHost.ID) then
-    Result := not TareaTunel;
-end;
-
-function Falta(const Mensaje: string): Boolean;
-begin
-  MsgBox(Mensaje, mbError, MB_OK);
-  Result := False;
+  Result := (PageID = PaginaCotizacion.ID) and FileExists(RutaBase);
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
-var
-  Numero: Integer;
 begin
   Result := True;
   if CurPageID = PaginaRed.ID then
-  begin
-    Numero := StrToIntDef(Puerto(''), 0);
-    if NombreServidor = '' then
-      Result := Falta('Escriba el nombre o la dirección IP del servidor.')
-    else if (Numero < 1) or (Numero > 65535) then
-      Result := Falta('El puerto tiene que ser un número entre 1 y 65535.');
-  end
+    Result := RedValida
   else if CurPageID = PaginaSysdba.ID then
   begin
     if PaginaSysdba.Values[0] = '' then
@@ -284,24 +310,7 @@ begin
   begin
     if StrToIntDef(Trim(PaginaCotizacion.Values[0]), 0) < 1 then
       Result := Falta('El primer número de cotización tiene que ser 1 o mayor.');
-  end
-  else if CurPageID = PaginaTunel.ID then
-  begin
-    if not FileExists(ArchivoTunel('')) then
-      Result := Falta('Seleccione el archivo de credenciales del túnel.')
-    else if LeerTunelId(ArchivoTunel('')) = '' then
-      Result := Falta('El archivo no tiene el identificador del túnel (TunnelID).');
-  end
-  else if CurPageID = PaginaHost.ID then
-  begin
-    if Trim(PaginaHost.Values[0]) = '' then
-      Result := Falta('Escriba el nombre público de la API.');
   end;
-end;
-
-procedure Avisar(const Mensaje: string);
-begin
-  SuppressibleMsgBox(Mensaje, mbError, MB_OK, IDOK);
 end;
 
 function Ejecutar(const Exe, Parametros, Paso: string): Boolean;
@@ -321,16 +330,6 @@ begin
       Detalle := Detalle + #13#10 + Salida.StdOut[I];
     Avisar(Paso + ': no se pudo completar.' + #13#10 + Detalle);
   end;
-end;
-
-function Auxiliar(const Nombre, Parametros: string): Boolean;
-var
-  Codigo: Integer;
-begin
-  ExtractTemporaryFile(Nombre);
-  Result := Exec(ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe'),
-    '-NoProfile -NonInteractive -ExecutionPolicy Bypass -File "' + ExpandConstant('{tmp}\') + Nombre + '" ' + Parametros,
-    '', SW_HIDE, ewWaitUntilTerminated, Codigo) and (Codigo = 0);
 end;
 
 function Aleatorio(Bytes: Integer): string;
@@ -387,51 +386,6 @@ begin
     '" -keyout "' + Carpeta + 'servidor.key" -out "' + Carpeta + 'servidor.crt"',
     'Generando el certificado HTTPS del servidor');
   SetEnvironmentVariable('OPENSSL_CONF', '');
-end;
-
-function CertificadoEscritorio: Boolean;
-var
-  Archivo, Local: string;
-  Codigo: Integer;
-begin
-  Archivo := ExpandConstant('{app}\Escritorio\certificados\servidor.crt');
-  ForceDirectories(ExtractFileDir(Archivo));
-  Local := RutaServidor + 'certificates\servidor.crt';
-  if WizardIsComponentSelected('servidor') and FileExists(Local) then
-    Result := CopyFile(Local, Archivo, False)
-  else
-  begin
-    WizardForm.StatusLabel.Caption := 'Trayendo el certificado del servidor ' + NombreServidor + '...';
-    DeleteFile(Archivo);
-    Result := Auxiliar('traer-certificado.ps1', '-Servidor "' + NombreServidor + '" -Puerto ' + Puerto('') +
-      ' -Salida "' + Archivo + '"') and FileExists(Archivo);
-  end;
-  if not Result then
-  begin
-    Avisar('No se pudo obtener el certificado del servidor ' + NombreServidor + ':' + Puerto('') + '. ' +
-      'Revise que el servidor de Anovo esté abierto y que el nombre y el puerto sean los mismos que se usaron al instalarlo; luego vuelva a correr este instalador.');
-    Exit;
-  end;
-  WizardForm.StatusLabel.Caption := 'Instalando el certificado del servidor en Windows...';
-  Result := Exec(ExpandConstant('{sys}\certutil.exe'), '-f -addstore Root "' + Archivo + '"', '', SW_HIDE,
-    ewWaitUntilTerminated, Codigo) and (Codigo = 0);
-  if not Result then
-    Avisar('No se pudo instalar el certificado del servidor en Windows (certutil).');
-end;
-
-function LeerPlantilla(const Nombre: string): string;
-var
-  Texto: AnsiString;
-begin
-  ExtractTemporaryFile(Nombre);
-  if not LoadStringFromFile(ExpandConstant('{tmp}\') + Nombre, Texto) then
-    RaiseException('No se pudo leer la plantilla ' + Nombre + '.');
-  Result := String(Texto);
-end;
-
-procedure Reemplazar(var Texto: string; const Marca, Valor: string);
-begin
-  StringChangeEx(Texto, '{{' + Marca + '}}', Valor, True);
 end;
 
 procedure FijarClave(const Archivo, Clave, Valor: string);
@@ -553,7 +507,7 @@ begin
   Reemplazar(Texto, 'TUNEL_ID', LeerTunelId(Carpeta + 'credenciales.json'));
   Reemplazar(Texto, 'CREDENCIALES', Carpeta + 'credenciales.json');
   Reemplazar(Texto, 'LOG', RutaServidor + 'logs\cloudflared.log');
-  Reemplazar(Texto, 'HOST', Trim(PaginaHost.Values[0]));
+  Reemplazar(Texto, 'HOST', '{#TunelHost}');
   Reemplazar(Texto, 'PUERTO', Puerto(''));
   Reemplazar(Texto, 'SERVIDOR', NombreServidor);
   Reemplazar(Texto, 'CA', RutaServidor + 'certificates\servidor.crt');
@@ -637,8 +591,57 @@ begin
 
   if not FileExists(RutaServidor + '.env') then
     EscribirEnv;
-  if TareaTunel then
-    EscribirTunel;
+#ifdef HayTunel
+  EscribirTunel;
+#endif
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssPostInstall then
+    PrepararServidor;
+end;
+#else
+procedure InitializeWizard;
+begin
+  CrearPaginaRed('Escriba el mismo nombre y puerto que se usaron al instalar el servidor de Anovo. El servidor tiene que estar encendido: de él se trae el certificado HTTPS.');
+end;
+
+function NextButtonClick(CurPageID: Integer): Boolean;
+begin
+  Result := True;
+  if CurPageID = PaginaRed.ID then
+    Result := RedValida;
+end;
+
+function CertificadoEscritorio: Boolean;
+var
+  Archivo, Local: string;
+  Codigo: Integer;
+begin
+  Archivo := ExpandConstant('{app}\Escritorio\certificados\servidor.crt');
+  ForceDirectories(ExtractFileDir(Archivo));
+  Local := RutaServidor + 'certificates\servidor.crt';
+  if FileExists(Local) then
+    Result := CopyFile(Local, Archivo, False)
+  else
+  begin
+    WizardForm.StatusLabel.Caption := 'Trayendo el certificado del servidor ' + NombreServidor + '...';
+    DeleteFile(Archivo);
+    Result := Auxiliar('traer-certificado.ps1', '-Servidor "' + NombreServidor + '" -Puerto ' + Puerto('') +
+      ' -Salida "' + Archivo + '"') and FileExists(Archivo);
+  end;
+  if not Result then
+  begin
+    Avisar('No se pudo obtener el certificado del servidor ' + NombreServidor + ':' + Puerto('') + '. ' +
+      'Revise que el servidor de Anovo esté abierto y que el nombre y el puerto sean los mismos que se usaron al instalarlo; luego vuelva a correr este instalador.');
+    Exit;
+  end;
+  WizardForm.StatusLabel.Caption := 'Instalando el certificado del servidor en Windows...';
+  Result := Exec(ExpandConstant('{sys}\certutil.exe'), '-f -addstore Root "' + Archivo + '"', '', SW_HIDE,
+    ewWaitUntilTerminated, Codigo) and (Codigo = 0);
+  if not Result then
+    Avisar('No se pudo instalar el certificado del servidor en Windows (certutil).');
 end;
 
 procedure PrepararEscritorio;
@@ -657,10 +660,7 @@ end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
-  if CurStep <> ssPostInstall then
-    Exit;
-  if WizardIsComponentSelected('servidor') then
-    PrepararServidor;
-  if WizardIsComponentSelected('escritorio') then
+  if CurStep = ssPostInstall then
     PrepararEscritorio;
 end;
+#endif
