@@ -163,7 +163,9 @@ uses
   Anovo.DTOs.Usuarios in 'src\DTOs\Anovo.DTOs.Usuarios.pas',
   Anovo.Services.Intf.Usuarios in 'src\Interfaces\Anovo.Services.Intf.Usuarios.pas',
   Anovo.Services.Usuarios in 'src\Services\Anovo.Services.Usuarios.pas',
-  Anovo.Controllers.Usuarios in 'src\Controllers\Anovo.Controllers.Usuarios.pas';
+  Anovo.Controllers.Usuarios in 'src\Controllers\Anovo.Controllers.Usuarios.pas',
+  Anovo.Services.ConfiguracionInicial in 'src\Services\Anovo.Services.ConfiguracionInicial.pas',
+  Anovo.Forms.ConfiguracionInicial in 'src\UI\Anovo.Forms.ConfiguracionInicial.pas' {frmConfiguracionInicial};
 
 {$R *.res}
 
