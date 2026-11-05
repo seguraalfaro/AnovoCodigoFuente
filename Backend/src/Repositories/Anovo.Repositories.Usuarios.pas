@@ -25,6 +25,7 @@ type
     function ExisteCorreo(const ACorreo: string;
       const AExcluirId: Integer): Boolean;
     function DeRol(const ARolId: Integer): TObjectList<TUsuarios>;
+    function HayAdministradorActivo: Boolean;
   end;
 
   TUsuarioClaveRepository = class(TAnovoRepository<TUsuariosClaves>,
@@ -36,6 +37,7 @@ type
   TRolRepository = class(TAnovoRepository<TRoles>, IRolRepository)
   public
     function Resumen: TObjectList<TRolesOrdenados>;
+    function PorCodigo(const ACodigo: string): TRoles;
   end;
 
   TDispositivoRepository = class(TAnovoRepository<TUsuariosDispositivos>,
@@ -111,6 +113,11 @@ begin
   Result := GetWhere(USUARIOS_DE_ROL, [ARolId]);
 end;
 
+function TUsuarioRepository.HayAdministradorActivo: Boolean;
+begin
+  Result := ContarPorFiltro(ADMINISTRADORES_ACTIVOS, []) > 0;
+end;
+
 function TUsuarioPermisoRepository.ExcepcionesDe(const AUsuarioId: Integer)
   : TObjectList<TExcepcionesDePermisos>;
 begin
@@ -135,6 +142,11 @@ function TRolRepository.Resumen: TObjectList<TRolesOrdenados>;
 begin
   Result := ListarConsulta<TRolesOrdenados>(CONSULTA_ORDENADAS, [],
     SIN_LIMITE);
+end;
+
+function TRolRepository.PorCodigo(const ACodigo: string): TRoles;
+begin
+  Result := GetOneByWhere(ROL_POR_CODIGO, [ACodigo], False);
 end;
 
 function TUsuarioClaveRepository.ClaveActivaDe(const AUsuarioId: Integer)

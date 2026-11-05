@@ -30,6 +30,7 @@ type
     function ExisteCorreo(const ACorreo: string;
       const AExcluirId: Integer): Boolean;
     function DeRol(const ARolId: Integer): TObjectList<TUsuarios>;
+    function HayAdministradorActivo: Boolean;
   end;
 
   IUsuarioClaveRepository = interface(IMVCRepository<TUsuariosClaves>)
@@ -40,6 +41,7 @@ type
   IRolRepository = interface(IMVCRepository<TRoles>)
     ['{D2183598-13C0-459A-89E3-6542505C6F44}']
     function Resumen: TObjectList<TRolesOrdenados>;
+    function PorCodigo(const ACodigo: string): TRoles;
   end;
 
   IDispositivoRepository = interface(IMVCRepository<TUsuariosDispositivos>)

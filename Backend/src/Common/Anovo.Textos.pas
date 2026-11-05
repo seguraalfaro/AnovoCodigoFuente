@@ -1194,6 +1194,16 @@ resourcestring
   SVacioItems = 'No hay ítems que coincidan';
   SPaginacionCotizaciones = '%d cotizaciones · página %d de %d';
 
+  SInicialFaltaSistema = 'Falta el usuario sistema@anovo.local en la base: ' +
+    'no se puede hacer la configuración inicial.';
+  SInicialFaltaRolAdmin = 'Falta el rol de administrador en la base.';
+  SInicialClavesDistintas = 'Las dos claves no coinciden.';
+  SInicialCancelada = 'Sin la configuración inicial el servidor no arranca.';
+  SInicialLista = 'Administrador registrado. En el primer ingreso al ' +
+    'escritorio el sistema le pide cambiar la clave.';
+  SInicialNoSePudo = 'No se pudo guardar la configuración inicial.';
+  SLogConfiguracionInicial = 'Configuración inicial: administrador %s registrado';
+
 implementation
 
 end.

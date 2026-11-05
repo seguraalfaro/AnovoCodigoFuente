@@ -127,6 +127,7 @@ type
     procedure AgregarLineaTunel(const ALinea: string);
     procedure CambioTunel;
     function EstaEscuchando: Boolean;
+    function ConfiguracionLista: Boolean;
   end;
 
 var
@@ -155,7 +156,10 @@ uses
   Anovo.Services.Intf.Permisos,
   Anovo.Tunel.Config,
   Anovo.Env.Archivo,
-  Anovo.UI.Rejilla;
+  Anovo.UI.Rejilla,
+  Anovo.Textos,
+  Anovo.Services.ConfiguracionInicial,
+  Anovo.Forms.ConfiguracionInicial;
 
 const
   REFRESCO_MS = 1000;
@@ -229,6 +233,11 @@ begin
   if FYaArranco then
     Exit;
   FYaArranco := True;
+  if not ConfiguracionLista then
+  begin
+    Application.Terminate;
+    Exit;
+  end;
   btnIniciarClick(nil);
   if EstaEscuchando and TConfigTunel.Leer.Automatico and
     TConfigTunel.Leer.Configurado then
@@ -253,6 +262,24 @@ end;
 procedure TfrmServidor.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(FTunel);
+end;
+
+function TfrmServidor.ConfiguracionLista: Boolean;
+begin
+  Result := True;
+  try
+    if not FaltaConfigurar then
+      Exit;
+  except
+    on E: Exception do
+    begin
+      LogE('No se pudo revisar la configuracion inicial: ' + E.Message);
+      Exit;
+    end;
+  end;
+  Result := TfrmConfiguracionInicial.Mostrar;
+  if not Result then
+    MessageDlg(SInicialCancelada, mtWarning, [mbOK], 0);
 end;
 
 function TfrmServidor.EstaEscuchando: Boolean;

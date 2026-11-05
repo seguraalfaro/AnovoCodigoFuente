@@ -24,6 +24,7 @@ __recovery/
 
 # Build output
 bin/
+bin64/
 Win32/
 Win64/
 Debug/
