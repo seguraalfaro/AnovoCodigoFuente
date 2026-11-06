@@ -113,7 +113,7 @@ Name: "{autodesktop}\Anovo"; Filename: "{app}\Escritorio\AnovoEscritorio.exe"; W
 [Run]
 #if Producto == "servidor"
 Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""Anovo API"""; Flags: runhidden
-Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""Anovo API"" dir=in action=allow protocol=TCP localport={code:Puerto} profile=private,domain"; StatusMsg: "Abriendo el puerto del servidor en el firewall..."; Flags: runhidden
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""Anovo API"" dir=in action=allow program=""{app}\Servidor\AnovoAPI.exe"" protocol=TCP localport={code:Puerto} profile=any remoteip=localsubnet"; StatusMsg: "Abriendo el puerto del servidor en el firewall..."; Flags: runhidden
 Filename: "{app}\Servidor\AnovoAPI.exe"; WorkingDir: "{app}\Servidor"; Description: "Abrir el servidor para registrar al administrador y los datos de la empresa"; Flags: postinstall nowait skipifsilent
 #else
 Filename: "{app}\Escritorio\AnovoEscritorio.exe"; WorkingDir: "{app}\Escritorio"; Description: "Abrir la aplicación de escritorio"; Flags: postinstall nowait skipifsilent
