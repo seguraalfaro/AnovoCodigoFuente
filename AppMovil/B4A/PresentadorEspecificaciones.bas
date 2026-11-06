@@ -20,6 +20,8 @@ Sub Class_Globals
 	Private Const CLAVE_ORIGINALES As String = "originales"
 	Private Const CLAVE_QUITADAS As String = "quitadas"
 	Private Const CLAVE_PAGINA As String = "pagina"
+	Public Const HOJA_DETALLES As Int = 0
+	Public Const HOJA_CROQUIS As Int = 1
 
 	Private mTiposTrabajo As List
 	Private mTiposMaterial As List
@@ -250,10 +252,12 @@ Public Sub DescartarFotos
 End Sub
 
 Public Sub ArmarPieza (NombrePieza As String, Croquis As String, MedidasCroquis As List) As Resultado
+	mPagina = HOJA_DETALLES
 	If NombrePieza.Trim = "" Then Return Tipos.Falla(Mensajes.FALTA_NOMBRE_PIEZA)
 	If mTrabajoId <= 0 Then Return Tipos.Falla(Mensajes.FALTA_TIPO_TRABAJO)
 	If mMaterialId <= 0 Then Return Tipos.Falla(Mensajes.FALTA_MATERIAL)
 	If mAcabadoId <= 0 Then Return Tipos.Falla(Mensajes.FALTA_ACABADO)
+	mPagina = HOJA_CROQUIS
 	If Croquis = "" Then Return Tipos.Falla(Mensajes.FALTA_CROQUIS)
 	If MedidasCroquis.Size = 0 Then Return Tipos.Falla(Mensajes.FALTA_MEDIDAS)
 	Dim p As Pieza = Tipos.PiezaVacia

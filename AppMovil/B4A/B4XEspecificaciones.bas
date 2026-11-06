@@ -283,11 +283,7 @@ Private Sub BtnGuardar_Click
 	Dim editando As Boolean = presentador.Editando
 	Dim r As Resultado = presentador.ArmarPieza(TextNombrePieza.Text, croquis.Json, croquis.Medidas)
 	If r.Ok = False Then
-		If r.Mensaje = Mensajes.FALTA_CROQUIS Or r.Mensaje = Mensajes.FALTA_MEDIDAS Then
-			AHViewEspecificaciones.GotoPage(PageCROQUIS, True)
-		Else
-			AHViewEspecificaciones.GotoPage(PageDetalles, True)
-		End If
+		AHViewEspecificaciones.GotoPage(presentador.Pagina, True)
 		xui.MsgboxAsync(r.Mensaje, Mensajes.TITULO)
 		Return
 	End If
