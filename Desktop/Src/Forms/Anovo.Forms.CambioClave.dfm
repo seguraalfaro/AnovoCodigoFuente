@@ -17,6 +17,7 @@ inherited frmCambioClave: TfrmCambioClave
     Top = 287
     TabOrder = 2
     inherited btnGuardar: TPlanoBotonWin
+      Default = True
       OnClick = btnGuardarClick
     end
   end

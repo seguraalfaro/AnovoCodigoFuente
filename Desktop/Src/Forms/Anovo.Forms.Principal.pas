@@ -232,6 +232,7 @@ begin
   FLogin.OnIngreso := Ingreso;
   FLogin.Centrar;
   RedondearEsquinas(FLogin);
+  ActiveControl := FLogin.edtUsuario;
 end;
 
 procedure TfrmPrincipal.SombraPaint(Sender: TObject);

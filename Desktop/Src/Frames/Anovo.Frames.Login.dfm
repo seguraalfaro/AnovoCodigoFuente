@@ -618,7 +618,6 @@ object fraLogin: TfraLogin
         PasswordChar = '*'
         ShowHint = True
         TabOrder = 0
-        Text = 'Anovo2026'
         StyleElements = []
       end
     end
@@ -687,6 +686,7 @@ object fraLogin: TfraLogin
       Cursor = crHandPoint
       Action = AcIngresar
       Anchors = []
+      Default = True
       ImageIndex = 98
       Images = dmIconos.ViAnovo
       TabOrder = 3
@@ -700,7 +700,6 @@ object fraLogin: TfraLogin
       Height = 21
       Anchors = []
       TabOrder = 4
-      Text = 'asesor@anovo.test'#9
       Visible = False
       OnChange = ComboBox1Change
       Items.Strings = (

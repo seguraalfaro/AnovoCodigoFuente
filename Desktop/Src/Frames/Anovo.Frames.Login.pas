@@ -84,7 +84,9 @@ const
 constructor TfraLogin.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  edtUsuario.Text := ComboBox1.Text;
+  {$IFDEF DEBUG}
+  edtUsuario.Text := ComboBox1.Items[0];
+  {$ENDIF}
   CargarMarca;
   lblConfigurar.OnClick := lblConfigurarClick;
   lblVersion.Caption := 'v' + TConfig.VersionEscritorio;
