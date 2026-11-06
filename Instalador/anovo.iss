@@ -77,6 +77,7 @@ Source: "{#FbZip}\zlib1.dll"; DestDir: "{app}\Servidor"; Check: Is64BitInstallMo
 Source: "..\Backend\bin\AnovoAPI.exe"; DestDir: "{app}\Servidor"; Check: not Is64BitInstallMode; Flags: ignoreversion
 Source: "{#SslX86}\libcrypto-3.dll"; DestDir: "{app}\Servidor"; Check: not Is64BitInstallMode; Flags: ignoreversion
 Source: "{#SslX86}\libssl-3.dll"; DestDir: "{app}\Servidor"; Check: not Is64BitInstallMode; Flags: ignoreversion
+Source: "..\Backend\bin\swaggerui\*"; DestDir: "{app}\Servidor\swaggerui"; Flags: ignoreversion recursesubdirs createallsubdirs
 #ifdef HayTunel
 Source: "{#Terceros}\cloudflared\cloudflared-windows-amd64.exe"; DestDir: "{app}\Servidor\tunel"; DestName: "cloudflared.exe"; Check: Is64BitInstallMode; Flags: ignoreversion
 Source: "{#Terceros}\cloudflared\cloudflared-windows-386.exe"; DestDir: "{app}\Servidor\tunel"; DestName: "cloudflared.exe"; Check: not Is64BitInstallMode; Flags: ignoreversion
@@ -97,6 +98,7 @@ Source: "{#Terceros}\firebird\{#FbX86}"; Flags: dontcopy
 Source: "..\Desktop\Win64\Release\AnovoEscritorio.exe"; DestDir: "{app}\Escritorio"; Check: Is64BitInstallMode; Flags: ignoreversion
 Source: "..\Desktop\Win32\Release\AnovoEscritorio.exe"; DestDir: "{app}\Escritorio"; Check: not Is64BitInstallMode; Flags: ignoreversion
 Source: "..\Desktop\Src\Recursos\Marca\*"; DestDir: "{app}\Escritorio\Recursos\Marca"; Flags: ignoreversion
+Source: "..\Desktop\Src\Recursos\Iconos\*"; DestDir: "{app}\Escritorio\Recursos\Iconos"; Excludes: "*.py,*.md,*.txt"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "plantillas\AnovoEscritorio.ini"; Flags: dontcopy
 Source: "scripts\traer-certificado.ps1"; Flags: dontcopy
 #endif
