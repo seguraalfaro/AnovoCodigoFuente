@@ -10,6 +10,9 @@ uses
   MVCFramework.Serializer.Commons,
   MVCFramework.Nullables;
 
+const
+  AJUSTE_MAXIMO = 100;
+
 type
 
   [MVCNameCase(ncSnakeCase)]

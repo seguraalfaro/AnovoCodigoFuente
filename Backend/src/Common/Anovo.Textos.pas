@@ -280,6 +280,7 @@ resourcestring
     'el precio o indíquelo en la línea.';
   SSolicitudNoCotizable = 'Una solicitud en estado %s no se puede cotizar.';
   SAjusteSinMotivo = 'Un ajuste distinto de cero exige indicar el motivo.';
+  SAjusteFueraDeRango = 'El descuento o el recargo no puede pasar del 100 %.';
   SCotizacionSinLineas = 'La cotización no tiene líneas: no hay nada que ' +
     'revisar.';
   SCotizacionSinCondiciones = 'Para enviar a revisión indique la forma de ' +

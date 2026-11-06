@@ -907,8 +907,11 @@ begin
     ExigirAlcance(lCotizacion, AUsuarioId, ARoles);
     ExigirEditable(lCotizacion, AUsuarioId, ARoles);
 
+    if Abs(ADto.PorcentajeAjuste) > AJUSTE_MAXIMO then
+      raise EDatoInvalido.Create(SAjusteFueraDeRango);
+
     if (ADto.PorcentajeAjuste <> 0) and
-      (not ADto.MotivoAjuste.HasValue or ADto.MotivoAjuste.Value.IsEmpty) then
+      (not ADto.MotivoAjuste.HasValue or ADto.MotivoAjuste.Value.Trim.IsEmpty) then
       raise EDatoInvalido.Create(SAjusteSinMotivo);
 
     lCotizacion.PorcentajeAjuste := ADto.PorcentajeAjuste;

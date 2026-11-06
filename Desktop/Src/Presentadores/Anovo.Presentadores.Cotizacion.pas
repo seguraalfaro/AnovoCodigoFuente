@@ -1114,6 +1114,12 @@ var
   lId: Integer;
   lDto: TAjusteDTO;
 begin
+  if (APorcentaje < 0) or (APorcentaje > AJUSTE_MAXIMO) then
+  begin
+    FVista.MostrarError(SAjusteFueraDeRango);
+    Exit;
+  end;
+
   if (APorcentaje <> 0) and AMotivo.Trim.IsEmpty then
   begin
     FVista.MostrarError(SAjusteSinMotivo);
