@@ -8,6 +8,7 @@ Version=13.7
 ' Pintar el campo en rojo o normal es de UI y de Formato, no de aqui.
 Sub Process_Globals
 	Public Const PATRON_CORREO As String = "(?i)[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])"
+	Public Const PATRON_JURIDICA As String = "[0-9]{4}[0-9A-Z]{6}"
 End Sub
 
 Public Sub EsCorreo (Texto As String) As Boolean
@@ -27,7 +28,7 @@ Public Sub EsIdentificacion (Mascara As Int, Texto As String) As Boolean
 		Case Formato.MASCARA_IDENT_FISICA
 			Return Texto.Length >= Utils.LARGO_IDENT_FISICA
 		Case Formato.MASCARA_IDENT_JURIDICA
-			Return Texto.Length >= Utils.LARGO_IDENT_JURIDICA
+			Return Regex.IsMatch(PATRON_JURIDICA, Texto.ToUpperCase)
 		Case Formato.MASCARA_IDENT_DIMEX
 			Return Texto.Length >= Utils.LARGO_IDENT_DIMEX_MIN
 	End Select

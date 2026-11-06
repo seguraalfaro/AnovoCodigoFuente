@@ -47,6 +47,8 @@ const
 
   VOCALES = 'AEIOUÁÉÍÓÚÜ';
 
+  PATRON_JURIDICA = '^[0-9]{4}[0-9A-Z]{6}$';
+
 function ProporcionVocales(const ATexto: string): Double;
 var
   lCaracter: Char;
@@ -101,7 +103,7 @@ begin
     tiFisica:
       Result := lLargo >= LARGO_IDENT_FISICA;
     tiJuridica:
-      Result := lLargo >= LARGO_IDENT_JURIDICA;
+      Result := TRegEx.IsMatch(UpperCase(Normalizar(ATexto)), PATRON_JURIDICA);
     tiDimex:
       Result := lLargo >= LARGO_IDENT_DIMEX_MIN;
   else

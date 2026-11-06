@@ -11,6 +11,8 @@ resourcestring
   SEmpresaFaltaRazonSocial = 'Falta la razón social.';
   SEmpresaRazonSocialLarga = 'La razón social pasa de %d caracteres.';
   SEmpresaFaltaCedula = 'Falta la cédula jurídica.';
+  SEmpresaCedulaInvalida = 'La cédula jurídica debe tener diez caracteres y ' +
+    'empezar con cuatro dígitos, por ejemplo 3-101-123456 o 3-101-A00001.';
   SEmpresaCedulaLarga = 'La cédula jurídica pasa de %d caracteres.';
   SEmpresaIvaFueraDeRango = 'El IVA debe estar entre 0 y 100 %.';
   SEmpresaDiasFueraDeRango = 'El plazo sin respuesta debe estar entre %d y %d días.';
@@ -925,7 +927,7 @@ resourcestring
   SSinResultados = 'Sin resultados';
   SValNombreCliente = 'El nombre o razón social debe tener al menos tres letras.';
   SValNombreContacto = 'El nombre del contacto debe tener al menos tres letras.';
-  SValIdentificacion = 'La identificación no tiene el largo que corresponde al ' +
+  SValIdentificacion = 'La identificación no tiene el formato que corresponde al ' +
     'tipo seleccionado.';
   SValTelefono = 'El teléfono debe tener ocho dígitos.';
   SValTelefonoExt = 'El teléfono debe tener ocho dígitos, con extensión o ' +

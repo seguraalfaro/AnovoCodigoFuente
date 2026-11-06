@@ -244,8 +244,11 @@ begin
       if not TValidacion.Texto(mtEmpresaRAZON_SOCIAL.AsString) then
         lReparos.Add(SEmpresaFaltaRazonSocial);
 
-      if not TValidacion.Texto(mtEmpresaCEDULA_JURIDICA.AsString) then
-        lReparos.Add(SEmpresaFaltaCedula);
+      if mtEmpresaCEDULA_JURIDICA.AsString.Trim = '' then
+        lReparos.Add(SEmpresaFaltaCedula)
+      else if not TValidacion.Identificacion(tiJuridica,
+        mtEmpresaCEDULA_JURIDICA.AsString) then
+        lReparos.Add(SEmpresaCedulaInvalida);
 
       if (mtEmpresaCORREO.AsString.Trim <> '') and
         not TValidacion.Correo(mtEmpresaCORREO.AsString) then

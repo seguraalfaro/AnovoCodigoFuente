@@ -65,8 +65,7 @@ End Sub
 Public Sub MascaraIdentificacion (Texto As String, Tipo As Int) As String
 	Select Tipo
 		Case MASCARA_IDENT_JURIDICA
-			Dim s As String = Utils.SoloAlfanum(Texto)
-			If s.Length > Utils.LARGO_IDENT_JURIDICA Then s = s.SubString2(0, Utils.LARGO_IDENT_JURIDICA)
+			Dim s As String = Utils.SoloJuridica(Texto)
 			Dim res As String = s
 			If s.Length > 1 Then res = s.SubString2(0, 1) & "-" & s.SubString2(1, Min(4, s.Length))
 			If s.Length > 4 Then res = res & "-" & s.SubString(4)

@@ -16,6 +16,7 @@ Sub Process_Globals
 
 	Public Const LARGO_IDENT_FISICA   As Int = 9
 	Public Const LARGO_IDENT_JURIDICA As Int = 10
+	Public Const LARGO_PREFIJO_JURIDICA As Int = 4
 	Public Const LARGO_IDENT_DIMEX    As Int = 12
 	Public Const LARGO_IDENT_DIMEX_MIN As Int = 11
 	Public Const LARGO_TELEFONO       As Int = 8
@@ -196,6 +197,19 @@ Public Sub SoloAlfanum (s As String) As String
 	For i = 0 To s.Length - 1
 		Dim c As String = s.SubString2(i, i + 1).ToUpperCase
 		If "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".IndexOf(c) > -1 Then sb.Append(c)
+	Next
+	Return sb.ToString
+End Sub
+
+Public Sub SoloJuridica (s As String) As String
+	Dim sb As StringBuilder
+	sb.Initialize
+	Dim a As String = SoloAlfanum(s)
+	For i = 0 To a.Length - 1
+		If sb.Length = LARGO_IDENT_JURIDICA Then Exit
+		Dim c As String = a.SubString2(i, i + 1)
+		If sb.Length < LARGO_PREFIJO_JURIDICA And "0123456789".IndexOf(c) = -1 Then Continue
+		sb.Append(c)
 	Next
 	Return sb.ToString
 End Sub
