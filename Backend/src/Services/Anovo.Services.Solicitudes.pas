@@ -74,6 +74,7 @@ type
     function ResolverPieza(const ASolicitudId: Integer;
       const APiezaId: NullableInt32; const APiezaUuid: NullableString): Integer;
     procedure ValidarCatalogos(const ADto: TPiezaNuevaDTO);
+    procedure ExigirCroquisYMedidas(const APieza: TPiezaNuevaDTO);
     function InsertarPieza(const ASolicitudId: Integer;
       const ADto: TPiezaNuevaDTO): Integer;
     function InsertarMedida(const APiezaId: Integer;
@@ -547,6 +548,9 @@ begin
   if ADto.Piezas.Count = 0 then
     raise EDatoInvalido.Create(SSolicitudSinPiezas);
 
+  for lPieza in ADto.Piezas do
+    ExigirCroquisYMedidas(lPieza);
+
   Result := Crear(ADto.Solicitud, AUsuarioId, ARoles);
 
   lAdjuntos := TDictionary<string, Integer>.Create;
@@ -573,6 +577,21 @@ begin
   finally
     lAdjuntos.Free;
   end;
+end;
+
+procedure TSolicitudService.ExigirCroquisYMedidas(const APieza: TPiezaNuevaDTO);
+var
+  lAdjunto: TAdjuntoNuevoDTO;
+  lTieneCroquis: Boolean;
+begin
+  lTieneCroquis := False;
+  for lAdjunto in APieza.Adjuntos do
+    if SameText(lAdjunto.Tipo, ADJUNTO_CROQUIS) then
+      lTieneCroquis := True;
+  if not lTieneCroquis then
+    raise EDatoInvalido.Create(Format(SPiezaSinCroquis, [APieza.Nombre]));
+  if APieza.Medidas.Count = 0 then
+    raise EDatoInvalido.Create(Format(SPiezaSinMedidas, [APieza.Nombre]));
 end;
 
 function TSolicitudService.InsertarPieza(const ASolicitudId: Integer;

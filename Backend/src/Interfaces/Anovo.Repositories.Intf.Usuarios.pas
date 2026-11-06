@@ -36,6 +36,8 @@ type
   IUsuarioClaveRepository = interface(IMVCRepository<TUsuariosClaves>)
     ['{C4E81A27-9D3B-4F65-B2A0-5E7C1D93F648}']
     function ClaveActivaDe(const AUsuarioId: Integer): TUsuariosClaves;
+    function ClavesRecientesDe(const AUsuarioId, ACantidad: Integer)
+      : TObjectList<TUsuariosClaves>;
   end;
 
   IRolRepository = interface(IMVCRepository<TRoles>)

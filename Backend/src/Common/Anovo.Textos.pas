@@ -119,6 +119,8 @@ resourcestring
   SContactoNoEsDelCliente = 'El contacto indicado no existe o no es de ese ' +
     'cliente.';
   SSolicitudSinPiezas = 'La solicitud no trae ninguna pieza.';
+  SPiezaSinCroquis = 'La pieza «%s» no trae croquis.';
+  SPiezaSinMedidas = 'La pieza «%s» no trae medidas.';
   SFaltaPieza = 'Indique a qué pieza de la solicitud pertenece.';
   SRecursoPieza = 'la pieza';
   STipoMaterialNoDisponible = 'El tipo de material indicado no existe o ' +
@@ -388,6 +390,7 @@ resourcestring
   SClaveCorta = 'La clave nueva debe tener al menos %d caracteres.';
   SClaveSinLetrasONumeros = 'La clave nueva debe combinar letras y números.';
   SClaveIgualALaActual = 'La clave nueva debe ser distinta de la actual.';
+  SClaveYaUsada = 'La clave nueva no puede ser ninguna de sus últimas %d claves.';
 
   SRecursoNoExiste = 'No existe %s con el número %d.';
   SRecursoNoExisteGenerico = 'El recurso solicitado no existe.';

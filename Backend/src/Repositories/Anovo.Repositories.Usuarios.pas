@@ -32,6 +32,8 @@ type
     IUsuarioClaveRepository)
   public
     function ClaveActivaDe(const AUsuarioId: Integer): TUsuariosClaves;
+    function ClavesRecientesDe(const AUsuarioId, ACantidad: Integer)
+      : TObjectList<TUsuariosClaves>;
   end;
 
   TRolRepository = class(TAnovoRepository<TRoles>, IRolRepository)
@@ -153,6 +155,12 @@ function TUsuarioClaveRepository.ClaveActivaDe(const AUsuarioId: Integer)
   : TUsuariosClaves;
 begin
   Result := GetOneByWhere(USUARIO_CLAVE_ACTIVA, [AUsuarioId], False);
+end;
+
+function TUsuarioClaveRepository.ClavesRecientesDe(const AUsuarioId,
+  ACantidad: Integer): TObjectList<TUsuariosClaves>;
+begin
+  Result := GetWhere(USUARIO_CLAVES_RECIENTES, [AUsuarioId, ACantidad]);
 end;
 
 function TUsuarioRepository.PorCorreo(const ACorreo: string): TUsuarios;

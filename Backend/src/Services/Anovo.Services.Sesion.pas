@@ -28,6 +28,8 @@ type
     fTextos: IConsentimientoTextoRepository;
     fPermisos: IPermisoService;
     procedure ValidarClaveNueva(const AClave: string);
+    procedure ExigirClaveNoUsada(const AUsuarioId: Integer;
+      const AClave: string);
     procedure GuardarCambioClave(const AUsuarioId: Integer;
       const ADto: TCambioClaveDTO);
     function DatosDe(const AUsuario: TUsuarios): TAutenticacion;
@@ -65,6 +67,7 @@ uses
 
 const
   CLAVE_MINIMA = 10;
+  CLAVES_SIN_REPETIR = 5;
 
 constructor TSesionService.Create(AUsuarios: IUsuarioRepository;
   AClaves: IUsuarioClaveRepository; ARoles: IRolRepository;
@@ -272,6 +275,22 @@ begin
   TEstadoUsuarios.Olvidar(AUsuarioId);
 end;
 
+procedure TSesionService.ExigirClaveNoUsada(const AUsuarioId: Integer;
+  const AClave: string);
+var
+  lClaves: TObjectList<TUsuariosClaves>;
+  lAnterior: TUsuariosClaves;
+begin
+  lClaves := fClaves.ClavesRecientesDe(AUsuarioId, CLAVES_SIN_REPETIR);
+  try
+    for lAnterior in lClaves do
+      if fClave.Verificar(AClave, lAnterior.ClaveHash) then
+        raise EDatoInvalido.Create(Format(SClaveYaUsada, [CLAVES_SIN_REPETIR]));
+  finally
+    lClaves.Free;
+  end;
+end;
+
 procedure TSesionService.GuardarCambioClave(const AUsuarioId: Integer;
   const ADto: TCambioClaveDTO);
 var
@@ -298,6 +317,8 @@ begin
 
       if fClave.Verificar(ADto.ClaveNueva, lVigente.ClaveHash) then
         raise EDatoInvalido.Create(SClaveIgualALaActual);
+
+      ExigirClaveNoUsada(AUsuarioId, ADto.ClaveNueva);
 
       FijarDetalle(Format(SDetalleCambioClavePropio, [AUsuarioId]));
       lVigente.Activo := False;

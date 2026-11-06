@@ -68,6 +68,7 @@ Sub Process_Globals
 	Public Const SYNC_SIN_CONEXION As String = "Sin conexión con el servidor. Se reintenta más tarde."
 	Public Const SYNC_SESION As String = "La sesión venció. Ingrese de nuevo para terminar de subir."
 	Public Const BASE_NO_PREPARADA As String = "No se pudo preparar la base de datos del teléfono. Cierre la aplicación y vuelva a abrirla; si sigue igual, avise a soporte."
+	Private Const PIEZA_SIN_CROQUIS_O_MEDIDAS As String = "La pieza «$1» no tiene croquis o medidas. Ábrala y complétela."
 	Private Const BASE_INCOMPLETA As String = "La base de datos del teléfono está incompleta (faltan: $1). Avise a soporte."
 	Public Const SYNC_CONFLICTO As String = "Alguien cambió este registro en el servidor. Revíselo en el escritorio."
 	Public Const SYNC_BAJADA_FALLO As String = "Lo capturado subió, pero no se pudo traer lo nuevo del servidor. Se reintenta más tarde."
@@ -242,6 +243,8 @@ Sub Process_Globals
 	Public Const FALTA_TIPO_TRABAJO As String = "Elija el tipo de trabajo."
 	Public Const FALTA_MATERIAL As String = "Elija el tipo de material."
 	Public Const FALTA_ACABADO As String = "Elija el acabado."
+	Public Const FALTA_CROQUIS As String = "Dibuje el croquis de la pieza."
+	Public Const FALTA_MEDIDAS As String = "Agregue al menos una medida en el croquis."
 	Public Const FOTOS_MAXIMO As String = "Llegó al máximo de fotos para esta pieza."
 	Public Const ELEGIR_FOTO As String = "Elegir foto"
 	Public Const FOTO_NO_VALIDA As String = "No se pudo leer la imagen elegida. Elija otra."
@@ -642,6 +645,10 @@ End Sub
 
 Public Sub Contador (Cantidad As Int, Maximo As Int) As String
 	Return TEXTO_CONTADOR.Replace("$1", Cantidad).Replace("$2", Maximo)
+End Sub
+
+Public Sub PiezaSinCroquisOMedidas (Nombre As String) As String
+	Return PIEZA_SIN_CROQUIS_O_MEDIDAS.Replace("$1", Nombre)
 End Sub
 
 Public Sub BaseIncompleta (Faltan As List) As String

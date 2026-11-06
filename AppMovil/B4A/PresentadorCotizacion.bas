@@ -204,6 +204,11 @@ Public Sub ValidarPaso (Paso As Int) As Resultado
 	If Paso = PASO_CLIENTE And DbClientes.ConsentimientoDe(mCliente.UuidLocal) = DbClientes.CONSENTIMIENTO_REVOCADO Then Return Tipos.Falla(Mensajes.CLIENTE_REVOCADO)
 	If Paso = PASO_CLIENTE And mContacto.UuidLocal = "" Then Return Tipos.Falla(Mensajes.FALTA_CONTACTO)
 	If Paso = PASO_DETALLES And mPiezas.Size = 0 Then Return Tipos.Falla(Mensajes.SIN_PIEZAS)
+	If Paso = PASO_DETALLES Then
+		For Each p As Pieza In mPiezas
+			If p.Croquis = False Or p.Medidas = 0 Then Return Tipos.Falla(Mensajes.PiezaSinCroquisOMedidas(p.Nombre))
+		Next
+	End If
 	Return Tipos.Correcto(Null)
 End Sub
 
