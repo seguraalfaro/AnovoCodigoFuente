@@ -2,7 +2,7 @@ object frmPrincipal: TfrmPrincipal
   Left = 0
   Top = 0
   Caption = 'Sistema de Gesti'#243'n de Cotizaciones '#8212' Anovo'
-  ClientHeight = 700
+  ClientHeight = 941
   ClientWidth = 1180
   Color = clBtnFace
   CustomTitleBar.CaptionAlignment = taCenter
@@ -89,16 +89,17 @@ object frmPrincipal: TfrmPrincipal
     Left = 200
     Top = 30
     Width = 980
-    Height = 670
+    Height = 911
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitHeight = 670
   end
   object SV: TSplitView
     Left = 0
     Top = 30
     Width = 200
-    Height = 670
+    Height = 911
     AnimationDelay = 1
     AnimationStep = 400
     CloseStyle = svcCompact
@@ -108,6 +109,7 @@ object frmPrincipal: TfrmPrincipal
     Placement = svpLeft
     TabOrder = 2
     StyleElements = [seFont, seBorder]
+    ExplicitHeight = 670
     object pnlUsuario: TRelativePanel
       Tag = 5
       Left = 0
@@ -241,7 +243,7 @@ object frmPrincipal: TfrmPrincipal
       Left = 0
       Top = 62
       Width = 200
-      Height = 546
+      Height = 787
       Align = alClient
       BevelOuter = bvNone
       Color = 6044186
@@ -250,11 +252,12 @@ object frmPrincipal: TfrmPrincipal
       ParentBackground = False
       TabOrder = 2
       StyleElements = []
+      ExplicitHeight = 546
     end
     object pnlBottom: TRelativePanel
       Tag = 1
       Left = 0
-      Top = 629
+      Top = 870
       Width = 200
       Height = 41
       ControlCollection = <
@@ -273,6 +276,7 @@ object frmPrincipal: TfrmPrincipal
       ParentBackground = False
       TabOrder = 3
       StyleElements = []
+      ExplicitTop = 629
       object FlatNavItem1: TFlatNavItem
         Left = 5
         Top = 0
@@ -291,7 +295,7 @@ object frmPrincipal: TfrmPrincipal
       Tag = 6
       AlignWithMargins = True
       Left = 3
-      Top = 618
+      Top = 859
       Width = 194
       Height = 1
       Margins.Top = 10
@@ -302,6 +306,7 @@ object frmPrincipal: TfrmPrincipal
       ParentBackground = False
       TabOrder = 4
       StyleElements = []
+      ExplicitTop = 618
     end
   end
   object ActionList1: TActionList

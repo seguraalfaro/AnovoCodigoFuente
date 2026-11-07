@@ -444,15 +444,6 @@ object fraLogin: TfraLogin
         AlignRightWithPanel = False
         AlignTopWithPanel = False
         AlignVerticalCenterWithPanel = False
-      end
-      item
-        Control = ComboBox1
-        AlignBottomWithPanel = False
-        AlignHorizontalCenterWithPanel = False
-        AlignLeftWithPanel = False
-        AlignRightWithPanel = False
-        AlignTopWithPanel = False
-        AlignVerticalCenterWithPanel = False
       end>
     Align = alClient
     BevelOuter = bvNone
@@ -692,28 +683,6 @@ object fraLogin: TfraLogin
       TabOrder = 3
       StyleElements = []
       ColorOverride = 6044186
-    end
-    object ComboBox1: TComboBox
-      Left = 56
-      Top = 272
-      Width = 145
-      Height = 21
-      Anchors = []
-      TabOrder = 4
-      Visible = False
-      OnChange = ComboBox1Change
-      Items.Strings = (
-        'asesor@anovo.test'
-        'asesor2@anovo.test'
-        'asesor3@anovo.test'
-        'asesor4@anovo.test'
-        'asesor5@anovo.test'
-        'asistente@anovo.test'
-        'asistente2@anovo.test'
-        'supervisor@anovo.test'
-        'supervisor2@anovo.test'
-        'gerencia@anovo.test'
-        'admin@anovo.test')
     end
   end
   object ActionList1: TActionList

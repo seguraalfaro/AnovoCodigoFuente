@@ -649,7 +649,6 @@ object frmServidor: TfrmServidor
       Color = clWhite
       ParentBackground = False
       TabOrder = 3
-      ExplicitHeight = 456
       object pnlTunelBarra: TPanel
         Left = 0
         Top = 0
@@ -716,7 +715,7 @@ object frmServidor: TfrmServidor
         Align = alClient
         BorderStyle = bsNone
         Color = 2562065
-        Font.Charset = DEFAULT_CHARSET
+        Font.Charset = ANSI_CHARSET
         Font.Color = 14407121
         Font.Height = -12
         Font.Name = 'Consolas'
@@ -739,7 +738,6 @@ object frmServidor: TfrmServidor
       Color = clWhite
       ParentBackground = False
       TabOrder = 4
-      ExplicitHeight = 456
       object sbConfiguracion: TScrollBox
         Left = 0
         Top = 0
@@ -750,7 +748,6 @@ object frmServidor: TfrmServidor
         Color = clWhite
         ParentColor = False
         TabOrder = 0
-        ExplicitHeight = 456
         object lblNotaConfig: TLabel
           Left = 16
           Top = 414

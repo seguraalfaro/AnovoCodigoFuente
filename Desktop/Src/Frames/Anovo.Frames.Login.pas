@@ -41,10 +41,8 @@ type
     ActionList1: TActionList;
     AcIngresar: TAction;
     BtnIngresar: TPlanoBotonWin;
-    ComboBox1: TComboBox;
     procedure AcIngresarExecute(Sender: TObject);
     procedure pbOjoClick(Sender: TObject);
-    procedure ComboBox1Change(Sender: TObject);
   private
     FPresentador: TPresentadorLogin;
     FCargando: Boolean;
@@ -151,11 +149,6 @@ begin
     end
   else
     imgFiligrana.Visible := False;
-end;
-
-procedure TfraLogin.ComboBox1Change(Sender: TObject);
-begin
-  edtUsuario.Text := ComboBox1.Text;
 end;
 
 procedure TfraLogin.lblConfigurarClick(Sender: TObject);

@@ -23,13 +23,19 @@ object fraConfiguracion: TfraConfiguracion
       Tag = 11
       Left = 20
       Top = 10
+      Width = 76
+      Height = 15
       Caption = 'Configuraci'#243'n'
     end
     object lblSubtitulo: TLabel
       Tag = 13
       Left = 20
       Top = 40
-      Caption = 'Su cuenta, la conexi'#243'n, los datos de la empresa y los par'#225'metros del sistema'
+      Width = 399
+      Height = 15
+      Caption = 
+        'Su cuenta, la conexi'#243'n, los datos de la empresa y los par'#225'metros' +
+        ' del sistema'
     end
   end
   object sbCuerpo: TScrollBox
@@ -104,111 +110,125 @@ object fraConfiguracion: TfraConfiguracion
       OnResize = pnlCuerpoResize
       object tjCuenta: TPlanoTarjeta
         Tag = 3
-        Left = 20
-        Top = 8
-        Width = 300
-        Height = 236
         AlignWithMargins = True
-        TitleHeight = 36
-        Caption = 'Mi cuenta'
+        Left = 40
+        Top = 16
+        Width = 271
+        Height = 228
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 12
         Margins.Bottom = 12
-        TabOrder = 0
+        Caption = 'Mi cuenta'
         Align = alClient
+        TabOrder = 0
         DesignSize = (
-          300
-          236)
+          271
+          228)
         object lblNombreRot: TLabel
           Tag = 13
           Left = 16
           Top = 49
+          Width = 44
+          Height = 15
           Caption = 'Nombre'
         end
         object lblNombre: TLabel
           Tag = 25
           Left = 124
           Top = 48
-          Width = 160
+          Width = 131
           Height = 15
+          Alignment = taRightJustify
           Anchors = [akLeft, akTop, akRight]
           AutoSize = False
-          Alignment = taRightJustify
           Caption = '-'
           EllipsisPosition = epEndEllipsis
+          ExplicitWidth = 160
         end
         object lblCorreoRot: TLabel
           Tag = 13
           Left = 16
           Top = 77
+          Width = 36
+          Height = 15
           Caption = 'Correo'
         end
         object lblCorreo: TLabel
           Tag = 25
           Left = 124
           Top = 76
-          Width = 160
+          Width = 131
           Height = 15
+          Alignment = taRightJustify
           Anchors = [akLeft, akTop, akRight]
           AutoSize = False
-          Alignment = taRightJustify
           Caption = '-'
           EllipsisPosition = epEndEllipsis
+          ExplicitWidth = 160
         end
         object lblRolRot: TLabel
           Tag = 13
           Left = 16
           Top = 105
+          Width = 17
+          Height = 15
           Caption = 'Rol'
         end
         object lblRol: TLabel
           Tag = 25
           Left = 124
           Top = 104
-          Width = 160
+          Width = 131
           Height = 15
+          Alignment = taRightJustify
           Anchors = [akLeft, akTop, akRight]
           AutoSize = False
-          Alignment = taRightJustify
           Caption = '-'
           EllipsisPosition = epEndEllipsis
+          ExplicitWidth = 160
         end
         object lblPermisosRot: TLabel
           Tag = 13
           Left = 16
           Top = 133
+          Width = 91
+          Height = 15
           Caption = 'Permisos propios'
         end
         object lblPermisos: TLabel
           Tag = 25
           Left = 124
           Top = 132
-          Width = 160
+          Width = 131
           Height = 15
+          Alignment = taRightJustify
           Anchors = [akLeft, akTop, akRight]
           AutoSize = False
-          Alignment = taRightJustify
           Caption = '-'
           EllipsisPosition = epEndEllipsis
+          ExplicitWidth = 160
         end
         object lblClaveRot: TLabel
           Tag = 13
           Left = 16
           Top = 161
+          Width = 84
+          Height = 15
           Caption = 'Clave cambiada'
         end
         object lblClave: TLabel
           Tag = 25
           Left = 124
           Top = 160
-          Width = 160
+          Width = 131
           Height = 15
+          Alignment = taRightJustify
           Anchors = [akLeft, akTop, akRight]
           AutoSize = False
-          Alignment = taRightJustify
           Caption = '-'
           EllipsisPosition = epEndEllipsis
+          ExplicitWidth = 160
         end
         object btnCambiarClave: TPlanoBotonWin
           Left = 16
@@ -230,75 +250,83 @@ object fraConfiguracion: TfraConfiguracion
       end
       object tjConexion: TPlanoTarjeta
         Tag = 3
-        Left = 332
-        Top = 8
-        Width = 300
-        Height = 236
         AlignWithMargins = True
-        TitleHeight = 36
-        Caption = 'Conexi'#243'n'
+        Left = 351
+        Top = 16
+        Width = 270
+        Height = 228
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 12
         Margins.Bottom = 12
-        TabOrder = 1
+        Caption = 'Conexi'#243'n'
         Align = alClient
+        TabOrder = 1
         DesignSize = (
-          300
-          236)
+          270
+          228)
         object lblServidorRot: TLabel
           Tag = 13
           Left = 16
           Top = 49
+          Width = 43
+          Height = 15
           Caption = 'Servidor'
         end
         object lblServidor: TLabel
           Tag = 25
           Left = 124
           Top = 48
-          Width = 160
+          Width = 130
           Height = 15
+          Alignment = taRightJustify
           Anchors = [akLeft, akTop, akRight]
           AutoSize = False
-          Alignment = taRightJustify
           Caption = '-'
           EllipsisPosition = epEndEllipsis
+          ExplicitWidth = 160
         end
         object lblEstadoRot: TLabel
           Tag = 13
           Left = 16
           Top = 77
+          Width = 35
+          Height = 15
           Caption = 'Estado'
         end
         object lblEstado: TLabel
           Tag = 25
           Left = 124
           Top = 76
-          Width = 160
+          Width = 130
           Height = 15
+          Alignment = taRightJustify
           Anchors = [akLeft, akTop, akRight]
           AutoSize = False
-          Alignment = taRightJustify
           Caption = '-'
           EllipsisPosition = epEndEllipsis
+          ExplicitWidth = 160
         end
         object lblRespuestaRot: TLabel
           Tag = 13
           Left = 16
           Top = 105
+          Width = 53
+          Height = 15
           Caption = 'Respuesta'
         end
         object lblRespuesta: TLabel
           Tag = 25
           Left = 124
           Top = 104
-          Width = 160
+          Width = 130
           Height = 15
+          Alignment = taRightJustify
           Anchors = [akLeft, akTop, akRight]
           AutoSize = False
-          Alignment = taRightJustify
           Caption = '-'
           EllipsisPosition = epEndEllipsis
+          ExplicitWidth = 160
         end
         object btnProbar: TPlanoBotonWin
           Left = 16
@@ -339,131 +367,156 @@ object fraConfiguracion: TfraConfiguracion
       end
       object tjAcercaDe: TPlanoTarjeta
         Tag = 3
-        Left = 644
-        Top = 8
-        Width = 300
-        Height = 236
         AlignWithMargins = True
-        TitleHeight = 36
-        Caption = 'Acerca de'
+        Left = 661
+        Top = 16
+        Width = 271
+        Height = 228
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 12
         Margins.Bottom = 12
-        TabOrder = 2
+        Caption = 'Acerca de'
         Align = alClient
+        TabOrder = 2
         DesignSize = (
-          300
-          236)
+          271
+          228)
         object lblVerEscritorioRot: TLabel
           Tag = 13
           Left = 16
           Top = 49
+          Width = 49
+          Height = 15
           Caption = 'Escritorio'
         end
         object lblVerEscritorio: TLabel
           Tag = 25
           Left = 124
           Top = 48
-          Width = 160
+          Width = 131
           Height = 15
+          Alignment = taRightJustify
           Anchors = [akLeft, akTop, akRight]
           AutoSize = False
-          Alignment = taRightJustify
           Caption = '-'
           EllipsisPosition = epEndEllipsis
+          ExplicitWidth = 160
         end
         object lblVerServidorRot: TLabel
           Tag = 13
           Left = 16
           Top = 77
+          Width = 43
+          Height = 15
           Caption = 'Servidor'
         end
         object lblVerServidor: TLabel
           Tag = 25
           Left = 124
           Top = 76
-          Width = 160
+          Width = 131
           Height = 15
+          Alignment = taRightJustify
           Anchors = [akLeft, akTop, akRight]
           AutoSize = False
-          Alignment = taRightJustify
           Caption = '-'
           EllipsisPosition = epEndEllipsis
+          ExplicitWidth = 160
         end
         object lblVerBaseRot: TLabel
           Tag = 13
           Left = 16
           Top = 105
+          Width = 72
+          Height = 15
           Caption = 'Base de datos'
         end
         object lblVerBase: TLabel
           Tag = 25
           Left = 124
           Top = 104
-          Width = 160
+          Width = 131
           Height = 15
+          Alignment = taRightJustify
           Anchors = [akLeft, akTop, akRight]
           AutoSize = False
-          Alignment = taRightJustify
           Caption = '-'
           EllipsisPosition = epEndEllipsis
+          ExplicitWidth = 160
         end
         object lblVerMovilRot: TLabel
           Tag = 13
           Left = 16
           Top = 133
+          Width = 30
+          Height = 15
           Caption = 'M'#243'vil'
         end
         object lblVerMovil: TLabel
           Tag = 25
           Left = 124
           Top = 132
-          Width = 160
+          Width = 131
           Height = 15
+          Alignment = taRightJustify
           Anchors = [akLeft, akTop, akRight]
           AutoSize = False
-          Alignment = taRightJustify
           Caption = '-'
           EllipsisPosition = epEndEllipsis
+          ExplicitWidth = 160
         end
         object lblVerAvisoRot: TLabel
           Tag = 13
           Left = 16
           Top = 161
+          Width = 103
+          Height = 15
           Caption = 'Aviso de privacidad'
         end
         object lblVerAviso: TLabel
           Tag = 25
           Left = 124
           Top = 160
-          Width = 160
+          Width = 131
           Height = 15
+          Alignment = taRightJustify
           Anchors = [akLeft, akTop, akRight]
           AutoSize = False
-          Alignment = taRightJustify
           Caption = '-'
           EllipsisPosition = epEndEllipsis
+          ExplicitWidth = 160
         end
       end
       object tjEmpresa: TPlanoTarjeta
         Tag = 3
-        Left = 20
-        Top = 256
-        Width = 612
-        Height = 360
         AlignWithMargins = True
-        TitleHeight = 36
-        Caption = 'Datos de la empresa'
+        Left = 40
+        Top = 264
+        Width = 581
+        Height = 352
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 12
         Margins.Bottom = 12
-        TabOrder = 3
+        Caption = 'Datos de la empresa'
         Align = alClient
+        TabOrder = 3
         DesignSize = (
-          612
-          360)
+          581
+          352)
+        object lblNotaIva: TLabel
+          Tag = 13
+          Left = 424
+          Top = 258
+          Width = 300
+          Height = 44
+          AutoSize = False
+          Caption = 
+            'El IVA nuevo se aplica a las cotizaciones que se elaboren desde ' +
+            'ahora; las ya hechas conservan el suyo.'
+          WordWrap = True
+        end
         object edRazonSocial: TrDBEdit
           Left = 16
           Top = 62
@@ -625,7 +678,7 @@ object fraConfiguracion: TfraConfiguracion
         object edDireccion: TrDBEdit
           Left = 16
           Top = 212
-          Width = 580
+          Width = 549
           Height = 23
           Anchors = [akLeft, akTop, akRight]
           DataField = 'DIRECCION'
@@ -702,16 +755,6 @@ object fraConfiguracion: TfraConfiguracion
           DBEditLabel.Font.Style = []
           DBEditLabel.ParentFont = False
         end
-        object lblNotaIva: TLabel
-          Tag = 13
-          Left = 424
-          Top = 258
-          Width = 300
-          Height = 44
-          AutoSize = False
-          Caption = 'El IVA nuevo se aplica a las cotizaciones que se elaboren desde ahora; las ya hechas conservan el suyo.'
-          WordWrap = True
-        end
         object btnDocumentoEmpresa: TPlanoBotonWin
           Tag = 21
           Left = 16
@@ -751,12 +794,12 @@ object fraConfiguracion: TfraConfiguracion
           Kind = fkSecondary
         end
         object btnDeshacer: TPlanoBotonWin
-          Left = 370
+          Left = 339
           Top = 312
           Width = 108
           Height = 32
-          Anchors = [akTop, akRight]
           Cursor = crHandPoint
+          Anchors = [akTop, akRight]
           Caption = 'Deshacer'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -770,12 +813,12 @@ object fraConfiguracion: TfraConfiguracion
           Kind = fkSecondary
         end
         object btnGuardarEmpresa: TPlanoBotonWin
-          Left = 486
+          Left = 455
           Top = 312
           Width = 110
           Height = 32
-          Anchors = [akTop, akRight]
           Cursor = crHandPoint
+          Anchors = [akTop, akRight]
           Caption = 'Guardar datos'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -790,22 +833,47 @@ object fraConfiguracion: TfraConfiguracion
       end
       object tjParametros: TPlanoTarjeta
         Tag = 3
-        Left = 644
-        Top = 256
-        Width = 300
-        Height = 360
         AlignWithMargins = True
-        TitleHeight = 36
-        Caption = 'Par'#225'metros'
+        Left = 661
+        Top = 264
+        Width = 271
+        Height = 352
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 12
         Margins.Bottom = 12
-        TabOrder = 4
+        Caption = 'Par'#225'metros'
         Align = alClient
+        TabOrder = 4
         DesignSize = (
-          300
-          360)
+          271
+          352)
+        object lblNotaMinutos: TLabel
+          Tag = 13
+          Left = 16
+          Top = 90
+          Width = 239
+          Height = 32
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          Caption = 'Preferencia de este equipo; se guarda en esta computadora.'
+          WordWrap = True
+          ExplicitWidth = 268
+        end
+        object lblNotaDias: TLabel
+          Tag = 13
+          Left = 16
+          Top = 190
+          Width = 239
+          Height = 32
+          Anchors = [akLeft, akTop, akRight]
+          AutoSize = False
+          Caption = 
+            'Cotizaciones enviadas que pasan este plazo sin respuesta. Lo cam' +
+            'bia gerencia o TI.'
+          WordWrap = True
+          ExplicitWidth = 268
+        end
         object edMinutos: TrDBEdit
           Left = 16
           Top = 62
@@ -832,17 +900,6 @@ object fraConfiguracion: TfraConfiguracion
           DBEditLabel.Font.Style = []
           DBEditLabel.ParentFont = False
         end
-        object lblNotaMinutos: TLabel
-          Tag = 13
-          Left = 16
-          Top = 90
-          Width = 268
-          Height = 32
-          Anchors = [akLeft, akTop, akRight]
-          AutoSize = False
-          Caption = 'Preferencia de este equipo; se guarda en esta computadora.'
-          WordWrap = True
-        end
         object edDias: TrDBEdit
           Left = 16
           Top = 162
@@ -868,17 +925,6 @@ object fraConfiguracion: TfraConfiguracion
           DBEditLabel.Font.Name = 'Segoe UI'
           DBEditLabel.Font.Style = []
           DBEditLabel.ParentFont = False
-        end
-        object lblNotaDias: TLabel
-          Tag = 13
-          Left = 16
-          Top = 190
-          Width = 268
-          Height = 32
-          Anchors = [akLeft, akTop, akRight]
-          AutoSize = False
-          Caption = 'Cotizaciones enviadas que pasan este plazo sin respuesta. Lo cambia gerencia o TI.'
-          WordWrap = True
         end
         object btnGuardarParametros: TPlanoBotonWin
           Left = 16
