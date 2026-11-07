@@ -160,6 +160,18 @@ type
     function Crear([MVCInject] AServicio: ISolicitudService;
       const [MVCFromBody] ADto: TSolicitudNuevaDTO): IMVCResponse;
 
+    [MVCPath('/oficina')]
+    [MVCHTTPMethods([httpPOST])]
+    [MVCRequiresPermiso(PERMISO_SOLICITUDES_REGISTRAR_OFICINA)]
+    [MVCSwagSummary('Solicitudes', 'Registra en la oficina una solicitud ' +
+      'con los datos basicos, una pieza con sus medidas y los planos ' +
+      'como imagen, sin croquis (minuta 19)',
+      'registrarSolicitudOficina')]
+    [MVCSwagResponses(201, 'Registrada. Location apunta a la solicitud')]
+    [MVCSwagResponses(422, 'Falta un dato basico o el cliente no se puede usar')]
+    function RegistrarEnOficina([MVCInject] AServicio: ISolicitudService;
+      const [MVCFromBody] ADto: TSolicitudCompletaDTO): IMVCResponse;
+
     [MVCPath('/completa')]
     [MVCHTTPMethods([httpPOST])]
     [MVCRequiresPermiso(PERMISO_SOLICITUDES_CREAR)]
@@ -324,6 +336,13 @@ function TSolicitudesController.Crear(AServicio: ISolicitudService;
 begin
   Result := CreatedResponse('/api/solicitudes/' +
     AServicio.Crear(ADto, UsuarioId, Roles).ToString);
+end;
+
+function TSolicitudesController.RegistrarEnOficina(AServicio: ISolicitudService;
+  const ADto: TSolicitudCompletaDTO): IMVCResponse;
+begin
+  Result := CreatedResponse('/api/solicitudes/' +
+    AServicio.RegistrarEnOficina(ADto, UsuarioId, Roles).ToString);
 end;
 
 function TSolicitudesController.RegistrarCompleta(AServicio: ISolicitudService;

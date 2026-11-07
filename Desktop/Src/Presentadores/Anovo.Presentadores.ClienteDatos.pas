@@ -60,6 +60,7 @@ type
     class function PuedeAnonimizar: Boolean;
     class function PuedeRevocar: Boolean;
     class function PuedeVerCotizaciones: Boolean;
+    class function PuedeRegistrarSolicitud: Boolean;
     class function AccionesContacto: TAccionesContacto;
     class function AccionesCotizacion: TAccionesCotizacionCliente;
   end;
@@ -132,6 +133,11 @@ begin
   Result := TSesion.Tiene(PERMISO_CLIENTES_EDITAR);
 end;
 
+class function TPresentadorClienteDatos.PuedeRegistrarSolicitud: Boolean;
+begin
+  Result := TSesion.Tiene(PERMISO_SOLICITUDES_REGISTRAR_OFICINA);
+end;
+
 class function TPresentadorClienteDatos.PuedeAnonimizar: Boolean;
 begin
   Result := TSesion.Tiene(PERMISO_CLIENTES_INACTIVAR);
@@ -170,6 +176,7 @@ procedure TPresentadorClienteDatos.Iniciar;
 begin
   FVista.MostrarAcciones(PuedeEditar, PuedeRevocar, PuedeVerCotizaciones,
     AccionesContacto, AccionesCotizacion);
+  FVista.MostrarNuevaSolicitud(PuedeRegistrarSolicitud);
   FVista.MostrarPeriodoCotizaciones(FPeriodoCotizaciones);
   AbrirPestana(pcDatos);
 end;

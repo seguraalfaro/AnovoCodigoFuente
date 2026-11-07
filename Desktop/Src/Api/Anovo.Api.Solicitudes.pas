@@ -32,6 +32,7 @@ type
     function Medidas(const AId: Integer): TObjectList<TMedidaDTO>;
     function Adjuntos(const AId: Integer): TObjectList<TAdjuntoDTO>;
     function Adjunto(const AId, AAdjuntoId: Integer): TAdjuntoContenidoDTO;
+    function RegistrarEnOficina(const ADto: TSolicitudCompletaDTO): Integer;
   private
     function Leer(const ARuta: string;
       const ALarga: Boolean = False): IMVCRESTResponse;
@@ -57,6 +58,7 @@ const
   RUTA_MEDIDAS = '/api/solicitudes/%d/medidas';
   RUTA_ADJUNTOS = '/api/solicitudes/%d/adjuntos';
   RUTA_ADJUNTO = '/api/solicitudes/%d/adjuntos/%d';
+  RUTA_OFICINA = '/api/solicitudes/oficina';
   CAMPO_DATOS = 'data';
   PERIODO_MES = 'mes';
   PERIODO_TODO = 'todo';
@@ -143,6 +145,16 @@ begin
     begin
       Result := NuevoCliente(True, '', ALarga).Get(ARuta);
     end);
+end;
+
+function TApiSolicitudes.RegistrarEnOficina(const ADto
+  : TSolicitudCompletaDTO): Integer;
+begin
+  Result := IdDeLocation(Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.AddBody(ADto, False).Post(RUTA_OFICINA);
+    end));
 end;
 
 function TApiSolicitudes.Obtener(const AId: Integer): TSolicitudDTO;

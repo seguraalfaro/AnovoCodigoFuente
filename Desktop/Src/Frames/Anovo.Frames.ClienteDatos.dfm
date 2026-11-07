@@ -19,6 +19,15 @@ object fraClienteDatos: TfraClienteDatos
         AlignRightWithPanel = False
         AlignTopWithPanel = False
         AlignVerticalCenterWithPanel = True
+      end
+      item
+        Control = btnNuevaSolicitud
+        AlignBottomWithPanel = False
+        AlignHorizontalCenterWithPanel = False
+        AlignLeftWithPanel = False
+        AlignRightWithPanel = True
+        AlignTopWithPanel = False
+        AlignVerticalCenterWithPanel = True
       end>
     Align = alTop
     BevelOuter = bvNone
@@ -41,6 +50,21 @@ object fraClienteDatos: TfraClienteDatos
       TabOrder = 0
       StyleElements = []
       Kind = fkSecondary
+    end
+    object btnNuevaSolicitud: TPlanoBotonWin
+      AlignWithMargins = True
+      Left = 796
+      Top = 12
+      Width = 144
+      Height = 38
+      Cursor = crHandPoint
+      Margins.Right = 20
+      Anchors = []
+      Caption = '+ Nueva solicitud'
+      TabOrder = 1
+      Visible = False
+      StyleElements = []
+      OnClick = btnNuevaSolicitudClick
     end
   end
   object pstCliente: TPlanoPestanas

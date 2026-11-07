@@ -119,8 +119,13 @@ resourcestring
   SContactoNoEsDelCliente = 'El contacto indicado no existe o no es de ese ' +
     'cliente.';
   SSolicitudSinPiezas = 'La solicitud no trae ninguna pieza.';
+  SFaltaNombreProyecto = 'Escriba el nombre del proyecto.';
+  SFaltaDescripcionSolicitud = 'Escriba la descripción del trabajo.';
+  SFaltaContactoSolicitud = 'Elija el contacto del cliente.';
   SPiezaSinCroquis = 'La pieza «%s» no trae croquis.';
   SPiezaSinMedidas = 'La pieza «%s» no trae medidas.';
+  SPiezaDemasiadasFotos = 'La pieza «%s» trae más de %d imágenes.';
+  SPlanoSoloImagen = 'Los planos se adjuntan como imagen JPG o PNG.';
   SFaltaPieza = 'Indique a qué pieza de la solicitud pertenece.';
   SRecursoPieza = 'la pieza';
   STipoMaterialNoDisponible = 'El tipo de material indicado no existe o ' +
@@ -943,6 +948,32 @@ resourcestring
     'exoneración.';
   SReparosCliente = 'No se puede guardar el cliente. Corrija lo siguiente:';
   SReparosContacto = 'No se puede guardar el contacto. Corrija lo siguiente:';
+  SReparosSolicitud = 'No se puede registrar la solicitud. Corrija lo siguiente:';
+  SSolicitudRegistradaOficina = 'Solicitud registrada. Ya está en la cola para cotizar.';
+  SClienteSinContactosActivos = 'El cliente no tiene contactos activos. Registre uno antes de la solicitud.';
+  SAccionCargarContactos = 'cargar los contactos';
+  STipoMedidaLargo = 'Largo';
+  STipoMedidaAncho = 'Ancho';
+  STipoMedidaAlto = 'Alto';
+  STipoMedidaProfundidad = 'Profundidad';
+  STipoMedidaDiametro = 'Diámetro';
+  STipoMedidaRadio = 'Radio';
+  STipoMedidaEspesor = 'Espesor';
+  STipoMedidaAngulo = 'Ángulo';
+  SAccionCargarCatalogosPieza = 'cargar los catálogos de la pieza';
+  SFaltaNombrePiezaOficina = 'Escriba el nombre de la pieza.';
+  SFaltaTipoTrabajoPieza = 'Elija el tipo de trabajo de la pieza.';
+  SFaltaMaterialPieza = 'Elija el material de la pieza.';
+  SFaltaAcabadoPieza = 'Elija el acabado de la pieza.';
+  SFaltaMedidasPieza = 'Agregue al menos una medida de la pieza.';
+  SFaltaTipoMedida = 'Elija qué medida es.';
+  SMedidaValorInvalido = 'El valor de la medida tiene que ser mayor que cero.';
+  SFaltaUnidadMedida = 'Elija la unidad de la medida.';
+  SMedidaCantidadInvalida = 'La cantidad tiene que ser de 1 a 9999.';
+  SPlanoMuyGrande = 'El archivo «%s» pasa de 3 MB.';
+  SPlanosMaximo = 'Se pueden adjuntar hasta %d imágenes.';
+  SPlanoNoSeLee = 'No se pudo leer el archivo «%s».';
+  SPlanosFiltro = 'Imágenes (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png';
   SSinExcepciones = 'Esta persona no tiene permisos adicionales ni quitados.';
   SSinPermisosParaMostrar = 'No hay permisos para mostrar.';
   SPestanaPermisos = 'Permisos';

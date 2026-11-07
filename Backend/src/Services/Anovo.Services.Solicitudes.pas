@@ -35,6 +35,7 @@ const
 
   ADJUNTO_CROQUIS = 'croquis';
   ADJUNTO_FOTO = 'foto';
+  FOTOS_POR_PIEZA = 20;
   MIME_JPEG = 'image/jpeg';
   MIME_PNG = 'image/png';
 
@@ -75,6 +76,9 @@ type
       const APiezaId: NullableInt32; const APiezaUuid: NullableString): Integer;
     procedure ValidarCatalogos(const ADto: TPiezaNuevaDTO);
     procedure ExigirCroquisYMedidas(const APieza: TPiezaNuevaDTO);
+    procedure ExigirFotosPermitidas(const APieza: TPiezaNuevaDTO);
+    procedure InsertarPiezas(const ASolicitudId: Integer;
+      const APiezas: TObjectList<TPiezaNuevaDTO>);
     function InsertarPieza(const ASolicitudId: Integer;
       const ADto: TPiezaNuevaDTO): Integer;
     function InsertarMedida(const APiezaId: Integer;
@@ -100,6 +104,7 @@ type
       : TObjectList<TSolicitudDTO>;
     function Obtener(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>): TSolicitudDTO;
     function Crear(const ADto: TSolicitudNuevaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
+    function RegistrarEnOficina(const ADto: TSolicitudCompletaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
     procedure Actualizar(const AId: Integer; const ADto: TSolicitudEdicionDTO; const AUsuarioId: Integer; const ARoles: TArray<string>);
     function RegistrarCompleta(const ADto: TSolicitudCompletaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
     procedure MarcarRecibida(const AId: Integer; const AUsuarioId: Integer; const ARoles: TArray<string>);
@@ -504,6 +509,49 @@ begin
   end;
 end;
 
+function TSolicitudService.RegistrarEnOficina(const ADto: TSolicitudCompletaDTO;
+  const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
+var
+  lSolicitud: TSolicitudNuevaDTO;
+  lPieza: TPiezaNuevaDTO;
+  lAdjunto: TAdjuntoNuevoDTO;
+begin
+  lSolicitud := ADto.Solicitud;
+  if lSolicitud = nil then
+    raise EDatoInvalido.Create(SFaltaDescripcionSolicitud);
+  if not lSolicitud.NombreProyecto.HasValue or
+    lSolicitud.NombreProyecto.Value.Trim.IsEmpty then
+    raise EDatoInvalido.Create(SFaltaNombreProyecto);
+  if lSolicitud.Descripcion.Trim.IsEmpty then
+    raise EDatoInvalido.Create(SFaltaDescripcionSolicitud);
+  if not lSolicitud.ClienteContactoId.HasValue then
+    raise EDatoInvalido.Create(SFaltaContactoSolicitud);
+  if ADto.Piezas.Count = 0 then
+    raise EDatoInvalido.Create(SSolicitudSinPiezas);
+
+  for lPieza in ADto.Piezas do
+  begin
+    if lPieza.Medidas.Count = 0 then
+      raise EDatoInvalido.Create(Format(SPiezaSinMedidas, [lPieza.Nombre]));
+    for lAdjunto in lPieza.Adjuntos do
+      if lAdjunto.Tipo <> ADJUNTO_FOTO then
+        raise EDatoInvalido.Create(SPlanoSoloImagen);
+    ExigirFotosPermitidas(lPieza);
+  end;
+
+  lSolicitud.NombreProyecto := lSolicitud.NombreProyecto.Value.Trim;
+  lSolicitud.Descripcion := lSolicitud.Descripcion.Trim;
+  if lSolicitud.Observaciones.HasValue then
+    lSolicitud.Observaciones := lSolicitud.Observaciones.Value.Trim;
+  lSolicitud.AsesorId := AUsuarioId;
+
+  var
+  lTx := TMVCRepository.UseTransactionContext;
+
+  Result := Crear(lSolicitud, AUsuarioId, ARoles);
+  InsertarPiezas(Result, ADto.Piezas);
+end;
+
 procedure TSolicitudService.Actualizar(const AId: Integer;
   const ADto: TSolicitudEdicionDTO; const AUsuarioId: Integer; const ARoles: TArray<string>);
 var
@@ -536,11 +584,6 @@ function TSolicitudService.RegistrarCompleta(const ADto
   : TSolicitudCompletaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
 var
   lPieza: TPiezaNuevaDTO;
-  lMedida: TMedidaNuevaDTO;
-  lAdjunto: TAdjuntoNuevoDTO;
-  lPiezaId: Integer;
-  lAdjuntos: TDictionary<string, Integer>;
-  lCroquisId: Integer;
 begin
   var
   lTx := TMVCRepository.UseTransactionContext;
@@ -549,15 +592,30 @@ begin
     raise EDatoInvalido.Create(SSolicitudSinPiezas);
 
   for lPieza in ADto.Piezas do
+  begin
     ExigirCroquisYMedidas(lPieza);
+    ExigirFotosPermitidas(lPieza);
+  end;
 
   Result := Crear(ADto.Solicitud, AUsuarioId, ARoles);
+  InsertarPiezas(Result, ADto.Piezas);
+end;
 
+procedure TSolicitudService.InsertarPiezas(const ASolicitudId: Integer;
+  const APiezas: TObjectList<TPiezaNuevaDTO>);
+var
+  lPieza: TPiezaNuevaDTO;
+  lMedida: TMedidaNuevaDTO;
+  lAdjunto: TAdjuntoNuevoDTO;
+  lPiezaId: Integer;
+  lAdjuntos: TDictionary<string, Integer>;
+  lCroquisId: Integer;
+begin
   lAdjuntos := TDictionary<string, Integer>.Create;
   try
-    for lPieza in ADto.Piezas do
+    for lPieza in APiezas do
     begin
-      lPiezaId := InsertarPieza(Result, lPieza);
+      lPiezaId := InsertarPieza(ASolicitudId, lPieza);
       lAdjuntos.Clear;
       for lAdjunto in lPieza.Adjuntos do
         lAdjuntos.AddOrSetValue(lAdjunto.UuidLocal,
@@ -577,6 +635,20 @@ begin
   finally
     lAdjuntos.Free;
   end;
+end;
+
+procedure TSolicitudService.ExigirFotosPermitidas(const APieza: TPiezaNuevaDTO);
+var
+  lAdjunto: TAdjuntoNuevoDTO;
+  lFotos: Integer;
+begin
+  lFotos := 0;
+  for lAdjunto in APieza.Adjuntos do
+    if SameText(lAdjunto.Tipo, ADJUNTO_FOTO) then
+      Inc(lFotos);
+  if lFotos > FOTOS_POR_PIEZA then
+    raise EDatoInvalido.Create(Format(SPiezaDemasiadasFotos,
+      [APieza.Nombre, FOTOS_POR_PIEZA]));
 end;
 
 procedure TSolicitudService.ExigirCroquisYMedidas(const APieza: TPiezaNuevaDTO);

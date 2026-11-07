@@ -36,6 +36,7 @@ type
       const ACotizacion: TAccionesCotizacionCliente);
     procedure MostrarModoEdicion(const AActivo: Boolean);
     procedure MostrarAnonimizacion(const AVisible, AHabilitado: Boolean);
+    procedure MostrarNuevaSolicitud(const AVisible: Boolean);
     function PedirMotivoAnonimizacion(out AMotivo: string): Boolean;
     function PedirMotivoContacto(const ANombre: string;
       out AMotivo: string): Boolean;

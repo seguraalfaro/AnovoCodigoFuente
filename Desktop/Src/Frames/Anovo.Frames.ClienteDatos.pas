@@ -28,6 +28,7 @@ type
   TfraClienteDatos = class(TFrame, IVistaClienteDatos)
     rpTitulo: TRelativePanel;
     PlanoBotonWin1: TPlanoBotonWin;
+    btnNuevaSolicitud: TPlanoBotonWin;
     ActionList1: TActionList;
     AcRegregsar: TAction;
     pstCliente: TPlanoPestanas;
@@ -89,6 +90,7 @@ type
     procedure btnCancelarEdicionClick(Sender: TObject);
     procedure pstClienteChange(Sender: TObject);
     procedure btnNuevoClick(Sender: TObject);
+    procedure btnNuevaSolicitudClick(Sender: TObject);
     procedure btnAnonimizarClick(Sender: TObject);
     procedure btnRevocarClick(Sender: TObject);
   private
@@ -117,6 +119,7 @@ type
       const ACotizacion: TAccionesCotizacionCliente);
     procedure MostrarModoEdicion(const AActivo: Boolean);
     procedure MostrarAnonimizacion(const AVisible, AHabilitado: Boolean);
+    procedure MostrarNuevaSolicitud(const AVisible: Boolean);
     function PedirMotivoAnonimizacion(out AMotivo: string): Boolean;
     function PedirMotivoContacto(const ANombre: string;
       out AMotivo: string): Boolean;
@@ -150,6 +153,7 @@ uses
   Anovo.Api.Clientes,
   Anovo.Api.Cotizaciones,
   Anovo.Forms.ContactoNuevo,
+  Anovo.Forms.SolicitudNueva,
   Anovo.Forms.Motivo,
   Anovo.Forms.Revocacion,
   Anovo.Mapeo.Datos,
@@ -256,6 +260,24 @@ begin
   finally
     lVentana.Free;
   end;
+end;
+
+procedure TfraClienteDatos.btnNuevaSolicitudClick(Sender: TObject);
+var
+  lVentana: TfrmSolicitudNueva;
+begin
+  lVentana := TfrmSolicitudNueva.Crear(Self, FClienteId);
+  try
+    if lVentana.ShowModal = mrOk then
+      Informar(SSolicitudRegistradaOficina);
+  finally
+    lVentana.Free;
+  end;
+end;
+
+procedure TfraClienteDatos.MostrarNuevaSolicitud(const AVisible: Boolean);
+begin
+  btnNuevaSolicitud.Visible := AVisible;
 end;
 
 procedure TfraClienteDatos.MostrarCargando(const AActivo: Boolean);

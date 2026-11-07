@@ -29,6 +29,7 @@ type
     function Medidas(const AId: Integer): TObjectList<TMedidaDTO>;
     function Adjuntos(const AId: Integer): TObjectList<TAdjuntoDTO>;
     function Adjunto(const AId, AAdjuntoId: Integer): TAdjuntoContenidoDTO;
+    function RegistrarEnOficina(const ADto: TSolicitudCompletaDTO): Integer;
   end;
 
 implementation

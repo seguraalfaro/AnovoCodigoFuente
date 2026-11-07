@@ -2091,6 +2091,337 @@ object dmMemoria: TdmMemoria
     Left = 488
     Top = 80
   end
+  object mtSolicitudNueva: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 608
+    Top = 24
+    object mtSolicitudNuevaUUID_LOCAL: TStringField
+      FieldName = 'UUID_LOCAL'
+      Size = 36
+    end
+    object mtSolicitudNuevaCLIENTE_ID: TIntegerField
+      FieldName = 'CLIENTE_ID'
+    end
+    object mtSolicitudNuevaCLIENTE_CONTACTO_ID: TIntegerField
+      DisplayLabel = 'Contacto'
+      FieldName = 'CLIENTE_CONTACTO_ID'
+    end
+    object mtSolicitudNuevaNOMBRE_PROYECTO: TStringField
+      DisplayLabel = 'Nombre del proyecto'
+      FieldName = 'NOMBRE_PROYECTO'
+      Size = 120
+    end
+    object mtSolicitudNuevaDESCRIPCION: TStringField
+      DisplayLabel = 'Descripci'#243'n del trabajo'
+      FieldName = 'DESCRIPCION'
+      Size = 500
+    end
+    object mtSolicitudNuevaOBSERVACIONES: TStringField
+      DisplayLabel = 'Observaciones'
+      FieldName = 'OBSERVACIONES'
+      Size = 500
+    end
+  end
+  object dsSolicitudNueva: TDataSource
+    DataSet = mtSolicitudNueva
+    Left = 608
+    Top = 80
+  end
+  object mtContactosSolicitud: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 720
+    Top = 24
+    object mtContactosSolicitudID: TIntegerField
+      FieldName = 'ID'
+    end
+    object mtContactosSolicitudNOMBRE: TStringField
+      FieldName = 'NOMBRE'
+      Size = 120
+    end
+  end
+  object dsContactosSolicitud: TDataSource
+    AutoEdit = False
+    DataSet = mtContactosSolicitud
+    Left = 720
+    Top = 80
+  end
+  object mtPiezaOficina: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 608
+    Top = 140
+    object mtPiezaOficinaNOMBRE: TStringField
+      DisplayLabel = 'Nombre de la pieza'
+      FieldName = 'NOMBRE'
+      Size = 120
+    end
+    object mtPiezaOficinaTIPO_TRABAJO_ID: TIntegerField
+      FieldName = 'TIPO_TRABAJO_ID'
+    end
+    object mtPiezaOficinaTIPO_MATERIAL_ID: TIntegerField
+      FieldName = 'TIPO_MATERIAL_ID'
+    end
+    object mtPiezaOficinaACABADO_ID: TIntegerField
+      FieldName = 'ACABADO_ID'
+    end
+  end
+  object dsPiezaOficina: TDataSource
+    DataSet = mtPiezaOficina
+    Left = 608
+    Top = 196
+  end
+  object mtMedidaOficina: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 720
+    Top = 140
+    object mtMedidaOficinaTIPO_MEDIDA: TStringField
+      DisplayLabel = 'Medida'
+      FieldName = 'TIPO_MEDIDA'
+      Size = 20
+    end
+    object mtMedidaOficinaVALOR: TFloatField
+      DisplayLabel = 'Valor'
+      FieldName = 'VALOR'
+    end
+    object mtMedidaOficinaUNIDAD_MEDIDA: TStringField
+      DisplayLabel = 'Unidad'
+      FieldName = 'UNIDAD_MEDIDA'
+      Size = 10
+    end
+    object mtMedidaOficinaCANTIDAD: TIntegerField
+      DisplayLabel = 'Cantidad'
+      FieldName = 'CANTIDAD'
+    end
+    object mtMedidaOficinaOBSERVACION: TStringField
+      DisplayLabel = 'Observaci'#243'n'
+      FieldName = 'OBSERVACION'
+      Size = 500
+    end
+  end
+  object dsMedidaOficina: TDataSource
+    DataSet = mtMedidaOficina
+    Left = 720
+    Top = 196
+  end
+  object mtMedidasOficina: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 832
+    Top = 140
+    object mtMedidasOficinaTIPO_MEDIDA: TStringField
+      FieldName = 'TIPO_MEDIDA'
+      Size = 20
+    end
+    object mtMedidasOficinaTIPO_NOMBRE: TStringField
+      DisplayLabel = 'Medida'
+      FieldName = 'TIPO_NOMBRE'
+      Size = 40
+    end
+    object mtMedidasOficinaVALOR: TFloatField
+      DisplayLabel = 'Valor'
+      FieldName = 'VALOR'
+    end
+    object mtMedidasOficinaUNIDAD_MEDIDA: TStringField
+      DisplayLabel = 'Unidad'
+      FieldName = 'UNIDAD_MEDIDA'
+      Size = 10
+    end
+    object mtMedidasOficinaCANTIDAD: TIntegerField
+      DisplayLabel = 'Cantidad'
+      FieldName = 'CANTIDAD'
+    end
+    object mtMedidasOficinaOBSERVACION: TStringField
+      DisplayLabel = 'Observaci'#243'n'
+      FieldName = 'OBSERVACION'
+      Size = 500
+    end
+  end
+  object dsMedidasOficina: TDataSource
+    AutoEdit = False
+    DataSet = mtMedidasOficina
+    Left = 832
+    Top = 196
+  end
+  object mtPlanosOficina: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 944
+    Top = 140
+    object mtPlanosOficinaNOMBRE: TStringField
+      DisplayLabel = 'Archivo'
+      FieldName = 'NOMBRE'
+      Size = 255
+    end
+    object mtPlanosOficinaRUTA: TStringField
+      FieldName = 'RUTA'
+      Size = 500
+    end
+    object mtPlanosOficinaTAMANO_KB: TIntegerField
+      DisplayLabel = 'Tama'#241'o (KB)'
+      FieldName = 'TAMANO_KB'
+    end
+  end
+  object dsPlanosOficina: TDataSource
+    AutoEdit = False
+    DataSet = mtPlanosOficina
+    Left = 944
+    Top = 196
+  end
+  object mtTiposTrabajoOficina: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 608
+    Top = 256
+    object mtTiposTrabajoOficinaID: TIntegerField
+      FieldName = 'ID'
+    end
+    object mtTiposTrabajoOficinaNOMBRE: TStringField
+      FieldName = 'NOMBRE'
+      Size = 120
+    end
+  end
+  object dsTiposTrabajoOficina: TDataSource
+    AutoEdit = False
+    DataSet = mtTiposTrabajoOficina
+    Left = 608
+    Top = 312
+  end
+  object mtMaterialesOficina: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 720
+    Top = 256
+    object mtMaterialesOficinaID: TIntegerField
+      FieldName = 'ID'
+    end
+    object mtMaterialesOficinaNOMBRE: TStringField
+      FieldName = 'NOMBRE'
+      Size = 120
+    end
+  end
+  object dsMaterialesOficina: TDataSource
+    AutoEdit = False
+    DataSet = mtMaterialesOficina
+    Left = 720
+    Top = 312
+  end
+  object mtAcabadosOficina: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 832
+    Top = 256
+    object mtAcabadosOficinaID: TIntegerField
+      FieldName = 'ID'
+    end
+    object mtAcabadosOficinaNOMBRE: TStringField
+      FieldName = 'NOMBRE'
+      Size = 120
+    end
+  end
+  object dsAcabadosOficina: TDataSource
+    AutoEdit = False
+    DataSet = mtAcabadosOficina
+    Left = 832
+    Top = 312
+  end
+  object mtUnidadesOficina: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 944
+    Top = 256
+    object mtUnidadesOficinaABREVIATURA: TStringField
+      FieldName = 'ABREVIATURA'
+      Size = 10
+    end
+    object mtUnidadesOficinaNOMBRE: TStringField
+      FieldName = 'NOMBRE'
+      Size = 120
+    end
+  end
+  object dsUnidadesOficina: TDataSource
+    AutoEdit = False
+    DataSet = mtUnidadesOficina
+    Left = 944
+    Top = 312
+  end
+  object mtTiposMedidaOficina: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 1056
+    Top = 256
+    object mtTiposMedidaOficinaCODIGO: TStringField
+      FieldName = 'CODIGO'
+      Size = 20
+    end
+    object mtTiposMedidaOficinaNOMBRE: TStringField
+      FieldName = 'NOMBRE'
+      Size = 40
+    end
+  end
+  object dsTiposMedidaOficina: TDataSource
+    AutoEdit = False
+    DataSet = mtTiposMedidaOficina
+    Left = 1056
+    Top = 312
+  end
   object mtUsuarios: TFDMemTable
     OnCalcFields = UsuariosCalcFields
     FetchOptions.AssignedValues = [evMode]

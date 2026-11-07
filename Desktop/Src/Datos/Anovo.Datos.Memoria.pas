@@ -412,6 +412,64 @@ type
     mtContactoNuevoACTIVO: TBooleanField;
     dsClienteNuevo: TDataSource;
     dsContactoNuevo: TDataSource;
+    mtSolicitudNueva: TFDMemTable;
+    mtSolicitudNuevaUUID_LOCAL: TStringField;
+    mtSolicitudNuevaCLIENTE_ID: TIntegerField;
+    mtSolicitudNuevaCLIENTE_CONTACTO_ID: TIntegerField;
+    mtSolicitudNuevaNOMBRE_PROYECTO: TStringField;
+    mtSolicitudNuevaDESCRIPCION: TStringField;
+    mtSolicitudNuevaOBSERVACIONES: TStringField;
+    dsSolicitudNueva: TDataSource;
+    mtContactosSolicitud: TFDMemTable;
+    mtContactosSolicitudID: TIntegerField;
+    mtContactosSolicitudNOMBRE: TStringField;
+    dsContactosSolicitud: TDataSource;
+    mtPiezaOficina: TFDMemTable;
+    mtPiezaOficinaNOMBRE: TStringField;
+    mtPiezaOficinaTIPO_TRABAJO_ID: TIntegerField;
+    mtPiezaOficinaTIPO_MATERIAL_ID: TIntegerField;
+    mtPiezaOficinaACABADO_ID: TIntegerField;
+    dsPiezaOficina: TDataSource;
+    mtMedidaOficina: TFDMemTable;
+    mtMedidaOficinaTIPO_MEDIDA: TStringField;
+    mtMedidaOficinaVALOR: TFloatField;
+    mtMedidaOficinaUNIDAD_MEDIDA: TStringField;
+    mtMedidaOficinaCANTIDAD: TIntegerField;
+    mtMedidaOficinaOBSERVACION: TStringField;
+    dsMedidaOficina: TDataSource;
+    mtMedidasOficina: TFDMemTable;
+    mtMedidasOficinaTIPO_MEDIDA: TStringField;
+    mtMedidasOficinaTIPO_NOMBRE: TStringField;
+    mtMedidasOficinaVALOR: TFloatField;
+    mtMedidasOficinaUNIDAD_MEDIDA: TStringField;
+    mtMedidasOficinaCANTIDAD: TIntegerField;
+    mtMedidasOficinaOBSERVACION: TStringField;
+    dsMedidasOficina: TDataSource;
+    mtPlanosOficina: TFDMemTable;
+    mtPlanosOficinaNOMBRE: TStringField;
+    mtPlanosOficinaRUTA: TStringField;
+    mtPlanosOficinaTAMANO_KB: TIntegerField;
+    dsPlanosOficina: TDataSource;
+    mtTiposTrabajoOficina: TFDMemTable;
+    mtTiposTrabajoOficinaID: TIntegerField;
+    mtTiposTrabajoOficinaNOMBRE: TStringField;
+    dsTiposTrabajoOficina: TDataSource;
+    mtMaterialesOficina: TFDMemTable;
+    mtMaterialesOficinaID: TIntegerField;
+    mtMaterialesOficinaNOMBRE: TStringField;
+    dsMaterialesOficina: TDataSource;
+    mtAcabadosOficina: TFDMemTable;
+    mtAcabadosOficinaID: TIntegerField;
+    mtAcabadosOficinaNOMBRE: TStringField;
+    dsAcabadosOficina: TDataSource;
+    mtUnidadesOficina: TFDMemTable;
+    mtUnidadesOficinaABREVIATURA: TStringField;
+    mtUnidadesOficinaNOMBRE: TStringField;
+    dsUnidadesOficina: TDataSource;
+    mtTiposMedidaOficina: TFDMemTable;
+    mtTiposMedidaOficinaCODIGO: TStringField;
+    mtTiposMedidaOficinaNOMBRE: TStringField;
+    dsTiposMedidaOficina: TDataSource;
     mtTiposIdentificacion: TFDMemTable;
     mtTiposIdentificacionID: TSmallintField;
     mtTiposIdentificacionNOMBRE: TStringField;
@@ -742,6 +800,8 @@ type
     procedure PrepararPrecioCatalogo;
     procedure PrepararClienteNuevo;
     procedure PrepararContactoNuevo(const AClienteId: Integer);
+    procedure PrepararSolicitudNueva(const AClienteId: Integer);
+    procedure PrepararMedidaOficina;
     procedure PrepararContactoEdicion(const AClienteId: Integer);
     procedure MarcarContactosQuitables;
     function ContactoFirmado: Boolean;
@@ -1220,6 +1280,41 @@ begin
   finally
     mtContactos.EnableControls;
   end;
+end;
+
+procedure TdmMemoria.PrepararSolicitudNueva(const AClienteId: Integer);
+begin
+  mtSolicitudNueva.Close;
+  mtSolicitudNueva.CreateDataSet;
+  mtSolicitudNueva.Append;
+  mtSolicitudNuevaUUID_LOCAL.AsString := NuevoUuid;
+  mtSolicitudNuevaCLIENTE_ID.AsInteger := AClienteId;
+
+  mtPiezaOficina.Close;
+  mtPiezaOficina.CreateDataSet;
+  mtPiezaOficina.Append;
+
+  mtTiposMedidaOficina.Close;
+  mtTiposMedidaOficina.CreateDataSet;
+  mtTiposMedidaOficina.AppendRecord(['largo', STipoMedidaLargo]);
+  mtTiposMedidaOficina.AppendRecord(['ancho', STipoMedidaAncho]);
+  mtTiposMedidaOficina.AppendRecord(['alto', STipoMedidaAlto]);
+  mtTiposMedidaOficina.AppendRecord(['profundidad', STipoMedidaProfundidad]);
+  mtTiposMedidaOficina.AppendRecord(['diametro', STipoMedidaDiametro]);
+  mtTiposMedidaOficina.AppendRecord(['radio', STipoMedidaRadio]);
+  mtTiposMedidaOficina.AppendRecord(['espesor', STipoMedidaEspesor]);
+  mtTiposMedidaOficina.AppendRecord(['angulo', STipoMedidaAngulo]);
+  mtTiposMedidaOficina.First;
+
+  PrepararMedidaOficina;
+end;
+
+procedure TdmMemoria.PrepararMedidaOficina;
+begin
+  mtMedidaOficina.Close;
+  mtMedidaOficina.CreateDataSet;
+  mtMedidaOficina.Append;
+  mtMedidaOficinaCANTIDAD.AsInteger := 1;
 end;
 
 procedure TdmMemoria.PrepararContactoNuevo(const AClienteId: Integer);

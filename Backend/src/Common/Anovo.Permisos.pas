@@ -35,6 +35,7 @@ const
   PERMISO_SOLICITUDES_CREAR = 'solicitudes.crear';
   PERMISO_SOLICITUDES_EDITAR_PROPIAS = 'solicitudes.editar_propias';
   PERMISO_SOLICITUDES_EDITAR_TODAS = 'solicitudes.editar_todas';
+  PERMISO_SOLICITUDES_REGISTRAR_OFICINA = 'solicitudes.registrar_oficina';
   PERMISO_SOLICITUDES_TOMAR = 'solicitudes.tomar';
   PERMISO_SOLICITUDES_VER_PROPIAS = 'solicitudes.ver_propias';
   PERMISO_SOLICITUDES_VER_TODAS = 'solicitudes.ver_todas';

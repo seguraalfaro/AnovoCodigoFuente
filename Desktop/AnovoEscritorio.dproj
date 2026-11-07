@@ -217,6 +217,11 @@
         <DCCReference Include="Src\Forms\Anovo.Forms.ContactoNuevo.pas">
             <Form>frmContactoNuevo</Form>
         </DCCReference>
+        <DCCReference Include="Src\Interfaces\Anovo.Vistas.Intf.SolicitudNueva.pas"/>
+        <DCCReference Include="Src\Presentadores\Anovo.Presentadores.SolicitudNueva.pas"/>
+        <DCCReference Include="Src\Forms\Anovo.Forms.SolicitudNueva.pas">
+            <Form>frmSolicitudNueva</Form>
+        </DCCReference>
         <DCCReference Include="Src\Frames\Anovo.Frames.ClienteDatos.pas">
             <Form>TfraClienteDatos</Form>
             <FormType>dfm</FormType>
