@@ -117,7 +117,6 @@ uses
   Anovo.UI.Vista,
   System.Net.URLClient,
   Anovo.UI.Tema,
-  Anovo.Api.Catalogos,
   Anovo.Api.Configuracion,
   Anovo.Config,
   Anovo.Formato,
@@ -162,7 +161,7 @@ begin
   AjustarAltoCuerpo;
 
   FPresentador := TPresentadorConfiguracion.Create(Self,
-    TApiConfiguracion.Create, TApiCatalogos.Create);
+    TApiConfiguracion.Create);
   FPresentador.Iniciar;
 end;
 

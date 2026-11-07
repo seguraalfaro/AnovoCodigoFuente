@@ -6,6 +6,7 @@ interface
 
 uses
   System.Generics.Collections,
+  Anovo.DTOs.Catalogos,
   Anovo.DTOs.Clientes,
   Anovo.DTOs.Empresa,
   Anovo.DTOs.Sesion;
@@ -18,6 +19,7 @@ type
     function Version(const AUrl: string = ''): TVersionDTO;
     function Empresa: TEmpresaDTO;
     procedure GuardarEmpresa(const ADto: TEmpresaDTO);
+    function FormasPago: TObjectList<TCatalogoSimpleDTO>;
     function VersionesConsentimiento: TObjectList<TConsentimientoTextoDTO>;
     procedure PublicarConsentimiento(const ADto: TConsentimientoTextoNuevoDTO);
   end;

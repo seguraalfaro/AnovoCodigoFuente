@@ -169,6 +169,7 @@ object frmConfiguracionInicial: TfrmConfiguracionInicial
       Font.Style = []
       ParentFont = False
       TabOrder = 0
+      Text = 'A Novo M S Sociedad An'#243'nima'
     end
     object edCedula: TLabeledEdit
       Left = 272
@@ -191,6 +192,7 @@ object frmConfiguracionInicial: TfrmConfiguracionInicial
       Font.Style = []
       ParentFont = False
       TabOrder = 1
+      Text = '3-101-255874'
     end
   end
   object btnCancelar: TPlanoBotonWin

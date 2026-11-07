@@ -13,6 +13,7 @@ uses
   Anovo.Controllers.Base,
   Anovo.DTOs.Empresa,
   Anovo.Services.Intf.Empresa,
+  Anovo.Services.Intf.Catalogos,
   Anovo.Permisos;
 
 const
@@ -43,6 +44,14 @@ type
       'fuera de rango')]
     function Actualizar([MVCInject] AServicio: IEmpresaService;
       const [MVCFromBody] ADto: TEmpresaDTO): IMVCResponse;
+
+    [MVCPath('/formas-pago')]
+    [MVCHTTPMethods([httpGET])]
+    [MVCSwagSummary('Empresa', 'Formas de pago activas, para elegir la ' +
+      'que lleva el documento de la cotizacion por defecto',
+      'formasPagoEmpresa')]
+    [MVCSwagResponses(200, 'Formas de pago activas')]
+    function FormasPago([MVCInject] AServicio: ICatalogoService): IMVCResponse;
   end;
 
 implementation
@@ -57,6 +66,12 @@ function TEmpresaController.Actualizar(AServicio: IEmpresaService;
 begin
   AServicio.Actualizar(ADto);
   Result := NoContentResponse;
+end;
+
+function TEmpresaController.FormasPago(AServicio: ICatalogoService)
+  : IMVCResponse;
+begin
+  Result := OKResponse(AServicio.Simples(csFormaPago, False, ''));
 end;
 
 end.

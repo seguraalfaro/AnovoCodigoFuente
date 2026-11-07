@@ -8,6 +8,7 @@ uses
   System.Generics.Collections,
   Anovo.Api.Base,
   Anovo.Api.Intf.Configuracion,
+  Anovo.DTOs.Catalogos,
   Anovo.DTOs.Clientes,
   Anovo.DTOs.Empresa,
   Anovo.DTOs.Sesion;
@@ -20,6 +21,7 @@ type
     function Version(const AUrl: string = ''): TVersionDTO;
     function Empresa: TEmpresaDTO;
     procedure GuardarEmpresa(const ADto: TEmpresaDTO);
+    function FormasPago: TObjectList<TCatalogoSimpleDTO>;
     function VersionesConsentimiento: TObjectList<TConsentimientoTextoDTO>;
     procedure PublicarConsentimiento(const ADto: TConsentimientoTextoNuevoDTO);
   end;
@@ -34,6 +36,7 @@ const
   RUTA_CLAVE = '/api/sesion/clave';
   RUTA_VERSION = '/api/version';
   RUTA_EMPRESA = '/api/empresa';
+  RUTA_FORMAS_PAGO = '/api/empresa/formas-pago';
   RUTA_CONSENTIMIENTOS = '/api/consentimiento/versiones';
 
 function TApiConfiguracion.Cuenta: TCuentaDTO;
@@ -96,6 +99,25 @@ begin
   Result := TEmpresaDTO.Create;
   try
     lRespuesta.BodyFor(Result, 'data');
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
+function TApiConfiguracion.FormasPago: TObjectList<TCatalogoSimpleDTO>;
+var
+  lRespuesta: IMVCRESTResponse;
+begin
+  lRespuesta := Ejecutar(
+    function: IMVCRESTResponse
+    begin
+      Result := NuevoCliente.Get(RUTA_FORMAS_PAGO);
+    end);
+
+  Result := TObjectList<TCatalogoSimpleDTO>.Create(True);
+  try
+    lRespuesta.BodyForListOf(Result, TCatalogoSimpleDTO, 'data');
   except
     Result.Free;
     raise;

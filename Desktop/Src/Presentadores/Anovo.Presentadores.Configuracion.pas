@@ -7,7 +7,6 @@ interface
 
 uses
   System.SysUtils,
-  Anovo.Api.Intf.Catalogos,
   Anovo.Api.Intf.Configuracion,
   Anovo.DTOs.Empresa,
   Anovo.Presentadores.Base,
@@ -25,7 +24,6 @@ type
   TPresentadorConfiguracion = class(TPresentadorPrueba)
   private
     FVista: IVistaConfiguracion;
-    FCatalogos: IApiCatalogos;
     FEmpresa: TEmpresaDTO;
     procedure CargarCuenta;
     procedure CargarEmpresa;
@@ -36,7 +34,7 @@ type
       const AListo, AFallo: TProc; const ALiberar: TProc = nil);
   public
     constructor Create(const AVista: IVistaConfiguracion;
-      const AApi: IApiConfiguracion; const ACatalogos: IApiCatalogos);
+      const AApi: IApiConfiguracion);
     destructor Destroy; override;
     procedure Iniciar;
     procedure Probar;
@@ -123,12 +121,11 @@ begin
 end;
 
 constructor TPresentadorConfiguracion.Create(const AVista: IVistaConfiguracion;
-  const AApi: IApiConfiguracion; const ACatalogos: IApiCatalogos);
+  const AApi: IApiConfiguracion);
 begin
   inherited Create;
   FVista := AVista;
   FApi := AApi;
-  FCatalogos := ACatalogos;
 end;
 
 destructor TPresentadorConfiguracion.Destroy;
@@ -165,25 +162,18 @@ end;
 procedure TPresentadorConfiguracion.CargarEmpresa;
 var
   lApi: IApiConfiguracion;
-  lCatalogos: IApiCatalogos;
   lEmpresa: TEmpresaDTO;
   lFormas: TObjectList<TCatalogoSimpleDTO>;
-  lVerCatalogos: Boolean;
 begin
   lApi := FApi;
-  lCatalogos := FCatalogos;
   lEmpresa := nil;
   lFormas := nil;
-  lVerCatalogos := TSesion.Tiene(PERMISO_CATALOGOS_VER);
 
   Ejecutar(SAccionCargarEmpresa,
     procedure
     begin
       lEmpresa := lApi.Empresa;
-      if lVerCatalogos then
-        lFormas := lCatalogos.Simples(csFormaPago, False)
-      else
-        lFormas := TObjectList<TCatalogoSimpleDTO>.Create;
+      lFormas := lApi.FormasPago;
     end,
     procedure
     begin
