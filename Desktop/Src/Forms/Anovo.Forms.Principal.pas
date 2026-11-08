@@ -18,6 +18,7 @@ uses
   Anovo.Frames.SolicitudesAsistente,
   Anovo.Frames.Bandeja,
   Anovo.Frames.Cotizaciones,
+  Anovo.Frames.Cotizacion,
   Anovo.Frames.Usuarios,
   Anovo.Frames.Roles,
   Anovo.Frames.Auditoria,
@@ -33,6 +34,7 @@ uses
   Anovo.Vistas.Intf.Principal,
   Anovo.Presentadores.Principal,
   Anovo.Permisos,
+  Anovo.UI.Vista,
   System.Generics.Collections,
   Anovo.DTOs.Cotizaciones;
 
@@ -72,6 +74,7 @@ type
     FItems: TArray<TPlanoNavItem>;
     FSeccionAbierta: TSeccion;
     FHaySeccion: Boolean;
+    FEncima: TPantallaEncima;
     procedure SombraPaint(Sender: TObject);
     procedure MostrarIngreso;
     procedure SesionVencida(const AMensaje: string);
@@ -101,6 +104,7 @@ type
     function Confirmar(const AMensaje: string): Boolean;
     procedure MostrarError(const AMensaje: string);
     procedure AbrirCotizacion(const AId: Integer);
+    procedure CerrarCotizacion(Sender: TObject);
   public
   end;
 
@@ -117,7 +121,6 @@ uses
   Anovo.Config,
   Anovo.Datos.Memoria,
   Anovo.Sesion,
-  Anovo.UI.Vista,
   Anovo.Api.Dashboard,
   Anovo.Api.Cotizaciones,
   Anovo.Forms.Recordatorio,
@@ -195,6 +198,7 @@ begin
   FPresentador := TPresentadorPrincipal.Create(Self, TApiDashboard.Create,
     TApiCotizaciones.Create);
   pnlContenido.OnResize := ContenidoResize;
+  FEncima := TPantallaEncima.Crear(pnlContenido);
   OnResize := FormularioResize;
   TSesion.AlVencer(
     procedure(AMensaje: string)
@@ -303,6 +307,7 @@ end;
 procedure TfrmPrincipal.AcSalirExecute(Sender: TObject);
 begin
   tmrAvisos.Enabled := False;
+  FEncima.Cerrar;
   FreeAndNil(FFrameTemp);
   FHaySeccion := False;
   LimpiarMenu;
@@ -355,6 +360,7 @@ begin
   for lItem in FItems do
     lItem.Selected := lItem.Tag = Ord(ASeccion);
 
+  FEncima.Cerrar;
   if Assigned(FFrameTemp) then
     FreeAndNil(FFrameTemp);
   FFrameTemp := AFrame;
@@ -485,11 +491,24 @@ begin
 end;
 
 procedure TfrmPrincipal.AbrirCotizacion(const AId: Integer);
+var
+  lCotizacion: TfraCotizacion;
 begin
   if FFrameTemp is TfraCotizaciones then
     TfraCotizaciones(FFrameTemp).Abrir(AId)
+  else if FFrameTemp = nil then
+    PonerFrame(secCotizaciones, TfraCotizaciones.Crear(Self, AId))
   else
-    PonerFrame(secCotizaciones, TfraCotizaciones.Crear(Self, AId));
+  begin
+    lCotizacion := TfraCotizacion.Crear(Self, AId);
+    lCotizacion.OnRegresar := CerrarCotizacion;
+    FEncima.Mostrar(lCotizacion);
+  end;
+end;
+
+procedure TfrmPrincipal.CerrarCotizacion(Sender: TObject);
+begin
+  FEncima.Cerrar;
 end;
 
 procedure TfrmPrincipal.tmrAvisosTimer(Sender: TObject);
