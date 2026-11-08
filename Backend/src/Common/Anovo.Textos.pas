@@ -328,6 +328,10 @@ resourcestring
   SServidorNoDisponible = 'El servidor de Anovo no está disponible en este ' +
     'momento. Intente de nuevo en unos minutos; si sigue igual, avise al ' +
     'administrador.';
+  SServidorYaCorre = 'El servidor de Anovo ya está corriendo en este equipo, ' +
+    'en segundo plano desde que se encendió. Para abrirlo con su ventana, ' +
+    'finalice antes la tarea «Servidor Anovo» en el Programador de tareas.';
+  STituloServidor = 'Servidor Anovo';
   STokenInvalido = 'El servidor devolvió un token con formato inválido.';
   SRolSinRol = 'Sin rol';
   SRolAsesor = 'Asesor comercial';

@@ -93,7 +93,6 @@ object frmPrincipal: TfrmPrincipal
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitHeight = 670
   end
   object SV: TSplitView
     Left = 0
@@ -109,7 +108,6 @@ object frmPrincipal: TfrmPrincipal
     Placement = svpLeft
     TabOrder = 2
     StyleElements = [seFont, seBorder]
-    ExplicitHeight = 670
     object pnlUsuario: TRelativePanel
       Tag = 5
       Left = 0
@@ -252,7 +250,6 @@ object frmPrincipal: TfrmPrincipal
       ParentBackground = False
       TabOrder = 2
       StyleElements = []
-      ExplicitHeight = 546
     end
     object pnlBottom: TRelativePanel
       Tag = 1
@@ -276,7 +273,6 @@ object frmPrincipal: TfrmPrincipal
       ParentBackground = False
       TabOrder = 3
       StyleElements = []
-      ExplicitTop = 629
       object FlatNavItem1: TFlatNavItem
         Left = 5
         Top = 0
@@ -306,7 +302,6 @@ object frmPrincipal: TfrmPrincipal
       ParentBackground = False
       TabOrder = 4
       StyleElements = []
-      ExplicitTop = 618
     end
   end
   object ActionList1: TActionList

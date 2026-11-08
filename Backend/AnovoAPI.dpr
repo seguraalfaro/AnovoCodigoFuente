@@ -4,6 +4,7 @@ program AnovoAPI;
 // de precios pendientes y levanta los servicios.
 
 uses
+  Winapi.Windows,
   Vcl.Forms,
   FireDAC.VCLUI.Wait,
   FireDAC.Phys.FB,
@@ -169,13 +170,24 @@ uses
 
 {$R *.res}
 
+var
+  Unica: THandle;
+
 begin
+  Unica := CreateMutex(nil, False, 'Global\ServidorAnovo');
+  if (Unica = 0) or (GetLastError = ERROR_ALREADY_EXISTS) then
+  begin
+    MessageBox(0, PChar(SServidorYaCorre), PChar(STituloServidor),
+      MB_OK or MB_ICONINFORMATION);
+    Exit;
+  end;
+
   IsMultiThread := True;
   MVCSerializeNulls := True;
 
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  Application.Title := 'Servidor Anovo';
+  Application.Title := STituloServidor;
   Application.CreateForm(TfrmServidor, frmServidor);
   Application.Run;
 end.

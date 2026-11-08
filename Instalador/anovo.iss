@@ -88,6 +88,7 @@ Source: "plantillas\FDConnectionDefs.ini"; Flags: dontcopy
 Source: "plantillas\config.yml"; Flags: dontcopy
 Source: "scripts\aleatorio.ps1"; Flags: dontcopy
 Source: "scripts\ips.ps1"; Flags: dontcopy
+Source: "scripts\tarea-servidor.ps1"; Flags: dontcopy
 Source: "{#SslX86}\openssl.exe"; Flags: dontcopy
 Source: "{#SslX86}\libcrypto-3.dll"; Flags: dontcopy
 Source: "{#SslX86}\libssl-3.dll"; Flags: dontcopy
@@ -105,7 +106,6 @@ Source: "scripts\traer-certificado.ps1"; Flags: dontcopy
 
 [Icons]
 #if Producto == "servidor"
-Name: "{commonstartup}\Servidor Anovo"; Filename: "{app}\Servidor\AnovoAPI.exe"; WorkingDir: "{app}\Servidor"
 Name: "{group}\Servidor Anovo"; Filename: "{app}\Servidor\AnovoAPI.exe"; WorkingDir: "{app}\Servidor"
 #else
 Name: "{group}\Anovo"; Filename: "{app}\Escritorio\AnovoEscritorio.exe"; WorkingDir: "{app}\Escritorio"
@@ -124,6 +124,10 @@ Filename: "{app}\Escritorio\AnovoEscritorio.exe"; WorkingDir: "{app}\Escritorio"
 #if Producto == "servidor"
 [UninstallRun]
 Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""Anovo API"""; RunOnceId: "ReglaFirewall"; Flags: runhidden
+Filename: "{sys}\schtasks.exe"; Parameters: "/Delete /TN ""Servidor Anovo"" /F"; RunOnceId: "TareaServidor"; Flags: runhidden
+
+[InstallDelete]
+Type: files; Name: "{commonstartup}\Servidor Anovo.lnk"
 #endif
 
 [Code]
@@ -596,6 +600,8 @@ begin
 #ifdef HayTunel
   EscribirTunel;
 #endif
+  if not Auxiliar('tarea-servidor.ps1', '-Carpeta "' + RemoveBackslash(RutaServidor) + '"') then
+    Avisar('No se pudo programar el arranque del servidor al encender el equipo. Ábralo desde el menú Inicio, en Servidor Anovo.');
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
