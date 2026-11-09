@@ -193,7 +193,7 @@ Private Sub TextNombreProyecto_FocusChanged (HasFocus As Boolean)
 	If HasFocus = False Then Persistir
 End Sub
 
-Private Sub CampoContacto_Opciones As List
+Private Sub CampoContacto_Opciones As Object
 	If presentador.HayCliente = False Then
 		xui.MsgboxAsync(Mensajes.FALTA_CLIENTE, Mensajes.TITULO)
 		Return Null

@@ -4,8 +4,8 @@
 
    Lo carga Herramientas/produccion/base_produccion.py despues de crear la
    base, con juego de caracteres UTF8. No es una migracion: lleva tildes.
-   Texto del consentimiento v1.1, formas de pago y valores por defecto del
-   documento de la cotizacion. El firmante queda vacio: lo pone Anovo.
+   Texto del consentimiento v1.1, formas de pago, razon social y valores por
+   defecto del documento de la cotizacion. El firmante queda vacio: lo pone Anovo.
    ============================================================================ */
 
 SET NAMES UTF8;
@@ -59,6 +59,8 @@ UPDATE CONSENTIMIENTO_TEXTOS
   WHERE VERSION = '1.1';
 
 UPDATE EMPRESA SET
+  RAZON_SOCIAL = 'A Novo M S Sociedad Anónima', CEDULA_JURIDICA = '3-101-255874',
+  DIRECCION = 'Santa Rosa de Santo Domingo, Heredia',
   FORMA_PAGO_ID = (SELECT ID FROM FORMAS_PAGO WHERE NOMBRE = '50% de adelanto y 50% contra entrega'),
   PLAZO_ENTREGA_CANTIDAD = 15, PLAZO_ENTREGA_UNIDAD_ID = 2,
   GARANTIA_CANTIDAD = 6, GARANTIA_UNIDAD_ID = 4,

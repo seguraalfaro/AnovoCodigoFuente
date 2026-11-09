@@ -13,6 +13,7 @@
 #define SslX64 Terceros + "\openssl\openssl-3.5.8-Windows-x64"
 #define SslX86 Terceros + "\openssl\openssl-3.5.8-Windows-x86"
 #define TunelHost "api.anovoms.com"
+#define ClaveSysdba ReadIni(AddBackslash(SourcePath) + "..\..\LLaves\instalador.ini", "Firebird", "ClaveSysdba", "")
 #if FileExists(Terceros + "\cloudflared\cloudflared-windows-amd64.exe") && FileExists(Terceros + "\cloudflared\cloudflared-windows-386.exe") && FileExists(Terceros + "\tunel\credenciales.json")
   #define HayTunel
 #endif
@@ -116,7 +117,7 @@ Name: "{autodesktop}\Anovo"; Filename: "{app}\Escritorio\AnovoEscritorio.exe"; W
 #if Producto == "servidor"
 Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""Anovo API"""; Flags: runhidden
 Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""Anovo API"" dir=in action=allow program=""{app}\Servidor\AnovoAPI.exe"" protocol=TCP localport={code:Puerto} profile=any remoteip=localsubnet"; StatusMsg: "Abriendo el puerto del servidor en el firewall..."; Flags: runhidden
-Filename: "{app}\Servidor\AnovoAPI.exe"; WorkingDir: "{app}\Servidor"; Description: "Abrir el servidor para registrar al administrador y los datos de la empresa"; Flags: postinstall nowait skipifsilent
+Filename: "{app}\Servidor\AnovoAPI.exe"; WorkingDir: "{app}\Servidor"; Description: "Abrir el servidor ahora"; Flags: postinstall nowait skipifsilent
 #else
 Filename: "{app}\Escritorio\AnovoEscritorio.exe"; WorkingDir: "{app}\Escritorio"; Description: "Abrir la aplicación de escritorio"; Flags: postinstall nowait skipifsilent
 #endif
@@ -278,13 +279,18 @@ begin
   CrearPaginaRed('Se deja el nombre de este equipo: con él y sus direcciones IP se genera el certificado HTTPS. Los equipos de la oficina usan este mismo nombre y puerto al instalar la aplicación de escritorio.');
 
   if FirebirdPrevio = '' then
-    Ayuda := 'Firebird 4.0.6 se instala con esta clave. Guárdela en un lugar seguro: hace falta para respaldar y restaurar la base.'
+    Ayuda := 'Firebird 4.0.6 se instala con esta clave. Ya viene escrita la del documento de cuentas iniciales; si la cambia, guárdela en un lugar seguro: hace falta para respaldar y restaurar la base.'
   else
     Ayuda := 'Firebird ya está instalado en ' + FirebirdPrevio + '. Escriba la clave de SYSDBA que tiene hoy.';
   PaginaSysdba := CreateInputQueryPage(PaginaRed.ID, 'Base de datos',
     'Clave del administrador de Firebird (SYSDBA).', Ayuda);
   PaginaSysdba.Add('Clave de SYSDBA:', True);
   PaginaSysdba.Add('Confirmar la clave:', True);
+  if FirebirdPrevio = '' then
+  begin
+    PaginaSysdba.Values[0] := '{#ClaveSysdba}';
+    PaginaSysdba.Values[1] := '{#ClaveSysdba}';
+  end;
 
   PaginaCotizacion := CreateInputQueryPage(PaginaSysdba.ID, 'Cotizaciones',
     'Número con que empieza la numeración de las cotizaciones.',

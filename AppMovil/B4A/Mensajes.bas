@@ -294,7 +294,9 @@ Sub Process_Globals
 	Private Const CROQUIS_TRAZO As String = "Trazo: $1"
 	Private Const ERROR_SERVIDOR As String = "El servidor de Anovo tuvo un problema y no pudo atender la solicitud (código $1). Intente de nuevo; si sigue igual, avise al administrador."
 	Private Const PIEZA_MEDIDAS As String = "$1 medidas"
+	Private Const PIEZA_MEDIDA_UNA As String = "1 medida"
 	Private Const PIEZA_ADJUNTOS As String = "Croquis · $1 fotos"
+	Private Const PIEZA_ADJUNTOS_UNA As String = "Croquis · 1 foto"
 	Private Const INICIO_SALUDO As String = "Hola"
 	Private Const INICIO_SALUDO_NOMBRE As String = "Hola, $1"
 	Private Const SYNC_POR_SUBIR_UNO As String = "1 registro por subir"
@@ -518,6 +520,7 @@ End Sub
 
 #Region Solicitud y piezas
 Public Sub PiezaMedidas (Cantidad As Int) As String
+	If Cantidad = 1 Then Return PIEZA_MEDIDA_UNA
 	Return PIEZA_MEDIDAS.Replace("$1", Cantidad)
 End Sub
 
@@ -541,6 +544,7 @@ Public Sub DetalleMedida (Valor As Double, Unidad As String, Cantidad As Int) As
 End Sub
 
 Public Sub PiezaAdjuntos (Fotos As Int) As String
+	If Fotos = 1 Then Return PIEZA_ADJUNTOS_UNA
 	Return PIEZA_ADJUNTOS.Replace("$1", Fotos)
 End Sub
 

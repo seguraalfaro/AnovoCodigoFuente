@@ -12,8 +12,9 @@
      - la auditoria de las migraciones queda a nombre del usuario sistema;
      - sin CREATE USER ANOVO_BACKEND: lo crea el instalador con su clave.
 
-   La base queda sin ninguna cuenta que pueda entrar. El primer administrador
-   y los datos de la empresa se registran al arrancar el servidor.
+   Este script no deja ninguna cuenta que pueda entrar. Las cuentas iniciales,
+   administrador incluido, y los clientes los cargan despues usuarios_anovo.sql
+   y clientes_anovo.sql, de LLaves.
    ============================================================================ */
 
 
