@@ -2390,6 +2390,9 @@ object dmMemoria: TdmMemoria
       FieldName = 'NOMBRE'
       Size = 120
     end
+    object mtUnidadesOficinaMAGNITUD: TStringField
+      FieldName = 'MAGNITUD'
+    end
   end
   object dsUnidadesOficina: TDataSource
     AutoEdit = False

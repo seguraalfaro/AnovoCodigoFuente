@@ -53,6 +53,7 @@ type
     procedure btnQuitarMedidaClick(Sender: TObject);
     procedure btnAdjuntarClick(Sender: TObject);
     procedure btnQuitarPlanoClick(Sender: TObject);
+    procedure cbTipoMedidaClick(Sender: TObject);
   private
     FPresentador: TPresentadorSolicitudNueva;
     FClienteId: Integer;
@@ -65,6 +66,7 @@ type
       : TObjectList<TCatalogoSimpleDTO>);
     procedure MostrarAcabados(const AAcabados: TObjectList<TCatalogoSimpleDTO>);
     procedure MostrarUnidades(const AUnidades: TObjectList<TUnidadMedidaDTO>);
+    procedure MostrarUnidadesDe(const AMagnitud: string);
     procedure MostrarMedidas(const AMedidas: TObjectList<TMedidaOficina>);
     procedure MostrarPlanos(const APlanos: TObjectList<TPlanoOficina>);
     procedure AvisarReparos(const AReparos: TStrings);
@@ -156,8 +158,27 @@ end;
 procedure TfrmSolicitudNueva.MostrarUnidades(const AUnidades
   : TObjectList<TUnidadMedidaDTO>);
 begin
+  dmMemoria.UnidadesDeMagnitud('');
   TMapeoDatos.AListaTabla<TUnidadMedidaDTO>(AUnidades,
     dmMemoria.mtUnidadesOficina);
+end;
+
+procedure TfrmSolicitudNueva.MostrarUnidadesDe(const AMagnitud: string);
+begin
+  with dmMemoria do
+  begin
+    UnidadesDeMagnitud(AMagnitud);
+    if mtMedidaOficinaUNIDAD_MEDIDA.AsString.IsEmpty or
+      UnidadEnLista(mtMedidaOficinaUNIDAD_MEDIDA.AsString) then
+      Exit;
+    mtMedidaOficina.Edit;
+    mtMedidaOficinaUNIDAD_MEDIDA.Clear;
+  end;
+end;
+
+procedure TfrmSolicitudNueva.cbTipoMedidaClick(Sender: TObject);
+begin
+  FPresentador.ElegirTipoMedida(VarToStr(cbTipoMedida.KeyValue));
 end;
 
 procedure TfrmSolicitudNueva.MostrarMedidas(const AMedidas
@@ -191,7 +212,10 @@ begin
       mtMedidaOficinaVALOR.AsFloat, mtMedidaOficinaUNIDAD_MEDIDA.AsString,
       mtMedidaOficinaCANTIDAD.AsInteger,
       mtMedidaOficinaOBSERVACION.AsString) then
+    begin
       PrepararMedidaOficina;
+      FPresentador.ElegirTipoMedida('');
+    end;
   end;
 end;
 

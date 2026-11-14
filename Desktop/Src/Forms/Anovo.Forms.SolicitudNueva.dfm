@@ -311,6 +311,7 @@ inherited frmSolicitudNueva: TfrmSolicitudNueva
         ListField = 'NOMBRE'
         ListSource = dmMemoria.dsTiposMedidaOficina
         TabOrder = 4
+        OnClick = cbTipoMedidaClick
         ReadOnlyColor = 15987699
         DBEditLabel.AlignWithMargins = True
         DBEditLabel.Margins.Top = 5

@@ -465,6 +465,7 @@ type
     mtUnidadesOficina: TFDMemTable;
     mtUnidadesOficinaABREVIATURA: TStringField;
     mtUnidadesOficinaNOMBRE: TStringField;
+    mtUnidadesOficinaMAGNITUD: TStringField;
     dsUnidadesOficina: TDataSource;
     mtTiposMedidaOficina: TFDMemTable;
     mtTiposMedidaOficinaCODIGO: TStringField;
@@ -802,6 +803,8 @@ type
     procedure PrepararContactoNuevo(const AClienteId: Integer);
     procedure PrepararSolicitudNueva(const AClienteId: Integer);
     procedure PrepararMedidaOficina;
+    procedure UnidadesDeMagnitud(const AMagnitud: string);
+    function UnidadEnLista(const AAbreviatura: string): Boolean;
     procedure PrepararContactoEdicion(const AClienteId: Integer);
     procedure MarcarContactosQuitables;
     function ContactoFirmado: Boolean;
@@ -832,6 +835,7 @@ implementation
 
 uses
   System.DateUtils,
+  System.Variants,
   Anovo.Condiciones,
   Anovo.DTOs.Catalogos,
   Anovo.Sesion,
@@ -855,6 +859,7 @@ const
   FILTRO_EXCEPCIONES = 'TIENE <> DEL_ROL';
   FILTRO_ERRORES_IMPORTACION = 'CON_ERROR = True';
   FILTRO_CATEGORIAS = 'ID > 0';
+  FILTRO_UNIDADES_MAGNITUD = 'MAGNITUD = %s';
 
 function NuevoUuid: string;
 begin
@@ -1315,6 +1320,24 @@ begin
   mtMedidaOficina.CreateDataSet;
   mtMedidaOficina.Append;
   mtMedidaOficinaCANTIDAD.AsInteger := 1;
+end;
+
+procedure TdmMemoria.UnidadesDeMagnitud(const AMagnitud: string);
+begin
+  mtUnidadesOficina.Filtered := False;
+  if AMagnitud.IsEmpty then
+    Exit;
+  mtUnidadesOficina.Filter := Format(FILTRO_UNIDADES_MAGNITUD,
+    [QuotedStr(AMagnitud)]);
+  mtUnidadesOficina.Filtered := True;
+  if mtUnidadesOficina.IsEmpty then
+    mtUnidadesOficina.Filtered := False;
+end;
+
+function TdmMemoria.UnidadEnLista(const AAbreviatura: string): Boolean;
+begin
+  Result := not VarIsNull(mtUnidadesOficina.Lookup('ABREVIATURA',
+    AAbreviatura, 'ABREVIATURA'));
 end;
 
 procedure TdmMemoria.PrepararContactoNuevo(const AClienteId: Integer);

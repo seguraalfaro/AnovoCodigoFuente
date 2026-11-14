@@ -49,6 +49,7 @@ type
       : TObjectList<TCatalogoSimpleDTO>);
     procedure MostrarAcabados(const AAcabados: TObjectList<TCatalogoSimpleDTO>);
     procedure MostrarUnidades(const AUnidades: TObjectList<TUnidadMedidaDTO>);
+    procedure MostrarUnidadesDe(const AMagnitud: string);
     procedure MostrarMedidas(const AMedidas: TObjectList<TMedidaOficina>);
     procedure MostrarPlanos(const APlanos: TObjectList<TPlanoOficina>);
     procedure AvisarReparos(const AReparos: TStrings);

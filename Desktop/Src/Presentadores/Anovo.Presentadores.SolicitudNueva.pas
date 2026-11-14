@@ -46,6 +46,7 @@ type
       const AValor: Double; const AUnidad: string; const ACantidad: Integer;
       const AObservacion: string): Boolean;
     procedure QuitarMedida(const AIndice: Integer);
+    procedure ElegirTipoMedida(const ATipo: string);
     procedure AgregarPlanos(const AArchivos: TStrings);
     procedure QuitarPlano(const AIndice: Integer);
     procedure Guardar(const ASolicitud: TSolicitudNuevaDTO;
@@ -64,6 +65,9 @@ const
   PLANO_MAXIMO_BYTES = 3145728;
   PLANOS_MAXIMO = 20;
   CANTIDAD_MAXIMA = 9999;
+  TIPO_MEDIDA_ANGULO = 'angulo';
+  MAGNITUD_ANGULO = 'angulo';
+  MAGNITUD_LONGITUD = 'longitud';
   ADJUNTO_FOTO = 'foto';
 
 function TamanoDe(const ARuta: string): Int64;
@@ -257,6 +261,16 @@ begin
   lMedida.Observacion := AObservacion.Trim;
   FMedidas.Add(lMedida);
   FVista.MostrarMedidas(FMedidas);
+end;
+
+procedure TPresentadorSolicitudNueva.ElegirTipoMedida(const ATipo: string);
+begin
+  if ATipo.Trim.IsEmpty then
+    FVista.MostrarUnidadesDe('')
+  else if SameText(ATipo, TIPO_MEDIDA_ANGULO) then
+    FVista.MostrarUnidadesDe(MAGNITUD_ANGULO)
+  else
+    FVista.MostrarUnidadesDe(MAGNITUD_LONGITUD);
 end;
 
 procedure TPresentadorSolicitudNueva.QuitarMedida(const AIndice: Integer);
