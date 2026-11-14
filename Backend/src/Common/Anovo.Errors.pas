@@ -63,6 +63,7 @@ const
 function ManejadorDeErrores: TMVCExceptionHandlerProc;
 function CuerpoError(const ACodigo, AMensaje: string): string;
 procedure ExigirLargoUuid(const AUuid: string);
+function EsClaveRepetida(const AError: Exception): Boolean;
 
 implementation
 
@@ -72,7 +73,14 @@ uses
   MVCFramework.Logger,
   MVCFramework.Serializer.Commons,
   MVCFramework.ActiveRecord,
+  FireDAC.Stan.Error,
   Anovo.Textos;
+
+function EsClaveRepetida(const AError: Exception): Boolean;
+begin
+  Result := (AError is EFDDBEngineException) and
+    (EFDDBEngineException(AError).Kind = ekUKViolated);
+end;
 
 constructor EAnovoError.Create(const ACodigo, AMensaje: string;
   const AStatus: UInt16);

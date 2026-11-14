@@ -36,6 +36,8 @@ const
   ADJUNTO_CROQUIS = 'croquis';
   ADJUNTO_FOTO = 'foto';
   FOTOS_POR_PIEZA = 20;
+  REENVIO_INTENTOS = 10;
+  REENVIO_ESPERA_MS = 100;
   MIME_JPEG = 'image/jpeg';
   MIME_PNG = 'image/png';
 
@@ -79,6 +81,8 @@ type
     procedure ExigirFotosPermitidas(const APieza: TPiezaNuevaDTO);
     procedure InsertarPiezas(const ASolicitudId: Integer;
       const APiezas: TObjectList<TPiezaNuevaDTO>);
+    function RegistrarCompletaEnTransaccion(const ADto: TSolicitudCompletaDTO;
+      const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
     function InsertarPieza(const ASolicitudId: Integer;
       const ADto: TPiezaNuevaDTO): Integer;
     function InsertarMedida(const APiezaId: Integer;
@@ -581,6 +585,30 @@ begin
 end;
 
 function TSolicitudService.RegistrarCompleta(const ADto
+  : TSolicitudCompletaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
+var
+  lIntento: Integer;
+begin
+  try
+    Result := RegistrarCompletaEnTransaccion(ADto, AUsuarioId, ARoles);
+  except
+    on E: Exception do
+    begin
+      if not EsClaveRepetida(E) then
+        raise;
+      for lIntento := 1 to REENVIO_INTENTOS do
+      begin
+        Result := fRepo.ExisteUuidLocal(ADto.Solicitud.UuidLocal);
+        if Result > 0 then
+          Exit;
+        Sleep(REENVIO_ESPERA_MS);
+      end;
+      raise;
+    end;
+  end;
+end;
+
+function TSolicitudService.RegistrarCompletaEnTransaccion(const ADto
   : TSolicitudCompletaDTO; const AUsuarioId: Integer; const ARoles: TArray<string>): Integer;
 var
   lPieza: TPiezaNuevaDTO;
