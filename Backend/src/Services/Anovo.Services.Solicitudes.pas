@@ -519,6 +519,7 @@ var
   lSolicitud: TSolicitudNuevaDTO;
   lPieza: TPiezaNuevaDTO;
   lAdjunto: TAdjuntoNuevoDTO;
+  lMedida: TMedidaNuevaDTO;
 begin
   lSolicitud := ADto.Solicitud;
   if lSolicitud = nil then
@@ -537,6 +538,9 @@ begin
   begin
     if lPieza.Medidas.Count = 0 then
       raise EDatoInvalido.Create(Format(SPiezaSinMedidas, [lPieza.Nombre]));
+    for lMedida in lPieza.Medidas do
+      if not lMedida.Valor.HasValue or (lMedida.Valor.Value <= 0) then
+        raise EDatoInvalido.Create(SMedidaValorInvalido);
     for lAdjunto in lPieza.Adjuntos do
       if lAdjunto.Tipo <> ADJUNTO_FOTO then
         raise EDatoInvalido.Create(SPlanoSoloImagen);
