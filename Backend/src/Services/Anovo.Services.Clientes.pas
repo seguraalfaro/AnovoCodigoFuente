@@ -287,7 +287,8 @@ begin
   try
     for lAdjunto in lAdjuntos do
     begin
-      lAdjunto.Contenido.Size := 0;
+      if Assigned(lAdjunto.Contenido) then
+        lAdjunto.Contenido.Size := 0;
       lAdjunto.ContenidoJson := nil;
       lAdjunto.TamanoBytes := 0;
       lAdjunto.Activo := False;

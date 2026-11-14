@@ -238,6 +238,7 @@ type
     property Contenido: NullableString read fContenido write fContenido;
     property ContenidoJson: NullableString read fContenidoJson
       write fContenidoJson;
+    [MVCNameAs('hash_sha256', True)]
     property HashSha256: NullableString read fHashSha256 write fHashSha256;
   end;
 
