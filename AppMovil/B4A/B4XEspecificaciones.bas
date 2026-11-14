@@ -475,7 +475,6 @@ Private Sub BtnGaleria_Click
 	selector.Initialize("selector")
 	selector.Show(TIPO_IMAGEN, Mensajes.ELEGIR_FOTO)
 	Wait For selector_Result (Success As Boolean, Dir As String, FileName As String)
-	If visible = False Then Return
 	If Success = False Then Return
 	MostrarFoto(presentador.AgregarFotoDeGaleria(Dir, FileName), Mensajes.FOTO_NO_VALIDA)
 End Sub
