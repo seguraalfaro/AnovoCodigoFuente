@@ -211,7 +211,9 @@ type
   [MVCNameCase(ncSnakeCase)]
   [MVCEntityActions([eaRetrieve])]
   [MVCTable('V_COTIZACIONES_SIN_RESPUESTA')]
-  [MVCNamedRQLQuery(CONSULTA_ORDENADAS, 'sort(+FechaEnvio,+ID)')]
+  [MVCNamedRQLQuery(CONSULTA_ORDENADAS, 'sort(-FechaEnvio,-ID)')]
+  [MVCNamedRQLQuery(CONSULTA_DE_USUARIO,
+    'eq(ElaboradaPor,%d);sort(-FechaEnvio,-ID)')]
   TCotizacionSinRespuesta = class(TVCotizacionesSinRespuesta)
   end;
 

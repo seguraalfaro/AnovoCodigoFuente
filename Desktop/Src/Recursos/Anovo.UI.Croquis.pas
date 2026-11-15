@@ -523,10 +523,18 @@ begin
   if AJson.Trim.IsEmpty then
     Exit;
 
-  lRaiz := TJsonObject.Parse(AJson) as TJsonObject;
+  try
+    lRaiz := TJsonObject.Parse(AJson) as TJsonObject;
+  except
+    on EJsonException do
+      Exit;
+  end;
   lPorId := TDictionary<Int64, TJsonObject>.Create;
   try
     lTrazos := lRaiz.A['trazos'];
+    for I := 0 to lTrazos.Count - 1 do
+      if lTrazos.Types[I] <> jdtObject then
+        Exit;
     lMinX := MaxDouble;
     lMinY := MaxDouble;
     lMaxX := -MaxDouble;

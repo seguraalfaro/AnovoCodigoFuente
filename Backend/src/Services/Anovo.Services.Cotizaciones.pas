@@ -135,7 +135,8 @@ type
     procedure Descartar(const AId: Integer; const AUsuarioId: Integer;
       const ARoles: TArray<string>);
 
-    function EnviadasSinRespuesta: TObjectList<TCotizacionDTO>;
+    function EnviadasSinRespuesta(const AUsuarioId: Integer;
+      const ARoles: TArray<string>): TObjectList<TCotizacionDTO>;
   end;
 
 implementation
@@ -1113,11 +1114,17 @@ begin
   end;
 end;
 
-function TCotizacionService.EnviadasSinRespuesta: TObjectList<TCotizacionDTO>;
+function TCotizacionService.EnviadasSinRespuesta(const AUsuarioId: Integer;
+  const ARoles: TArray<string>): TObjectList<TCotizacionDTO>;
 var
+  lElaboradaPor: Integer;
   lFilas: TObjectList<TCotizacionSinRespuesta>;
 begin
-  lFilas := fRepo.EnviadasSinRespuesta;
+  lElaboradaPor := AUsuarioId;
+  if fPermisos.TieneAlguno(AUsuarioId, ARoles,
+    [PERMISO_COTIZACIONES_VER_TODAS]) then
+    lElaboradaPor := 0;
+  lFilas := fRepo.EnviadasSinRespuesta(lElaboradaPor);
   try
     Result := TMapeo.AListaDto<TCotizacionSinRespuesta, TCotizacionDTO>(lFilas);
   finally

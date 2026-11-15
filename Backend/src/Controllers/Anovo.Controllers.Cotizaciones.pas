@@ -342,7 +342,7 @@ end;
 function TCotizacionesController.SinRespuesta(AServicio: ICotizacionService)
   : IMVCResponse;
 begin
-  Result := OKResponse(AServicio.EnviadasSinRespuesta);
+  Result := OKResponse(AServicio.EnviadasSinRespuesta(UsuarioId, Roles));
 end;
 
 function TCotizacionesController.Obtener(AServicio: ICotizacionService;

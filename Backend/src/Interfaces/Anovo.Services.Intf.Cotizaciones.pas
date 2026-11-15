@@ -63,7 +63,8 @@ type
     procedure Descartar(const AId: Integer; const AUsuarioId: Integer;
       const ARoles: TArray<string>);
 
-    function EnviadasSinRespuesta: TObjectList<TCotizacionDTO>;
+    function EnviadasSinRespuesta(const AUsuarioId: Integer;
+      const ARoles: TArray<string>): TObjectList<TCotizacionDTO>;
   end;
 
 implementation

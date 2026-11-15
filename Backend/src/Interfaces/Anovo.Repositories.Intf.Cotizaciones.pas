@@ -32,7 +32,8 @@ type
     function SiguienteNumero: Integer;
 
 
-    function EnviadasSinRespuesta: TObjectList<TCotizacionSinRespuesta>;
+    function EnviadasSinRespuesta(const AElaboradaPor: Integer)
+      : TObjectList<TCotizacionSinRespuesta>;
     function TotalesDe(const AId: Integer): TTotalesDeCotizacion;
     function Bandeja(const AUsuarioId: Integer; const ATexto: string;
       const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer)

@@ -35,7 +35,8 @@ type
       const AElaboradaPor: Integer = 0): Int64;
     function ObtenerPorNumero(const ANumero: Integer): TCotizaciones;
     function SiguienteNumero: Integer;
-    function EnviadasSinRespuesta: TObjectList<TCotizacionSinRespuesta>;
+    function EnviadasSinRespuesta(const AElaboradaPor: Integer)
+      : TObjectList<TCotizacionSinRespuesta>;
     function TotalesDe(const AId: Integer): TTotalesDeCotizacion;
     function Bandeja(const AUsuarioId: Integer; const ATexto: string;
       const ADesde, AHasta: TDateTime; const APagina, APorPagina: Integer)
@@ -201,11 +202,15 @@ begin
   Result := GetConnection.ExecSQLScalar(COTIZACIONES_SIGUIENTE_NUMERO);
 end;
 
-function TCotizacionRepository.EnviadasSinRespuesta
-  : TObjectList<TCotizacionSinRespuesta>;
+function TCotizacionRepository.EnviadasSinRespuesta(const AElaboradaPor
+  : Integer): TObjectList<TCotizacionSinRespuesta>;
 begin
-  Result := ListarConsulta<TCotizacionSinRespuesta>(CONSULTA_ORDENADAS, [],
-    SIN_LIMITE);
+  if AElaboradaPor > 0 then
+    Result := ListarConsulta<TCotizacionSinRespuesta>(CONSULTA_DE_USUARIO,
+      [AElaboradaPor], SIN_LIMITE)
+  else
+    Result := ListarConsulta<TCotizacionSinRespuesta>(CONSULTA_ORDENADAS, [],
+      SIN_LIMITE);
 end;
 
 function TCotizacionDetalleRepository.DetalleDe(const ACotizacionId: Integer)
