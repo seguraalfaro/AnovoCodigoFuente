@@ -34,7 +34,7 @@ Sub Process_Globals
 	Type PerfilLocal (UsuarioId As Int, Correo As String, Nombre As String, Rol As String, Permisos As List)
 	Type UbicacionGps (Ok As Boolean, Latitud As Double, Longitud As Double, Precision As Double)
 	Type IntentoSync (Fecha As String, Resultado As String, Subidos As Int, Bajados As Int, ConError As Int, Pendientes As Int)
-	Type ErrorSync (Entidad As String, Uuid As String, Titulo As String, Mensaje As String)
+	Type ErrorSync (Entidad As String, Uuid As String, Titulo As String, Mensaje As String, ClienteUuid As String, ClienteNombre As String)
 	Type PermisoCliente (Accion As String, Firmante As String, Fecha As String, Version As String)
 	Type TextoPermiso (Version As String, Titulo As String, Contenido As String)
 End Sub

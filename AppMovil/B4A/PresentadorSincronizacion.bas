@@ -125,6 +125,18 @@ Public Sub TituloError (e As ErrorSync) As String
 	Return Mensajes.TituloErrorSync(e.Entidad, e.Titulo)
 End Sub
 
+Public Sub ClienteDe (e As ErrorSync) As String
+	Return Mensajes.ClienteErrorSync(e.ClienteNombre)
+End Sub
+
+Public Sub TieneCliente (e As ErrorSync) As Boolean
+	Return e.ClienteUuid <> ""
+End Sub
+
+Public Sub FichaDe (e As ErrorSync) As Cliente
+	Return DbClientes.PorUuid(e.ClienteUuid)
+End Sub
+
 Public Sub ResultadoDe (i As IntentoSync) As String
 	Return Mensajes.ResultadoSync(i.Resultado)
 End Sub

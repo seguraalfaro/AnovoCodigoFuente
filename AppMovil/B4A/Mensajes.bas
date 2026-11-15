@@ -141,6 +141,7 @@ Sub Process_Globals
 	Public Const KPI_SIN_DATO As String = "—"
 	Public Const SYNC_AL_DIA As String = "Todo está en el servidor"
 	Public Const SYNC_REINTENTAR As String = "Reintentar"
+	Public Const SYNC_VER_CLIENTE As String = "Ver cliente"
 	Public Const TITULO_CLIENTE As String = "Cliente"
 	Public Const NUEVA_SOLICITUD As String = "+  Nueva solicitud"
 	Public Const ROTULO_TELEFONO As String = "Teléfono"
@@ -312,6 +313,7 @@ Sub Process_Globals
 	Private Const SYNC_ERROR_SOLICITUD As String = "Solicitud · $1"
 	Private Const SYNC_ERROR_FOTO As String = "Foto · $1"
 	Private Const SYNC_ERROR_FIRMA As String = "Firma · $1"
+	Private Const SYNC_ERROR_DE_CLIENTE As String = "Cliente: $1"
 	Private Const RESULTADO_EXITOSA As String = "Exitosa"
 	Private Const RESULTADO_PARCIAL As String = "Parcial"
 	Private Const RESULTADO_SIN_CONEXION As String = "Sin conexión"
@@ -591,6 +593,11 @@ End Sub
 
 Public Sub SyncErrores (Cantidad As Int) As String
 	Return SYNC_ERRORES.Replace("$1", Cantidad)
+End Sub
+
+Public Sub ClienteErrorSync (Nombre As String) As String
+	If Nombre = "" Then Return ""
+	Return SYNC_ERROR_DE_CLIENTE.Replace("$1", Nombre)
 End Sub
 
 Public Sub TituloErrorSync (Entidad As String, Asunto As String) As String

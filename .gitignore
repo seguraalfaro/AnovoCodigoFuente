@@ -69,3 +69,4 @@ Db/datos-prueba/claves_cuentas_pruebas.txt
 # Instalador generado.
 /Instalador/salida/
 !/Instalador/plantillas/servidor.env
+*.llamadas.log

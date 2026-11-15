@@ -21,7 +21,7 @@ Sub Process_Globals
 	Private Const HISTORIAL_MAXIMO As Int = 50
 	Private Const SQL_PENDIENTES_ENTIDAD As String = "SELECT count(*) FROM cola_sync WHERE entidad = ? AND estado = 'pendiente'"
 	Private Const SQL_PENDIENTES_FOTOS As String = "SELECT count(*) FROM cola_sync q JOIN adjuntos a ON a.uuid_local = q.uuid_local WHERE q.entidad = 'adjunto' AND a.tipo = 'foto' AND q.estado = 'pendiente'"
-	Private Const SQL_ERRORES As String = "SELECT q.entidad, q.uuid_local, COALESCE(q.ultimo_error, '') AS mensaje, COALESCE(c.nombre, cf.nombre, NULLIF(TRIM(s.nombre_proyecto), ''), s.descripcion, p.nombre, '') AS titulo FROM cola_sync q LEFT JOIN clientes c ON q.entidad = 'cliente' AND c.uuid_local = q.uuid_local LEFT JOIN consentimiento_firmas f ON q.entidad = 'firma' AND f.uuid_local = q.uuid_local LEFT JOIN clientes cf ON cf.uuid_local = f.cliente_uuid LEFT JOIN solicitudes s ON q.entidad = 'solicitud' AND s.uuid_local = q.uuid_local LEFT JOIN adjuntos a ON q.entidad = 'adjunto' AND a.uuid_local = q.uuid_local LEFT JOIN piezas p ON p.uuid_local = a.pieza_uuid WHERE q.estado = 'error' AND (q.entidad IN ('cliente', 'solicitud') OR (q.entidad = 'adjunto' AND a.tipo = 'foto') OR (q.entidad = 'firma' AND NOT EXISTS (SELECT 1 FROM cola_sync k WHERE k.entidad = 'cliente' AND k.uuid_local = f.cliente_uuid))) ORDER BY q.id"
+	Private Const SQL_ERRORES As String = "SELECT q.entidad, q.uuid_local, COALESCE(q.ultimo_error, '') AS mensaje, COALESCE(c.nombre, cf.nombre, NULLIF(TRIM(s.nombre_proyecto), ''), s.descripcion, p.nombre, '') AS titulo, COALESCE(c.uuid_local, cf.uuid_local, cs.uuid_local, '') AS cliente_uuid, COALESCE(c.nombre, cf.nombre, cs.nombre, '') AS cliente_nombre FROM cola_sync q LEFT JOIN clientes c ON q.entidad = 'cliente' AND c.uuid_local = q.uuid_local LEFT JOIN consentimiento_firmas f ON q.entidad = 'firma' AND f.uuid_local = q.uuid_local LEFT JOIN clientes cf ON cf.uuid_local = f.cliente_uuid LEFT JOIN solicitudes s ON q.entidad = 'solicitud' AND s.uuid_local = q.uuid_local LEFT JOIN adjuntos a ON q.entidad = 'adjunto' AND a.uuid_local = q.uuid_local LEFT JOIN piezas p ON p.uuid_local = a.pieza_uuid LEFT JOIN solicitudes sp ON sp.uuid_local = p.solicitud_uuid LEFT JOIN clientes cs ON cs.uuid_local = COALESCE(s.cliente_uuid, sp.cliente_uuid) WHERE q.estado = 'error' AND (q.entidad IN ('cliente', 'solicitud') OR (q.entidad = 'adjunto' AND a.tipo = 'foto') OR (q.entidad = 'firma' AND NOT EXISTS (SELECT 1 FROM cola_sync k WHERE k.entidad = 'cliente' AND k.uuid_local = f.cliente_uuid))) ORDER BY q.id"
 	Private Const SQL_REINTENTAR_UNO As String = "UPDATE cola_sync SET estado = 'pendiente', proximo_intento = NULL WHERE entidad = ? AND uuid_local = ?"
 	Private Const SQL_INTENTO As String = "INSERT INTO sync_historial (fecha, resultado, subidos, bajados, con_error, pendientes) VALUES (?, ?, ?, ?, ?, ?)"
 	Private Const SQL_PODAR_HISTORIAL As String = "DELETE FROM sync_historial WHERE id NOT IN (SELECT id FROM sync_historial ORDER BY id DESC LIMIT ?)"
@@ -92,6 +92,8 @@ Public Sub Errores As List
 		e.Uuid = rs.GetString("uuid_local")
 		e.Mensaje = rs.GetString("mensaje")
 		e.Titulo = rs.GetString("titulo")
+		e.ClienteUuid = rs.GetString("cliente_uuid")
+		e.ClienteNombre = rs.GetString("cliente_nombre")
 		res.Add(e)
 	Loop
 	rs.Close

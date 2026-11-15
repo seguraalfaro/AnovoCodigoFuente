@@ -18,12 +18,13 @@ Sub Class_Globals
 	Private lblSyncPendTitulo, lblPend1Valor, lblPend2Valor, lblPend3Valor, lblPend1Titulo, lblPend2Titulo, lblPend3Titulo As B4XView
 	Private pnPend1, pnPend2, pnPend3 As B4XView
 	Private lblSyncErrorTitulo, lblSyncErrorMensaje, lblSyncReintentar As B4XView
+	Private lblSyncErrorCliente, lblSyncVerCliente As B4XView
 	Private pnSyncAlDia, lblSyncAlDia, BtnSincronizarAhora As B4XView
 	Private lblIntentoIcono, lblIntentoResultado, lblIntentoFecha, lblIntentoDetalle As B4XView
 	Private lblSeccion As B4XView
 	Private Const ALTO_CONEXION As Int = 132dip
 	Private Const ALTO_PENDIENTES As Int = 116dip
-	Private Const ALTO_ERROR As Int = 82dip
+	Private Const ALTO_ERROR As Int = 102dip
 	Private Const ALTO_ACCION As Int = 108dip
 	Private Const ALTO_ACCION_SOLA As Int = 56dip
 	Private Const ALTO_INTENTO As Int = 70dip
@@ -139,6 +140,10 @@ Private Sub CrearError (Ancho As Int, e As ErrorSync) As B4XView
 	lblSyncErrorMensaje.Text = e.Mensaje
 	lblSyncReintentar.Text = Mensajes.SYNC_REINTENTAR
 	lblSyncReintentar.Tag = e
+	lblSyncErrorCliente.Text = presentador.ClienteDe(e)
+	lblSyncVerCliente.Text = Mensajes.SYNC_VER_CLIENTE
+	lblSyncVerCliente.Tag = e
+	lblSyncVerCliente.Visible = presentador.TieneCliente(e)
 	Return p
 End Sub
 
@@ -196,5 +201,14 @@ Private Sub lblSyncReintentar_Click
 	Dim v As B4XView = Sender
 	presentador.Reintentar(v.Tag)
 	Pintar
+End Sub
+
+Private Sub lblSyncVerCliente_Click
+	Dim v As B4XView = Sender
+	Dim c As Cliente = presentador.FichaDe(v.Tag)
+	If c.UuidLocal = "" Then Return
+	Dim ficha As B4XClienteDetalle = B4XPages.GetPage(Layouts.PAGINA_CLIENTE_DETALLE)
+	ficha.Mostrar(c)
+	B4XPages.ShowPage(Layouts.PAGINA_CLIENTE_DETALLE)
 End Sub
 #End Region

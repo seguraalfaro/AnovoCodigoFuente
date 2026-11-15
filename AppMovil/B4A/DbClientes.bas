@@ -49,6 +49,13 @@ Public Sub Lista As List
 	Return res
 End Sub
 
+Public Sub PorUuid (Uuid As String) As Cliente
+	For Each c As Cliente In Lista
+		If c.UuidLocal = Uuid Then Return c
+	Next
+	Return Tipos.ClienteVacio
+End Sub
+
 Public Sub ListaConEstado As List
 	Dim res As List
 	res.Initialize
