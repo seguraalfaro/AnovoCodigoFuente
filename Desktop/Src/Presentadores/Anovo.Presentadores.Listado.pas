@@ -34,7 +34,7 @@ type
     procedure Recargar;
     procedure Buscar(const ATexto: string);
     procedure Limpiar; virtual;
-    procedure FiltrarPeriodo(const APeriodo: TPeriodoBusqueda);
+    procedure FiltrarPeriodo(const APeriodo: TPeriodoBusqueda); virtual;
     procedure IrAPagina(const APagina: Integer);
     procedure PaginaSiguiente;
     procedure PaginaAnterior;

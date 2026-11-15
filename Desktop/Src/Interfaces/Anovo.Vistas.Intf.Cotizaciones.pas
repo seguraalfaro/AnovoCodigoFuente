@@ -11,8 +11,8 @@ uses
   Anovo.PeriodoBusqueda;
 
 type
-  TFiltroCotizaciones = (fcTodas, fcBorrador, fcPendiente, fcDevuelta,
-    fcVistoBueno, fcEnviada, fcAprobada, fcRechazada, fcDescartada);
+  TFiltroCotizaciones = (fcMesEnCurso, fcTodas, fcBorrador, fcPendiente,
+    fcDevuelta, fcVistoBueno, fcEnviada, fcAprobada, fcRechazada, fcDescartada);
 
   TAccionListaCotizacion = (alcAbrir);
   TAccionesListaCotizacion = set of TAccionListaCotizacion;

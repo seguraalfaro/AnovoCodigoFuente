@@ -36,9 +36,10 @@ inherited fraCotizaciones: TfraCotizaciones
       Style = csDropDownList
       ItemIndex = 0
       TabOrder = 3
-      Text = 'Todos los estados'
+      Text = 'Mes en curso'
       OnChange = cbEstadoChange
       Items.Strings = (
+        'Mes en curso'
         'Todos los estados'
         'Borrador'
         'En revisi'#243'n'

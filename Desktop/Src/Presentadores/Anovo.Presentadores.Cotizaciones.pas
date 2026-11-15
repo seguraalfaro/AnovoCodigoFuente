@@ -30,6 +30,7 @@ type
     procedure Iniciar(const ACargar: Boolean = True);
     procedure Limpiar; override;
     procedure Filtrar(const AFiltro: TFiltroCotizaciones);
+    procedure FiltrarPeriodo(const APeriodo: TPeriodoBusqueda); override;
     procedure Abrir(const AId: Integer);
   end;
 
@@ -45,7 +46,7 @@ uses
   Anovo.Textos;
 
 const
-  ESTADO_API: array [TFiltroCotizaciones] of string = ('', 'borrador',
+  ESTADO_API: array [TFiltroCotizaciones] of string = ('', '', 'borrador',
     'en_revision', 'devuelta', 'visto_bueno', 'enviada', 'aprobada', 'rechazada',
     'descartada');
 
@@ -59,7 +60,7 @@ end;
 
 function TPresentadorCotizaciones.HayFiltro: Boolean;
 begin
-  Result := inherited HayFiltro or (FFiltro <> fcTodas);
+  Result := inherited HayFiltro or (FFiltro <> fcMesEnCurso);
 end;
 
 function TPresentadorCotizaciones.UsaPeriodo: Boolean;
@@ -89,7 +90,7 @@ end;
 
 procedure TPresentadorCotizaciones.Limpiar;
 begin
-  FFiltro := fcTodas;
+  FFiltro := fcMesEnCurso;
   FVista.MostrarFiltro(FFiltro);
   inherited;
 end;
@@ -97,7 +98,7 @@ end;
 procedure TPresentadorCotizaciones.Filtrar(const AFiltro: TFiltroCotizaciones);
 begin
   FFiltro := AFiltro;
-  if FFiltro = fcTodas then
+  if FFiltro = fcMesEnCurso then
     FPeriodo := PeriodoInicial
   else
     FPeriodo := TPeriodoBusqueda.De(apTodas);
@@ -105,6 +106,17 @@ begin
   FPagina := 1;
   PintarBusqueda;
   Cargar;
+end;
+
+procedure TPresentadorCotizaciones.FiltrarPeriodo
+  (const APeriodo: TPeriodoBusqueda);
+begin
+  inherited;
+  if (FFiltro <> fcMesEnCurso) or FPeriodo.Igual(PeriodoInicial) then
+    Exit;
+  FFiltro := fcTodas;
+  FVista.MostrarFiltro(FFiltro);
+  PintarBusqueda;
 end;
 
 procedure TPresentadorCotizaciones.Abrir(const AId: Integer);
