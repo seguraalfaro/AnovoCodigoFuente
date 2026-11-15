@@ -282,6 +282,7 @@ begin
       FConsultando := False;
       FVista.MostrarAviso(secBandeja, AAvisos.PorAprobar);
       FVista.MostrarAviso(secSolicitudes, AAvisos.PorCotizar);
+      FVista.MostrarAviso(secCotizaciones, AAvisos.EnCurso);
       if FAvisosPendientes then
       begin
         FAvisosPendientes := False;
@@ -347,7 +348,6 @@ begin
       lTomada: TObjectList<TCotizacionDTO>;
     begin
       FRevisando := False;
-      FVista.MostrarAviso(secCotizaciones, lLista.Count);
       FVista.MostrarNotificaciones(lLista.Count);
       lMostrar := FRecordar and (lLista.Count > 0);
       FRecordar := False;
@@ -386,7 +386,6 @@ begin
     var
       lTomada: TObjectList<TCotizacionDTO>;
     begin
-      FVista.MostrarAviso(secCotizaciones, lLista.Count);
       FVista.MostrarNotificaciones(lLista.Count);
       lTomada := lLista;
       lLista := nil;

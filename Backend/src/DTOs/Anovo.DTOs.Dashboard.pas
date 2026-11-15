@@ -358,10 +358,12 @@ type
     fPorAprobar: Integer;
     fPorCotizar: Integer;
     fMisBorradores: Integer;
+    fEnCurso: Integer;
   public
     property PorAprobar: Integer read fPorAprobar write fPorAprobar;
     property PorCotizar: Integer read fPorCotizar write fPorCotizar;
     property MisBorradores: Integer read fMisBorradores write fMisBorradores;
+    property EnCurso: Integer read fEnCurso write fEnCurso;
   end;
 
 implementation

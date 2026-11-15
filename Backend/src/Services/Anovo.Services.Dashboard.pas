@@ -455,6 +455,7 @@ begin
       begin
         Result.PorCotizar := lTrabajo.PorCotizar.ValueOrDefault;
         Result.MisBorradores := lTrabajo.MisBorradores.ValueOrDefault;
+        Result.EnCurso := lTrabajo.EnCurso.ValueOrDefault;
       end;
     finally
       lTrabajo.Free;

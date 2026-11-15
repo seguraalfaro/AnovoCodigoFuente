@@ -366,3 +366,5 @@
 2026-11-15 14:52:05  GET    /api/dashboard/avisos  200  135ms
 2026-11-15 14:52:05  GET    /api/dashboard/asistente  200  284ms
 2026-11-15 14:52:09  GET    /api/cotizaciones?q=&estado=&cliente_id=0&desde=2026-11-01&hasta=2026-11-15&elaboradas=&pagina=1&por_pagina=50  200  122ms
+2026-11-15 14:57:05  GET    /api/cotizaciones/sin-respuesta  200  221ms
+2026-11-15 14:57:05  GET    /api/dashboard/avisos  200  246ms
