@@ -13,4 +13,5 @@ for %%P in (Win32 Win64) do (
 for %%I in (servidor escritorio) do (
   "F:\Program Files\Inno Setup 7\ISCC.exe" /DProducto=%%I "%~dp0anovo.iss" || exit /b 1
 )
+"F:\Program Files\Inno Setup 7\ISCC.exe" /DProducto=servidor /DEdicion=cero "%~dp0anovo.iss" || exit /b 1
 endlocal

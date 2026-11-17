@@ -1,9 +1,12 @@
 ﻿; Anovo: un solo script para dos instaladores, elegido con /DProducto=servidor|escritorio.
 ; Instala la versión de 64 o de 32 bits según el Windows del equipo.
-; Toma los ejecutables de las carpetas de salida de Delphi: compilar antes en Release.
+; Con /DEdicion=cero el servidor va sin cuentas, clientes ni túnel. Compilar antes en Release.
 
 #ifndef Producto
   #define Producto "servidor"
+#endif
+#ifndef Edicion
+  #define Edicion ""
 #endif
 #define Version "1.0.0"
 #define Terceros AddBackslash(SourcePath) + "..\..\Instalador-terceros"
@@ -13,8 +16,16 @@
 #define SslX64 Terceros + "\openssl\openssl-3.5.8-Windows-x64"
 #define SslX86 Terceros + "\openssl\openssl-3.5.8-Windows-x86"
 #define TunelHost "api.anovoms.com"
-#define ClaveSysdba ReadIni(AddBackslash(SourcePath) + "..\..\LLaves\instalador.ini", "Firebird", "ClaveSysdba", "")
-#if FileExists(Terceros + "\cloudflared\cloudflared-windows-amd64.exe") && FileExists(Terceros + "\cloudflared\cloudflared-windows-386.exe") && FileExists(Terceros + "\tunel\credenciales.json")
+#if Edicion == "cero"
+  #define ClaveSysdba ""
+  #define BaseFbk "anovo_cero.fbk"
+  #define Sufijo "-base-en-cero"
+#else
+  #define ClaveSysdba ReadIni(AddBackslash(SourcePath) + "..\..\LLaves\instalador.ini", "Firebird", "ClaveSysdba", "")
+  #define BaseFbk "anovo_produccion.fbk"
+  #define Sufijo ""
+#endif
+#if Edicion != "cero" && FileExists(Terceros + "\cloudflared\cloudflared-windows-amd64.exe") && FileExists(Terceros + "\cloudflared\cloudflared-windows-386.exe") && FileExists(Terceros + "\tunel\credenciales.json")
   #define HayTunel
 #endif
 
@@ -24,7 +35,7 @@ AppId={{04420858-052C-4303-AE26-B4E7FE2F30AF}
 AppName=Anovo Servidor
 AppVerName=Anovo Servidor {#Version}
 SetupIconFile=..\Backend\AnovoAPI_Icon1.ico
-OutputBaseFilename=Anovo-Servidor-{#Version}
+OutputBaseFilename=Anovo-Servidor-{#Version}{#Sufijo}
 #else
 AppId={{38AC0F0D-500D-4E82-9C48-71E4FA90BBA2}
 AppName=Anovo Escritorio
@@ -93,7 +104,7 @@ Source: "scripts\tarea-servidor.ps1"; Flags: dontcopy
 Source: "{#SslX86}\openssl.exe"; Flags: dontcopy
 Source: "{#SslX86}\libcrypto-3.dll"; Flags: dontcopy
 Source: "{#SslX86}\libssl-3.dll"; Flags: dontcopy
-Source: "base\anovo_produccion.fbk"; Flags: dontcopy
+Source: "base\{#BaseFbk}"; Flags: dontcopy
 Source: "{#Terceros}\firebird\{#FbX64}"; Flags: dontcopy
 Source: "{#Terceros}\firebird\{#FbX86}"; Flags: dontcopy
 #else
@@ -279,7 +290,11 @@ begin
   CrearPaginaRed('Se deja el nombre de este equipo: con él y sus direcciones IP se genera el certificado HTTPS. Los equipos de la oficina usan este mismo nombre y puerto al instalar la aplicación de escritorio.');
 
   if FirebirdPrevio = '' then
+#if Edicion == "cero"
+    Ayuda := 'Firebird 4.0.6 se instala con la clave que escriba aquí. Guárdela en un lugar seguro: hace falta para respaldar y restaurar la base.'
+#else
     Ayuda := 'Firebird 4.0.6 se instala con esta clave. Ya viene escrita la del documento de cuentas iniciales; si la cambia, guárdela en un lugar seguro: hace falta para respaldar y restaurar la base.'
+#endif
   else
     Ayuda := 'Firebird ya está instalado en ' + FirebirdPrevio + '. Escriba la clave de SYSDBA que tiene hoy.';
   PaginaSysdba := CreateInputQueryPage(PaginaRed.ID, 'Base de datos',
@@ -540,8 +555,8 @@ begin
   if BaseNueva then
   begin
     Restringir(ExpandConstant('{app}\db'), False);
-    ExtractTemporaryFile('anovo_produccion.fbk');
-    if not Ejecutar(Firebird + 'gbak.exe', '-c "' + ExpandConstant('{tmp}\anovo_produccion.fbk') + '" "' + Dsn + '"',
+    ExtractTemporaryFile('{#BaseFbk}');
+    if not Ejecutar(Firebird + 'gbak.exe', '-c "' + ExpandConstant('{tmp}\{#BaseFbk}') + '" "' + Dsn + '"',
       'Creando la base de datos') then
       Exit;
   end;
