@@ -105,6 +105,8 @@ Source: "{#SslX86}\openssl.exe"; Flags: dontcopy
 Source: "{#SslX86}\libcrypto-3.dll"; Flags: dontcopy
 Source: "{#SslX86}\libssl-3.dll"; Flags: dontcopy
 Source: "base\{#BaseFbk}"; Flags: dontcopy
+Source: "..\Db\migraciones\59_solicitudes_en_oficina.sql"; Flags: dontcopy
+Source: "..\Db\migraciones\60_cotizaciones_en_curso.sql"; Flags: dontcopy
 Source: "{#Terceros}\firebird\{#FbX64}"; Flags: dontcopy
 Source: "{#Terceros}\firebird\{#FbX86}"; Flags: dontcopy
 #else
@@ -544,6 +546,51 @@ begin
   FijarClave(RutaServidor + '.env', 'anovo.tunel.automatico', 'true');
 end;
 
+function VersionBase(const Firebird: string): Integer;
+var
+  Archivo: string;
+  Codigo, I: Integer;
+  Salida: TExecOutput;
+begin
+  Result := -1;
+  Archivo := ExpandConstant('{tmp}\version.sql');
+  SaveStringToFile(Archivo, 'SET HEADING OFF;' + #13#10 + 'SELECT NUMERO FROM V_VERSION_ESQUEMA;' + #13#10, False);
+  try
+    if ExecAndCaptureOutput(Firebird + 'isql.exe', '-q -i "' + Archivo + '" "' + Dsn + '"', '', SW_HIDE,
+      ewWaitUntilTerminated, Codigo, Salida) and (Codigo = 0) then
+      for I := 0 to GetArrayLength(Salida.StdOut) - 1 do
+        if StrToIntDef(Trim(Salida.StdOut[I]), -1) >= 0 then
+          Result := StrToInt(Trim(Salida.StdOut[I]));
+  finally
+    DeleteFile(Archivo);
+  end;
+end;
+
+function Migrar(const Firebird: string; Version, Numero: Integer; const Nombre: string): Boolean;
+begin
+  Result := True;
+  if Version >= Numero then
+    Exit;
+  ExtractTemporaryFile(Nombre);
+  Result := Ejecutar(Firebird + 'isql.exe', '-q -bail -i "' + ExpandConstant('{tmp}\') + Nombre + '" "' + Dsn + '"',
+    'Actualizando la base de datos (migración ' + IntToStr(Numero) + ')');
+end;
+
+function ActualizarBase(const Firebird: string): Boolean;
+var
+  Version: Integer;
+begin
+  Version := VersionBase(Firebird);
+  if Version < 0 then
+  begin
+    Avisar('No se pudo leer la versión de la base de datos. Revise la clave de SYSDBA y vuelva a correr este instalador.');
+    Result := False;
+    Exit;
+  end;
+  Result := Migrar(Firebird, Version, 59, '59_solicitudes_en_oficina.sql') and
+    Migrar(Firebird, Version, 60, '60_cotizaciones_en_curso.sql');
+end;
+
 function PrepararBase(const Firebird: string): Boolean;
 var
   Script, Clave: string;
@@ -559,7 +606,9 @@ begin
     if not Ejecutar(Firebird + 'gbak.exe', '-c "' + ExpandConstant('{tmp}\{#BaseFbk}') + '" "' + Dsn + '"',
       'Creando la base de datos') then
       Exit;
-  end;
+  end
+  else if not ActualizarBase(Firebird) then
+    Exit;
   if BaseNueva or not FileExists(RutaServidor + 'FDConnectionDefs.ini') then
   begin
     Clave := Aleatorio(24);
