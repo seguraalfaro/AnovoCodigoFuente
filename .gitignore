@@ -75,3 +75,6 @@ Db/datos-prueba/claves_cuentas_pruebas.txt
 !/Compilaciones/**/*.exe
 !/Compilaciones/**/*.dll
 !/Instaladores/*.exe
+!/Compilaciones/Base/*.fbk
+!/Compilaciones/*/Servidor/.env
+!/Compilaciones/*/Servidor/certificates/*.key

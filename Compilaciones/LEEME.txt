@@ -1,0 +1,52 @@
+COMPILACIONES DEL SISTEMA DE COTIZACIONES ANOVO - DEMOSTRACION
+================================================================
+
+Estas carpetas traen la API (Servidor) y la aplicacion de escritorio (Escritorio)
+ya compiladas, en 32 y 64 bits, con una configuracion de demostracion para que se
+puedan correr sin compilar el codigo fuente.
+
+La configuracion es solo de demostracion: el certificado, la clave JWT y la clave
+de la base se generaron para esta carpeta y no son las que usa Anovo.
+
+Para una instalacion normal se recomienda el instalador de la carpeta Instaladores
+(Anovo-Servidor-1.0.0-base-en-cero.exe), que instala Firebird y genera todo esto con
+claves propias.
+
+
+Requisitos
+----------
+1. Windows de 64 bits.
+2. Firebird 4.0 instalado como servicio (el instalador de Firebird 4.0.6 de 64 bits
+   con las opciones por defecto). Se descarga de https://firebirdsql.org.
+3. La clave de SYSDBA que se escogio al instalar Firebird.
+4. El puerto 8443 libre.
+
+
+Pasos
+-----
+1. Clic derecho sobre preparar-demo.bat, "Ejecutar como administrador", y escribir
+   la clave de SYSDBA. El archivo:
+   - restaura la base en cero (Base\anovo_cero.fbk) en C:\Anovo\demo\ANOVO.FDB;
+   - crea el usuario de la base ANOVO_BACKEND con la clave AnovoDemo2026;
+   - instala en Windows el certificado de localhost del servidor.
+
+2. Abrir Win64\Servidor\AnovoAPI.exe. La primera vez, como la base no tiene
+   cuentas, pide los datos para crear el administrador.
+
+3. Abrir Win64\Escritorio\AnovoEscritorio.exe y entrar con el administrador.
+
+La documentacion de la API queda en https://localhost:8443/swagger, despues de
+iniciar sesion en https://localhost:8443/docs/acceso.
+
+
+Que trae la base en cero
+------------------------
+Estructura completa, roles y permisos, unidades de medida, materiales y tipos de
+trabajo de Anovo. No trae clientes, solicitudes, cotizaciones ni cuentas.
+
+
+Version de 32 bits
+------------------
+Win32 es para equipos con Windows de 32 bits y Firebird 4.0 de 32 bits. En un
+Windows de 64 bits necesita el fbclient.dll de 32 bits de Firebird en el sistema;
+por eso se recomienda la de 64 bits.
