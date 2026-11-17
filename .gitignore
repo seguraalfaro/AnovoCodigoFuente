@@ -70,3 +70,8 @@ Db/datos-prueba/claves_cuentas_pruebas.txt
 /Instalador/salida/
 !/Instalador/plantillas/servidor.env
 *.llamadas.log
+
+# ============ ENTREGA ============
+!/Compilaciones/**/*.exe
+!/Compilaciones/**/*.dll
+!/Instaladores/*.exe
